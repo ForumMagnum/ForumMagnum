@@ -91,10 +91,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: isEAForum ? undefined : theme.palette.primary.main,
     height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
-  togglePodcastIcon: {
-    width: PODCAST_ICON_SIZE,
-    height: PODCAST_ICON_SIZE,
-    transform: isEAForum ? "translateY(5px)" : undefined
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + 4,
+    height: PODCAST_ICON_SIZE + 4,
+    transform: isEAForum ? "translateY(3px)" : "translateY(-2px)",
+    padding: 2
+  },
+  audioIconOn: {
+    background: theme.palette.grey[200],
+    borderRadius: theme.borderRadius.small
   },
   actions: {
     color: isEAForum ? undefined : theme.palette.grey[500],
@@ -212,10 +217,11 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
+  showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
@@ -284,21 +290,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
       {postGetAnswerCountStr(answerCount)}
     </CommentsLink>
   
-  const audioNode = toggleEmbeddedPlayer &&
-    (cachedTooltipSeen ?
-      <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-        <a href="#" onClick={toggleEmbeddedPlayer}>
-          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-        </a>
-      </LWTooltip> :
-      <NewFeaturePulse dx={-10} dy={4}>
-        <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-        <a href="#" onClick={toggleEmbeddedPlayer}>
-          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-        </a>
-        </LWTooltip>
-      </NewFeaturePulse>
-    )
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+    <a href="#" onClick={toggleEmbeddedPlayer}>
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+    </a>
+  </LWTooltip>
+  const audioNode = toggleEmbeddedPlayer && (
+    cachedTooltipSeen ? audioIcon : <NewFeaturePulse dx={-10} dy={4}>{audioIcon}</NewFeaturePulse>
+  )
     
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
