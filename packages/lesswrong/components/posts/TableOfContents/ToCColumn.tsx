@@ -1,8 +1,9 @@
-import React, {useContext} from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import React, { useContext, useState } from 'react';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -67,11 +68,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "left",
     height: "80vh",
     overflowY: "auto",
-    
+
     // Moves the scrollbar to the left side. Cancelled out by a matching
     // direction:ltr on the next div in.
     direction: "rtl",
-    
+
     // Nonstandard WebKit-specific scrollbar styling.
     "&::-webkit-scrollbar": {
       width: 1,
@@ -88,7 +89,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         background: theme.palette.grey[700],
       },
     },
-    
+
     // Pre-standard Firefox-specific scrollbar styling. See
     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scrollbars.
     scrollbarWidth: "thin",
@@ -105,13 +106,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
+  gap3: { gridArea: 'gap3' },
   welcomeBox: {
     gridArea: 'welcome',
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
   },
-  gap3: { gridArea: 'gap3' }
+  hideToc: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    margin: 18,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer",
+  },
 });
 
 export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
@@ -122,7 +137,9 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   welcomeBox?: React.ReactNode,
 }) => {
   const {sideCommentsActive} = useContext(SidebarsContext)!;
-  
+  const [hidden, setHidden] = useState(false);
+  const hideable = isEAForum;
+
   return (
     <div className={classNames(
       classes.root,
@@ -131,25 +148,42 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
-      <div className={classes.header}>
-        {header}
-      </div>
-      {tableOfContents && <div className={classes.toc}>
-        <div className={classes.stickyBlockScroller}>
-          <div className={classes.stickyBlock}>
-            {tableOfContents}
-          </div>
+      {hideable &&
+        <div
+          onClick={() => setHidden(!hidden)}
+          className={classes.hideToc}
+        >
+          <Components.ForumIcon icon="ListBullet" />
+          {hidden ? "Show" : "Hide"} table of contents
         </div>
-      </div>}
-      <div className={classes.gap1}/>
+      }
+      {!hidden &&
+        <>
+          <div className={classes.header}>
+            {header}
+          </div>
+          {tableOfContents && <div className={classes.toc}>
+            <div className={classes.stickyBlockScroller}>
+              <div className={classes.stickyBlock}>
+                {tableOfContents}
+              </div>
+            </div>
+          </div>}
+          <div className={classes.gap1}/>
+        </>
+      }
       <div className={classes.content}>
         {children}
       </div>
-      <div className={classes.gap2}/>
-      {welcomeBox && <div className={classes.welcomeBox}>
-        {welcomeBox}
-      </div>}
-      <div className={classes.gap3}/>
+      {!hidden &&
+        <>
+          <div className={classes.gap2}/>
+          {welcomeBox && <div className={classes.welcomeBox}>
+            {welcomeBox}
+          </div>}
+          <div className={classes.gap3}/>
+        </>
+      }
     </div>
   );
 }
