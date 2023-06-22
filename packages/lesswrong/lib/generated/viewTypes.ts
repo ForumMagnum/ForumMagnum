@@ -47,7 +47,7 @@ type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUser
 type UserRateLimitsViewName = "userRateLimits"|"activeUserRateLimits";
 type UserTagRelsViewName = "single";
 type UsersViewName = "usersByUserIds"|"usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"allUsers"|"usersMapLocations"|"tagCommunityMembers"|"reviewAdminUsers"|"usersWithPaymentInfo"|"walledGardenInvitees"|"alignmentSuggestedUsers";
-type VotesViewName = "tagVotes"|"userPostVotes";
+type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 
 interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms

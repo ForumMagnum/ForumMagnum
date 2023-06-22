@@ -38,3 +38,16 @@ registerFragment(`
     collectionName
   }
 `);
+
+// TODO use smaller fragments
+registerFragment(`
+  fragment UserVotesWithDocument on Vote {
+    ...UserVotes
+    comment {
+      ...CommentsList
+    }
+    post {
+      ...PostsWithVotes
+    }
+  }
+`);

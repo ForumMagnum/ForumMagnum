@@ -12,9 +12,9 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   hideLoadMore?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem, LoadMore, Loading } = Components
+  const { PostsItem, LoadMore } = Components
   
-  const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
+  const {results: bookmarkedPosts, loadMoreProps} = useMulti({
     collectionName: "Posts",
     terms: {
       view: "myBookmarkedPosts",
@@ -22,6 +22,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
     },
     itemsPerPage: 20,
     fragmentName: "PostsListWithVotes",
+    fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
   });
   

@@ -221,14 +221,12 @@ const UsersMenu = ({classes}: {
               icon="Email"
               iconClassName={classes.icon}
             />
-            {currentUser.bookmarkedPostsMetadata?.length > 0 &&
-              <DropdownItem
-                title={isEAForum ? "Saved & read" : "Bookmarks"}
-                to={isEAForum ? "/saved" : "/bookmarks"}
-                icon="Bookmarks"
-                iconClassName={classes.icon}
-              />
-            }
+            <DropdownItem
+              title={isEAForum ? "Saved & read" : "Bookmarks"}
+              to={isEAForum ? "/saved" : "/bookmarks"}
+              icon="Bookmarks"
+              iconClassName={classes.icon}
+            />
             {currentUser.shortformFeedId &&
               <DropdownItem
                 title={preferredHeadingCase("Shortform Page")}

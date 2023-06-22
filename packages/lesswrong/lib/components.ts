@@ -257,6 +257,7 @@ importComponent("BookmarksList", () => require('../components/bookmarks/Bookmark
 importComponent("BookmarksTab", () => require('../components/bookmarks/BookmarksTab'));
 importComponent("ReadHistoryTab", () => require('../components/bookmarks/ReadHistoryTab'));
 importComponent("VoteHistoryTab", () => require('../components/bookmarks/VoteHistoryTab'));
+importComponent("VoteActivityRow", () => require('../components/bookmarks/VoteActivityRow'));
 importComponent("DraftsPage", () => require('../components/posts/DraftsPage'));
 importComponent("DraftsList", () => require('../components/posts/DraftsList'));
 importComponent("DraftsListSettings", () => require('../components/posts/DraftsListSettings'));

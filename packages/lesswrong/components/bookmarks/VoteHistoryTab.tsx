@@ -5,6 +5,7 @@ import {useCurrentUser} from "../common/withUser"
 import { gql, useQuery, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
 import type { UserContent } from '../../server/repos/VotesRepo';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
@@ -52,13 +53,28 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
       notifyOnNetworkStatusChange: true
     }
   )
+
+  const { results: votes, loadMoreProps } = useMulti({
+    terms: {
+      view: "userVotes",
+      collectionNames: ["Posts", "Comments"],
+    },
+    collectionName: "Votes",
+    fragmentName: 'UserVotesWithDocument',
+    limit: defaultLimit,
+    itemsPerPage: pageSize,
+  })
   
-  const {SectionTitle, Loading, PostsItem, CommentsNode, LoadMore} = Components
+  const {SectionTitle, Loading, PostsItem, CommentsNode, LoadMore, VoteActivityRow } = Components
 
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />
   }
+  // TODO delete
   if (!data?.UserVoteHistory) {
+    return null;
+  }
+  if (!votes) {
     return null;
   }
   
@@ -90,17 +106,18 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
   
   console.log({ voteHistory: mixedFeed });
   // group the posts/commnts by when the user voted on them ("Today", "Yesterday", and "Older")
-  const todaysContent = mixedFeed.filter(item => moment(item.votedAt).isSame(moment(), 'day'))
-  const yesterdaysContent = mixedFeed.filter(item => moment(item.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
-  const olderContent = mixedFeed.filter(item => moment(item.votedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+  const todaysContent = votes.filter(v => moment(v.votedAt).isSame(moment(), 'day'))
+  const yesterdaysContent = votes.filter(v => moment(v.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
+  const olderContent = votes.filter(v => moment(v.votedAt).isBefore(moment().subtract(1, 'day'), 'day'))
+
   
   return <AnalyticsContext pageSectionContext="voteHistoryTab">
     {!!todaysContent.length && <SectionTitle title="Today"/>}
-    {todaysContent?.map(getContentItemNode)}
+    {todaysContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
     {!!yesterdaysContent.length && <SectionTitle title="Yesterday"/>}
-    {yesterdaysContent?.map(getContentItemNode)}
+    {yesterdaysContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
     {!!olderContent.length && <SectionTitle title="Older"/>}
-    {olderContent?.map(getContentItemNode)}
+    {olderContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
     <div className={classes.loadMore}>
       <LoadMore
         loading={networkStatus === NetworkStatus.fetchMore}
