@@ -46,12 +46,12 @@ const isInitialExpanded = (
   cookies: Record<string, string>,
   cookieName: string,
 ): boolean => {
+  if (cookies[cookieName]) {
+    return cookies[cookieName] === "true";
+  }
   const userExpand = currentUser?.expandedFrontpageSections?.[section];
   if (typeof userExpand === "boolean") {
     return userExpand;
-  }
-  if (cookies[cookieName]) {
-    return cookies[cookieName] === "true";
   }
   return isDefaultExpanded(currentUser, defaultExpanded);
 }
@@ -64,10 +64,10 @@ export const useExpandedFrontpageSection = ({
   cookieName,
 }: UseExpandedFrontpageSectionProps) => {
   const currentUser = useCurrentUser();
-  const [expandFrontpageSection] = useMutation(expandFrontpageSectionMutation, {
-    errorPolicy: "all",
-    refetchQueries: ["getCurrentUser"],
-  });
+  const [expandFrontpageSection] = useMutation(
+    expandFrontpageSectionMutation,
+    {errorPolicy: "all"},
+  );
   const {captureEvent} = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const [expanded, setExpanded] = useState(
