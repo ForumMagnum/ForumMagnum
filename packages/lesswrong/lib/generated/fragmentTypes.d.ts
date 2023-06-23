@@ -2605,7 +2605,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
-  readonly recentKarmaInfo: any,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

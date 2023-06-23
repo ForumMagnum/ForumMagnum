@@ -748,6 +748,7 @@ importComponent("ChaptersNewForm", () => require('../components/sequences/Chapte
 importComponent("AddDraftPostDialog", () => require('../components/sequences/AddDraftPostDialog'));
 importComponent("SequenceDraftsList", () => require('../components/sequences/SequenceDraftsList'));
 importComponent("CollectionsSingle", () => require('../components/sequences/CollectionsSingle'));
+importComponent("FullCollectionReadPage", () => require('../components/sequences/FullCollectionReadPage'));
 importComponent("CollectionsPage", () => require('../components/sequences/CollectionsPage'));
 importComponent("CollectionTableOfContents", () => require('../components/sequences/CollectionTableOfContents'));
 importComponent("CollectionsItem", () => require('../components/sequences/CollectionsItem'));

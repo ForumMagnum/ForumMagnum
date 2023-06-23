@@ -330,6 +330,11 @@ addRoute(
     componentName: 'CollectionsSingle'
   },
   {
+    name: 'collectionFullRead',
+    path: '/collections/:slug/fullRead',
+    componentName: 'FullCollectionReadPage'
+  },
+  {
     name: 'highlights',
     path: '/highlights',
     title: "Sequences Highlights",
