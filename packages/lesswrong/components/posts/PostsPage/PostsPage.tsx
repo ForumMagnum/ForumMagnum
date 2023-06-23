@@ -209,7 +209,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   } : undefined;
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-  
+
   // On the EA Forum, show a reading progress bar to indicate how far in the post you are.
   // Your progress is hard to tell via the scroll bar because it includes the comments section.
   const postBodyRef = useRef<HTMLDivElement|null>(null)
@@ -219,7 +219,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     updateReadingProgressBar()
     window.addEventListener('scroll', updateReadingProgressBar)
-    
+
     return () => {
       window.removeEventListener('scroll', updateReadingProgressBar)
     };
@@ -235,7 +235,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
-  
+
   const getSequenceId = () => {
     const { params } = location;
     return params.sequenceId || post?.canonicalSequenceId;

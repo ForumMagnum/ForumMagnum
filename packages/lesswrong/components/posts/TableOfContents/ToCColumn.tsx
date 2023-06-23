@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
@@ -113,7 +113,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     }
   },
-  hideToc: {
+  hideTocButton: {
     position: "fixed",
     top: 0,
     left: 0,
@@ -125,7 +125,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    userSelect: "none",
     cursor: "pointer",
+  },
+  hideTocButtonHidden: {
+    display: "none",
   },
 });
 
@@ -137,8 +141,15 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
   welcomeBox?: React.ReactNode,
 }) => {
   const {sideCommentsActive} = useContext(SidebarsContext)!;
+  const [isScrolled, setIsScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const hideable = isEAForum;
+
+  useEffect(() => {
+    const handler = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handler);
+    () => window.removeEventListener("scroll", handler);
+  });
 
   return (
     <div className={classNames(
@@ -151,17 +162,19 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
       {hideable &&
         <div
           onClick={() => setHidden(!hidden)}
-          className={classes.hideToc}
+          className={classNames(classes.hideTocButton, {
+            [classes.hideTocButtonHidden]: !isScrolled,
+          })}
         >
           <Components.ForumIcon icon="ListBullet" />
           {hidden ? "Show" : "Hide"} table of contents
         </div>
       }
+      <div className={classes.header}>
+        {header}
+      </div>
       {!hidden &&
         <>
-          <div className={classes.header}>
-            {header}
-          </div>
           {tableOfContents && <div className={classes.toc}>
             <div className={classes.stickyBlockScroller}>
               <div className={classes.stickyBlock}>
