@@ -50,14 +50,21 @@ const removeNotification = async (notificationId: string) => {
   })
 }
 
-const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: string) => {
+const sendPostByEmail = async ({users, postId, reason, subject}: {
+  users: Array<DbUser>,
+  postId: string,
+  reason: string,
+  
+  // Subject line to use in the email. If omitted, uses the post title.
+  subject?: string,
+}) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
       await wrapAndSendEmail({
         user,
-        subject: post.title,
+        subject: subject ?? post.title,
         body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
       });
     } else {
@@ -244,7 +251,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
 
       for(let i=0; i<u.emails.length; i++)
       {
-        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
           return true;
       }
       return false;
@@ -270,13 +277,15 @@ const curationEmailDelay = new EventDebouncer({
       //eslint-disable-next-line no-console
       console.log(`Sending curation emails`);
 
-      // Email only non-admins (admins get emailed immediately, without the
-      // delay).
-      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
+      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true});
 
       //eslint-disable-next-line no-console
       console.log(`Found ${usersToEmail.length} users to email`);
-      await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+      await sendPostByEmail({
+        users: usersToEmail,
+        postId,
+        reason: "you have the \"Email me new posts in Curated\" option enabled"
+      });
     } else {
       //eslint-disable-next-line no-console
       console.log(`Not sending curation notice for ${post?.title} because it was un-curated during the delay period.`);
@@ -287,10 +296,16 @@ const curationEmailDelay = new EventDebouncer({
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
     // Email admins immediately, everyone else after a 20-minute delay, so that
-    // we get a chance to catch formatting issues with the email.
-    
+    // we get a chance to catch formatting issues with the email. (Admins get
+    // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
-    await sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+
+    await sendPostByEmail({
+      users: adminsToEmail,
+      postId: post._id,
+      reason: "you have the \"Email me new posts in Curated\" option enabled",
+      subject: `[Admin preview] ${post.title}`,
+    });
     
     await curationEmailDelay.recordEvent({
       key: post._id,

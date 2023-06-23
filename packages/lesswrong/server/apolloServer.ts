@@ -69,12 +69,20 @@ export function startWebserver() {
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
+    // express-session middleware, with MongoStore providing it a collection
+    // to store stuff in. This adds a `req.session` field to requests, with
+    // fancy accessors/setters. The only thing we actually use this for, however,
+    // is redirects that happen on return from an OAuth login. So we can scope
+    // this to only routes that start with /auth without loss of functionality.
+    // We do this because if we don't it adds a webserver-to-database roundtrip
+    // (or sometimes three) to each request.
     const store = new MongoStore({
       collection: Sessions,
     });
-    app.use(expressSession({
+    app.use('/auth', expressSession({
       secret: expressSessionSecret,
       resave: false,
       saveUninitialized: false,
