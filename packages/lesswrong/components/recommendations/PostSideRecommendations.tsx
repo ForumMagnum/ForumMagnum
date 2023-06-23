@@ -13,6 +13,9 @@ const styles = (theme: ThemeType) => ({
     width: WIDTH,
     minWidth: WIDTH,
     maxWidth: WIDTH,
+    ["@media (max-width: 1500px)"]: {
+      display: "none",
+    },
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
