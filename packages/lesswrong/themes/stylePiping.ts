@@ -1,3 +1,4 @@
+import { isEAForum } from "../lib/instanceSettings";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -261,9 +262,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited, & a:visited:hover, & a:visited:active': {
+  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
     color: theme.palette.link.visited,
-  },
+  } : {},
   '& table': {
     ...tableStyles(theme)
   },
