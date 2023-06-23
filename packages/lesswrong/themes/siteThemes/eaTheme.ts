@@ -60,7 +60,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       primaryAlert: "#137283"
     },
     link: {
-      visited: "#8548e1",
+      visited: "#7130a6",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
