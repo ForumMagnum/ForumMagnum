@@ -28,6 +28,12 @@ const styles = (theme: ThemeType) => ({
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 13,
       fontWeight: 500,
+      marginBottom: 4,
+    },
+  },
+  numberedList: {
+    "& li": {
+      marginBottom: 14,
     },
   },
   hideButton: {
@@ -79,7 +85,9 @@ const PostSideRecommendations = ({post, className, classes}: {
     <div className={classNames(classes.root, className)}>
       <div className={classes.title}>{title}</div>
       {loading && <Components.Loading />}
-      <List className={classes.list}>
+      <List className={classNames(classes.list, {
+        [classes.numberedList]: numbered,
+      })}>
         {items.map((Item, i) => <Item key={i} />)}
       </List>
       {hideCookieName &&
