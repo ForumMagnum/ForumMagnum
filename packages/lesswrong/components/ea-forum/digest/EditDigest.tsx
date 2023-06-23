@@ -127,11 +127,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 type DigestPlannerPostData = {
-  post: PostsListBase,
+  post: PostsListWithVotes,
   digestPost: DigestPost
   rating: number
 }
-type PostWithRating = PostsListBase & {rating:number}
+export type PostWithRating = PostsListWithVotes & {rating:number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -168,7 +168,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
-          ...PostsListBase
+          ...PostsListWithVotes
         }
         digestPost {
           _id
@@ -178,7 +178,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListBase")}
+    ${fragmentTextForQuery("PostsListWithVotes")}
     `, {
       ssr: true,
       skip: !digest,
@@ -515,6 +515,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
+            <th>Your vote</th>
             {/* <th className={classes.centeredColHeader}>Rating</th> */}
             <th className={classes.centeredColHeader}>Comments</th>
           </tr>

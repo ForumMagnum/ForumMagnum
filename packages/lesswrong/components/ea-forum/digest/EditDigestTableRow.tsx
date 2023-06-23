@@ -5,7 +5,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
-import { DigestPost } from './EditDigest';
+import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -71,6 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontWeight: '600'
   },
+  isRead: {
+    color: theme.palette.link.visited,
+  },
   author: {
     color: theme.palette.grey[900],
     fontSize: 13,
@@ -129,8 +132,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const voteToIcon = (vote: string|null|undefined): React.ReactNode => {
+  const { OverallVoteButton } = Components;
+  switch (vote) {
+    case null:
+    case undefined:
+      return null;
+    case 'smallUpvote':
+      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='primary' document={null as any} collectionName='Posts' vote={null as any} />;
+    case 'bigUpvote':
+      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='primary' document={null as any} collectionName='Posts' vote={null as any} />;
+    case 'smallDownvote':
+      return 'v'
+    case 'bigDownvote':
+      return 'vv'
+  }
+}
+
+
 const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, classes} : {
-  post: PostsListBase & {rating: number},
+  post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
@@ -206,7 +227,11 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       </LWTooltip>
       <div>
         <div>
-          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
+          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(
+            classes.title,
+            classes.link,
+            {[classes.isRead]: post.isRead},
+          )}>
             {post.title}
           </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
         </div>
@@ -231,6 +256,9 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
 
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
+    </td>
+    <td>
+      {voteToIcon(post.currentUserVote)}
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
