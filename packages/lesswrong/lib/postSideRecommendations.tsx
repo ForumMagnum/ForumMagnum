@@ -165,15 +165,5 @@ export const usePostSideRecommendations = (
 ): PostSideRecommendations => {
   const ssrRenderedAt = useSsrRenderedAt().getTime();
   const useRecommendations = useGenerator(ssrRenderedAt, user, post);
-  if (!useRecommendations) {
-    // eslint-disable-next-line no-console
-    console.error("No suitable posts side recommendations generator found");
-    return {
-      loading: false,
-      title: "",
-      numbered: false,
-      items: [],
-    };
-  }
   return useRecommendations(post);
 }
