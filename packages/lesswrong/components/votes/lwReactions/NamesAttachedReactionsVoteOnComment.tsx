@@ -207,6 +207,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hasQuotes: {
     border: theme.palette.border.dashed500
+  },
+  reactorNames: {
+    filter: "opacity(0.15)",
   }
 })
 
@@ -242,7 +245,8 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   setCurrentUserReaction: (name: string, reaction: VoteOnReactionType|null, quote?: string) => void,
   getAlreadyUsedReactTypesByKarma: () => string[],
   getAlreadyUsedReacts: () => NamesAttachedReactionsList,
-  getAllReactionQuotes: () => string[]
+  getAllReactionQuotes: () => string[],
+  getAllReactorUsernames: () => string[],
 }=> {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
@@ -387,6 +391,13 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     return alreadyUsedReactions
   }
 
+  function getAllReactorUsernames() {
+    const alreadyUsedReactions = getAlreadyUsedReacts()
+    const allReacts = Object.values(alreadyUsedReactions)
+    const allReactorUsernames = allReacts.flatMap(r => r?.flatMap(r => r?.displayName ?? [])).filter(q => q !== undefined) as string[]
+    return uniq(allReactorUsernames)
+  }
+
   function getAlreadyUsedReactTypesByKarma() {
     const alreadyUsedReactions = getAlreadyUsedReacts()
     const alreadyUsedReactionTypes: string[] = Object.keys(alreadyUsedReactions);
@@ -404,7 +415,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   }
 
   return {
-    currentUserExtendedVote, getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts, getAllReactionQuotes
+    currentUserExtendedVote, getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts, getAllReactionQuotes, getAllReactorUsernames
   };
 }
 
@@ -433,7 +444,9 @@ const NamesAttachedReactionsCommentBottom = ({
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
-  const { getAlreadyUsedReactTypesByKarma, getAllReactionQuotes } = useNamesAttachedReactionsVoting(voteProps)
+  const { MetaInfo } = Components
+
+  const { getAlreadyUsedReactTypesByKarma, getAllReactionQuotes, getAllReactorUsernames } = useNamesAttachedReactionsVoting(voteProps)
 
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const allReactions = getAlreadyUsedReactTypesByKarma();
@@ -451,6 +464,7 @@ const NamesAttachedReactionsCommentBottom = ({
   }, [quotes, commentItemRef])
   
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
+    <MetaInfo className={classNames(classes.reactorNames, "react-hover-style")}>{getAllReactorUsernames().length > 0 && <span>{getAllReactorUsernames().join(", ")}</span>}</MetaInfo>
     {visibleReactionsDisplay.length > 0 && <span className={classes.footerReactions}>
       {visibleReactionsDisplay.map(({react, numberShown}) =>
         <span key={react} onMouseLeave={() => markHighlights(quotes, faintHighlightClassName, commentItemRef)}>
