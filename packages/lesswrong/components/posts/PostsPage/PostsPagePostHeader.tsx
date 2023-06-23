@@ -13,6 +13,8 @@ import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
+// some padding around the icon to make it look like a stateful toggle button
+const PODCAST_ICON_PADDING = isEAForum ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -38,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   eventHeader: {
-    marginBottom:0,
+    marginBottom: 0,
   },
   authorAndSecondaryInfo: {
     display: 'flex',
@@ -92,10 +94,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
-    width: PODCAST_ICON_SIZE + 4,
-    height: PODCAST_ICON_SIZE + 4,
-    transform: isEAForum ? "translateY(3px)" : "translateY(-2px)",
-    padding: 2
+    width: PODCAST_ICON_SIZE + PODCAST_ICON_PADDING*2,
+    height: PODCAST_ICON_SIZE + PODCAST_ICON_PADDING*2,
+    transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    padding: PODCAST_ICON_PADDING
   },
   audioIconOn: {
     background: theme.palette.grey[200],
