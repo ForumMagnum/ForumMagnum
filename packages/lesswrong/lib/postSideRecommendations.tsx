@@ -92,7 +92,10 @@ const useGeneratorWithStrategy = (
   strategy: StrategySpecification,
 ) => {
   const algorithm: RecommendationsAlgorithmWithStrategy = {
-    strategy,
+    strategy: {
+      context: "post-right",
+      ...strategy,
+    },
     count: 3,
   };
   const {

@@ -71,7 +71,7 @@ class RecommendationService {
         currentUser,
         clientId,
         strategies[0],
-        result.settings,
+        {...result.settings, context: strategy.context},
         newPosts,
       );
 
