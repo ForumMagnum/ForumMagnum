@@ -277,8 +277,6 @@ const curationEmailDelay = new EventDebouncer({
       //eslint-disable-next-line no-console
       console.log(`Sending curation emails`);
 
-      // Email only non-admins (admins get emailed immediately, without the
-      // delay).
       let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true});
 
       //eslint-disable-next-line no-console
@@ -298,9 +296,10 @@ const curationEmailDelay = new EventDebouncer({
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
     // Email admins immediately, everyone else after a 20-minute delay, so that
-    // we get a chance to catch formatting issues with the email.
-    
+    // we get a chance to catch formatting issues with the email. (Admins get
+    // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
+
     await sendPostByEmail({
       users: adminsToEmail,
       postId: post._id,
