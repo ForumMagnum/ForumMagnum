@@ -28,7 +28,12 @@ export interface CommentTreeOptions {
    * comments; these are separate.)
    */
   showCollapseButtons?: boolean,
-  
+
+  /**
+   * Called when a comment is collapsed or expanded (by clicking the little icon by the author's name)
+   */
+  onToggleCollapsed?: () => void,
+
   /**
    * In certain special contexts, the ID of the most recent comment in
    * the tree. Usually omitted; when present, this makes the most recent
@@ -153,4 +158,9 @@ export interface CommentTreeOptions {
    * space is tight.
    */
   hideActionsMenu?: boolean,
+  /**
+   * If set, hide the `ShowParentComment` toggle
+   * Used for displaying inline replies to debate comments
+   */
+  hideParentCommentToggle?: boolean,
 }

@@ -1,5 +1,5 @@
 import { Connectors } from './vulcan-lib/connectors';
-import { createMutator, updateMutator } from './vulcan-lib/mutators';
+import { createMutator } from './vulcan-lib/mutators';
 import Votes from '../lib/collections/votes/collection';
 import { userCanDo } from '../lib/vulcan-users/permissions';
 import { recalculateScore } from '../lib/scoring';
@@ -12,11 +12,17 @@ import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import { loadByIds } from '../lib/loaders';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
+import { userCanVote } from '../lib/collections/users/helpers';
+import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
+import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 
 
 // Test if a user has voted on the server
@@ -68,25 +74,28 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
+  }
   return {newDocument, vote};
 }
 
 // Create new vote object
 export const createVote = ({ document, collectionName, voteType, extendedVote, user, voteId }: {
-  document: VoteableType,
+  document: DbVoteableType,
   collectionName: CollectionNameString,
   voteType: string,
   extendedVote: any,
   user: DbUser|UsersCurrent,
   voteId?: string,
 }): Partial<DbVote> => {
-  if (!document.userId)
-    throw new Error("Voted-on document does not have an author userId?");
-
-  const coauthors = collectionName === "Posts"
-    ? getConfirmedCoauthorIds(document as DbPost)
-    : [];
+  let authorIds = document.userId ? [document.userId] : []
+  if (collectionName === "Posts")
+    authorIds = authorIds.concat(getConfirmedCoauthorIds(document as DbPost))
 
   return {
     // when creating a vote from the server, voteId can sometimes be undefined
@@ -99,7 +108,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
     extendedVoteType: extendedVote,
     power: getVotePower({user, voteType, document}),
     votedAt: new Date(),
-    authorIds: [document.userId, ...coauthors],
+    authorIds,
     cancelled: false,
     documentIsAf: !!(document.af),
   }
@@ -190,13 +199,18 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  
-  void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled) {
+    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
+      void elasticSyncDocument(collection.collectionName, newDocument._id);
+    }
+  } else {
+    void algoliaExportById(collection as any, newDocument._id);
+  }
   return newDocument;
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context }: {
+export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
   document?: DbVoteableType|null,
   voteType: string,
@@ -207,6 +221,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   toggleIfAlreadyVoted?: boolean,
   skipRateLimits: boolean,
   context?: ResolverContext,
+  selfVote?: boolean,
 }): Promise<{
   modifiedDocument: DbVoteableType,
   showVotingPatternWarning: boolean,
@@ -222,10 +237,21 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
 
   if (!user) throw new Error("Error casting vote: Not logged in.");
+  
+  // Check whether the user is allowed to vote at all, in full generality
+  const { fail: cannotVote, reason } = userCanVote(user);
+  if (!selfVote && cannotVote) {
+    throw new Error(reason);
+  }
+
   if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
     throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
+
+  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
+    throw new Error("Cannot vote on dialogue responses");
+  }
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
@@ -253,6 +279,15 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
             endedAt: new Date()
           }
         });
+      }
+    }
+    
+    const votingSystem = await getVotingSystemForDocument(document, context);
+    if (extendedVote && votingSystem.isAllowedExtendedVote) {
+      const oldExtendedScore = document.extendedScore;
+      const extendedVoteCheckResult = votingSystem.isAllowedExtendedVote(user, document, oldExtendedScore, extendedVote)
+      if (!extendedVoteCheckResult.allowed) {
+        throw new Error(extendedVoteCheckResult.reason);
       }
     }
 
@@ -466,8 +501,8 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
-  const usersThatVoted = (await context.loaders.Users.loadMany(userIdsThatVoted))?.filter(u=>!!u);
-  const usersThatVotedById = keyBy(usersThatVoted, u=>u._id);
+  const usersThatVoted = await loadByIds(context, "Users", userIdsThatVoted);
+  const usersThatVotedById = keyBy(filterNonnull(usersThatVoted), u=>u._id);
   
   const afVotes = _.filter(votes, v=>userCanDo(usersThatVotedById[v.userId], "votes.alignment"));
 

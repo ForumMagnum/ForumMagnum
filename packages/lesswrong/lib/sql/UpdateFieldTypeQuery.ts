@@ -7,7 +7,7 @@ import Table from "./Table";
  * that the old type is trivially castable to the new type.
  */
 class UpdateFieldTypeQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string) {
     const fieldType = table.getFields()[fieldName];
     super(table, [
       "ALTER TABLE",

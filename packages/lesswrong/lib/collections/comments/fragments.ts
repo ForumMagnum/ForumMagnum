@@ -8,6 +8,10 @@ registerFragment(`
     tag {
       slug
     }
+    relevantTagIds
+    relevantTags {
+      ...TagBasicInfo
+    }
     tagCommentType
     parentCommentId
     topLevelCommentId
@@ -50,6 +54,7 @@ registerFragment(`
     postVersion
     reviewedByUserId
     shortform
+    shortformFrontpage
     lastSubthreadActivity
     moderatorHat
     hideModeratorHat
@@ -62,6 +67,10 @@ registerFragment(`
     directChildrenCount
     votingSystem
     isPinnedOnProfile
+    debateResponse
+    rejected
+    rejectedReason
+    modGPTRecommendation
   }
 `);
 
@@ -70,6 +79,9 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+    }
+    relevantTags {
+      ...TagPreviewFragment
     }
   }
 `)
@@ -93,6 +105,7 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
     }
@@ -171,5 +184,15 @@ registerFragment(`
     allVotes {
       voteType
     }
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModGPTAnalysis on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    modGPTAnalysis
   }
 `);

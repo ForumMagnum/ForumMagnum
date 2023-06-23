@@ -3,6 +3,12 @@ import Table from "./Table";
 import { Type } from "./Type";
 import { randomId } from '../random';
 
+export type InsertQueryData<T> = T & Partial<{
+  $max: Partial<T>,
+  $min: Partial<T>,
+  $push: Partial<T>,
+}>;
+
 export type ConflictStrategy = "error" | "ignore" | "upsert";
 
 type InsertSqlBaseOptions = Partial<{
@@ -18,6 +24,14 @@ export type InsertSqlConflictOptions<T extends DbObject> = Partial<{
 }
 
 export type InsertSqlOptions<T extends DbObject> = InsertSqlBaseOptions & InsertSqlConflictOptions<T>;
+
+const UPSERT_OPERATORS = {
+  $max: "GREATEST",
+  $min: "LEAST",
+  $push: "ARRAY_APPEND",
+} as const;
+
+type UpsertOperator = keyof typeof UPSERT_OPERATORS;
 
 /**
  * Builds a Postgres query to insert some specific data into the given table.
@@ -41,8 +55,8 @@ export type InsertSqlOptions<T extends DbObject> = InsertSqlBaseOptions & Insert
  */
 class InsertQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
-    data: T | T[],
+    table: Table<T>,
+    data: InsertQueryData<T> | InsertQueryData<T>[],
     _options: MongoInsertOptions<T> = {}, // TODO: What can options be?
     sqlOptions?: InsertSqlOptions<T>,
   ) {
@@ -69,6 +83,9 @@ class InsertQuery<T extends DbObject> extends Query<T> {
 
     if (sqlOptions?.returnInserted) {
       this.atoms.push("RETURNING *");
+    } else if (sqlOptions?.conflictStrategy === "upsert") {
+      // Tell the caller whether they updated or inserted
+      this.atoms.push(`RETURNING CASE WHEN xmax::TEXT::INT > 0 THEN 'updated' ELSE 'inserted' END AS "action"`);
     }
   }
 
@@ -76,6 +93,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     if (!data.length) {
       throw new Error("Empty insert data");
     }
+
     const fields = this.table.getFields();
     this.atoms.push("(");
     let prefix = "";
@@ -93,13 +111,35 @@ class InsertQuery<T extends DbObject> extends Query<T> {
   }
 
   private appendItem(fields: Record<string, Type>, item: T): void {
+    const usedOperators: Partial<Record<keyof T, UpsertOperator>> = {};
+    for (const operator in UPSERT_OPERATORS) {
+      if ((item as AnyBecauseTodo)[operator]) {
+        const keys = Object.keys((item as AnyBecauseTodo)[operator]);
+        if (keys.length !== 1) {
+          throw new Error(`Invalid upsert operator data: ${operator}: ${item}`);
+        }
+        (usedOperators as AnyBecauseTodo)[keys[0]] = operator;
+      }
+    }
+
     let prefix = "(";
     for (const key in fields) {
       this.atoms.push(prefix);
-      if (key === "_id" && !item[key]) {
-        item[key] = randomId();
+      const operator = (usedOperators as AnyBecauseTodo)[key];
+      if (operator) {
+        let value = (item as AnyBecauseTodo)[operator][key];
+        if (operator === "$push") {
+          value = [value];
+        }
+        this.atoms.push(this.createArg(value ?? null, fields[key]));
+      } else {
+        if (key === "_id" && !item[key]) {
+          item[key] = randomId();
+        } else if (key === "createdAt" && !(item as AnyBecauseTodo)[key]) {
+          (item as AnyBecauseTodo)[key] = new Date();
+        }
+        this.atoms.push(this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]));
       }
-      this.atoms.push(this.createArg(item[key] ?? null, fields[key]));
       prefix = ", ";
     }
     this.atoms.push(")");
@@ -116,11 +156,38 @@ class InsertQuery<T extends DbObject> extends Query<T> {
 
     result.push(") DO UPDATE SET");
 
-    result = result.concat(Object.keys(data)
-      .flatMap((key) => key === "_id" ? [] : [",", `"${key}" =`, this.createArg(data[key])])
-      .slice(1));
+    const values = Object.keys(data).flatMap((key) => {
+      const compiled = this.compileUpsertValue(key, (data as AnyBecauseTodo)[key]);
+      return compiled.length ? [",", ...compiled] : [];
+    }).slice(1);
+    result = result.concat(values);
 
     return result;
+  }
+
+  private compileUpsertValue(key: string, value: any): Atom<T>[] {
+    if (key === "_id") {
+      return [];
+    }
+    if (key[0] === "$") {
+      return this.compileUpsertOperator(key, value);
+    }
+    return [`"${key}" =`, this.createArg(value)];
+  }
+
+  private compileUpsertOperator(key: string, value: any): Atom<T>[] {
+    const op = (UPSERT_OPERATORS as AnyBecauseTodo)[key];
+    if (!op) {
+      throw new Error(`Unknown upsert operator: ${key}: ${value}`);
+    }
+    const fields = Object.keys(value);
+    if (fields.length !== 1) {
+      throw new Error(`Too many keys in ${key} upsert: ${value}`);
+    }
+    const tableName = this.resolveTableName();
+    const fieldName = this.resolveFieldName(fields[0]);
+    const arg = this.createArg(value[fields[0]]);
+    return [fieldName, `= ${op}(`, tableName, fieldName, ",", arg, ")"];
   }
 
   private getConflictField(fieldName: string): string {

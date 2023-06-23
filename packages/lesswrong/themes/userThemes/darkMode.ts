@@ -1,5 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
@@ -89,7 +89,7 @@ const safeColorFallbacks = (palette: ThemePalette) => `
 }
 `;
 
-const colorReplacements = {
+const colorReplacements: Record<string,string> = {
   "rgba(255,255,255,.5)": "rgba(0,0,0.5)",
   "hsl(0, 0%, 90%)":    "hsl(0, 0%, 10%)",
   "#F2F2F2":            invertHexColor("#f2f2f2"),
@@ -97,9 +97,9 @@ const colorReplacements = {
   "rgb(255, 255, 255)": invertHexColor("#ffffff"),
   "hsl(0,0%,100%)":     invertHexColor("#ffffff"),
   "#FFEEBB":            invertHexColor("#ffeebb"),
-  "rgb(255, 238, 187)": invertColor([255/255.0,238/255.0,187/255.0,1]),
-  "rgb(230, 230, 230)": invertColor([230/255.0,230/255.0,230/255.0,1]),
-};
+  "rgb(255, 238, 187)": colorToString(invertColor([255/255.0,238/255.0,187/255.0,1])),
+  "rgb(230, 230, 230)": colorToString(invertColor([230/255.0,230/255.0,230/255.0,1])),
+} as const;
 function generateColorOverrides(): string {
   return Object.keys(colorReplacements).map((colorString: keyof typeof colorReplacements) => {
     const replacement = colorReplacements[colorString];
@@ -131,9 +131,15 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      text: {
+        primaryAlert: '#F3F9FA'
+      },
       panelBackground: {
         default: shadePalette.grey[20],
       },
+      background: {
+        primaryTranslucent: "rgba(12,134,155,0.4)"
+      }
     },
     default: {},
   });
@@ -144,6 +150,14 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
       PostsTopSequencesNav: {
         title: {
           color: palette.icon.dim,
+        },
+      },
+      MuiPaper: {
+        elevation1: {
+          boxShadow: "none",
+        },
+        elevation2: {
+          boxShadow: "none",
         },
       },
     },
@@ -161,6 +175,8 @@ export const darkModeTheme: UserThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      primaryAlert: '#b2c5b5',
+      warning: '#FFF7E6',
       alwaysWhite: '#fff',
       primaryDarkOnDim: '#a8cad7',
       aprilFools: {
@@ -180,11 +196,16 @@ export const darkModeTheme: UserThemeSpecification = {
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
+      cookieBanner: shadePalette.grey[900],
     },
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primaryTranslucent: "rgba(99,141,103,0.3)",
+      primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
+      warningTranslucent: "rgba(255,173,8,0.3)",
+      transparent: 'transparent'
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -200,6 +221,11 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     embeddedPlayer: {
       opacity: 0.85,
+    },
+    dropdown: {
+      background: shadePalette.grey[100],
+      border: shadePalette.grey[250],
+      hoverBackground: shadePalette.grey[250],
     },
     editor: {
       commentPanelBackground: shadePalette.grey[200],

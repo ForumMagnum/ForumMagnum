@@ -4,7 +4,7 @@ import { Mutation } from '@apollo/client/react/components';
 import type { MutationResult } from '@apollo/client/react';
 import type { ApolloError } from '@apollo/client';
 import { compose, withHandlers } from 'recompose';
-import { getCollection, getFragment, extractFragmentInfo } from '../vulcan-lib';
+import { getCollection, extractFragmentInfo } from '../vulcan-lib';
 import { getExtraVariables } from './utils';
 import { updateCacheAfterUpdate } from './cacheUpdates';
 
@@ -33,27 +33,10 @@ const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
   }
 }`;
 
-// Generic mutation wrapper to update a document in a collection.
-//
-// Sample mutation:
-//   mutation updateMovie($input: UpdateMovieInput) {
-//     updateMovie(input: $input) {
-//       data {
-//         _id
-//         name
-//         __typename
-//       }
-//       __typename
-//     }
-//   }
-//
-// Arguments:
-//   - input
-//     - input.selector: a selector to indicate the document to update
-//     - input.data: the document (set a field to `null` to delete it)
-//
-// Child Props:
-//   - updateMovie({ selector, data })
+/**
+ * HoC that adds a function for mutating objects. DEPRECATED: You want to use
+ * the hook version of this, useUpdate, instead.
+ */
 export const withUpdate = (options: {
   collectionName: CollectionNameString,
   fragmentName?: FragmentName,
@@ -71,7 +54,7 @@ export const withUpdate = (options: {
 
   const mutationWrapper = (Component: any) => (props: any) => (
     <Mutation mutation={query}>
-      {(mutate, mutationResult: MutationResult<any>) => (
+      {(mutate: any, mutationResult: MutationResult<any>) => (
         <Component
           {...props}
           mutate={mutate}
@@ -95,9 +78,34 @@ export const withUpdate = (options: {
   )
 };
 
-export const useUpdate = <CollectionName extends CollectionNameString>({ collectionName, fragmentName }: {
+type FragmentOrFragmentName =
+   {fragment: any, fragmentName?: never}
+  |{fragment?: never, fragmentName: FragmentName}
+
+/**
+ * HoC that returns a function which updates an object, given its ID and some
+ * fields to change. A typical usage would look like:
+ *
+ *   const { mutate: updatePost } = useUpdate({
+ *     collectionName: "Posts",
+ *     fragmentName: "PostsList",
+ *   });
+ *   const onClickSomeButton = () => {
+ *     updatePost({
+ *       selector: {_id: postId},
+ *       data: {
+ *         someButtonWasClicked: true,
+ *       },
+ *     })
+ *   }
+ *
+ * When the document is edited, the edited version is refetched as a reply to
+ * the update mutation, with the provided fragment, and merged into
+ * the client-side cache; the selected fragment should have fields that are a
+ * superset of fields used in the queries that you want to be updated.
+ */
+export const useUpdate = <CollectionName extends CollectionNameString>(options: FragmentOrFragmentName & {
   collectionName: CollectionName,
-  fragmentName: FragmentName,
 }): {
   /** Set a field to `null` to delete it */
   mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
@@ -106,8 +114,8 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 }=> {
-  const collection = getCollection(collectionName);
-  const fragment = getFragment(fragmentName);
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
@@ -128,5 +136,3 @@ export const useUpdate = <CollectionName extends CollectionNameString>({ collect
   }, [mutate, typeName]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }
-
-export default withUpdate;

@@ -1,13 +1,14 @@
+/* eslint-disable no-console */
 import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { setSqlClient } from '../lib/sql/sqlClient';
-import PgCollection from '../lib/sql/PgCollection';
+import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
+import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
-import { forumTypeSetting } from "../lib/instanceSettings";
+import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments, CommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -21,20 +22,23 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
+import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
+import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
+import { ensurePostgresViewsExist } from './postgresView';
+import cluster from 'node:cluster';
+import { cpus } from 'node:os';
+
+const numCPUs = cpus().length;
+
+/**
+ * Whether to run multiple node processes in a cluster.
+ * The main reason this is a PublicInstanceSetting because it would be annoying and disruptive for other devs to change this while you're running the server.
+ */
+export const clusterSetting = new PublicInstanceSetting<boolean>('cluster.enabled', false, 'optional')
+export const numWorkersSetting = new PublicInstanceSetting<number>('cluster.numWorkers', numCPUs, 'optional')
 
 // Do this here to avoid a dependency cycle
 Globals.dropAndCreatePg = dropAndCreatePg;
-
-const wrapConsoleLogFunctions = (wrapper: (originalFn: any, ...message: any[]) => void) => {
-  for (let functionName of ["log", "info", "warn", "error", "trace"] as const) {
-    // eslint-disable-next-line no-console
-    const originalFn = console[functionName];
-    // eslint-disable-next-line no-console
-    console[functionName] = (...message: any[]) => {
-      wrapper(originalFn, ...message);
-    }
-  }
-}
 
 const initConsole = () => {
   const isTTY = process.stdout.isTTY;
@@ -42,8 +46,10 @@ const initConsole = () => {
   const blue = isTTY ? `${CSI}34m` : "";
   const endBlue = isTTY ? `${CSI}39m` : "";
 
+  filterConsoleLogSpam();
   wrapConsoleLogFunctions((log, ...message) => {
-    process.stdout.write(`${blue}${new Date().toISOString()}:${endBlue} `);
+    const pidString = clusterSetting.get() ? ` (pid: ${process.pid})` : "";
+    process.stdout.write(`${blue}${new Date().toISOString()}${pidString}:${endBlue} `);
     log(...message);
 
     // Uncomment to add stacktraces to every console.log, for debugging where
@@ -54,6 +60,9 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
+  if (isEAForum) {
+    return;
+  }
   try {
     // eslint-disable-next-line no-console
     console.log("Connecting to mongodb");
@@ -74,7 +83,7 @@ const connectToMongo = async (connectionString: string) => {
   }
 }
 
-const connectToPostgres = async (connectionString: string) => {
+const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
       const branchDb = await getBranchDbName();
@@ -84,8 +93,8 @@ const connectToPostgres = async (connectionString: string) => {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString);
-      setSqlClient(sql);
+      const sql = await createSqlConnection(connectionString, false, target);
+      setSqlClient(sql, target);
     }
   } catch(err) {
     // eslint-disable-next-line no-console
@@ -97,10 +106,11 @@ const connectToPostgres = async (connectionString: string) => {
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl}: CommandLineArguments) =>
+const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
     connectToMongo(mongoUrl),
     connectToPostgres(postgresUrl),
+    connectToPostgres(postgresReadUrl, "read"),
   ]);
 
 const initSettings = () => {
@@ -109,8 +119,10 @@ const initSettings = () => {
   return refreshSettingsCaches();
 }
 
-const initPostgres = () => {
+const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
+    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
+
     // eslint-disable-next-line no-console
     console.log("Building postgres tables");
     for (const collection of Collections) {
@@ -122,10 +134,19 @@ const initPostgres = () => {
 
   // eslint-disable-next-line no-console
   console.log("Initializing switching collections from lock table");
+  const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
-      collection.startPolling();
+      polls.push(collection.startPolling());
     }
+  }
+  await Promise.all(polls);
+
+  try {
+    await ensurePostgresViewsExist(getSqlClientOrThrow());
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
   }
 }
 
@@ -160,12 +181,47 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
-  initPostgres();
+  await initPostgres();
   return args;
 }
 
 export const serverStartup = async () => {
-  // eslint-disable-next-line no-console
+  // Run server directly if not in cluster mode
+  if (!clusterSetting.get()) {
+    console.log(`Running in non-cluster mode`);
+    await serverStartupWorker();
+    return;
+  }
+
+  // Use OS load balancing (as opposed to round-robin)
+  // In principle, this should give better performance because it is aware of resource (cpu) usage
+  cluster.schedulingPolicy = cluster.SCHED_NONE
+  if (cluster.isPrimary) {
+    // Initialize db connection and a few other things such as settings, but don't start a webserver.
+    console.log("Initializing primary process");
+    await initServer();
+
+    const numWorkers = numWorkersSetting.get();
+
+    console.log(`Running in cluster mode with ${numWorkers} workers (vs ${numCPUs} cpus)`);
+    console.log(`Primary ${process.pid} is running, about to fork workers`);
+
+    // Fork workers.
+    for (let i = 0; i < numWorkers; i++) {
+      cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+      console.log(`Worker ${worker.process.pid} died`);
+    });
+  } else {
+    console.log(`Starting worker ${process.pid}`);
+    await serverStartupWorker();
+    console.log(`Worker ${process.pid} started`);
+  }
+}
+
+export const serverStartupWorker = async () => {
   console.log("Starting server");
   const commandLineArguments = await initServer();
   await executeServerWithArgs(commandLineArguments);
@@ -206,7 +262,7 @@ const compileWithGlobals = (code: string) => {
       has () { return true; },
       get (_target, key) {
         if (typeof key !== "symbol") {
-          return global[key] ?? scope[key];
+          return global[key as keyof Global] ?? scope[key as "Globals"|"Vulcan"];
         }
       }
     }));

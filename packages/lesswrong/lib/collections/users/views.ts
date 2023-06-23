@@ -5,6 +5,7 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import moment from "moment";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -19,6 +20,7 @@ declare global {
       afCommentCount?: number,
     },
     userId?: string,
+    userIds?: Array<string>,
     slug?: string,
     lng?: number
     lat?: number,
@@ -69,6 +71,12 @@ const termsToMongoSort = (terms: UsersViewTerms) => {
   );
 }
 
+Users.addView('usersByUserIds', function(terms: UsersViewTerms) {
+  return {
+    selector: {_id: {$in:terms.userIds}}
+  }
+})
+
 Users.addView('usersProfile', function(terms: UsersViewTerms) {
   if (terms.userId) {
     return {
@@ -110,10 +118,13 @@ Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
 Users.addView("usersWithBannedUsers", function () {
   return {
     selector: {
-      bannedUserIds: {$exists: true}
+      $or: [{bannedPersonalUserIds: {$ne:null}}, {bannedUserIds: {$ne:null}}]
     },
   }
 })
+
+ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
+ensureIndex(Users, {bannedUserIds:1, createdAt:1});
 
 Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
@@ -128,6 +139,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
         sunshineFlagged: -1,
         reviewedByUserId: 1,
         postCount: -1,
+        commentCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }
@@ -135,6 +147,23 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   }
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
+
+Users.addView("recentlyActive", function (terms:UsersViewTerms) {
+  return {
+    selector: {
+      $or: [
+        {commentCount: {$gt: 0}},
+        {postCount: {$gt: 0}},
+      ]
+    },
+    options: {
+      sort: {
+        lastNotificationsCheck: -1,
+      }
+    }
+  }  
+})
+ensureIndex(Users, {banned: 1, postCount: 1, commentCount: -1, lastNotificationsCheck: -1})
 
 Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {
@@ -199,7 +228,7 @@ Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   return {
     selector: {
       banned: viewFieldNullOrMissing,
-      deleted: false,
+      deleted: {$ne:true},
       $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
     },
     options: {

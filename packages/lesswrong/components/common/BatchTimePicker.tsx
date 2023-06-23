@@ -1,9 +1,8 @@
 import React from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTimezone } from './withTimezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
-import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from './withErrorBoundary';
 import * as _ from 'underscore';
@@ -29,6 +28,7 @@ const BatchTimePicker = ({ mode, value, onChange}: {
   const { timezone } = useTimezone();
   const valueLocal = convertTimeOfWeekTimezone(value.timeOfDayGMT, value.dayOfWeekGMT, "GMT", timezone);
   const { timeOfDay, dayOfWeek } = valueLocal;
+  const { MenuItem } = Components;
   
   const applyChange = (change: TimeChange) => {
     const newTimeLocal = { ...valueLocal, ...change };

@@ -18,7 +18,7 @@ type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends 
  * 
  * Example usage:
  * ```
- * const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments'] as const);
+ * const tabs = new TupleSet(['sunshineNewUsers', 'allUsers'] as const);
  * type DashboardTabs = UnionOf<typeof tabs>;
  * 
  * const getCurrentView = (query: Record<string, string>): DashboardTabs => {
@@ -30,9 +30,9 @@ type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends 
  * 
  * The following will cause a type error:
  * ```
- * const tabNames = ['sunshineNewUsers', 'allUsers', 'moderatedComments'];
+ * const tabNames = ['sunshineNewUsers', 'allUsers'];
  * new TupleSet(tabNames); // tabNames is typed `string[]`
- * new TupleSet(['sunshineNewUsers', 'allUsers', 'moderatedComments']); // missing `as const`
+ * new TupleSet(['sunshineNewUsers', 'allUsers']); // missing `as const`
  * ```
  */
 export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string|number> {
@@ -51,3 +51,7 @@ export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string
 
 export type TupleOf<T extends TupleSet<any>> = T extends TupleSet<infer U> ? U : never;
 export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
+
+export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
+  return arr.filter(x=>x!=null && x!==undefined) as T[];
+}

@@ -12,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[50],
     padding: 12,
     border: theme.palette.border.faint,
+    borderRadius: theme.borderRadius.default,
   }
 })
 

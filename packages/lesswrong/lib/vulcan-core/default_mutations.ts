@@ -2,6 +2,7 @@ import { Utils, getTypeName } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '../utils/logging';
+import { captureEvent } from "../analyticsEvents";
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
@@ -52,7 +53,8 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         ]);
       },
 
-      async mutation(root: void, { data }, context: ResolverContext) {
+      async mutation(root: void, { data }: AnyBecauseTodo, context: ResolverContext) {
+        const startMutate = Date.now()
         logger('create mutation()')
         // TS doesn't understand that context indexed by collectionName properly
         const collection = context[collectionName] as CollectionBase<T>;
@@ -69,13 +71,17 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
         );
 
         // pass document to boilerplate createMutator function
-        return await Utils.createMutator({
+        const returnValue = await Utils.createMutator({
           collection,
           document: data,
           currentUser: context.currentUser,
           validate: true,
           context,
         });
+        const timeElapsed = Date.now() - startMutate
+        // Temporarily disabled to investigate performance issues
+        // captureEvent("mutationCompleted", {mutationName, timeElapsed, documentId: returnValue.data._id}, true)
+        return returnValue;
       },
     };
     mutations.create = createMutation;
@@ -116,7 +122,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           ]);
       },
 
-      async mutation(root: void, { selector, data }, context: ResolverContext) {
+      async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
         logger('update mutation()')
         // TS doesn't understand that context is properly indexed by collectionName
         const collection = context[collectionName] as CollectionBase<T>;
@@ -174,7 +180,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       description: `Mutation for upserting a ${typeName} document`,
       name: mutationName,
 
-      async mutation(root: void, { selector, data }, context: ResolverContext) {
+      async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
         const collection = context[collectionName];
 
         // check if document exists already
@@ -223,7 +229,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           ]);
       },
 
-      async mutation(root: void, { selector }, context: ResolverContext) {
+      async mutation(root: void, { selector }: AnyBecauseTodo, context: ResolverContext) {
         logger('delete mutation()')
         // TS doesn't understand that context is properly indexed by collectionName
         const collection = context[collectionName] as CollectionBase<T>;

@@ -19,41 +19,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MuiTextField = ({
-  classes,
-  value,
-  updateCurrentValues,
-  path,
-  children,
-  select,
-  defaultValue,
-  label,
-  fullWidth,
-  multiLine,
-  rows,
-  variant,
-  type,
-  disabled=false,
-  InputLabelProps
-}: {
-  classes: ClassesType;
-  value: string;
-  updateCurrentValues<T extends {}>(values: T) : void;
-  path: string;
+const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, classes }: FormComponentProps<string> & {
   children?: ReactNode;
   select?: boolean;
   defaultValue?: string | number;
-  label?: string;
   fullWidth?: boolean;
   multiLine?: boolean;
   rows?: number;
   variant?: "standard" | "outlined" | "filled";
   type?: string;
-  disabled?: boolean;
-  InputLabelProps: Partial<TextFieldProps['InputLabelProps']>;
+  InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  classes: ClassesType;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: event.target.value
     })
   }

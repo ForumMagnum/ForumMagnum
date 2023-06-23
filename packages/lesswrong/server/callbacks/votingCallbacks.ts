@@ -13,47 +13,70 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
-  // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  // Only update user karma if the operation isn't done by one of the item's current authors.
+  // We don't want to let any of the authors give themselves or another author karma for this item.
+  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
-  // only update karma is the operation isn't done by the item's author
-  if (newDocument.userId !== vote.userId && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
+  // We expect vote.authorIds here to be the same as the authorIds of the original vote.
+  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
 });
 
 
 voteCallbacks.castVoteAsync.add(async function incVoteCount ({newDocument, vote}: VoteDocTuple) {
-  const field = vote.voteType + "Count"
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
+  // Increment the count for the person casting the vote
+  const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: 1, voteCount: 1}});
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: 1, voteCount: 1}});
+  }
+
+  // Increment the count for the person receiving the vote
+  const receiverField = `${vote.voteType}ReceivedCount`
+
+  if (newDocument.userId !== vote.userId) {
+    // update all users in vote.authorIds
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: 1, voteReceivedCount: 1}});
   }
 });
 
 voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote}: VoteDocTuple) {
-  const field = vote.voteType + "Count"
+  if (vote.voteType === "neutral") {
+    return;
+  }
+
+  const casterField = `${vote.voteType}Count`
 
   if (newDocument.userId !== vote.userId) {
-    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[field]: -1, voteCount: -1}});
+    void Users.rawUpdateOne({_id: vote.userId}, {$inc: {[casterField]: -1, voteCount: -1}});
+  }
+
+  // Increment the count for the person receiving the vote
+  const receiverField = `${vote.voteType}ReceivedCount`
+
+  if (newDocument.userId !== vote.userId) {
+    // update all users in vote.authorIds
+    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {[receiverField]: -1, voteReceivedCount: -1}});
   }
 });
 
-voteCallbacks.castVoteAsync.add(async function updateNeedsReview (document: VoteDocTuple) {
-  return triggerReviewIfNeeded(document.vote.userId)
-});
-
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
+  if (forumTypeSetting.get() === 'LessWrong') {
+    void triggerAutomodIfNeeded(newDocument.userId)
+  }
   if (vote.collectionName === 'Comments') {
-    if (forumTypeSetting.get() === 'LessWrong') {
-      void triggerAutomodIfNeeded(newDocument.userId)
-    }
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
 });

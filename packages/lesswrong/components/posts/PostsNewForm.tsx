@@ -1,13 +1,13 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts, userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isLW } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -18,7 +18,7 @@ import type { PostSubmitProps } from './PostSubmit';
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
-    width:715,
+    maxWidth: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -95,10 +95,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
+    marginTop: 20
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
-  }
+  },
+  modNote: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 20,
+    },
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20
+  },
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -161,9 +170,12 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
+  const debateForm = !!(query && query.debate);
+
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     question: query && !!query.question,
@@ -175,16 +187,27 @@ const PostsNewForm = ({classes}: {
     af: af || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
+    debate: debateForm
   }
   const eventForm = query && query.eventForm
   
-  if (query.subforumTagId) {
+  if (query?.subforumTagId) {
     prefilledProps = {
+      ...prefilledProps,
       subforumTagId: query.subforumTagId,
       tagRelevance: {[query.subforumTagId]: 1},
     }
   }
+
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser,
+  });
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
     return (<WrappedLoginForm />);
@@ -209,13 +232,18 @@ const PostsNewForm = ({classes}: {
     </div>
   }
 
+  // on LW, show a moderation message to users who haven't been approved yet
+  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
+
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
+        {postWillBeHidden && <NewPostModerationWarning />}
+        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
           <WrappedSmartForm
-            collection={Posts}
+            collectionName="Posts"
             mutationFragment={getFragment('PostsPage')}
             prefilledProps={prefilledProps}
             successCallback={(post: any, options: any) => {
@@ -224,10 +252,12 @@ const PostsNewForm = ({classes}: {
                 history.push(postGetEditUrl(post._id));
               } else {
                 history.push({pathname: postGetPageUrl(post)})
-                flash({ messageString: "Post created.", type: 'success'});
+                const postDescription = post.draft ? "Draft" : "Post";
+                flash({ messageString: `${postDescription} created.`, type: 'success'});
               }
             }}
             eventForm={eventForm}
+            debateForm={debateForm}
             repeatErrors
             noSubmitOnCmdEnter
             formComponents={{

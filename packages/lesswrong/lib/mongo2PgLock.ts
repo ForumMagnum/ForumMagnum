@@ -21,34 +21,36 @@ const mongo2PgLock = new class {
     }
     this.isEnsured = true;
 
-    await db.none(`
+    await db.tx(async (transaction) => {
+      await transaction.none(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         collection_name TEXT PRIMARY KEY,
         read_target TEXT DEFAULT 'mongo',
         write_target TEXT DEFAULT 'mongo'
       );
-    `);
-    await db.none(`
-      ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint};
-    `);
-    await db.none(`
-      ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint};
-    `);
-    await db.none(`
-      ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
-      CHECK (read_target IN ('mongo', 'pg'));
-    `);
-    await db.none(`
-      ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
-      CHECK (write_target IN ('mongo', 'pg', 'both'));
-    `);
+      `);
+      await transaction.none(`
+        ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint};
+      `);
+      await transaction.none(`
+        ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint};
+      `);
+      await transaction.none(`
+        ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
+        CHECK (read_target IN ('mongo', 'pg'));
+      `);
+      await transaction.none(`
+        ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
+        CHECK (write_target IN ('mongo', 'pg', 'both'));
+      `);
 
-    const collectionNames = Collections.map(({options: {collectionName}}) => `('${collectionName}')`);
-    await db.none(`
-      INSERT INTO ${this.tableName} (collection_name) VALUES
-      ${collectionNames.join(", ")}
-      ON CONFLICT DO NOTHING;
-    `);
+      const collectionNames = Collections.map(({options: {collectionName}}) => `('${collectionName}')`);
+      await transaction.none(`
+        INSERT INTO ${this.tableName} (collection_name) VALUES
+        ${collectionNames.join(", ")}
+        ON CONFLICT DO NOTHING;
+      `);
+    })
   }
 
   async getCollectionType(

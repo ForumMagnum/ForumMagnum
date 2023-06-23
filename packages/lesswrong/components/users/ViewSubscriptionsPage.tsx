@@ -144,6 +144,24 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
+      title="Subscribed to Dialogues (as a reader)"
+      collectionName="Posts"
+      subscriptionType="newDebateComments"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
+    />
+
+    <SubscriptionsList
+      title="Subscribed to Dialogues (as a participant)"
+      collectionName="Posts"
+      subscriptionType="newDebateReplies"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
+    />
+
+    <SubscriptionsList
       title="Subscribed to Comment Replies"
       collectionName="Comments"
       subscriptionType="newReplies"

@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import LinkIcon from '@material-ui/icons/Link';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
@@ -84,24 +83,25 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   groupLink: {
-    marginLeft: theme.spacing.unit
+    marginLeft: 6,
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 2
+    marginLeft: theme.spacing.unit - 2,
+    transform: "translateY(3px)",
   },
   
   facebookGroupIcon: {
-    width: "13px",
-    height: "13px",
+    width: 14,
+    height: 14,
     display: "inline-block",
     color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
   },
 
   socialIcon: {
-    width: "15px",
-    height: "15px",
+    width: 16,
+    height: 16,
     display: "inline-block",
     color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
@@ -109,10 +109,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 
   linkIcon: {
-    height: "17px",
-    width: "17px",
+    height: 18,
+    width: 18,
     paddingTop: "0px",
-    transform: "translateY(3px) rotate(-45deg)",
     color: theme.palette.icon.slightlyDim3,
   },
 
@@ -146,7 +145,8 @@ const GroupLinks = ({ document, noMargin, classes }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
-  
+  const {ForumIcon} = Components;
+
   return(
     <div className={classes.root}>
       {!isEAForum && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
@@ -198,7 +198,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
         {document.website
           && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
             <a href={document.website} className={classes.websiteLink}>
-              <LinkIcon className={classes.linkIcon}/>
+              <ForumIcon icon="Link" className={classes.linkIcon}/>
             </a>
           </Tooltip>}
       </div>

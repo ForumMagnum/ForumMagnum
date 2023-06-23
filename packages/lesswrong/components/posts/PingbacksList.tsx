@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,10 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
-    marginBottom: -4
+    marginBottom: -4,
+    ...(isEAForum
+      ? {
+        fontWeight: 600,
+        marginTop: 12,
+        color: theme.palette.primary.main,
+        "&:hover": {
+          color: theme.palette.primary.dark,
+          opacity: 1,
+        },
+      }
+      : {
+        color: theme.palette.lwTertiary.main,
+      }),
   },
   list: {
     marginTop: theme.spacing.unit
@@ -61,7 +74,7 @@ const PingbacksList = ({classes, postId, limit=5}: {
           </LWTooltip>
         </div>
         <div className={classes.list}>
-          {results.map((post, i) =>
+          {results.map((post) =>
             <div key={post._id} >
               <Pingback post={post}/>
             </div>
@@ -82,4 +95,3 @@ declare global {
     PingbacksList: typeof PingbacksListComponent
   }
 }
-

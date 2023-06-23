@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import DescriptionIcon from '@material-ui/icons/Description'
 import FlagIcon from '@material-ui/icons/Flag'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -35,8 +34,8 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 
-  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate } = Components
-
+  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate, FirstContentIcons } = Components
+  
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
       <SunshineListItem hover={hover}>
@@ -55,7 +54,7 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
           <MetaInfo className={classes.info}>
             <FormatDate date={user.createdAt}/>
           </MetaInfo>
-          {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+          <FirstContentIcons user={user}/>
           {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
             { getUserEmail(user) || "This user has no email" }

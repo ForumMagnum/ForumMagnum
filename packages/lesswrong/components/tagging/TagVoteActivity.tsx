@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { userCanVote } from '../../lib/collections/users/helpers';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteRow: {
@@ -53,8 +55,13 @@ const TagVoteActivityRow = ({vote, classes}: {
 }) => {
   const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
+  const currentUser = useCurrentUser();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
+  
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
+  
   return (
     <tr key={vote._id} className={classes.voteRow}>
       <td><UsersName documentId={vote.userId}/></td>
@@ -70,6 +77,7 @@ const TagVoteActivityRow = ({vote, classes}: {
             orientation="left"
             color="error"
             upOrDown="Downvote"
+            enabled={canVote}
             {...voteProps}
           />
           <span className={classes.score}>
@@ -79,6 +87,7 @@ const TagVoteActivityRow = ({vote, classes}: {
             orientation="right"
             color="secondary"
             upOrDown="Upvote"
+            enabled={canVote}
             {...voteProps}
           />
         </div>

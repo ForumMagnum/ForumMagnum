@@ -27,8 +27,7 @@ const schema = {
     type: Array,
   },
   "pendingEvents.$": {
-    type: Object,
-    blackbox: true,
+    type: String,
   },
 }
 

@@ -16,6 +16,9 @@ registerFragment(`
       quadraticScore
     }
     userId
+    coauthorStatuses
+    hasCoauthorPermission
+    rejected
   }
 `);
 
@@ -37,8 +40,6 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
-    coauthorStatuses
-    hasCoauthorPermission
 
     commentCount
     voteCount
@@ -55,6 +56,7 @@ registerFragment(`
     curatedDate
     commentsLocked
     commentsLockedToAccountsCreatedAfter
+    debate
 
     # questions
     question
@@ -103,6 +105,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -111,31 +115,19 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
 
-    reviewVoteScoreAllKarma
-    reviewVotesAllKarma
-    reviewVoteScoreHighKarma
-    reviewVotesHighKarma
-    reviewVoteScoreAF
-    reviewVotesAF
-
-    finalReviewVoteScoreHighKarma
-    finalReviewVotesHighKarma
-    finalReviewVoteScoreAllKarma
-    finalReviewVotesAllKarma
-    finalReviewVoteScoreAF
-    finalReviewVotesAF
-
     group {
       _id
       name
       organizerIds
     }
 
+    podcastEpisodeId
+
     # deprecated
-    nominationCount2018
-    reviewCount2018
     nominationCount2019
     reviewCount2019
+
+    votingSystem
   }
 `);
 
@@ -156,10 +148,23 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
-    ...PostsListBase
-    currentUserVote
-    currentUserExtendedVote
+    ...PostsListWithVotes
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
   }
 `)
 
@@ -189,6 +194,8 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -208,12 +215,16 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+
+    unreadDebateResponseCount
+    dialogTooltipPreview
   }
 `);
 
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
+    tagRelevance
     deletedDraft
     contents {
       _id
@@ -228,7 +239,15 @@ registerFragment(`
 registerFragment(`
   fragment PostsListTag on Post {
     ...PostsList
-    tagRelevance
+    tagRel(tagId: $tagId) {
+      ...WithVoteTagRel
+    }
+  }
+`)
+
+registerFragment(`
+  fragment PostsListTagWithVotes on Post {
+    ...PostsListWithVotes
     tagRel(tagId: $tagId) {
       ...WithVoteTagRel
     }
@@ -302,7 +321,7 @@ registerFragment(`
       _id
       sourcePostId
       sourcePost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -311,7 +330,7 @@ registerFragment(`
       sourcePostId
       targetPostId
       targetPost {
-        ...PostsList
+        ...PostsListWithVotes
       }
       order
     }
@@ -322,7 +341,6 @@ registerFragment(`
 
     # Crossposting
     fmCrosspost
-    podcastEpisodeId
   }
 `);
 
@@ -384,6 +402,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -437,6 +456,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -460,6 +480,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
@@ -517,6 +538,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id
@@ -570,6 +592,7 @@ registerFragment(`
   fragment HighlightWithHash on Post {
     _id
     contents {
+      _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
   }
@@ -586,5 +609,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostsEditCriticismTips on Post {
+    _id
+    criticismTipsDismissed
   }
 `);

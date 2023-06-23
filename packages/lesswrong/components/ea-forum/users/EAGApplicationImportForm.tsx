@@ -2,16 +2,14 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import Users from '../../../lib/vulcan-users';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
-import { getSchema } from '../../../lib/utils/getSchema';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
-import { pickBestReverseGeocodingResult } from '../../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
@@ -23,6 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 1000,
     margin: '0 auto',
+    fontFamily: theme.palette.fonts.sansSerifStack,
     '& input.geosuggest__input': {
       width: '100%'
     }
@@ -464,7 +463,7 @@ const EAGApplicationImportForm = ({classes}: {
     })
   }
   
-  const { Typography, FormComponentMultiSelect, EditorFormComponent, SelectLocalgroup, LocationFormComponent,
+  const { Typography, MultiSelect, EditorFormComponent, SelectLocalgroup, LocationPicker,
     PrefixedInput, ContentStyles, Loading } = Components
 
   if (!currentUser) {
@@ -474,7 +473,7 @@ const EAGApplicationImportForm = ({classes}: {
           <Typography variant="display3" className={classes.heading} gutterBottom>
             Welcome to the &#10024; <span className={classes.loggedOutMessageHighlight}>Effective Altruism Forum</span> &#10024;
           </Typography>
-          <Typography variant="body1" className={classes.loggedOutMessage}>
+          <Typography variant="body2" className={classes.loggedOutMessage}>
             <a href={`/auth/auth0?returnTo=${pathname}`} className={classes.loggedOutLink}>Login</a> or <a href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.loggedOutLink}>Sign Up</a> to
             import information from your EA Global application to your EA Forum profile.
           </Typography>
@@ -484,20 +483,20 @@ const EAGApplicationImportForm = ({classes}: {
   }
     
   const body = !importedData ? <>
-    <Typography variant="body1" className={classes.noAppText}>
+    <Typography variant="body2" className={classes.noAppText}>
       Sorry, we found no EA Global applications matching your EA Forum account's email address.
     </Typography>
-    <Typography variant="body1" className={classes.subheading}>
+    <Typography variant="body2" className={classes.subheading}>
       If you feel that this is in error, please <Link to="/contact" className={classes.contactUs}>contact us</Link>.
     </Typography>
   </> : <>
-    <Typography variant="body1" className={classes.subheading}>
+    <Typography variant="body2" className={classes.subheading}>
       We've found your application data from {event}.
     </Typography>
     
     <AnalyticsContext pageSectionContext="overwriteCallout">
       <div className={classes.callout}>
-        <Typography variant="body1" className={classes.overwriteText}>
+        <Typography variant="body2" className={classes.overwriteText}>
           Would you like to overwrite your EA Forum profile data?
         </Typography>
         <div>
@@ -508,7 +507,7 @@ const EAGApplicationImportForm = ({classes}: {
           >
             Overwrite and Submit
           </button>
-          <Typography variant="body1" className={classes.overwriteBtnAltText}>
+          <Typography variant="body2" className={classes.overwriteBtnAltText}>
             or see details and make changes below
           </Typography>
         </div>
@@ -550,13 +549,16 @@ const EAGApplicationImportForm = ({classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Career stage</label>
-        <FormComponentMultiSelect
+        <MultiSelect
           options={CAREER_STAGES}
           value={formValues.careerStage || []}
           placeholder="Select all that apply"
           separator={'\r\n'}
-          path="careerStage"
-          updateCurrentValues={handleUpdateValue}
+          setValue={(value) => {
+            handleUpdateValue({
+              careerStage: value
+            });
+          }}
         />
         <div className={classes.arrowCol}>
           <button className={classes.arrowBtn} onClick={(e) => handleCopyField(e, 'careerStage')}>
@@ -666,7 +668,7 @@ const EAGApplicationImportForm = ({classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>Public map location</label>
-        <LocationFormComponent
+        <LocationPicker
           document={currentUser}
           value={formValues.mapLocation}
           path="mapLocation"
@@ -712,7 +714,7 @@ const EAGApplicationImportForm = ({classes}: {
   return <AnalyticsContext pageContext="eagApplicationImportForm">
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        Import Your Profile
+        Import your profile
       </Typography>
 
       {formLoading ? <Loading /> : body}

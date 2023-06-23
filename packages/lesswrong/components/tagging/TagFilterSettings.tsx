@@ -6,7 +6,7 @@ import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,7 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    marginBottom: 4
+    ...(isEAForum
+      ? {
+        marginTop: 8,
+      } : {
+        marginBottom: 4,
+      }),
   },
   showPersonalBlogposts: {
     ...tagStyle(theme),

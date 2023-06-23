@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -65,7 +66,10 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
       } else if (report.post) {
         void updatePost({
           selector: {_id: report.post._id},
-          data: { status: report.reportedAsSpam ? 4 : 5 }
+          data: { status: report.reportedAsSpam
+            ? postStatuses.STATUS_SPAM
+            : postStatuses.STATUS_DELETED
+          }
         })
       }
       void updateReport({

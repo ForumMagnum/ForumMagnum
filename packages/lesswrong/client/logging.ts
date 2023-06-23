@@ -1,13 +1,12 @@
 import * as Sentry from '@sentry/browser';
 import * as SentryIntegrations from '@sentry/integrations';
-import { routerOnUpdate } from '../components/hooks/useOnNavigate';
-import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { captureEvent, AnalyticsUtil, userChangedCallback } from '../lib/analyticsEvents';
+import { captureEvent, AnalyticsUtil } from '../lib/analyticsEvents';
 import { browserProperties } from '../lib/utils/browserProperties';
-import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting, forumTypeSetting } from '../lib/instanceSettings';
+import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
+import { userChangedCallback } from '../lib/vulcan-lib/callbacks';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -73,12 +72,6 @@ window.addEventListener('load', ev => {
   });
 });
 
-routerOnUpdate.add(({oldLocation, newLocation}: {oldLocation: RouterLocation, newLocation: RouterLocation}) => {
-  captureEvent("navigate", {
-    from: oldLocation.pathname,
-    to: newLocation.pathname,
-  });
-});
 
 // Put the tabId, which was injected into the page as a global variable, into
 // the analytics context vars. See apollo-ssr/renderPage.js

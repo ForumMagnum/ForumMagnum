@@ -10,16 +10,40 @@ import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
+import { ObjectId } from "mongodb";
+import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
+import { LWEvents } from "../../lib/collections/lwevents";
+import { inspect } from "util";
+import { CollectionFilters } from './collectionMigrationFilters';
+import { timedFunc } from "../../lib/helpers";
+import Posts from "../../lib/collections/posts/collection";
+import Users from "../../lib/collections/users/collection";
 
 type Transaction = ITask<{}>;
 
+const extractObjectId = (value: Record<string, any>): Record<string, any> => {
+  if (value._id instanceof ObjectId) {
+    value._id = value._id.toString();
+  }
+  return value;
+}
+
+
+const sanitizeNullTerminatingChars = (value: DbRevision['originalContents']) => {
+  if (value.type !== 'markdown') return value;
+  value.data = value.data.replace(/\0/g, '');
+  return value;
+}
+
+const VALID_ID_LENGTHS = new Set([17, 24]);
+
 // Custom formatters to fix data integrity issues on a per-collection basis
 // A place for nasty hacks to live...
-const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject>> = {
+const formatters: Partial<Record<CollectionNameString, (document: DbObject) => DbObject | Promise<DbObject | undefined>>> = {
   Posts: (post: DbPost): DbPost => {
-    const scoreThresholds = [2, 30, 45, 75, 125, 200];
+    const scoreThresholds = [2, 30, 45, 75, 125, 200] as const;
     for (const threshold of scoreThresholds) {
-      const prop = `scoreExceeded${threshold}Date`;
+      const prop: keyof DbPost = `scoreExceeded${threshold}Date`;
       if (typeof post[prop] === "boolean") {
         post[prop] = null;
       }
@@ -48,12 +72,113 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
         }
       }
     }
+
+    if (user.emails && !Array.isArray(user.emails) && '0' in user.emails) {
+      user.emails = Object.values(user.emails);
+    }
+
+    if (typeof user.banned === 'boolean') {
+      user.banned = new Date('01-01-3023');
+    }
+
+    if (typeof user.needsReview !== 'boolean') {
+      user.needsReview = false;
+    }
+
     user.emails = user.emails?.map((email) => {
       return typeof email === "string"
         ? { address: email, verified: false }
         : email;
     });
     return user;
+  },
+  DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
+    extractObjectId(event);
+    if (typeof event.createdAt === "number") {
+      event.createdAt = new Date(event.createdAt);
+    }
+    if (typeof event.delayTime === "number") {
+      event.delayTime = new Date(event.delayTime);
+    }
+    if (typeof event.upperBoundTime === "number") {
+      event.upperBoundTime = new Date(event.upperBoundTime);
+    }
+    event.pendingEvents = (event.pendingEvents ?? []).filter(
+      (item: any) => typeof item === "string",
+    );
+    event.createdAt ??= event.delayTime;
+    return event;
+  },
+  DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
+    extractObjectId(metadata);
+    return metadata;
+  },
+  Spotlights: (spotlight: DbSpotlight): DbSpotlight => {
+    extractObjectId(spotlight);
+    if (!spotlight.hasOwnProperty('showAuthor')) {
+      spotlight.showAuthor = false;
+    }
+    return spotlight;
+  },
+  Comments: (comment: DbComment): DbComment => {
+    if (comment.contents?.originalContents) {
+      comment.contents.originalContents = sanitizeNullTerminatingChars(comment.contents.originalContents);
+    }
+    return comment;
+  },
+  Messages: async (message: DbMessage): Promise<DbMessage | undefined> => {
+    if (message.contents?.originalContents) {
+      message.contents.originalContents = sanitizeNullTerminatingChars(message.contents.originalContents);
+    }
+    if (!VALID_ID_LENGTHS.has(message.userId.length)) {
+      const maybeSlug = message.userId.toLowerCase();
+      console.log(`Message with invalid userId ${maybeSlug}, checking if it's a slug`);
+      const userBySlug = await Users.findOne({ slug: maybeSlug });
+      if (userBySlug) {
+        console.log(`Found user with slug ${maybeSlug}, id: ${userBySlug._id}`);
+        message.userId = userBySlug._id;
+      } else {
+        // These cases are annoying to handle via collection query filters, so just filter them out here
+        return undefined;
+      }
+    }
+    return message;
+  },
+  Revisions: (revision: DbRevision): DbRevision => {
+    if (revision.originalContents) {
+      revision.originalContents = sanitizeNullTerminatingChars(revision.originalContents);
+    }
+    return revision;
+  },
+  ReadStatuses: async (readStatus: DbReadStatus): Promise<DbReadStatus | undefined> => {
+    if (readStatus.postId && !VALID_ID_LENGTHS.has(readStatus.postId.length)) {
+      const maybeSlug = readStatus.postId;
+      if (maybeSlug !== 'null' && maybeSlug !== 'undefined') {
+        console.log(`ReadStatus with invalid postId ${maybeSlug}, checking if it's a slug`);
+        const postBySlug = await Posts.findOne({ slug: maybeSlug });
+        if (postBySlug) {
+          console.log(`Found post with slug ${maybeSlug}, id: ${postBySlug._id}`);
+          readStatus.postId = postBySlug._id;
+        } else {
+          // These cases are annoying to handle via collection query filters, so just filter them out here
+          return undefined;
+        }
+      } else {
+        return undefined;
+      }
+    }
+    return readStatus;
+  },
+  Votes: (vote: DbVote): DbVote => {
+    if (typeof vote.userId !== 'string') {
+      if (!('_str' in vote.userId)) {
+        throw new Error(`Unrecognized vote userId: ${JSON.stringify(vote.userId)}`);
+      }
+
+      // @ts-ignore - LW had some legacy imported data where userId was an object shaped like { _str: string }
+      vote.userId = vote.userId._str;
+    }
+    return vote;
   }
 };
 
@@ -132,9 +257,79 @@ const makeBatchFilter = (collectionName: string, createdSince?: Date) => {
   if (!createdSince) {
     return {};
   }
-  return collectionName === "cronHistory"
-    ? { startedAt: { $gte: createdSince } }
-    : { createdAt: { $gte: createdSince } };
+
+  switch (collectionName) {
+    case 'cronHistory': return { startedAt: { $gte: createdSince } };
+    // It seems like we create cookies that expire after 10 years, by default?
+    case 'Sessions': return { expires: { $gte: createdSince.setUTCFullYear(createdSince.getUTCFullYear() + 10) } };
+    default: return { createdAt: { $gte: createdSince } };
+  }
+}
+
+const makeCollectionFilter = (collectionName: string) => {
+  switch (collectionName) {
+    case "DatabaseMetadata":
+      return { name: { $nin: ["databaseId", "expectedDatabaseId"] } };
+    case "Books":
+      return CollectionFilters['Books'];
+    case "Sequences":
+      return CollectionFilters['Sequences'];
+    case "Collections":
+      return { deleted: { $ne: true } };
+    case "Messages":
+      return { contents: { $exists: true } };
+    case "CronHistories":
+      return { intendedAt: { $ne: null } };
+    case "DebouncerEvents":
+      return { upperBoundTime: { $ne: NaN } };
+    default:
+      return {};
+  }
+}
+
+const isNonIdSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'EmailTokens': return false;
+    case 'Posts': return false;
+    case 'ReadStatuses': return false;
+    case 'CronHistories': return false;
+    case 'Images': return false;
+    default: return true;
+  }
+};
+
+const getCollectionSortField = (collectionName: string) => {
+  switch (collectionName) {
+    case 'DebouncerEvents': return 'delayTime';
+    case 'Migrations': return 'started';
+    case 'Votes': return 'votedAt';
+    case 'Sessions': return 'expires';
+    default: return 'createdAt';
+  }
+};
+
+const copyDatabaseId = async (sql: Transaction) => {
+  const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
+  const expectedDatabaseId = await DatabaseMetadata.findOne({name: "expectedDatabaseId"});
+  if (databaseId) {
+    extractObjectId(databaseId);
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [databaseId._id, databaseId.name, databaseId.value]);
+  }
+
+  if (expectedDatabaseId) {
+    extractObjectId(expectedDatabaseId);
+    await sql.none(`
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
+      VALUES ($1, $2, TO_JSONB($3::TEXT))
+      ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+      SET "value" = TO_JSONB($3::TEXT)
+    `, [expectedDatabaseId._id, expectedDatabaseId.name, expectedDatabaseId.value]);
+  }
 }
 
 const copyData = async (
@@ -144,26 +339,45 @@ const copyData = async (
   createdSince?: Date,
 ) => {
   console.log(`...Copying data (pass ${pass})`);
+  if (createdSince) {
+    console.log(`...(using createdSince = ${createdSince})`);
+  }
   for (const collection of collections) {
     console.log(`......${collection.getName()}`);
     const table = collection.getPgCollection().table;
+    const collectionName = collection.getMongoCollection().collectionName;
 
-    const totalCount = await collection.getMongoCollection().find({}).count();
+    const totalCount = await collection.getMongoCollection().find({
+      ...(createdSince ? { createdAt: {$gte: createdSince} } : {}),
+    }).count();
+
+    if (totalCount < 1) {
+      continue;
+    }
+
     const formatter = getCollectionFormatter(collection);
     const batchSize = pickBatchSize(collection);
+    const nonIdSortField = isNonIdSortField(collectionName);
+    const sortField = getCollectionSortField(collectionName);
     let count = 0;
     await forEachDocumentBatchInCollection({
       collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
       batchSize,
-      filter: makeBatchFilter(collection.getMongoCollection().collectionName, createdSince),
+      useCreatedAt: nonIdSortField,
+      overrideCreatedAt: sortField as keyof DbObject,
+      filter: {
+        ...makeBatchFilter(collectionName, createdSince),
+        ...makeCollectionFilter(collectionName),
+      },
       callback: async (documents: DbObject[]) => {
         const end = count + documents.length;
         console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
         count += batchSize;
-        const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
+        const formattedDocuments = (await Promise.all(documents.map(formatter))).filter((doc): doc is DbObject => !!doc);
+        const query = new InsertQuery(table, formattedDocuments, {}, {conflictStrategy: "ignore"});
         const compiled = query.compile();
         try {
-          await sql.none(compiled.sql, compiled.args);
+          await timedFunc('sql.none', () => sql.none(compiled.sql, compiled.args));
         } catch (e) {
           console.log(documents);
           console.error(e);
@@ -171,6 +385,10 @@ const copyData = async (
         }
       },
     });
+
+    if (collectionName === "DatabaseMetadata") {
+      await copyDatabaseId(sql);
+    }
   }
 }
 
@@ -194,7 +412,7 @@ const writeCollectionTargets = async (
   });
 }
 
-export const migrateCollections = async (collectionNames: CollectionNameString[]) => {
+export const migrateCollections = async (collectionNames: CollectionNameString[], maxCopyAge?: Date) => {
   console.log(`=== Migrating collections '${collectionNames}' from Mongo to Postgres ===`);
 
   console.log("...Preparing collections");
@@ -222,7 +440,7 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
 
       // Copy the initial data - this can take a *long* time depending on the collection
       const copyStart = new Date();
-      await copyData(transaction, collections, 1);
+      await copyData(transaction, collections, 1, maxCopyAge);
       await setLogged(transaction, collections, true);
 
       // Copy anything that was inserted during the first copy - this should be ~instant
@@ -240,11 +458,102 @@ export const migrateCollections = async (collectionNames: CollectionNameString[]
     await writeCollectionTargets(collections, "pg", "pg");
 
     console.log("\ud83c\udfc1 Done!");
+    return true;
   } catch (e) {
     console.error("Error:", e.message);
     await writeCollectionTargets(collections, "mongo", "mongo");
     console.log("\ud83d\uded1 Migration aborted!");
+    return false;
   }
 }
 
 Vulcan.migrateCollections = migrateCollections;
+
+const migrateLWEvents = async (resumeTime?: Date) => {
+  if (!resumeTime) {
+    const startTime = new Date();
+    const success = await migrateCollections(["LWEvents"], startTime);
+    if (!success) {
+      return;
+    }
+  }
+
+  const collection = LWEvents;
+  if (!(collection instanceof SwitchingCollection)) {
+    throw new Error("LWEvents is not a switching collection");
+  }
+
+  const oldest = await collection.getMongoCollection().find({}, {
+    sort: {createdAt: 1},
+    limit: 1,
+    projection: {createdAt: 1},
+  }).fetch();
+
+  if (oldest.length !== 1) {
+    throw new Error("Can't find oldest event");
+  }
+
+  const oldestCreatedAt = oldest[0].createdAt;
+
+  // eslint-disable-next-line no-console
+  console.log("Oldest event created at", oldestCreatedAt);
+
+  const sql = getSqlClientOrThrow();
+
+  const windowSizeMonths = 3;
+  const windowSizeMS = windowSizeMonths * 31 * 24 * 60 * 60 * 1000;
+  let maxTime = resumeTime ?? new Date();
+  while (maxTime > oldestCreatedAt) {
+    const minTime = new Date(maxTime.getTime() - windowSizeMS);
+    const filter = {
+      createdAt: {
+        $gt: minTime,
+        $lte: maxTime,
+      },
+    };
+
+    console.log(`...Migrating LWEvents batch: ${inspect(filter)}`);
+
+    const table = collection.getPgCollection().table;
+    const collectionName = collection.getMongoCollection().collectionName;
+
+    const totalCount = await collection.getMongoCollection().find(filter).count();
+    if (totalCount < 1) {
+      // eslint-disable-next-line no-console
+      console.log("No documents in batch - skipping...");
+      maxTime = minTime;
+      continue;
+    }
+
+    const formatter = getCollectionFormatter(collection);
+    const batchSize = pickBatchSize(collection);
+    let count = 0;
+    await forEachDocumentBatchInCollection({
+      collection: collection.getMongoCollection() as unknown as CollectionBase<DbObject>,
+      batchSize,
+      useCreatedAt: true,
+      filter: {
+        ...makeCollectionFilter(collectionName),
+        ...filter,
+      },
+      callback: async (documents: DbObject[]) => {
+        const end = count + documents.length;
+        console.log(`.........Migrating '${collection.getName()}' documents ${count}-${end} of ${totalCount}`);
+        count += batchSize;
+        const query = new InsertQuery(table, documents.map(formatter), {}, {conflictStrategy: "ignore"});
+        const compiled = query.compile();
+        try {
+          await sql.none(compiled.sql, compiled.args);
+        } catch (e) {
+          console.log(documents);
+          console.error(e);
+          throw new Error(`Error importing document batch for collection ${collection.getName()}: ${e.message}`);
+        }
+      },
+    });
+
+    maxTime = minTime;
+  }
+}
+
+Vulcan.migrateLWEvents = migrateLWEvents;

@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -7,11 +7,33 @@ import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { pluralize } from './vulcan-lib';
 
 
 export const communityPath = '/community';
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
+const knownTagNames = ['tag', 'topic', 'concept']
+const useShortAllTagsPath = isEAForum;
+
+/**
+ * Get the path for the all tags page
+ */
+export const getAllTagsPath = () => {
+  return useShortAllTagsPath ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
+}
+
+/**
+ * Get all the paths that should redirect to the all tags page. This is all combinations of
+ * known tag names (e.g. 'topics', 'concepts') with and without `/all` at the end.
+ */
+export const getAllTagsRedirectPaths: () => string[] = () => {
+  const pathRoots = knownTagNames.map(tagName => `/${pluralize(tagName)}`)
+  const allPossiblePaths = pathRoots.map(root => [root, `${root}/all`])
+  const redirectPaths = ['/wiki', ...allPossiblePaths.flat().filter(path => path !== getAllTagsPath())]
+  return redirectPaths
+}
+
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
@@ -322,24 +344,8 @@ addRoute(
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
   },
-  {
-    name: 'bookmarks',
-    path: '/bookmarks',
-    componentName: 'BookmarksPage',
-    title: 'Bookmarks',
-  },
 
   // Tags redirects
-  {
-    name: "TagsAll",
-    path:'/tags',
-    redirect: () => `/tags/all`,
-  },
-  {
-    name: "Concepts",
-    path:'/concepts',
-    redirect: () => `/tags/all`,
-  },
   {
     name: 'tagVoting',
     path: '/tagVoting',
@@ -377,24 +383,14 @@ if (taggingNameIsSet.get()) {
       redirect: ({ params }) => `/${taggingNamePluralSetting.get()}/${params.slug}`,
     },
     {
-      name: 'tagsAllCustomName',
-      path: `/${taggingNamePluralSetting.get()}/all`,
-      componentName: 'AllTagsPage',
-      title: `${taggingNamePluralCapitalSetting.get()} — Main Page`,
-    },
-    {
-      name: "tagsRedirectCustomName",
-      path:'/tags/all',
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`,
-    },
-    {
       name: 'tagDiscussionCustomName',
       path: `/${taggingNamePluralSetting.get()}/:slug/discussion`,
       componentName: 'TagDiscussionPage',
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      noIndex: true,
     },
     {
       name: 'tagDiscussionCustomNameRedirect',
@@ -407,6 +403,7 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      noIndex: true,
     },
     {
       name: 'tagHistoryCustomNameRedirect',
@@ -481,21 +478,10 @@ if (taggingNameIsSet.get()) {
       name: 'taggingDashboardCustomNameRedirect',
       path: '/tags/dashboard',
       redirect: () => `/${taggingNamePluralSetting.get()}/dashboard`
-    },
-    {
-      name: 'taggingAllCustomNameRedirect',
-      path: `/${taggingNamePluralSetting.get()}/`,
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`
-    },
+    }
   )
 } else {
   addRoute(
-    {
-      name: 'allTags',
-      path: '/tags/all',
-      componentName: 'AllTagsPage',
-      title: forumTypeSetting.get() === 'EAForum' ? "The EA Forum Wiki" : "Concepts Portal",
-    },
     {
       name: 'tags.single',
       path: '/tag/:slug',
@@ -561,6 +547,24 @@ if (taggingNameIsSet.get()) {
     },
   )
 }
+
+// All tags page
+addRoute(
+  // The page itself
+  {
+    name: 'tagsAll',
+    path: getAllTagsPath(),
+    componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
+    title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
+  },
+  // And all the redirects to it
+  ...getAllTagsRedirectPaths().map((path, idx) => ({
+    name: `tagsAllRedirect${idx}`,
+    path,
+    redirect: () => getAllTagsPath(),
+  }))
+);
+
 
 onStartup(() => {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
@@ -697,11 +701,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/api/eag-application-data'
     },
     {
-      name: 'wikiTopisRedirect',
-      path: '/wiki',
-      redirect: () => `/${taggingNamePluralSetting.get()}/all`
-    },
-    {
       name: 'subforum',
       path: `/${taggingNamePluralSetting.get()}/:slug/subforum`,
       redirect: (routerLocation: RouterLocation) => {
@@ -731,6 +730,50 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped',
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
+    },
+    {
+      name: 'Digests',
+      path: '/admin/digests',
+      componentName: 'Digests',
+      title: 'Digests',
+    },
+    {
+      name: 'EditDigest',
+      path: '/admin/digest/:num',
+      componentName: 'EditDigest',
+      title: 'Edit Digest',
+      subtitle: 'Digests',
+      subtitleLink: '/admin/digests',
+      staticHeader: true
+    },
+    {
+      name: 'recommendationsSample',
+      path: '/admin/recommendationsSample',
+      componentName: 'RecommendationsSamplePage',
+      title: "Recommendations Sample"
+    },
+    {
+      name: 'CookiePolicy',
+      path: '/cookiePolicy',
+      componentName: 'CookiePolicy',
+      title: 'Cookie Policy',
+    },
+    {
+      name: 'bookmarksRedirect',
+      path: '/bookmarks',
+      redirect: () => '/saved'
+    },
+    {
+      name: 'savedPosts',
+      path: '/saved',
+      componentName: 'BookmarksPage',
+      title: 'Saved Posts',
+    },
+    {
+      name: 'readHistory',
+      path: '/history',
+      componentName: 'ReadHistoryPage',
+      title: 'Read History',
     },
   ],
   LessWrong: [
@@ -796,6 +839,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'Curated',
       path: '/curated',
       redirect: () => `/recommendations`,
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
     {
       name: 'Walled Garden',
@@ -869,6 +918,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'payments',
       path: '/payments',
       redirect: () => `/payments/admin`, // eventually, payments might be a userfacing feature, and we might do something else with this url
+    },
+    {
+      name: 'All Comments with Reacts',
+      path: '/allCommentsWithReacts',
+      componentName: 'AllReactedCommentsPage',
+      title: "All Comments with Reacts"
     },
     {
       name:'coronavirus.link.db',
@@ -1055,6 +1110,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
+    },
   ],
   default: [
     {
@@ -1085,6 +1146,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       _id: contactPostIdSetting.get(),
       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
       background: postBackground
+    },
+    {
+      name: 'bookmarks',
+      path: '/bookmarks',
+      componentName: 'BookmarksPage',
+      title: 'Bookmarks',
     },
   ],
 })
@@ -1263,10 +1330,34 @@ addRoute(
     title: "Moderation Dashboard"
   },
   {
+    name: 'recentlyActiveUsers',
+    path: '/admin/recentlyActiveUsers',
+    componentName: 'RecentlyActiveUsers',
+    title: "Recently Active Users"
+  },
+  {
     name: 'moderationTemplates',
     path: '/admin/moderationTemplates',
     componentName: 'ModerationTemplatesPage',
     title: "Moderation Message Templates"
+  },
+  {
+    name: 'ModGPTDashboard',
+    path: '/admin/modgpt',
+    componentName: 'ModGPTDashboard',
+    title: "ModGPT Dashboard"
+  },
+  {
+    name: 'synonyms',
+    path: '/admin/synonyms',
+    componentName: 'AdminSynonymsPage',
+    title: "Search Synonyms"
+  },
+  {
+    name: 'randomUser',
+    path: '/admin/random-user',
+    componentName: 'RandomUserPage',
+    title: "Random User",
   },
   {
     name: 'moderation',
@@ -1279,6 +1370,11 @@ addRoute(
     name: 'moderatorComments',
     path: '/moderatorComments',
     componentName: 'ModeratorComments',
+  },
+  {
+    name: 'moderatorViewAltAccounts',
+    path: '/moderation/altAccounts',
+    componentName: 'ModerationAltAccounts',
   },
   {
     name: 'emailHistory',

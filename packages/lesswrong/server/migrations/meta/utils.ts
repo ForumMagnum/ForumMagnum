@@ -19,12 +19,42 @@ export const addField = async <T extends DbObject>(
   await db.none(sql, args);
 }
 
+/**
+ * WARNING: Please use addField instead (if possible)!
+ *
+ * This is the same as addField, just typed differently to handle the case
+ * when the field is not currently in the schema (ex. it was subsequently removed).
+ */
+export const addRemovedField = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+  fieldName: string,
+): Promise<void> => {
+  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, true).compile();
+  await db.none(sql, args);
+}
+
 export const dropField = async <T extends DbObject>(
   db: SqlClient,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
   const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  await db.none(sql, args);
+}
+
+/**
+ * WARNING: Please use dropField instead (if possible)!
+ *
+ * This is the same as dropField, just typed differently to handle the case
+ * when the field is not currently in the schema (ex. it was subsequently removed).
+ */
+export const dropRemovedField = async <T extends DbObject>(
+  db: SqlClient,
+  collection: PgCollection<T>,
+  fieldName: string,
+): Promise<void> => {
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, true).compile();
   await db.none(sql, args);
 }
 
@@ -58,7 +88,7 @@ export const updateFieldType = async <T extends DbObject>(
 export const dropIndex = async <T extends DbObject>(
   db: SqlClient,
   collection: PgCollection<T>,
-  index: TableIndex,
+  index: TableIndex<T>,
 ): Promise<void> => {
   const {sql, args} = new DropIndexQuery(collection.getTable(), index).compile();
   await db.none(sql, args);
@@ -67,7 +97,7 @@ export const dropIndex = async <T extends DbObject>(
 export const createIndex = async <T extends DbObject>(
   db: SqlClient,
   collection: PgCollection<T>,
-  index: TableIndex,
+  index: TableIndex<T>,
   ifNotExists = true,
 ): Promise<void> => {
   const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();

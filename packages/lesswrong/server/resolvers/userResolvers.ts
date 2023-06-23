@@ -5,7 +5,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 import {forumTypeSetting} from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
@@ -14,10 +14,15 @@ import countBy from 'lodash/countBy';
 import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
-import Tags from '../../lib/collections/tags/collection';
+import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
+import GraphQLJSON from 'graphql-type-json';
+import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { UsersRepo } from '../repos';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -48,6 +53,39 @@ augmentFieldsDict(Users, {
       }
     }
   },
+  rateLimitNextAbleToComment: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      arguments: 'postId: String',
+      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
+      }
+    },
+  },
+  rateLimitNextAbleToPost: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+        if (rateLimit) {
+          return rateLimit
+        } else {
+          return null
+        }
+      }
+    }
+  },
+  recentKarmaInfo: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+        return getRecentKarmaInfo(user._id)
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`
@@ -146,6 +184,7 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
+    // TODO: Deprecated
     async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
       if (!currentUser) {
         throw new Error('Cannot accept terms of use while not logged in');
@@ -159,6 +198,21 @@ addGraphQLResolvers({
         validate: false,
       })).data;
       return updatedUser.acceptedTos;
+    },
+    async UserExpandFrontpageSection(
+      _root: void,
+      {section, expanded}: {section: string, expanded: boolean},
+      {currentUser, repos}: ResolverContext,
+    ) {
+      if (!Users.isPostgres()) {
+        throw new Error("Expanding frontpage sections requires Postgres");
+      }
+      if (!currentUser) {
+        throw new Error("You must login to do this");
+      }
+      expanded = Boolean(expanded);
+      await repos.users.setExpandFrontpageSection(currentUser._id, section, expanded);
+      return expanded;
     },
     async UserUpdateSubforumMembership(root: void, { tagId, member }: {tagId: string, member: boolean}, context: ResolverContext) {
       const { currentUser } = context
@@ -221,7 +275,7 @@ addGraphQLResolvers({
       const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
       
       // Get the top 3 topics that the user has read (filtering out the Community topic)
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== 'ZCihBFp5P64JCvQY6')
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t![0])
       
@@ -267,7 +321,7 @@ addGraphQLResolvers({
       ])
       
       let totalKarmaChange
-      if (context?.repos?.votes) {
+      if (context.repos?.votes) {
         const karmaQueryArgs = {
           userId: currentUser._id,
           startDate: start,
@@ -286,7 +340,7 @@ addGraphQLResolvers({
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
       }
       
-      const results = {
+      const results: AnyBecauseTodo = {
         ...await getEngagement(currentUser._id),
         postsReadCount: posts.length,
         mostReadAuthors: topAuthors.reverse().map(id => {
@@ -316,10 +370,24 @@ addGraphQLResolvers({
       results['alignment'] = getAlignment(results)
       return results
     },
+    async GetRandomUser(root: void, {userIsAuthor}: {userIsAuthor: 'optional'|'required'}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!userIsAdminOrMod(currentUser)) {
+        throw new Error('Must be an admin/mod to get a random user')
+      }
+      
+      if (userIsAuthor === 'optional') {
+        return new UsersRepo().getRandomActiveUser()
+      } else if (userIsAuthor === 'required') {
+        return new UsersRepo().getRandomActiveAuthor()
+      } else {
+        throw new Error('Invalid user type type')
+      }
+    },
   },
 })
 
-function getAlignment(results) {
+function getAlignment(results: AnyBecauseTodo) {
   let goodEvil = 'neutral', lawfulChaotic = 'Neutral';
   if (results.engagementPercentile < 0.33) {
     goodEvil = 'evil'
@@ -354,7 +422,7 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
   const query = `
     with ranked as (
       select user_id
-        , total_seconds 
+        , total_seconds
         , percent_rank() over (order by total_seconds asc) engagementPercentile
       from user_engagement_wrapped
       -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
@@ -385,10 +453,15 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
+// TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'
+)
+addGraphQLMutation(
+  'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
+addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')

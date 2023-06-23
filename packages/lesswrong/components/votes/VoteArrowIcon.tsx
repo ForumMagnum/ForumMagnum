@@ -6,6 +6,7 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { VoteColor, cssVoteColors } from './voteColors';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,15 +86,6 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
-  const { LWTooltip } = Components;
-
-  const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
-      <LWTooltip title={"You do not have permission to vote on this"} placement="top">
-        {children}
-      </LWTooltip>
-    );
 
   if (!enabled) {
     eventHandlers = {};
@@ -108,13 +100,11 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       onClick={eventHandlers.handleClick}
       disableRipple
     >
-      <Tooltip>
-        <Icon
-          className={classes.smallArrow}
-          color={(voted || alwaysColored) ? color : 'inherit'}
-          viewBox='6 6 12 12'
-        />
-      </Tooltip>
+      <Icon
+        className={classes.smallArrow}
+        color={(voted || alwaysColored) ? color : 'inherit'}
+        viewBox='6 6 12 12'
+      />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon

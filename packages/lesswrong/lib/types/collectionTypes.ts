@@ -114,7 +114,7 @@ interface MergedViewQueryAndOptions<
   }
 }
 
-type MongoSelector<T extends DbObject> = any; //TODO
+export type MongoSelector<T extends DbObject> = any; //TODO
 type MongoProjection<T extends DbObject> = Partial<Record<keyof T, 0 | 1 | boolean>> | Record<string, any>;
 type MongoModifier<T extends DbObject> = {$inc?: any, $min?: any, $max?: any, $mul?: any, $rename?: any, $set?: any, $setOnInsert?: any, $unset?: any, $addToSet?: any, $pop?: any, $pull?: any, $push?: any, $pullAll?: any, $bit?: any}; //TODO
 
@@ -131,9 +131,24 @@ type MongoRemoveOptions<T extends DbObject> = any; //TODO
 type MongoInsertOptions<T extends DbObject> = any; //TODO
 type MongoAggregationPipeline<T extends DbObject> = any; //TODO
 type MongoAggregationOptions = CollectionAggregationOptions;
-type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
-type MongoIndexSpec = Record<string, 1 | -1> | string;
-type MongoEnsureIndexOptions = Record<string, any>;
+export type MongoSort<T extends DbObject> = Partial<Record<keyof T,number|null>>
+
+type FieldOrDottedPath<T> = keyof T | `${keyof T&string}.${string}`
+type MongoIndexKeyObj<T> = Partial<Record<FieldOrDottedPath<T>,1|-1|"2dsphere">>;
+type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
+type MongoEnsureIndexOptions<T> = {
+  partialFilterExpression?: Record<string, any>,
+  unique?: boolean,
+  name?: string,
+  collation?: {
+    locale: string,
+    strength: number,
+  },
+}
+type MongoIndexSpecification<T> = MongoEnsureIndexOptions<T> & {
+  key: MongoIndexKeyObj<T>
+}
+
 type MongoDropIndexOptions = {};
 
 type MongoBulkInsert<T extends DbObject> = {document: T};
@@ -172,7 +187,7 @@ interface HasUserIdType {
   userId: string
 }
 
-interface VoteableType extends HasIdType, HasUserIdType {
+interface VoteableType extends HasIdType {
   score: number
   baseScore: number
   extendedScore: any,
@@ -188,7 +203,7 @@ interface VoteableTypeClient extends VoteableType {
   currentUserExtendedVote?: any,
 }
 
-interface DbVoteableType extends VoteableType, DbObject {
+interface DbVoteableType extends VoteableType, DbObject, HasUserIdType {
 }
 
 // Common base type for results of database lookups.
@@ -213,7 +228,9 @@ export type AlgoliaDocument = {
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
+  clientId: string|null,
   currentUser: DbUser|null,
+  visitorActivity: DbUserActivity|null,
   locale: string,
   isGreaterWrong: boolean,
   /**

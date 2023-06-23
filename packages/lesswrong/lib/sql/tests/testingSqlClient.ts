@@ -8,6 +8,7 @@ import { expectedIndexes } from "../../collectionIndexUtils";
 import { inspect } from "util";
 import SwitchingCollection from "../../SwitchingCollection";
 import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
+import { ensurePostgresViewsExist } from "../../../server/postgresView";
 
 export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
   if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
@@ -53,7 +54,7 @@ const buildTables = async (client: SqlClient) => {
       const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
-        const fields: Record<string, 1 | -1> = typeof key === "string" ? {[key]: 1} : key;
+        const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
         const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
         const createIndexQuery = new CreateIndexQuery(table, index, true);
         const {sql, args} = createIndexQuery.compile();
@@ -65,6 +66,8 @@ const buildTables = async (client: SqlClient) => {
       }
     }
   }
+
+  await ensurePostgresViewsExist(client);
 }
 
 const makeDbName = (id?: string) => {
@@ -82,7 +85,7 @@ const createTemporaryConnection = async () => {
   if (!PG_URL) {
     throw new Error("Can't initialize test DB - PG_URL not set");
   }
-  client = await createSqlConnection(PG_URL);
+  client = await createSqlConnection(PG_URL, true);
   setSqlClient(client);
   return client;
 }
@@ -110,7 +113,7 @@ export const createTestingSqlClient = async (
   }
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
-  sql = await createSqlConnection(testUrl);
+  sql = await createSqlConnection(testUrl, true);
   await buildTables(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
@@ -133,7 +136,7 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   let sql = await createTemporaryConnection();
   await sql.any('CREATE DATABASE "$1:value" TEMPLATE $2', [dbName, template]);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
-  sql = await createSqlConnection(testUrl);
+  sql = await createSqlConnection(testUrl, true);
   setSqlClient(sql);
   return {
     sql,
@@ -141,6 +144,12 @@ export const createTestingSqlClientFromTemplate = async (template: string): Prom
   };
 }
 
+/**
+ * Our approach to database cleanup is to just delete all the runs older than 1 day.
+ * This allows us to inspect the databases created during the last run if necessary
+ * for debugging whilst also making sure that we clean up after ourselves eventually
+ * (assuming that the tests are run again some day).
+ */
 export const dropTestingDatabases = async (olderThan?: string | Date) => {
   const sql = await createTemporaryConnection();
   const databases = await sql.any(`
@@ -150,14 +159,20 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       datname LIKE 'unittest_%' AND
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
-  olderThan = new Date(olderThan ?? Date.now());
+  const secondsPerDay = 1000 * 60 * 60 * 24;
+  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
   for (const database of databases) {
     const {datname} = database;
+    if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {
+      continue;
+    }
+
+    // Replace underscores with dashes and colons etc
     const tokens = datname.split("_").slice(1, 7);
-    const day = tokens.slice(0, 2);
-    const time = tokens.slice(2, 5);
+    const yearMonth = tokens.slice(0, 2);
+    const dayTime = tokens.slice(2, 5);
     const millis = tokens[5];
-    const dateString = (day.join("-") + "-" + time.join(":") + "." + millis).toUpperCase();
+    const dateString = (yearMonth.join("-") + "-" + dayTime.join(":") + "." + millis).toUpperCase();
     const dateCreated = new Date(dateString);
     if (dateCreated < olderThan) {
       await sql.none(`DROP DATABASE ${datname}`);

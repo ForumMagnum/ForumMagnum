@@ -11,12 +11,13 @@ import * as reactRouter from 'react-router';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
-import { parseQuery } from './routeUtil'
+import { classifyHost, getUrlClass } from './routeUtil';
+import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
 
-export const withRouter = (WrappedComponent) => {
-  const WithRouterWrapper = (props) => {
+export const withRouter = (WrappedComponent: AnyBecauseTodo) => {
+  const WithRouterWrapper = (props: AnyBecauseTodo) => {
     return <WrappedComponent
       routes={[]}
       location={{pathname:""}}
@@ -27,17 +28,28 @@ export const withRouter = (WrappedComponent) => {
   return reactRouter.withRouter(WithRouterWrapper);
 }
 
-type LinkProps = Omit<HashLinkProps, 'to'> & {
-  to: HashLinkProps['to'] | null
+type LinkProps = {
+  to?: HashLinkProps['to']|null
+  href?: string|null
+  onMouseDown?: HashLinkProps['onMouseDown']
+  onClick?: HashLinkProps['onClick']
+  rel?: string
+  eventProps?: Record<string, string>
+  className?: string
+  dangerouslySetInnerHTML?: {__html: string}
+  target?: string
+  smooth?: boolean,
+  id?: string
+  children?: React.ReactNode,
 };
 
 const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
-export const Link = (props: LinkProps) => {
-  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to}})
-  const handleClick = (e) => {
+export const Link = ({eventProps, ...props}: LinkProps) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
+  const handleClick = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
   }
@@ -47,10 +59,18 @@ export const Link = (props: LinkProps) => {
     console.error("Props 'to' for Link components only accepts strings or objects, passed type: ", typeof props.to)
     return <span>Broken Link</span>
   }
-  return <HashLink {...props} onMouseDown={handleClick}/>
+  
+  const {to, href, ...otherProps} = props;
+  const destinationUrl = to||href;
+
+  if (destinationUrl && typeof destinationUrl==='string' && isOffsiteLink(destinationUrl)) {
+    return <a href={destinationUrl} {...otherProps} onMouseDown={handleClick}/>
+  } else {
+    return <HashLink {...props} onMouseDown={handleClick}/>
+  }
 }
 
-export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}) => {
+export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}: AnyBecauseTodo) => {
   // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
   const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
   return <reactRouterDom.Link
@@ -59,4 +79,16 @@ export const QueryLink: any = (reactRouter.withRouter as any)(({query, location,
   />
 })
 
+function isOffsiteLink(url: string): boolean {
+  if (url.startsWith("http:") || url.startsWith("https:")) {
+    const URLClass = getUrlClass();
+    const parsedUrl = new URLClass(url);
+    return classifyHost(parsedUrl.host) !== "onsite";
+  } else {
+    return false;
+  }
+}
+
 export const Redirect = reactRouter.Redirect;
+
+export const useHistory = reactRouter.useHistory;

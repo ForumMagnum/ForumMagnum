@@ -10,6 +10,7 @@ registerFragment(`
     }
     lastActivity
     name
+    nameInAnotherLanguage
     isOnline
     location
     googleLocation

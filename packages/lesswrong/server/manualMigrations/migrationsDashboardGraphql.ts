@@ -45,8 +45,8 @@ defineQuery({
   },
 });
 
-const makeMigrationStatus = (name: string, runsByMigration) => {
-  const runs = runsByMigration[name]?.map(run => ({
+const makeMigrationStatus = (name: string, runsByMigration: AnyBecauseTodo) => {
+  const runs = runsByMigration[name]?.map((run: AnyBecauseTodo) => ({
     name: run.name,
     started: new Date(run.started),
     finished: run.finished ? new Date(run.finished) : null,
@@ -55,7 +55,7 @@ const makeMigrationStatus = (name: string, runsByMigration) => {
 
   let lastRun = ''
   if (runs.length) {
-    const startDates = runs.map(run => run.started)
+    const startDates = runs.map((run: AnyBecauseTodo) => run.started)
     lastRun = moment.utc(_.max(startDates)).format('YYYY-MM-DD')
   }
 

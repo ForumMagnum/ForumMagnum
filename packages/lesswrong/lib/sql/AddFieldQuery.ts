@@ -8,10 +8,10 @@ import Table from "./Table";
  * meant for use in migrations.
  */
 class AddFieldQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, fieldName: string) {
+  constructor(table: Table<T>, fieldName: string, skipValidation?: boolean) {
     const fields = table.getFields();
     const fieldType = fields[fieldName];
-    if (!fieldType) {
+    if (!skipValidation && !fieldType) {
       throw new Error(`Field "${fieldName}" does not exist in the schema`);
     }
     super(table, [

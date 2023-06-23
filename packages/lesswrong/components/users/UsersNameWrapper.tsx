@@ -9,7 +9,7 @@ import React from 'react';
  * display their name. If the nofollow attribute is true OR the user has a
  * spam-risk score below 0.8, the user-page link will be marked nofollow.
  */
-const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className}: {
+const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className, ...otherProps}: {
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
@@ -23,7 +23,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className}:
   if (!document && loading) {
     return <Components.Loading />
   } else if (document) {
-    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} className={className}/>
+    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} className={className} {...otherProps}/>
   } else {
     return <Components.UserNameDeleted/>
   }

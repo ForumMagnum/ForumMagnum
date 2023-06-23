@@ -4,6 +4,8 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -17,6 +19,11 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
     
     "&:hover": {
       background: theme.palette.panelBackground.darken08,
+    },
+
+    // Hide on mobile to avoid horizontal scrolling
+    [theme.breakpoints.down('xs')]: {
+      display: isEAForum ? "none" : "initial",
     },
   },
 });
@@ -143,8 +150,15 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   x: number, y: number,
   classes: ClassesType,
 }) => {
+  const { captureEvent } = useTracking()
+
   return <div className={classes.toolbar} style={{left: x, top: y}}>
-    <CommentIcon onClick={ev => onClickComment(ev)}/>
+    <AnalyticsContext pageElementContext="selectedTextToolbar">
+      <CommentIcon onClick={ev => {
+        captureEvent("commentOnSelectionClicked");
+        onClickComment(ev);
+      }}/>
+    </AnalyticsContext>
   </div>
 }
 
@@ -161,16 +175,16 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
   onClickComment: (html: string)=>void,
   children: React.ReactNode,
 }) => {
-  const wrapperSpanRef = useRef<HTMLSpanElement|null>(null);
+  const wrapperDivRef = useRef<HTMLDivElement|null>(null);
   const currentUser = useCurrentUser();
   
   useEffect(() => {
-    if (wrapperSpanRef.current) {
-      let modifiedSpan = (wrapperSpanRef.current as any)
-      modifiedSpan.onClickComment = onClickComment;
+    if (wrapperDivRef.current) {
+      let modifiedDiv = (wrapperDivRef.current as any)
+      modifiedDiv.onClickComment = onClickComment;
       
       return () => {
-        modifiedSpan.onClickComment = null;
+        modifiedDiv.onClickComment = null;
       }
     }
   }, [onClickComment]);
@@ -179,9 +193,9 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
     return <>{children}</>;
   }
   
-  return <span className="commentOnSelection" ref={wrapperSpanRef}>
+  return <div className="commentOnSelection" ref={wrapperDivRef}>
     {children}
-  </span>
+  </div>
 }
 
 /**

@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import StarIcon from '@material-ui/icons/Star';
 import LocationIcon from '@material-ui/icons/LocationOn'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -42,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   displayName: {
     fontSize: 18,
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
     fontWeight: 600,
   },
@@ -67,13 +66,13 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const { FormatDate, ProfilePhoto } = Components
-  const user = hit as AlgoliaUser
+  const {FormatDate, UsersProfileImage, ForumIcon} = Components;
+  const user = hit as AlgoliaUser;
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
       <div className={classes.profilePhotoCol}>
-        <ProfilePhoto user={user} noLink />
+        <UsersProfileImage user={user} size={36} />
       </div>
       <div>
         <div className={classes.displayNameRow}>
@@ -82,7 +81,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
-            <StarIcon className={classes.metaInfoIcon} /> {user.karma ?? 0}
+            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
           </span>
           {user.mapLocationAddress && <span className={classes.metaInfo}>
             <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}

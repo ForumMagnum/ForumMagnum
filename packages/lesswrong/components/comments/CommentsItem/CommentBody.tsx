@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import type { ContentStyleType } from '../../common/ContentStyles';
+import { VotingProps } from '../../votes/votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -30,18 +32,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   retracted: {
     textDecoration: "line-through",
-  }
+  },
 })
 
-const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
+const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights, commentItemRef, voteProps }: {
   comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
   classes: ClassesType,
+  commentBodyHighlights?: string[],
+  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  voteProps?: VotingProps<VoteableTypeClient>
 }) => {
   const currentUser = useCurrentUser();
-  const { ContentItemBody, CommentDeletedMetadata, ContentStyles } = Components
+  const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
   const bodyClasses = classNames(
@@ -55,16 +60,32 @@ const CommentBody = ({ comment, classes, collapsed, truncated, postPage }: {
 
   const innerHtml = truncated ? commentExcerptFromHTML(comment, currentUser, postPage) : html
 
-  return (
-    <ContentStyles contentType={comment.answer ? "answer" : "comment"} className={classes.root}>
-      <ContentItemBody
-        className={bodyClasses}
-        dangerouslySetInnerHTML={{__html: innerHtml }}
-        description={`comment ${comment._id}`}
-        nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-      />
-    </ContentStyles>
-  )
+  let contentType: ContentStyleType;
+  if (comment.answer) {
+    contentType = 'answer';
+  } else if (comment.debateResponse) {
+    contentType = 'debateResponse';
+  } else {
+    contentType = 'comment';
+  }
+
+  const contentBody = <ContentStyles contentType={contentType} className={classes.root}>
+    <ContentItemBody
+      highlightedSubstrings={commentBodyHighlights}
+      className={bodyClasses}
+      dangerouslySetInnerHTML={{__html: innerHtml }}
+      description={`comment ${comment._id}`}
+      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+    />
+  </ContentStyles>
+
+  if (comment.votingSystem === "namesAttachedReactions" && voteProps) {
+    return <InlineReactSelectionWrapper commentItemRef={commentItemRef} voteProps={voteProps}>
+        {contentBody}
+      </InlineReactSelectionWrapper>
+  } else {
+    return contentBody
+  }
 }
 
 const CommentBodyComponent = registerComponent('CommentBody', CommentBody, {styles});

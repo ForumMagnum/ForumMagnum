@@ -9,6 +9,7 @@ import {
   userUpdateFieldSucceeds,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
+  withNoLogs,
 } from '../utils';
 import moment from 'moment';
 
@@ -45,12 +46,14 @@ describe('createComment – ', function() {
   it('should fail if the user is banned', async function () {
     const user = await createDummyUser()
     const post = await createDummyPost()
-    const queryPromise = runQuery(
-      createCommentQuery(post._id),
-      {},
-      {currentUser: {...user, banned: moment().add(1, 'year').toDate()}}
-    )
-    return (queryPromise as any).should.be.rejected
+    await withNoLogs(async () => {
+      const queryPromise = runQuery(
+        createCommentQuery(post._id),
+        {},
+        {currentUser: {...user, banned: moment().add(1, 'year').toDate()}}
+      )
+      await (queryPromise as any).should.be.rejected
+    });
   })
 });
 describe('updateComment – ', () => {

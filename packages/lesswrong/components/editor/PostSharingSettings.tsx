@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
@@ -154,7 +153,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
   classes: ClassesType
 }) => {
-  const { EditableUsersList, LWDialog, LWTooltip } = Components;
+  const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);

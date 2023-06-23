@@ -105,6 +105,8 @@ addGraphQLResolvers({
         
         return resultProps;
       } catch(e) {
+        //eslint-disable-next-line no-console
+        console.error(`error when using email token: `, e);
         return {
           componentName: "EmailTokenResult",
           props: {

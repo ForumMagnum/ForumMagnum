@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent }: {
+const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent, filters }: {
   clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
@@ -33,6 +33,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   indexName: string,
   classes: ClassesType,
   renderInputComponent?: any,
+  filters?: string,
 }) => {
   if (!isAlgoliaEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
@@ -59,7 +60,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     <div className={classes.autoComplete}>
       { /* @ts-ignore */ }
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
-      <Configure hitsPerPage={hitsPerPage} />
+      <Configure hitsPerPage={hitsPerPage} filters={filters}/>
     </div>
   </InstantSearch>
 }

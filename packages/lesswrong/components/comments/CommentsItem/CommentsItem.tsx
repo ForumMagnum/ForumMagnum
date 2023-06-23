@@ -1,33 +1,38 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
-import { userCanDo, userIsAdmin } from '../../../lib/vulcan-users/permissions';
+import { Comments } from '../../../lib/collections/comments/collection';
+import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
-import { Comments } from "../../../lib/collections/comments";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { StickyIcon } from '../../posts/PostsTitle';
-import type { CommentFormDisplayMode } from '../CommentsNewForm';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
+import { metaNoticeStyles } from './CommentsItemMeta';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { useVote } from '../../votes/withVote';
+import { VotingProps } from '../../votes/votingProps';
 
-const isEAForum= forumTypeSetting.get() === "EAForum"
+export const highlightSelectorClassName = "highlighted-substring";
+export const dimHighlightClassName = "dim-highlighted-substring";
+export const faintHighlightClassName = "dashed-highlighted-substring";
 
-// Shared with ParentCommentItem
-export const styles = (theme: ThemeType): JssStyles => ({
+
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
-    "&:hover $menu": {
+    position: "relative",
+    "&:hover .CommentsItemMeta-menu": {
       opacity:1
     }
   },
@@ -54,97 +59,53 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 12,
     },
   },
-  menu: {
-    opacity:.35,
-    marginRight:-5,
-    float: "right",
-  },
   replyLink: {
-    marginRight: 5,
+    marginRight: 8,
     display: "inline",
+    fontWeight: isEAForum ? 600 : theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
+    fontSize: isEAForum ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
-  },
-  collapse: {
-    marginRight: 5,
-    opacity: 0.8,
-    fontSize: "0.8rem",
-    lineHeight: "1rem",
-    paddingBottom: 4,
-    display: "inline-block",
-    verticalAlign: "middle",
-
-    "& span": {
-      fontFamily: "monospace",
-    }
   },
   firstParentComment: {
     marginLeft: -theme.spacing.unit*1.5,
     marginRight: -theme.spacing.unit*1.5
   },
-  meta: {
-    "& > div": {
-      display: "inline-block",
-      marginRight: 5,
-    },
-
-    marginBottom: 8,
-    color: theme.palette.text.dim,
-    paddingTop: ".6em",
-
-    "& a:hover, & a:active": {
-      textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
-    },
-  },
-  sideCommentMeta: {
-    display: "flex",
-    alignItems: "baseline",
-  },
   bottom: {
-    paddingBottom: 5,
-    fontSize: 12,
-    minHeight: 12
+    paddingBottom: isEAForum ? 12 : 5,
+    paddingTop: isEAForum ? 4 : undefined,
+    minHeight: 12,
+    ...(isEAForum ? {} : {fontSize: 12}),
+  },
+  bottomWithReacts: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
   },
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
+    borderRadius: isEAForum ? theme.borderRadius.small : 0,
   },
   replyFormMinimalist: {
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
   },
   deleted: {
     backgroundColor: theme.palette.panelBackground.deletedComment,
   },
-  moderatorHat: {
-    marginRight: 8,
-  },
-  username: {
-    marginRight: 10,
-    
-    "$sideCommentMeta &": {
-      flexGrow: 1,
-      whiteSpace: "nowrap",
-      textOverflow: "ellipsis",
-      flexShrink: 1,
-      display: "inline-block",
-      overflowX: "hidden",
-    },
-  },
   metaNotice: {
-    color: theme.palette.lwTertiary.main,
-    fontStyle: "italic",
-    fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
-    marginLeft: theme.spacing.unit/2
+    ...metaNoticeStyles(theme),
   },
-  pinnedIcon: {
+  pinnedIconWrapper: {
     color: theme.palette.grey[400],
     paddingTop: 10,
-    marginBottom: '-3px'
+    marginBottom: '-3px',
+  },
+  pinnedIcon: {
+    fontSize: 12
   },
   title: {
     ...theme.typography.display2,
@@ -186,7 +147,37 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-})
+  replyIcon: {
+    opacity: .3,
+    height: 18,
+    width: 18,
+    position: "relative",
+    top: 3
+  },
+  lwReactStyling: {
+    '&:hover .react-hover-style': {
+      filter: "opacity(0.8)",
+    },
+    // mark.js applies a default highlight of yellow background and black text. 
+    // we need to override to apply our own themes, and avoid being unreadable in dark mode
+    [`& .${faintHighlightClassName}`]: {
+      backgroundColor: "unset",
+      color: "unset",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
+      color: "unset",
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200],
+      color: "unset",
+    },
+    [`&:hover .${faintHighlightClassName}`]: {
+      borderBottom: theme.palette.border.dashed500,
+      color: "unset",
+    },
+  }
+});
 
 /**
  * CommentsItem: A single comment, not including any recursion for child comments
@@ -206,21 +197,25 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
-  parentAnswerId?: string|undefined,
+  parentAnswerId?: string,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
+  const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
-  
   const currentUser = useCurrentUser();
 
-  const { postPage, showCollapseButtons, tag, post, refetch, hideReply, showPostTitle, singleLineCollapse, hideReviewVoteButtons, moderatedCommentId } = treeOptions;
+  const {
+    postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
+    moderatedCommentId,
+  } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
 
@@ -258,23 +253,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const toggleShowParent = () => {
     setShowParentState(!showParentState);
   }
-  
-  const renderMenu = () => {
-    const { CommentsMenu } = Components;
-    return (
-      <AnalyticsContext pageElementContext="tripleDotMenu">
-        <CommentsMenu
-          className={classes.menu}
-          comment={comment}
-          post={post}
-          tag={tag}
-          showEdit={setShowEdit}
-        />
-      </AnalyticsContext>
-    )
-  }
-  
-  const renderBodyOrEditor = () => {
+
+  const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
       return <Components.CommentsEditForm
         comment={comment}
@@ -282,13 +262,16 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return (
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage} />
+      return (<div ref={commentItemRef}>
+        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
+          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef} voteProps={voteProps}
+        />
+      </div>
       );
     }
   }
 
-  const renderCommentBottom = () => {
+  const renderCommentBottom = (voteProps: VotingProps<VoteableTypeClient>) => {
     const { CommentBottomCaveats } = Components
 
     const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
@@ -305,20 +288,30 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       // here. We should do something more complicated to give client-side feedback
       // if you're banned.
       // @ts-ignore
-      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post)) &&
-      !commentHidden
+      (!currentUser || userIsAllowedToComment(currentUser, treeOptions.post ?? null, null, true)) &&
+      (!commentHidden || userCanDo(currentUser, 'posts.moderate.all'))
     )
 
     const showInlineCancel = showReplyState && isMinimalist
     return (
-      <div className={classes.bottom}>
-        <CommentBottomCaveats comment={comment} />
-        {showReplyButton && (
-          treeOptions?.replaceReplyButtonsWith?.(comment)
-          || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
-            {showInlineCancel ? "Cancel" : "Reply"}
-          </a>
-        )}
+      <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
+        <div>
+          <CommentBottomCaveats comment={comment} />
+          {showReplyButton && (
+            treeOptions?.replaceReplyButtonsWith?.(comment)
+            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+              {showInlineCancel ? "Cancel" : "Reply"}
+            </a>
+          )}
+        </div>
+        {VoteBottomComponent && <VoteBottomComponent
+          document={comment}
+          hideKarma={post?.hideCommentKarma}
+          collection={Comments}
+          votingSystem={votingSystem}
+          commentItemRef={commentItemRef}
+          voteProps={voteProps}
+        />}
       </div>
     );
   }
@@ -343,16 +336,15 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
       </div>
     )
   }
-  
-  const {
-    ShowParentComment, CommentsItemDate, CommentUserName, CommentShortformIcon,
-    CommentDiscussionIcon, SmallSideVote, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, TopTagIcon
-  } = Components
 
-  if (!comment) {
-    return null;
-  }
+  const {
+    CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
+  } = Components
+  
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   const displayReviewVoting = 
     !hideReviewVoteButtons &&
@@ -362,29 +354,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     currentUser?._id !== post.userId &&
     eligibleToNominate(currentUser)
 
-  /**
-   * Show the moderator comment annotation if:
-   * 1) it has the moderatorHat
-   * 2) the user is either an admin, or the moderatorHat isn't deliberately hidden
-   */
-  const showModeratorCommentAnnotation = comment.moderatorHat && (
-    userIsAdmin(currentUser)
-      ? true
-      : !comment.hideModeratorHat
-    );
-  
-  const moderatorCommentAnnotation = comment.hideModeratorHat
-    ? 'Moderator Comment (Invisible)'
-    : 'Moderator Comment';
-  
-  const getReviewLink = (year: string) => {
-    // We changed our review page in 2018 and 2019. In 2020 we came up with a page that we'll
-    // hopefully stick with for awhile.
-    if (year === "2018" || year === "2019") {
-      return `/reviews/${year}`
-    }
-    return `/reviewVoting/${year}`
-  }
+  const voteProps = useVote(comment, "Comments", votingSystem);
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -406,12 +376,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               truncated={showParentDefault}
               key={comment.parentCommentId}
             />
-          </div>
+          </div> 
         )}
         
         <div className={classes.postTitleRow}>
-          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIcon}>
-            <StickyIcon />
+          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
+            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
           {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
@@ -421,71 +391,41 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               </Link>
             </LWTooltip>}
           {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
-            {`${startCase(comment.tag.name)}${comment.tagCommentType === "SUBFORUM" ? " Subforum" : ""}`}
+            {startCase(comment.tag.name)}
           </Link>}
         </div>
-        <div className={classes.body}>
+        <div className={classNames(classes.body, classes.lwReactStyling)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
-              <TopTagIcon tag={tag} />
+              <CoreTagIcon tag={tag} />
             </span> : <CommentDiscussionIcon
               comment={comment}
             />}
             {comment.title}
           </div>}
-          <div className={classNames(classes.meta, {
-            [classes.sideCommentMeta]: treeOptions.isSideComment,
-          })}>
-            {!parentCommentId && !comment.parentCommentId && isParentComment &&
-              <div className={classes.usernameSpacing}>○</div>
-            }
-            {post && <CommentShortformIcon comment={comment} post={post} />}
-            {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
-            {parentCommentId!=comment.parentCommentId && parentAnswerId!=comment.parentCommentId &&
-              <ShowParentComment
-                comment={comment}
-                active={showParentState}
-                onClick={toggleShowParent}
-            />}
-            {(showCollapseButtons || collapsed) && <a className={classes.collapse} onClick={toggleCollapse}>
-              [<span>{collapsed ? "+" : "-"}</span>]
-            </a>}
-            {singleLineCollapse && <a className={classes.collapse} onClick={() =>
-              setSingleLine && setSingleLine(true)
-            }>
-              [<span>{collapsed ? "+" : "-"}</span>]
-            </a>}
-            <CommentUserName comment={comment} className={classes.username}/>
-            <CommentsItemDate
-              comment={comment} post={post} tag={tag}
-              scrollIntoView={scrollIntoView}
-              scrollOnClick={postPage && !isParentComment}
-            />
-            {showModeratorCommentAnnotation && <span className={classes.moderatorHat}>
-              {moderatorCommentAnnotation}
-            </span>}
-            <SmallSideVote
-              document={comment}
-              collection={Comments}
-              hideKarma={post?.hideCommentKarma}
-            />
-
-            {!isParentComment && !treeOptions.hideActionsMenu && renderMenu()}
-            {post && <Components.CommentOutdatedWarning comment={comment} post={post}/>}
-            
-            {comment.nominatedForReview && <Link to={`/nominations/${comment.nominatedForReview}`} className={classes.metaNotice}>
-              {`Nomination for ${comment.nominatedForReview} Review`}
-            </Link>}
-
-            {comment.reviewingForReview && <Link to={getReviewLink(comment.reviewingForReview)} className={classes.metaNotice}>
-              {`Review for ${isEAForum && comment.reviewingForReview === '2020' ? 'the Decade' : comment.reviewingForReview} Review`}
-            </Link>}
-          </div>
+          <CommentsItemMeta
+            {...{
+              treeOptions,
+              comment,
+              showCommentTitle,
+              isParentComment,
+              parentCommentId,
+              showParentState,
+              toggleShowParent,
+              scrollIntoView,
+              parentAnswerId,
+              setSingleLine,
+              collapsed,
+              toggleCollapse,
+              setShowEdit,
+            }}
+          />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
-            Promoted by {comment.promotedByUser.displayName}
+            Pinned by {comment.promotedByUser.displayName}
           </div>}
-          {renderBodyOrEditor()}
-          {!comment.deleted && !collapsed && renderCommentBottom()}
+          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
+          {renderBodyOrEditor(voteProps)}
+          {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
           <div className={classes.updateVoteMessage}>

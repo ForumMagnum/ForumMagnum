@@ -2,20 +2,17 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { useCurrentUser } from '../../common/withUser';
 import mapValues from 'lodash/mapValues';
-import type { SideCommentMode } from '../PostActions/SetSideCommentVisibility';
-
+import type { SideCommentMode } from '../../dropdowns/posts/SetSideCommentVisibility';
 
 const PostBody = ({post, html, sideCommentMode}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   html: string,
   sideCommentMode?: SideCommentMode
 }) => {
-  const currentUser = useCurrentUser();
   const includeSideComments = sideCommentMode && sideCommentMode!=="hidden";
-  
-  const { document, loading } = useSingle({
+
+  const { document } = useSingle({
     documentId: post._id,
     collectionName: "Posts",
     fragmentName: 'PostSideComments',
@@ -31,7 +28,7 @@ const PostBody = ({post, html, sideCommentMode}: {
       ? document.sideComments.highKarmaCommentsByBlock
       : document.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
-    
+
     return <ContentItemBody
       dangerouslySetInnerHTML={{__html: htmlWithIDs}}
       key={`${post._id}_${sideCommentMode}`}

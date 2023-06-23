@@ -69,7 +69,9 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     documentId: localPost.fmCrosspost.foreignPostId
   };
 
-  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args } });
+  // This query can be slow (and the timing is unpredictable), so use `batchKey: "crosspost"` to make sure it
+  // doesn't get batched together with other queries and block them
+  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args, batchKey: "crosspost" } });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
@@ -77,7 +79,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   if (!localPost.fmCrosspost.hostedHere) {
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
-      Object.assign(combinedPost, { [field]: foreignPost?.[field] ?? localPost[field] });
+      Object.assign(combinedPost, { [field]: (foreignPost as AnyBecauseTodo)?.[field] ?? (localPost as AnyBecauseTodo)[field] });
     }
     // We just took the table of contents from the foreign version, but we want to use the local comment count
     if (hasTableOfContents(combinedPost)) {

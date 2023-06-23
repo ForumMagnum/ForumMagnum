@@ -12,6 +12,7 @@ import markdownItFootnote from 'markdown-it-footnote'
 import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { randomId } from '../../lib/random';
+import { ckEditorName } from '../editor/Editor';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -108,7 +109,7 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
   const contentsType = originalContents.type
   if (!['html', 'ckEditorMarkup', 'markdown'].includes(contentsType)) {
     return {
-      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or EA Forum Docs [Beta] to see the description preview>`,
+      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or ${ckEditorName} to see the description preview>`,
       fallbackImageUrl: null,
     };
   }
@@ -143,7 +144,7 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
 const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
   document: PostsEditWithLocalData,
-  updateCurrentValues: Function,
+  updateCurrentValues: UpdateCurrentValues,
   clearField: Function,
   label: string,
   croppingAspectRatio?: number,

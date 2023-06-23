@@ -21,7 +21,7 @@ export type BulkWriterResult = {
 class BulkWriter<T extends DbObject> {
   private queries: Query<T>[] = [];
 
-  constructor(table: Table, operations: MongoBulkWriteOperations<T>, _options?: MongoBulkWriteOptions) {
+  constructor(table: Table<T>, operations: MongoBulkWriteOperations<T>, _options?: MongoBulkWriteOptions) {
     const inserts: MongoBulkInsert<T>[] = [];
     const updateOnes: MongoBulkUpdate<T>[] = [];
     const updateManys: MongoBulkUpdate<T>[] = [];
@@ -31,7 +31,7 @@ class BulkWriter<T extends DbObject> {
 
     for (const op of operations) {
       const opName = Object.keys(op)[0];
-      const opValue = op[opName];
+      const opValue = (op as AnyBecauseTodo)[opName];
       switch (opName) {
         case "insertOne":
           inserts.push(opValue);

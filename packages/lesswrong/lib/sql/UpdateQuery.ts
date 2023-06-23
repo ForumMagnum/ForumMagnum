@@ -1,12 +1,17 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
-import { JsonType } from "./Type";
+import { JsonType, Type } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
   returnUpdated: boolean,
 }>
+
+interface CompileUpdateExpressionOptions {
+  skipTypeHint?: boolean,
+  jsonType?: JsonType
+}
 
 /**
  * Builds a Postgres query to update some specific data in the given table.
@@ -14,7 +19,7 @@ export type UpdateOptions = Partial<{
  */
 class UpdateQuery<T extends DbObject> extends Query<T> {
   constructor(
-    table: Table,
+    table: Table<T>,
     selector: string | MongoSelector<T>,
     modifier: MongoModifier<T>,
     options?: MongoUpdateOptions<T>, // TODO: What can options be?
@@ -40,7 +45,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
           break;
         case "$unset":
           for (const field of Object.keys(modifier.$unset)) {
-            set[field] = null;
+            (set as AnyBecauseTodo)[field] = null;
           }
           break;
         default:
@@ -86,6 +91,8 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     if (returnUpdated) {
       this.atoms.push("RETURNING *");
+    } else {
+      this.atoms.push(`RETURNING "_id"`);
     }
   }
 
@@ -116,9 +123,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const column = dot > 0 ? update.substring(0, dot) : update;
       const columnType = this.getField(column);
       if (columnType?.toConcrete() instanceof JsonType) {
-        jsonArrays[update] = addToSets[update];
+        (jsonArrays as AnyBecauseTodo)[update] = (addToSets as AnyBecauseTodo)[update];
       } else {
-        nativeArrays[update] = addToSets[update];
+        (nativeArrays as AnyBecauseTodo)[update] = (addToSets as AnyBecauseTodo)[update];
       }
     }
 
@@ -126,7 +133,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
 
     for (const jsonUpdate of Object.keys(jsonArrays)) {
       const {column, path} = this.buildJsonUpdatePath(jsonUpdate);
-      const updateValue = this.compileUpdateExpression(jsonArrays[jsonUpdate]);
+      const updateValue = this.compileUpdateExpression((jsonArrays as AnyBecauseTodo)[jsonUpdate]);
       jsonUpdates = jsonUpdates.concat(
         ",",
         column,
@@ -152,7 +159,7 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     updates: Partial<Record<keyof T, any>>,
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
-    return Object.keys(updates).flatMap((field) => this.compileUpdateField(field, updates[field], format));
+    return Object.keys(updates).flatMap((field) => this.compileUpdateField(field, (updates as AnyBecauseTodo)[field], format));
   }
 
   private compileUpdateField(
@@ -161,34 +168,40 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
     try {
-      const updateValue = this.compileUpdateExpression(value);
-
       // If we're updating the value of a JSON blob without totally replacing
       // it then we need to wrap the update in a call to `JSONB_SET`.
       if (field.includes(".")) {
+        const updateValue = this.compileUpdateExpression(value, { skipTypeHint: true });
         const {column, path} = this.buildJsonUpdatePath(field);
         return format(
           column,
-          ["JSONB_SET(", column, ",", path, ",", ...updateValue, ", TRUE)"],
+          ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
         );
       }
-
+  
+      const fieldType = this.getField(field);
+      const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
+      const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
+      const updateValue = this.compileUpdateExpression(value, { jsonType: typeForArg });
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn(`Field "${field}" is not recognized - is it missing from the schema?`, e);
-      return [];
+      // @ts-ignore
+      throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }
 
-  private compileUpdateExpression(value: unknown): Atom<T>[] {
+  private compileUpdateExpression(value: unknown, options: CompileUpdateExpressionOptions = {}): Atom<T>[] {
+    const { jsonType, skipTypeHint } = options;
     if (typeof value === "object" && value && Object.keys(value).some((key) => key[0] === "$")) {
       return this.compileExpression(value);
     } else {
-      const arg = this.createArg(value);
+      const arg = this.createArg(value, jsonType);
       if (!arg.typehint) {
         arg.typehint = this.getTypeHint(value);
+      }
+      if (skipTypeHint) {
+        arg.typehint = "" 
       }
       return [arg];
     }

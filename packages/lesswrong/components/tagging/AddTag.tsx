@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
-import Divider from '@material-ui/core/Divider';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getAllTagsPath } from '../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,14 +34,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AddTag = ({onTagSelected, classes}: {
+const AddTag = ({onTagSelected, isVotingContext, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  isVotingContext?: boolean,
   classes: ClassesType,
 }) => {
-  const { TagSearchHit, WrappedSmartForm } = Components
+  const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const [showCreateTag, setShowCreateTag] = useState(false);
   const searchStateChanged = React.useCallback((searchState) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
@@ -70,7 +70,7 @@ const AddTag = ({onTagSelected, classes}: {
       }, 0);
     }
   }, []);
-  
+
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root} ref={containerRef}>
       <input placeholder="Tag ID" type="text" onKeyPress={ev => {
@@ -82,7 +82,7 @@ const AddTag = ({onTagSelected, classes}: {
       }}/>
     </div>
   }
-  
+
   return <div className={classes.root} ref={containerRef}>
     <InstantSearch
       indexName={getAlgoliaIndexName("Tags")}
@@ -98,16 +98,18 @@ const AddTag = ({onTagSelected, classes}: {
         hitsPerPage={searchOpen ? 12 : 6}
       />
       <Hits hitComponent={({hit}) =>
-        <TagSearchHit hit={hit}
-            onClick={ev => {
-              onTagSelected({tagId: hit._id, tagName: hit.name});
-              ev.stopPropagation();
-            }}
-          />
-        }/>
+        <TagSearchHit
+          hit={hit}
+          onClick={ev => {
+            onTagSelected({tagId: hit._id, tagName: hit.name});
+            ev.stopPropagation();
+          }}
+          isVotingContext={isVotingContext}
+        />
+      }/>
     </InstantSearch>
-    <Divider/>
-    <Link target="_blank" to="/tags/all" className={classes.newTag}>
+    <DropdownDivider />
+    <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
       All {taggingNamePluralCapitalSetting.get()}
     </Link>
     {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link

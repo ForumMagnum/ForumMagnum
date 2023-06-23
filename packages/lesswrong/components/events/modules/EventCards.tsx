@@ -7,7 +7,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
@@ -33,9 +33,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 373,
     height: 374,
-    borderRadius: 0,
     overflow: 'visible',
     boxShadow: theme.palette.boxShadow.eventCard,
+    borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       maxWidth: '100vw'
     }
@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardContent: {
     position: 'relative',
-    height: 170,
+    height: 175,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -68,12 +68,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardTitle: {
     ...theme.typography.headline,
     fontSize: 20,
+    fontWeight: 600,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
     marginTop: 8,
-    marginBottom: 0
+    marginBottom: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,
@@ -86,14 +90,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
+    fontStyle: "italic",
     maxWidth: 290,
-    fontStyle: 'italic',
     color: theme.palette.text.dim,
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    marginTop: 10,
+    marginTop: 20,
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -104,6 +108,11 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
+  },
+  eventCardImage: {
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
+    height: 195,
+    width: 373,
   },
 }))
 
@@ -140,8 +149,8 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
-          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} /> :
-          <img src={getDefaultEventImg(373)} style={{height: 200, width: 373}} />}
+          <CloudinaryImage2 height={195} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} className={classes.eventCardImage} /> :
+          <img src={getDefaultEventImg(373)} className={classes.eventCardImage} />}
       </Link>
       {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
       <CardContent className={classes.eventCardContent}>

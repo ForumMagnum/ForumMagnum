@@ -1,12 +1,13 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps, reactBallotAxes, ReactBallotAxis, ReactBallotStandaloneReaction, reactBallotStandaloneReactions } from '../../lib/voting/votingSystems';
-import { useVote, VotingProps } from './withVote';
+import { useVote } from './withVote';
 import { useHover } from '../common/withHover';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import chunk from 'lodash/chunk';
+import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -142,6 +143,7 @@ const AxisDirectionButton = ({axis, voteProps, direction, classes}: {
       orientation={direction}
       color={direction==="up" ? "secondary" : "error"}
       upOrDown={direction==="up" ? "Upvote" : "Downvote"}
+      enabled
       {...voteProps}
     />
   );

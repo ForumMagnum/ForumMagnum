@@ -11,7 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({

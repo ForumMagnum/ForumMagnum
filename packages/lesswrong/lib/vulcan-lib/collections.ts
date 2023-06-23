@@ -6,8 +6,8 @@ import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
+import { forceCollectionTypeSetting } from '../instanceSettings';
 export * from './getCollection';
-import { loggerConstructor } from '../utils/logging'
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except
@@ -21,14 +21,17 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName): CollectionNameString => pluralize(typeName) as CollectionNameString;
+export const getCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-export type CollectionType = "mongo" | "pg" | "switching";
+declare global {
+  type CollectionType = "mongo" | "pg" | "switching";
+}
 
 const pickCollectionType = (collectionType?: CollectionType) => {
+  collectionType = forceCollectionTypeSetting.get() ?? collectionType;
   switch (collectionType) {
   case "pg":
     return PgCollection;
@@ -40,13 +43,12 @@ const pickCollectionType = (collectionType?: CollectionType) => {
 }
 
 export const createCollection = <
-  N extends CollectionNameString,
-  T extends DbObject=ObjectsByCollectionName[N]
+  N extends CollectionNameString
 >(options: {
   typeName: string,
   collectionName: N,
   collectionType?: CollectionType,
-  schema: SchemaType<T>,
+  schema: SchemaType<ObjectsByCollectionName[N]>,
   generateGraphQLSchema?: boolean,
   dbCollectionName?: string,
   collection?: any,
@@ -66,7 +68,7 @@ export const createCollection = <
   const Collection = pickCollectionType(collectionType);
 
   // initialize new Mongo collection
-  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<T>;
+  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N]>;
 
   // decorate collection with options
   collection.options = options as any;

@@ -154,20 +154,18 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
-const ReviewVoteTableRow = (
-  { post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
-    post: PostsListWithVotes,
-    costTotal?: number,
-    dispatch: React.Dispatch<SyntheticQualitativeVote>,
-    showKarmaVotes: boolean,
-    classes:ClassesType,
-    expandedPostId?: string|null,
-    currentVote: SyntheticQualitativeVote|null,
-    reviewPhase: ReviewPhase,
-    reviewYear: ReviewYear,
-    voteTooltip: voteTooltipType
-  }
-) => {
+const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+  post: PostsReviewVotingList,
+  costTotal?: number,
+  dispatch: React.Dispatch<SyntheticQualitativeVote>,
+  showKarmaVotes: boolean,
+  classes:ClassesType,
+  expandedPostId?: string|null,
+  currentVote: SyntheticQualitativeVote|null,
+  reviewPhase: ReviewPhase,
+  reviewYear: ReviewYear,
+  voteTooltip: voteTooltipType
+}) => {
   const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments, KarmaVoteStripe } = Components
 
   const currentUser = useCurrentUser()
@@ -222,7 +220,7 @@ const ReviewVoteTableRow = (
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
           <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
-            <PostsTitle post={post} showIcons={false} showLinkTag={false} wrap curatedIconLeft={false} />
+            <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
           </LWTooltip>
         </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>

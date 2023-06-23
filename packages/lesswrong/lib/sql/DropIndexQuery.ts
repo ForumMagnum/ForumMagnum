@@ -6,7 +6,7 @@ import TableIndex from "./TableIndex";
  * Builds a Postgres query that deletes a particular index. Be careful.
  */
 class DropIndexQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table, index: string | TableIndex) {
+  constructor(table: Table<T>, index: string | TableIndex<T>) {
     super(table, [`DROP INDEX "${typeof index === "string" ? index : index.getName()}"`]);
   }
 }

@@ -3,21 +3,22 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
+import { userCanVote } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   upvote: {
-    marginBottom: -22
+    marginBottom: -21
   },
   downvote: {
-    marginTop: -25
+    marginTop: -28
   },
   voteScores: {
     margin:"15%",
   },
   voteScore: {
-    color: theme.palette.grey[500],
-    paddingLeft: 1, // For some weird reason having this padding here makes it look more centered
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
@@ -40,7 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
-    marginLeft: 0
+    marginLeft: 0,
+    paddingTop: isEAForum ? 12 : 0
   },
 })
 
@@ -50,12 +52,16 @@ const PostsVote = ({ post, classes }: {
 }) => {
   const voteProps = useVote(post, "Posts");
   const {OverallVoteButton, Typography} = Components;
+  const currentUser = useCurrentUser();
+  
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   return (
       <div className={classes.voteBlock}>
         <Tooltip
-          title="Click-and-hold for strong vote"
-          placement="right"
+          title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.upvote}>
@@ -63,6 +69,7 @@ const PostsVote = ({ post, classes }: {
               orientation="up"
               color="secondary"
               upOrDown="Upvote"
+              enabled={canVote}
               {...voteProps}
             />
           </div>
@@ -70,7 +77,7 @@ const PostsVote = ({ post, classes }: {
         <div className={classes.voteScores}>
           <Tooltip
             title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
-            placement="right"
+            placement={isEAForum ? "left" : "right"}
             classes={{tooltip: classes.tooltip}}
           >
             <div> 
@@ -82,7 +89,7 @@ const PostsVote = ({ post, classes }: {
           {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
             <Tooltip
               title="AI Alignment Forum karma"
-              placement="right"
+              placement={isEAForum ? "left" : "right"}
               classes={{tooltip: classes.tooltip}}
             >
               <Typography
@@ -94,8 +101,8 @@ const PostsVote = ({ post, classes }: {
           }
         </div>
         <Tooltip
-          title="Click-and-hold for strong vote"
-          placement="right"
+          title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+          placement={isEAForum ? "left" : "right"}
           classes={{tooltip: classes.tooltip}}
         >
           <div className={classes.downvote}>
@@ -103,6 +110,7 @@ const PostsVote = ({ post, classes }: {
               orientation="down"
               color="error"
               upOrDown="Downvote"
+              enabled={canVote}
               {...voteProps}
             />
           </div>

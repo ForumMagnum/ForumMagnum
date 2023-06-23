@@ -14,9 +14,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   removeTag: {
     background: 'transparent',
     color: 'inherit',
+    position: 'relative',
+    minWidth: 15,
     '&:hover': {
       opacity: 0.5
-    }
+    },
+    '& svg': {
+      position: 'absolute',
+      top: -10,
+      left: 2,
+      width: 13,
+      height: 13,
+    },
   },
 });
 
@@ -30,7 +39,7 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
     collectionName: "Tags",
     fragmentName: 'TagBasicInfo',
   })
-  
+
   if (loading) {
     return <Components.Loading />
   }
@@ -38,10 +47,12 @@ const SingleTagItem = ({documentId, onDelete, classes}: {
   if (document) {
     return <div className={classes.tag}>
       {document.name}
-      <button className={classes.removeTag} onClick={() => onDelete(document._id)}>x</button>
+      <button className={classes.removeTag} onClick={() => onDelete(document._id)}>
+        <Components.ForumIcon icon="Close" />
+      </button>
     </div>
   }
-  
+
   return null
 };
 

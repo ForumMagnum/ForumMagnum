@@ -1,4 +1,6 @@
 import { isServer } from "../executionEnvironment";
+import { truncate } from "../editor/ellipsize";
+import { preferredHeadingCase } from "../forumTypeUtils";
 
 const getInnerHTML = (html: string) => {
   if (isServer) {
@@ -10,7 +12,18 @@ const getInnerHTML = (html: string) => {
   }
 }
 
-const truncateTagDescription = (htmlWithAnchors: string, withReadMore = true) => {
+const truncateTagDescription = (
+  htmlWithAnchors: string,
+  descriptionTruncationCount?: number,
+) => {
+  if (descriptionTruncationCount) {
+    return truncate(
+      htmlWithAnchors,
+      descriptionTruncationCount,
+      "paragraphs",
+      "<span>...<p><a>(Read More)</a></p></span>",
+    );
+  }
   for (let matchString of [
       'id="Further_reading"',
       'id="Bibliography"',
@@ -20,14 +33,15 @@ const truncateTagDescription = (htmlWithAnchors: string, withReadMore = true) =>
     if(htmlWithAnchors.includes(matchString)) {
       const truncationLength = htmlWithAnchors.indexOf(matchString);
       /**
-       * The `truncate` method used below uses a complicated criterion for what
+       * The `truncate` method used above uses a complicated criterion for what
        * counts as a character. Here, we want to truncate at a known index in
        * the string. So rather than using `truncate`, we can slice the string
        * at the desired index, use `parseFromString` to clean up the HTML,
        * and then append our footer 'read more' element.
        */
       const innerHTML = getInnerHTML(htmlWithAnchors.slice(0, truncationLength));
-      return innerHTML + (withReadMore ? "<span>...<p><a>(Read More)</a></p></span>" : "");
+      const readMore = preferredHeadingCase("Read More");
+      return innerHTML + `<span>...<p><a>(${readMore})</a></p></span>`;
     }
   }
   return htmlWithAnchors

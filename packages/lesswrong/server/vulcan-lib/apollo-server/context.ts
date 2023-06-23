@@ -12,7 +12,6 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { userChangedCallback } from '../../../lib/analyticsEvents';
 import { Collections } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
@@ -22,6 +21,10 @@ import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens
 import type { Request, Response } from 'express';
 import {getUserEmail} from "../../../lib/collections/users/helpers";
 import { getAllRepos, UsersRepo } from '../../repos';
+import UserActivities from '../../../lib/collections/useractivities/collection';
+import { getCookieFromReq } from '../../utils/httpUtil';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -39,7 +42,7 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
       // find the right login token corresponding, the current user may have
       // several sessions logged on different browsers / computers
       const tokenInformation = user.services.resume.loginTokens.find(
-        tokenInfo => tokenInfo.hashedToken === hashedToken
+        (tokenInfo: AnyBecauseTodo) => tokenInfo.hashedToken === hashedToken
       )
 
       const expiresAt = tokenExpiration(tokenInformation.when)
@@ -106,6 +109,14 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
 }
 
 export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
+  let visitorActivity: DbUserActivity|null = null;
+  const clientId = req ? getCookieFromReq(req, "clientId") : null;
+  if ((user || clientId) && isEAForum) {
+    visitorActivity = user ?
+      await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
+      await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
+  }
+  
   let context: ResolverContext = {
     ...getCollectionsByName(),
     ...generateDataLoaders(),
@@ -115,6 +126,8 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
     isGreaterWrong: requestIsFromGreaterWrong(req),
     repos: getAllRepos(),
+    clientId,
+    visitorActivity,
     ...await setupAuthToken(user),
   };
 
@@ -153,7 +166,7 @@ export const getCollectionsByName = (): CollectionsByName => {
   return result as CollectionsByName;
 }
 
-export const getUserFromReq = async (req): Promise<DbUser|null> => {
+export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {
   return req.user
   // return getUser(getAuthToken(req));
 }

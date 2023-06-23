@@ -10,7 +10,7 @@ import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { getUserFromReq, computeContextFromUser, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -28,12 +28,9 @@ import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished }
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
-import fs from 'fs';
-import crypto from 'crypto';
 import expressSession from 'express-session';
-import MongoStore from 'connect-mongo'
+import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
-import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
@@ -44,47 +41,13 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
-
-const loadClientBundle = () => {
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
-  const bundleBrotliPath = `${bundlePath}.br`;
-
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
-  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-
-  const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
-
-  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
-  // save a conversion and a little memory
-  const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  return {
-    bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
-    lastModified,
-    bundleBuffer,
-    bundleBrotliBuffer,
-  };
-}
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
-const getClientBundle = () => {
-  if (!clientBundle) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  return clientBundle;
-}
+import { Sessions } from '../lib/collections/sessions';
+import { addServerSentEventsEndpoint } from "./serverSentEvents";
+import { botRedirectMiddleware } from './botRedirect';
+import { hstsMiddleware } from './hsts';
+import { getClientBundle } from './utils/bundleUtils';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
 
 class ApolloServerLogging {
   requestDidStart(context: any) {
@@ -93,7 +56,7 @@ class ApolloServerLogging {
     logGraphqlQueryStarted(operationName, query, variables);
     
     return {
-      willSendResponse(props) {
+      willSendResponse(props: AnyBecauseTodo) {
         logGraphqlQueryFinished(operationName, query);
       }
     };
@@ -106,12 +69,20 @@ export function startWebserver() {
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
-    const store = MongoStore.create({
-      client: getMongoClient()
-    })
-    app.use(expressSession({
+    // express-session middleware, with MongoStore providing it a collection
+    // to store stuff in. This adds a `req.session` field to requests, with
+    // fancy accessors/setters. The only thing we actually use this for, however,
+    // is redirects that happen on return from an OAuth login. So we can scope
+    // this to only routes that start with /auth without loss of functionality.
+    // We do this because if we don't it adds a webserver-to-database roundtrip
+    // (or sometimes three) to each request.
+    const store = new MongoStore({
+      collection: Sessions,
+    });
+    app.use('/auth', expressSession({
       secret: expressSessionSecret,
       resave: false,
       saveUninitialized: false,
@@ -134,7 +105,9 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
-  
+  app.use(botRedirectMiddleware);
+  app.use(hstsMiddleware);
+
   //eslint-disable-next-line no-console
   console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
@@ -173,7 +146,7 @@ export function startWebserver() {
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
-    let headers = {}
+    let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
     if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
@@ -247,12 +220,18 @@ export function startWebserver() {
   addCrosspostRoutes(app);
   addCypressRoutes(app);
 
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
+
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
       res.status(202).send('Quiting server');
       process.kill(estrellaPid, 'SIGQUIT');
     })
   }
+
+  addServerSentEventsEndpoint(app);
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,6 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This gets overwritten by a color from the DB
     paddingTop: theme.spacing.unit*1.5
   },
+  title: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   mergeTitle: {
     display: "inline",
     marginRight: 10,
@@ -45,6 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
     display: "inline-block",
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   media: {
     '& img':{

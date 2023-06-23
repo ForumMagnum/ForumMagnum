@@ -3,19 +3,29 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: 0,
+  marginTop: isEAForum ? 5 : 0,
   marginLeft: 0,
-  marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
+  marginBottom: isEAForum ? 12 : 0,
   color: theme.palette.text.primary,
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '2.5rem',
-  },
+  [theme.breakpoints.down('sm')]: isEAForum
+    ? {
+      fontSize: '2.3rem',
+      marginTop: 20,
+    }
+    : {
+      fontSize: '2.5rem',
+    },
+  ...(isEAForum
+    ? {
+      fontSize: '3rem',
+    }
+    : {}),
 })
 
 const styles = (theme: ThemeType): JssStyles => ({

@@ -16,14 +16,15 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: 3,
+    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
@@ -86,11 +87,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
-    paddingTop: 18,
+    paddingTop: isEAForum ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: 3,
-    marginBottom:4,
+    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
+    marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -109,6 +110,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     display: "block",
     fontSize: "1.75rem",
+    ...(isEAForum ? {
+      fontSize: 22,
+      fontWeight: 600,
+      lineHeight: 1.25,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      marginBottom: 10,
+    } : {})
   },
   smallerTitle: {
     fontSize: '1.5rem',
@@ -242,7 +250,7 @@ const RecentDiscussionThread = ({
               >
                 <CloseIcon className={classes.closeIcon} />
               </Button> : <div className={classes.actions}>
-                <PostActionsButton post={post} vertical />
+                <PostActionsButton post={post} autoPlace vertical />
               </div>}
             </div>
             <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>

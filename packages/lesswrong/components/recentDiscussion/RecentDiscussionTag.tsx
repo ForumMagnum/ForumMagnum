@@ -6,9 +6,10 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     marginTop: 0,
     marginBottom: 8,
     display: "block",
@@ -80,8 +81,9 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   }, []);
   
   const descriptionHtml = tag.description?.html;
+  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
   const maybeTruncatedDescriptionHtml = truncated
-    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
+    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {

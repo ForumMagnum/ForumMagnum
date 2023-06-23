@@ -38,7 +38,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem2, Loading } = Components
+  const { PostsItem, Loading } = Components
   
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
@@ -54,12 +54,14 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft
     })
   }, [updatePost])
-  
+
+  const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
+
   const terms: PostsViewTerms = {
     view: "drafts",
     userId: userId ?? currentUser?._id,
     limit,
-    sortDraftsBy: query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified",
+    sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : currentUser?.draftsListShowArchived,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }
@@ -67,15 +69,12 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Posts",
-    fragmentName: 'PostsList',
+    fragmentName: 'PostsListWithVotes',
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: "cache-first",
   });
   
   if (!currentUser) return null
-  
-  const currentSorting = terms.sortDraftsBy || "lastModified"
-  
   
   return <>
     {!hideHeaderRow && <Components.SectionTitle title={title}>
@@ -94,8 +93,8 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
             </Components.SectionButton>
           </Link>
         </div>}
-        <div className={classes.sortButton} onClick={() => setShowSettings(!showSettings)}>
-          <Components.SortButton label={`Sorted by ${ sortings[currentSorting]}`}/>
+        <div className={classes.settingsButton} onClick={() => setShowSettings(!showSettings)}>
+          <Components.SettingsButton label={`Sorted by ${ sortings[currentSorting]}`}/>
         </div>
       </div>
     </Components.SectionTitle>}
@@ -108,8 +107,8 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       sortings={sortings}
     />}
     {(!results && loading) ? <Loading /> : <>
-      {results && results.map((post: PostsList, i: number) =>
-        <PostsItem2
+      {results && results.map((post: PostsListWithVotes, i: number) =>
+        <PostsItem
           key={post._id}
           post={post}
           toggleDeleteDraft={toggleDelete}

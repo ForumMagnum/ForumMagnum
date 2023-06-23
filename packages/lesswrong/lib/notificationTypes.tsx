@@ -10,12 +10,10 @@ import { Tags } from './collections/tags/collection';
 import Messages from './collections/messages/collection';
 import Localgroups from './collections/localgroups/collection';
 import Users from './collections/users/collection';
-import AllIcon from '@material-ui/icons/Notifications';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import EventIcon from '@material-ui/icons/Event';
 import MailIcon from '@material-ui/icons/Mail';
-import StarIcon from '@material-ui/icons/Star';
 import { responseToText } from '../components/posts/PostsPage/RSVPForm';
 import sortBy from 'lodash/sortBy';
 import { REVIEW_NAME_IN_SITU } from './reviewUtils';
@@ -181,7 +179,7 @@ export const PostApprovedNotification = registerNotificationType({
     return 'Your post "' + document.title + '" has been approved';
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -193,7 +191,7 @@ export const PostNominatedNotification = registerNotificationType({
     return `Your post is nominated for the ${REVIEW_NAME_IN_SITU}: "${post.title}"`
   },
   getIcon() {
-    return <StarIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Star" style={iconStyles} />
   }
 })
 
@@ -215,7 +213,7 @@ export const NewEventNotification = registerNotificationType({
       return await postGetAuthorName(document as DbPost) + ' has created a new event';
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -237,7 +235,7 @@ export const NewGroupPostNotification = registerNotificationType({
       return await postGetAuthorName(document as DbPost) + ' has created a new post in a group';
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -260,9 +258,37 @@ export const NewSubforumCommentNotification = registerNotificationType({
   userSettingField: "notificationSubforumUnread",
   allowedChannels: ["none", "onsite", "email", "both"],
   async getMessage({documentType, documentId}: GetMessageProps) {
-    // e.g. "Forecasting Subforum: Will Howard left a new comment"
+    // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await `${startCase(await getCommentParentTitle(document))} Subforum: ${await commentGetAuthorName(document)} left a new comment`;
+    return await `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
+// New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
+// (Notifications for regular comments are still handled through the `newComment` notification.)
+export const NewDebateCommentNotification = registerNotificationType({
+  name: "newDebateComment",
+  userSettingField: "notificationDebateCommentsOnSubscribedPost",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+
+// New debate comment on a debate post you're subscribed to.  For debate participants implicitly subscribed to the debate.
+// (Notifications for regular comments are still handled through the `newComment` notification.)
+export const NewDebateReplyNotification = registerNotificationType({
+  name: "newDebateReply",
+  userSettingField: "notificationDebateReplies",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
@@ -341,7 +367,7 @@ export const NewUserNotification = registerNotificationType({
     return document.displayName + ' just signed up!';
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -383,7 +409,7 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
     return "Verify your email address to activate email subscriptions.";
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -397,7 +423,7 @@ export const PostSharedWithUserNotification = registerNotificationType({
     return `${name} shared their ${document.draft ? "draft" : "post"} "${document.title}" with you`;
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
@@ -424,7 +450,7 @@ export const AlignmentSubmissionApprovalNotification = registerNotificationType(
     } else throw new Error("documentType must be post or comment!")
   },
   getIcon() {
-    return <AllIcon style={iconStyles} />
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
 });
 
@@ -500,7 +526,7 @@ export const NewSubforumMemberNotification = registerNotificationType({
     if (documentType !== 'user') throw new Error("documentType must be user")
     const newUser = await Users.findOne(documentId)
     if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
-    return `A new user has joined your subforum: ${newUser.displayName}`
+    return `A new user has joined your topic: ${newUser.displayName}`
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />

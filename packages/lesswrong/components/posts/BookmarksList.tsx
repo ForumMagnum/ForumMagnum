@@ -11,7 +11,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   hideLoadMore?: boolean,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem2, LoadMore, Loading } = Components
+  const { PostsItem, LoadMore, Loading } = Components
   
   const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
@@ -20,7 +20,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
       limit: limit,
     },
     itemsPerPage: 20,
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
     skip: !currentUser?._id,
   });
   
@@ -36,8 +36,8 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
   );
 
   return <div>
-    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsList, i: number) =>
-      <PostsItem2
+    {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
+      <PostsItem
         key={post._id} post={post} bookmark
         showBottomBorder={i < sortedBookmarkedPosts.length-1}
       />

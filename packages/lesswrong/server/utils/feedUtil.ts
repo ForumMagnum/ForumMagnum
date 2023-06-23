@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
+import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 
 export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
@@ -238,11 +238,13 @@ async function queryWithCutoff<ResultType extends DbObject>({
   const cutoffSelector = cutoff
     ? {[cutoffField]: {[sortDirection === "asc" ? "$gt" : "$lt"]: cutoff}}
     : {};
-  const resultsRaw = await collection.find({
-    ...getDefaultViewSelector(collectionName),
-    ...selector,
-    ...cutoffSelector,
-  }, {
+  const mergedSelector = mergeSelectors(
+    getDefaultViewSelector(collectionName),
+    selector,
+    cutoffSelector
+  )
+  const finalizedSelector = replaceSpecialFieldSelectors(mergedSelector);
+  const resultsRaw = await collection.find(finalizedSelector, {
     sort: sort as Partial<Record<keyof ResultType, number>>,
     limit,
   }).fetch();

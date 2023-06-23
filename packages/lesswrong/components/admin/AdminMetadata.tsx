@@ -44,7 +44,7 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
             <td>Collection</td>
             <td>Index</td>
           </tr>
-          {missingIndexes.map((missingIndex,i) => (
+          {missingIndexes.map((missingIndex: AnyBecauseTodo, i: number) => (
             <tr key={i}>
               <td>{missingIndex.collectionName}</td>
               <td className={classes.indexRow}>{JSON.stringify(missingIndex.index)}</td>
@@ -61,7 +61,7 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
             <td>Collection</td>
             <td>Index</td>
           </tr>
-          {extraIndexes.map((extraIndex,i) => (
+          {extraIndexes.map((extraIndex: AnyBecauseTodo, i: number) => (
             <tr key={i}>
               <td>{extraIndex.collectionName}</td>
               <td className={classes.indexRow}>{JSON.stringify(extraIndex.index)}</td>

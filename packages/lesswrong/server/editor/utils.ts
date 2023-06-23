@@ -45,7 +45,7 @@ if (!isAnyTest && !isMigrations) {
   mjAPI.start();
 }
 
-export const preProcessLatex = async (content) => {
+export const preProcessLatex = async (content: AnyBecauseTodo) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
   // inline with the first (and only the first) MathJax element; this ensures
   // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it

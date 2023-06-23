@@ -2,6 +2,7 @@ import * as _ from 'underscore'
 import {createNotifications} from '../notificationCallbacksHelpers'
 import {notificationDocumentTypes} from '../../lib/notificationTypes'
 import {isBeingUndrafted} from './utils'
+import {canMention} from '../../lib/pingback'
 
 export interface PingbackDocumentPartial {
   _id: string,
@@ -17,7 +18,9 @@ export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionTy
   //  TagRels for example won't work, though they don't have content either.
   //  should we define an explicit mapping?
   const notificationType = collectionType.toLowerCase()
-  if (!canNotify(currentUser, pingbacksToSend) || !notificationDocumentTypes.has(notificationType)) return
+
+  const newDocPingbackCount = getPingbacks(document).length
+  if (!canMention(currentUser, newDocPingbackCount).result || !notificationDocumentTypes.has(notificationType)) return
 
   return createNotifications({
     notificationType: 'newMention',
@@ -27,6 +30,8 @@ export const notifyUsersAboutMentions = async (currentUser: DbUser, collectionTy
   })
 }
 
+const getPingbacks = (document?: PingbackDocumentPartial) => document?.pingbacks?.Users ?? []
+
 function getPingbacksToSend(
   currentUser: DbUser,
   collectionType: string,
@@ -34,8 +39,8 @@ function getPingbacksToSend(
   oldDocument?: PingbackDocumentPartial,
 ) {
   const pingbacksFromDocuments = () => {
-    const newDocPingbacks = document.pingbacks?.Users ?? []
-    const oldDocPingbacks = oldDocument?.pingbacks?.Users ?? []
+    const newDocPingbacks = getPingbacks(document)
+    const oldDocPingbacks = getPingbacks(oldDocument)
     const newPingbacks = _.difference(newDocPingbacks, oldDocPingbacks)
 
     if (collectionType !== 'Post') return newPingbacks
@@ -61,16 +66,5 @@ function getPingbacksToSend(
 
   return removeSelfReference(pingbacksFromDocuments(), currentUser._id)
 }
-
-const canNotify = (currentUser: DbUser, pingbacks: string[], {
-  karmaThreshold = 1,
-  newPingbackLimit = 25,
-}: { karmaThreshold?: number, newPingbackLimit?: number } = {}) =>
-  currentUser.isAdmin ||
-  (
-    currentUser.karma >= karmaThreshold &&
-    pingbacks.length <= newPingbackLimit &&
-    !currentUser.conversationsDisabled
-  )
 
 const removeSelfReference = (ids: string[], id: string) => _.without(ids, id)

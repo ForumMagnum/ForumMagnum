@@ -2,9 +2,20 @@ import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
 import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
-import { htmlToText } from 'html-to-text';
+import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo, { KarmaChangesArgs } from './repos/VotesRepo';
+import VotesRepo, { CommentKarmaChange, KarmaChangesArgs, PostKarmaChange, TagRevisionKarmaChange } from './repos/VotesRepo';
+
+// Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
+const htmlToTextDefault = compileHtmlToText();
+
+type ExtendedCommentKarmaChange = CommentKarmaChange & {
+  tagSlug?: string,
+}
+type ExtendedTagRevisionKarmaChange = TagRevisionKarmaChange & {
+  tagName?: string,
+  tagSlug?: string,
+}
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
@@ -12,7 +23,7 @@ const getKarmaChangesForComments = (
   karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
   votesRepo: VotesRepo,
   queryArgs: KarmaChangesArgs,
-) => {
+): Promise<CommentKarmaChange[]> => {
   return Votes.isPostgres()
     ? votesRepo.getKarmaChangesForComments(queryArgs)
     : Votes.aggregate([
@@ -39,7 +50,7 @@ const getKarmaChangesForPosts = (
   karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
   votesRepo: VotesRepo,
   queryArgs: KarmaChangesArgs,
-) => {
+): Promise<PostKarmaChange[]> => {
   return Votes.isPostgres()
     ? votesRepo.getKarmaChangesForPosts(queryArgs)
     : Votes.aggregate([
@@ -64,7 +75,7 @@ const getKarmaChangesForTagRevisions = (
   karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
   votesRepo: VotesRepo,
   queryArgs: KarmaChangesArgs,
-) => {
+): Promise<TagRevisionKarmaChange[]> => {
   return Votes.isPostgres()
     ? votesRepo.getKarmaChangesForTagRevisions(queryArgs)
     : Votes.aggregate([
@@ -157,7 +168,15 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     ];
   }
 
-  const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
+  const [
+    changedComments,
+    changedPosts,
+    changedTagRevisions
+  ]: [
+    ExtendedCommentKarmaChange[],
+    PostKarmaChange[],
+    ExtendedTagRevisionKarmaChange[]
+  ] = await Promise.all([
     getKarmaChangesForComments(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
     getKarmaChangesForPosts(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
     getKarmaChangesForTagRevisions(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
@@ -166,7 +185,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
   for (let comment of changedComments) {
-    comment.description = htmlToText(comment.description)
+    comment.description = htmlToTextDefault(comment.description ?? "")
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
 

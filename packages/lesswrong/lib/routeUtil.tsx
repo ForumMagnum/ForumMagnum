@@ -6,21 +6,6 @@ import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 
-// Given the props of a component which has withRouter, return the parsed query
-// from the URL.
-export function parseQuery(location): Record<string,string> {
-  let query = location?.search;
-  if (!query) return {};
-  
-  // The unparsed query string looks like ?foo=bar&numericOption=5&flag but the
-  // 'qs' parser wants it without the leading question mark, so strip the
-  // question mark.
-  if (query.startsWith('?'))
-    query = query.substr(1);
-    
-  return qs.parse(query) as Record<string,string>;
-}
-
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
 // {
@@ -74,7 +59,7 @@ export const useNavigation = (): any => {
 // HoC which adds a `location` property to an object, which contains the page
 // location (parsed URL and route). See `useLocation`.
 export const withLocation = (WrappedComponent: any) => {
-  return (props) => (
+  return (props: AnyBecauseTodo) => (
     <LocationContext.Consumer>
       {location =>
         <WrappedComponent
@@ -90,7 +75,7 @@ export const withLocation = (WrappedComponent: any) => {
 // as doumented on https://github.com/ReactTraining/history .
 // This HoC will never trigger rerenders.
 export const withNavigation = (WrappedComponent: any) => {
-  return (props) => (
+  return (props: AnyBecauseTodo) => (
     <NavigationContext.Consumer>
       {navigation =>
         <WrappedComponent
@@ -118,7 +103,7 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   const [query, hash] = queryAndHash.split("#");
   
   const parsedQuery = qs.parse(query);
-  let filteredQuery = {};
+  let filteredQuery: AnyBecauseTodo = {};
   for (let key of _.keys(parsedQuery)) {
     if (_.indexOf(queryParameterBlacklist, key) < 0) {
       filteredQuery[key] = parsedQuery[key];
@@ -128,44 +113,64 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   return baseUrl + (Object.keys(filteredQuery).length>0 ? '?'+qs.stringify(filteredQuery) : '') + (hash ? '#'+hash : '');
 }
 
-const LwAfDomainWhitelist: Array<string> = [
-  "lesswrong.com",
-  "lesserwrong.com",
-  "lessestwrong.com",
-  "alignmentforum.org",
-  "alignment-forum.com",
-  "greaterwrong.com",
-  `localhost:${getServerPort()}`,
-]
+interface DomainList {
+  onsiteDomains: string[]
+  mirrorDomains: string[]
+}
 
-const forumDomainWhitelist: ForumOptions<Array<string>> = {
-  LessWrong: LwAfDomainWhitelist,
-  AlignmentForum: LwAfDomainWhitelist,
-  EAForum: [
-    'forum.effectivealtruism.org',
-    'forum-staging.effectivealtruism.org',
-    'ea.greaterwrong.com',
+const LwAfDomainWhitelist: DomainList = {
+  onsiteDomains: [
+    "lesswrong.com",
+    "lesserwrong.com",
+    "lessestwrong.com",
+    "alignmentforum.org",
+    "alignment-forum.com",
     `localhost:${getServerPort()}`,
   ],
-  default: [
-    `localhost:${getServerPort()}`,
+  mirrorDomains: [
+    "greaterwrong.com",
   ],
 }
 
-const domainWhitelist: Array<string> = forumSelect(forumDomainWhitelist)
+const forumDomainWhitelist: ForumOptions<DomainList> = {
+  LessWrong: LwAfDomainWhitelist,
+  AlignmentForum: LwAfDomainWhitelist,
+  EAForum: {
+    onsiteDomains: [
+      'forum.effectivealtruism.org',
+      'forum-staging.effectivealtruism.org',
+      `localhost:${getServerPort()}`,
+    ],
+    mirrorDomains: ['ea.greaterwrong.com'],
+  },
+  default: {
+    onsiteDomains: [
+      `localhost:${getServerPort()}`,
+    ],
+    mirrorDomains: [],
+  }
+}
 
-export const hostIsOnsite = (host: string): boolean => {
-  let isOnsite = false
+const domainWhitelist: DomainList = forumSelect(forumDomainWhitelist)
 
-  domainWhitelist.forEach((domain) => {
-    if (host === domain) isOnsite = true;
-    // If the domain differs only by the addition or removal of a "www."
-    // subdomain, count it as the same.
-    if ("www."+host === domain) isOnsite = true;
-    if (host === "www."+domain) isOnsite = true;
+export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
+  let urlType: "onsite"|"offsite"|"mirrorOfUs" = "offsite";
+  
+  // Returns true if two domains are either the same, or differ only by addition or removal of a "www."
+  function isSameDomainModuloWWW(a: string, b: string) {
+    return a===b || "www."+a===b || a==="www."+b;
+  }
+
+  domainWhitelist.onsiteDomains.forEach((domain) => {
+    if (isSameDomainModuloWWW(host, domain))
+      urlType = "onsite";
+  })
+  domainWhitelist.mirrorDomains.forEach((domain) => {
+    if (isSameDomainModuloWWW(host, domain))
+      urlType = "mirrorOfUs";
   })
 
-  return isOnsite
+  return urlType;
 }
 
 // Returns whether a string could, conservatively, possibly be a database ID.

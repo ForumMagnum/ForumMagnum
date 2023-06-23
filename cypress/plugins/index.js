@@ -4,9 +4,6 @@ const pgp = require('pg-promise');
 const { MongoClient } = require('mongodb');
 const { createHash } = require('crypto');
 
-// TODO: Remove this when the Users collection is migrated
-const seedUsers = require('../fixtures/users');
-
 const pgDbTemplate = "unittest_cypress_template";
 let pgDbName;
 
@@ -56,9 +53,6 @@ const dropAndSeedMongo = async (url) => {
       return collection.deleteMany({});
     }
   }));
-
-  // TODO: Remove this when the Users collection is fully migrated
-  await db.collection('users').insertMany(seedUsers);
 }
 
 const dropAndSeedPostgres = async (PG_URL) => {
@@ -156,5 +150,9 @@ module.exports = (on, config) => {
       ]);
       return null;
     },
+    log(data) {
+      console.log(data);
+      return null;
+    }
   });
 };

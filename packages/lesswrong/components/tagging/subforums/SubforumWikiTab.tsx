@@ -8,7 +8,7 @@ import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
 import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { tagPostTerms } from '../TagPage';
+import { tagPageHeaderStyles, tagPostTerms } from '../TagPage';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
@@ -19,16 +19,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: MAX_COLUMN_WIDTH,
-  },
-  tagHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-  },
-  postsTaggedTitle: {
-    color: theme.palette.grey[600]
   },
   pastRevisionNotice: {
     ...theme.typography.commentStyle,
@@ -41,8 +31,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderRadius: theme.borderRadius.default,
   },
-})
+  ...tagPageHeaderStyles(theme),
+});
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 
@@ -91,11 +83,13 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if(isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
+      : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
+      ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+      : htmlWithAnchors
   }
 
   return <>
@@ -134,18 +128,11 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
         {tag.sequence && <TagIntroSequence tag={tag} />}
         {!tag.wikiOnly && (
           <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ? (
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </SectionTitle>
-            ) : (
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>
-                  Posts tagged <em>{tag.name}</em>
-                </div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-              </div>
-            )}
+            <SectionTitle title={`Posts tagged ${tag.name}`} />
+            <div className={classes.postListMeta}>
+              <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+              <div className={classes.relevance}>Relevance</div>
+            </div>
             <PostsList2 terms={terms} enableTotal tagId={tag._id} itemsPerPage={200}>
               <AddPostsToTag tag={tag} />
             </PostsList2>
