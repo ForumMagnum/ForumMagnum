@@ -104,7 +104,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   });
 
   const {
-    MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip,
+    MetaInfo, SunshineNewUserPostsList, SunshineNewUserCommentsList, ContentSummaryRows, LWTooltip, UserAutoRateLimitsDisplay,
     Typography, SunshineSendMessageWithDefaults, UserReviewStatus, ModeratorMessageCount, UserReviewMetadata, ModeratorActions, NewUserDMSummary
   } = Components
 
@@ -116,6 +116,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
         <Typography variant="body2">
           <MetaInfo>
             <UserReviewMetadata user={user}/>
+            <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
             <div className={classes.info}>
               <div className={classes.topRow}>
                 <UserReviewStatus user={user}/>

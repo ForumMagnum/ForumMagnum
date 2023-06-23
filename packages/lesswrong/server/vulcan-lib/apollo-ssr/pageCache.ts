@@ -9,7 +9,7 @@ import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCache from '../../../lib/collections/pagecache/collection';
-import { getClientBundle } from '../../utils/bundleUtils';
+import { getServerBundleHash } from '../../utils/bundleUtils';
 import PageCacheRepo from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 
@@ -218,7 +218,7 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
 }
 
 const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  const { bundleHash } = getClientBundle();
+  const bundleHash = getServerBundleHash();
 
   void PageCache.rawUpdateOne(
     {
