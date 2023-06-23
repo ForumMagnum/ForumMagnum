@@ -250,6 +250,7 @@
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.6.1",
     "openai": "^3.2.0",
+    "pagedjs": "^0.4.2",
     "papaparse": "^5.2.0",
     "passport": "^0.5.2",
     "passport-auth0": "^1.4.0",

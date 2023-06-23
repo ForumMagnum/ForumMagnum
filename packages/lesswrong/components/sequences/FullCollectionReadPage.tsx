@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
+// import page
+import { Previewer } from 'pagedjs';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,8 +50,24 @@ export const FullCollectionReadPage = ({classes}: {
     collectionName: "Collections",
     fragmentName: 'CollectionsPageFragment',
   });
+
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    const contentElement = contentRef.current;
+
+    if (contentElement) {
+      const pagedInstance = new paged.Paged(); // Create a new Paged.js instance
+
+      pagedInstance.preview(contentElement); // Generate the pagination
+
+      return () => {
+        pagedInstance.destroy(); // Cleanup Paged.js instance when component unmounts
+      };
+    }
+  }, []);
   
-  return <div className={classes.root}>
+  return <div className={classes.root} ref={contentRef}>
       <SingleColumnSection>
         {loading && <Loading />}
         {results && <div>
