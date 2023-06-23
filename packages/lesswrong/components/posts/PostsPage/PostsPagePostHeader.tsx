@@ -94,8 +94,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
-    width: PODCAST_ICON_SIZE + PODCAST_ICON_PADDING*2,
-    height: PODCAST_ICON_SIZE + PODCAST_ICON_PADDING*2,
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
