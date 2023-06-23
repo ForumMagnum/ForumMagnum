@@ -10,6 +10,7 @@ import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
+import { useRecommendationAnalytics } from "../components/recommendations/useRecommendationsAnalytics";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
@@ -78,8 +79,9 @@ const LiPostRecommendation: FC<{
   const author = userGetDisplayName(post.user);
   const readTimeMinutes = Math.max(post.readTimeMinutes, 1);
   const mins = readTimeMinutes === 1 ? "1 min" : `${readTimeMinutes} mins`;
+  const {ref, onClick} = useRecommendationAnalytics<HTMLLIElement>(post._id);
   return (
-    <li>
+    <li ref={ref} onClick={onClick}>
       <Link to={url}>{post.title}</Link> ({author}, {mins})
     </li>
   );
