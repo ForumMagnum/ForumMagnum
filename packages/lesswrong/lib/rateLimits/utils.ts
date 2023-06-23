@@ -60,8 +60,6 @@ export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLim
   const { last20Karma, lastMonthKarma, last20PostKarma, last20CommentKarma, 
           downvoterCount, postDownvoterCount, commentDownvoterCount, lastMonthDownvoterCount } = recentKarmaInfo
   
-  console.log(rateLimit.last20KarmaThreshold)
-  console.log(rateLimit, recentKarmaInfo)
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
   if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
   if ((downvoteRatioThreshold !== undefined) && getDownvoteRatio(user) < downvoteRatioThreshold) return false
@@ -73,10 +71,9 @@ export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLim
   if ((lastMonthKarmaThreshold !== undefined && (lastMonthKarma > lastMonthKarmaThreshold))) return false
   if ((lastMonthDownvoterCountThreshold !== undefined && (lastMonthDownvoterCount > lastMonthDownvoterCountThreshold))) return false
 
-  if ((downvoterCountThreshold !== undefined) && (downvoterCount > downvoterCountThreshold)) return false
-  if ((postDownvoterCountThreshold !== undefined) && (postDownvoterCount > postDownvoterCountThreshold)) return false
-  if ((commentDownvoterCountThreshold !== undefined) && (commentDownvoterCount > commentDownvoterCountThreshold)) return false
-  if (last20KarmaThreshold ===15) console.log("made it to end")
+  if ((downvoterCountThreshold !== undefined) && (downvoterCount < downvoterCountThreshold)) return false
+  if ((postDownvoterCountThreshold !== undefined) && (postDownvoterCount < postDownvoterCountThreshold)) return false
+  if ((commentDownvoterCountThreshold !== undefined) && (commentDownvoterCount < commentDownvoterCountThreshold)) return false
 
   return true
 }
