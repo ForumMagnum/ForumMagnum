@@ -2,25 +2,47 @@ import React, { ComponentType, FC, useRef } from "react";
 import { Link } from "./reactRouterWrapper";
 import { useRecommendations } from "../components/recommendations/withRecommendations";
 import { useSsrRenderedAt } from "./utils/timeUtil";
+import { userGetDisplayName } from "./collections/users/helpers";
+import { postGetPageUrl, postGetPrimaryTag } from "./collections/posts/helpers";
+import { HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE } from "./cookies/cookies";
+import { useCookiesWithConsent, Cookies } from "../components/hooks/useCookiesWithConsent";
 import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
-import { userGetDisplayName } from "./collections/users/helpers";
-import { postGetPageUrl, postGetPrimaryTag } from "./collections/posts/helpers";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
+/**
+ * The content to be displayed as recommendations at the side of posts is
+ * generated in the following format, which allows easily switching between
+ * different algorithms and configurations. To add a new algorithm, simply
+ * create a React hook function of type `RecommendationsGenerator` and add
+ * it to the array of generators returned by `getAvailableGenerators`.
+ */
 export type PostSideRecommendations = {
+  /** If recommendations are still loading */
   loading: boolean,
+  /** Title for the section (generally the algorithm name) */
   title: string,
+  /** Whether to use a numbered list or a bullet list */
   numbered: boolean,
+  /** List of recommendations to display - may be empty if loading */
   items: ComponentType[],
+  /** An optional cookie name to handle hiding the section - if undefined
+   *  the section is not hideable */
+  hideCookieName?: string,
 }
 
+/**
+ * Recommendations generators are used as hooks, so the name should begin
+ * with "use".
+ */
 type RecommendationsGenerator = (post: RecommendablePost) => PostSideRecommendations;
 
-const useMoreFromTheForumRecommendations = (_post: RecommendablePost) => {
+const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
+  _post: RecommendablePost,
+) => {
   // TODO: Add the correct link URLs
   const usefulLinks = "#";
   const podcast = "#";
@@ -45,6 +67,7 @@ const useMoreFromTheForumRecommendations = (_post: RecommendablePost) => {
         Browse <Link to={jobs}>job opportunities</Link>
       </li>,
     ],
+    hideCookieName: HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE,
   };
 }
 
@@ -82,13 +105,17 @@ const useGeneratorWithStrategy = (
   };
 }
 
-const useMorePostsListThisRecommendations = (post: RecommendablePost) =>
+const useMorePostsListThisRecommendations: RecommendationsGenerator = (
+  post: RecommendablePost,
+) =>
   useGeneratorWithStrategy("More posts like this", {
     name: "tagWeightedCollabFilter",
     postId: post._id,
   });
 
-const useNewAndUpvotedInTagRecommendations = (post: RecommendablePost) => {
+const useNewAndUpvotedInTagRecommendations: RecommendationsGenerator = (
+  post: RecommendablePost,
+) => {
   const tag = postGetPrimaryTag(post, true);
   if (!tag) {
     throw new Error("Couldn't choose recommendation tag");
@@ -100,22 +127,32 @@ const useNewAndUpvotedInTagRecommendations = (post: RecommendablePost) => {
   });
 }
 
+const getAvailableGenerators = (
+  user: UsersCurrent|null,
+  post: RecommendablePost,
+  cookies: Cookies,
+): RecommendationsGenerator[] => {
+  const generators: RecommendationsGenerator[] = [
+    useMorePostsListThisRecommendations.bind(null, post),
+  ];
+  if (post.tags.length) {
+    generators.push(useNewAndUpvotedInTagRecommendations.bind(null, post));
+  }
+  if (!user && cookies[HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE] !== "true") {
+    generators.push(useMoreFromTheForumRecommendations);
+  }
+  return generators;
+}
+
 const useGenerator = (
   seed: number,
   user: UsersCurrent|null,
   post: RecommendablePost,
-) => {
+): RecommendationsGenerator => {
+  const [cookies] = useCookiesWithConsent();
   const generator = useRef<RecommendationsGenerator>();
   if (!generator.current) {
-    const generators: RecommendationsGenerator[] = [
-      useMorePostsListThisRecommendations.bind(null, post),
-    ];
-    if (post.tags.length) {
-      generators.push(useNewAndUpvotedInTagRecommendations.bind(null, post));
-    }
-    if (!user) {
-      generators.push(useMoreFromTheForumRecommendations);
-    }
+    const generators = getAvailableGenerators(user, post, cookies);
     const index = Math.floor(seed) % generators.length;
     generator.current = generators[index];
   }
@@ -128,5 +165,15 @@ export const usePostSideRecommendations = (
 ): PostSideRecommendations => {
   const ssrRenderedAt = useSsrRenderedAt().getTime();
   const useRecommendations = useGenerator(ssrRenderedAt, user, post);
+  if (!useRecommendations) {
+    // eslint-disable-next-line no-console
+    console.error("No suitable posts side recommendations generator found");
+    return {
+      loading: false,
+      title: "",
+      numbered: false,
+      items: [],
+    };
+  }
   return useRecommendations(post);
 }
