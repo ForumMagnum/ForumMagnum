@@ -1058,7 +1058,6 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
     group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
