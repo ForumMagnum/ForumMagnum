@@ -32,7 +32,7 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
   return redirectPaths
 }
 
-export const communityPath = isEAForum ? '/groupsAndPeople' : '/community';
+export const communityPath = isEAForum ? '/groups' : '/community';
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups & people' : 'Community' };
 
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };

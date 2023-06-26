@@ -74,15 +74,6 @@ export interface CommentAutoRateLimit extends AutoRateLimit {
 
 export type UserRateLimit<T extends DbUserRateLimit['type']> = DbUserRateLimit & { type: T };
 
-export interface StrictestCommentRateLimitInfoParams {
-  commentsInTimeframe: Array<DbComment>,
-  user: DbUser,
-  modRateLimitHours: number,
-  modPostSpecificRateLimitHours: number,
-  userCommentRateLimit: UserRateLimit<'allComments'> | null,
-  postId: string | null
-}
-
 export type RecentKarmaInfo = {
   last20Karma: number, 
   lastMonthKarma: number,
