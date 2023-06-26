@@ -87,6 +87,17 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Viewpoints',
+			url: /^viewpoints\.xyz\/polls\/([\w-]+).*/,
+			html: ([match, slug]) => {
+				return `
+					<div data-viewpoints-slug="${slug}" class="owid-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
 	]
 }
 

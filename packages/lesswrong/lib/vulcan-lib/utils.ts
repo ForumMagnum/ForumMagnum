@@ -290,7 +290,8 @@ export const sanitize = function(s: string): string {
       'metaforecast.org',
       'app.thoughtsaver.com',
       'ourworldindata.org',
-      'strawpoll.com'
+      'strawpoll.com',
+      'viewpoints.xyz'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
