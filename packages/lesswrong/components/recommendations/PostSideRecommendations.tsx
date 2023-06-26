@@ -5,6 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from "classnames";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const WIDTH = 250;
 
@@ -83,18 +84,20 @@ const PostSideRecommendations = ({post, className, classes}: {
 
   const List = numbered ? "ol" : "ul";
   return (
-    <div className={classNames(classes.root, className)}>
-      <div className={classes.title}>{title}</div>
-      {loading && <Components.Loading />}
-      <List className={classNames(classes.list, {
-        [classes.numberedList]: numbered,
-      })}>
-        {items.map((Item, i) => <Item key={i} />)}
-      </List>
-      {hideCookieName &&
-        <a onClick={onHide} className={classes.hideButton}>Hide</a>
-      }
-    </div>
+    <AnalyticsContext pageSectionContext="postSideRecommendations">
+      <div className={classNames(classes.root, className)}>
+        <div className={classes.title}>{title}</div>
+        {loading && <Components.Loading />}
+        <List className={classNames(classes.list, {
+          [classes.numberedList]: numbered,
+        })}>
+          {items.map((Item, i) => <Item key={i} />)}
+        </List>
+        {hideCookieName &&
+          <a onClick={onHide} className={classes.hideButton}>Hide</a>
+        }
+      </div>
+    </AnalyticsContext>
   );
 }
 
