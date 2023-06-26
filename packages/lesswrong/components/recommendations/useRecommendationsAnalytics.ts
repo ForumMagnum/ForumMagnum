@@ -15,7 +15,10 @@ const clickRecommendationMutation = gql`
   }
 `;
 
-export const useRecommendationAnalytics = <T extends HTMLElement = HTMLDivElement>(
+export const useRecommendationAnalytics = <
+  T extends HTMLElement = HTMLDivElement,
+  U extends HTMLElement = HTMLDivElement,
+>(
   postId: string,
   onClickHandler?: (e: MouseEvent) => void,
   disableAnalytics = false,
@@ -44,7 +47,7 @@ export const useRecommendationAnalytics = <T extends HTMLElement = HTMLDivElemen
     maxTriggers: 1,
   });
 
-  const onClick = useCallback((e: MouseEvent<T>) => {
+  const onClick = useCallback((e: MouseEvent<U>) => {
     if (!disableAnalytics) {
       void clickRecommendation({
         variables: {

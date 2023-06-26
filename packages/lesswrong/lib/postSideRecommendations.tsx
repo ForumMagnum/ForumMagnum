@@ -79,10 +79,13 @@ const LiPostRecommendation: FC<{
   const author = userGetDisplayName(post.user);
   const readTimeMinutes = Math.max(post.readTimeMinutes, 1);
   const mins = readTimeMinutes === 1 ? "1 min" : `${readTimeMinutes} mins`;
-  const {ref, onClick} = useRecommendationAnalytics<HTMLLIElement>(post._id);
+  const {
+    ref,
+    onClick,
+  } = useRecommendationAnalytics<HTMLLIElement, HTMLAnchorElement>(post._id);
   return (
-    <li ref={ref} onClick={onClick}>
-      <Link to={url}>{post.title}</Link> ({author}, {mins})
+    <li ref={ref}>
+      <Link to={url} onClick={onClick}>{post.title}</Link> ({author}, {mins})
     </li>
   );
 }
