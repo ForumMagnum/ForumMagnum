@@ -8,7 +8,7 @@ import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { RateLimitInfo, RecentKarmaInfo, StrictestCommentRateLimitInfoParams, UserRateLimit } from "../lib/rateLimits/types"
+import type { RateLimitInfo, RecentKarmaInfo, UserRateLimit } from "../lib/rateLimits/types"
 import { calculateRecentKarmaInfo, getAutoRateLimitInfo, getMaxAutoLimitHours, getModRateLimitInfo, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
 
 
@@ -78,12 +78,12 @@ async function getCommentsInTimeframe(userId: string, maxTimeframe: number) {
  * If the post has "ignoreRateLimits" set, then all users are exempt.
  * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
-async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null): Promise<boolean> {
+async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, context: ResolverContext): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return true;
   }
   if (postId) {
-    const post = await Posts.findOne({_id: postId}, undefined, { userId: 1, ignoreRateLimits: 1 });
+    const post = await context.loaders.Posts.load(postId);
     if (post?.ignoreRateLimits) {
       return true;
     }
@@ -91,9 +91,9 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string | null)
   return false;
 }
 
-async function getUserIsAuthor(userId: string, postId: string|null): Promise<boolean> {
+async function getUserIsAuthor(userId: string, postId: string|null, context: ResolverContext): Promise<boolean> {
   if (!postId) return false
-  const post = await Posts.findOne({_id:postId}, {projection:{userId:1, coauthorStatuses:1}})
+  const post = await context.loaders.Posts.load(postId);
   if (!post) return false
   const userIsNotPrimaryAuthor = post.userId !== userId
   const userIsNotCoauthor = !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId)
@@ -108,10 +108,17 @@ function getModPostSpecificRateLimitInfo (comments: Array<DbComment>, modPostSpe
 }
 
 async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: string) {
-  const postIds = comments.map(comment => comment.postId)
-  const postsNotAuthoredByCommenter = await Posts.find(
-    { _id: {$in: postIds}, userId: {$ne: userId}}, {projection: {_id:1, coauthorStatuses:1}
-  }).fetch()
+  const postIds = comments
+    .map(comment => comment.postId)
+    .filter(postId => !!postId) //exclude null post IDs (eg comments on tags)
+
+  const postsNotAuthoredByCommenter = postIds.length>0
+    ? await Posts.find(
+        {_id: {$in: postIds}, userId: {$ne: userId}},
+        {projection: {_id:1, coauthorStatuses:1}}
+      ).fetch()
+    : [];
+
   // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
   const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
   const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
@@ -119,8 +126,16 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
   return commentsOnNonauthorPosts
 }
 
-async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, userCommentRateLimit}: StrictestCommentRateLimitInfoParams): Promise<Array<RateLimitInfo>> {
-  const userIsAuthor = await getUserIsAuthor(user._id, postId)
+async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, userCommentRateLimit, context}: {
+  commentsInTimeframe: Array<DbComment>,
+  user: DbUser,
+  modRateLimitHours: number,
+  modPostSpecificRateLimitHours: number,
+  userCommentRateLimit: UserRateLimit<'allComments'> | null,
+  postId: string | null
+  context: ResolverContext
+}): Promise<Array<RateLimitInfo>> {
+  const userIsAuthor = await getUserIsAuthor(user._id, postId, context)
   const commentsOnOthersPostsInTimeframe =  await getCommentsOnOthersPosts(commentsInTimeframe, user._id)
   const modGeneralRateLimitInfo = getModRateLimitInfo(commentsOnOthersPostsInTimeframe, modRateLimitHours, 1)
 
@@ -164,8 +179,8 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
 
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string | null): Promise<RateLimitInfo|null> {
-  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId);
+export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string|null, context: ResolverContext): Promise<RateLimitInfo|null> {
+  const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId, context);
   if (ignoreRateLimits) return null;
 
   // does the user have a moderator-assigned rate limit?
@@ -183,12 +198,13 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
   const rateLimitInfos = await getCommentRateLimitInfos({
-    commentsInTimeframe, 
-    user, 
-    modRateLimitHours, 
-    modPostSpecificRateLimitHours, 
+    commentsInTimeframe,
+    user,
+    modRateLimitHours,
+    modPostSpecificRateLimitHours,
     postId,
-    userCommentRateLimit
+    userCommentRateLimit,
+    context,
   });
 
   return getStrictestRateLimitInfo(rateLimitInfos)

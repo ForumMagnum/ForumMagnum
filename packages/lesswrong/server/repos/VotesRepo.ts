@@ -7,11 +7,11 @@ import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 export const RECENT_CONTENT_COUNT = 20
 
 export type KarmaChangesArgs = {
-    userId: string,
-    startDate: Date,
-    endDate: Date,
-    af?: boolean,
-    showNegative?: boolean,
+  userId: string,
+  startDate: Date,
+  endDate: Date,
+  af?: boolean,
+  showNegative?: boolean,
 }
 
 export type KarmaChangeBase = {
@@ -25,6 +25,9 @@ export type CommentKarmaChange = KarmaChangeBase & {
   postId?: string,
   tagId?: string,
   tagCommentType?: TagCommentType,
+  
+  // Not filled in by the initial query; added by a followup query in the resolver
+  tagSlug?: string
 }
 
 export type PostKarmaChange = KarmaChangeBase & {
@@ -34,6 +37,10 @@ export type PostKarmaChange = KarmaChangeBase & {
 
 export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagId: string,
+
+  // Not filled in by the initial query; added by a followup query in the resolver
+  tagSlug?: string
+  tagName?: string
 }
 
 type PostVoteCounts = {
@@ -49,58 +56,115 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     super(Votes);
   }
 
-  // TODO: write a comment explaining at a high level what this is doing
-  private getKarmaChanges<T extends KarmaChangeBase>(
+  /**
+   * Get data to populate the karma-change notifier (that is, the star icon that
+   * appears in the header for logged-in users). The query here starts with the
+   * Votes collection, summing up net vote power for votes within a given date
+   * range.
+   *
+   * Cancelled votes *are* counted when summing up vote powers here; for each
+   * cancelled vote the Votes collection will have a matching "unvote", with the
+   * opposite power. The datestamps of the vote and the unvote are when the vote
+   * was placed and when it was cancelled. So for example if a user placed an
+   * upvote (+1) at 5:00 and then converted it to a strong upvote (+2) at 6:00,
+   * this is three rows in the votes collection:
+   *   voteType     votedAt   power  cancelled  isUnvote
+   *   smallUpvote  5:00      1      true       false
+   *   smallUpvote  6:00      -1     true       true
+   *   bigUpvote    6:00      2      false      false
+   *
+   * The inner select produces a list of document IDs, the collectionName of
+   * the collection the document is in, and the net change in score of that
+   * document in the given time range, for all content by the given user. Then
+   * for each collection that document might be in, we join against that
+   * collection to get a bit more information about the document (to make an
+   * excerpt to show in the UI, and to determine the link URL). Fields that
+   * correspond to documents in the wrong collection will be null.
+   *
+   * Then in JS, we take the result set, split it into a separate array for
+   * each voteable collection, and move fields around to make it typecheck.
+   */
+  async getKarmaChanges(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
-    collectionName: CollectionNameString,
-    dataFields: string[],
-  ): Promise<T[]> {
-    return logIfSlow(() => this.getRawDb().any(`
+  ): Promise<{
+    changedComments: CommentKarmaChange[],
+    changedPosts: PostKarmaChange[],
+    changedTagRevisions: TagRevisionKarmaChange[],
+  }> {
+    const powerField = af ? "afPower" : "power";
+
+    const allChanges = await logIfSlow(() => this.getRawDb().any(`
       SELECT
         v.*,
-        '${collectionName}' AS "collectionName",
-        ${dataFields.join(", ")}
+        comment."contents"->'html' AS "commentHtml",
+        comment."postId" AS "commentPostId",
+        comment."tagId" AS "commentTagId",
+        comment."tagCommentType" AS "commentTagCommentType",
+        post."title" AS "postTitle",
+        post."slug" AS "postSlug",
+        revision."documentId" AS "revisionTagId"
       FROM (
         SELECT
           "documentId" AS "_id",
-          SUM("${af ? "afPower" : "power"}") AS "scoreChange"
+          "Votes"."collectionName" as "collectionName",
+          SUM("${powerField}") AS "scoreChange"
         FROM "Votes"
         WHERE
           ${af ? '"afPower" IS NOT NULL AND' : ''}
           "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
           "votedAt" >= $2 AND
           "votedAt" <= $3 AND
-          "userId" <> $1 AND
-          "collectionName" = '${collectionName}'
-        GROUP BY "Votes"."documentId"
+          "userId" <> $1
+        GROUP BY "Votes"."documentId", "Votes"."collectionName"
       ) v
-      JOIN "${collectionName}" data ON data."_id" = v."_id"
+      LEFT JOIN "Comments" comment ON (
+        v."collectionName" = 'Comments'
+        AND comment._id = v._id
+      )
+      LEFT JOIN "Posts" post ON (
+        v."collectionName" = 'Posts'
+        AND post._id = v._id
+      )
+      LEFT JOIN "Revisions" revision ON (
+        v."collectionName" = 'Revisions'
+        AND revision._id = v._id
+      )
       WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
     `, [userId, startDate, endDate]),
-      "getKarmaChanges"
+      `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
     );
-  }
 
-  getKarmaChangesForComments(args: KarmaChangesArgs): Promise<CommentKarmaChange[]> {
-    return this.getKarmaChanges(args, "Comments", [
-      'data."contents"->>\'html\' AS "description"',
-      'data."postId"',
-      'data."tagId"',
-      'data."tagCommentType"',
-    ]);
-  }
-
-  getKarmaChangesForPosts(args: KarmaChangesArgs): Promise<PostKarmaChange[]> {
-    return this.getKarmaChanges(args, "Posts", [
-      'data."title"',
-      'data."slug"',
-    ]);
-  }
-
-  getKarmaChangesForTagRevisions(args: KarmaChangesArgs): Promise<TagRevisionKarmaChange[]> {
-    return this.getKarmaChanges(args, "Revisions", [
-      'data."documentId" AS "tagId"',
-    ]);
+    let changedComments: CommentKarmaChange[] = [];
+    let changedPosts: PostKarmaChange[] = [];
+    let changedTagRevisions: TagRevisionKarmaChange[] = [];
+    for (let votedContent of allChanges) {
+      let change: KarmaChangeBase = {
+        _id: votedContent._id,
+        collectionName: votedContent.collectionName,
+        scoreChange: votedContent.scoreChange,
+      };
+      if (votedContent.collectionName==="Comments") {
+        changedComments.push({
+          ...change,
+          description: votedContent.commentHtml,
+          postId: votedContent.commentPostId,
+          tagId: votedContent.commentTagId,
+          tagCommentType: votedContent.commentTagCommentType,
+        });
+      } else if (votedContent.collectionName==="Posts") {
+        changedPosts.push({
+          ...change,
+          title: votedContent.postTitle,
+          slug: votedContent.postSlug,
+        });
+      } else if (votedContent.collectionName==="Revisions") {
+        changedTagRevisions.push({
+          ...change,
+          tagId: votedContent.revisionTagId,
+        });
+      }
+    }
+    return {changedComments, changedPosts, changedTagRevisions};
   }
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {
