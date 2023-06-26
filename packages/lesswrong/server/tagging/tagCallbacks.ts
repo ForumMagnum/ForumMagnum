@@ -10,6 +10,8 @@ import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 
 function isValidTagName(name: string) {
+  if (!name || !name.length)
+    return false;
   return true;
 }
 
@@ -63,11 +65,11 @@ getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any
 });
 
 getCollectionHooks("Tags").updateValidate.add(async (validationErrors: Array<any>, {oldDocument, newDocument}: {oldDocument: DbTag, newDocument: DbTag}) => {
+  if (!isValidTagName(newDocument.name))
+    throw new Error(`Invalid ${taggingNameSetting.get()} name`);
+
   const newName = normalizeTagName(newDocument.name);
   if (oldDocument.name !== newName) { // Tag renamed?
-    if (!isValidTagName(newDocument.name))
-      throw new Error(`Invalid ${taggingNameSetting.get()} name`);
-    
     const existing = await Tags.find({name: newName, deleted:false}).fetch();
     if (existing.length > 0)
       throw new Error(`A ${taggingNameSetting.get()} by that name already exists`);

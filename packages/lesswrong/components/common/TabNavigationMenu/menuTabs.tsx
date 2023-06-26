@@ -14,7 +14,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { communityPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
@@ -115,7 +115,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       icon: conceptsIcon,
       tooltip: <div>
         Get an overview over all the concepts used on LessWrong
@@ -273,7 +273,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: taggingNamePluralSetting.get(),
       title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
-      link: `/${taggingNamePluralSetting.get()}/all`,
+      link: getAllTagsPath(),
       iconComponent: TopicsIcon,
       selectedIconComponent: TopicsSelectedIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
@@ -378,7 +378,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'wiki',
       title: 'Wiki',
       mobileTitle: 'Wiki',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       iconComponent: LocalOffer,
       tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,

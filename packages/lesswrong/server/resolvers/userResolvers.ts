@@ -21,6 +21,8 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { UsersRepo } from '../repos';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -368,6 +370,20 @@ addGraphQLResolvers({
       results['alignment'] = getAlignment(results)
       return results
     },
+    async GetRandomUser(root: void, {userIsAuthor}: {userIsAuthor: 'optional'|'required'}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!userIsAdminOrMod(currentUser)) {
+        throw new Error('Must be an admin/mod to get a random user')
+      }
+      
+      if (userIsAuthor === 'optional') {
+        return new UsersRepo().getRandomActiveUser()
+      } else if (userIsAuthor === 'required') {
+        return new UsersRepo().getRandomActiveAuthor()
+      } else {
+        throw new Error('Invalid user type type')
+      }
+    },
   },
 })
 
@@ -406,7 +422,7 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
   const query = `
     with ranked as (
       select user_id
-        , total_seconds 
+        , total_seconds
         , percent_rank() over (order by total_seconds asc) engagementPercentile
       from user_engagement_wrapped
       -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
@@ -448,3 +464,4 @@ addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
+addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')

@@ -39,7 +39,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     primary: {
       main: '#0c869b',
       light: '#00b2be',
-      dark: '#085d6c'
+      dark: '#085d6c' 
     },
     secondary: {
       main: '#0c869b',
@@ -58,6 +58,9 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     text: {
       primaryAlert: "#137283"
+    },
+    link: {
+      visited: "#7130a6",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],

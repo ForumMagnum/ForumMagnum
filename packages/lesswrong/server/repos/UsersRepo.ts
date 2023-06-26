@@ -191,4 +191,44 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Users"`);
     return count;
   }
+  
+  async getRandomActiveUser(): Promise<DbUser> {
+    return this.one(`
+      SELECT u.*
+      FROM "Users" u
+      JOIN (
+        SELECT "userId", MAX("lastUpdated") AS max_last_updated
+        FROM "ReadStatuses"
+        GROUP BY "userId"
+      ) rs
+      ON rs."userId" = u."_id"
+      WHERE COALESCE(u."deleted", FALSE) = FALSE
+      AND rs.max_last_updated > NOW() - INTERVAL '1 month'
+      ORDER BY RANDOM()
+      LIMIT 1;
+    `);
+  }
+  
+  async getRandomActiveAuthor(): Promise<DbUser> {
+    return this.one(`
+      SELECT u.*
+      FROM "Users" u
+      JOIN (
+        SELECT "userId", MAX("createdAt") AS max_created_at
+        FROM "Comments"
+        GROUP BY "userId"
+      ) c
+      ON c."userId" = u."_id"
+      JOIN (
+        SELECT "userId", MAX("postedAt") AS max_posted_at
+        FROM "Posts"
+        GROUP BY "userId"
+      ) p
+      ON p."userId" = u."_id"
+      WHERE COALESCE(u."deleted", FALSE) = FALSE
+      AND (c.max_created_at > NOW() - INTERVAL '1 month' OR p.max_posted_at > NOW() - INTERVAL '1 month')
+      ORDER BY RANDOM()
+      LIMIT 1;
+    `);
+  }
 }
