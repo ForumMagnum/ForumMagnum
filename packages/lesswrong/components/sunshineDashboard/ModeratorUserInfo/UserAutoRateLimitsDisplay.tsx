@@ -67,9 +67,9 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
 
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
-  const strictestRateLimits = getStrictestActiveRateLimitNames(user, allRateLimits);
-  const allActiveRateLimits = getActiveRateLimitNames(user, allRateLimits);
-  const nonStrictestRateLimits = allActiveRateLimits.filter(rateLimit => !strictestRateLimits.includes(rateLimit))
+  const strictestRateLimitsNames = getStrictestActiveRateLimitNames(user, allRateLimits);
+  const allActiveRateLimitsNames = getActiveRateLimitNames(user, allRateLimits);
+  const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimit => !strictestRateLimitsNames.includes(rateLimit))
 
   return <div>
     {showKarmaMeta && <div>
@@ -99,12 +99,12 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
         </MetaInfo>
       </LWTooltip>
     </div>}
-    {strictestRateLimits.map(rateLimit => <div key={`${user._id}rateLimitstrict${rateLimit}`}>
+    {strictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimitstrict${rateLimit}`}>
       <MetaInfo>{rateLimit}</MetaInfo>
     </div>)}
-    {nonStrictestRateLimits.length > 0 && <LWTooltip title={<div>
-      {nonStrictestRateLimits.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
-      <MetaInfo>{nonStrictestRateLimits.length} More</MetaInfo>
+    {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
+      {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
+      <MetaInfo>{nonStrictestRateLimitsNames.length} More</MetaInfo>
     </LWTooltip>}
   </div>;
 }

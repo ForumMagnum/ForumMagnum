@@ -138,6 +138,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             SELECT _id FROM "Posts" 
             WHERE
               "Posts"."userId" = $1
+              AND
+              "Posts"."draft" IS NOT true
             ORDER BY "Posts"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )
