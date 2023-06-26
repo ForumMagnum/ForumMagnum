@@ -488,6 +488,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
+  readonly noindex: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -2108,6 +2109,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly wikiOnly: boolean,
   readonly deleted: boolean,
   readonly isSubforum: boolean,
+  readonly noindex: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
