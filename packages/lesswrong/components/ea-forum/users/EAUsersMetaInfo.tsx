@@ -6,6 +6,7 @@ import {
   SOCIAL_MEDIA_PROFILE_FIELDS,
   CAREER_STAGES,
 } from "../../../lib/collections/users/schema";
+import { communityPath } from "../../../lib/routes";
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconsRow: {
@@ -21,6 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& a": {
       color: theme.palette.grey[600],
       "&:hover": {
+        color: theme.palette.grey[600],
+      },
+      "&:visited": {
         color: theme.palette.grey[600],
       }
     }
@@ -91,7 +95,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           : null;
       })}
       {user.mapLocation &&
-        <Link to="/community#individuals" className={classes.userMetaInfo}>
+        <Link to={`${communityPath}#individuals`} className={classes.userMetaInfo}>
           <ForumIcon icon="MapPin" className={classes.userMetaInfoIcon} />
           {user.mapLocation.formatted_address}
         </Link>
