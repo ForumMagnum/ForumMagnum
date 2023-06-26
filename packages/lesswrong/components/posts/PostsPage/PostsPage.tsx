@@ -477,11 +477,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
 
       {showRecommendations &&
-        <div className={classes.recommendations}>
-          <PostsPageRecommendationsList
-            strategy="tagWeightedCollabFilter"
-          />
-        </div>
+        <AnalyticsContext pageSectionContext="postBottomRecommendations">
+          <div className={classes.recommendations}>
+            <PostsPageRecommendationsList
+              strategy="tagWeightedCollabFilter"
+            />
+          </div>
+        </AnalyticsContext>
       }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
