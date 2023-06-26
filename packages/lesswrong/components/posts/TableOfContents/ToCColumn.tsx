@@ -127,6 +127,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     gap: "10px",
     userSelect: "none",
     cursor: "pointer",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   hideTocButtonHidden: {
     display: "none",
