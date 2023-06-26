@@ -5,7 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import classNames from "classnames";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 
 const WIDTH = 250;
 
@@ -55,6 +55,7 @@ const PostSideRecommendations = ({post, className, classes}: {
   className?: string,
   classes: ClassesType,
 }) => {
+  const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
   const {
     loading,
@@ -75,6 +76,7 @@ const PostSideRecommendations = ({post, className, classes}: {
         expires: moment().add(365, "days").toDate(),
         path: "/",
       });
+      captureEvent("hidePostSideRecommendations", {title, hideCookieName});
     }
   }, [hideCookieName, setCookie]);
 
