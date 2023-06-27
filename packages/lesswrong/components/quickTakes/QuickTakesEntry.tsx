@@ -196,6 +196,15 @@ const QuickTakesEntry = ({
     }
   }, [defaultFocus, editorRef]);
 
+  // TODO: The editor is currently pretty messed up if the user has enabled
+  // the markdown editor in their user settings, unless we're positioning the
+  // submit button at the bottom. For now, we just disable the editor in this
+  // case but we probably want to fix this properly in the long run. This is a
+  // pretty small percentage of users, so seems ~fine.
+  if (currentUser?.markDownPostEditor && !submitButtonAtBottom) {
+    return null;
+  }
+
   const {Editor, Loading, TagsChecklist} = Components;
   const submitButton = (
     <div className={classNames(buttonClassName, {
