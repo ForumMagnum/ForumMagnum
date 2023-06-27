@@ -95,7 +95,6 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
   voteProps: VotingProps<T>,
 ) => {
   const extendedScore = voteProps.document?.extendedScore;
-  console.log(extendedScore);
   const result = [];
   for (const emojiOption of eaAnonymousEmojiPalette) {
     result.push({

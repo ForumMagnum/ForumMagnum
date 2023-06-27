@@ -52,3 +52,5 @@ export const eaEmojiNames = [
   ...eaAnonymousEmojiPalette,
   ...eaEmojiPalette,
 ].map(({name}) => name);
+
+export const eaPublicEmojiNames = eaEmojiPalette.map(({name}) => name);

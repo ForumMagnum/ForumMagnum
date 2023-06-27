@@ -2,6 +2,7 @@ import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
+import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 
 export type MeanPostKarma = {
   _id: number,
@@ -103,7 +104,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       FROM (
         SELECT
           "commentId",
-          JSON_OBJECT_AGG("key", "displayNames") AS "reactorDisplayNames"
+          JSON_OBJECT_AGG("key", "displayNames")
+            FILTER (WHERE "key" IN ($2:csv))
+            AS "reactorDisplayNames"
         FROM (
           SELECT
             "commentId",
@@ -130,7 +133,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         ) q
         GROUP BY "commentId"
       ) q
-    `, [postId]);
+    `, [postId, eaPublicEmojiNames]);
     return result.emojiReactors;
   }
 
