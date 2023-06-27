@@ -165,6 +165,7 @@ const notificationTypeSettings = new SimpleSchema({
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
+  quickTakes: {type: Boolean, optional: true, nullable: true},
 });
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
@@ -1296,7 +1297,9 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
-    label: "Shortform by users I'm subscribed to",
+    label: isEAForum
+      ? "Quick takes by users I'm subscribed to"
+      : "Shortform by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
@@ -1934,6 +1937,7 @@ const schema: SchemaType<DbUser> = {
       type: "Post",
       nullable: true,
     }),
+    label: isEAForum ? "Quick takes feed ID" : "Shortform feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],

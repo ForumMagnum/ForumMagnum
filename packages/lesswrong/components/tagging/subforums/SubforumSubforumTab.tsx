@@ -1,10 +1,8 @@
 import React, { useCallback, useRef } from 'react';
 import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useTracking } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { useCurrentUser } from '../../common/withUser';
-import { useDialog } from '../../common/withDialog';
 import { defaultSubforumSorting, SubforumSorting, subforumSortingToResolverName, subforumSortingTypes } from '../../../lib/collections/tags/subforumHelpers';
 import { tagPostTerms } from '../TagPage';
 import { useUpdate } from '../../../lib/crud/withUpdate';
@@ -72,8 +70,6 @@ const SubforumSubforumTab = ({
 }) => {
   const {
     CommentPermalink,
-    LWTooltip,
-    SectionButton,
     MixedTypeFeed,
     RecentDiscussionThread,
     CommentWithReplies,
@@ -87,8 +83,6 @@ const SubforumSubforumTab = ({
 
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const { captureEvent } =  useTracking()
-  const { openDialog } = useDialog()
   const refetchRef = useRef<null|(()=>void)>(null);
   const refetch = useCallback(() => {
     if (refetchRef.current)
@@ -231,7 +225,7 @@ const SubforumSubforumTab = ({
     <div className={classes.listLayout}>
       <PostsList2 terms={terms} tagId={tag._id} itemsPerPage={50} hideTagRelevance enableTotal/>
       <CommentsListCondensed
-        label={"Shortforms"}
+        label="Quick takes"
         terms={{
           view: "tagSubforumComments" as const,
           tagId: tag._id,

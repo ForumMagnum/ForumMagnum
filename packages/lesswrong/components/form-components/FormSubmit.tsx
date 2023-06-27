@@ -7,8 +7,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
