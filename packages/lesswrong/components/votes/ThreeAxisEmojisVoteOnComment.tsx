@@ -134,7 +134,9 @@ const EmojiTooltipContent: FC<{
         </div>
       }
       <div className={classes.tooltipSecondaryText}>
-        <span className={classes.tooltipEmoji}>{emojiOption.emoji}</span>{" "}
+        <span className={classes.tooltipEmoji}>
+          <emojiOption.Component />
+        </span>{" "}
         {emojiOption.label}
       </div>
     </div>
@@ -216,7 +218,9 @@ const EmojiReactsSection: FC<{
                 [classes.buttonSelected]: isSelected,
               })}
             >
-              <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
+              <div className={classes.emojiPreview}>
+                <emojiOption.Component />
+              </div>
               <div>{score}</div>
             </div>
           </LWTooltip>
