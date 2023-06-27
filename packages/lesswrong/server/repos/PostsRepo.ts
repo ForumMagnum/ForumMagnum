@@ -97,7 +97,6 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
 
   async getEmojiReactors(
     postId: string,
-    maxReactorsPerEmoji = 4,
   ): Promise<Record<string, Record<string, string[]>>> {
     const result = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
@@ -109,7 +108,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           SELECT
             "commentId",
             "key",
-            (ARRAY_AGG("displayName" ORDER BY "karma" DESC))[1:$2] AS "displayNames"
+            (ARRAY_AGG("displayName" ORDER BY "karma" DESC)) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
@@ -131,7 +130,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         ) q
         GROUP BY "commentId"
       ) q
-    `, [postId, maxReactorsPerEmoji]);
+    `, [postId]);
     return result.emojiReactors;
   }
 
