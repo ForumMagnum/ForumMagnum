@@ -1,18 +1,43 @@
 import React from 'react'
 import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
-import { Components, registerComponent } from '../../lib/vulcan-lib'
+import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import Helmet from 'react-helmet'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
+
+const getStructuredData = () => ({
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "url": `${getSiteUrl()}`,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${getSiteUrl()}search?query={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `${getSiteUrl()}`,
+  },
+  ...(isEAForum && {
+    "description": [
+      "A forum for discussions and updates on effective altruism. Topics covered include",
+      "global health, AI safety, biosecurity, animal welfare, philosophy, policy, forecasting,",
+      "and effective giving. Users can explore new posts, engage with the community,",
+      "participate in recent discussions, and discover topics, events,",
+      "and groups. An accessible space for sharing and learning about approaches to tackling",
+      "the world's most pressing problems."
+    ].join(' ')
+  }),
+})
+
 
 const EAHome = () => {
   const currentUser = useCurrentUser();
@@ -38,9 +63,7 @@ const EAHome = () => {
 
   return (
     <AnalyticsContext pageContext="homePage">
-      <HeadTags structuredData={{
-        "@context": "http://schema.org",
-      }}/>
+      <HeadTags structuredData={getStructuredData()}/>
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
