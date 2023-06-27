@@ -16,9 +16,9 @@ const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMai
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
+    RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed
+    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed,
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -47,24 +47,12 @@ const EAHome = () => {
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
-      
+
       <EAHomeMainContent FrontpageNode={
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-          {isEAForum && (
-            <AnalyticsContext pageSectionContext="frontpageShortform">
-              <SingleColumnSection>
-                <CommentsListCondensed
-                  label={"Shortform"}
-                  terms={shortformTerms}
-                  initialLimit={5}
-                  shortformButton
-                />
-              </SingleColumnSection>
-            </AnalyticsContext>
-          )}
-          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
+          {isEAForum && <QuickTakesSection />}
           <RecentDiscussionFeed
             title="Recent discussion"
             af={false}
@@ -73,7 +61,6 @@ const EAHome = () => {
           />
         </>
       } />
-      
     </AnalyticsContext>
   )
 }
