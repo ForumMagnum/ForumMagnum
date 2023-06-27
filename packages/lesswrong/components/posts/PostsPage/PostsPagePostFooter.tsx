@@ -14,10 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 20,
     alignItems: 'center',
     fontSize: '1.4em',
-    paddingTop: isEAForum ? 20 : undefined,
-    borderTop: isEAForum ? theme.palette.border.grey300 : undefined,
-    marginTop: isEAForum ? 20 : undefined,
-    marginBottom: isEAForum ? 20 : undefined
+    paddingTop: isEAForum ? 30 : undefined,
+    borderTop: isEAForum ? theme.palette.border.normal : undefined,
+    marginTop: isEAForum ? 40 : undefined,
+    marginBottom: isEAForum ? 40 : undefined
   },
   bookmarkButton: {
     marginBottom: -5,

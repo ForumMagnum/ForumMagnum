@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsVote = ({ post, useHorizontalLayout, classes }: {
   post: PostsWithVotes,
-  useHorizontalLayout?: boolean, // if true, display the vote arrows to the left & right of the score
+  useHorizontalLayout?: boolean,  /** if true, display the vote arrows to the left & right of the score */
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts");
