@@ -82,6 +82,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@media (max-width: 350px)': {
       display: 'none'
     },
+    ...(isEAForum && {
+      "&:hover": {
+        color: theme.palette.grey[1000],
+        opacity: 1,
+      },
+    }),
   },
 });
 

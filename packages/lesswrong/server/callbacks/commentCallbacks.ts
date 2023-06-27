@@ -11,7 +11,7 @@ import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -59,13 +59,14 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
         postId: currentUser.shortformFeedId
       });
     }
-    
+
+    const shortformName = isEAForum ? "Quick takes" : "Shortform";
     const post = await createMutator({
       collection: Posts,
       document: {
         userId: currentUser._id,
         shortform: true,
-        title: `${ currentUser.displayName }'s Shortform`,
+        title: `${currentUser.displayName}'s ${shortformName}`,
         af: currentUser.groups?.includes('alignmentForum'),
       },
       currentUser,
