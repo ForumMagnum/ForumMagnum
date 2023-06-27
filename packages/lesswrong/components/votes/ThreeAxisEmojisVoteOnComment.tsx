@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     "& .MuiPaper-root": {
-      transform: "translateY(-8px) !important",
+      transform: "translateY(8px) !important",
     },
     "& .MuiList-padding": {
       padding: 0,
@@ -249,11 +249,11 @@ const EmojiReactsSection: FC<{
         anchorEl={anchorEl}
         getContentAnchorEl={null}
         anchorOrigin={{
-          vertical: "top",
+          vertical: "bottom",
           horizontal: "left",
         }}
         transformOrigin={{
-          vertical: "bottom",
+          vertical: "top",
           horizontal: "left",
         }}
         className={classes.menu}
