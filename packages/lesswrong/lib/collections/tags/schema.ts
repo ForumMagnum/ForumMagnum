@@ -630,6 +630,16 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     nullable: true,
   },
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.advancedOptions,
+    label: "No Index",
+    tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
+  },
 }
 
 export default schema;

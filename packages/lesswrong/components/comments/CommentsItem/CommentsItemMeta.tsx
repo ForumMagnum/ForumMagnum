@@ -2,7 +2,7 @@ import React, { useState }  from "react";
 import classNames from "classnames";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, isLW } from "../../../lib/instanceSettings";
+import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink } from "./useCommentLink";
 import { Comments } from "../../../lib/collections/comments";
@@ -159,7 +159,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  
+
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -167,6 +167,7 @@ export const CommentsItemMeta = ({
 
   const authorIsPostAuthor = post &&
     (post.userId === comment.userId || userIsPostCoauthor(comment.user, post));
+  const commentIsTopLevelShortform = post?.shortform && !comment.parentCommentId;
 
   const commentLinkProps = {
     comment,
@@ -259,7 +260,7 @@ export const CommentsItemMeta = ({
       />
       <UserCommentMarkers
         user={comment.user}
-        isPostAuthor={authorIsPostAuthor}
+        isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
@@ -300,7 +301,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling
+            neverCoreStyling={!isEAForum}
             smallText
           />
         )}
