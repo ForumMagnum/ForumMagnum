@@ -15,38 +15,35 @@ import classNames from "classnames";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    gap: "10px",
+    gap: "4px",
   },
   button: {
+    marginTop: -1,
     display: "flex",
     alignItems: "center",
     borderRadius: theme.borderRadius.small,
-    background: theme.palette.grey[110],
-    border: `1px solid ${theme.palette.grey[110]}`,
     color: theme.palette.grey[600],
     padding: "0 6px",
     gap: "4px",
     height: 26,
-    transform: "translateY(-1px)",
     cursor: "pointer",
     userSelect: "none",
+    border: "1px solid transparent",
     "&:hover": {
-      background: theme.palette.grey[250],
-      border: `1px solid ${theme.palette.grey[250]}`,
-      color: theme.palette.grey[700],
+      background: theme.palette.grey[100],
     },
   },
   buttonSelected: {
-    background: theme.palette.primaryAlpha(0.1),
-    border: `1px solid ${theme.palette.primaryAlpha(0.6)}`,
+    background: theme.palette.primaryAlpha(0.05),
     color: theme.palette.primary.main,
+    border: `1px solid ${theme.palette.primaryAlpha(0.5)}`,
     "&:hover": {
       background: theme.palette.primaryAlpha(0.2),
-      border: `1px solid ${theme.palette.primaryAlpha(0.7)}`,
     },
   },
   emojiPreview: {
     fontSize: "1.1em",
+    color: theme.palette.primary.main,
   },
   tooltip: {
     background: theme.palette.grey[800],
@@ -66,6 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipEmoji: {
     fontSize: "1.4em",
+    color: theme.palette.primary.main,
   },
   menu: {
     "& .MuiPaper-root": {
