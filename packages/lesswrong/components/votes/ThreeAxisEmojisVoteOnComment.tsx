@@ -1,9 +1,6 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import {
-  CommentVotingComponentProps,
-  getVotingSystemByName,
-} from "../../lib/voting/votingSystems";
+import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
@@ -11,9 +8,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import { userHasEAEmojiReacts } from "../../lib/betas";
+import { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
-import { VotingProps } from "./votingProps";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -281,21 +278,34 @@ const ThreeAxisEmojisVoteOnComment = ({
     collection.options.collectionName,
     votingSystem,
   );
-  const {TwoAxisVoteOnComment} = Components;
+  const {OverallVoteAxis, TwoAxisVoteOnComment} = Components;
   return (
     <div className={classes.root}>
-      <TwoAxisVoteOnComment
-        document={document}
-        hideKarma={hideKarma}
-        collection={collection}
-        votingSystem={getVotingSystemByName("twoAxis")}
-      />
-      {userHasEAEmojiReacts(null) &&
-        <EmojiReactsSection
-          document={document}
-          voteProps={voteProps}
-          classes={classes}
-        />
+      {userHasEAEmojiReacts(null)
+        ? (
+          <>
+            <OverallVoteAxis
+              document={document}
+              hideKarma={hideKarma}
+              voteProps={voteProps}
+              showBox
+            />
+            <EmojiReactsSection
+              document={document}
+              voteProps={voteProps}
+              classes={classes}
+            />
+          </>
+        )
+        : (
+          <TwoAxisVoteOnComment
+            document={document}
+            hideKarma={hideKarma}
+            voteProps={voteProps}
+            collection={collection}
+            votingSystem={votingSystem}
+          />
+        )
       }
     </div>
   );
