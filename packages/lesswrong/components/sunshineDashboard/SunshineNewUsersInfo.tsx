@@ -67,6 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
   },
   bio: {
+    wordBreak: "break-word",
     '& a': {
       color: theme.palette.primary.main,
     },
