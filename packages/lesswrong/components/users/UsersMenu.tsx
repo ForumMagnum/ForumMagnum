@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanCreateField, userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -122,13 +122,13 @@ const UsersMenu = ({classes}: {
             }}>
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title={preferredHeadingCase("New Question")}
+                  title="New Question"
                   to="/newPost?question=true"
                 />
               }
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title={preferredHeadingCase("New Post")}
+                  title="New Post"
                   to="/newPost"
                 />
               }
@@ -136,27 +136,27 @@ const UsersMenu = ({classes}: {
                   !isEAForum &&
                   userCanCreateField(currentUser, postSchema['debate']) &&
                 <DropdownItem
-                  title={preferredHeadingCase("New Dialogue")}
+                  title="New Dialogue"
                   to="/newpost?debate=true"
                 />
               }
             </div>
-            {showNewButtons && !currentUser.allCommentingDisabled &&
+            {showNewButtons && userCanComment(currentUser) &&
               <DropdownItem
-                title={preferredHeadingCase("New Shortform")}
+                title={isEAForum ? "New Quick take" : "New Shortform"}
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
               />
             }
             {showNewButtons && <DropdownDivider />}
             {showNewButtons && userCanPost(currentUser) &&
               <DropdownItem
-                title={preferredHeadingCase("New Event")}
+                title="New Event"
                 to="/newPost?eventForm=true"
               />
             }
             {showNewButtons && currentUser.karma >= 1000 &&
               <DropdownItem
-                title={preferredHeadingCase("New Sequence")}
+                title="New Sequence"
                 to="/sequencesnew"
               />
             }
@@ -185,7 +185,7 @@ const UsersMenu = ({classes}: {
             }
             {!isEAForum &&
               <DropdownItem
-                title={preferredHeadingCase("My Drafts")}
+                title="My Drafts"
                 to="/drafts"
                 icon="Edit"
                 iconClassName={classes.icon}
@@ -193,7 +193,7 @@ const UsersMenu = ({classes}: {
             }
             {!currentUser.deleted &&
               <DropdownItem
-                title={preferredHeadingCase("User Profile")}
+                title={("User Profile")}
                 to={`/users/${currentUser.slug}`}
                 icon="User"
                 iconClassName={classes.icon}
@@ -231,12 +231,12 @@ const UsersMenu = ({classes}: {
             }
             {currentUser.shortformFeedId &&
               <DropdownItem
-                title={preferredHeadingCase("Shortform Page")}
+                title={isEAForum ? "Your Quick takes" : "Shortform Page"}
                 to={postGetPageUrl({
                   _id: currentUser.shortformFeedId,
                   slug: "shortform",
                 })}
-                icon="Shortform"
+                icon={isEAForum ? "CommentFilled" : "Shortform"}
                 iconClassName={classes.icon}
               />
             }

@@ -4,6 +4,7 @@ import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -25,10 +26,12 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
     });
   }
 
+  const contentType = isEAForum ? "Quick takes" : "Shortform";
+
   const {DropdownItem} = Components;
   return (
     <DropdownItem
-      title={preferredHeadingCase("Set as user's Shortform Post")}
+      title={preferredHeadingCase(`Set as user's ${contentType} Post`)}
       onClick={handleMakeShortform}
     />
   );

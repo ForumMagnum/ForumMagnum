@@ -20,20 +20,23 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   return validationErrors;
 });
 
-getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser }) {
+getCollectionHooks("Comments").createValidate.add(async function CommentsNewRateLimit (validationErrors, { newDocument: comment, currentUser, context }) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
   }
-  await enforceCommentRateLimit({user: currentUser, comment});
+  await enforceCommentRateLimit({user: currentUser, comment, context});
 
   return validationErrors;
 });
 
-getCollectionHooks("Comments").createAsync.add(async ({document}: {document: DbComment}) => {
+getCollectionHooks("Comments").createAsync.add(async ({document, context}: {
+  document: DbComment
+  context: ResolverContext
+}) => {
   const user = await Users.findOne(document.userId)
   
   if (user) {
-    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, null)
+    const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, null, context)
     // if the user has created a comment that makes them hit the rate limit, record an event
     // (ignore the universal 8 sec rate limit)
     if (rateLimit && rateLimit.rateLimitType !== 'universal') {
@@ -61,8 +64,12 @@ async function enforcePostRateLimit (user: DbUser) {
   }
 }
 
-async function enforceCommentRateLimit({user, comment}:{user: DbUser, comment: DbComment}) {
-  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId);
+async function enforceCommentRateLimit({user, comment, context}:{
+  user: DbUser,
+  comment: DbComment,
+  context: ResolverContext,
+}) {
+  const rateLimit = await rateLimitDateWhenUserNextAbleToComment(user, comment.postId, context);
   if (rateLimit) {
     const {nextEligible, rateLimitType:_} = rateLimit;
     if (nextEligible > new Date()) {

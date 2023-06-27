@@ -402,8 +402,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
               className={classes.headerImage}
             />
           </div>}
-        <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
+          <PostCoauthorRequest post={post} currentUser={currentUser} />
+          <PostsPagePostHeader
+            post={post}
+            answers={answers ?? []}
+            showEmbeddedPlayer={showEmbeddedPlayer}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            dialogueResponses={debateResponses} />
         </div>
       </div>
     </AnalyticsContext>

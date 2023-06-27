@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformTop: {
     '&&': {
-      marginTop: theme.spacing.unit*4,
+      marginTop: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
       marginBottom: 0,
     }
   },

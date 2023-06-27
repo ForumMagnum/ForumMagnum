@@ -190,7 +190,6 @@ export const linkStyle = (theme: ThemeType) => ({
   '&:after': {
     content: '"°"',
     marginLeft: 1,
-    color: theme.palette.primary.main,
   }
 })
 

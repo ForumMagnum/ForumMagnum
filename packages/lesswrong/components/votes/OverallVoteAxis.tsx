@@ -8,8 +8,9 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { userCanVote } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import type { VotingProps } from './votingProps';
+import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
-import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -54,6 +55,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     transform: isEAForum ? "translateY(-10px)" : undefined,
   },
+  verticalArrows: {
+    "& .LWTooltip-root": {
+      transform: "translateY(1px)",
+    },
+    "& $voteScore": {
+      transform: "translateY(-2px)",
+      display: "block",
+    },
+  },
 })
 
 const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
@@ -64,7 +74,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   showBox?: boolean
 }) => {
   const currentUser = useCurrentUser();
-  
+
   if (!document) return null;
 
   const { OverallVoteButton, LWTooltip } = Components
@@ -94,7 +104,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const af = (document as any).af;
   const afDate = (document as any).afDate;
   const afBaseScore = (document as any).afBaseScore;
-  
+
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
       <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
@@ -128,6 +138,13 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
 
   const tooltipPlacement = isEAForum ? "top" : "bottom";
 
+  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
+  // TODO: In the fullness of time
+  const verticalArrows = false;
+  if (verticalArrows) {
+    buttonProps.solidArrow = true;
+  }
+
   return <TooltipIfDisabled>
     <span className={classes.vote}>
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
@@ -160,17 +177,21 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
         </LWTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
+        <span className={classNames(classes.overallSection, {
+          [classes.overallSectionBox]: showBox,
+          [classes.verticalArrows]: verticalArrows,
+        })}>
           <TooltipIfEnabled
             title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
             placement={tooltipPlacement}
           >
             <OverallVoteButton
-              orientation="left"
+              orientation={verticalArrows ? "down" : "left"}
               color="error"
               upOrDown="Downvote"
               enabled={canVote}
               {...voteProps}
+              {...buttonProps}
             />
           </TooltipIfEnabled>
           <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
@@ -186,11 +207,12 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
             placement={tooltipPlacement}
           >
             <OverallVoteButton
-              orientation="right"
+              orientation={verticalArrows ? "up" : "right"}
               color="secondary"
               upOrDown="Upvote"
               enabled={canVote}
               {...voteProps}
+              {...buttonProps}
             />
           </TooltipIfEnabled>
         </span>

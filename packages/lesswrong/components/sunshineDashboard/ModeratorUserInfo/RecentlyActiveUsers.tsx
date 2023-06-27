@@ -10,6 +10,7 @@ import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDispla
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
+import { useLocation } from '../../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -113,22 +114,25 @@ const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
   const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay } = Components;
-    
+
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
   const [sorting, setSorting] = useState<SortingType>("lastNotificationsCheck");
 
+  const {query} = useLocation();
+  const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
+
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
-    terms: {view: "recentlyActive", limit:200},
+    terms: {view: "recentlyActive", limit:limit},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     itemsPerPage: 200,
     enableTotal: true
   });
 
-  if (!userIsAdminOrMod(currentUser)) {
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
