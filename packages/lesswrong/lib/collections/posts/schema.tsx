@@ -1058,7 +1058,6 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
     group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
@@ -2454,6 +2453,7 @@ const schema: SchemaType<DbPost> = {
     nullable: true,
     canRead: ['guests'],
     resolver: async (post, _, context) => {
+      if (!post.debate) return 0;
       const { Comments, currentUser } = context;
 
       const lastReadStatus = await getLastReadStatus(post, context);

@@ -7,6 +7,7 @@ import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
@@ -101,8 +102,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
-  const now = moment().tz(timezone);
-  const dateCutoff = now.subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {
     ...query,

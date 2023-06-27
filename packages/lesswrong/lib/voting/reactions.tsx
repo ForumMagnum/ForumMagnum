@@ -410,7 +410,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "shrug",
     label: "Unsure",
     svg: "/reactionImages/nounproject/shrug.svg",
-    description: "I have don't know what to think of this",
+    description: "I don't know what to think of this",
   },
   {
     name: "scales",
@@ -534,7 +534,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "I notice I'm confused",
     searchTerms: ["confused", "question", "questionmark", "bewildered"],
     svg: "/reactionImages/confused2.svg",
-    description: "I don't have clear explanation of what's going on here",
+    description: "I don't have a clear explanation of what's going on here",
     filter: {opacity: .9, translateY: -2.5, translateX: 0, scale: 1.15},
   },
   {

@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
 import { legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
@@ -7,10 +7,9 @@ import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 
-
-export const communityPath = '/community';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -33,7 +32,9 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
   return redirectPaths
 }
 
-const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Connect' : 'Community' };
+export const communityPath = isEAForum ? '/groups' : '/community';
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups & people' : 'Community' };
+
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
 
@@ -389,7 +390,8 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
-      background: "white"
+      background: "white",
+      noIndex: true,
     },
     {
       name: 'tagDiscussionCustomNameRedirect',
@@ -402,6 +404,7 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      noIndex: true,
     },
     {
       name: 'tagHistoryCustomNameRedirect',
@@ -554,6 +557,7 @@ addRoute(
     path: getAllTagsPath(),
     componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
+    description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
   },
   // And all the redirects to it
   ...getAllTagsRedirectPaths().map((path, idx) => ({
@@ -593,6 +597,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'home',
       path: '/',
       componentName: 'EAHome',
+      description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
       sunshineSidebar: true
     },
@@ -644,6 +649,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'eaLibrary',
       path: '/library',
+      title: 'Library',
+      description: eaSequencesHomeDescription,
       componentName: 'EASequencesHome'
     },
     {
@@ -655,15 +662,21 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       subtitleLink: '/events'
     },
     {
-      name: "communityRedirect",
+      name: "communityRedirect1",
       path:'/groupsAndEvents',
       redirect: () => communityPath
     },
     {
-      name: 'Community',
+      name: "communityRedirect2",
+      path:'/community',
+      redirect: () => communityPath
+    },
+    {
+      name: 'Groups & people',
       path: communityPath,
       componentName: 'Community',
-      title: 'Community',
+      title: 'Groups & people',
+      description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
     },
     {
@@ -1170,7 +1183,8 @@ addRoute(...forumSelect<Route[]>({
       name: 'Shortform',
       path: '/quicktakes',
       componentName: 'ShortformPage',
-      title: "Quick takes"
+      title: "Quick takes",
+      description: "Quickly written or informal writing on Effective Altruism.",
     },
     {
       name: 'ShortformRedirect',

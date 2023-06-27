@@ -13,6 +13,8 @@ import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
+// some padding around the icon to make it look like a stateful toggle button
+const PODCAST_ICON_PADDING = isEAForum ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -38,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   eventHeader: {
-    marginBottom:0,
+    marginBottom: 0,
   },
   authorAndSecondaryInfo: {
     display: 'flex',
@@ -91,10 +93,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: isEAForum ? undefined : theme.palette.primary.main,
     height: isEAForum ? undefined : PODCAST_ICON_SIZE,
   },
-  togglePodcastIcon: {
-    width: PODCAST_ICON_SIZE,
-    height: PODCAST_ICON_SIZE,
-    transform: isEAForum ? "translateY(5px)" : undefined
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    padding: PODCAST_ICON_PADDING
+  },
+  audioIconOn: {
+    background: theme.palette.grey[200],
+    borderRadius: theme.borderRadius.small
   },
   actions: {
     color: isEAForum ? undefined : theme.palette.grey[500],
@@ -212,10 +219,11 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
+  showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
@@ -293,21 +301,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], toggle
       </CommentsLink>
     );
 
-  const audioNode = toggleEmbeddedPlayer &&
-    (cachedTooltipSeen ?
-      <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-        <a href="#" onClick={toggleEmbeddedPlayer}>
-          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-        </a>
-      </LWTooltip> :
-      <NewFeaturePulse dx={-10} dy={4}>
-        <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
-        <a href="#" onClick={toggleEmbeddedPlayer}>
-          <ForumIcon icon="VolumeUp" className={classes.togglePodcastIcon} />
-        </a>
-        </LWTooltip>
-      </NewFeaturePulse>
-    )
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+    <a href="#" onClick={toggleEmbeddedPlayer}>
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+    </a>
+  </LWTooltip>
+  const audioNode = toggleEmbeddedPlayer && (
+    cachedTooltipSeen ? audioIcon : <NewFeaturePulse dx={-10} dy={4}>{audioIcon}</NewFeaturePulse>
+  )
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />

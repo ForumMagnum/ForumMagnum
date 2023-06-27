@@ -134,6 +134,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       text: {
         primaryAlert: '#F3F9FA'
       },
+      link: {
+        visited: '#9b71be',
+      },
       panelBackground: {
         default: shadePalette.grey[20],
       },
@@ -189,7 +192,8 @@ export const darkModeTheme: UserThemeSpecification = {
       },
     },
     link: {
-      primaryDim: '#3a7883'
+      primaryDim: '#3a7883',
+      visited: "#bb7c43",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",

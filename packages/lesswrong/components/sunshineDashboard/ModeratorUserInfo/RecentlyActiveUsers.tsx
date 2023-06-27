@@ -10,6 +10,7 @@ import { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDispla
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getActiveRateLimitNames } from '../../../lib/rateLimits/utils';
+import { useLocation } from '../../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -120,8 +121,11 @@ const RecentlyActiveUsers = ({ classes }: {
 
   const [sorting, setSorting] = useState<SortingType>("lastNotificationsCheck");
 
+  const {query} = useLocation();
+  const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
+
   const { results = [], loadMoreProps: recentlyActiveLoadMoreProps, refetch } = useMulti({
-    terms: {view: "recentlyActive", limit:200},
+    terms: {view: "recentlyActive", limit:limit},
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
     itemsPerPage: 200,

@@ -340,7 +340,7 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} />
+      <HeadTags description={headTagDescription} noIndex={tag.noindex} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}

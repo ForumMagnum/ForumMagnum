@@ -132,13 +132,13 @@ const SequencesPage = ({ documentId, classes }: {
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
   const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
-  const { html = "" } = document.contents || {}
+  const { html = "", plaintextDescription } = document.contents || {}
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
     
   return <div className={classes.root}>
-    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
+    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title} description={plaintextDescription || undefined}/>
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>
