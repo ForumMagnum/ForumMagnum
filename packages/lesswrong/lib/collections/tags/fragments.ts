@@ -18,6 +18,7 @@ registerFragment(`
     wikiOnly
     deleted
     isSubforum
+    noindex
   }
 `);
 

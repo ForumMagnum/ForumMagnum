@@ -34,6 +34,7 @@ import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
+import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -285,7 +286,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/library',
       iconComponent: LibraryIcon,
       selectedIconComponent: LibrarySelectedIcon,
-      tooltip: "Core reading, and sequences of posts building on a common theme",
+      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -387,7 +388,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Library',
       link: '/library',
       iconComponent: LocalLibrary,
-      tooltip: "Core reading, and sequences of posts building on a common theme",
+      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

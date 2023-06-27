@@ -30,6 +30,7 @@ import {
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 import { userHasElasticsearch } from '../../lib/betas';
+import { communityPath } from '../../lib/routes';
 
 const hitsPerPage = 10
 
@@ -423,7 +424,7 @@ const SearchPageTabbed = ({classes}:{
         <ClearRefinements />
 
         {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
-          <Link to="/community#individuals">View community map</Link>
+          <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
 
         {elasticCollectionIsCustomSortable(tab) && userHasElasticsearch(null) &&

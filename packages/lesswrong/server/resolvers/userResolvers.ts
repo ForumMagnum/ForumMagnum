@@ -59,7 +59,7 @@ augmentFieldsDict(Users, {
       type: GraphQLJSON,
       arguments: 'postId: String',
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
       }
     },
   },
@@ -329,11 +329,7 @@ addGraphQLResolvers({
           af: false,
           showNegative: true
         }
-        const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
-          context.repos.votes.getKarmaChangesForComments(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForPosts(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForTagRevisions(karmaQueryArgs),
-        ])
+        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getKarmaChanges(karmaQueryArgs);
         totalKarmaChange =
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)

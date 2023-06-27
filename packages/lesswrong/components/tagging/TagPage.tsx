@@ -338,6 +338,7 @@ const TagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
+      noIndex={tag.noindex}
     />
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
