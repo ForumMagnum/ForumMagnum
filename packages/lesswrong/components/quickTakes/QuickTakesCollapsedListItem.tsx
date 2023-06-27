@@ -6,7 +6,7 @@ import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { htmlToText } from "html-to-text";
+import { HtmlToTextOptions, htmlToText } from "html-to-text";
 import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
@@ -92,6 +92,19 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const htmlToTextOptions: HtmlToTextOptions = {
+  selectors: [
+    {selector: "a", options: {ignoreHref: true}},
+    {selector: "img", format: "skip"},
+    {selector: "h1", options: {uppercase: false}},
+    {selector: "h2", options: {uppercase: false}},
+    {selector: "h3", options: {uppercase: false}},
+    {selector: "h4", options: {uppercase: false}},
+    {selector: "h5", options: {uppercase: false}},
+    {selector: "h6", options: {uppercase: false}},
+  ],
+};
+
 const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
@@ -169,12 +182,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         </div>
       </div>
       <div {...eventHandlers} className={classes.body}>
-        {htmlToText(quickTake.contents?.html ?? "", {
-          selectors: [
-            {selector: "a", options: {ignoreHref: true}},
-            {selector: "img", format: "skip"},
-          ],
-        })}
+        {htmlToText(quickTake.contents?.html ?? "", htmlToTextOptions)}
       </div>
       <LWPopper
         open={displayHoverOver}
