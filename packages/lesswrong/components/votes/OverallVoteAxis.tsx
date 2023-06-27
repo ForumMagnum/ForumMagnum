@@ -139,9 +139,8 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const tooltipPlacement = isEAForum ? "top" : "bottom";
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
-  const verticalArrows = isEAForum &&
-    collection.options?.collectionName === "Comments" &&
-    (document as CommentsList).shortform;
+  // TODO: In the fullness of time
+  const verticalArrows = false;
   if (verticalArrows) {
     buttonProps.solidArrow = true;
   }
