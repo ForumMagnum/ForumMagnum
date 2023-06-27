@@ -73,6 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   menu: {
     "& .MuiPaper-root": {
       transform: "translateY(8px) !important",
+      border: `1px solid ${theme.palette.grey[200]}`,
     },
     "& .MuiList-padding": {
       padding: 0,
