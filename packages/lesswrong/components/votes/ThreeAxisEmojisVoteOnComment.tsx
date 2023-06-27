@@ -6,7 +6,7 @@ import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
-import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
+import { eaAnonymousEmojiPalette, eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
 import { userHasEAEmojiReacts } from "../../lib/betas";
 import { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
@@ -92,6 +92,12 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
   }
 
   const result = [];
+  for (const emojiOption of eaAnonymousEmojiPalette) {
+    result.push({
+      emojiOption,
+      score: extendedScore[emojiOption.name] ?? 0,
+    });
+  }
   for (const emojiOption of eaEmojiPalette) {
     if ((extendedScore[emojiOption.name] ?? 0) > 0) {
       result.push({
