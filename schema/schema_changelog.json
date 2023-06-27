@@ -248,5 +248,10 @@
     "acceptsSchemaHash": "88bc10e632764af3e6cff68763da9113",
     "acceptedByMigration": "20230616T170716.add_criticismTipsDismissed_to_Posts.ts",
     "timestamp": "2023-06-16T17:07:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d6b5c3a5a64a7eea065377c71e1b8acf",
+    "acceptedByMigration": "20230620T120843.add_noindex.ts",
+    "timestamp": "2023-06-20T12:08:43.000Z"
   }
 ]

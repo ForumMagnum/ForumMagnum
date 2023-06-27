@@ -65,6 +65,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
@@ -488,6 +489,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly subTagIds: Array<string>,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
+  readonly noindex: boolean,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -865,6 +867,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly slug: string,
   readonly title: string,
   readonly draft: boolean,
+  readonly shortform: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
@@ -2108,6 +2111,7 @@ interface TagBasicInfo { // fragment on Tags
   readonly wikiOnly: boolean,
   readonly deleted: boolean,
   readonly isSubforum: boolean,
+  readonly noindex: boolean,
 }
 
 interface TagDetailsFragment extends TagBasicInfo { // fragment on Tags
@@ -2479,6 +2483,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null,
   readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string,
