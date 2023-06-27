@@ -85,8 +85,7 @@ export const getPostDescription = (post: {contents?: {plaintextDescription: stri
 };
 
 /**
- * Build the structured data for a post for SEO purposes.
- * See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data for more info.
+ * Build structured data for a post to help with SEO.
  */
 const getStructuredData = ({
   post,

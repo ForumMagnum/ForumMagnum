@@ -5,6 +5,9 @@ import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
+/**
+ * Build structured data for a user to help with SEO.
+ */
 export const getUserStructuredData = (user: UsersProfile) => {
   return {
     "@context": "http://schema.org",

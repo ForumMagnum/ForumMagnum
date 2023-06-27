@@ -13,6 +13,9 @@ const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbo
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
 
+/**
+ * Build structured data to help with SEO.
+ */
 const getStructuredData = () => ({
   "@context": "http://schema.org",
   "@type": "WebSite",

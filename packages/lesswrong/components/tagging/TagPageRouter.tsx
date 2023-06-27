@@ -4,6 +4,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useOverrideLayoutOptions } from "../hooks/useLayoutOptions";
 import { useTagBySlug } from "./useTag";
 
+/**
+ * Build structured data for a tag to help with SEO.
+ */
 export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionFragment) => {
   const hasSubTags = !!tag.subTags && tag.subTags.length > 0;
 
