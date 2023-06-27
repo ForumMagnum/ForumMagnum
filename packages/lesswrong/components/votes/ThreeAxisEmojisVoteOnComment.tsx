@@ -6,7 +6,11 @@ import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
-import { eaAnonymousEmojiPalette, eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
+import {
+  eaAnonymousEmojiPalette,
+  eaEmojiPalette,
+  EmojiOption,
+} from "../../lib/voting/eaEmojiPalette";
 import { userHasEAEmojiReacts } from "../../lib/betas";
 import { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
@@ -61,6 +65,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipSecondaryText: {
     color: theme.palette.grey[400],
   },
+  tooltipEmojiRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "4px",
+  },
   tooltipEmoji: {
     fontSize: "1.4em",
     color: theme.palette.primary.main,
@@ -85,26 +95,51 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
   voteProps: VotingProps<T>,
 ) => {
   const extendedScore = voteProps.document?.extendedScore;
-  if (!extendedScore || !Object.keys(extendedScore).length) {
-    return [];
-  }
-
+  console.log(extendedScore);
   const result = [];
   for (const emojiOption of eaAnonymousEmojiPalette) {
     result.push({
       emojiOption,
-      score: extendedScore[emojiOption.name] ?? 0,
+      score: extendedScore?.[emojiOption.name] ?? 0,
+      anonymous: true,
     });
   }
+
+  if (!extendedScore || !Object.keys(extendedScore).length) {
+    return result;
+  }
+
   for (const emojiOption of eaEmojiPalette) {
     if ((extendedScore[emojiOption.name] ?? 0) > 0) {
       result.push({
         emojiOption,
         score: extendedScore[emojiOption.name],
+        anonymous: false,
       });
     }
   }
   return result;
+}
+
+const AnonymousEmojiTooltipContent: FC<{
+  emojiOption: EmojiOption,
+  count: number,
+  classes: ClassesType,
+}> = ({emojiOption, count, classes}) => {
+  return (
+    <div>
+      <div>
+        {count === 1 ? "1 person" : `${count} people`}{" "}
+        <span className={classes.tooltipSecondaryText}>reacted with</span>
+      </div>
+      <div className={classes.tooltipEmojiRow}>
+        <span className={classes.tooltipEmoji}>
+          <emojiOption.Component />
+        </span>{" "}
+        {emojiOption.label}
+      </div>
+    </div>
+  );
 }
 
 const joinStringList = (items: string[]) =>
@@ -135,7 +170,7 @@ const EmojiTooltipContent: FC<{
           <span className={classes.tooltipSecondaryText}>reacted with</span>
         </div>
       }
-      <div className={classes.tooltipSecondaryText}>
+      <div className={classes.tooltipEmojiRow}>
         <span className={classes.tooltipEmoji}>
           <emojiOption.Component />
         </span>{" "}
@@ -196,19 +231,29 @@ const EmojiReactsSection: FC<{
   const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
-      {reactions.map(({emojiOption, score}) => {
+      {reactions.map(({emojiOption, anonymous, score}) => {
         const isSelected = isEmojiSelected(voteProps, emojiOption);
         return (
           <LWTooltip
             key={emojiOption.name}
             title={
-              <EmojiTooltipContent
-                currentUser={currentUser}
-                emojiOption={emojiOption}
-                isSelected={isSelected}
-                reactors={post?.commentEmojiReactors?.[document._id]}
-                classes={classes}
-              />
+              anonymous
+                ? (
+                  <AnonymousEmojiTooltipContent
+                    emojiOption={emojiOption}
+                    count={0}
+                    classes={classes}
+                  />
+                )
+                : (
+                  <EmojiTooltipContent
+                    currentUser={currentUser}
+                    emojiOption={emojiOption}
+                    isSelected={isSelected}
+                    reactors={post?.commentEmojiReactors?.[document._id]}
+                    classes={classes}
+                  />
+                )
             }
             placement="top"
             popperClassName={classes.tooltip}

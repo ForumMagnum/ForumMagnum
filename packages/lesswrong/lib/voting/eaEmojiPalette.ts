@@ -48,4 +48,7 @@ export const eaEmojiPalette: EmojiOption[] = [
   },
 ];
 
-export const eaEmojiNames = eaEmojiPalette.map(({name}) => name);
+export const eaEmojiNames = [
+  ...eaAnonymousEmojiPalette,
+  ...eaEmojiPalette,
+].map(({name}) => name);

@@ -256,16 +256,8 @@ registerVotingSystem({
   },
 });
 
-const getEmojiReactionPower = (value?: boolean) => {
-  switch (value) {
-  case true:
-    return 1;
-  case false:
-    return -1;
-  default:
-    return 0;
-  }
-}
+const getEmojiReactionPower = (value?: boolean) =>
+  value === true ? 1 : 0;
 
 registerVotingSystem({
   name: "threeAxisEmojis",
