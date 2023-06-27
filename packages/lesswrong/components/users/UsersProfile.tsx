@@ -24,6 +24,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { getUsersStructuredData } from './UsersSingle';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -245,6 +246,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          structuredData={getUsersStructuredData(user)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>

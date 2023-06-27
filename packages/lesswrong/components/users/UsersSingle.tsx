@@ -2,8 +2,46 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { slugify } from '../../lib/vulcan-lib/utils';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+
+export const getUsersStructuredData = (user: UsersProfile) => {
+  return {
+    "@context": "http://schema.org",
+    "@type": "Person",
+    "name": user.displayName,
+    "url": userGetProfileUrl(user, true),
+    ...((user.biography?.plaintextDescription) && { "description": user.biography.plaintextDescription }),
+    ...((user.jobTitle) && { "jobTitle": user.jobTitle }),
+    ...(user.organization && {
+      "worksFor": {
+        "@type": "Organization",
+        "name": user.organization,
+      }
+    }),
+    "interactionStatistic": [
+      {
+        "@type": "InteractionCounter",
+        "interactionType": {
+          "@type": "http://schema.org/LikeAction",
+        },
+        "userInteractionCount": user.karma,
+      },
+      {
+        "@type": "InteractionCounter",
+        "interactionType": {
+          "@type": "http://schema.org/WriteAction",
+        },
+        "userInteractionCount": user.postCount,
+      },
+    ],
+    "memberSince": new Date(user.createdAt).toISOString(),
+    ...((user.howOthersCanHelpMe?.plaintextDescription) && { "seeks": user.howOthersCanHelpMe.plaintextDescription }),
+    ...((user.howICanHelpOthers?.plaintextDescription) && { "offers": user.howICanHelpOthers.plaintextDescription }),
+  };
+};
+
+
 
 const UsersSingle = () => {
   const { params, pathname } = useLocation();
