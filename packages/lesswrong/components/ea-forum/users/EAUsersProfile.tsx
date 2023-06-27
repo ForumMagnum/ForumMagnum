@@ -21,7 +21,7 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { getUsersStructuredData } from '../../users/UsersSingle';
+import { getUserStructuredData } from '../../users/UsersSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
@@ -435,7 +435,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       description={metaDescription}
       noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-      structuredData={getUsersStructuredData(user)}
+      structuredData={getUserStructuredData(user)}
       useSmallImage
     />
     <AnalyticsContext pageContext="userPage">

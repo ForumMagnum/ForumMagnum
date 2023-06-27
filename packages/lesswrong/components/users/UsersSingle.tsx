@@ -5,7 +5,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-export const getUsersStructuredData = (user: UsersProfile) => {
+export const getUserStructuredData = (user: UsersProfile) => {
   return {
     "@context": "http://schema.org",
     "@type": "Person",
@@ -40,7 +40,6 @@ export const getUsersStructuredData = (user: UsersProfile) => {
     ...((user.howICanHelpOthers?.plaintextDescription) && { "offers": user.howICanHelpOthers.plaintextDescription }),
   };
 };
-
 
 
 const UsersSingle = () => {
