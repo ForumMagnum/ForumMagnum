@@ -47,7 +47,7 @@ const Digests = ({classes}:{classes: ClassesType}) => {
         
       {results.map(digest => {
         return <div key={digest._id}>
-          <Link to={`/admin/digest/${digest.num}`} className={classes.link}>
+          <Link to={`/admin/digests/${digest.num}`} className={classes.link}>
             {getDigestName({digest})}
           </Link>
         </div>

@@ -123,6 +123,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   totalHigh: {
     color: theme.palette.text.red
+  },
+  toggleLink: {
+    color: theme.palette.grey[600],
+    fontSize: 12,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800]
+    }
   }
 })
 
@@ -142,6 +150,17 @@ type TagUsage = {
   name: string,
   core: boolean,
   count: number
+}
+
+/**
+ * Helper for sorting the posts list (doesn't correspond to actual vote strength)
+ */
+const voteValues: Record<string, number> = {
+  'bigUpvote': 2,
+  'smallUpvote': 1,
+  'neutral': 0,
+  'smallDownvote': -1,
+  'bigDownvote': -2
 }
 
 
@@ -193,6 +212,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
+  // disable all status icons while processing the previous click
+  const [votesVisible, setVotesVisible] = useState<boolean>(false)
   
   useEffect(() => {
     // this is just to initialize the list of posts and statuses
@@ -208,7 +229,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         onsiteDigestStatus: postData.digestPost.onsiteDigestStatus ?? 'pending'
       }
     })
-    // sort the list by curated, then suggested for curation, then rating, then karma
+    // sort the list by curated, then suggested for curation, then rating, then the current user's vote, then karma
     newPosts.sort((a,b) => {
       if (a.curatedDate && !b.curatedDate) return -1
       if (!a.curatedDate && b.curatedDate) return 1
@@ -216,6 +237,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
       if (!a.suggestForCuratedUserIds && b.suggestForCuratedUserIds) return 1
       // TODO: add this back in once we've implemented the rating
       // if (a.rating !== b.rating) return b.rating - a.rating
+      const aVote = voteValues[a.currentUserVote] ?? 0
+      const bVote = voteValues[b.currentUserVote] ?? 0
+      if (aVote > bVote) return -1
+      if (aVote < bVote) return 1
       return b.baseScore - a.baseScore
     })
     setPosts(newPosts)
@@ -515,7 +540,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
-            <th>Your vote</th>
+            <th className={classes.centeredColHeader}>
+              Your vote
+              <div className={classes.toggleLink} onClick={() => setVotesVisible(!votesVisible)}>(Click here to show/hide)</div>
+            </th>
             {/* <th className={classes.centeredColHeader}>Rating</th> */}
             <th className={classes.centeredColHeader}>Comments</th>
           </tr>
@@ -530,6 +558,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               handleClickStatusIcon={handleClickStatusIcon}
               visibleTagIds={coreAndPopularTagIds}
               setTagFilter={setTagFilter}
+              votesVisible={votesVisible}
             />
           })}
         </tbody>

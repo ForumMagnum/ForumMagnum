@@ -120,6 +120,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   suggestedCurationCol: {
     fontSize: 12,
   },
+  voteCol: {
+    textAlign: 'center',
+    fontSize: 30
+  },
   ratingCol: {
     textAlign: 'center',
     color: theme.palette.text.charsAdded
@@ -132,31 +136,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const voteToIcon = (vote: string|null|undefined): React.ReactNode => {
-  const { OverallVoteButton } = Components;
-  switch (vote) {
-    case null:
-    case undefined:
-      return null;
+/**
+ * Given a post with a currentUserVote, return the icon representing that vote.
+ */
+const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
+  const { OverallVoteButton } = Components
+  switch (post.currentUserVote) {
     case 'smallUpvote':
-      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='primary' document={null as any} collectionName='Posts' vote={null as any} />;
     case 'bigUpvote':
-      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='primary' document={null as any} collectionName='Posts' vote={null as any} />;
+      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='secondary' document={post} collectionName='Posts' />
     case 'smallDownvote':
-      return 'v'
     case 'bigDownvote':
-      return 'vv'
+      return <OverallVoteButton enabled={false} upOrDown='Downvote' orientation='down' color='error' document={post} collectionName='Posts' />
+    default:
+      return null
   }
 }
 
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, classes} : {
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes} : {
   post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
+  votesVisible: boolean,
   classes: ClassesType
 }) => {
   const {flash} = useMessages()
@@ -214,7 +219,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   const { ForumIcon, LWTooltip } = Components
   
-  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
+  const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   
   return <tr className={classes.row}>
@@ -233,7 +238,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
             {[classes.isRead]: post.isRead},
           )}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}, {post.readTimeMinutes} min{linkpostText})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
@@ -257,8 +262,8 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
     </td>
-    <td>
-      {voteToIcon(post.currentUserVote)}
+    <td className={classes.voteCol}>
+      {votesVisible && voteToIcon(post)}
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
