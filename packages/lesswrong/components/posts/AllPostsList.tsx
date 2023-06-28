@@ -18,6 +18,7 @@ import {
   forumAllPostsNumDaysSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
+import { PostsTimeBlockShortform } from "./PostsTimeBlock";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -111,7 +112,13 @@ const AllPostsList = ({
   const hideTags = currentFilter === "curated"
     || currentFilter === "questions"
     || currentFilter === "events";
-  const hideShortform = query.includeShortform === "false" || hideTags;
+
+  let shortform: PostsTimeBlockShortform = "all";
+  if (query.includeShortform === "false" || hideTags) {
+    shortform = "none";
+  } else if (currentFilter === "frontpage") {
+    shortform = "frontpage";
+  }
 
   return (
     <div>
@@ -133,7 +140,7 @@ const AllPostsList = ({
             after={after}
             before={before}
             reverse={query.reverse === "true"}
-            displayShortform={!hideShortform}
+            shortform={shortform}
             includeTags={!hideTags}
           />
         </AllowHidingFrontPagePostsContext.Provider>

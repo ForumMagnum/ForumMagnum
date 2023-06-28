@@ -114,13 +114,24 @@ const getTitle = (
   return result;
 }
 
-const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, timeframe, displayShortform=true, classes, includeTags=true}: {
+export type PostsTimeBlockShortform = "all" | "none" | "frontpage";
+
+const PostsTimeBlock = ({
+  terms,
+  timeBlockLoadComplete,
+  startDate,
+  hideIfEmpty,
+  timeframe,
+  shortform = "all",
+  classes,
+  includeTags=true,
+}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: ()=>void,
   startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
-  displayShortform?: boolean,
+  shortform?: PostsTimeBlockShortform,
   classes: ClassesType,
   includeTags?: boolean,
 }) => {
@@ -239,14 +250,15 @@ const PostsTimeBlock = ({ terms, timeBlockLoadComplete, startDate, hideIfEmpty, 
           />
         </div>}
 
-        {displayShortform && <ShortformTimeBlock
+        {shortform !== "none" && <ShortformTimeBlock
           reportEmpty={reportEmptyShortform}
           terms={{
             view: "topShortform",
             // NB: The comments before differs from posts in that before is not
             // inclusive
             before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
-            after: moment.tz(startDate, timezone).startOf(timeBlock).toString()
+            after: moment.tz(startDate, timezone).startOf(timeBlock).toString(),
+            shortformFrontpage: shortform === "frontpage" ? true : undefined,
           }}
         />}
 

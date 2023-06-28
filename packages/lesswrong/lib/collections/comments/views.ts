@@ -23,6 +23,7 @@ declare global {
     after?: Date|string|null,
     reviewYear?: ReviewYear
     profileTagIds?: string[],
+    shortformFrontpage?: boolean,
   }
   
   /**
@@ -472,12 +473,17 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     : null
   );
 
+  const frontpage = typeof terms.shortformFrontpage === "boolean"
+    ? {shortformFrontpage: terms.shortformFrontpage}
+    : {};
+
   return {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
-      ...timeRange
+      ...timeRange,
+      ...frontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };
