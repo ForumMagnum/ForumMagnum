@@ -36,6 +36,7 @@ import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -133,7 +134,8 @@ export type ForumIconName =
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
-  "ClipboardDocument";
+  "ClipboardDocument" |
+  "QuestionMarkCircle";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -185,6 +187,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -235,6 +238,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
 };
 

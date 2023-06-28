@@ -108,7 +108,7 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
 
 const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    connectToMongo(mongoUrl),
+    //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
     connectToPostgres(postgresReadUrl, "read"),
   ]);
