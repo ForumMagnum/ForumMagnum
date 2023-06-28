@@ -138,6 +138,13 @@ importComponent("BanUserFromAllPostsDropdownItem", () => require('../components/
 importComponent("BanUserFromAllPersonalPostsDropdownItem", () => require('../components/dropdowns/comments/BanUserFromAllPersonalPostsDropdownItem'));
 importComponent("ToggleIsModeratorCommentDropdownItem", () => require('../components/dropdowns/comments/ToggleIsModeratorCommentDropdownItem'));
 
+// Quick takes
+importComponent("QuickTakesSection", () => require('../components/quickTakes/QuickTakesSection'));
+importComponent("QuickTakesEntry", () => require('../components/quickTakes/QuickTakesEntry'));
+importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
+importComponent("QuickTakesListItem", () => require('../components/quickTakes/QuickTakesListItem'));
+importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
+
 // RSS Feed Integration
 importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
 //importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
@@ -175,6 +182,7 @@ importComponent("BatchTimePicker", () => require('../components/common/BatchTime
 importComponent("NavigationEventSender", () => require('../components/hooks/useOnNavigate'));
 importComponent("SingleColumnSection", () => require('../components/common/SingleColumnSection'));
 importComponent("SectionTitle", () => require('../components/common/SectionTitle'));
+importComponent("ExpandableSection", () => require('../components/common/ExpandableSection'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
 importComponent("IntercomWrapper", () => require('../components/common/IntercomWrapper'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
@@ -338,7 +346,7 @@ importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/
 importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltipSingle'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments'));
 importComponent("PostsItemWrapper", () => require('../components/posts/PostsItemWrapper'));
-importComponent("PostsItemKarma", () => require('../components/posts/PostsItemKarma.tsx'));
+importComponent("KarmaDisplay", () => require('../components/common/KarmaDisplay.tsx'));
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemNewCommentsList", () => require('../components/posts/PostsItemNewCommentsList'));
@@ -803,7 +811,6 @@ importComponent(["MultiSelect","FormComponentMultiSelect"], () => require('../co
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent(["DatePicker","FormComponentDateTime"], () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
-importComponent("FormComponentTagsChecklist", () => require('../components/form-components/FormComponentTagsChecklist'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));

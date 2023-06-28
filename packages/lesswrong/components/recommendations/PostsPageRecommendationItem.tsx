@@ -84,7 +84,7 @@ const PostsPageRecommendationItem = ({
   classes: ClassesType,
 }) => {
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
-  const {onClick: onClickCell} = useClickableCell(postLink);
+  const {onClick: onClickCell} = useClickableCell({href: postLink});
   const {ref, onClick} = useRecommendationAnalytics(
     post._id,
     onClickCell,
@@ -92,7 +92,7 @@ const PostsPageRecommendationItem = ({
   );
 
   const {
-    PostsItemTooltipWrapper, PostsItemKarma, PostsTitle, UsersName, LWTooltip,
+    PostsItemTooltipWrapper, KarmaDisplay, PostsTitle, UsersName, LWTooltip,
     PostActionsButton,
   } = Components;
 
@@ -110,7 +110,7 @@ const PostsPageRecommendationItem = ({
     >
       <div className={classes.karma}>
         <div>
-          <PostsItemKarma post={post} />
+          <KarmaDisplay document={post} />
         </div>
         <div className={classes.voteArrow}>
           <SoftUpArrowIcon />

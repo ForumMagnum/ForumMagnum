@@ -1122,6 +1122,7 @@ interface DbUser extends DbObject {
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean

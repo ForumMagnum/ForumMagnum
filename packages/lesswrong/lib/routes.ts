@@ -750,7 +750,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     },
     {
       name: 'EditDigest',
-      path: '/admin/digest/:num',
+      path: '/admin/digests/:num',
       componentName: 'EditDigest',
       title: 'Edit Digest',
       subtitle: 'Digests',
@@ -1169,22 +1169,38 @@ const forumSpecificRoutes = forumSelect<Route[]>({
 
 addRoute(...forumSpecificRoutes)
 
-addRoute(
-  {
-    name: 'AllComments',
-    path: '/allComments',
-    componentName: 'AllComments',
-    enableResourcePrefetch: true,
-    title: "All Comments"
-  },
-  {
-    name: 'Shortform',
-    path: '/shortform',
-    componentName: 'ShortformPage',
-    title: "Shortform",
-    description: isEAForum ? "Quickly written or informal writing on Effective Altruism." : undefined,
-  },
-);
+addRoute({
+  name: 'AllComments',
+  path: '/allComments',
+  componentName: 'AllComments',
+  enableResourcePrefetch: true,
+  title: "All Comments"
+});
+
+addRoute(...forumSelect<Route[]>({
+  EAForum: [
+    {
+      name: 'Shortform',
+      path: '/quicktakes',
+      componentName: 'ShortformPage',
+      title: "Quick takes",
+      description: "Quickly written or informal writing on Effective Altruism.",
+    },
+    {
+      name: 'ShortformRedirect',
+      path: '/shortform',
+      redirect: () => "/quicktakes",
+    },
+  ],
+  default: [
+    {
+      name: 'Shortform',
+      path: '/shortform',
+      componentName: 'ShortformPage',
+      title: "Shortform"
+    },
+  ],
+}));
 
 if (hasEventsSetting.get()) {
   addRoute(
