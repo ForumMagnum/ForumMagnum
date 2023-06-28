@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -473,7 +473,7 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     : null
   );
 
-  const frontpage = typeof terms.shortformFrontpage === "boolean"
+  const frontpage = isEAForum && typeof terms.shortformFrontpage === "boolean"
     ? {shortformFrontpage: terms.shortformFrontpage}
     : {};
 
