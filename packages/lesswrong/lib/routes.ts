@@ -750,7 +750,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     },
     {
       name: 'EditDigest',
-      path: '/admin/digest/:num',
+      path: '/admin/digests/:num',
       componentName: 'EditDigest',
       title: 'Edit Digest',
       subtitle: 'Digests',
