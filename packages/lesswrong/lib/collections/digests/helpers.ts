@@ -40,12 +40,12 @@ export const getPostAuthors = (post: PostsListBase) => {
 /**
  * Returns the post data in the format that we expect to see in the email digest:
  *
- * <post title as link> (<post authors>, [<read time> min | link-post])
+ * <post title as link> (<post authors>, <read time> min)
  */
 export const getEmailDigestPostData = (post: PostsListBase) => {
   const url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`)
-  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
-  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}, ${readingTime})`
+  const linkpostText = post.url ? ', link-post' : ''
+  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}, ${post.readTimeMinutes} min${linkpostText})`
 }
 
 /**

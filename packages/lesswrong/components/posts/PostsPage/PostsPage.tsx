@@ -108,7 +108,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
-  postContent: {}, //Used by a Cypress test
+  postContent: { //Used by a Cypress test
+    marginBottom: isEAForum ? 40 : undefined
+  },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
