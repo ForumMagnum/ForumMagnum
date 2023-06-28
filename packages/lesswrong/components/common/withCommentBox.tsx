@@ -38,7 +38,7 @@ export const CommentBoxManager = ({ children }: {
       {children}
       {CommentBoxComponent && componentName &&
         <CommentBoxComponent
-          {...componentProps}
+          {...componentProps as AnyBecauseHard}
           onClose={close}
         />
       }

@@ -65,6 +65,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
@@ -866,6 +867,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly slug: string,
   readonly title: string,
   readonly draft: boolean,
+  readonly shortform: boolean,
   readonly hideCommentKarma: boolean,
   readonly af: boolean,
   readonly currentUserReviewVote: PostsMinimumInfo_currentUserReviewVote|null,
@@ -2481,6 +2483,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null,
   readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string,

@@ -19,7 +19,6 @@ import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
-import { randomId } from "../../lib/random";
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -126,25 +125,49 @@ export type BtnProps = {
   disabled?: boolean
 }
 
+export type CommentSuccessCallback = (
+  comment: CommentsList,
+  otherArgs: {form: AnyBecauseTodo},
+) => void | Promise<void>;
+export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
+
 export type CommentsNewFormProps = {
   prefilledProps?: any,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: any,
-  successCallback?: (comment: CommentsList, otherArgs: any) => void,
+  successCallback?: CommentSuccessCallback,
+  cancelCallback?: CommentCancelCallback,
   type: string,
-  cancelCallback?: any,
-  classes: ClassesType,
   removeFields?: any,
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
   replyFormStyle?: CommentFormDisplayMode
+  classes: ClassesType
+  className?: string
 }
 
-const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISCUSSION", parentComment, successCallback, type, cancelCallback, classes, removeFields, fragment = "CommentsList", formProps, enableGuidelines=true, padding=true, replyFormStyle = "default"}: CommentsNewFormProps) => {
+const CommentsNewForm = ({
+  prefilledProps={},
+  post,
+  tag,
+  tagCommentType="DISCUSSION",
+  parentComment,
+  successCallback,
+  type,
+  cancelCallback,
+  removeFields,
+  fragment="CommentsList",
+  formProps,
+  enableGuidelines=true,
+  padding=true,
+  replyFormStyle="default",
+  classes,
+  className,
+}: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const commentSubmitStartTimeRef = useRef(Date.now());
@@ -215,28 +238,28 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
       flash(comment.deletedReason);
     }
     if (successCallback) {
-      successCallback(comment, { form })
+      void successCallback(comment, {form});
     }
     setLoading(false)
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     userWithRateLimit.refetch();
   };
-  
+
   const wrappedCancelCallback = (...args: unknown[]) => {
     if (cancelCallback) {
-      cancelCallback(...args)
+      void cancelCallback(...args);
     }
     setLoading(false)
   };
-  
+
   if (post) {
     prefilledProps = {
       ...prefilledProps,
       postId: post._id
     };
   }
-  
+
   if (tag) {
     prefilledProps = {
       ...prefilledProps,
@@ -314,7 +337,11 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
   }
 
   return (
-    <div className={classNames(isMinimalist ? classes.rootMinimalist : classes.root, {[classes.loadingRoot]: loading})} onFocus={onFocusCommentForm}>
+    <div className={classNames(
+      className,
+      isMinimalist ? classes.rootMinimalist : classes.root,
+      {[classes.loadingRoot]: loading}
+    )} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
         <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
           {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
@@ -348,7 +375,7 @@ const CommentsNewForm = ({prefilledProps = {}, post, tag, tagCommentType = "DISC
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum && !prefilledProps.shortform ? 'Add comment' : 'Submit'}
+              submitLabel={isEAForum && !prefilledProps.shortform ? 'Comment' : 'Submit'}
             />
           </div>
         </div>

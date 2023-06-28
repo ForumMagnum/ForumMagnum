@@ -9,28 +9,6 @@ import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSectio
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 10
-  },
-  expandIcon: {
-    position: 'relative',
-    top: 3,
-    fontSize: 16,
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    }
-  },
-  readMoreLink: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    fontWeight: 600,
-    '@media (max-width: 350px)': {
-      display: 'none'
-    },
-  },
   readMoreLinkMobile: {
     display: 'none',
     fontSize: 14,
@@ -52,19 +30,6 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   });
   const { timezone } = useTimezone()
 
-  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip, ForumIcon, SectionFooter } = Components
-  
-  const titleNode = <div className={classes.title}>
-    Posts tagged community
-    <LWTooltip title={expanded ? 'Collapse' : 'Expand'} hideOnTouchScreens>
-      <ForumIcon
-        icon={expanded ? 'ThickChevronDown' : 'ThickChevronRight'}
-        onClick={toggleExpanded}
-        className={classes.expandIcon}
-      />
-    </LWTooltip>
-  </div>
-
   const now = moment().tz(timezone)
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD")
 
@@ -78,21 +43,31 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     limit: 5
   }
 
+  const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (
-    <AnalyticsContext pageSectionContext="communityPosts">
-      <SingleColumnSection>
-        <SectionTitle title={titleNode}>
-          {expanded && <Link to="/topics/community" className={classes.readMoreLink}>View more</Link>}
-        </SectionTitle>
-        {expanded && <AnalyticsContext listContext={"communityPosts"}>
-          <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-        </AnalyticsContext>}
-        {expanded && <SectionFooter>
-          <Link to="/topics/community" className={classes.readMoreLinkMobile}>View more</Link>
-        </SectionFooter>}
-      </SingleColumnSection>
-    </AnalyticsContext>
-  )
+    <ExpandableSection
+      pageSectionContext="communityPosts"
+      expanded={expanded}
+      toggleExpanded={toggleExpanded}
+      title="Posts tagged community"
+      afterTitleTo="/topics/community"
+      Content={() => (
+        <>
+          <AnalyticsContext listContext={"communityPosts"}>
+            <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
+          </AnalyticsContext>
+          <SectionFooter>
+            <Link
+              to="/topics/community"
+              className={classes.readMoreLinkMobile}
+            >
+              View more
+            </Link>
+          </SectionFooter>
+        </>
+      )}
+    />
+  );
 }
 
 const EAHomeCommunityPostsComponent = registerComponent('EAHomeCommunityPosts', EAHomeCommunityPosts, {styles});

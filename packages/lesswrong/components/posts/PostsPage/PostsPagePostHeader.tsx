@@ -187,7 +187,7 @@ const getResponseCounts = (
   // case various fields are unpopulated and a deleted-item placeholder is shown
   // in the UI). These deleted answers are *not* included in post.commentCount.
   const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
-  
+
   return {
     answerCount: nonDeletedAnswers.length,
     commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
@@ -245,12 +245,12 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
   const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
   const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
   const { major } = extractVersionsFromSemver(post.version)
   const hasMajorRevision = major > 1
-    
+
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
 
@@ -282,16 +282,25 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
-  
-  const readingTimeNode = !post.isEvent && <LWTooltip title={`${wordCount} words`}>
-    <span className={classes.wordCount}>{readTime} min read</span>
-  </LWTooltip>
-  
-  const answersNode = post.question &&
-    <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
-      {postGetAnswerCountStr(answerCount)}
-    </CommentsLink>
-  
+
+  const minimalSecondaryInfo = post.isEvent || (isEAForum && post.shortform);
+
+  const readingTimeNode = minimalSecondaryInfo
+    ? null
+    : (
+      <LWTooltip title={`${wordCount} words`}>
+        <span className={classes.wordCount}>{readTime} min read</span>
+      </LWTooltip>
+    );
+
+  const answersNode = !post.question || minimalSecondaryInfo
+    ? null
+    : (
+      <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
+        {postGetAnswerCountStr(answerCount)}
+      </CommentsLink>
+    );
+
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
@@ -300,24 +309,24 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const audioNode = toggleEmbeddedPlayer && (
     cachedTooltipSeen ? audioIcon : <NewFeaturePulse dx={-10} dy={4}>{audioIcon}</NewFeaturePulse>
   )
-    
+
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
   </div>
-  
+
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
         <PostActionsButton post={post} includeBookmark={!isEAForum} />
       </AnalyticsContext>
     </span>
-  
+
   // this is the info section under the post title, to the right of the author names
   let secondaryInfoNode = <div className={classes.secondaryInfo}>
     <div className={classes.secondaryInfoLeft}>
       {crosspostNode}
       {readingTimeNode}
-      {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+      {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
       {post.isEvent && <GroupLinks document={post} noMargin />}
       {answersNode}
       <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
@@ -332,16 +341,18 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   if (isEAForum) {
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {!post.isEvent && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
         {readingTimeNode}
         {audioNode}
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
-        <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
-          <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-            <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-          </CommentsLink>
-        </LWTooltip>
+        {!post.shortform &&
+          <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
+            <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+              <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
+            </CommentsLink>
+          </LWTooltip>
+        }
         {addToCalendarNode}
         {crosspostNode}
       </div>
@@ -355,7 +366,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
-  
+
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
