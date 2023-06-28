@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, MouseEventHandler } from "react";
 import { useHideRepeatedPosts } from "./HideRepeatedPostsContext";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
@@ -116,8 +116,8 @@ export const usePostsItem = ({
 
   const currentUser = useCurrentUser();
 
-  const toggleComments = useCallback(
-    (e: MouseEvent) => {
+  const toggleComments: MouseEventHandler = useCallback(
+    (e) => {
       recordPostView({post, extraEventProperties: {type: "toggleComments"}})
       setShowComments(!showComments);
       setReadComments(true);

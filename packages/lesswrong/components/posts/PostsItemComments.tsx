@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
 import CommentIcon from '@material-ui/icons/ModeComment';
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
   commentCount: number,
   small: boolean,
-  onClick?: ()=>void,
+  onClick?: MouseEventHandler,
   unreadComments: boolean,
   newPromotedComments: boolean,
   classes: ClassesType,
