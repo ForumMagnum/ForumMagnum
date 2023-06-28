@@ -400,9 +400,14 @@ class ElasticExporter {
       datasource: documents,
       onDocument: (document: AlgoliaDocument) => {
         const {id: _id} = this.formatDocument(document);
-        return {
-          create: {_index, _id},
-        };
+        return [
+          {
+            update: {_index, _id},
+          },
+          {
+            doc_as_upsert: true,
+          },
+        ];
       },
       onDrop: (doc) => erroredDocuments.push(doc),
     });
