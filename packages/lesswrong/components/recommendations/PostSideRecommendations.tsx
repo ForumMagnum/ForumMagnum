@@ -78,7 +78,7 @@ const PostSideRecommendations = ({post, className, classes}: {
       });
       captureEvent("hidePostSideRecommendations", {title, hideCookieName});
     }
-  }, [hideCookieName, setCookie]);
+  }, [hideCookieName, setCookie, captureEvent, title]);
 
   if (hideCookieName && cookies[hideCookieName] === "true") {
     return null;
