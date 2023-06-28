@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     fontSize: '1.4em',
     paddingTop: isEAForum ? 30 : undefined,
-    borderTop: isEAForum ? theme.palette.border.normal : undefined,
+    borderTop: isEAForum ? theme.palette.border.grey300 : undefined,
     marginTop: isEAForum ? 40 : undefined,
     marginBottom: isEAForum ? 40 : undefined
   },
