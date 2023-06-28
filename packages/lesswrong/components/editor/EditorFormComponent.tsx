@@ -65,7 +65,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
-  const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
+
+  const showEditorWarning = (formType !== "new") 
+    && (defaultEditorType !== currentEditorType) // if the user has a default editor, and it's not the same as the current editor
+    && (currentEditorType !== 'ckEditorMarkup') // the editor warning button only lets you convert things back to ckEditorMarkup,
+    // so we don't bother showing it if you're already in ckEditorMarkup
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
@@ -275,17 +279,15 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && (collectionName!=="Tags" || formType==="edit");
   
   const actualPlaceholder = (editorHintText || hintText || placeholder);
-  
-  if (!document) return null;
-  
+    
   return <div className={classes.root}>
     {showEditorWarning &&
-    <Components.LastEditedInWarning
-      initialType={initialEditorType}
-      currentType={contents.type}
-      defaultType={defaultEditorType}
-      value={contents} setValue={wrappedSetContents}
-    />
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
