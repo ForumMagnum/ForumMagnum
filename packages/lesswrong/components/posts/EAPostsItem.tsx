@@ -224,13 +224,15 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   const SecondaryInfo = () => (
     <>
-      <a onClick={toggleComments} className={classNames(
-        classes.comments,
-        {[classes.newComments]: hasUnreadComments},
-      )}>
-        <ForumIcon icon="Comment" />
-        {commentCount}
-      </a>
+      <InteractionWrapper className={classes.interactionWrapper}>
+        <a onClick={toggleComments} className={classNames(
+          classes.comments,
+          {[classes.newComments]: hasUnreadComments},
+        )}>
+          <ForumIcon icon="Comment" />
+          {commentCount}
+        </a>
+      </InteractionWrapper>
       <div className={classes.postActions}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <PostActionsButton post={post} popperGap={16} autoPlace vertical />
