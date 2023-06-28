@@ -108,6 +108,11 @@ const AllPostsList = ({
     after: query.after,
   });
 
+  const hideTags = currentFilter === "curated"
+    || currentFilter === "questions"
+    || currentFilter === "events";
+  const hideShortform = query.includeShortform === "false" || hideTags;
+
   return (
     <div>
       <AnalyticsContext
@@ -128,7 +133,8 @@ const AllPostsList = ({
             after={after}
             before={before}
             reverse={query.reverse === "true"}
-            displayShortform={query.includeShortform !== "false"}
+            displayShortform={!hideShortform}
+            includeTags={!hideTags}
           />
         </AllowHidingFrontPagePostsContext.Provider>
       </AnalyticsContext>
