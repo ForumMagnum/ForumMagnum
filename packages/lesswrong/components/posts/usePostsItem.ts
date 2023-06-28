@@ -117,10 +117,11 @@ export const usePostsItem = ({
   const currentUser = useCurrentUser();
 
   const toggleComments = useCallback(
-    () => {
+    (e: MouseEvent) => {
       recordPostView({post, extraEventProperties: {type: "toggleComments"}})
       setShowComments(!showComments);
       setReadComments(true);
+      e.stopPropagation();
     },
     [post, recordPostView, setShowComments, showComments, setReadComments],
   );
