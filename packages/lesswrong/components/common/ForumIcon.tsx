@@ -78,6 +78,7 @@ import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
+import { CloseMenuIcon } from "../icons/closeMenuIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -133,7 +134,8 @@ export type ForumIconName =
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
-  "ClipboardDocument";
+  "ClipboardDocument" |
+  "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -185,6 +187,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    CloseMenu: CloseMenuIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -235,6 +238,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    CloseMenu: CloseMenuIcon,
   },
 };
 

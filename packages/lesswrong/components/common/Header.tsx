@@ -135,8 +135,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
+  sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
@@ -245,7 +246,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        <MenuIcon />
+        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <MenuIcon/>}
       </IconButton>}
     </React.Fragment>
   }
@@ -254,7 +255,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
   } = Components;
 
   return (
