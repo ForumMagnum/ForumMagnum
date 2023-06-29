@@ -57,12 +57,28 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel, placeholder }: {
+const CKPostEditor = ({
+  data,
+  collectionName,
+  fieldName,
+  onSave,
+  onChange,
+  onFocus,
+  documentId,
+  userId,
+  formType,
+  onInit,
+  isCollaborative,
+  accessLevel,
+  placeholder,
+  classes,
+}: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
   onSave?: any,
   onChange?: any,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   documentId?: string,
   userId?: string,
   formType?: "new"|"edit",
@@ -148,6 +164,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     {layoutReady && <CKEditor
       ref={editorRef}
       onChange={onChange}
+      onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={(editor: any) => {

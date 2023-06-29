@@ -187,7 +187,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     tagRel,
     commentCount,
     hasUnreadComments,
-    primaryTag,
     sticky,
     showDraftTag,
     showPersonalIcon,
@@ -210,34 +209,35 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isRepeated,
     analyticsProps,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell(postLink);
+  const {onClick} = useClickableCell({href: postLink});
   const authorExpandContainer = useRef(null);
-  const currentUser = useCurrentUser();
 
   if (isRepeated) {
     return null;
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, PostsItemKarma, FooterTag,
+    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
   } = Components;
 
   const SecondaryInfo = () => (
     <>
-      <a onClick={toggleComments} className={classNames(
-        classes.comments,
-        {[classes.newComments]: hasUnreadComments},
-      )}>
-        <ForumIcon icon="Comment" />
-        {commentCount}
-      </a>
-      {currentUser && <div className={classes.postActions}>
+      <InteractionWrapper className={classes.interactionWrapper}>
+        <a onClick={toggleComments} className={classNames(
+          classes.comments,
+          {[classes.newComments]: hasUnreadComments},
+        )}>
+          <ForumIcon icon="Comment" />
+          {commentCount}
+        </a>
+      </InteractionWrapper>
+      <div className={classes.postActions}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
-      </div>}
+      </div>
       {tagRel &&
         <div className={classes.tagRelWrapper}>
           <InteractionWrapper className={classes.interactionWrapper}>
@@ -268,7 +268,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               <div className={classes.voteArrow}>
                 <SoftUpArrowIcon />
               </div>
-              <PostsItemKarma post={post} />
+              <KarmaDisplay document={post} />
             </div>
             <div className={classes.details}>
               <PostsTitle

@@ -9,7 +9,7 @@ import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCache from '../../../lib/collections/pagecache/collection';
-import { getClientBundle } from '../../utils/bundleUtils';
+import { getServerBundleHash } from '../../utils/bundleUtils';
 import PageCacheRepo from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 
@@ -153,7 +153,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
 const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): RenderResult|null|undefined => {
   if (!(cacheKey in cachedABtestsIndex)) {
     // eslint-disable-next-line no-console
-    console.log("Local cache miss: no cached page with this cacheKey for any A/B test group combination");
+    console.log(`Local cache miss for cacheKey ${cacheKey}: no cached page for any A/B test group combination`);
     return null;
   }
   const abTestCombinations: Array<RelevantTestGroupAllocation> = cachedABtestsIndex[cacheKey];
@@ -163,13 +163,16 @@ const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAlloc
         cacheKey: cacheKey,
         abTestGroups: abTestCombinations[i]
       }));
-      if (lookupResult)
+      if (lookupResult) {
+        // eslint-disable-next-line no-console
+        console.log(`Local cache hit for cacheKey ${cacheKey}`);
         return lookupResult;
+      }
     }
   }
 
   // eslint-disable-next-line no-console
-  console.log(`Local cache miss: page is cached, but with the wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
+  console.log(`Local cache miss for cacheKey ${cacheKey}: wrong A/B test groups: wanted ${JSON.stringify(abTestGroups)}, had available ${JSON.stringify(cachedABtestsIndex[cacheKey])}`);
   return null;
 }
 
@@ -178,9 +181,13 @@ const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAl
 
   if (!cacheResult?.renderResult) {
     // eslint-disable-next-line no-console
-    console.log(`DB cache miss: no cached page with this cacheKey and a valid A/B test group combination`);
+    console.log(`DB cache miss for cacheKey ${cacheKey}: no cached page with this cacheKey and a valid A/B test group combination`);
+    return null;
   }
-  return cacheResult?.renderResult ?? null;
+
+  // eslint-disable-next-line no-console
+  console.log(`DB cache hit for cacheKey ${cacheKey}`);
+  return cacheResult?.renderResult;
 }
 
 const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
@@ -218,7 +225,7 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
 }
 
 const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  const { bundleHash } = getClientBundle();
+  const bundleHash = getServerBundleHash();
 
   void PageCache.rawUpdateOne(
     {

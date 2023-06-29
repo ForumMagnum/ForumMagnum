@@ -1,5 +1,13 @@
 import moment from "moment"
-import { combineUrls, getSiteUrl } from "../../vulcan-lib"
+import { capitalize, combineUrls, getSiteUrl } from "../../vulcan-lib"
+import { SettingsOption } from "../posts/dropdownOptions"
+import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
+import { DIGEST_STATUSES } from "../digestPosts/schema"
+import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
+
+export const DIGEST_STATUS_OPTIONS = new TupleSet([...DIGEST_STATUSES, 'pending'] as const)
+export type InDigestStatusOption = UnionOf<typeof DIGEST_STATUS_OPTIONS>
+export type StatusField = 'emailDigestStatus'|'onsiteDigestStatus'
 
 /**
  * Returns the digest name in our standard format
@@ -32,12 +40,12 @@ export const getPostAuthors = (post: PostsListBase) => {
 /**
  * Returns the post data in the format that we expect to see in the email digest:
  *
- * <post title as link> (<post authors>, [<read time> min | link-post])
+ * <post title as link> (<post authors>, <read time> min)
  */
 export const getEmailDigestPostData = (post: PostsListBase) => {
   const url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`)
-  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
-  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}, ${readingTime})`
+  const linkpostText = post.url ? ', link-post' : ''
+  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}, ${post.readTimeMinutes} min${linkpostText})`
 }
 
 /**
@@ -52,4 +60,27 @@ export const getEmailDigestPostListData = (posts: PostsListBase[]) => {
   }, '')
   
   return `<ol>${digestData}</ol>`
+}
+
+/**
+ * Returns the options for the given digest status field,
+ * formatted to be passed into ForumDropdownMultiselect, like so:
+ *
+ * {yes: {label: 'Yes (4)'}}
+ */
+export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
+  posts: PostsListBase[],
+  postStatuses: Record<string, DigestPost>,
+  statusFieldName: StatusField
+}) => {
+  // count how many posts have each status, to be displayed in the labels
+  const counts: Record<string, number> = {}
+  DIGEST_STATUS_OPTIONS.forEach(option => counts[option] = 0)
+  posts.forEach(p => counts[postStatuses[p._id][statusFieldName]]++)
+  
+  const options: Record<string, SettingsOption> = {}
+  DIGEST_STATUS_OPTIONS.forEach((option: InDigestStatusOption) => {
+    options[option] = {label: `${capitalize(option)} (${counts[option]})`}
+  })
+  return options
 }

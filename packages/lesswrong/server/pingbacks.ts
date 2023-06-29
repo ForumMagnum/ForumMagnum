@@ -1,7 +1,7 @@
 import { cheerioParse } from './utils/htmlUtil';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { getSiteUrl } from '../lib/vulcan-lib/utils';
-import { hostIsOnsite, getUrlClass } from '../lib/routeUtil';
+import { classifyHost, getUrlClass } from '../lib/routeUtil';
 import * as _ from 'underscore';
 
 // Given an HTML document, extract the links from it and convert them to a set
@@ -28,7 +28,8 @@ export const htmlToPingbacks = async (html: string, exclusions?: Array<{collecti
       // by an absolute link).
       const linkTargetAbsolute = new URLClass(link, getSiteUrl());
       
-      if (hostIsOnsite(linkTargetAbsolute.host)) {
+      const hostType = classifyHost(linkTargetAbsolute.host)
+      if (hostType==="onsite" || hostType==="mirrorOfUs") {
         const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
         const parsedUrl = parseRoute({
           location: parsePath(onsiteUrl),

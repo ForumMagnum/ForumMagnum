@@ -151,7 +151,10 @@ const PostsItemIntroSequence = ({
 }) => {
   const { isRead } = useRecordPostView(post);
 
-  const { PostsItemKarma, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo, PostsItemTooltipWrapper, AnalyticsTracker } = (Components as ComponentTypes)
+  const {
+    KarmaDisplay, PostsTitle, PostsUserAndCoauthors, PostsItem2MetaInfo,
+    PostsItemTooltipWrapper, AnalyticsTracker,
+  } = Components;
 
   const postLink = postGetPageUrl(post, false, sequence?._id);
 
@@ -176,7 +179,7 @@ const PostsItemIntroSequence = ({
           )}
         >
           <PostsItem2MetaInfo className={classes.karma}>
-            {<PostsItemKarma post={post} />}
+            {<KarmaDisplay document={post} />}
           </PostsItem2MetaInfo>
           <span className={classes.title}>
             <AnalyticsTracker

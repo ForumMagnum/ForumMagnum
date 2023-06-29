@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@material-ui/core/Select';
-import * as _ from 'underscore';
+import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
@@ -16,12 +16,16 @@ import {checkEditorValid} from './validation'
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
 const commentEditorHeight = 100;
+const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
-
+const quickTakesEditorHeightRows = 5;
 
 export const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    position: 'relative'
+  },
   editor: {
     position: 'relative',
   },
@@ -101,6 +105,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
       minHeight: commentEditorHeight,
     }
   },
+  quickTakesEditorHeight: {
+    minHeight: quickTakesEditorHeight,
+    '& .ck.ck-content': {
+      minHeight: quickTakesEditorHeight,
+    }
+  },
   commentMinimalistEditorHeight: {
     '& .ck-editor__editable': {
       maxHeight: "300px"
@@ -153,6 +163,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: `${theme.spacing.unit * 3}px 0`,
     color: theme.palette.error.main,
   },
+  // class for the animation transitions of the bot tips card
+  enteredBotTips: {
+    opacity: 1
+  },
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -199,7 +213,7 @@ export interface SerializedEditorContents {
 export interface FormProps {
   commentMinimalistStyle?: boolean
   editorHintText?: string
-  maxHeight?: boolean
+  maxHeight?: boolean,
 }
 
 interface EditorProps {
@@ -212,19 +226,21 @@ interface EditorProps {
   fieldName: string,
   initialEditorType: EditorTypeString,
   formProps?: FormProps,
-  
+
   // Whether to use the CkEditor collaborative editor, ie, this is the
   // contents field of a shared post.
   isCollaborative: boolean,
-  
+
   // If isCollaborative is set, the access level the user should have
   // with CkEditor. Otherwise ignored.
   accessLevel?: CollaborativeEditingAccessLevel,
-  
+
   value: EditorContents,
   onChange: (change: EditorChangeEvent)=>void,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   placeholder?: string,
   commentStyles?: boolean,
+  quickTakesStyles?: boolean,
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
@@ -332,7 +348,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   constructor(props: EditorProps) {
     super(props)
-    
+
     this.state = {
       updateType: 'minor',
       commitMessage: "",
@@ -340,16 +356,29 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       loading: true,
       markdownImgErrs: false,
     }
-    
-    this.throttledSetCkEditor = _.debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
-    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, validationInterval);
-    this.debouncedValidateEditor = _.debounce(this.validateCkEditor, validationInterval);
+
+    this.throttledSetCkEditor = debounce((getValue: () => any) => this.setContents("ckEditorMarkup", getValue()), autosaveInterval);
+    this.debouncedCheckMarkdownImgErrs = debounce(this.checkMarkdownImgErrs, validationInterval);
+    this.debouncedValidateEditor = debounce(this.validateCkEditor, validationInterval);
   }
 
   async componentDidMount() {
     if (isClient) {
       this.setState({loading: false})
     }
+  }
+
+  focus() {
+    this.state.ckEditorReference?.focus();
+  }
+
+  clear(currentUser: UsersCurrent | null) {
+    const editorType = getUserDefaultEditor(currentUser)
+    const contents = getBlankEditorContents(editorType);
+    this.props.onChange({
+      contents,
+      autosave: true,
+    });
   }
 
   submitData = async () => {
@@ -384,7 +413,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       dataWithDiscardedSuggestions
     };
   }
-  
+
   setContents = (editorType: EditorTypeString, value: string) => {
     switch (editorType) {
       case "html": {
@@ -492,12 +521,22 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       </Components.ContentStyles>
     }
   }
-  
+
   renderCkEditor = (contents: EditorContents) => {
     const { editorWarning } = this.state
     const { ckEditorReference } = this.state
     const value = (typeof contents?.value === 'string') ? contents.value : ckEditorReference?.getData();
-    const { documentId, collectionName, fieldName, currentUser, commentEditor, formType, isCollaborative, _classes: classes } = this.props
+    const {
+      documentId,
+      collectionName,
+      fieldName,
+      currentUser,
+      commentEditor,
+      formType,
+      isCollaborative,
+      onFocus,
+      _classes: classes,
+    } = this.props;
     const { Loading } = Components
     const CKEditor = commentEditor ? Components.CKCommentEditor : Components.CKPostEditor;
     if (!CKEditor) {
@@ -510,7 +549,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
-        onChange: (event: any, editor: any) => {
+        onChange: (_event: AnyBecauseTodo, editor: AnyBecauseTodo) => {
           this.debouncedValidateEditor(editor.model.document)
           // If transitioning from empty to nonempty or nonempty to empty,
           // bypass throttling. These cases don't have the performance
@@ -523,6 +562,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.throttledSetCkEditor(() => editor.getData())
           }
         },
+        onFocus,
         onInit: (editor: any) => this.setState({ckEditorReference: editor})
       }
 
@@ -562,9 +602,20 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
+  getRows() {
+    const {commentStyles, quickTakesStyles} = this.props;
+    if (commentStyles) {
+      return commentEditorHeightRows;
+    }
+    if (quickTakesStyles) {
+      return quickTakesEditorHeightRows;
+    }
+    return postEditorHeightRows;
+  }
+
   renderPlaintextEditor = (contents: EditorContents) => {
-    const { markdownImgErrs } = this.state
-    const { _classes: classes, commentStyles, questionStyles, formProps } = this.props
+    const {markdownImgErrs} = this.state;
+    const {_classes: classes, questionStyles, formProps} = this.props;
     const {contentType} = this.getBodyStyles();
     const value = contents.value || "";
     return <div>
@@ -578,7 +629,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             this.setContents(contents.type, ev.target.value);
           }}
           multiline={true}
-          rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
+          rows={this.getRows()}
           rowsMax={99999}
           fullWidth={true}
           disableUnderline={true}
@@ -612,10 +663,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       /></Components.ContentStyles>}
     </div>
   }
-  
 
   getBodyStyles = (): {className: string, contentType: "comment"|"answer"|"post"} => {
-    const { _classes: classes, commentStyles, answerStyles } = this.props
+    const {
+      _classes: classes,
+      commentStyles,
+      answerStyles,
+      quickTakesStyles,
+    } = this.props
     if (commentStyles && answerStyles) {
       return {
         className: classes.answerStyles,
@@ -628,6 +683,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         contentType: "comment",
       }
     }
+    if (quickTakesStyles) {
+      return {
+        className: classes.postBodyStyles,
+        contentType: "comment",
+      }
+    }
     return {
       className: classes.postBodyStyles,
       contentType: "post",
@@ -635,18 +696,27 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getHeightClass = () => {
-    const { _classes: classes, commentStyles, questionStyles, maxHeight, formProps } = this.props
-    
-    if (formProps?.commentMinimalistStyle) return classes.commentMinimalistEditorHeight
-    
+    const {
+      _classes: classes,
+      commentStyles,
+      quickTakesStyles,
+      questionStyles,
+      maxHeight,
+      formProps,
+    } = this.props;
+
+    if (formProps?.commentMinimalistStyle) {
+      return classes.commentMinimalistEditorHeight;
+    }
+
     return classNames({
       [classes.commentEditorHeight]: commentStyles,
+      [classes.quickTakesEditorHeight]: quickTakesStyles,
       [classes.questionEditorHeight]: questionStyles && !commentStyles,
       [classes.postEditorHeight]: !commentStyles && !questionStyles,
       [classes.maxHeight]: maxHeight,
     });
   }
-
 
   render() {
     const { loading } = this.state

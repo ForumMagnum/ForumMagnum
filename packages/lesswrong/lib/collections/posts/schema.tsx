@@ -42,12 +42,14 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-const forumDefaultVotingSystem = forumSelect({
-  EAForum: "twoAxis",
-  LessWrong: "namesAttachedReactions",
-  AlignmentForum: "namesAttachedReactions",
-  default: "default",
-})
+function getDefaultVotingSystem() {
+  return forumSelect({
+    EAForum: "twoAxis",
+    LessWrong: "namesAttachedReactions",
+    AlignmentForum: "namesAttachedReactions",
+    default: "default",
+  })
+}
 
 export interface RSVPType {
   name: string
@@ -1056,7 +1058,6 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: isLW ? ['members'] : ['admins', 'sunshineRegiment'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
     group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
     control: "select",
@@ -1067,8 +1068,14 @@ const schema: SchemaType<DbPost> = {
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
       }
     },
-    ...schemaDefaultValue(forumDefaultVotingSystem),
-  },  
+
+    // This can't use schemaDefaultValue because it varies by forum-type.
+    // Trying to use schemaDefaultValue here with a branch by forum type broke
+    // schema generation/migrations.
+    defaultValue: "twoAxis",
+    onCreate: () => getDefaultVotingSystem(),
+    canAutofillDefault: true,
+  },
   myEditorAccess: resolverOnlyField({
     type: String,
     canRead: ['guests'],
@@ -2388,8 +2395,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "[Comment]",
     canRead: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
-    resolver: async (post: DbPost, args: {commentsLimit?: number, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
-      const { commentsLimit=5, maxAgeHours=18, af=false } = args;
+    // commentsLimit for some reason can receive a null (which was happening in one case)
+    // we haven't figured out why yet
+    resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
+      const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
       const loaderName = af?"recentCommentsAf" : "recentComments";
@@ -2401,7 +2410,7 @@ const schema: SchemaType<DbPost> = {
         ...(af ? {af:true} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
-        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit, filter);
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
       });
       return await accessFilterMultiple(currentUser, Comments, comments, context);
     }
@@ -2409,6 +2418,15 @@ const schema: SchemaType<DbPost> = {
   'recentComments.$': {
     type: Object,
     foreignKey: 'Comments',
+  },
+  
+  criticismTipsDismissed: {
+    type: Boolean,
+    canRead: ['members'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
   },
   
   languageModelSummary: {
@@ -2435,6 +2453,7 @@ const schema: SchemaType<DbPost> = {
     nullable: true,
     canRead: ['guests'],
     resolver: async (post, _, context) => {
+      if (!post.debate) return 0;
       const { Comments, currentUser } = context;
 
       const lastReadStatus = await getLastReadStatus(post, context);

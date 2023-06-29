@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
 import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
-import PgCollection from '../lib/sql/PgCollection';
+import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
@@ -83,7 +83,7 @@ const connectToMongo = async (connectionString: string) => {
   }
 }
 
-const connectToPostgres = async (connectionString: string) => {
+const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
       const branchDb = await getBranchDbName();
@@ -93,8 +93,8 @@ const connectToPostgres = async (connectionString: string) => {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString);
-      setSqlClient(sql);
+      const sql = await createSqlConnection(connectionString, false, target);
+      setSqlClient(sql, target);
     }
   } catch(err) {
     // eslint-disable-next-line no-console
@@ -106,10 +106,11 @@ const connectToPostgres = async (connectionString: string) => {
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl}: CommandLineArguments) =>
+const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    connectToMongo(mongoUrl),
+    //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
+    connectToPostgres(postgresReadUrl, "read"),
   ]);
 
 const initSettings = () => {

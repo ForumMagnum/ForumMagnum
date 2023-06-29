@@ -14,7 +14,7 @@ import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { communityPath } from '../../../lib/routes';
+import { communityPath, getAllTagsPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
@@ -34,6 +34,7 @@ import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
+import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -114,7 +115,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       icon: conceptsIcon,
       tooltip: <div>
         Get an overview over all the concepts used on LessWrong
@@ -272,7 +273,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: taggingNamePluralSetting.get(),
       title: taggingNamePluralCapitalSetting.get(),
       mobileTitle: taggingNamePluralCapitalSetting.get(),
-      link: `/${taggingNamePluralSetting.get()}/all`,
+      link: getAllTagsPath(),
       iconComponent: TopicsIcon,
       selectedIconComponent: TopicsSelectedIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
@@ -285,7 +286,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/library',
       iconComponent: LibraryIcon,
       selectedIconComponent: LibrarySelectedIcon,
-      tooltip: "Core reading, and sequences of posts building on a common theme",
+      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
@@ -326,8 +327,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'shortform',
-      title: 'Shortform',
-      link: '/shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
       subItem: true,
     }, {
       id: 'subscribeWidget',
@@ -377,7 +378,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'wiki',
       title: 'Wiki',
       mobileTitle: 'Wiki',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       iconComponent: LocalOffer,
       tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
@@ -387,7 +388,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Library',
       link: '/library',
       iconComponent: LocalLibrary,
-      tooltip: "Core reading, and sequences of posts building on a common theme",
+      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

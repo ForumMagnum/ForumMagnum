@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -15,6 +15,7 @@ import uniqBy from 'lodash/uniqBy'
 import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNames";
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
+import { getCommentViewOptions } from '../../commentViewOptions';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -164,6 +165,7 @@ const notificationTypeSettings = new SimpleSchema({
 const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
+  quickTakes: {type: Boolean, optional: true, nullable: true},
 });
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
@@ -610,20 +612,10 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     control: "select",
     form: {
-      // TODO - maybe factor out??
-      options: function () { // options for the select form control
-        let commentViews = [
-          {value:'postCommentsTop', label: 'magical algorithm'},
-          {value:'postCommentsNew', label: 'most recent'},
-          {value:'postCommentsOld', label: 'oldest'},
-        ];
-        if (forumTypeSetting.get() === 'AlignmentForum') {
-          return commentViews.concat([
-            {value:'postLWComments', label: 'magical algorithm (include LW)'}
-          ])
-        }
-        return commentViews
-      }
+      // getCommentViewOptions has optional parameters so it's safer to wrap it
+      // in a lambda. We don't currently enable admin-only sorting options for
+      // admins - we could but it seems not worth the effort.
+      options: () => getCommentViewOptions(),
     },
   },
 
@@ -999,7 +991,7 @@ const schema: SchemaType<DbUser> = {
   lastNotificationsCheck: {
     type: Date,
     optional: true,
-    canRead: userOwns,
+    canRead: [userOwns, 'admins'],
     canUpdate: userOwns,
     canCreate: 'guests',
     hidden: true,
@@ -1305,7 +1297,9 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
   },
   notificationShortformContent: {
-    label: "Shortform by users I'm subscribed to",
+    label: isEAForum
+      ? "Quick takes by users I'm subscribed to"
+      : "Shortform by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
   notificationRepliesToMyComments: {
@@ -1943,6 +1937,7 @@ const schema: SchemaType<DbUser> = {
       type: "Post",
       nullable: true,
     }),
+    label: isEAForum ? "Quick takes feed ID" : "Shortform feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -2727,6 +2722,14 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true, optional: true,
   },
+
+  recentKarmaInfo: {
+    type: GraphQLJSON,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  }
 };
 
 export default schema;

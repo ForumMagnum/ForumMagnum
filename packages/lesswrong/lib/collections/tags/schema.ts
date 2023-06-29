@@ -618,7 +618,6 @@ const schema: SchemaType<DbTag> = {
     canCreate: ['admins'],
     group: formGroups.advancedOptions,
     nullable: true,
-    ...schemaDefaultValue(""),
   },
   
   autoTagPrompt: {
@@ -630,7 +629,16 @@ const schema: SchemaType<DbTag> = {
     canCreate: ['admins'],
     group: formGroups.advancedOptions,
     nullable: true,
-    ...schemaDefaultValue(""),
+  },
+  noindex: {
+    type: Boolean,
+    optional: true,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    group: formGroups.advancedOptions,
+    label: "No Index",
+    tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,
   },
 }
 

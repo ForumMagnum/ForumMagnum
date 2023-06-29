@@ -9,7 +9,6 @@ import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
-import { viewNames } from '../../comments/CommentsViews';
 import classNames from 'classnames';
 import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -24,6 +23,10 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
+import { isValidCommentView } from '../../../lib/commentViewOptions';
+import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import truncateTagDescription from '../../../lib/utils/truncateTagDescription';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -81,6 +84,73 @@ export const getPostDescription = (post: {contents?: {plaintextDescription: stri
   return null;
 };
 
+/**
+ * Build structured data for a post to help with SEO.
+ */
+const getStructuredData = ({
+  post,
+  description,
+}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision;
+  description: string | null;
+}) => {
+  const hasUser = !!post.user;
+  const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+
+  return {
+    "@context": "http://schema.org",
+    "@type": "DiscussionForumPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postGetPageUrl(post, true),
+    },
+    headline: post.title,
+    ...(description && { description: description }),
+    datePublished: new Date(post.postedAt).toISOString(),
+    about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
+      "@type": "Thing",
+      name: tag.name,
+      url: tagGetUrl(tag, undefined, true),
+      description: tag.description?.htmlHighlight,
+    })),
+    ...(hasUser && {
+      author: [
+        {
+          "@type": "Person",
+          name: post.user.displayName,
+          url: userGetProfileUrl(post.user, true),
+        },
+        ...(hasCoauthors
+          ? post.coauthors
+              .filter(({ _id }) => !postCoauthorIsPending(post, _id))
+              .map(coauthor => ({
+                "@type": "Person",
+                "name": coauthor.displayName,
+                url: userGetProfileUrl(post.user, true),
+              }))
+          : []),
+      ],
+    }),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/CommentAction",
+        },
+        userInteractionCount: post.commentCount,
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/LikeAction",
+        },
+        userInteractionCount: post.baseScore,
+      },
+    ],
+  };
+};
+
+
 // Also used in PostsCompareRevisions
 export const styles = (theme: ThemeType): JssStyles => ({
   readingProgressBar: {
@@ -108,7 +178,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
-  postContent: {}, //Used by a Cypress test
+  postContent: { //Used by a Cypress test
+    marginBottom: isEAForum ? 40 : undefined
+  },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
@@ -271,7 +343,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
-  const commentTerms: CommentsViewTerms = Object.keys(viewNames).includes(query.view)
+  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000}
 
@@ -379,6 +452,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title} description={description} noIndex={noIndex}
+        structuredData={getStructuredData({post, description})}
       />
       <CitationTags
         title={post.title}
@@ -401,8 +475,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
               className={classes.headerImage}
             />
           </div>}
-        <PostCoauthorRequest post={post} currentUser={currentUser} />
-        <PostsPagePostHeader post={post} answers={answers ?? []} toggleEmbeddedPlayer={toggleEmbeddedPlayer} dialogueResponses={debateResponses}/>
+          <PostCoauthorRequest post={post} currentUser={currentUser} />
+          <PostsPagePostHeader
+            post={post}
+            answers={answers ?? []}
+            showEmbeddedPlayer={showEmbeddedPlayer}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            dialogueResponses={debateResponses} />
         </div>
       </div>
     </AnalyticsContext>

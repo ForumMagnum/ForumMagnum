@@ -261,3 +261,6 @@ import './vulcan-i18n-en-us';
 import '../components/spuriousChange';
 
 import './sql';
+
+import './rateLimits/constants';
+import './rateLimits/types';

@@ -17,6 +17,7 @@ import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { getTagStructuredData } from "./TagPageRouter";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -338,6 +339,8 @@ const TagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
+      structuredData={getTagStructuredData(tag)}
+      noIndex={tag.noindex}
     />
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

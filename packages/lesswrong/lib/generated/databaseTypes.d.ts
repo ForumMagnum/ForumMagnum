@@ -727,6 +727,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
   rejectedReason: string | null
@@ -1013,6 +1014,7 @@ interface DbTag extends DbObject {
   subTagIds: Array<string>
   autoTagModel: string | null
   autoTagPrompt: string | null
+  noindex: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -1134,6 +1136,7 @@ interface DbUser extends DbObject {
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean

@@ -230,8 +230,34 @@
     "timestamp": "2023-06-08T20:45:14.000Z"
   },
   {
+<<<<<<< HEAD
     "acceptsSchemaHash": "d13edf9438e52690d052f92c3c06e3df",
     "acceptedByMigration": "20230608T233507.add_UserLists_table.ts",
     "timestamp": "2023-06-08T23:35:07.000Z"
+=======
+    "acceptsSchemaHash": "8a6bdab9352a0251d6db2fa801b6b593",
+    "acceptedByMigration": "20230608T234328.create_PostEmbeddings_table.ts",
+    "timestamp": "2023-06-08T23:43:28.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8f9b37b6b8213a24c21dba39e77f7bbb",
+    "acceptedByMigration": "20230609T100000.add_PageCache.ts",
+    "timestamp": "2023-06-09T10:00:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7abdde9662fea7114e47457ccdc6f4ad",
+    "acceptedByMigration": "20230614T182837.add_digest_tables.ts",
+    "timestamp": "2023-06-14T18:28:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "88bc10e632764af3e6cff68763da9113",
+    "acceptedByMigration": "20230616T170716.add_criticismTipsDismissed_to_Posts.ts",
+    "timestamp": "2023-06-16T17:07:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d6b5c3a5a64a7eea065377c71e1b8acf",
+    "acceptedByMigration": "20230620T120843.add_noindex.ts",
+    "timestamp": "2023-06-20T12:08:43.000Z"
+>>>>>>> 21efe0c6ecbfd214f8e9454e0bcd79bd4a0bc312
   }
 ]

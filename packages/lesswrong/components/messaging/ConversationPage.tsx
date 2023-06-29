@@ -89,7 +89,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
     }
   }, [numMessagesShown, results?.length]);
   
-  useOnNotificationsChanged(() => refetch());
+  useOnNotificationsChanged(currentUser, () => refetch());
   
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef('')

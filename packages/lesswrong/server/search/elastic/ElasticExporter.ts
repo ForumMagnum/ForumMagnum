@@ -46,6 +46,45 @@ class ElasticExporter {
     ));
   }
 
+  private isBackingIndexName(name: string): boolean {
+    for (const collectionName of algoliaIndexedCollectionNames) {
+      if (
+        name.indexOf(collectionName.toLowerCase()) === 0 &&
+        /[a-z]+_\d+/.exec(name)?.length
+      ) {
+        return true;
+      }
+    }
+    return false
+  }
+
+  async deleteOrphanedIndexes() {
+    const client = this.client.getClient();
+    const indexes = await client.indices.get({
+      index: "*",
+    });
+    const indexNames = Object.keys(indexes);
+    for (const indexName of indexNames) {
+      if (!this.isBackingIndexName(indexName)) {
+        continue;
+      }
+
+      const aliasName = /([a-z]+)_\d+/.exec(indexName)?.[1];
+      if (!aliasName) {
+        continue;
+      }
+      const targetName = await this.getExistingAliasTarget(aliasName);
+      if (targetName === indexName) {
+        continue;
+      }
+      // eslint-disable-next-line
+      console.log("Deleting orphaned elastic index:", indexName);
+      await client.indices.delete({
+        index: indexName,
+      });
+    }
+  }
+
   /**
    * In ElasticSearch, the schema of indexes (called "mappings") is write-only - ie;
    * you can add new fields, but you can't remove fields or change the types of
@@ -60,9 +99,16 @@ class ElasticExporter {
    *  2) Reindex all of the existing data into a new index with the new schema
    *  3) Mark the new index as writable
    *  4) Update the alias to point to the new index
-   *  5) Delete the old index
    *
-   * For a populated index, expect this to take ~a couple of minutes.
+   * For a populated index, expect this to take ~a couple of minutes. Note that,
+   * for the sake of data safety, the old index is _not_ automatically deleted.
+   * You should wait a couple of minutes for the reindexing to complete, check
+   * that the document count on the new index is >= the document count on the old
+   * index, then run `Globals.elasticDeleteOrphanedIndexes()`.
+   *
+   * Whilst exporting, there'll be a short period during copying where search
+   * will continue to work but not all the documents are available - this is
+   * currently ~45 seconds for EA forum prod as of 2023-06-22.
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClient();
@@ -87,6 +133,7 @@ class ElasticExporter {
       await this.updateSynonymsForIndex(newIndexName, synonyms);
       await client.reindex({
         refresh: true,
+        wait_for_completion: false,
         body: {
           source: {index: oldIndexName},
           dest: {index: newIndexName},
@@ -102,8 +149,9 @@ class ElasticExporter {
         index: newIndexName,
         name: aliasName,
       });
-      await client.indices.delete({
+      await client.indices.deleteAlias({
         index: oldIndexName,
+        name: aliasName,
       });
     } else {
       // eslint-disable-next-line no-console
@@ -189,20 +237,35 @@ class ElasticExporter {
           index: {
             analysis: {
               filter: {
+                fm_english_stopwords: {
+                  type: "stop",
+                  stopwords: "_english_",
+                },
+                fm_english_stemmer: {
+                  type: "stemmer",
+                  language: "english",
+                },
                 fm_synonym_filter: {
                   type: "synonym",
                   synonyms: [],
                 },
+                fm_shingle_filter: {
+                  type: "shingle",
+                  min_shingle_size: 2,
+                  max_shingle_size: 3,
+                  output_unigrams: true,
+                },
+                fm_whitespace_filter: {
+                  type: "pattern_replace",
+                  pattern: " ",
+                  replacement: "",
+                },
               },
               char_filter: {
                 fm_punctuation_filter: {
-                  type: "mapping",
-                  mappings: [
-                    "_ => ",
-                    "- => ",
-                    "( => ",
-                    ") => ",
-                  ],
+                  type: "pattern_replace",
+                  pattern: "[()_-]+",
+                  replacement: " ",
                 },
               },
               analyzer: {
@@ -211,7 +274,9 @@ class ElasticExporter {
                   tokenizer: "standard",
                   filter: [
                     "lowercase",
-                    "porter_stem",
+                    "decimal_digit",
+                    "fm_english_stopwords",
+                    "fm_english_stemmer",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
@@ -223,7 +288,22 @@ class ElasticExporter {
                   filter: [
                     "lowercase",
                     "fm_synonym_filter",
-                    "porter_stem",
+                    "decimal_digit",
+                    "fm_english_stopwords",
+                    "fm_english_stemmer",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
+                  ],
+                },
+                fm_shingle_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "fm_synonym_filter",
+                    "fm_shingle_filter",
+                    "fm_whitespace_filter",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
@@ -320,9 +400,14 @@ class ElasticExporter {
       datasource: documents,
       onDocument: (document: AlgoliaDocument) => {
         const {id: _id} = this.formatDocument(document);
-        return {
-          create: {_index, _id},
-        };
+        return [
+          {
+            update: {_index, _id},
+          },
+          {
+            doc_as_upsert: true,
+          },
+        ];
       },
       onDrop: (doc) => erroredDocuments.push(doc),
     });
@@ -397,5 +482,8 @@ Globals.elasticExportAll = () =>
 
 Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
   new ElasticExporter().deleteIndex(collectionName);
+
+Globals.elasticDeleteOrphanedIndexes = () =>
+  new ElasticExporter().deleteOrphanedIndexes();
 
 export default ElasticExporter;
