@@ -66,10 +66,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
 
-  const showEditorWarning = (formType !== "new") 
-    && (defaultEditorType !== currentEditorType) // if the user has a default editor, and it's not the same as the current editor
-    && (currentEditorType !== 'ckEditorMarkup') // the editor warning button only lets you convert things back to ckEditorMarkup,
-    // so we don't bother showing it if you're already in ckEditorMarkup
+  // We used to show this warning to a variety of editor types, but now we only want
+  // to show it to people using the html editor. Converting from markdown to ckEditor
+  // is error prone and we don't want to encourage it. We no longer support draftJS
+  // but some old posts still are using it so we show the warning for them too.
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
