@@ -279,6 +279,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && (collectionName!=="Tags" || formType==="edit");
   
   const actualPlaceholder = (editorHintText || hintText || placeholder);
+
+  // document isn't necessarily defined. TODO: clean up rest of file
+  // to not rely on document
+  if (!document) return null;
     
   return <div className={classes.root}>
     {showEditorWarning &&
