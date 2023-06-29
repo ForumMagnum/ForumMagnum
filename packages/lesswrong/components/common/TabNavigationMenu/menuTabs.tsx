@@ -327,8 +327,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
     }, {
       id: 'shortform',
-      title: 'Shortform',
-      link: '/shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
       subItem: true,
     }, {
       id: 'subscribeWidget',

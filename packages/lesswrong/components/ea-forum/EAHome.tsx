@@ -45,10 +45,9 @@ const getStructuredData = () => ({
 const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
-    RecentDiscussionFeed, EAHomeMainContent, RecommendationsAndCurated,
+    RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, CurrentSpotlightItem, HomeLatestPosts, EAHomeCommunityPosts, CommentsListCondensed,
-    HeadTags
+    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -59,10 +58,6 @@ const EAHome = () => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
-
-  const shortformTerms = {
-    view: "shortformFrontpage" as const
-  };
 
   return (
     <AnalyticsContext pageContext="homePage">
@@ -78,24 +73,12 @@ const EAHome = () => {
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
-      
+
       <EAHomeMainContent FrontpageNode={
         () => <>
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-          {isEAForum && (
-            <AnalyticsContext pageSectionContext="frontpageShortform">
-              <SingleColumnSection>
-                <CommentsListCondensed
-                  label={"Shortform"}
-                  terms={shortformTerms}
-                  initialLimit={5}
-                  shortformButton
-                />
-              </SingleColumnSection>
-            </AnalyticsContext>
-          )}
-          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpageEA" />}
+          {isEAForum && <QuickTakesSection />}
           <RecentDiscussionFeed
             title="Recent discussion"
             af={false}
@@ -104,7 +87,6 @@ const EAHome = () => {
           />
         </>
       } />
-      
     </AnalyticsContext>
   )
 }

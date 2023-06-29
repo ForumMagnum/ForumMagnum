@@ -48,7 +48,7 @@ const HeadTags = ({
     return (
       <React.Fragment>
         { TitleComponent
-            ? <TitleComponent siteName={tabLongTitle} isSubtitle={false} />
+            ? <TitleComponent siteName={tabShortTitle} isSubtitle={false} />
             : <Helmet><title>
                 {titleString
                   ? `${titleString} — ${tabShortTitle}`

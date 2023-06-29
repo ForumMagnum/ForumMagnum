@@ -458,7 +458,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                   <div className={classes.summaryData}>
                     <div className={classes.summaryDataLabel}>
                       <ShortformIcon className={classes.labelIcon} />
-                      Your highest-karma shortform
+                      Your highest-karma quick take
                     </div>
                     <div className={classes.summaryDataVal}>
                       <span className={classes.link}>

@@ -237,6 +237,14 @@ class ElasticExporter {
           index: {
             analysis: {
               filter: {
+                fm_english_stopwords: {
+                  type: "stop",
+                  stopwords: "_english_",
+                },
+                fm_english_stemmer: {
+                  type: "stemmer",
+                  language: "english",
+                },
                 fm_synonym_filter: {
                   type: "synonym",
                   synonyms: [],
@@ -266,7 +274,9 @@ class ElasticExporter {
                   tokenizer: "standard",
                   filter: [
                     "lowercase",
-                    "porter_stem",
+                    "decimal_digit",
+                    "fm_english_stopwords",
+                    "fm_english_stemmer",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
@@ -278,7 +288,9 @@ class ElasticExporter {
                   filter: [
                     "lowercase",
                     "fm_synonym_filter",
-                    "porter_stem",
+                    "decimal_digit",
+                    "fm_english_stopwords",
+                    "fm_english_stemmer",
                   ],
                   char_filter: [
                     "fm_punctuation_filter",
@@ -388,9 +400,14 @@ class ElasticExporter {
       datasource: documents,
       onDocument: (document: AlgoliaDocument) => {
         const {id: _id} = this.formatDocument(document);
-        return {
-          create: {_index, _id},
-        };
+        return [
+          {
+            update: {_index, _id},
+          },
+          {
+            doc_as_upsert: true,
+          },
+        ];
       },
       onDrop: (doc) => erroredDocuments.push(doc),
     });

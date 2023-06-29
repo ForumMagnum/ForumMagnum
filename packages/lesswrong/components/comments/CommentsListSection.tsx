@@ -8,7 +8,7 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import * as _ from 'underscore';
+import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -17,7 +17,6 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,6 +59,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
+  newQuickTake: {
+    border: "none",
+  },
   newCommentLabel: {
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
@@ -76,8 +78,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-
-const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, newFormProps={}, classes}: {
+const CommentsListSection = ({
+  post,
+  tag,
+  commentCount,
+  loadMoreCount,
+  totalComments,
+  loadMoreComments,
+  loadingMoreComments,
+  comments,
+  parentAnswerId,
+  startThreadTruncated,
+  newForm=true,
+  newFormProps={},
+  classes,
+}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -94,12 +109,20 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-  
-  const { LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row } = Components
+
+  const {
+    LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
+    CommentsNewForm, QuickTakesEntry,
+  } = Components;
 
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
-  const newCommentsSinceDate = highlightDate ? _.filter(comments, comment => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()).length : 0;
+  const newCommentsSinceDate = highlightDate
+    ? filter(
+      comments,
+      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
+    ).length
+    : 0;
   const now = useCurrentTime();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -130,7 +153,11 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
     if (isEAForum) {
       commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
     }
-    
+
+    const contentType = isEAForum && post?.shortform
+      ? "quick takes"
+      : "comments";
+
     return <CommentsListMeta>
       <Typography
         variant="body2"
@@ -144,9 +171,9 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
         component='span'
         className={classes.clickToHighlightNewSince}
       >
-        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new comments since `}
-        {highlightDate && !newCommentsSinceDate && "No new comments since "}
-        {!highlightDate && "Click to highlight new comments since: "}
+        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
+        {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
+        {!highlightDate && `Click to highlight new ${contentType} since: `}
         <a className={classes.button} onClick={handleClick}>
           <Components.CalendarDate date={highlightDate || now}/>
         </a>
@@ -184,31 +211,44 @@ const CommentsListSection = ({post, tag, commentCount, loadMoreCount, totalComme
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isEAForum && (newForm || !!totalComments) && <div className={classes.commentsHeadline}>
-        Comments{commentCountNode}
-      </div>}
+      {isEAForum && (newForm || !!totalComments) && !post?.shortform &&
+        <div className={classes.commentsHeadline}>
+          Comments{commentCountNode}
+        </div>
+      }
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
         && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
         && (
-        <div id="posts-thread-new-comment" className={classes.newComment}>
+        <div
+          id="posts-thread-new-comment"
+          className={classNames(classes.newComment, {
+            [classes.newQuickTake]: isEAForum && post?.shortform,
+          })}
+        >
           {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
           )}
-          <Components.CommentsNewForm
-            post={post} tag={tag}
-            prefilledProps={{
-              parentAnswerId: parentAnswerId,
-              ...(userIsDebateParticipant ? { debateResponse: true } : {})
-            }}
-            type="comment"
-            {...newFormProps}
-            {...(userIsDebateParticipant ? { formProps: { post } } : {})}
-          />
+          {isEAForum && post?.shortform
+            ? <QuickTakesEntry currentUser={currentUser} />
+            : (
+              <CommentsNewForm
+                post={post}
+                tag={tag}
+                prefilledProps={{
+                  parentAnswerId: parentAnswerId,
+                  ...(userIsDebateParticipant ? { debateResponse: true } : {})
+                }}
+                type="comment"
+                {...newFormProps}
+                {...(userIsDebateParticipant ? { formProps: { post } } : {})}
+              />
+            )
+          }
         </div>
       )}
       {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&

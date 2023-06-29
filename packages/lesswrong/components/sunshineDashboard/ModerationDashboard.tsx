@@ -87,6 +87,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  main: {
+    width: "100%",
+  }
 });
 
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
@@ -105,8 +108,8 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 const ModerationDashboard = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, CommentsReviewTab, LoadMore, Loading, FirstContentIcons } = Components;
-    
+  const { UsersReviewInfoCard, LoadMore, Loading, FirstContentIcons } = Components;
+
   const currentUser = useCurrentUser();
 
   const { history } = useNavigation();
@@ -122,7 +125,7 @@ const ModerationDashboard = ({ classes }: {
       hash: ''
     });
   };
-  
+
   const { results: usersToReview = [], totalCount: totalUsersToReviewCount, loadMoreProps, refetch, loading } = useMulti({
     terms: {view: "sunshineNewUsers", limit: 10},
     collectionName: "Users",
@@ -138,7 +141,7 @@ const ModerationDashboard = ({ classes }: {
     itemsPerPage: 50,
   });
 
-  if (!userIsAdminOrMod(currentUser)) {
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
