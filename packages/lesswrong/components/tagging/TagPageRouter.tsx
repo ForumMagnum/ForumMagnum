@@ -15,9 +15,9 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
     "@type": "WebPage",
     "name": tag.name,
     ...(hasSubTags && { "mentions": tag.subTags.map((subtag) => ({
-            "@type": "Thing",
-            "name": subtag.name,
-          }))
+        "@type": "Thing",
+        "name": subtag.name,
+      }))
     }),
     "interactionStatistic": {
       "@type": "InteractionCounter",

@@ -1,7 +1,7 @@
 import React from 'react'
 import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
-import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
+import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
@@ -22,7 +22,7 @@ const getStructuredData = () => ({
   "url": `${getSiteUrl()}`,
   "potentialAction": {
     "@type": "SearchAction",
-    "target": `${getSiteUrl()}search?query={search_term_string}`,
+    "target": `${combineUrls(getSiteUrl(), '/search')}?query={search_term_string}`,
     "query-input": "required name=search_term_string"
   },
   "mainEntityOfPage": {

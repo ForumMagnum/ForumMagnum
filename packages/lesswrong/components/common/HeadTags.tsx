@@ -27,7 +27,7 @@ const HeadTags = ({
   image?: string|null,
   useSmallImage?: boolean,
   noIndex?: boolean,
-  structuredData?: any,
+  structuredData?: Record<string, AnyBecauseHard>,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses
