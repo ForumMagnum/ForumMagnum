@@ -162,6 +162,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleNeedsReview = () => {
+    if (user.needsReview) return null;
     const newNotes = getModSignatureWithNote("set to manual review") + notes;
     void updateUser({
       selector: {_id: user._id},
