@@ -6,7 +6,6 @@ import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
@@ -208,7 +207,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <MenuIcon />
+                <ForumIcon icon="Menu" />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -234,7 +233,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <MenuIcon/>
+            <ForumIcon icon="Menu" />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -246,7 +245,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <MenuIcon/>}
+        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
