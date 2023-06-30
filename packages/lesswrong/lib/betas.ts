@@ -45,7 +45,7 @@ export const userHasEagProfileImport = disabled;
 
 export const userHasEAEmojiReacts = isEAForum ? testServerOnly : disabled;
 
-export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
+export const userHasElasticsearch = shippedFeature;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
