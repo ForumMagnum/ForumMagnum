@@ -113,14 +113,16 @@ const UsersMenu = ({classes}: {
       <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
     </div>
   }
+  
+  const buttonNode = <Button classes={{root: classes.userButtonRoot}}>
+    {userButtonNode}
+  </Button>
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={`/users/${currentUser.slug}`}>
-        <Button classes={{root: classes.userButtonRoot}}>
-          {userButtonNode}
-        </Button>
-      </Link>
+      {isEAForum ? buttonNode : <Link to={`/users/${currentUser.slug}`}>
+        {buttonNode}
+      </Link>}
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
