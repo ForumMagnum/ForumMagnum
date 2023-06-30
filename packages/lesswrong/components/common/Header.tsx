@@ -95,6 +95,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  hideXsDown: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
       display: "none",
@@ -266,7 +271,8 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
   } = Components;
   
-  const usersMenuNode = <div className={searchOpen ? classes.hideMdDown : undefined}>
+  const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
@@ -311,15 +317,19 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {!isEAForum && currentUser && usersMenuNode}
+                {!isEAForum && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
+                {currentUser && <KarmaChangeNotifier
+                  currentUser={currentUser}
+                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+                />}
                 {currentUser && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
+                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
                 />}
-                {isEAForum && currentUser && usersMenuNode}
+                {isEAForum && usersMenuNode}
               </div>
             </Toolbar>
           </header>

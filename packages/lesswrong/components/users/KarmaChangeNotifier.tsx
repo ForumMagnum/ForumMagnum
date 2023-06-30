@@ -15,6 +15,7 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -200,8 +201,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   );
 }
 
-const KarmaChangeNotifier = ({currentUser, classes}: {
+const KarmaChangeNotifier = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
+  className?: string,
   classes: ClassesType,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
@@ -265,7 +267,7 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
@@ -296,7 +298,7 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
 }
 
 const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
-  styles, hocs: [withErrorBoundary]
+  styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
 declare global {
