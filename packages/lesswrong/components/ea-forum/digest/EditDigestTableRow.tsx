@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import CheckIcon from '@material-ui/icons/Check';
@@ -7,6 +7,7 @@ import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { PostWithForeignId, isPostWithForeignId, useForeignCrosspost } from '../../hooks/useForeignCrosspost';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -84,6 +85,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 12,
     color: theme.palette.grey[600],
     fontSize: 12,
+    '& .PostsItem2MetaInfo-metaInfo': {
+      fontSize: 12,
+      fontWeight: 400
+    }
   },
   karma: {
     width: 62
@@ -136,6 +141,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const getCrosspostReadTime = (post: PostsListWithVotes & PostWithForeignId) => {
+  const {combinedPost} = useForeignCrosspost(
+    post,
+    {collectionName: 'Posts', fragmentName: 'PostsList'}
+  )
+  return combinedPost?.readTimeMinutes ?? 0
+}
+
 /**
  * Given a post with a currentUserVote, return the icon representing that vote.
  */
@@ -165,6 +178,9 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   classes: ClassesType
 }) => {
   const {flash} = useMessages()
+  
+  const readTime = isPostWithForeignId(post) ? getCrosspostReadTime(post) : post.readTimeMinutes
+  const voteIcon = useMemo(() => voteToIcon(post), [post])
 
   /**
    * Build the cell with the given status icon
@@ -211,13 +227,16 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   const copyPostToClipboard = async (post: PostsListBase) => {
     await navigator.clipboard.write(
       [new ClipboardItem({
-        'text/html': new Blob([getEmailDigestPostData(post)], {type: 'text/html'})
+        'text/html': new Blob(
+          [getEmailDigestPostData({...post, readTimeMinutes: readTime})],
+          {type: 'text/html'}
+        )
       })]
     )
     flash({messageString: "Email digest post list copied"})
   }
   
-  const { ForumIcon, LWTooltip } = Components
+  const { ForumIcon, LWTooltip, PostsItemDate } = Components
   
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
@@ -238,10 +257,11 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
             {[classes.isRead]: post.isRead},
           )}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {post.readTimeMinutes} min{linkpostText})</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}, {readTime} min{linkpostText})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
+          <PostsItemDate post={post} noStyles includeAgo />
           <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.hiddenIcon]: !post.url})} />
           <div className={classNames(classes.questionIcon, {[classes.hiddenIcon]: !post.question})}>Q</div>
           <ForumIcon icon="Star" className={classNames(classes.curatedIcon, {[classes.hiddenIcon]: !post.curatedDate})} />
@@ -263,7 +283,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       {post.suggestForCuratedUsernames}
     </td>
     <td className={classes.voteCol}>
-      {votesVisible && voteToIcon(post)}
+      {votesVisible && voteIcon}
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
