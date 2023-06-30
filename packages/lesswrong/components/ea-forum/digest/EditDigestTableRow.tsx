@@ -7,7 +7,7 @@ import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
 import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { PostWithForeignId, isPostWithForeignId, useForeignCrosspost } from '../../hooks/useForeignCrosspost';
+import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -141,14 +141,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getCrosspostReadTime = (post: PostsListWithVotes & PostWithForeignId) => {
-  const {combinedPost} = useForeignCrosspost(
-    post,
-    {collectionName: 'Posts', fragmentName: 'PostsList'}
-  )
-  return combinedPost?.readTimeMinutes ?? 0
-}
-
 /**
  * Given a post with a currentUserVote, return the icon representing that vote.
  */
@@ -179,7 +171,6 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
 }) => {
   const {flash} = useMessages()
   
-  const readTime = isPostWithForeignId(post) ? getCrosspostReadTime(post) : post.readTimeMinutes
   const voteIcon = useMemo(() => voteToIcon(post), [post])
 
   /**
@@ -224,20 +215,21 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
    * Writes the post data to the clipboard, in the format that
    * we expect to see in the email digest
    */
-  const copyPostToClipboard = async (post: PostsListBase) => {
+  const copyPostToClipboard = async (post: PostsListWithVotes) => {
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob(
-          [getEmailDigestPostData({...post, readTimeMinutes: readTime})],
+          [getEmailDigestPostData(post)],
           {type: 'text/html'}
         )
       })]
     )
-    flash({messageString: "Email digest post list copied"})
+    flash({messageString: "Post copied"})
   }
   
   const { ForumIcon, LWTooltip, PostsItemDate } = Components
   
+  const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   
@@ -257,7 +249,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
             {[classes.isRead]: post.isRead},
           )}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {readTime} min{linkpostText})</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}{readTime}{linkpostText})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
