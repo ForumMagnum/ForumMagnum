@@ -3,6 +3,7 @@ import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib
 import { useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import Button from '@material-ui/core/Button';
+import { useNavigation } from "../../lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -10,6 +11,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 const CreateUserListPage = ({classes}: {
   classes: ClassesType,
 }) => {
+  const { history } = useNavigation();
+
   const { WrappedSmartForm, FormSubmit, SingleColumnSection, SectionTitle } = Components;
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
@@ -30,6 +33,7 @@ const CreateUserListPage = ({classes}: {
         FormSubmit: SubmitComponent,
         FormGroupLayout: Components.DefaultStyleFormGroup
       }}
+      successCallback={() => history.push('/userLists')}
     />
   </SingleColumnSection>;
 }

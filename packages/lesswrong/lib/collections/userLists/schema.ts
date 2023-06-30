@@ -8,25 +8,9 @@ const schema: SchemaType<DbUserList> = {
     canRead: ['guests'],
     canUpdate: [userOwns],
     canCreate: ['members'],
+    order: 1,
   },
   
-  deleted: {
-    type: Boolean,
-    canRead: ['guests'],
-    canUpdate: [userOwns],
-    canCreate: ['members'],
-    optional: true,
-    ...schemaDefaultValue(false),
-  },
-  isPublic: {
-    type: Boolean,
-    canRead: ['guests'],
-    canUpdate: [userOwns],
-    canCreate: ['members'],
-    optional: true,
-    ...schemaDefaultValue(false),
-  },
-
   memberIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "memberIds",
@@ -38,6 +22,7 @@ const schema: SchemaType<DbUserList> = {
     canRead: ['guests'],
     canUpdate: [userOwns],
     canCreate: ['members'],
+    order: 3,
   },
 
   'memberIds.$': {
@@ -56,7 +41,27 @@ const schema: SchemaType<DbUserList> = {
     canCreate: ['members'],
     optional: true,
     hidden: true,
-  }
+  },
+  
+  isPublic: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userOwns],
+    canCreate: ['members'],
+    optional: true,
+    order: 4,
+    ...schemaDefaultValue(false),
+  },
+  
+  deleted: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userOwns],
+    canCreate: ['members'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

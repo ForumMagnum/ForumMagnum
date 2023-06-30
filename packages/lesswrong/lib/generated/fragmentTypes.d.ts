@@ -672,6 +672,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly types: Array<string>,
   readonly metaSticky: boolean,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly onPublishSharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly shareWithUsers: Array<string>,
   readonly linkSharingKey: string | null,
   readonly linkSharingKeyUsedBy: Array<string>,
@@ -705,10 +706,10 @@ interface PostsDefaultFragment { // fragment on Posts
 
 interface UserListsDefaultFragment { // fragment on UserLists
   readonly name: string,
-  readonly deleted: boolean,
-  readonly isPublic: boolean,
   readonly memberIds: Array<string>,
   readonly userId: string,
+  readonly isPublic: boolean,
+  readonly deleted: boolean,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -2326,8 +2327,10 @@ interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
 interface UserListFragment { // fragment on UserLists
   readonly _id: string,
   readonly name: string,
+  readonly isPublic: boolean,
   readonly userId: string,
   readonly description: RevisionDisplay|null,
+  readonly memberIds: Array<string>,
   readonly members: Array<UsersMinimumInfo>,
 }
 

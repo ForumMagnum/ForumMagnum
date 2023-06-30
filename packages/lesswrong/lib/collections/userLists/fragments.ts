@@ -9,6 +9,7 @@ registerFragment(`
     description {
       ...RevisionDisplay
     }
+    memberIds
     members {
       ...UsersMinimumInfo
     }

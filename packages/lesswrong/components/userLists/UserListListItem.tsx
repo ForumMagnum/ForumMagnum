@@ -3,16 +3,24 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  link: {
+    color: theme.palette.primary.main,
+    fontFamily: theme.typography.fontFamily
+  }
 });
 
 const UserListListItem = ({userList, classes}: {
   userList: UserListFragment,
   classes: ClassesType,
 }) => {
+  const {LWTooltip, UserListHover} = Components
+  
   return <div>
-    <Link to={`/userLists/${userList._id}`}>
-      {userList.name}
-    </Link>
+    <LWTooltip title={<UserListHover list={userList}/>} tooltip={false} clickable>
+      <Link to={`/userLists/${userList._id}`} className={classes.link}>
+        {userList.name}
+      </Link>
+    </LWTooltip>
   </div>;
 }
 

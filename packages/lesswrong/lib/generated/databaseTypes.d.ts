@@ -716,6 +716,7 @@ interface DbPost extends DbObject {
   types: Array<string>
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
+  onPublishSharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
   shareWithUsers: Array<string>
   linkSharingKey: string | null
   linkSharingKeyUsedBy: Array<string>
@@ -1045,10 +1046,10 @@ interface UserListsCollection extends CollectionBase<DbUserList, "UserLists"> {
 interface DbUserList extends DbObject {
   __collectionName?: "UserLists"
   name: string
-  deleted: boolean
-  isPublic: boolean
   memberIds: Array<string>
   userId: string
+  isPublic: boolean
+  deleted: boolean
   description: EditableFieldContents
   description_latest: string
   createdAt: Date

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentUser } from "../common/withUser";
 
@@ -19,6 +19,7 @@ const SingleUserListPage = ({classes}: {
     documentId: listId,
   })
   const currentUser = useCurrentUser();
+  const { history } = useNavigation();
   const { ContentItemBody, Loading, SingleColumnSection, WrappedSmartForm } = Components;
   if (loading || !userList) {
     return <Loading />
@@ -30,6 +31,7 @@ const SingleUserListPage = ({classes}: {
         mutationFragmentName="UserListEditFragment"
         queryFragmentName="UserListEditFragment"
         documentId={listId}
+        successCallback={() => history.push('/userLists')}
       />
     </SingleColumnSection>
   }

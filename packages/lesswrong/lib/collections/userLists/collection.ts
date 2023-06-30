@@ -29,6 +29,8 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     fieldName: "description",
+    label: "Description",
+    order: 2,
     permissions: {
       canRead: ['guests'],
       canUpdate: [userOwns],
