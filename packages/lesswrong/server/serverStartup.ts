@@ -60,7 +60,7 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
-  if (isEAForum) {
+  if (isEAForum || !connectionString) {
     return;
   }
   try {
