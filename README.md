@@ -56,6 +56,8 @@ CEA Devs, see the ForumCredentials repository for access to a remote dev databas
 
 TODO: Postgres instructions (but basically: run a postgres db)
 
+(Then there's probably something about migrating, see Database Migrations)
+
 ### Creating branch-specific development databases
 
 When developing features that require changing database schemas, it can be
