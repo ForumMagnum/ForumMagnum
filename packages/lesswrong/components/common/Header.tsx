@@ -18,6 +18,7 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
+export const EA_FORUM_HEADER_HEIGHT = 66
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -35,9 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: 64,
+    height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 64,
     [theme.breakpoints.down('xs')]: {
-      height: 56,
+      height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 56,
     },
     "@media print": {
       display: "none"
@@ -69,7 +70,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  siteLogo: {
+  siteLogo: isEAForum ? {
+    marginLeft:  -7,
+    marginRight: 6,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -12,
+      marginRight: 3
+    },
+  } : {
     marginLeft: -theme.spacing.unit * 1.5,
   },
   hideLgUp: {
@@ -95,6 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
+    alignItems: isEAForum ? 'center' : undefined
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -256,6 +265,12 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
   } = Components;
+  
+  const usersMenuNode = <div className={searchOpen ? classes.hideMdDown : undefined}>
+    <AnalyticsContext pageSectionContext="usersMenu">
+      <UsersMenu />
+    </AnalyticsContext>
+  </div>
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -296,11 +311,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
-                    <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu />
-                    </AnalyticsContext>
-                  </div>}
+                {!isEAForum && currentUser && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
                 {currentUser && <NotificationsMenuButton
@@ -308,6 +319,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
                 />}
+                {isEAForum && currentUser && usersMenuNode}
               </div>
             </Toolbar>
           </header>
