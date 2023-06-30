@@ -230,11 +230,11 @@
     "timestamp": "2023-06-08T20:45:14.000Z"
   },
   {
-<<<<<<< HEAD
     "acceptsSchemaHash": "d13edf9438e52690d052f92c3c06e3df",
     "acceptedByMigration": "20230608T233507.add_UserLists_table.ts",
     "timestamp": "2023-06-08T23:35:07.000Z"
-=======
+  },
+  {
     "acceptsSchemaHash": "8a6bdab9352a0251d6db2fa801b6b593",
     "acceptedByMigration": "20230608T234328.create_PostEmbeddings_table.ts",
     "timestamp": "2023-06-08T23:43:28.000Z"
@@ -258,6 +258,5 @@
     "acceptsSchemaHash": "d6b5c3a5a64a7eea065377c71e1b8acf",
     "acceptedByMigration": "20230620T120843.add_noindex.ts",
     "timestamp": "2023-06-20T12:08:43.000Z"
->>>>>>> 21efe0c6ecbfd214f8e9454e0bcd79bd4a0bc312
   }
 ]
