@@ -464,7 +464,7 @@ const Community = ({classes}: {
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
+                startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
                 placeholder="Search groups"
                 onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}
