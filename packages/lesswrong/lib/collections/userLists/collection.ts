@@ -30,6 +30,18 @@ makeEditable({
   }
 })
 
+UserLists.checkAccess = async (currentUser: DbUser|null, userList: DbUserList, context: ResolverContext|null, outReasonDenied: {reason?: string}): Promise<boolean> => {
+  const isOwner = !!(currentUser && currentUser._id===userList.userId);
+  if (!isOwner && !userList.isPublic) {
+    return false
+  }
+  if (userList.deleted) {
+    return false;
+  }
+
+  return true;
+}
+
 addUniversalFields({collection: UserLists})
 
 export default UserLists;

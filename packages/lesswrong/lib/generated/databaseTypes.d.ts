@@ -1045,6 +1045,8 @@ interface UserListsCollection extends CollectionBase<DbUserList, "UserLists"> {
 interface DbUserList extends DbObject {
   __collectionName?: "UserLists"
   name: string
+  deleted: boolean
+  isPublic: boolean
   memberIds: Array<string>
   userId: string
   description: EditableFieldContents

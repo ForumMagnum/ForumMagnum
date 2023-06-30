@@ -2,21 +2,9 @@ import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
 import { htmlToText } from "html-to-text";
 import ElasticClient from "./ElasticClient";
 import { collectionNameToConfig, Mappings } from "./ElasticConfig";
-import {
-  AlgoliaIndexCollectionName,
-  algoliaIndexedCollectionNames,
-} from "../../../lib/search/algoliaUtil";
-import {
-  AlgoliaIndexedCollection,
-  AlgoliaIndexedDbObject,
-} from "../utils";
-import {
-  CommentsRepo,
-  PostsRepo,
-  SequencesRepo,
-  TagsRepo,
-  UsersRepo,
-} from "../../repos";
+import { AlgoliaIndexCollectionName, algoliaIndexedCollectionNames } from "../../../lib/search/algoliaUtil";
+import { AlgoliaIndexedCollection, AlgoliaIndexedDbObject } from "../utils";
+import { CommentsRepo, PostsRepo, SequencesRepo, TagsRepo, UsersRepo, UserListsRepo } from "../../repos";
 import { getCollection } from "../../../lib/vulcan-lib/getCollection";
 import Globals from "../../../lib/vulcan-lib/config";
 
@@ -344,6 +332,8 @@ class ElasticExporter {
       return new SequencesRepo();
     case "Tags":
       return new TagsRepo();
+    case "UserLists":
+      return new UserListsRepo();
     default:
       throw new Error("Can't find repo for collection " + collectionName);
     }

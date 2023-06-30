@@ -8,6 +8,19 @@ const schema: SchemaType<DbUserList> = {
     canUpdate: [userOwns],
     canCreate: ['members'],
   },
+  
+  deleted: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userOwns],
+    canCreate: ['members'],
+  },
+  isPublic: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: [userOwns],
+    canCreate: ['members'],
+  },
 
   memberIds: {
     ...arrayOfForeignKeysField({
@@ -33,7 +46,6 @@ const schema: SchemaType<DbUserList> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: true,
     }),
     canRead: ['guests'],
     canCreate: ['members'],

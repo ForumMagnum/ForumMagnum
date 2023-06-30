@@ -7,7 +7,7 @@ import {
 } from '../publicSettings';
 import { userHasElasticsearch } from "../betas";
 
-export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
+export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags", "UserLists"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
 
 export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName): string => {
@@ -19,6 +19,7 @@ export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName):
     case "Users": return ALGOLIA_PREFIX+'users';
     case "Sequences": return ALGOLIA_PREFIX+'sequences';
     case "Tags": return ALGOLIA_PREFIX+'tags';
+    case "UserLists": return ALGOLIA_PREFIX+'userlists';
   }
 }
 

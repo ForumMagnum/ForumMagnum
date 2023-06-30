@@ -340,6 +340,26 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       "deleted",
     ],
   },
+  UserLists: {
+    fields: [
+      "name^3",
+      "description",
+    ],
+    snippet: "description",
+    filters: [
+      {term: {deleted: false}}
+    ],
+    mappings: {
+      name: fullTextMapping,
+      description: fullTextMapping,
+      userId: keywordMapping,
+      memberIds: keywordMapping,
+    },
+    tiebreaker: "createdAt",
+    privateFields: [
+      "deleted", "memberIds",
+    ],
+  },
 };
 
 const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
@@ -349,6 +369,7 @@ const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
     users: "Users",
     sequences: "Sequences",
     tags: "Tags",
+    userLists: "UserLists",
   };
   if (!data[index]) {
     throw new Error("Invalid index name: " + index);

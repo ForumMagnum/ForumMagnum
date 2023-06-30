@@ -117,3 +117,14 @@ interface AlgoliaTag {
   bannerImageId?: string,
   parentTagId?: string,
 }
+
+interface AlgoliaUserList {
+  _id: string,
+  objectID: string,
+  name: string,
+  description: string,
+  deleted: boolean,
+  isPublic: boolean,
+  memberIds: string[],
+  userId: string
+}

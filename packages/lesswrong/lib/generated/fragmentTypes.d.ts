@@ -2317,6 +2317,8 @@ interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
 
 interface UserListsDefaultFragment { // fragment on UserLists
   readonly name: string,
+  readonly deleted: boolean,
+  readonly isPublic: boolean,
   readonly memberIds: Array<string>,
   readonly userId: string,
 }
@@ -2628,7 +2630,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
-  readonly recentKarmaInfo: any,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

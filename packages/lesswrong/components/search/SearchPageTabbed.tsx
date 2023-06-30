@@ -267,6 +267,9 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
+type SearchableCollectionsNotShownOnSearchPage = "UserLists";
+type SearchableCollectionShownOnSearchPage = Exclude<AlgoliaIndexCollectionName,SearchableCollectionsNotShownOnSearchPage>;
+
 const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
@@ -282,8 +285,8 @@ const SearchPageTabbed = ({classes}:{
   const pastYear = useRef(moment().subtract(1, 'years').valueOf())
 
   // initialize the tab & search state from the URL
-  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
-    const contentType = query.contentType as AlgoliaIndexCollectionName
+  const [tab, setTab] = useState<SearchableCollectionShownOnSearchPage>(() => {
+    const contentType = query.contentType as SearchableCollectionShownOnSearchPage;
     return collectionIsAlgoliaIndexed(contentType) ? contentType : 'Posts'
   })
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
@@ -330,7 +333,7 @@ const SearchPageTabbed = ({classes}:{
     })
   }
 
-  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: SearchableCollectionShownOnSearchPage) => {
     setTab(value);
     setSorting(defaultElasticSorting);
     setSearchState({...searchState, contentType: value, page: 1});

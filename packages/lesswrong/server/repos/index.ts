@@ -9,6 +9,7 @@ import PostRelationsRepo from "./PostRelationsRepo";
 import PostsRepo from "./PostsRepo";
 import SequencesRepo from "./SequencesRepo";
 import TagsRepo from "./TagsRepo";
+import UserListsRepo from "./UserListsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
 
@@ -28,6 +29,7 @@ const getAllRepos = () => ({
   posts: new PostsRepo(),
   sequences: new SequencesRepo(),
   tags: new TagsRepo(),
+  userList: new UserListsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
 } as const);
@@ -46,5 +48,6 @@ export {
   TagsRepo,
   UsersRepo,
   VotesRepo,
+  UserListsRepo,
   getAllRepos,
 };
