@@ -8,6 +8,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
 import { isEAForum } from '../../lib/instanceSettings';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -93,6 +94,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: -1,
     marginRight: 4,
+  },
+  interactionWrapper: {
+    display: "inline-block",
   },
   strikethroughTitle: {
     textDecoration: "line-through"
@@ -184,7 +188,9 @@ const PostsTitle = ({
       [classes.strikethroughTitle]: strikethroughTitle
     }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
-        <CuratedIcon hasColor />
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <CuratedIcon hasColor />
+        </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
         {isLink ? <Link to={url}>{title}</Link> : title }
