@@ -8,7 +8,6 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { useCurrentUser } from "../common/withUser";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
