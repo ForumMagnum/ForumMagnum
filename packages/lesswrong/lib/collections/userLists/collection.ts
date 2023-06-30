@@ -4,14 +4,21 @@ import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils'
 import { userOwns } from '../../vulcan-users';
 
-export const UserLists = createCollection({
+export const UserLists: UserListsCollection = createCollection({
   collectionName: 'UserLists',
   typeName: 'UserList',
   collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserLists'),
   logChanges: true,
-  mutations: getDefaultMutations('UserLists'),  
+  mutations: getDefaultMutations('UserLists', {
+    newCheck: (user: DbUser|null, userList: DbUserList|null) => {
+      return !!user;
+    },
+    editCheck: (user: DbUser|null, userList: DbUserList|null) => {
+      return true; // should be handled by field-level permissions
+    },
+  }),
 })
 
 makeEditable({

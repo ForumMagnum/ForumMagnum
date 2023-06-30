@@ -25,7 +25,6 @@ const CreateUserListPage = ({classes}: {
     <SectionTitle title="Create List"/>
     <WrappedSmartForm
       collectionName="UserLists"
-      queryFragment={getFragment("UserListEditFragment")}
       mutationFragment={getFragment("UserListEditFragment")}
       formComponents={{
         FormSubmit: SubmitComponent,

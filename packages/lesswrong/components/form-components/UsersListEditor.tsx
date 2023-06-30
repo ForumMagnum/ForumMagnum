@@ -25,7 +25,7 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UsersListEditor = ({value, path, label, classes}: {
+const FormUsersListEditor = ({value, path, label}: {
   value: string[],
   path: string,
   label: string,
@@ -37,12 +37,25 @@ const UsersListEditor = ({value, path, label, classes}: {
     updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
   
+  return <Components.UsersListEditor label={label} value={value} setValue={setValue}/>
+};
+
+(FormUsersListEditor as any).contextTypes = {
+  updateCurrentValues: PropTypes.func,
+};
+
+const UsersListEditor = ({label, value, setValue, classes}: {
+  label: string,
+  value: string[],
+  setValue: (newValue: string[])=>void,
+  classes: ClassesType,
+}) => {
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
         <Components.UsersSearchAutoComplete
           clickAction={(userId: string) => {
-            updateCurrentValues({[path]: [...value, userId]});
+            setValue([...value, userId]);
           }}
           label={label}
         />
@@ -56,16 +69,15 @@ const UsersListEditor = ({value, path, label, classes}: {
       />
     </div>
   )
-};
+}
 
-(UsersListEditor as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
+const FormUsersListEditorComponent = registerComponent("FormUsersListEditor", FormUsersListEditor);
 const UsersListEditorComponent = registerComponent("UsersListEditor", UsersListEditor, {styles});
 
 declare global {
   interface ComponentTypes {
+    FormUsersListEditor: typeof FormUsersListEditorComponent
     UsersListEditor: typeof UsersListEditorComponent
   }
 }

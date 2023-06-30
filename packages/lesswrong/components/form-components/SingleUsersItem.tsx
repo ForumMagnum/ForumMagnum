@@ -28,7 +28,7 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
   });
 
   if (document && !loading) {
-    return <span className="search-results-users-item users-item">
+    return <span>
       <Chip
         onDelete={() => removeItem(document._id)}
         className={classes.chip}

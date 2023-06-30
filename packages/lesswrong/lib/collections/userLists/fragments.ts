@@ -4,6 +4,7 @@ registerFragment(`
   fragment UserListFragment on UserList {
     _id
     name
+    isPublic
     userId
     description {
       ...RevisionDisplay

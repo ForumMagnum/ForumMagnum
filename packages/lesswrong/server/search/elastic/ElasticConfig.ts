@@ -355,7 +355,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       userId: keywordMapping,
       memberIds: keywordMapping,
     },
-    tiebreaker: "createdAt",
+    tiebreaker: "publicDateMs",
     privateFields: [
       "deleted", "memberIds",
     ],
@@ -369,7 +369,7 @@ const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
     users: "Users",
     sequences: "Sequences",
     tags: "Tags",
-    userLists: "UserLists",
+    userlists: "UserLists",
   };
   if (!data[index]) {
     throw new Error("Invalid index name: " + index);

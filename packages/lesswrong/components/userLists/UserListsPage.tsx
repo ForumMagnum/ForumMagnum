@@ -30,7 +30,7 @@ const UserListsPage = ({classes}: {
     <h2>Lists You Manage</h2>
     {loadingListsOwnedByUser && <Loading/>}
     {listsOwnedByUser?.map((list: UserListFragment) => <UserListListItem key={list._id} userList={list}/>)}
-    <Link to="/userLists/create">Create New</Link>
+    <Link to="/userLists/new">Create New</Link>
 
     <h2>{"Lists You're In"}</h2>
     {loadingListsContainingUser && <Loading/>}

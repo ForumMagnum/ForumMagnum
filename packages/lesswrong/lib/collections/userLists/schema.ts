@@ -1,4 +1,5 @@
 import { arrayOfForeignKeysField, foreignKeyField } from '../../utils/schemaUtils';
+import { schemaDefaultValue } from '../../collectionUtils'
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users';
 
 const schema: SchemaType<DbUserList> = {
@@ -14,12 +15,16 @@ const schema: SchemaType<DbUserList> = {
     canRead: ['guests'],
     canUpdate: [userOwns],
     canCreate: ['members'],
+    optional: true,
+    ...schemaDefaultValue(false),
   },
   isPublic: {
     type: Boolean,
     canRead: ['guests'],
     canUpdate: [userOwns],
     canCreate: ['members'],
+    optional: true,
+    ...schemaDefaultValue(false),
   },
 
   memberIds: {
@@ -29,7 +34,7 @@ const schema: SchemaType<DbUserList> = {
       collectionName: "Users",
       type: "User"
     }),
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     canRead: ['guests'],
     canUpdate: [userOwns],
     canCreate: ['members'],

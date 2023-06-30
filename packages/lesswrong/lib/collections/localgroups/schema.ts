@@ -62,7 +62,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     order: 20,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     label: isEAForum ? "Add organizers" : "Add Organizers",
   },
 

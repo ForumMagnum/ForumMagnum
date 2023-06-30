@@ -70,7 +70,7 @@ const generateMigration = async ({
 
   let contents = "";
   contents += migrationTemplateHeader.replace("%TIMESTAMP%", new Date().toISOString());
-  contents += paddedDiff.length < 1500 ? paddedDiff : ` * ***Diff too large to display***`;
+  contents += paddedDiff.length < 15000 ? paddedDiff : ` * ***Diff too large to display***`;
   contents += migrationTemplateFooter.replace("%HASH%", toAcceptHash);
 
   const fileTimestamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0];

@@ -9,8 +9,8 @@ const UsersSearchAutoComplete = ({clickAction, label}: {
   return <Components.SearchAutoComplete
     indexName={getAlgoliaIndexName("Users")}
     clickAction={clickAction}
-    renderSuggestion={(hit: any) => <Components.UsersAutoCompleteHit document={hit} />}
-    renderInputComponent={(hit: any) => <Components.UsersSearchInput inputProps={hit} />}
+    renderSuggestion={(hit: AlgoliaUser) => <Components.UsersAutoCompleteHit document={hit} />}
+    renderInputComponent={(inputProps: AnyBecauseHard) => <Components.UsersSearchInput inputProps={inputProps} />}
     placeholder={label || "Search for Users"}
     noSearchPlaceholder='User ID'
   />

@@ -703,6 +703,14 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface UserListsDefaultFragment { // fragment on UserLists
+  readonly name: string,
+  readonly deleted: boolean,
+  readonly isPublic: boolean,
+  readonly memberIds: Array<string>,
+  readonly userId: string,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -2315,14 +2323,6 @@ interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
   readonly deleted: boolean,
 }
 
-interface UserListsDefaultFragment { // fragment on UserLists
-  readonly name: string,
-  readonly deleted: boolean,
-  readonly isPublic: boolean,
-  readonly memberIds: Array<string>,
-  readonly userId: string,
-}
-
 interface UserListFragment { // fragment on UserLists
   readonly _id: string,
   readonly name: string,
@@ -3151,6 +3151,7 @@ interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  UserListsDefaultFragment: UserListsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
@@ -3287,7 +3288,6 @@ interface FragmentTypes {
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserMostValuablePostsDefaultFragment: UserMostValuablePostsDefaultFragment
   UserMostValuablePostInfo: UserMostValuablePostInfo
-  UserListsDefaultFragment: UserListsDefaultFragment
   UserListFragment: UserListFragment
   UserListEditFragment: UserListEditFragment
   DigestPostsDefaultFragment: DigestPostsDefaultFragment
@@ -3353,6 +3353,7 @@ interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  UserListsDefaultFragment: "UserLists"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
@@ -3489,7 +3490,6 @@ interface CollectionNamesByFragmentName {
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserMostValuablePostsDefaultFragment: "UserMostValuablePosts"
   UserMostValuablePostInfo: "UserMostValuablePosts"
-  UserListsDefaultFragment: "UserLists"
   UserListFragment: "UserLists"
   UserListEditFragment: "UserLists"
   DigestPostsDefaultFragment: "DigestPosts"
