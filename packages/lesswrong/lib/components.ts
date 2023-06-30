@@ -83,7 +83,8 @@ importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditCommentTitle", () => require('../components/editor/EditCommentTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
-importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
+importComponent("PostSharingSettings", () => require('../components/editor/PostSharingSettings'));
+importComponent("PostSharingSettingsDialog", () => require('../components/editor/PostSharingSettingsDialog'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 
 // Generic dropdown menus and items

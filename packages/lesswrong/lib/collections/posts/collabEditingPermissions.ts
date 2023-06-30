@@ -88,8 +88,14 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
 export interface SharingSettings {
   anyoneWithLinkCan: CollaborativeEditingAccessLevel,
   explicitlySharedUsersCan: CollaborativeEditingAccessLevel,
+  restrictedPublication: boolean,
+  publishToLists: string[],
+  publishToUsers: string[],
 }
 export const defaultSharingSettings: SharingSettings = {
   anyoneWithLinkCan: "none",
   explicitlySharedUsersCan: "comment",
+  restrictedPublication: false,
+  publishToLists: [],
+  publishToUsers: [],
 };

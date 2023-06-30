@@ -2173,18 +2173,6 @@ const schema: SchemaType<DbPost> = {
     hidden: (props) => !!props.debateForm
   },
   
-  onPublishSharingSettings: {
-    type: Object,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
-    optional: true,
-    control: "ShareListEditor",
-    label: "Who Can Read",
-    group: formGroups.options,
-    blackbox: true,
-  },
-  
   shareWithUsers: {
     type: Array,
     order: 15,

@@ -1,18 +1,12 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { userCanUseSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
-import Button from '@material-ui/core/Button';
-import Select from '@material-ui/core/Select';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { moderationEmail } from '../../lib/publicSettings';
-import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -143,133 +137,10 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
 };
 
 
-const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
-  postId: string,
-  // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
-  linkSharingKey?: string,
-  initialSharingSettings: SharingSettings,
-  initialShareWithUsers: string[],
-  onClose: ()=>void,
-  onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
-  classes: ClassesType
-}) => {
-  const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
-  const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
-  const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
-  const [isChanged, setIsChanged] = useState(false);
-  const { flash } = useMessages();
-  
-  const updateSharingSettings = (newSettings: SharingSettings) => {
-    setSharingSettingsState(newSettings);
-    setIsChanged(true);
-  };
-  const updateSharedUsers = (newSharedUsers: string[]) => {
-    setShareWithUsersState(newSharedUsers);
-    setIsChanged(true);
-  };
-  
-  const collabEditorLink = getPostCollaborateUrl(postId, true, linkSharingKey)
-  
-  const commentingTooltip = "(suggest changes requires edit permission)"
-
-  return <LWDialog open={true}>
-    <div className={classes.sharingSettingsDialog}>
-      <h2>Sharing Settings</h2>
-
-      
-      <p>Shared With Users:</p>
-      <EditableUsersList
-        value={shareWithUsers}
-        setValue={(newUsers: string[]) => {
-          updateSharedUsers(newUsers);
-        }}
-        label="Shared with these users"
-      />
-      
-      <div className={classes.sharingPermissionsRow}>
-        <span className={classes.sharingPermissionsLabel}>Explicitly shared users can:</span>
-        <Select
-          className={classes.sharingPermissionsDropdown}
-          value={sharingSettings.explicitlySharedUsersCan}
-          onChange={(e) => {
-            updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
-          }}
-        >
-          <MenuItem value="none">None</MenuItem>
-          <MenuItem value="read">Read</MenuItem>
-          {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
-          <MenuItem value="comment">
-            <LWTooltip placement="right" title={commentingTooltip}>
-              <div className={classes.tooltipWrapped}>Comment</div> 
-            </LWTooltip>
-          </MenuItem>
-          <MenuItem value="edit">Edit</MenuItem>
-        </Select>
-      </div>
-      
-      <div className={classes.sharingPermissionsRow}>
-        <span className={classes.sharingPermissionsLabel}>Anyone with the link can:</span>
-        <Select
-          className={classes.sharingPermissionsDropdown}
-          value={sharingSettings.anyoneWithLinkCan}
-          onChange={(e) => {
-            updateSharingSettings({...sharingSettings, anyoneWithLinkCan: e.target.value as any});
-          }}
-        >
-          <MenuItem value="none">None</MenuItem>
-          <MenuItem  value="read">Read</MenuItem>
-          <MenuItem value="comment">
-            <LWTooltip placement="right" title={commentingTooltip}>
-              <div className={classes.tooltipWrapped}>Comment</div>
-            </LWTooltip>
-          </MenuItem>
-          <MenuItem value="edit">Edit</MenuItem>
-        </Select>
-      </div>
-      
-      <p className={classes.warning}>
-        Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
-        {moderationEmail.get()} if you experience issues
-      </p>
-
-      <div className={classes.buttonRow}>
-        {(sharingSettings.anyoneWithLinkCan!=="none" && postId)
-          ? <CopyToClipboard
-              text={collabEditorLink}
-              onCopy={(text,result) => {
-                flash("Link copied");
-              }}
-            >
-              <Button>Copy link</Button>
-            </CopyToClipboard>
-          : <LWTooltip title="Enable link-sharing permission and confirm sharing settings first">
-              <Button disabled={true}>Copy link</Button>
-            </LWTooltip>
-        }
-        
-        <span className={classes.spacer}/>
-        
-        <Button
-          onClick={()=>onClose()}
-        >
-          Cancel
-        </Button>
-        <Button variant="contained" color="primary"
-          onClick={() => onConfirm(sharingSettings, shareWithUsers, isChanged)}
-        >
-          Confirm
-        </Button>
-      </div>
-    </div>
-  </LWDialog>
-}
-
 const PostSharingSettingsComponent = registerComponent('PostSharingSettings', PostSharingSettings, {styles});
-const PostSharingSettingsDialogComponent = registerComponent('PostSharingSettingsDialog', PostSharingSettingsDialog, {styles});
 
 declare global {
   interface ComponentTypes {
     PostSharingSettings: typeof PostSharingSettingsComponent,
-    PostSharingSettingsDialog: typeof PostSharingSettingsDialogComponent
   }
 }
