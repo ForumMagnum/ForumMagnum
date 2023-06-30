@@ -103,7 +103,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-    alignItems: isEAForum ? 'center' : undefined
+    alignItems: isEAForum ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {

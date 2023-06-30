@@ -3,13 +3,12 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 
@@ -77,6 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchIcon: {
     position: 'fixed',
+    color: isEAForum ? theme.palette.grey[600] : undefined,
     margin: '12px',
   },
   closeSearchIcon: {
@@ -96,7 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .ais-SearchBox-input::placeholder": {
       color: theme.palette.text.invertedBackgroundText3,
     },
-  },  
+  },
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
@@ -160,9 +160,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   }, [currentQuery, captureSearch])
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
-  const { SearchBarResults } = Components
+  const { SearchBarResults, ForumIcon } = Components
 
-  if(!isAlgoliaEnabled()) {
+  if (!isAlgoliaEnabled()) {
     return <div>Search is disabled (Algolia App ID not configured on server)</div>
   }
 
@@ -180,7 +180,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         )}>
           {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <SearchIcon className={classes.searchIcon}/>
+            <ForumIcon icon="Search" className={classes.searchIcon}/>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
              // @ts-ignore */}
