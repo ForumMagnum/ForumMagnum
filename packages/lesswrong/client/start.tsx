@@ -7,10 +7,11 @@ import type { TimeOverride } from '../lib/utils/timeUtil';
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
-import { subscribeToNotifications } from "./serverSentEventsClient";
+import { initServerSentEvents } from "./serverSentEventsClient";
 
 onStartup(() => {
   populateComponentsAppDebug();
+  initServerSentEvents();
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
@@ -45,7 +46,5 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
-  
-  subscribeToNotifications();
 // Order 100 to make this execute last
 }, 100);

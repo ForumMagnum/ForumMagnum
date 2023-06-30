@@ -36,6 +36,7 @@ import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -138,7 +139,8 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "Menu" |
-  "CloseMenu";
+  "CloseMenu" |
+  "QuestionMarkCircle";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -192,6 +194,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -244,6 +247,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
 };
 

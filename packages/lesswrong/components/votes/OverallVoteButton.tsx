@@ -5,7 +5,7 @@ import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 
 export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
-  vote: (props: {
+  vote?: (props: {
     document: T,
     voteType: string|null,
     extendedVote?: any,
@@ -40,9 +40,9 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
       });
     } else {
       if (strength === "neutral") {
-        vote({document, voteType: "neutral", extendedVote: document?.currentUserExtendedVote, currentUser});
+        vote?.({document, voteType: "neutral", extendedVote: document?.currentUserExtendedVote, currentUser});
       } else {
-        vote({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
+        vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
       }
       captureEvent("vote", {collectionName});
     }

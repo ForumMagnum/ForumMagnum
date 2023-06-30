@@ -5,7 +5,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
-import { DigestPost } from './EditDigest';
+import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -71,6 +71,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontWeight: '600'
   },
+  isRead: {
+    color: theme.palette.link.visited,
+  },
   author: {
     color: theme.palette.grey[900],
     fontSize: 13,
@@ -117,6 +120,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   suggestedCurationCol: {
     fontSize: 12,
   },
+  voteCol: {
+    textAlign: 'center',
+    fontSize: 30
+  },
   ratingCol: {
     textAlign: 'center',
     color: theme.palette.text.charsAdded
@@ -129,13 +136,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, classes} : {
-  post: PostsListBase & {rating: number},
+/**
+ * Given a post with a currentUserVote, return the icon representing that vote.
+ */
+const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
+  const { OverallVoteButton } = Components
+  switch (post.currentUserVote) {
+    case 'smallUpvote':
+    case 'bigUpvote':
+      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='secondary' document={post} collectionName='Posts' />
+    case 'smallDownvote':
+    case 'bigDownvote':
+      return <OverallVoteButton enabled={false} upOrDown='Downvote' orientation='down' color='error' document={post} collectionName='Posts' />
+    default:
+      return null
+  }
+}
+
+
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes} : {
+  post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
+  votesVisible: boolean,
   classes: ClassesType
 }) => {
   const {flash} = useMessages()
@@ -193,7 +219,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   const { ForumIcon, LWTooltip } = Components
   
-  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
+  const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   
   return <tr className={classes.row}>
@@ -206,9 +232,13 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       </LWTooltip>
       <div>
         <div>
-          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
+          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(
+            classes.title,
+            classes.link,
+            {[classes.isRead]: post.isRead},
+          )}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}, {post.readTimeMinutes} min{linkpostText})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
@@ -231,6 +261,9 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
 
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
+    </td>
+    <td className={classes.voteCol}>
+      {votesVisible && voteToIcon(post)}
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
