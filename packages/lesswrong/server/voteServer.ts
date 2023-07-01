@@ -11,7 +11,7 @@ import { createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
-import { RECEIVED_VOTING_PATTERN_WARNING } from '../lib/collections/moderatorActions/schema';
+import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/schema';
 import { loadByIds } from '../lib/loaders';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
@@ -265,9 +265,9 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     }
   } else {
     if (!skipRateLimits) {
-      const { showVotingPatternWarning: warn } = await checkVotingRateLimits({ document, collection, voteType, user });
-      if (warn && !(await wasVotingPatternWarningDeliveredRecently(user))) {
-        showVotingPatternWarning = true;
+      const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
+      if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user))) {
+        if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
         void createMutator({
           collection: ModeratorActions,
           context,
@@ -275,7 +275,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
           validate: false,
           document: {
             userId: user._id,
-            type: RECEIVED_VOTING_PATTERN_WARNING,
+            type: moderatorActionType,
             endedAt: new Date()
           }
         });
@@ -336,14 +336,17 @@ interface VotingRateLimitSet {
   perHour: number,
   perUserPerDay: number
 }
+
+// TODO consequences to add, not yet implemented: blockVotingFor24Hours, revertRecentVotes
+type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
+
 interface VotingRateLimit {
   voteCount: number
   /** Must be ≤ than 24 hours */
   periodInMinutes: number
   types: "all"|"onlyStrong"|"onlyDown"
   users: "allUsers"|"singleUser"
-  consequences: ("warningPopup"|"denyThisVote")[]
-  // TODO Consequences to add, not yet implemented: blockVotingFor24Hours, flagForModeration, revertRecentVotes
+  consequences: Consequence[]
   message: string|null
 }
 
@@ -378,6 +381,14 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
       },
       {
         voteCount: 10,
+        periodInMinutes: 2,
+        types: "onlyDown",
+        users: "singleUser",
+        consequences: ["flagForModeration"],
+        message: "too many votes in short succession on content by this author",
+      },
+      {
+        voteCount: 10,
         periodInMinutes: 3,
         types: "all",
         users: "singleUser",
@@ -404,11 +415,11 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   voteType: string,
   user: DbUser
 }): Promise<{
-  showVotingPatternWarning: boolean
+  moderatorActionType?: DbModeratorAction["type"]
 }> => {
   // No rate limit on self-votes
   if(document.userId === user._id)
-    return {showVotingPatternWarning: false};
+    return {};
   
   // Retrieve all non-cancelled votes cast by this user in the past 24 hours
   const oneDayAgo = moment().subtract(1, 'days').toDate();
@@ -423,30 +434,13 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   // limit applies, we take the union of the consequences of exceeding all of
   // them, and use the message from whichever was first in the list.
   let firstExceededRateLimit: VotingRateLimit|null = null;
-  let rateLimitConsequences = new Set<string>();
-  const now = new Date().getTime();
+  let rateLimitConsequences = new Set<Consequence>();
   
   for (const rateLimit of getVotingRateLimits(user)) {
     if (votesInLastDay.length < rateLimit.voteCount)
       continue;
-    
-    const numMatchingVotes = votesInLastDay.filter((vote) => {
-      const ageInMS = now - vote.votedAt.getTime();
-      const ageInMinutes = ageInMS / (1000*60);
-      
-      if (ageInMinutes > rateLimit.periodInMinutes)
-        return false;
-      if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
-        return false;
-      
-      const isStrong = (vote.voteType==="bigDownvote" || vote.voteType==="bigUpvote")
-      const isDown = (vote.voteType==="smallDownvote" || vote.voteType==="bigDownvote");
-      if (rateLimit.types === "onlyStrong" && !isStrong)
-        return false;
-      if (rateLimit.types === "onlyDown" && !isDown)
-        return false;
-      return true;
-    }).length;
+
+    const numMatchingVotes = getRelevantVotes(rateLimit, document, votesInLastDay).length;
     
     if (numMatchingVotes >= rateLimit.voteCount) {
       if (!firstExceededRateLimit) {
@@ -458,11 +452,12 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
     }
   }
   
-  // Was any rate limit was exceeded?
-  let showVotingPatternWarning = false;
+  // Was any rate limit exceeded?
+  let moderatorActionType: DbModeratorAction["type"] | undefined = undefined;
+
   if (firstExceededRateLimit) {
     if (rateLimitConsequences.has("warningPopup")) {
-      showVotingPatternWarning = true;
+      moderatorActionType = RECEIVED_VOTING_PATTERN_WARNING;
     }
     if (rateLimitConsequences.has("denyThisVote")) {
       const message = firstExceededRateLimit.message;
@@ -472,9 +467,34 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
         throw new Error(`Voting rate limit exceeded`);
       }
     }
+    if (rateLimitConsequences.has("flagForModeration")) {
+      moderatorActionType = POTENTIAL_TARGETED_DOWNVOTING;
+    }
   }
   
-  return { showVotingPatternWarning };
+  return { moderatorActionType };
+}
+
+function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, votes: DbVote[]): DbVote[] {
+  const now = new Date().getTime();
+
+  return votes.filter(vote => {
+    const ageInMS = now - vote.votedAt.getTime();
+    const ageInMinutes = ageInMS / (1000 * 60);
+
+    if (ageInMinutes > rateLimit.periodInMinutes)
+      return false;
+    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+      return false;
+
+    const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
+    const isDown = (vote.voteType === "smallDownvote" || vote.voteType === "bigDownvote");
+    if (rateLimit.types === "onlyStrong" && !isStrong)
+      return false;
+    if (rateLimit.types === "onlyDown" && !isDown)
+      return false;
+    return true;
+  })
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {
