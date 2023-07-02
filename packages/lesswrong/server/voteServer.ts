@@ -266,7 +266,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   } else {
     if (!skipRateLimits) {
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
-      if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user))) {
+      if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
         void createMutator({
           collection: ModeratorActions,
@@ -316,10 +316,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   };
 }
 
-async function wasVotingPatternWarningDeliveredRecently(user: DbUser): Promise<boolean> {
+async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorActionType: DbModeratorAction["type"]): Promise<boolean> {
   const mostRecentWarning = await ModeratorActions.findOne({
     userId: user._id,
-    type: RECEIVED_VOTING_PATTERN_WARNING,
+    type: moderatorActionType,
   }, {
     sort: {createdAt: -1}
   });
