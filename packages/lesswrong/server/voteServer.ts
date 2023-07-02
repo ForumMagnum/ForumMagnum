@@ -23,6 +23,7 @@ import { userCanVote } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
+import { isEAForum } from '../lib/instanceSettings';
 
 
 // Test if a user has voted on the server
@@ -268,6 +269,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
+        const endTime = isEAForum ? new Date() : undefined;
         void createMutator({
           collection: ModeratorActions,
           context,
@@ -276,7 +278,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
           document: {
             userId: user._id,
             type: moderatorActionType,
-            endedAt: new Date()
+            endedAt: endTime
           }
         });
       }
@@ -380,7 +382,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: "too many votes today on content by this author",
       },
       {
-        voteCount: 10,
+        voteCount: 9,
         periodInMinutes: 2,
         types: "onlyDown",
         users: "singleUser",
@@ -471,7 +473,7 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
       moderatorActionType = POTENTIAL_TARGETED_DOWNVOTING;
     }
   }
-  
+
   return { moderatorActionType };
 }
 
