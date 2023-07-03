@@ -65,7 +65,12 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
-  const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
+
+  // We used to show this warning to a variety of editor types, but now we only want
+  // to show it to people using the html editor. Converting from markdown to ckEditor
+  // is error prone and we don't want to encourage it. We no longer support draftJS
+  // but some old posts still are using it so we show the warning for them too.
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
@@ -275,17 +280,19 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && (collectionName!=="Tags" || formType==="edit");
   
   const actualPlaceholder = (editorHintText || hintText || placeholder);
-  
+
+  // document isn't necessarily defined. TODO: clean up rest of file
+  // to not rely on document
   if (!document) return null;
-  
+    
   return <div className={classes.root}>
     {showEditorWarning &&
-    <Components.LastEditedInWarning
-      initialType={initialEditorType}
-      currentType={contents.type}
-      defaultType={defaultEditorType}
-      value={contents} setValue={wrappedSetContents}
-    />
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}

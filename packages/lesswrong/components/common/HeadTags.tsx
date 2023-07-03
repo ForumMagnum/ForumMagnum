@@ -10,7 +10,16 @@ export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl',
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
-const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description: descriptionProp, title: titleProp, image, useSmallImage=false, noIndex}: {
+const HeadTags = ({
+  ogUrl: ogUrlProp,
+  canonicalUrl: canonicalUrlProp,
+  description: descriptionProp,
+  title: titleProp,
+  image,
+  useSmallImage=false,
+  noIndex,
+  structuredData
+}: {
   ogUrl?: string,
   canonicalUrl?: string,
   description?: string|null,
@@ -18,6 +27,7 @@ const HeadTags = ({ogUrl: ogUrlProp, canonicalUrl: canonicalUrlProp, description
   image?: string|null,
   useSmallImage?: boolean,
   noIndex?: boolean,
+  structuredData?: Record<string, AnyBecauseHard>,
 }) => {
     const { currentRoute, pathname } = useSubscribedLocation();
     // The default url we want to use for our cannonical and og:url tags uses

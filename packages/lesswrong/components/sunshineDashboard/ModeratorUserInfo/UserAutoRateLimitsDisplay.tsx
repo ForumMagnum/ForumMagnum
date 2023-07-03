@@ -52,9 +52,9 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
   return <div>
     <div>Recent Downvoters</div>
     <div><em>{user.recentKarmaInfo.downvoterCount} downvoters from last 20 posts/comments</em></div>
+    <div><em>{user.recentKarmaInfo.lastMonthDownvoterCount} downvoters in the last month</em></div>
     <div><em>{user.recentKarmaInfo.postDownvoterCount} downvoters on last 20 posts</em></div>
     <div><em>{user.recentKarmaInfo.commentDownvoterCount} downvoters on last 20 comments</em></div>
-    <div><em>{user.recentKarmaInfo.lastMonthDownvoterCount} downvoters on last 20 comments</em></div>
   </div>
 }
 

@@ -23,8 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "block"
   },
   scoreTitleFormat: {
-    width: 20,
-    display: "inline-block"
+    width: 30,
+    marginRight: 8,
+    display: "inline-block",
+    textAlign: "center"
   },
   highlight: {
     color: theme.palette.primary.main,
@@ -40,11 +42,14 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, PostsPreviewTooltip, MetaInfo } = Components
+  const { LWPopper, PostsPreviewTooltip, FormatDate } = Components
 
   return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
     <Link className={classNames({[classes.highlight]: post.postedAt > reviewedAt, [classes.draft]: post.draft, [classes.default]: !post.draft})}
       to={postGetPageUrl(post)}>
+      {displayTitle && <span className={classes.scoreTitleFormat}>
+        <FormatDate date={post.postedAt} />
+      </span>}
       <span className={displayTitle ? classes.scoreTitleFormat : null}>
         {post.baseScore} 
       </span>
