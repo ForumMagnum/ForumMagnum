@@ -87,6 +87,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  main: {
+    width: "100%",
+  }
 });
 
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
