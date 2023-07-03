@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     marginTop: 0,
     ...(isEAForum
-      ? {textTransform: "uppercase"}
+      ? {textTransform: "capitalize"}
       : theme.typography.smallCaps),
   },
   description: {
