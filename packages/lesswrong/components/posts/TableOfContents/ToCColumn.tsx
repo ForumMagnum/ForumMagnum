@@ -34,8 +34,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ....... .... ..."
-        "... toc gap1 content gap2 welcome gap3 ..."
+        "... ... .... title   .... ... .... ..."
+        "... toc gap1 content gap2 rhs gap3 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -107,11 +107,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
   gap3: { gridArea: 'gap3' },
-  welcomeBox: {
-    gridArea: 'welcome',
+  rhs: {
+    gridArea: 'rhs',
+  },
+  rhsHideMediumDown: {
     [theme.breakpoints.down('md')]: {
-      display: 'none'
-    }
+      display: 'none',
+    },
   },
   hideTocButton: {
     position: "fixed",
@@ -136,12 +138,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
+export const ToCColumn = ({
+  tableOfContents,
+  header,
+  welcomeBox,
+  rhsRecommendations,
+  children,
+  classes,
+}: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
+  welcomeBox?: React.ReactNode,
+  rhsRecommendations?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
-  welcomeBox?: React.ReactNode,
 }) => {
   const {sideCommentsActive} = useContext(SidebarsContext)!;
   const [isScrolled, setIsScrolled] = useState(false);
@@ -158,7 +168,7 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents || !!welcomeBox,
+        [classes.tocActivated]: !!tableOfContents || !!welcomeBox || !!rhsRecommendations,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
@@ -194,9 +204,14 @@ export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classe
       {!hidden &&
         <>
           <div className={classes.gap2}/>
-          {welcomeBox && <div className={classes.welcomeBox}>
-            {welcomeBox}
-          </div>}
+          {welcomeBox || rhsRecommendations &&
+            <div className={classNames(classes.rhs, {
+              [classes.rhsHideMediumDown]: welcomeBox,
+            })}>
+              {welcomeBox}
+              {rhsRecommendations}
+            </div>
+          }
           <div className={classes.gap3}/>
         </>
       }

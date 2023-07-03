@@ -436,6 +436,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       tableOfContents={tableOfContents}
       header={header}
       welcomeBox={welcomeBox}
+      rhsRecommendations={showRecommendations
+        ? <PostSideRecommendations post={post} />
+        : undefined
+      }
     >
       <div ref={postBodyRef} className={classes.centralColumn}>
         {/* Body */}
@@ -457,15 +461,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
                   post={post}
                   html={htmlWithAnchors}
                   sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-                  SideComponent={showRecommendations
-                    ? ({className}: {className: string}) => (
-                      <PostSideRecommendations
-                        post={post}
-                        className={className}
-                      />
-                    )
-                    : undefined
-                  }
                 />
               }
             </CommentOnSelectionContentWrapper>

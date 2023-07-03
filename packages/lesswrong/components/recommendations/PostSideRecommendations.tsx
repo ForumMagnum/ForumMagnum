@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     width: WIDTH,
     minWidth: WIDTH,
     maxWidth: WIDTH,
-    ["@media (max-width: 1500px)"]: {
+    ["@media (max-width: 1250px)"]: {
       display: "none",
     },
   },
@@ -31,6 +31,9 @@ const styles = (theme: ThemeType) => ({
       fontSize: 13,
       fontWeight: 500,
       marginBottom: 4,
+    },
+    "& a": {
+      color: theme.palette.primary.main,
     },
   },
   numberedList: {
