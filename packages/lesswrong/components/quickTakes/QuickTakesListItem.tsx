@@ -2,7 +2,15 @@ import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useTracking } from "../../lib/analyticsEvents";
 
-const QuickTakesListItem = ({quickTake}: {
+const styles = (_theme: ThemeType) => ({
+  expandedRoot: {
+    "& .comments-node-root": {
+      marginBottom: 8,
+    },
+  },
+});
+
+const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,
   classes: ClassesType,
 }) => {
@@ -16,15 +24,17 @@ const QuickTakesListItem = ({quickTake}: {
   const {CommentsNode, QuickTakesCollapsedListItem} = Components;
   return expanded
     ? (
-      <CommentsNode
-        treeOptions={{
-          post: quickTake.post ?? undefined,
-          showCollapseButtons: true,
-          onToggleCollapsed: () => wrappedSetExpanded(!expanded),
-        }}
-        comment={quickTake}
-        loadChildrenSeparately
-      />
+      <div className={classes.expandedRoot}>
+        <CommentsNode
+          treeOptions={{
+            post: quickTake.post ?? undefined,
+            showCollapseButtons: true,
+            onToggleCollapsed: () => wrappedSetExpanded(!expanded),
+          }}
+          comment={quickTake}
+          loadChildrenSeparately
+        />
+      </div>
     )
     : (
       <QuickTakesCollapsedListItem
@@ -37,6 +47,7 @@ const QuickTakesListItem = ({quickTake}: {
 const QuickTakesListItemComponent = registerComponent(
   "QuickTakesListItem",
   QuickTakesListItem,
+  {styles},
 );
 
 declare global {
