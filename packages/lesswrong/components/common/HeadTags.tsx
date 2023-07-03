@@ -79,11 +79,6 @@ const HeadTags = ({
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
-
-          {/* See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data */}
-          {structuredData && <script type="application/ld+json">
-            {JSON.stringify(structuredData)}
-          </script>}
         </Helmet>
       </React.Fragment>
     );
