@@ -62,9 +62,6 @@ const styles = (theme: ThemeType) => ({
     "& svg": {
       height: 14,
     },
-    "&:hover": {
-      color: theme.palette.grey[1000],
-    },
   },
   menu: {
     color: theme.palette.grey[600],
@@ -164,10 +161,10 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
           </InteractionWrapper>
         }
         <div className={classes.grow} />
-        <InteractionWrapper href={commentsUrl} className={classes.commentCount}>
+        <div className={classes.commentCount}>
           <ForumIcon icon="Comment" />
           {commentCount}
-        </InteractionWrapper>
+        </div>
         <div>
           <InteractionWrapper>
             <AnalyticsContext pageElementContext="tripleDotMenu">
