@@ -99,6 +99,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
+  audioNewFeaturePulse: {
+    top: PODCAST_ICON_PADDING * 1.5,
+  },
   audioIconOn: {
     background: theme.palette.grey[200],
     borderRadius: theme.borderRadius.small
@@ -122,6 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body1.fontSize,
   },
   feedName: {
+    fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -307,7 +311,13 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     </a>
   </LWTooltip>
   const audioNode = toggleEmbeddedPlayer && (
-    cachedTooltipSeen ? audioIcon : <NewFeaturePulse dx={-10} dy={4}>{audioIcon}</NewFeaturePulse>
+    cachedTooltipSeen
+      ? audioIcon
+      : (
+        <NewFeaturePulse className={classes.audioNewFeaturePulse}>
+          {audioIcon}
+        </NewFeaturePulse>
+      )
   )
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>

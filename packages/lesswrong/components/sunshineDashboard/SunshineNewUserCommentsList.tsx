@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import _filter from 'lodash/filter';
-import { RejectContentButton } from './RejectContentButton';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,10 +39,10 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   return (
     <div className={classes.root}>
       {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={`sunshine-new-user-${comment._id}`}>
-        <div className={classes.rejection}>
+        {isLWorAF && <div className={classes.rejection}>
           {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
           <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
-        </div>
+        </div>}
         <CommentsNode 
           treeOptions={{
             condensed: false,

@@ -1,7 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     position: 'relative',
   },
@@ -14,7 +15,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const NewFeaturePulse = ({classes, children, dx=0, dy=0, width=50, height=50}: {
+const NewFeaturePulse = ({
+  className,
+  classes,
+  children,
+  dx=0,
+  dy=0,
+  width=50,
+  height=50,
+}: {
+  className?: string,
   classes: ClassesType,
   children: React.ReactNode,
   dx?: number;
@@ -22,7 +32,7 @@ const NewFeaturePulse = ({classes, children, dx=0, dy=0, width=50, height=50}: {
   width?: number;
   height?: number;
 }) => { 
-  return <span className={classes.root}>
+  return <span className={classNames(classes.root, className)}>
     <span className={classes.pulse}>
       <svg style={{ position: 'relative', left: dx, top: dy }} width={width} height={height} viewBox={`-50 -50 100 100`}pointerEvents="none" xmlns="http://www.w3.org/2000/svg">
         <circle id="circle" cx="0" cy="0" fill="none" opacity="0" r="10" stroke="#0c869b" strokeWidth="4">
