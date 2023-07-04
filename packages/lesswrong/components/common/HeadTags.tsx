@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
-import { toEmbeddableJson } from '../../server/vulcan-lib/apollo-ssr/renderUtil';
+import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
