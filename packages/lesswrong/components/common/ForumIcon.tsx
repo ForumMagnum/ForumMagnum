@@ -64,6 +64,7 @@ import MuiCheckIcon from "@material-ui/icons/Check";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
+import MuiMenuIcon from "@material-ui/icons/Menu";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -81,6 +82,8 @@ import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
+import { MenuIcon } from "../icons/menuIcon";
+import { CloseMenuIcon } from "../icons/closeMenuIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -138,7 +141,9 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
-  "Search";
+  "Search" |
+  "Menu" |
+  "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -192,6 +197,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     Search: MuiSearchIcon,
+    Menu: MuiMenuIcon,
+    CloseMenu: CloseMenuIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -244,6 +251,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     Search: SearchIcon,
+    Menu: MenuIcon,
+    CloseMenu: CloseMenuIcon,
   },
 };
 

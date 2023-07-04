@@ -6,7 +6,6 @@ import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
@@ -149,8 +148,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
+  sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
@@ -221,7 +221,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <MenuIcon />
+                <ForumIcon icon="Menu" />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -247,7 +247,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <MenuIcon/>
+            <ForumIcon icon="Menu" />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -259,7 +259,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        <MenuIcon />
+        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
@@ -268,7 +268,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
   } = Components;
   
   const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown

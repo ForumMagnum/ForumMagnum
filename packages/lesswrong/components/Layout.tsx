@@ -316,6 +316,7 @@ const Layout = ({currentUser, children, classes}: {
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
+                sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
