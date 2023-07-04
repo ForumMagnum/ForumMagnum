@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
+import { isEAForum } from '../../lib/instanceSettings';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useHover } from '../common/withHover';
@@ -17,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postLink: {
     float:"right",
     marginRight: theme.spacing.unit,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   titleRow: {
     textOverflow: "ellipsis",

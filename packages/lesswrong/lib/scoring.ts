@@ -1,4 +1,4 @@
-import { calculateActivityFactor } from '../server/useractivities/utils';
+import { calculateActivityFactor } from './collections/useractivities/utils';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
