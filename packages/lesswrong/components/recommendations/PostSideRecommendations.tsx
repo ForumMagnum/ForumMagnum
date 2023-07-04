@@ -11,6 +11,7 @@ const WIDTH = 250;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    marginTop: "100vh",
     width: WIDTH,
     minWidth: WIDTH,
     maxWidth: WIDTH,
