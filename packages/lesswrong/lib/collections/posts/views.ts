@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
+import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import { combineIndexWithDefaultViewIndex, ensureIndex, ensureCustomPgIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
@@ -13,7 +13,6 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
-import { getABTestsMetadata, getUserABTestGroup } from '../../abTestImpl';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000

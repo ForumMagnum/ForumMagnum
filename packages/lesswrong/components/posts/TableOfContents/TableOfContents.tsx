@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import type { ToCData } from '../../../server/tableOfContents';
+import type { ToCData } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
 
 const styles = (theme: ThemeType): JssStyles => ({

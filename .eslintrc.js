@@ -82,6 +82,28 @@ module.exports = {
     "import/extensions": 0,
     "import/no-cycle": 1,
     "import/no-mutable-exports": 1,
+    "import/no-restricted-paths": ["error", {"zones": [
+      {
+        target: "packages/lesswrong/components",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into components - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/lib",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into lib - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/client",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into client - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/themes",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into themes - move the shared code into lib",
+      },
+    ]}],
     "no-restricted-imports": ["error", {"paths": [
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
       { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },

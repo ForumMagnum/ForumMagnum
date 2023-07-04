@@ -1,15 +1,7 @@
-import { isAnyTest, isMigrations } from '../lib/executionEnvironment';
+import { CommandLineArguments, isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 
-export interface CommandLineArguments {
-  mongoUrl: string
-  postgresUrl: string
-  postgresReadUrl: string
-  settingsFileName: string
-  shellMode: boolean,
-  command?: string,
-}
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {

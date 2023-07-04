@@ -1,7 +1,7 @@
 import { onStartup } from '../../lib/executionEnvironment';
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { Posts } from '../../lib/collections/posts';
-import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries, timeSeriesIndexExpr } from './cache';
+import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries, timeSeriesIndexExpr } from '../../lib/collections/posts/karmaInflation';
 import { addCronJob } from '../cronUtil';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { Vulcan } from '../vulcan-lib';
