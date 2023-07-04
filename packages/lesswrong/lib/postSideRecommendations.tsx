@@ -128,7 +128,7 @@ const useNewAndUpvotedInTagRecommendations: RecommendationsGenerator = (
   if (!tag) {
     throw new Error("Couldn't choose recommendation tag");
   }
-  return useGeneratorWithStrategy(`New & upvoted in ${tag.name}`, {
+  return useGeneratorWithStrategy(`More in ${tag.name}`, {
     name: "newAndUpvotedInTag",
     postId: post._id,
     tagId: tag._id,
