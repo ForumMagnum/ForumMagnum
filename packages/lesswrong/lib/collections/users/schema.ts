@@ -648,6 +648,7 @@ const schema: SchemaType<DbUser> = {
     allowedValues: ['listView', 'gridView'],
     ...schemaDefaultValue('listView'),
     defaultValue: "listView",
+    hidden: isEAForum,
     control: "select",
     form: {
       options: function () { // options for the select form control
