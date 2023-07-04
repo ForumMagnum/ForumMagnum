@@ -35,7 +35,7 @@ const IntercomFeedbackButton = ({
     // eslint-disable-next-line babel/new-cap
     window.Intercom("trackEvent", eventName);
     captureEvent(eventName);
-  }, [])
+  }, [eventName, captureEvent]);
   return (
     <LWTooltip title={
       currentUser?.hideIntercom

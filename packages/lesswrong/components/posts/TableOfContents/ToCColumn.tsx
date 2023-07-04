@@ -221,7 +221,7 @@ export const ToCColumn = ({
       {!hidden &&
         <>
           <div className={classes.gap2}/>
-          {welcomeBox || rhsRecommendations &&
+          {(welcomeBox || rhsRecommendations) &&
             <div className={classNames(classes.rhs, {
               [classes.rhsHideMediumDown]: welcomeBox,
             })}>
