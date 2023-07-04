@@ -138,6 +138,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const shouldHideToggleContentsButton = () => {
+  const {scrollY, innerHeight} = window;
+  const scrollEnd = document.body.scrollHeight - innerHeight;
+  // We hide the button when:
+  //  - scrolled to 0 to prevent showing the button above the page header when
+  //    scrolling up quickly
+  //  - scrolled all the way to the end of the page to prevent the button
+  //    colliding with the table of contents
+  return scrollY > 0 && scrollY < scrollEnd * 0.99;
+}
+
 export const ToCColumn = ({
   tableOfContents,
   header,
@@ -154,12 +165,16 @@ export const ToCColumn = ({
   classes: ClassesType,
 }) => {
   const {sideCommentsActive} = useContext(SidebarsContext)!;
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [hideTocButtonHidden, setHideTocButtonHidden] = useState(
+    shouldHideToggleContentsButton,
+  );
   const [hidden, setHidden] = useState(false);
   const hideable = isEAForum;
 
   useEffect(() => {
-    const handler = () => setIsScrolled(window.scrollY > 0);
+    const handler = () => setHideTocButtonHidden(
+      shouldHideToggleContentsButton(),
+    );
     window.addEventListener("scroll", handler);
     () => window.removeEventListener("scroll", handler);
   });
@@ -168,7 +183,9 @@ export const ToCColumn = ({
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents || !!welcomeBox || !!rhsRecommendations,
+        [classes.tocActivated]: !!tableOfContents ||
+          !!welcomeBox ||
+          !!rhsRecommendations,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
@@ -176,7 +193,7 @@ export const ToCColumn = ({
         <div
           onClick={() => setHidden(!hidden)}
           className={classNames(classes.hideTocButton, {
-            [classes.hideTocButtonHidden]: !isScrolled,
+            [classes.hideTocButtonHidden]: !hideTocButtonHidden,
           })}
         >
           <Components.ForumIcon icon="ListBullet" />
