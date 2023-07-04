@@ -185,6 +185,7 @@ importComponent("SectionTitle", () => require('../components/common/SectionTitle
 importComponent("ExpandableSection", () => require('../components/common/ExpandableSection'));
 importComponent("InlineSelect", () => require('../components/common/InlineSelect'));
 importComponent("IntercomWrapper", () => require('../components/common/IntercomWrapper'));
+importComponent("IntercomFeedbackButton", () => require('../components/common/IntercomFeedbackButton'));
 importComponent("SectionSubtitle", () => require('../components/common/SectionSubtitle'));
 importComponent("SubSection", () => require('../components/common/SubSection'));
 importComponent("SectionFooter", () => require('../components/common/SectionFooter'));
