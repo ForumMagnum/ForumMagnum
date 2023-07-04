@@ -141,7 +141,12 @@ const UsersMenu = ({classes}: {
                 />
               }
             </div>
-            {showNewButtons && userCanComment(currentUser) &&
+            {/*
+              * This is currently disabled for unreviewed users on the EA forum
+              * as there's issues with the new quick takes entry for such users.
+              * Long-term, we should fix these issues and reenable this option.
+              */}
+            {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
               <DropdownItem
                 title={isEAForum ? "New Quick take" : "New Shortform"}
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
