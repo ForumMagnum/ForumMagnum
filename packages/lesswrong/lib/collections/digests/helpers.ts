@@ -4,6 +4,7 @@ import { SettingsOption } from "../posts/dropdownOptions"
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils"
 import { DIGEST_STATUSES } from "../digestPosts/schema"
 import type { DigestPost } from "../../../components/ea-forum/digest/EditDigest"
+import { isPostWithForeignId } from "../../../components/hooks/useForeignCrosspost"
 
 export const DIGEST_STATUS_OPTIONS = new TupleSet([...DIGEST_STATUSES, 'pending'] as const)
 export type InDigestStatusOption = UnionOf<typeof DIGEST_STATUS_OPTIONS>
@@ -42,10 +43,11 @@ export const getPostAuthors = (post: PostsListBase) => {
  *
  * <post title as link> (<post authors>, <read time> min)
  */
-export const getEmailDigestPostData = (post: PostsListBase) => {
+export const getEmailDigestPostData = (post: PostsListWithVotes) => {
   const url = combineUrls(getSiteUrl(), `/posts/${post._id}/${post.slug}`)
+  const readTimeText = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
   const linkpostText = post.url ? ', link-post' : ''
-  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}, ${post.readTimeMinutes} min${linkpostText})`
+  return `<a href="${url}">${post.title}</a> (${getPostAuthors(post)}${readTimeText}${linkpostText})`
 }
 
 /**
@@ -54,7 +56,7 @@ export const getEmailDigestPostData = (post: PostsListBase) => {
  * 1. <post title as link> (<post authors>, <read time> min)
  * 2. ...
  */
-export const getEmailDigestPostListData = (posts: PostsListBase[]) => {
+export const getEmailDigestPostListData = (posts: PostsListWithVotes[]) => {
   const digestData = posts.reduce((prev, next) => {
     return `${prev}<li>${getEmailDigestPostData(next)}</li>`
   }, '')
