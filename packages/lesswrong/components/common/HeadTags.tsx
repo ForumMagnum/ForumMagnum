@@ -4,6 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
 
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
@@ -35,7 +36,7 @@ const HeadTags = ({
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
     const ogUrl = ogUrlProp || url
     const canonicalUrl = canonicalUrlProp || url
-    const description = descriptionProp || currentRoute.description || taglineSetting.get()
+    const description = descriptionProp || currentRoute?.description || taglineSetting.get()
 
     const tabLongTitle = tabLongTitleSetting.get() || tabTitleSetting.get()
     const tabShortTitle = tabTitleSetting.get() || tabLongTitle
@@ -79,6 +80,11 @@ const HeadTags = ({
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
+
+          {/* See https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data */}
+          {structuredData && <script type="application/ld+json">
+            {toEmbeddableJson(structuredData)}
+          </script>}
         </Helmet>
       </React.Fragment>
     );

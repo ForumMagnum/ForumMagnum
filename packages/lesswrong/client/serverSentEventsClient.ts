@@ -1,5 +1,8 @@
 import { serverSentEventsAPI, onServerSentNotificationEvent } from "../components/hooks/useUnreadNotifications";
 
+const notificationEventsApiVersion = 2;
+
+let serverRequestedStop = false;
 let serverSentEventsActive = false;
 let serverSentEventSource: EventSource|null = null;
 let reconnectPending = false;
@@ -30,7 +33,7 @@ function disconnectServerSentEvents() {
 function connectServerSentEvents() {
   reconnectPending = false;
   
-  if (!serverSentEventsActive) {
+  if (!serverSentEventsActive || serverRequestedStop) {
     return;
   }
 
@@ -45,7 +48,7 @@ function connectServerSentEvents() {
   }
   // eslint-disable-next-line no-console
   console.log("Connecting to server-sent events");
-  serverSentEventSource = new EventSource("/api/notificationEvents");
+  serverSentEventSource = new EventSource(`/api/notificationEvents?version=${notificationEventsApiVersion}`);
 
   serverSentEventSource.onerror = (errorEvent) => {
     // eslint-disable-next-line no-console
@@ -60,6 +63,14 @@ function connectServerSentEvents() {
     }
   }
   serverSentEventSource.onmessage = (event) => {
-    onServerSentNotificationEvent(event.data);
+    const parsedEventData = JSON.parse(event.data);
+    if (parsedEventData?.stop) {
+      // eslint-disable-next-line no-console
+      console.log("Stopping server-sent events");
+      serverRequestedStop = true;
+      disconnectServerSentEvents();
+    } else {
+      onServerSentNotificationEvent(event.data);
+    }
   }
 }

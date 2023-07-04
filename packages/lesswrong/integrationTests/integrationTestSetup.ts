@@ -13,7 +13,7 @@ import {
   preparePgTables,
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
-} from '../lib/sql/tests/testingSqlClient';
+} from '../server/testingSqlClient';
 import { isEAForum } from '../lib/instanceSettings';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used

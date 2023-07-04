@@ -12,28 +12,7 @@ import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-
-export interface ToCAnswer {
-  baseScore: number,
-  voteCount: number,
-  postedAt: Date | string, // Date on server, string on client
-  author: string,
-  highlight: string, 
-  shortHighlight: string,
-} 
-
-export interface ToCSection {
-  title?: string
-  answer?: ToCAnswer
-  anchor: string
-  level: number
-  divider?: boolean,
-}
-export interface ToCData {
-  html: string|null
-  sections: ToCSection[]
-  headingsCount: number
-}
+import type { ToCData, ToCSection } from '../lib/tableOfContents';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
