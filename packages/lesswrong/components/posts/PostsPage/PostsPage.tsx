@@ -14,7 +14,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postRecsPositionABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -398,6 +398,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.debate &&
     !post.isEvent &&
     !sequenceId;
+  const recommendationsPosition = useABTest(postRecsPositionABTest);
 
   const commentId = query.commentId || params.commentId
 
@@ -509,7 +510,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       tableOfContents={tableOfContents}
       header={header}
       welcomeBox={welcomeBox}
-      rhsRecommendations={showRecommendations
+      rhsRecommendations={showRecommendations && recommendationsPosition === "right"
         ? <PostSideRecommendations post={post} />
         : undefined
       }
@@ -549,7 +550,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
-      {showRecommendations &&
+      {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
           <div className={classes.recommendations}>
             <PostsPageRecommendationsList
