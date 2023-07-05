@@ -1,6 +1,6 @@
 import { Globals } from "../vulcan-lib";
 import { Posts } from "../../lib/collections/posts";
-import { getKarmaInflationSeries } from "../karmaInflation/cache";
+import { getKarmaInflationSeries } from "../../lib/collections/posts/karmaInflation";
 import { buildInflationAdjustedField } from "../../lib/collections/posts/views";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import fs from 'fs';
