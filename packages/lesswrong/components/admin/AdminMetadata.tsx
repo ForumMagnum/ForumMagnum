@@ -26,16 +26,13 @@ const AdminMetadata = ({ classes }: { classes: ClassesType }) => {
     return <Components.Loading/>
   
   const adminMetadata = JSON.parse(data.AdminMetadata);
-  const {missingIndexes, extraIndexes, serverInfo} = adminMetadata;
+  const {serverInfo} = adminMetadata;
   
-  return (<div>
-    <h3>Server Information</h3>
-    <ul>
-      {Object.keys(serverInfo).map(key => <li key={key}>
-        {key}: {typeof serverInfo[key]==="string" ? serverInfo[key] : JSON.stringify(serverInfo[key])}
-      </li>)}
-    </ul>
-  </div>);
+  return <ul>
+    {Object.keys(serverInfo).map(key => <li key={key}>
+      {key}: {typeof serverInfo[key]==="string" ? serverInfo[key] : JSON.stringify(serverInfo[key])}
+    </li>)}
+  </ul>
 }
 
 const AdminMetadataComponent = registerComponent('AdminMetadata', AdminMetadata, {styles});
