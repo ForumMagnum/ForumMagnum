@@ -4,10 +4,11 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '../../lib/crud/withMulti';
 import { useLocation } from '../../lib/routeUtil';
 // import page
-import { Previewer } from 'pagedjs';
+import { postBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...postBodyStyles(theme),
     '& h1': {
       fontSize: '3rem',
       marginTop: '3rem',
@@ -51,55 +52,95 @@ export const FullCollectionReadPage = ({classes}: {
     fragmentName: 'CollectionsPageFragment',
   });
 
-  const contentRef = useRef(null);
+  // const contentRef = useRef(null);
 
-  useEffect(() => {
-    const contentElement = contentRef.current;
+  // // useEffect(() => {
+  // //   const contentElement = contentRef.current;
 
-    if (contentElement) {
-      const pagedInstance = new paged.Paged(); // Create a new Paged.js instance
+  // //   if (contentElement) {
+  // //     const pagedInstance = new paged.Paged(); // Create a new Paged.js instance
 
-      pagedInstance.preview(contentElement); // Generate the pagination
+  // //     pagedInstance.preview(contentElement); // Generate the pagination
 
-      return () => {
-        pagedInstance.destroy(); // Cleanup Paged.js instance when component unmounts
-      };
-    }
-  }, []);
+  // //     return () => {
+  // //       pagedInstance.destroy(); // Cleanup Paged.js instance when component unmounts
+  // //     };
+  // //   }
+  // // }, []);
   
-  return <div className={classes.root} ref={contentRef}>
-      <SingleColumnSection>
-        {loading && <Loading />}
-        {results && <div>
-          <h1>{results[0].title}</h1>
-          {results[0].books.map(book => {
-            return <div key={book._id}>
-              <h1>{book.title}</h1>
-              {book.sequences.map(sequence => {
-                return <div key={sequence._id}>
-                  <h2>{sequence.title}</h2>
-                  {sequence.chapters.map(chapter => {
-                    return <div key={chapter._id}>
-                      <h3>{chapter.title}</h3>
-                      {chapter.posts.map(post => {
-                        return <div key={post._id}>
-                          <h4>{post.title}</h4>
-                          <ContentStyles contentType="post">
-                            <ContentItemBody
-                              dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight || ""}}
-                            />
-                          </ContentStyles>
-                        </div>
-                      })}
-                    </div>
+  if (!results) return null
+
+  const html = `
+    <div>
+      <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+      <h1>${results[0].title}</h1>
+      ${results[0].books.map(book => {
+        return `
+          <div>
+            <h1>${book.title}</h1>
+            ${book.sequences.map(sequence => {
+              return `
+                <div>
+                  <h2>${sequence.title}</h2>
+                  ${sequence.chapters.map(chapter => {
+                    return `
+                      <div>
+                        <h3>${chapter.title}</h3>
+                        ${chapter.posts.map(post => {
+                          return `
+                            <div>
+                              <h4>${post.title}</h4>
+                              <div>
+                                ${post.contents?.htmlHighlight}
+                              </div>
+                            </div>
+                          `
+                        })}
+                      </div>
+                    `
                   })}
                 </div>
-              })}
-            </div>
-          })}
-        </div>}
-      </SingleColumnSection>;
-    </div>
+              `
+            })}
+          </div>
+        `
+      })}
+  `
+  return <div className={classes.root} dangerouslySetInnerHTML={{__html: html}}/>
+
+  // return <div className={classes.root} ref={contentRef}>
+  //     <SingleColumnSection>
+  //       {loading && <Loading />}
+  //       {results && <div>
+  //         <h1>{results[0].title}</h1>
+  //         {results[0].books.map(book => {
+  //           return <div key={book._id}>
+  //             <h1>{book.title}</h1>
+  //             {book.sequences.map(sequence => {
+  //               return <div key={sequence._id}>
+  //                 <h2>{sequence.title}</h2>
+  //                 {sequence.chapters.map(chapter => {
+  //                   return <div key={chapter._id}>
+  //                     <h3>{chapter.title}</h3>
+  //                     {chapter.posts.map(post => {
+  //                       return <div key={post._id}>
+  //                         <h4>{post.title}</h4>
+  //                         <ContentStyles contentType="post">
+  //                           <ContentItemBody
+  //                             dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight || ""}}
+  //                           />
+  //                         </ContentStyles>
+  //                       </div>
+  //                     })}
+  //                   </div>
+  //                 })}
+  //               </div>
+  //             })}
+  //           </div>
+  //         })}
+  //       </div>}
+  //     </SingleColumnSection>;
+  //   </div>
 }
 
 const FullCollectionReadPageComponent = registerComponent('FullCollectionReadPage', FullCollectionReadPage, {styles});
