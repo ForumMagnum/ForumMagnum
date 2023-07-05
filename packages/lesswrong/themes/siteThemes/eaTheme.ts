@@ -243,17 +243,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             padding: ".7rem",
           }
         },
-        Header: {
-          appBar: {
-            padding: '1px 20px',
-            [defaultTheme.breakpoints.down('sm')]: {
-              padding: '1px 11px',
-            },
-            [defaultTheme.breakpoints.down('xs')]: {
-              padding: '9px 11px',
-            },
-          },
-        },
         MetaInfo: {
           root: {
             fontFamily: sansSerifStack

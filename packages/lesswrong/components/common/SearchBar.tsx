@@ -78,6 +78,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'fixed',
     color: isEAForum ? theme.palette.grey[600] : undefined,
     margin: '12px',
+    '&:hover': {
+      color: isEAForum ? theme.palette.grey[800] : undefined,
+      cursor: 'pointer'
+    }
   },
   closeSearchIcon: {
     fontSize: 14,

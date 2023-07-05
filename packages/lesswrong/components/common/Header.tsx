@@ -31,6 +31,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
+    ...(isEAForum ? {
+      padding: '1px 20px',
+      [theme.breakpoints.down('sm')]: {
+        padding: '1px 11px',
+      },
+      [theme.breakpoints.down('xs')]: {
+        padding: '9px 11px',
+      },
+    } : {})
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
