@@ -269,7 +269,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       const { moderatorActionType } = await checkVotingRateLimits({ document, collection, voteType, user });
       if (moderatorActionType && !(await wasVotingPatternWarningDeliveredRecently(user, moderatorActionType))) {
         if (moderatorActionType === RECEIVED_VOTING_PATTERN_WARNING) showVotingPatternWarning = true;
-        const endTime = isEAForum ? new Date() : undefined;
         void createMutator({
           collection: ModeratorActions,
           context,
@@ -278,7 +277,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
           document: {
             userId: user._id,
             type: moderatorActionType,
-            endedAt: endTime
           }
         });
       }
