@@ -52,7 +52,7 @@ const IntercomFeedbackButton = ({
 const IntercomFeedbackButtonComponent = registerComponent(
   "IntercomFeedbackButton",
   IntercomFeedbackButton,
-  {styles},
+  {styles, stylePriority: -5},
 );
 
 declare global {
