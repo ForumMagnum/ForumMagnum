@@ -225,20 +225,16 @@ export const ToCColumn = ({
       <div className={classes.content}>
         {children}
       </div>
-      {!hidden &&
-        <>
-          <div className={classes.gap2}/>
-          {(welcomeBox || rhsRecommendations) &&
-            <div className={classNames(classes.rhs, {
-              [classes.rhsHideMediumDown]: welcomeBox,
-            })}>
-              {welcomeBox}
-              {rhsRecommendations}
-            </div>
-          }
-          <div className={classes.gap3}/>
-        </>
+      <div className={classes.gap2}/>
+      {(welcomeBox || rhsRecommendations) &&
+        <div className={classNames(classes.rhs, {
+          [classes.rhsHideMediumDown]: welcomeBox,
+        })}>
+          {welcomeBox}
+          {rhsRecommendations}
+        </div>
       }
+      <div className={classes.gap3}/>
     </div>
   );
 }
