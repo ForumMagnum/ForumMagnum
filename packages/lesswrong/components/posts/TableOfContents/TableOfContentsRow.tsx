@@ -47,6 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: theme.palette.border.faint,
+    fontSize: isEAForum ? "1em" : undefined,
   },
   level0: {
     display:"inline-block",
