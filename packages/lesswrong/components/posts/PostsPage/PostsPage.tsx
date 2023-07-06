@@ -26,7 +26,6 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
-import truncateTagDescription from '../../../lib/utils/truncateTagDescription';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -397,7 +396,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.question &&
     !post.debate &&
     !post.isEvent &&
-    !sequenceId;
+    !sequenceId &&
+    (post.contents?.wordCount ?? 0) >= 500;
   const recommendationsPosition = useABTest(postRecsPositionABTest);
 
   const commentId = query.commentId || params.commentId
