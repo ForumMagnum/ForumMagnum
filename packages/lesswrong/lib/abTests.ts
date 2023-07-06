@@ -90,7 +90,7 @@ export const postRecsPositionABTest = new ABTest({
     },
     underPost: {
       description: "Show recommendations under the post, but above the comments",
-      weight: 1,
+      weight: 4,
     },
   },
 });
