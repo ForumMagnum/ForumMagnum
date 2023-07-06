@@ -1,4 +1,4 @@
-import React, { Component } from 'react' // eslint-disable-line import/no-unresolved
+import React, { Component, CSSProperties } from 'react' // eslint-disable-line import/no-unresolved
 import PropTypes from 'prop-types'
 import shallowequal from 'shallowequal'
 import raf from 'raf'
@@ -6,7 +6,25 @@ import shouldUpdate from './shouldUpdate'
 
 const noop = () => {}
 
-export default class Headroom extends Component {
+interface HeadroomProps {
+  className: string,
+  parent: () => HTMLElement | Window,
+  children?: React.ReactNode,
+  disableInlineStyles: boolean,
+  disable: boolean,
+  height: number,
+  upTolerance: number,
+  downTolerance: number,
+  onPin: () => void,
+  onUnpin: () => void,
+  onUnfix: () => void,
+  wrapperStyle: Record<string, any>,
+  pinStart: number,
+  style?: Record<string, any>,
+  calcHeightOnResize: boolean,
+}
+
+export default class Headroom extends Component<HeadroomProps, AnyBecauseTodo> {
   static propTypes = {
     className: PropTypes.string,
     parent: PropTypes.func,
@@ -39,7 +57,13 @@ export default class Headroom extends Component {
     calcHeightOnResize: true,
   };
 
-  static getDerivedStateFromProps (props, state) {
+  currentScrollY: number
+  lastKnownScrollY: number
+  scrollTicking: boolean
+  resizeTicking: boolean
+  inner: any
+
+  static getDerivedStateFromProps (props: { disable: any }, state: { state: string }) {
     if (props.disable && state.state !== 'unfixed') {
       return {
         translateY: 0,
@@ -52,7 +76,7 @@ export default class Headroom extends Component {
     return null
   }
 
-  constructor (props) {
+  constructor (props: AnyBecauseTodo) {
     super(props)
     // Class variables.
     this.currentScrollY = 0
@@ -78,14 +102,14 @@ export default class Headroom extends Component {
     }
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps: any, nextState: any) {
     return (
       !shallowequal(this.props, nextProps) ||
       !shallowequal(this.state, nextState)
     )
   }
 
-  componentDidUpdate (prevProps, prevState) {
+  componentDidUpdate (prevProps: { children?: React.ReactNode; disable: boolean }, prevState: { state: string }) {
     // If children have changed, remeasure height.
     if (prevProps.children !== this.props.children) {
       this.setHeightOffset()
@@ -114,7 +138,7 @@ export default class Headroom extends Component {
     this.props.parent().removeEventListener('resize', this.handleResize)
   }
 
-  setRef = ref => (this.inner = ref)
+  setRef = (ref: any) => (this.inner = ref)
 
   setHeightOffset = () => {
     /*this.setState({
@@ -124,10 +148,11 @@ export default class Headroom extends Component {
   }
 
   getScrollY = () => {
-    if (this.props.parent().pageYOffset !== undefined) {
-      return this.props.parent().pageYOffset
-    } else if (this.props.parent().scrollTop !== undefined) {
-      return this.props.parent().scrollTop
+    const parent = this.props.parent()
+    if ('pageYOffset' in parent && parent.pageYOffset !== undefined) {
+      return parent.pageYOffset
+    } else if ('scrollTop' in parent && parent.scrollTop !== undefined) {
+      return parent.scrollTop
     } else {
       return (document.documentElement || document.body.parentNode || document.body).scrollTop
     }
@@ -150,12 +175,12 @@ export default class Headroom extends Component {
     )
   }
 
-  getElementPhysicalHeight = elm => Math.max(
+  getElementPhysicalHeight = (elm: { offsetHeight: number; clientHeight: number }) => Math.max(
     elm.offsetHeight,
     elm.clientHeight
   )
 
-  getElementHeight = elm => Math.max(
+  getElementHeight = (elm: { scrollHeight: number; offsetHeight: number; clientHeight: number }) => Math.max(
     elm.scrollHeight,
     elm.offsetHeight,
     elm.clientHeight,
@@ -166,7 +191,7 @@ export default class Headroom extends Component {
 
     return (parent === window || parent === document.body)
       ? this.getViewportHeight()
-      : this.getElementPhysicalHeight(parent)
+      : this.getElementPhysicalHeight(parent as HTMLElement)
   }
 
   getScrollerHeight = () => {
@@ -174,10 +199,10 @@ export default class Headroom extends Component {
 
     return (parent === window || parent === document.body)
       ? this.getDocumentHeight()
-      : this.getElementHeight(parent)
+      : this.getElementHeight(parent as HTMLElement)
   }
 
-  isOutOfBound = (currentScrollY) => {
+  isOutOfBound = (currentScrollY: number) => {
     const pastTop = currentScrollY < 0
 
     const scrollerPhysicalHeight = this.getScrollerPhysicalHeight()
@@ -273,7 +298,9 @@ export default class Headroom extends Component {
   }
 
   render () {
-    const { className: userClassName, ...divProps } = this.props
+    // Type cast is necessary to prevent typescript from complaining about trying to delete readonly properties
+    // This is vendored code and presumably has been working more or less fine the whole time
+    const { className: userClassName, ...divProps } = this.props as AnyBecauseTodo
     delete divProps.onUnpin
     delete divProps.onPin
     delete divProps.onUnfix
@@ -289,14 +316,14 @@ export default class Headroom extends Component {
 
     const { style, wrapperStyle, ...rest } = divProps
 
-    let innerStyle = {
+    let innerStyle: CSSProperties = {
       position: this.props.disable || this.state.state === 'unfixed' ? 'relative' : 'fixed',
       top: 0,
       left: 0,
       right: 0,
       zIndex: 1,
       WebkitTransform: `translate3D(0, ${this.state.translateY}, 0)`,
-      MsTransform: `translate3D(0, ${this.state.translateY}, 0)`,
+      msTransform: `translate3D(0, ${this.state.translateY}, 0)`,
       transform: `translate3D(0, ${this.state.translateY}, 0)`,
     }
 
