@@ -55,14 +55,14 @@ const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
     numbered: false,
     items: [
       () => <li>
-        New to the forum? <Link to={usefulLinks}>Useful links here</Link>
+        New? <Link to={usefulLinks}>Expore useful links</Link>
       </li>,
       () => <li>
-        Listen to posts on our <Link to={podcast}>podcast</Link>
+        <Link to={podcast}>Listen</Link> to popular & recent posts
       </li>,
       () => <li>
-        Sign up for the <Link to={digest}>EA Forum Digest</Link> to get
-        curated recommendations
+        Get weekly highlights in your inbox: Sign up for the{" "}
+        <Link to={digest}>EA Forum Digest</Link>
       </li>,
       () => <li>
         Browse <Link to={jobs}>job opportunities</Link>

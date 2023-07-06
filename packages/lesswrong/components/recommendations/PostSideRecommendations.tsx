@@ -32,6 +32,7 @@ const styles = (theme: ThemeType) => ({
       fontSize: 13,
       fontWeight: 500,
       marginBottom: 4,
+      lineHeight: "1.5em",
     },
     "& a": {
       color: theme.palette.primary.main,
