@@ -18,9 +18,9 @@ interface HeadroomProps {
   onPin: () => void,
   onUnpin: () => void,
   onUnfix: () => void,
-  wrapperStyle: Record<string, any>,
+  wrapperStyle: Record<string, AnyBecauseTodo>,
   pinStart: number,
-  style?: Record<string, any>,
+  style?: Record<string, AnyBecauseTodo>,
   calcHeightOnResize: boolean,
 }
 
@@ -61,9 +61,9 @@ export default class Headroom extends Component<HeadroomProps, AnyBecauseTodo> {
   lastKnownScrollY: number
   scrollTicking: boolean
   resizeTicking: boolean
-  inner: any
+  inner: AnyBecauseTodo
 
-  static getDerivedStateFromProps (props: { disable: any }, state: { state: string }) {
+  static getDerivedStateFromProps (props: { disable: AnyBecauseTodo }, state: { state: string }) {
     if (props.disable && state.state !== 'unfixed') {
       return {
         translateY: 0,
@@ -102,7 +102,7 @@ export default class Headroom extends Component<HeadroomProps, AnyBecauseTodo> {
     }
   }
 
-  shouldComponentUpdate (nextProps: any, nextState: any) {
+  shouldComponentUpdate (nextProps: AnyBecauseTodo, nextState: AnyBecauseTodo) {
     return (
       !shallowequal(this.props, nextProps) ||
       !shallowequal(this.state, nextState)
@@ -138,7 +138,7 @@ export default class Headroom extends Component<HeadroomProps, AnyBecauseTodo> {
     this.props.parent().removeEventListener('resize', this.handleResize)
   }
 
-  setRef = (ref: any) => (this.inner = ref)
+  setRef = (ref: AnyBecauseTodo) => (this.inner = ref)
 
   setHeightOffset = () => {
     /*this.setState({
