@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import classNames from 'classnames';
+import { useTracking } from '../../../lib/analyticsEvents';
 import { isEAForum } from '../../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -164,6 +165,7 @@ export const ToCColumn = ({
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
+  const {captureEvent} = useTracking();
   const {sideCommentsActive} = useContext(SidebarsContext)!;
   const [hideTocButtonHidden, setHideTocButtonHidden] = useState(
     shouldHideToggleContentsButton,
@@ -179,6 +181,11 @@ export const ToCColumn = ({
     () => window.removeEventListener("scroll", handler);
   });
 
+  const toggleHideContents = useCallback(() => {
+    setHidden(!hidden);
+    captureEvent("toggleHideContents", {hidden: !hidden});
+  }, [hidden]);
+
   return (
     <div className={classNames(
       classes.root,
@@ -191,7 +198,7 @@ export const ToCColumn = ({
     )}>
       {hideable &&
         <div
-          onClick={() => setHidden(!hidden)}
+          onClick={toggleHideContents}
           className={classNames(classes.hideTocButton, {
             [classes.hideTocButtonHidden]: !hideTocButtonHidden,
           })}
