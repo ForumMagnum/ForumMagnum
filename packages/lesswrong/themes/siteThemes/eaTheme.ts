@@ -243,26 +243,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             padding: ".7rem",
           }
         },
-        Header: {
-          root: {
-            height: 90,
-            '@media (max-width: 959.95px) and (min-width: 600px)': {
-              height: 86, // I don't know why headroom shifts by 4 pixels, don't ask me
-            },
-            [defaultTheme.breakpoints.down('xs')]: {
-              height: 77,
-            },
-          },
-          appBar: {
-            padding: 11,
-            '@media (min-width: 960px)': {
-              paddingLeft: 20,
-              paddingRight: 20,
-              paddingTop: 13,
-              paddingBottom: 13,
-            }
-          },
-        },
         MetaInfo: {
           root: {
             fontFamily: sansSerifStack

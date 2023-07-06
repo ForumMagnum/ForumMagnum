@@ -54,13 +54,9 @@ yarn install
 
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
-Prerequisites:
-- Install MongoDB: https://docs.mongodb.com/manual/installation/
+TODO: Postgres instructions (but basically: run a postgres db)
 
-```
-mkdir myLocalDatabase
-mongod --dbpath ./myLocalDatabase
-```
+(Then there's probably something about migrating, see Database Migrations)
 
 ### Creating branch-specific development databases
 
@@ -77,7 +73,7 @@ commands are supported:
 ### Start the development server
 
 ```
-yarn start-local-db
+yarn start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
 ```
 
 Or, if (and only if!) you have access to CEA's ForumCredentials repository, use

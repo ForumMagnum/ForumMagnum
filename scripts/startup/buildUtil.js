@@ -106,8 +106,8 @@ function getDatabaseConfig(opts) {
   }
 
   return {
-    mongoUrl: opts.mongoUrl || dbConfig?.mongoUrl || process.env.MONGO_URL || null,
-    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || null,
+    mongoUrl: opts.mongoUrl || dbConfig?.mongoUrl || process.env.MONGO_URL || '',
+    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || '',
     sshTunnelCommand,
   };
 }

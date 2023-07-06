@@ -123,15 +123,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   totalHigh: {
     color: theme.palette.text.red
+  },
+  toggleLink: {
+    color: theme.palette.grey[600],
+    fontSize: 12,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800]
+    }
   }
 })
 
 type DigestPlannerPostData = {
-  post: PostsListBase,
+  post: PostsListWithVotes,
   digestPost: DigestPost
   rating: number
 }
-type PostWithRating = PostsListBase & {rating:number}
+export type PostWithRating = PostsListWithVotes & {rating:number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -168,7 +176,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
-          ...PostsListBase
+          ...PostsListWithVotes
         }
         digestPost {
           _id
@@ -178,7 +186,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListBase")}
+    ${fragmentTextForQuery("PostsListWithVotes")}
     `, {
       ssr: true,
       skip: !digest,
@@ -193,6 +201,8 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
+  // disable all status icons while processing the previous click
+  const [votesVisible, setVotesVisible] = useState<boolean>(false)
   
   useEffect(() => {
     // this is just to initialize the list of posts and statuses
@@ -515,6 +525,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
+            <th className={classes.centeredColHeader}>
+              Your vote
+              <div className={classes.toggleLink} onClick={() => setVotesVisible(!votesVisible)}>(Click here to show/hide)</div>
+            </th>
             {/* <th className={classes.centeredColHeader}>Rating</th> */}
             <th className={classes.centeredColHeader}>Comments</th>
           </tr>
@@ -529,6 +543,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               handleClickStatusIcon={handleClickStatusIcon}
               visibleTagIds={coreAndPopularTagIds}
               setTagFilter={setTagFilter}
+              votesVisible={votesVisible}
             />
           })}
         </tbody>

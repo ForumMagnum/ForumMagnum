@@ -6,11 +6,14 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getLogoUrl } from '../../lib/vulcan-lib/utils';
-import { forumTitleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    height: 48
+    height: isEAForum ? 34 : 48,
+    [theme.breakpoints.down('sm')]: {
+      height: isEAForum ? 30 : 48,
+    },
   }
 })
 

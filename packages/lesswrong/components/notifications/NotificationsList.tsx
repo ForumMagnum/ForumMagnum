@@ -26,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     textAlign: "center",
     width: "100%",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 
