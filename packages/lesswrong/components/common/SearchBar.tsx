@@ -11,6 +11,7 @@ import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../li
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
+import { IconButton } from '@material-ui/core';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -51,6 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
       height: "100%",
       width: "100%",
+      paddingTop: isEAForum ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -60,15 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
-      borderRadius:5,
-
-      [theme.breakpoints.down('tiny')]: {
-        backgroundColor: theme.palette.grey[200],
-        zIndex: theme.zIndexes.searchBar,
-        width:110,
-        height:36,
-        paddingLeft:10
-      },
+      borderRadius: 5,
     },
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
@@ -76,12 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchIcon: {
     position: 'fixed',
-    color: isEAForum ? theme.palette.grey[600] : undefined,
-    margin: '12px',
-    '&:hover': {
-      color: isEAForum ? theme.palette.grey[800] : undefined,
-      cursor: 'pointer'
-    }
+    color: isEAForum ? undefined : theme.palette.header.text,
   },
   closeSearchIcon: {
     fontSize: 14,
@@ -89,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: 15,
+    top: isEAForum ? 18 : 15,
     right: 5,
     cursor: "pointer"
   },
@@ -184,7 +173,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         )}>
           {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <ForumIcon icon="Search" className={classes.searchIcon}/>
+            <IconButton className={classes.searchIcon}>
+              <ForumIcon icon="Search" />
+            </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
              // @ts-ignore */}
