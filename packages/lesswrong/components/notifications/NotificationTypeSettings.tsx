@@ -1,5 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { isEAForum } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
@@ -11,7 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 8,
   },
-  label: {},
+  label: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   settings: {
     paddingLeft: 20,
   },

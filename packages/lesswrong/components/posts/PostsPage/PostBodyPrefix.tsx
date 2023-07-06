@@ -25,6 +25,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   rejectionNotice: {
     ...theme.typography.contentNotice,

@@ -38,6 +38,7 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -63,6 +64,7 @@ import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
+import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 
 /**
@@ -140,9 +142,10 @@ export type ForumIconName =
   "Share" |
   "ClipboardDocumentList" |
   "ClipboardDocument" |
+  "QuestionMarkCircle" |
+  "Search" |
   "Menu" |
-  "CloseMenu" |
-  "QuestionMarkCircle";
+  "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -195,9 +198,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: MuiSearchIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -249,9 +253,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: SearchIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
 };
 

@@ -1,9 +1,10 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
+import { Hits, Configure, Index } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,14 +14,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width:520,
     position: "fixed",
     right: 0,
-    top: forumTypeSetting.get() === 'EAForum' ? 90 : 64,
+    top: forumTypeSetting.get() === 'EAForum' ? EA_FORUM_HEADER_HEIGHT : 64,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: forumTypeSetting.get() === 'EAForum' ? 78 : 48,
+      top: forumTypeSetting.get() === 'EAForum' ? EA_FORUM_HEADER_HEIGHT : 48,
     },
   },
   searchResults: {

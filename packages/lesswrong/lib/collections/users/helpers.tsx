@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -46,9 +46,23 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-  return (
-    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
-  );
+  const userKarma = user.karma ?? 0;
+  const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
+
+  // For the EA forum, return true if either:
+  // 1. the user is below the karma threshold, or
+  // 2. the user was created less than a week ago
+  if (isEAForum) {
+    return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+  }
+
+  // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
+  if (userBelowKarmaThreshold) {
+    return moment(user.createdAt).isAfter(moment().subtract(1, "year"));
+  }
+  
+  // But continue to return true for a week even if they pass the karma threshold
+  return moment(user.createdAt).isAfter(moment().subtract(1, "week"));
 }
 
 export interface SharableDocument {

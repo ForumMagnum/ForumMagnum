@@ -324,6 +324,8 @@
     "@shelf/jest-mongodb": "^2.0.0",
     "@types/csso": "^5.0.0",
     "@types/mark.js": "^8.11.8",
+    "@types/raf": "^3.4.0",
+    "@types/shallowequal": "^1.1.1",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",
     "babel-plugin-transform-class-properties": "^6.24.1",
