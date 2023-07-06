@@ -171,7 +171,7 @@ export const ToCColumn = ({
     shouldHideToggleContentsButton,
   );
   const [hidden, setHidden] = useState(false);
-  const hideable = isEAForum;
+  const hideable = isEAForum && !!tableOfContents;
 
   useEffect(() => {
     const handler = () => setHideTocButtonHidden(
