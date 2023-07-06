@@ -184,7 +184,7 @@ export const ToCColumn = ({
   const toggleHideContents = useCallback(() => {
     setHidden(!hidden);
     captureEvent("toggleHideContents", {hidden: !hidden});
-  }, [hidden]);
+  }, [hidden, captureEvent]);
 
   return (
     <div className={classNames(
