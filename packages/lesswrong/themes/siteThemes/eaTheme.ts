@@ -312,14 +312,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             display: 'none'
           }
         },
-        SequencesPage: {
-          root: {
-            paddingTop: 345,
-          },
-          banner: {
-            top: 77,
-          },
-        },
         EAAllTagsPage: {
           portal: {
             background: palette.grey[0],
