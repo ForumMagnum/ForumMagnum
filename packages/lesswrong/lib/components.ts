@@ -544,6 +544,7 @@ importComponent("SideCommentIcon", () => require('../components/comments/SideCom
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
+importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));

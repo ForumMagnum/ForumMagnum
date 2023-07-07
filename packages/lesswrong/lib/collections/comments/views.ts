@@ -701,3 +701,15 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
+  selector: {
+    baseScore: {$gte: 30},
+  },
+  options: {
+    sort: {
+      score: -1,
+      parentCommentId: -1,
+    },
+  },
+}));
