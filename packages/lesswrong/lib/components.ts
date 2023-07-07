@@ -57,6 +57,7 @@ importComponent("EAUsersProfileImage", () => require('../components/ea-forum/use
 importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/users/EAUsersProfileLinks'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));

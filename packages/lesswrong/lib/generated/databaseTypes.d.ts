@@ -1123,6 +1123,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean

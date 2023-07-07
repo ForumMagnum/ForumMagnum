@@ -47,7 +47,8 @@ const EAHome = () => {
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags
+    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
+    EAPopularCommentsSection,
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -79,6 +80,7 @@ const EAHome = () => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
+          {isEAForum && <EAPopularCommentsSection />}
           <RecentDiscussionFeed
             title="Recent discussion"
             af={false}
