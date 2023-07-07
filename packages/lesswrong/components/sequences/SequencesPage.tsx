@@ -10,6 +10,7 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
+import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -22,7 +23,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 380,
+    paddingTop: isEAForum ? (270 + EA_FORUM_HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -30,9 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
     marginTop: 0,
-    ...(isEAForum
-      ? {textTransform: "uppercase"}
-      : theme.typography.smallCaps),
+    ...theme.typography.smallCaps,
   },
   description: {
     marginTop: theme.spacing.unit * 2,
@@ -42,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: 60,
+    top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 60,
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
@@ -76,8 +75,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing.unit,
-      padding: theme.spacing.unit
+      marginTop: isEAForum ? undefined : theme.spacing.unit,
+      padding: isEAForum ? 16 : theme.spacing.unit
     },
   },
   leftAction: {

@@ -7,6 +7,7 @@ import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isEAForum } from '../../lib/instanceSettings';
+import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
@@ -38,7 +39,7 @@ interface ExternalProps {
   postListParameters: any,
   dimWhenLoading?: boolean,
   reverse?: boolean,
-  displayShortform?: boolean,
+  shortform?: PostsTimeBlockShortformOption,
   includeTags?: boolean,
 }
 interface PostsTimeframeListProps extends ExternalProps, WithStylesProps, WithTimezoneProps {
@@ -139,7 +140,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
   }
 
   render() {
-    const { timezone, classes, postListParameters, displayShortform, reverse } = this.props
+    const { timezone, classes, postListParameters, shortform, reverse } = this.props;
     const { timeframe, after, before, dim, displayedNumTimeBlocks } = this.state
     const { PostsTimeBlock, Typography } = Components
 
@@ -164,7 +165,7 @@ class PostsTimeframeList extends PureComponent<PostsTimeframeListProps,PostsTime
             }}
             timeBlockLoadComplete={this.timeBlockLoadComplete}
             hideIfEmpty={index===0}
-            displayShortform={displayShortform}
+            shortform={shortform}
             includeTags={this.props.includeTags}
           />
         )}

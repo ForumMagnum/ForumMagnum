@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   reactionPaletteScrollRegion: {
     width: 350,
-    maxHeight: 314,
+    maxHeight: 305,
     overflowY: "scroll",
     marginTop: 12
   },

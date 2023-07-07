@@ -78,6 +78,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   body: {
+    fontSize: "1.1rem",
+    lineHeight: "1.5em",
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "-webkit-box",

@@ -1,16 +1,7 @@
-import { CallbackHook, CallbackChainHook } from '../lib/vulcan-lib/callbacks';
+import { CallbackHook, CallbackChainHook, CallbackPropertiesBase } from '../lib/vulcan-lib/callbacks';
 import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 type CallbackValidationErrors = Array<any>;
-
-export interface CallbackPropertiesBase<T extends DbObject> {
-  // TODO: Many of these are empirically optional, but setting them to optional
-  // causes a bajillion type errors, so we will not be fixing today
-  currentUser: DbUser|null
-  collection: CollectionBase<T>
-  context: ResolverContext
-  schema: SchemaType<T>
-}
 
 export interface CreateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
   document: T

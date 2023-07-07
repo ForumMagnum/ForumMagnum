@@ -3,21 +3,20 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
 import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments, CommandLineArguments } from './commandLine';
+import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
-import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
-import { dropAndCreatePg } from './createTestingPgDb';
+import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -60,7 +59,7 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
-  if (isEAForum) {
+  if (isEAForum || !connectionString) {
     return;
   }
   try {
