@@ -13,5 +13,5 @@ const defaultHtmlToTextOptions: HtmlToTextOptions = {
   ],
 };
 
-export const htmlToTextDefault = (html: string = "") =>
+export const htmlToTextDefault = (html = "") =>
   htmlToText(html, defaultHtmlToTextOptions);
