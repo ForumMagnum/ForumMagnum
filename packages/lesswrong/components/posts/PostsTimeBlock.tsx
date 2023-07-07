@@ -114,7 +114,7 @@ const getTitle = (
   return result;
 }
 
-export type PostsTimeBlockShortform = "all" | "none" | "frontpage";
+export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
 const PostsTimeBlock = ({
   terms,
@@ -131,7 +131,7 @@ const PostsTimeBlock = ({
   startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
-  shortform?: PostsTimeBlockShortform,
+  shortform?: PostsTimeBlockShortformOption,
   classes: ClassesType,
   includeTags?: boolean,
 }) => {

@@ -18,7 +18,7 @@ import {
   forumAllPostsNumDaysSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
-import type { PostsTimeBlockShortform } from "./PostsTimeBlock";
+import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -111,7 +111,7 @@ const AllPostsList = ({
 
   const hideTags = currentFilter !== "all";
 
-  let shortform: PostsTimeBlockShortform = "all";
+  let shortform: PostsTimeBlockShortformOption = "all";
   if (currentFilter === "frontpage") {
     shortform = "frontpage";
   } else if (hideTags) {

@@ -473,9 +473,10 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     : null
   );
 
-  const frontpage = isEAForum && typeof terms.shortformFrontpage === "boolean"
-    ? {shortformFrontpage: terms.shortformFrontpage}
-    : {};
+  const shortformFrontpage =
+    isEAForum && typeof terms.shortformFrontpage === "boolean"
+      ? {shortformFrontpage: terms.shortformFrontpage}
+      : {};
 
   return {
     selector: {
@@ -483,7 +484,7 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
       ...timeRange,
-      ...frontpage,
+      ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };
