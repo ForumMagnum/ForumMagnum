@@ -17,10 +17,6 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    display: "flex",
-    gap: "4px",
-  },
   button: {
     marginTop: -1,
     display: "flex",
@@ -29,6 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     padding: "0 6px",
     gap: "4px",
+    marginLeft: 4,
     height: 26,
     cursor: "pointer",
     userSelect: "none",
@@ -328,7 +325,7 @@ const ThreeAxisEmojisVoteOnComment = ({
   );
   const {OverallVoteAxis, TwoAxisVoteOnComment} = Components;
   return (
-    <div className={classes.root}>
+    <>
       {userHasEAEmojiReacts(null)
         ? (
           <>
@@ -355,7 +352,7 @@ const ThreeAxisEmojisVoteOnComment = ({
           />
         )
       }
-    </div>
+    </>
   );
 }
 
