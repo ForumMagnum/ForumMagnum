@@ -705,6 +705,7 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
 Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
   selector: {
     baseScore: {$gte: 30},
+    shortform: {$ne: true},
   },
   options: {
     sort: {
