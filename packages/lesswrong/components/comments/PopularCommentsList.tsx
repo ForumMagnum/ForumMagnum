@@ -1,13 +1,16 @@
-import React from "react";
+import React, { FC, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMulti } from "../../lib/crud/withMulti";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
-import moment from "moment";
 import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import moment from "moment";
+import { useTracking } from "../../lib/analyticsEvents";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,6 +30,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: "8px 12px",
+    cursor: "pointer",
   },
   row: {
     display: "flex",
@@ -55,12 +59,78 @@ const styles = (theme: ThemeType) => ({
   body: {
     lineHeight: "160%",
     letterSpacing: "-0.14px",
+  },
+  bodyCollapsed: {
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
   },
 });
+
+const PopularComment: FC<{
+  comment: CommentsListWithParentMetadata,
+  classes: ClassesType,
+}> = ({comment, classes}) => {
+  const {captureEvent} = useTracking();
+  const [expanded, setExpanded] = useState(false);
+
+  const onClickCallback = useCallback(() => {
+    setExpanded(!expanded);
+    captureEvent("popularCommentToggleExpanded", {expanded: !expanded});
+  }, [expanded]);
+
+  const {onClick} = useClickableCell({onClick: onClickCallback});
+
+  const {UsersName, LWTooltip, SmallSideVote} = Components;
+  return (
+    <div onClick={onClick} className={classes.item}>
+      {comment.post &&
+        <div className={classes.row}>
+          <Link to={postGetPageUrl(comment.post)} className={classes.post}>
+            {comment.post?.title}
+          </Link>
+          <Link to={commentGetPageUrl(comment)} className={classes.link}>
+            View in thread
+          </Link>
+        </div>
+      }
+      <div className={classes.row}>
+        <UsersName user={comment.user} className={classes.username} />
+        <div className={classes.date}>
+          <LWTooltip
+            placement="right"
+            title={<ExpandedDate date={comment.postedAt} />}
+          >
+            {moment(new Date(comment.postedAt)).fromNow()}
+          </LWTooltip>
+        </div>
+        {!comment.debateResponse && !comment.rejected &&
+          <InteractionWrapper>
+            <SmallSideVote
+              document={comment}
+              collection={Comments}
+              hideKarma={comment.post?.hideCommentKarma}
+            />
+          </InteractionWrapper>
+        }
+      </div>
+      {expanded
+        ? (
+          <div
+            dangerouslySetInnerHTML={{__html: comment.contents?.html ?? ""}}
+            className={classes.body}
+          />
+        )
+        : (
+          <div className={classNames(classes.body, classes.bodyCollapsed)}>
+            {htmlToTextDefault(comment.contents?.html)}
+          </div>
+        )
+      }
+    </div>
+  );
+}
 
 const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
   const {loading, loadMoreProps, results} = useMulti({
@@ -71,7 +141,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     limit: 3,
   });
 
-  const {Loading, LoadMore, UsersName, LWTooltip, SmallSideVote} = Components;
+  const {Loading, LoadMore} = Components;
   if (loading) {
     return (
       <Loading />
@@ -80,41 +150,13 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
 
   return (
     <div className={classes.root}>
-      {results?.map((comment) => (
-        <div className={classes.item}>
-          {comment.post &&
-            <div className={classes.row}>
-              <Link to={postGetPageUrl(comment.post)} className={classes.post}>
-                {comment.post?.title}
-              </Link>
-              <Link to={commentGetPageUrl(comment)} className={classes.link}>
-                View in thread
-              </Link>
-            </div>
-          }
-          <div className={classes.row}>
-            <UsersName user={comment.user} className={classes.username} />
-            <div className={classes.date}>
-              <LWTooltip
-                placement="right"
-                title={<ExpandedDate date={comment.postedAt} />}
-              >
-                {moment(new Date(comment.postedAt)).fromNow()}
-              </LWTooltip>
-            </div>
-            {!comment.debateResponse && !comment.rejected &&
-              <SmallSideVote
-                document={comment}
-                collection={Comments}
-                hideKarma={comment.post?.hideCommentKarma}
-              />
-            }
-          </div>
-          <div className={classes.body}>
-            {htmlToTextDefault(comment.contents?.html)}
-          </div>
-        </div>
-      ))}
+      {results?.map((comment) =>
+        <PopularComment
+          key={comment._id}
+          comment={comment}
+          classes={classes}
+        />
+      )}
       <LoadMore {...loadMoreProps} />
     </div>
   );
