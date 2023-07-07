@@ -249,6 +249,7 @@ const Layout = ({currentUser, children, classes}: {
       IntercomWrapper,
       HomepageCommunityMap,
       CookieBanner,
+      SunshineSidebar,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -353,7 +354,7 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
-                    <Components.SunshineSidebar/>
+                    <SunshineSidebar/>
                   </NoSSR>
                 </div>}
               </div>

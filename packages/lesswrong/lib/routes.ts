@@ -599,7 +599,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAHome',
       description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
-      sunshineSidebar: true
+      sunshineSidebar: true,
+      rhsComponentName: 'EAHomeSidebar',
     },
     {
       name:'about',

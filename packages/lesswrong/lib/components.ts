@@ -36,6 +36,7 @@ importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EA
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+importComponent("EAHomeSidebar", () => require('../components/ea-forum/EAHomeSidebar'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
 importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
