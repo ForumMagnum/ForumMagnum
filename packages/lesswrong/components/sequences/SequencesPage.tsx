@@ -23,7 +23,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: isEAForum ? 320 : 380,
+    paddingTop: isEAForum ? (270 + EA_FORUM_HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
