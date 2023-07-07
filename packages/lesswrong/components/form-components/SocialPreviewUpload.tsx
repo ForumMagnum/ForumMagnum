@@ -81,6 +81,13 @@ mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
 mdi.use(markdownItSup)
 
+// TODO to make preview text editable:
+// - [X] use highlight text as the social preview text
+// - [X] make sure this is patched through to this component (probably in the same way as the main contents)
+// - make the field clickable to edit, set the highlight text if they type a character
+// - also include a button to clear the highlight text and revert to the default
+// - also warn them if they're making it too long
+
 /**
  * Build the preview description and extract the first image in the document to use as a fallback. This is duplicating
  * the fairly roundabout process that happens on the server to generate the preview description and image. The logic here
@@ -103,6 +110,7 @@ mdi.use(markdownItSup)
 const buildPreviewFromDocument = (document: PostsEditWithLocalData): {description: string | null, fallbackImageUrl: string | null} => {
   const dataWithDiscardedSuggestions = document.contents?.dataWithDiscardedSuggestions
   const originalContents = document.contents?.originalContents
+  const customHighlight = document.customHighlight?.originalContents
 
   if (!originalContents) return {description: null, fallbackImageUrl: null}
   
@@ -123,23 +131,31 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
   // get first img tag
   const img = htmlDoc.querySelector("img");
 
-  const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-  const plaintextDescription = htmlToText(truncatedHtml, {
-    wordwrap: false,
-    selectors: [
-      { selector: "img", format: "skip" },
-      { selector: "a", options: { ignoreHref: true } },
-      { selector: "p", options: { leadingLineBreaks: 1 } },
-      { selector: "h1", options: { trailingLineBreaks: 1 } },
-      { selector: "h2", options: { trailingLineBreaks: 1 } },
-      { selector: "h3", options: { trailingLineBreaks: 1 } },
-    ]
-  }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+  const toPlainText = (content: string, type: string) => {
+    if (!content) return null;
+    const html = type === 'markdown' ? mdi.render(content, {docId: randomId()}) : content
+    const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+    return htmlToText(truncatedHtml, {
+      wordwrap: false,
+      selectors: [
+        { selector: "img", format: "skip" },
+        { selector: "a", options: { ignoreHref: true } },
+        { selector: "p", options: { leadingLineBreaks: 1 } },
+        { selector: "h1", options: { trailingLineBreaks: 1 } },
+        { selector: "h2", options: { trailingLineBreaks: 1 } },
+        { selector: "h3", options: { trailingLineBreaks: 1 } },
+      ]
+    }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+  }
 
-  const previewDesc = getPostDescription({...document, contents: {plaintextDescription}})
+  const plaintextDescription = toPlainText(html, contentsType)
+  const highlightPlaintextDesc = toPlainText(customHighlight?.data, customHighlight?.type)
+
+  const previewDesc = getPostDescription({...document, contents: {plaintextDescription}, customHighlight: {plaintextDescription: highlightPlaintextDesc}})
   
   return {description: previewDesc, fallbackImageUrl: img?.getAttribute("src") || null}
 }
+
 
 const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,

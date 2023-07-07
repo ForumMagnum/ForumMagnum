@@ -401,6 +401,9 @@ registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
+    customHighlight {
+      ...RevisionDisplay
+    }
     
     tableOfContentsRevision(version: $version)
     commentEmojiReactors
@@ -453,6 +456,9 @@ registerFragment(`
     ...PostsDetails
     version
     contents {
+      ...RevisionDisplay
+    }
+    customHighlight {
       ...RevisionDisplay
     }
     myEditorAccess

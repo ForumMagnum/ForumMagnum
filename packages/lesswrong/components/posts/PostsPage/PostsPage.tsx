@@ -26,7 +26,6 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
-import truncateTagDescription from '../../../lib/utils/truncateTagDescription';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -40,22 +39,28 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 ];
 
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
-  if (post.contents?.plaintextDescription) {
+export const getPostDescription = (post: {
+  contents?: { plaintextDescription: string | null } | null;
+  customHighlight?: { plaintextDescription: string | null } | null;
+  shortform: boolean;
+  user: { displayName: string } | null;
+}) => {
+  const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
+  if (longDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
-    const plaintextPars = post.contents.plaintextDescription
+    const plaintextPars = longDescription
       // paragraphs in the plaintext description are separated by double-newlines
       .split(/\n\n/)
       // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
-      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)))
-      
-    if (!plaintextPars.length) return ''
-    
+      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)));
+
+    if (!plaintextPars.length) return "";
+
     // concatenate paragraphs together with a delimiter, until they reach an
     // acceptable length (target is 100-200 characters)
     // this will return a longer description if one of the first couple of
     // paragraphs is longer than 200
-    let firstFewPars = plaintextPars[0]
+    let firstFewPars = plaintextPars[0];
     for (const par of plaintextPars.slice(1)) {
       const concat = `${firstFewPars} • ${par}`;
       // If we're really short, we need more

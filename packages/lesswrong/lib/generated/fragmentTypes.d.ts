@@ -1181,6 +1181,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+  readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
   readonly commentEmojiReactors: any,
 }
@@ -1226,6 +1227,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
+  readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
   readonly commentEmojiReactors: any,
