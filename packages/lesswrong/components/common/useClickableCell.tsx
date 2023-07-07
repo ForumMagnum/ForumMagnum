@@ -15,8 +15,12 @@ export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
   // We make the entire "cell" a link. In sub-items need to be separately
   // clickable then wrap them in an `InteractionWrapper`.
   const wrappedOnClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (onClick) {
       onClick(e);
+    } else if (e.metaKey || e.ctrlKey) {
+      window.open(href, "_blank");
     } else {
       history.push(href);
     }

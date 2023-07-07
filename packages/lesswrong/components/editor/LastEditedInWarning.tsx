@@ -33,7 +33,7 @@ const LastEditedInWarning = ({initialType, currentType, defaultType, value, setV
   return <div>
     {loading && <Loading/>}
     <Typography variant="body2" className={classes.lastEditedWarning}>
-      This document was last edited in {editorTypeToDisplay[initialType].name} format. Showing the{' '}
+      This document was last saved in {editorTypeToDisplay[initialType].name} format. Showing the{' '}
       {editorTypeToDisplay[currentType].name} editor.{' '}
       <a
         className={classes.clickHereColor}

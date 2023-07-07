@@ -5,8 +5,15 @@ import { isPromise } from './utils';
 import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
-import type { CallbackPropertiesBase } from '../../server/mutationCallbacks';
-import Globals from './config';
+
+export interface CallbackPropertiesBase<T extends DbObject> {
+  // TODO: Many of these are empirically optional, but setting them to optional
+  // causes a bajillion type errors, so we will not be fixing today
+  currentUser: DbUser|null
+  collection: CollectionBase<T>
+  context: ResolverContext
+  schema: SchemaType<T>
+}
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string

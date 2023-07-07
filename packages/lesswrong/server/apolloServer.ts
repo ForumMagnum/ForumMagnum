@@ -35,7 +35,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCypressRoutes } from './createTestingPgDb';
+import { addCypressRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
