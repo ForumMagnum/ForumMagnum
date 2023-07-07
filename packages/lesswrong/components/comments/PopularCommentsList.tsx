@@ -61,10 +61,23 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.14px",
   },
   bodyCollapsed: {
+    position: "relative",
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
+    // Maybe we revist this in the future - Figma designs had a "Read more"
+    // but this is spectacularly difficult
+    // "&::before": {
+      // content: '"(Show more)"',
+      // float: "right",
+      // marginTop: "1.5em",
+      // color: theme.palette.primary.main,
+      // fontWeight: 600,
+      // "&:hover": {
+        // color: theme.palette.primary.light,
+      // },
+    // },
   },
 });
 
