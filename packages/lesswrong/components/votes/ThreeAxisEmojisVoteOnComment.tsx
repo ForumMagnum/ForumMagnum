@@ -50,8 +50,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
   },
   tooltip: {
-    background: theme.palette.grey[800],
-    color: theme.palette.grey[0],
+    background: theme.palette.panelBackground.tooltipBackground2,
+    color: theme.palette.text.tooltipText,
     transform: "translateY(-8px)",
     textAlign: "center",
     maxWidth: 190,
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "translateY(2px)",
   },
   tooltipSecondaryText: {
-    color: theme.palette.grey[400],
+    color: theme.palette.text.tooltipTextDim,
   },
   tooltipEmojiRow: {
     display: "flex",
