@@ -1338,6 +1338,7 @@ const schema: SchemaType<DbPost> = {
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
+  // TODO migrate
   socialPreviewImageId: {
     type: String,
     optional: true,
@@ -1362,6 +1363,36 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members'],
     canCreate: ['members'],
   },
+
+  // TODO remove
+  socialPreviewText: {
+    type: String,
+    optional: true,
+    hidden: false,
+    label: "Social Preview Text",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+  },
+
+  // socialPreview: {
+  //   type: new SimpleSchema({
+  //     imageId: String,
+  //     text: String,
+  //     useCustom: Boolean,
+  //   }),
+  //   optional: true,
+  //   label: "Social Preview Image",
+  //   canRead: ['guests'],
+  //   // TODO use more restrictive permissions
+  //   canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+  //   canCreate: ['members', 'sunshineRegiment', 'admins'],
+  //   control: "SocialPreviewUpload",
+  //   group: formGroups.socialPreview,
+  //   // TODO allow both of these
+  //   hidden: (props) => props.eventForm || props.prefilledProps?.question,
+  //   order: 4,
+  // },
 
   fmCrosspost: {
     type: new SimpleSchema({

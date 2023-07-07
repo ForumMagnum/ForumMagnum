@@ -621,6 +621,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
+  readonly socialPreviewText: string,
   readonly fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -1068,6 +1069,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
+  readonly socialPreviewText: string,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly sideCommentVisibility: string,

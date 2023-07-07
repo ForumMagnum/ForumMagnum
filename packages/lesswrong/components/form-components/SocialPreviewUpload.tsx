@@ -13,6 +13,8 @@ import markdownItSub from 'markdown-it-sub'
 import markdownItSup from 'markdown-it-sup'
 import { randomId } from '../../lib/random';
 import { ckEditorName } from '../editor/Editor';
+import classNames from 'classnames';
+import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -43,12 +45,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 7,
     overflowWrap: "anywhere",
   },
+  descriptionWrapper: {
+    height: 36,
+    marginBottom: 5,
+  },
   description: {
     fontSize: 12,
-    minHeight: 36,
-    marginBottom: 7,
     overflowWrap: "anywhere",
     whiteSpace: "pre-line",
+    paddingTop: 0,
+    paddingBottom: 2,
+    maxHeight: 36,
+    alignItems: "baseline",
+    width: "100%",
+    borderBottom: `1px solid ${theme.palette.grey[300]}`,
+    overflow: "auto"
   },
   url: {
     fontSize: 12,
@@ -85,8 +96,13 @@ mdi.use(markdownItSup)
 // - [X] use highlight text as the social preview text
 // - [X] make sure this is patched through to this component (probably in the same way as the main contents)
 // - make the field clickable to edit, set the highlight text if they type a character
+// - other styling changes
+// ...stretch
 // - also include a button to clear the highlight text and revert to the default
 // - also warn them if they're making it too long
+
+// there is a problem in that customHighlight is a full ckeditor field, but the social preview can only
+// really support plain text. I think adding another field is the way to go
 
 /**
  * Build the preview description and extract the first image in the document to use as a fallback. This is duplicating
@@ -108,33 +124,13 @@ mdi.use(markdownItSup)
  *  3.2 socialPreviewImageUrl is just used directly
  */
 const buildPreviewFromDocument = (document: PostsEditWithLocalData): {description: string | null, fallbackImageUrl: string | null} => {
-  const dataWithDiscardedSuggestions = document.contents?.dataWithDiscardedSuggestions
-  const originalContents = document.contents?.originalContents
-  const customHighlight = document.customHighlight?.originalContents
-
-  if (!originalContents) return {description: null, fallbackImageUrl: null}
-  
-  const contentsType = originalContents.type
-  if (!['html', 'ckEditorMarkup', 'markdown'].includes(contentsType)) {
-    return {
-      description: `<Description preview not supported for this editor type (${originalContents.type}), switch to HTML, Markdown, or ${ckEditorName} to see the description preview>`,
-      fallbackImageUrl: null,
-    };
-  }
-
-  const data = dataWithDiscardedSuggestions ?? originalContents.data
-  const html = contentsType === 'markdown' ? mdi.render(data, {docId: randomId()}) : data
-  if (!html) return {description: null, fallbackImageUrl: null}
-
-  const parser = new DOMParser();
-  const htmlDoc = parser.parseFromString(html, "text/html");
-  // get first img tag
-  const img = htmlDoc.querySelector("img");
+  const originalContents = document.contents?.originalContents;
+  const customHighlight = document.customHighlight?.originalContents;
 
   const toPlainText = (content: string, type: string) => {
     if (!content) return null;
-    const html = type === 'markdown' ? mdi.render(content, {docId: randomId()}) : content
-    const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+    const html = type === 'markdown' ? mdi.render(content, {docId: randomId()}) : content;
+    const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH);
     return htmlToText(truncatedHtml, {
       wordwrap: false,
       selectors: [
@@ -146,16 +142,69 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
         { selector: "h3", options: { trailingLineBreaks: 1 } },
       ]
     }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+  };
+
+  const processContents = (contents: {type: string, data: string}) => {
+    if (!['html', 'ckEditorMarkup', 'markdown'].includes(contents.type)) {
+      return {
+        description: `<Description preview not supported for this editor type (${contents.type}), switch to HTML, Markdown, or ${ckEditorName} to see the description preview>`,
+        image: null
+      };
+    }
+    const data = document.contents?.dataWithDiscardedSuggestions ?? contents.data;
+    const html = contents.type === 'markdown' ? mdi.render(data, {docId: randomId()}) : data;
+    const parser = new DOMParser();
+    const htmlDoc = parser.parseFromString(html, "text/html");
+    const img = htmlDoc.querySelector("img");
+    const plaintextDescription = toPlainText(html, contents.type);
+    return {
+      description: plaintextDescription,
+      image: img?.getAttribute("src")
+    };
+  };
+
+  const originalContentProcessed = originalContents ? processContents(originalContents) : {description: null, image: null};
+  const highlightPlaintextDesc = customHighlight ? toPlainText(customHighlight.data, customHighlight.type) : null;
+
+  const previewDesc = getPostDescription({
+    ...document,
+    contents: {plaintextDescription: originalContentProcessed.description},
+    customHighlight: {plaintextDescription: highlightPlaintextDesc}
+  });
+
+  return {
+    description: previewDesc,
+    fallbackImageUrl: originalContentProcessed.image ?? null
   }
-
-  const plaintextDescription = toPlainText(html, contentsType)
-  const highlightPlaintextDesc = toPlainText(customHighlight?.data, customHighlight?.type)
-
-  const previewDesc = getPostDescription({...document, contents: {plaintextDescription}, customHighlight: {plaintextDescription: highlightPlaintextDesc}})
-  
-  return {description: previewDesc, fallbackImageUrl: img?.getAttribute("src") || null}
 }
 
+
+
+// TODO move to own file?
+const SocialPreviewTextEdit = ({name, value, updateCurrentValues, classes}: {
+  name: string,
+  value: string,
+  updateCurrentValues: UpdateCurrentValues,
+  classes: ClassesType
+}) => {
+  return (
+    <div className={classes.descriptionWrapper}>
+      <Input
+        className={classes.description}
+        placeholder={"Write a preview subtitle..."}
+        value={value}
+        onChange={(event) => {
+          console.log("updateCurrentValues", { name, oldValue: value, value: event.target.value });
+          void updateCurrentValues({
+            [name]: event.target.value,
+          });
+        }}
+        disableUnderline={true}
+        multiline
+      />
+    </div>
+  );
+}
 
 const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
   name: string,
@@ -163,14 +212,27 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
   updateCurrentValues: UpdateCurrentValues,
   clearField: Function,
   label: string,
-  croppingAspectRatio?: number,
+  croppingAspectRatio: number,
   classes: ClassesType
 }) => {
   const { ImageUpload2 } = Components
   
   const urlHostname = new URL(getSiteUrl()).hostname
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const { description, fallbackImageUrl } = useMemo(() => buildPreviewFromDocument(document), [document.contents?.originalContents, document.contents?.dataWithDiscardedSuggestions])
+  const { description, fallbackImageUrl } = useMemo(
+    () => buildPreviewFromDocument(document),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      document.contents?.originalContents,
+      document.contents?.dataWithDiscardedSuggestions,
+      document.customHighlight?.originalContents,
+      document.socialPreviewText,
+    ]
+  );
+
+  console.log("SocialPreviewUpload", {socialPreviewText: document.socialPreviewText})
+
+  const hasTitle = document.title && document.title.length > 0
+  const hasDescription = description && description.length > 0
 
   return (
     <div className={classes.root}>
@@ -185,12 +247,15 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
           // socialPreviewImageUrl falls back to the first image in the post on save
           placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
-        <div className={classes.title}>
-          {document.title}
+        <div className={classNames(classes.title, {[classes.placeholder]: !hasTitle})}>
+          {document.title || "Title"}
         </div>
-        <div className={classes.description}>
-          {description}
-        </div>
+        <SocialPreviewTextEdit
+          name={"socialPreviewText"}
+          value={description ?? ""}
+          updateCurrentValues={updateCurrentValues}
+          classes={classes}
+        />
         <div className={classes.url}>
           {urlHostname}
         </div>

@@ -263,6 +263,7 @@ registerFragment(`
     noIndex
     viewCount
     socialPreviewImageUrl
+    socialPreviewText
     
     # Tags
     tagRelevance

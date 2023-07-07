@@ -42,9 +42,14 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
   customHighlight?: { plaintextDescription: string | null } | null;
+  socialPreviewText?: string | null;
   shortform: boolean;
   user: { displayName: string } | null;
 }) => {
+  if (post.socialPreviewText) {
+    return post.socialPreviewText;
+  }
+
   const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
   if (longDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
