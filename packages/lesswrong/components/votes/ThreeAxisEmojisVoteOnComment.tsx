@@ -23,9 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     borderRadius: theme.borderRadius.small,
     color: theme.palette.grey[600],
-    padding: "0 6px",
+    padding: "0 4px",
     gap: "4px",
-    marginLeft: 4,
+    marginLeft: 2,
     height: 26,
     cursor: "pointer",
     userSelect: "none",
@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   emojiPreview: {
-    fontSize: "1.1em",
+    fontSize: "1.3em",
     color: theme.palette.primary.main,
   },
   tooltip: {

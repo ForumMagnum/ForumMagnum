@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 6,
   },
   title: {
-    margin: "6px 6px -4px 6px",
+    margin: "4px 6px -4px 4px",
     fontSize: 11,
   },
   divider: {
@@ -31,8 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     "& svg": {
       color: theme.palette.primary.main,
-      width: 35,
-      height: 18,
+      width: 28,
+      height: 14,
     },
     "&:hover": {
       background: theme.palette.grey[200],

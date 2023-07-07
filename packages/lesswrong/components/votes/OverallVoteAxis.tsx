@@ -20,6 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   overallSectionBox: {
     marginLeft: 8,
+    marginRight: 1,
     outline: theme.palette.border.commentBorder,
     borderRadius: isEAForum ? theme.borderRadius.small : 2,
     textAlign: 'center',
