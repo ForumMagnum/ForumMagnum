@@ -237,7 +237,7 @@ const EmojiReactsSection: FC<{
                 ? (
                   <AnonymousEmojiTooltipContent
                     emojiOption={emojiOption}
-                    count={0}
+                    count={score}
                     classes={classes}
                   />
                 )
