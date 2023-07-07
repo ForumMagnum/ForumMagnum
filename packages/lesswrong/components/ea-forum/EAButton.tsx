@@ -8,9 +8,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     fontSize: 14,
-    lineHeight: '23px',
+    lineHeight: '20px',
     textTransform: 'none',
-    padding: '6px 12px',
+    padding: '8px 12px',
     borderRadius: theme.borderRadius.default,
     boxShadow: 'none',
     '&:hover': {
