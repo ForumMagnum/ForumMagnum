@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {Components, getSiteUrl, registerComponent, sanitize } from '../../lib/vulcan-lib';
 import { siteImageSetting } from '../vulcan-core/App';
@@ -179,12 +179,11 @@ const buildPreviewFromDocument = (document: PostsEditWithLocalData): {descriptio
 }
 
 
-
 // TODO move to own file?
-const SocialPreviewTextEdit = ({name, value, updateCurrentValues, classes}: {
+const SocialPreviewTextEdit = ({name, value, updateValue, classes}: {
   name: string,
   value: string,
-  updateCurrentValues: UpdateCurrentValues,
+  updateValue: (value: string) => void,
   classes: ClassesType
 }) => {
   return (
@@ -195,9 +194,7 @@ const SocialPreviewTextEdit = ({name, value, updateCurrentValues, classes}: {
         value={value}
         onChange={(event) => {
           console.log("updateCurrentValues", { name, oldValue: value, value: event.target.value });
-          void updateCurrentValues({
-            [name]: event.target.value,
-          });
+          updateValue(event.target.value);
         }}
         disableUnderline={true}
         multiline
@@ -206,16 +203,19 @@ const SocialPreviewTextEdit = ({name, value, updateCurrentValues, classes}: {
   );
 }
 
-const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, classes}: {
+const SocialPreviewUpload = ({name, value, document, updateCurrentValues, clearField, croppingAspectRatio, classes}: {
   name: string,
+  value: any,
   document: PostsEditWithLocalData,
   updateCurrentValues: UpdateCurrentValues,
-  clearField: Function,
   label: string,
+  clearField: Function,
   croppingAspectRatio: number,
   classes: ClassesType
 }) => {
   const { ImageUpload2 } = Components
+
+  console.log("SocialPreviewUpload", {name, value})
   
   const urlHostname = new URL(getSiteUrl()).hostname
   const { description, fallbackImageUrl } = useMemo(
@@ -225,22 +225,45 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
       document.contents?.originalContents,
       document.contents?.dataWithDiscardedSuggestions,
       document.customHighlight?.originalContents,
-      document.socialPreviewText,
+      document.socialPreview?.text,
     ]
   );
 
-  console.log("SocialPreviewUpload", {socialPreviewText: document.socialPreviewText})
+  const updateImageId = useCallback((imageId: string) => {
+    console.log("updateImageId", { imageId });
+    
+    const newValue = {
+      ...value,
+      imageId,
+    }
+    void updateCurrentValues({
+      [name]: newValue,
+    })
+  }, [name, updateCurrentValues, value]);
+
+  const updateText = useCallback((text: string) => {
+    console.log("updateText", { text });
+    
+    const newValue = {
+      ...value,
+      text,
+    }
+    void updateCurrentValues({
+      [name]: newValue,
+    })
+  }, [name, updateCurrentValues, value]);
+
+  // console.log("SocialPreviewUpload", {socialPreviewText: document.socialPreviewText})
 
   const hasTitle = document.title && document.title.length > 0
-  const hasDescription = description && description.length > 0
 
   return (
     <div className={classes.root}>
       <div className={classes.preview}>
         <ImageUpload2
-          name={name}
+          name={"socialPreviewImageId"}
           document={document}
-          updateCurrentValues={updateCurrentValues}
+          updateValue={updateImageId}
           clearField={clearField}
           label={fallbackImageUrl ? "Change Preview Image" : "Upload Preview Image"}
           croppingAspectRatio={croppingAspectRatio}
@@ -253,7 +276,7 @@ const SocialPreviewUpload = ({name, document, updateCurrentValues, clearField, l
         <SocialPreviewTextEdit
           name={"socialPreviewText"}
           value={description ?? ""}
-          updateCurrentValues={updateCurrentValues}
+          updateValue={updateText}
           classes={classes}
         />
         <div className={classes.url}>

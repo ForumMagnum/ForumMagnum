@@ -622,6 +622,11 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
   readonly socialPreviewText: string,
+  readonly socialPreview: {
+    imageId: string | null,
+    text: string | null,
+    useCustom: boolean | null,
+  },
   readonly fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -1069,7 +1074,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly noIndex: boolean,
   readonly viewCount: number,
   readonly socialPreviewImageUrl: string,
-  readonly socialPreviewText: string,
+  readonly socialPreview: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly sideCommentVisibility: string,
@@ -1257,6 +1262,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly socialPreview: any,
   readonly criticismTipsDismissed: boolean,
 }
 

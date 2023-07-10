@@ -263,7 +263,9 @@ registerFragment(`
     noIndex
     viewCount
     socialPreviewImageUrl
-    socialPreviewText
+    socialPreview {
+      text
+    }
     
     # Tags
     tagRelevance
@@ -488,6 +490,11 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    socialPreview {
+      imageId
+      text
+      useCustom
+    }
     criticismTipsDismissed
   }
 `);

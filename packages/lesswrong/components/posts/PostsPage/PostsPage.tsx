@@ -38,16 +38,17 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
+// TODO maybe make resolverOnlyField
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
   customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreviewText?: string | null;
+  socialPreview?: { text: string | null } | null;
   shortform: boolean;
   user: { displayName: string } | null;
 }) => {
-  if (post.socialPreviewText) {
-    return post.socialPreviewText;
+  if (post?.socialPreview?.text) {
+    return post.socialPreview.text;
   }
 
   const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;

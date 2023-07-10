@@ -26,6 +26,7 @@ import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -85,6 +86,15 @@ const rsvpType = new SimpleSchema({
     optional: true
   },
 })
+
+addGraphQLSchema(`
+  type SocialPreviewType {
+    imageId: String
+    imageUrl: String
+    text: String
+    useCustom: Boolean
+  }
+`)
 
 const MINIMUM_COAUTHOR_KARMA = 10;
 
@@ -1342,13 +1352,14 @@ const schema: SchemaType<DbPost> = {
   socialPreviewImageId: {
     type: String,
     optional: true,
+    hidden: true,
     label: "Social Preview Image",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    control: "SocialPreviewUpload",
+    // control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
-    hidden: (props) => props.eventForm || props.prefilledProps?.question,
+    // hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1375,24 +1386,52 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
   },
 
-  // socialPreview: {
-  //   type: new SimpleSchema({
-  //     imageId: String,
-  //     text: String,
-  //     useCustom: Boolean,
-  //   }),
-  //   optional: true,
-  //   label: "Social Preview Image",
-  //   canRead: ['guests'],
-  //   // TODO use more restrictive permissions
-  //   canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-  //   canCreate: ['members', 'sunshineRegiment', 'admins'],
-  //   control: "SocialPreviewUpload",
-  //   group: formGroups.socialPreview,
-  //   // TODO allow both of these
-  //   hidden: (props) => props.eventForm || props.prefilledProps?.question,
-  //   order: 4,
-  // },
+  socialPreview: {
+    type: new SimpleSchema({
+      imageId: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+      text: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+      useCustom: {
+        type: Boolean,
+        optional: true,
+        nullable: true
+      },
+    }),
+    resolveAs: {
+      type: "SocialPreviewType",
+      fieldName: "socialPreviewData",
+      addOriginalField: true,
+      resolver: async (post: DbPost, args, context: ResolverContext) => {
+        // TODO error is introduced by running yarn generate with resolveAs set
+        const { imageId, text, useCustom } = post.socialPreview || {};
+        const imageUrl = getSocialPreviewImage(post);
+        return {
+          imageId,
+          imageUrl,
+          text,
+          useCustom,
+        }
+      }
+    },
+    optional: true,
+    label: "Social Preview Image",
+    canRead: ['guests'],
+    // TODO use more restrictive permissions
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
+    // TODO allow both of these
+    hidden: (props) => props.eventForm || props.prefilledProps?.question,
+    order: 4,
+  },
 
   fmCrosspost: {
     type: new SimpleSchema({
