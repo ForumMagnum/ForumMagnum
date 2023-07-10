@@ -17,6 +17,9 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  overallAxis: {
+    marginRight: 1,
+  },
   button: {
     marginTop: -1,
     display: "flex",
@@ -333,6 +336,7 @@ const ThreeAxisEmojisVoteOnComment = ({
               document={document}
               hideKarma={hideKarma}
               voteProps={voteProps}
+              className={classes.overallAxis}
               showBox
             />
             <EmojiReactsSection
