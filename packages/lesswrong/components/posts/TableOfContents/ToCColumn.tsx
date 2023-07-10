@@ -4,6 +4,7 @@ import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
@@ -140,6 +141,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const shouldHideToggleContentsButton = () => {
+  if (!isClient) {
+    return false;
+  }
+
   const {scrollY, innerHeight} = window;
   const scrollEnd = document.body.scrollHeight - innerHeight;
   // We hide the button when:
