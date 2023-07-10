@@ -51,6 +51,7 @@ importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedP
 importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
 importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJobAd'))
 importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
+importComponent("EAButton", () => require('../components/ea-forum/EAButton'))
 importComponent("EAGApplicationImportForm", () => require('../components/ea-forum/users/EAGApplicationImportForm'))
 importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
 importComponent("EAUsersProfileImage", () => require('../components/ea-forum/users/EAUsersProfileImage'))
