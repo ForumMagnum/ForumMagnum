@@ -9,7 +9,7 @@ import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -57,7 +57,11 @@ const styles = (theme: ThemeType): JssStyles => ({
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
-    isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+    [
+      isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+      (item) => toTag(item)?.name,
+      (item) => toTag(item)?._id,
+    ]
   );
 }
 
