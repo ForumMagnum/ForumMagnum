@@ -122,18 +122,6 @@ mdi.use(markdownItFootnote);
 mdi.use(markdownItSub);
 mdi.use(markdownItSup);
 
-// TODO to make preview text editable:
-// - [X] use highlight text as the social preview text
-// - [X] make sure this is patched through to this component (probably in the same way as the main contents)
-// - make the field clickable to edit, set the highlight text if they type a character
-// - other styling changes
-// ...stretch
-// - also include a button to clear the highlight text and revert to the default
-// - also warn them if they're making it too long
-
-// there is a problem in that customHighlight is a full ckeditor field, but the social preview can only
-// really support plain text. I think adding another field is the way to go
-
 /**
  * Build the preview description and extract the first image in the document to use as a fallback. This is duplicating
  * the fairly roundabout process that happens on the server to generate the preview description and image. The logic here
@@ -232,7 +220,6 @@ const SocialPreviewTextEdit = ({
         placeholder={"Write a preview subtitle..."}
         value={value}
         onChange={(event) => {
-          // console.log("updateCurrentValues", { oldValue: value, value: event.target.value });
           updateValue(event.target.value);
         }}
         disableUnderline={true}
@@ -262,7 +249,6 @@ const SocialPreviewUpload = ({
 }) => {
   const { ImageUpload2 } = Components;
 
-  // console.log("SocialPreviewUpload", { name, value });
   const docWithValue = { ...document, socialPreviewData: value };
 
   const textValue = value?.text ?? undefined;
@@ -281,8 +267,6 @@ const SocialPreviewUpload = ({
 
   const updateImageId = useCallback(
     (imageId: string | undefined) => {
-      // console.log("updateImageId", { imageId });
-
       const newValue = {
         ...value,
         imageId,
@@ -296,8 +280,6 @@ const SocialPreviewUpload = ({
 
   const updateText = useCallback(
     (text: string | undefined) => {
-      // console.log("updateText", { text });
-
       const newValue = {
         ...value,
         text,

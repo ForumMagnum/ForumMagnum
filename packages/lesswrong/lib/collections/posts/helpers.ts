@@ -85,7 +85,8 @@ ${postGetLink(post, true, false)}
 // cloudinary image if available, or the auto-set from the post contents. If
 // neither of those are available, it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
-  const manualId = post.socialPreviewImageId
+  // Note: socialPreviewImageId, this is just a fallback in case of an unsuccessful migration
+  const manualId = post.socialPreview?.imageId ?? post.socialPreviewImageId
   if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''

@@ -467,7 +467,8 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
   }),
-  
+
+  // DEPRECATED: use socialPreview.imageUrl instead
   socialPreviewImageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
@@ -1347,7 +1348,7 @@ const schema: SchemaType<DbPost> = {
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
-  // TODO migrate
+  // DEPRECATED: use socialPreview.imageId instead
   socialPreviewImageId: {
     type: String,
     optional: true,

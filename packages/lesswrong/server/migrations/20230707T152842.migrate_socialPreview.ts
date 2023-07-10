@@ -32,7 +32,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "1086244fc2125ed27d1981cc3f4d4a4c";
+export const acceptsSchemaHash = "4b4e757dda0d5609834188196a6c1742";
 
 import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
@@ -41,7 +41,12 @@ export const up = async ({db}: MigrationContext) => {
   if (!Posts.isPostgres()) return;
 
   await addField(db, Posts, "socialPreview");
-  // TODO migrate
+  // migrate socialPreviewImageId to socialPreview = {imageId: socialPreviewImageId}
+  await db.any(`
+    UPDATE "Posts"
+    SET "socialPreview" = jsonb_build_object('imageId', "socialPreviewImageId")
+    WHERE "socialPreviewImageId" IS NOT NULL
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {

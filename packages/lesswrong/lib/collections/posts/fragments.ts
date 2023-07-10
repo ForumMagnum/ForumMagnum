@@ -262,9 +262,9 @@ registerFragment(`
     canonicalSource
     noIndex
     viewCount
-    socialPreviewImageUrl
     socialPreviewData {
       text
+      imageUrl
     }
     
     # Tags
