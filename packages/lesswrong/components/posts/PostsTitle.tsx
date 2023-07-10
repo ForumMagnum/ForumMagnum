@@ -196,7 +196,9 @@ const PostsTitle = ({
         {isLink ? <Link to={url}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        </InteractionWrapper>
       </span>}
     </span>
   )
