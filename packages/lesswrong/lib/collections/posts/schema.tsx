@@ -92,7 +92,6 @@ addGraphQLSchema(`
     imageId: String
     imageUrl: String
     text: String
-    useCustom: Boolean
   }
 `)
 
@@ -1375,17 +1374,6 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
   },
 
-  // TODO remove
-  socialPreviewText: {
-    type: String,
-    optional: true,
-    hidden: false,
-    label: "Social Preview Text",
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
-  },
-
   socialPreview: {
     type: new SimpleSchema({
       imageId: {
@@ -1398,11 +1386,6 @@ const schema: SchemaType<DbPost> = {
         optional: true,
         nullable: true
       },
-      useCustom: {
-        type: Boolean,
-        optional: true,
-        nullable: true
-      },
     }),
     resolveAs: {
       type: "SocialPreviewType",
@@ -1410,20 +1393,18 @@ const schema: SchemaType<DbPost> = {
       addOriginalField: true,
       resolver: async (post: DbPost, args, context: ResolverContext) => {
         // TODO error is introduced by running yarn generate with resolveAs set
-        const { imageId, text, useCustom } = post.socialPreview || {};
+        const { imageId, text } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
           imageId,
           imageUrl,
           text,
-          useCustom,
         }
       }
     },
     optional: true,
     label: "Social Preview Image",
     canRead: ['guests'],
-    // TODO use more restrictive permissions
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: "SocialPreviewUpload",

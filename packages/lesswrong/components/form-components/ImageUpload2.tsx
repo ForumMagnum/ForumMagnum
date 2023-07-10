@@ -44,9 +44,9 @@ const formPreviewSizeByImageType: AnyBecauseTodo = {
   },
 }
 
-const ImageUpload2 = ({name, document, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
-  document: AnyBecauseTodo,
+  value: string | null | undefined,
   updateValue: (value: string) => void,
   clearField: Function,
   label: string,
@@ -72,12 +72,7 @@ const ImageUpload2 = ({name, document, updateValue, clearField, label, croppingA
     setImageId(null)
   }
 
-  const [imageId, setImageId] = useState(() => {
-    if (document && document[name]) {
-      return document[name];
-    }
-    return ''
-  })
+  const [imageId, setImageId] = useState(value)
 
   const formPreviewSize = formPreviewSizeByImageType[name]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")

@@ -263,7 +263,7 @@ registerFragment(`
     noIndex
     viewCount
     socialPreviewImageUrl
-    socialPreview {
+    socialPreviewData {
       text
     }
     
@@ -490,10 +490,10 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
-    socialPreview {
+    socialPreview
+    socialPreviewData {
       imageId
       text
-      useCustom
     }
     criticismTipsDismissed
   }

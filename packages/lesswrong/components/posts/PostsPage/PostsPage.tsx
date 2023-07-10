@@ -38,17 +38,16 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
-// TODO maybe make resolverOnlyField
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
   customHighlight?: { plaintextDescription: string | null } | null;
-  socialPreview?: { text: string | null } | null;
+  socialPreviewData?: { text: string | null } | null;
   shortform: boolean;
   user: { displayName: string } | null;
 }) => {
-  if (post?.socialPreview?.text) {
-    return post.socialPreview.text;
+  if (post?.socialPreviewData?.text) {
+    return post.socialPreviewData.text;
   }
 
   const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
@@ -264,6 +263,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
+  console.log("PostsPage", {post})
   const location = useSubscribedLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
