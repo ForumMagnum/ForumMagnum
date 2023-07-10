@@ -12,6 +12,7 @@ import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../li
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
+import { useCurrentUser } from './withUser';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -68,10 +69,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       display:"inline-block",
     },
   },
+  searchInputAreaSmall: isEAForum ? {
+    minWidth: 34,
+  } : {},
   searchIcon: {
     position: 'fixed',
     color: isEAForum ? undefined : theme.palette.header.text,
   },
+  searchIconSmall: isEAForum ? {
+    padding: 6,
+    marginTop: 6,
+  } : {},
   closeSearchIcon: {
     fontSize: 14,
   },
@@ -97,6 +105,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   searchResultsArea: any,
   classes: ClassesType
 }) => {
+  const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
@@ -169,11 +178,11 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: alignmentForum}
+          {[classes.alignmentForum]: alignmentForum, [classes.searchInputAreaSmall]: !currentUser}
         )}>
           {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <IconButton className={classes.searchIcon}>
+            <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
               <ForumIcon icon="Search" />
             </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
