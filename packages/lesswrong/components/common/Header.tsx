@@ -328,11 +328,11 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                 </NoSSR>
                 {!isEAForum && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier
+                {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
                   currentUser={currentUser}
                   className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
                 />}
-                {currentUser && <NotificationsMenuButton
+                {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
