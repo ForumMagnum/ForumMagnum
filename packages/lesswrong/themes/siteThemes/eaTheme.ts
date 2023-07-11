@@ -110,6 +110,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette) => {
+    const defaultBorderRadius = 6
     const basicText = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
@@ -122,7 +123,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         mainLayoutPaddingTop: 20
       },
       borderRadius: {
-        default: 6,
+        default: defaultBorderRadius,
         small: 4,
       },
       typography: {
@@ -312,14 +313,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             display: 'none'
           }
         },
-        SequencesPage: {
-          root: {
-            paddingTop: 345,
-          },
-          banner: {
-            top: 77,
-          },
-        },
         EAAllTagsPage: {
           portal: {
             background: palette.grey[0],
@@ -367,6 +360,11 @@ export const eaForumTheme: SiteThemeSpecification = {
             marginRight: 12,
           }
         },
+        MuiIconButton: {
+          root: {
+            borderRadius: defaultBorderRadius
+          }
+        }
       }
     }
   }

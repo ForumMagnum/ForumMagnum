@@ -9,7 +9,7 @@ import { withLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: 5,
+    marginTop: isEAForum ? undefined : 5,
   },
   userButton: {
     fontSize: '14px',
@@ -17,12 +17,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .8,
     color: theme.palette.header.text,
   },
-  signUpButton: {
+  login: {
+    marginLeft: 12,
+    marginRight: 8
+  },
+  signUp: {
     display: 'inline-block',
-    [theme.breakpoints.down('xs')]: {
+    marginRight: 8,
+    '@media (max-width: 540px)': {
       display: 'none'
     }
-  }
+  },
 })
 
 interface UsersAccountMenuProps extends WithStylesProps {
@@ -61,6 +66,8 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
   render() {
     const { classes, location } = this.props
+    const { EAButton, WrappedLoginForm } = Components
+    
     // Location is always passed in by hoc. We can't make it a required prop due
     // to a limitation in our typings
     const { pathname } = location!
@@ -68,18 +75,12 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
     return (
       <div className={classes.root}>
         {forumTypeSetting.get() === 'EAForum' ? <>
-          <Button href={`/auth/auth0?returnTo=${pathname}`}>
-            <span className={classes.userButton}>
-              Login
-            </span>
-          </Button>
-          <div className={classes.signUpButton}>
-            <Button href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}>
-              <span className={classes.userButton}>
-                Sign Up
-              </span>
-            </Button>
-          </div>
+          <EAButton style="grey" href={`/auth/auth0?returnTo=${pathname}`} className={classes.login}>
+            Login
+          </EAButton>
+          <EAButton href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`} className={classes.signUp}>
+            Sign up
+          </EAButton>
         </> : <>
           <Button onClick={this.handleClick}>
             <span className={classes.userButton}>
@@ -92,7 +93,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
             onClose={this.handleRequestClose}
           >
-            {this.state.open && <Components.WrappedLoginForm />}
+            {this.state.open && <WrappedLoginForm />}
           </Popover>
         </>}
       </div>

@@ -98,6 +98,12 @@ export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
   description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
 });
 
+export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
+  name: "hide_more_from_the_forum_recommendations",
+  type: "functional",
+  description: "Don't show the \"More from the forum\" recommendations section",
+});
+
 // Third party cookies
 
 // Intercom
