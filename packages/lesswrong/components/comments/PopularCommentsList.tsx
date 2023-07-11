@@ -91,7 +91,7 @@ const PopularComment: FC<{
   const onClickCallback = useCallback(() => {
     setExpanded(!expanded);
     captureEvent("popularCommentToggleExpanded", {expanded: !expanded});
-  }, [expanded]);
+  }, [expanded, captureEvent]);
 
   const {onClick} = useClickableCell({onClick: onClickCallback});
 
