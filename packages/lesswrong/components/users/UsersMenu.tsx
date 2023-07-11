@@ -32,7 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
     paddingLeft: isEAForum ? 12 : theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    borderRadius: isEAForum ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
