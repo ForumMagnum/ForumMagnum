@@ -90,15 +90,19 @@ const PopularCommentTitle: FC<{
   const {isRead} = useRecordPostView(post);
   return (
     <div className={classes.row}>
-      <Link
-        to={postGetPageUrl(post)}
-        className={classNames(classes.post, {[classes.postRead]: isRead})}
-      >
-        {post.title}
-      </Link>
-      <Link to={commentGetPageUrl(comment)} className={classes.link}>
-        View in thread
-      </Link>
+      <InteractionWrapper>
+        <Link
+          to={postGetPageUrl(post)}
+          className={classNames(classes.post, {[classes.postRead]: isRead})}
+        >
+          {post.title}
+        </Link>
+      </InteractionWrapper>
+      <InteractionWrapper>
+        <Link to={commentGetPageUrl(comment)} className={classes.link}>
+          View in thread
+        </Link>
+      </InteractionWrapper>
     </div>
   );
 }
@@ -128,7 +132,9 @@ const PopularComment = ({comment, classes}: {
         />
       }
       <div className={classes.row}>
-        <UsersName user={comment.user} className={classes.username} />
+        <InteractionWrapper>
+          <UsersName user={comment.user} className={classes.username} />
+        </InteractionWrapper>
         <div className={classes.date}>
           <LWTooltip
             placement="right"
