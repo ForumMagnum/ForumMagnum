@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { FC, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -6,6 +6,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
 import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
+import { useRecordPostView } from "../hooks/useRecordPostView";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
@@ -29,11 +30,14 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
   },
   post: {
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[1000],
     fontWeight: 600,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+  },
+  postRead: {
+    color: theme.palette.grey[600],
   },
   link: {
     color: theme.palette.primary.main,
@@ -78,6 +82,27 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const PopularCommentTitle: FC<{
+  comment: CommentsListWithParentMetadata,
+  post: NonNullable<Pick<CommentsListWithParentMetadata, "post">["post"]>,
+  classes: ClassesType,
+}> = ({comment, post, classes}) => {
+  const {isRead} = useRecordPostView(post);
+  return (
+    <div className={classes.row}>
+      <Link
+        to={postGetPageUrl(post)}
+        className={classNames(classes.post, {[classes.postRead]: isRead})}
+      >
+        {post.title}
+      </Link>
+      <Link to={commentGetPageUrl(comment)} className={classes.link}>
+        View in thread
+      </Link>
+    </div>
+  );
+}
+
 const PopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType,
@@ -96,14 +121,11 @@ const PopularComment = ({comment, classes}: {
   return (
     <div onClick={onClick} className={classes.root}>
       {comment.post &&
-        <div className={classes.row}>
-          <Link to={postGetPageUrl(comment.post)} className={classes.post}>
-            {comment.post?.title}
-          </Link>
-          <Link to={commentGetPageUrl(comment)} className={classes.link}>
-            View in thread
-          </Link>
-        </div>
+        <PopularCommentTitle
+          post={comment.post}
+          comment={comment}
+          classes={classes}
+        />
       }
       <div className={classes.row}>
         <UsersName user={comment.user} className={classes.username} />

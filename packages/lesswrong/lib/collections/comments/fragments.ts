@@ -145,6 +145,7 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+      isRead
     }
     tag {
       ...TagBasicInfo

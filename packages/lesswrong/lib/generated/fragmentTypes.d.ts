@@ -1470,8 +1470,12 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 }
 
 interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
-  readonly post: PostsMinimumInfo|null,
+  readonly post: CommentsListWithParentMetadata_post|null,
   readonly tag: TagBasicInfo|null,
+}
+
+interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // fragment on Posts
+  readonly isRead: boolean,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
