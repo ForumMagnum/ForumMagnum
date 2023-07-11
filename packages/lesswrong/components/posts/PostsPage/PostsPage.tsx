@@ -263,7 +263,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
-  console.log("PostsPage", {post})
   const location = useSubscribedLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();

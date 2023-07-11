@@ -1357,9 +1357,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    // control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
-    // hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1393,7 +1391,6 @@ const schema: SchemaType<DbPost> = {
       fieldName: "socialPreviewData",
       addOriginalField: true,
       resolver: async (post: DbPost, args, context: ResolverContext) => {
-        // TODO error is introduced by running yarn generate with resolveAs set
         const { imageId, text } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
@@ -1410,8 +1407,6 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
-    // TODO allow both of these
-    hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
 
