@@ -82,8 +82,8 @@ export const getPostDescription = (post: {
       // paragraph, so we should stop
       break;
     }
-    if (firstFewPars.length > 198) {
-      return firstFewPars.slice(0, 199).trim() + "…";
+    if (firstFewPars.length > 148) {
+      return firstFewPars.slice(0, 149).trim() + "…";
     }
     return firstFewPars + " …";
   }

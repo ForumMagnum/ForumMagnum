@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo } from "react";
-import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Components, getSiteUrl, registerComponent, sanitize } from "../../lib/vulcan-lib";
 import { siteImageSetting } from "../vulcan-core/App";
 import { htmlToText } from "html-to-text";
@@ -19,7 +18,7 @@ import { ckEditorName } from "../editor/Editor";
 import classNames from "classnames";
 import Input from "@material-ui/core/Input";
 
-const DESCRIPTION_HEIGHT = 56;
+const DESCRIPTION_HEIGHT = 56; // 3 lines
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflowWrap: "anywhere",
   },
   descriptionWrapper: {
-    height: DESCRIPTION_HEIGHT,
+    minHeight: DESCRIPTION_HEIGHT,
     marginBottom: 5,
   },
   description: {
@@ -61,7 +60,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "pre-line",
     paddingTop: 0,
     paddingBottom: 2,
-    maxHeight: DESCRIPTION_HEIGHT,
+    // Allow around 1 line of expansion before scrolling
+    maxHeight: DESCRIPTION_HEIGHT + 16,
     alignItems: "baseline",
     width: "100%",
     borderBottom: `1px solid ${theme.palette.grey[400]}`,
@@ -203,7 +203,6 @@ const buildPreviewFromDocument = (
   };
 };
 
-// TODO move to own file?
 const SocialPreviewTextEdit = ({
   value,
   updateValue,
@@ -213,13 +212,34 @@ const SocialPreviewTextEdit = ({
   updateValue: (value: string) => void;
   classes: ClassesType;
 }) => {
+  // This handling here is a workaround for a bug in the Input component, you can ignore it
+  // and just assume `value` is the source of truth here
+  //
+  // Details of the bug: The Input component manages its own size with some javascript which sets
+  // its height explicitly. When you type one character at a time this is fine, but when a large
+  // block of text is pasted in it fails to expand the height enough (I think it only does one line
+  // per update) and a scroll is introduced. This workaround makes it so large updates are incrementally
+  // added when the length reaches the danger zone of introducing a scroll.
+  const INCREMENT = 10;
+  const MAX_SAFE_LENGTH = 100;
+  const getNewLength = (currentLength: number) => Math.max(currentLength + INCREMENT, MAX_SAFE_LENGTH);
+
+  const [displayedValue, setDisplayedValue] = useState(value);
+
+  useEffect(() => {
+    if (displayedValue !== value) {
+      setDisplayedValue(value.slice(0, getNewLength(displayedValue.length)));
+    }
+  }, [value, displayedValue]);
+
   return (
     <div className={classes.descriptionWrapper}>
       <Input
         className={classes.description}
         placeholder={"Write a preview subtitle..."}
-        value={value}
+        value={displayedValue}
         onChange={(event) => {
+          setDisplayedValue(event.target.value.slice(0, getNewLength(value.length)));
           updateValue(event.target.value);
         }}
         disableUnderline={true}
@@ -314,7 +334,7 @@ const SocialPreviewUpload = ({
           <div>{urlHostname}</div>
           {textValue !== undefined && (
             <div className={classes.revertButton} onClick={() => updateText(undefined)}>
-              use default
+              use default text
             </div>
           )}
         </div>
