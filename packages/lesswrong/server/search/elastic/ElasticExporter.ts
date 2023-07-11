@@ -1,5 +1,5 @@
 import { OnDropDocument } from "@elastic/elasticsearch/lib/helpers";
-import { htmlToText } from "html-to-text";
+import { htmlToTextDefault } from "../../../lib/htmlToText";
 import ElasticClient from "./ElasticClient";
 import { collectionNameToConfig, Mappings } from "./ElasticConfig";
 import {
@@ -189,12 +189,7 @@ class ElasticExporter {
     // is a lot more flexible
     for (const field of HTML_FIELDS) {
       if (field in document) {
-        document[field] = htmlToText(document[field] ?? "", {
-          selectors: [
-            {selector: "a", options: {ignoreHref: true}},
-            {selector: "img", format: "skip"},
-          ],
-        });
+        document[field] = htmlToTextDefault(document[field] ?? "");
       }
     }
     return {id, document};

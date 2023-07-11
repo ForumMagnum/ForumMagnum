@@ -2,7 +2,7 @@ import Posts from "../lib/collections/posts/collection";
 import { PostEmbeddingsRepo } from "./repos";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
-import { htmlToText } from "html-to-text";
+import { htmlToTextDefault } from "../lib/htmlToText";
 import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
@@ -46,13 +46,6 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   };
 }
 
-const stripHtml = (html: string): string => htmlToText(html, {
-  selectors: [
-    {selector: "a", options: {ignoreHref: true}},
-    {selector: "img", format: "skip"},
-  ],
-});
-
 const getEmbeddingsForPost = async (
   postId: string,
 ): Promise<EmbeddingsResult & {hash: string}> => {
@@ -60,7 +53,7 @@ const getEmbeddingsForPost = async (
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
   }
-  const text = stripHtml(post.contents?.html ?? "");
+  const text = htmlToTextDefault(post.contents?.html ?? "");
   const embeddings = await getEmbeddingsFromApi(text);
   const hash = md5(text);
   return {hash, ...embeddings};
