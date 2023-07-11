@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "12px",
+    color: theme.palette.greyAlpha(0.5),
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[200]}`,
@@ -42,6 +43,7 @@ const styles = (theme: ThemeType) => ({
   username: {
     fontWeight: 600,
     whiteSpace: "nowrap",
+    color: theme.palette.grey[1000],
   },
   date: {
     color: theme.palette.grey[600],
@@ -49,6 +51,7 @@ const styles = (theme: ThemeType) => ({
   body: {
     lineHeight: "160%",
     letterSpacing: "-0.14px",
+    color: theme.palette.grey[1000],
   },
   bodyCollapsed: {
     position: "relative",
