@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "10px",
     color: theme.palette.greyAlpha(0.5),
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
