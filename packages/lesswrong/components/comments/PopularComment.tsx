@@ -31,10 +31,14 @@ const styles = (theme: ThemeType) => ({
   post: {
     color: theme.palette.grey[600],
     fontWeight: 600,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   link: {
     color: theme.palette.primary.main,
     fontWeight: 600,
+    whiteSpace: "nowrap",
     "&:hover": {
       opacity: 1,
       color: theme.palette.primary.light,
