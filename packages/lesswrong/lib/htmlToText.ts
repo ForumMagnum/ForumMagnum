@@ -1,6 +1,6 @@
-import { HtmlToTextOptions, htmlToText } from "html-to-text";
+import { compile } from "html-to-text";
 
-const defaultHtmlToTextOptions: HtmlToTextOptions = {
+const defaultConverter = compile({
   selectors: [
     {selector: "a", options: {ignoreHref: true}},
     {selector: "img", format: "skip"},
@@ -11,7 +11,6 @@ const defaultHtmlToTextOptions: HtmlToTextOptions = {
     {selector: "h5", options: {uppercase: false}},
     {selector: "h6", options: {uppercase: false}},
   ],
-};
+});
 
-export const htmlToTextDefault = (html = "") =>
-  htmlToText(html, defaultHtmlToTextOptions);
+export const htmlToTextDefault = (html = "") => defaultConverter(html);
