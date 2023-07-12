@@ -64,6 +64,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
     maxWidth: 190,
   },
+  tooltipWide: {
+    maxWidth: 400,
+  },
   addEmojiTooltip: {
     transform: "translateY(-10px)",
   },
@@ -263,7 +266,9 @@ const EmojiReactsSection: FC<{
                 )
             }
             placement="top"
-            popperClassName={classes.tooltip}
+            popperClassName={classNames(classes.tooltip, {
+              [classes.tooltipWide]: score > 10,
+            })}
           >
             <div
               role="button"
