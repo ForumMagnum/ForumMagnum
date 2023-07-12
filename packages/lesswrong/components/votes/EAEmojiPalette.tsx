@@ -21,7 +21,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   emoji: {
     display: "flex",
-    alignItems: "center",
     padding: "8px 12px 8px 0",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
@@ -29,14 +28,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     userSelect: "none",
     borderRadius: theme.borderRadius.default,
-    "& svg": {
-      color: theme.palette.primary.main,
-      width: 28,
-      height: 14,
-    },
     "&:hover": {
       background: theme.palette.grey[200],
     },
+  },
+  icon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.primary.main,
+    textAlign: "center",
+    width: 28,
   },
 });
 
@@ -61,7 +63,9 @@ const PaletteSection: FC<{
             onClick={() => onSelectEmoji(emojiOption)}
             className={classes.emoji}
           >
-            <emojiOption.Component />
+            <div className={classes.icon}>
+              <emojiOption.Component />
+            </div>
             {emojiOption.label}
           </div>
         )}
