@@ -438,6 +438,7 @@ registerFragment(`
     
     # Privacy settings
     allowDatadogSessionReplay
+    allowAdminsToUseVotes
 
     # Admin & Review
     reviewedByUserId
