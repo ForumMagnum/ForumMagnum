@@ -19,9 +19,17 @@ import classNames from "classnames";
 const styles = (theme: ThemeType): JssStyles => ({
   overallAxis: {
     marginRight: 1,
+    "&.OverallVoteAxis-overallSection": {
+      height: 22,
+      "& > *": {
+        transform: "translateY(-1px)",
+      },
+      "& > *:nth-child(2)": {
+        transform: "translateY(-2px)",
+      },
+    },
   },
   button: {
-    marginTop: -1,
     display: "flex",
     alignItems: "center",
     borderRadius: theme.borderRadius.small,
@@ -29,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "0 4px",
     gap: "4px",
     marginLeft: 2,
-    height: 26,
+    height: 24,
     cursor: "pointer",
     userSelect: "none",
     border: "1px solid transparent",
