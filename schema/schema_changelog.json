@@ -253,5 +253,10 @@
     "acceptsSchemaHash": "d6b5c3a5a64a7eea065377c71e1b8acf",
     "acceptedByMigration": "20230620T120843.add_noindex.ts",
     "timestamp": "2023-06-20T12:08:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "fe7139368423b05281e1da72ae53e965",
+    "acceptedByMigration": "20230712T213740.add_allowAdminsToUseVotes_to_Users.ts",
+    "timestamp": "2023-07-12T21:37:40.000Z"
   }
 ]

@@ -2630,6 +2630,19 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.privacy,
     ...schemaDefaultValue(false),
   },
+  allowAdminsToUseVotes: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: forumTypeSetting.get() !== 'EAForum',
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    label: "Allow the EA Forum Team to use my votes for content recommendations",
+    tooltip: "Allow us to use your votes in aggregate with other users' votes to inform our content recommendation choices, such as in the weekly digest. We will never look at your votes on an individual level.",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
 
   /* Alignment Forum fields */
   afPostCount: {

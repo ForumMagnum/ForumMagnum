@@ -1385,6 +1385,7 @@ interface DbUser extends DbObject {
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean | null
+  allowAdminsToUseVotes: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number
