@@ -54,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   emojiPreview: {
-    fontSize: "1.3em",
+    display: "flex",
     color: theme.palette.primary.main,
   },
   tooltip: {
