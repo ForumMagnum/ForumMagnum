@@ -99,10 +99,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
   },
   reactPaletteFooter: {
-    display: "flex",
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    paddingBottom: 6,
+    textAlign: "center",
+    padding: 6,
+    paddingTop: 10
   },
   reactPaletteFooterFeedbackButton: {
     display: "inline",
@@ -190,11 +189,11 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   const getReactionFromName = (name: string) => namesAttachedReactions.find(r => r.name === name && reactionsToShow.includes(r));
 
   const primary = [
-    'agree', 'disagree', 'important', 'dontUnderstand', 'shrug', 'thinking', 'surprise', 'confused', 'thumbs-up', 
+    'agree', 'disagree', 'important', 'dontUnderstand', 'shrug', 'thinking', 'surprise', 'seen', 'thumbs-up', 
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const emotions = [
-    'smile', 'laugh', 'disappointed', 'empathy', 'excitement', 'thumbs-up', 'thumbs-down', 'seen', 'thanks',
+    'smile', 'laugh', 'disappointed', 'confused', 'roll', 'excitement', 'thumbs-up', 'thumbs-down', 'paperclip', 
   ].map(r => getReactionFromName(r)).filter(r => r);
   
   const gridSectionB = [
@@ -303,7 +302,8 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
         <div>
           {listViewSectionD.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </div>
-        <p className={classes.iconSection}>
+        <p>
+          {likelihoods.map(react => react && gridReactButton(react, 24))}
           {emotions.map(react => react && gridReactButton(react, 24))}
         </p>
       </div>}
@@ -321,21 +321,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
         {likelihoods.map(react => react && gridReactButton(react, 24))}
       </div>}
     </div>
-    {displayStyle === "listView" && <div className={classes.paddedRow}>
-      {likelihoods.map(react => react && gridReactButton(react, 24))}
-    </div>}
     <div className={classes.reactPaletteFooter}>
-      <LWTooltip title={currentUser?.hideIntercom ? "You must enable Intercom in your user settings" : ""}>
-        <a className={classes.reactPaletteFooterFeedbackButton} onClick={() => {
-            captureEvent("reactPaletteFeedbackButtonClicked")
-          // eslint-disable-next-line babel/new-cap
-            window.Intercom('trackEvent', 'suggest-react-palette-feedback')
-          }}>
-          <span className={classes.reactPaletteFeedbackButton}>
-            Request React / Give Feedback
-          </span>
-        </a>
-      </LWTooltip>
       {displayStyle == "listView" && <a className={classes.showAllButton} onClick={() => {
         setShowAll(!showAll)
         captureEvent("reactPaletteShowMoreClicked", {showAll: !showAll})
