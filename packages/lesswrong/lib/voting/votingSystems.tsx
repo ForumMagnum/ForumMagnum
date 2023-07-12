@@ -261,7 +261,7 @@ const getEmojiReactionPower = (value?: boolean) =>
 
 registerVotingSystem({
   name: "eaEmojis",
-  description: "Two-axis approve and agree, plus emoji reactions",
+  description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
