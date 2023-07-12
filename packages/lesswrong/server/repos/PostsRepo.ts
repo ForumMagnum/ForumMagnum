@@ -111,7 +111,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           SELECT
             "commentId",
             "key",
-            (ARRAY_AGG("displayName" ORDER BY "karma" DESC)) AS "displayNames"
+            (ARRAY_AGG(
+              "displayName" ORDER BY COALESCE("karma", 0) DESC)
+            ) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
