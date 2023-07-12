@@ -216,7 +216,7 @@ const EmojiReactsSection: FC<{
 
     voteProps.vote({
       document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
+      voteType: "neutral",
       extendedVote: {
         ...voteProps.document.currentUserExtendedVote,
         [emojiOption.name]: !isEmojiSelected(voteProps, emojiOption),
