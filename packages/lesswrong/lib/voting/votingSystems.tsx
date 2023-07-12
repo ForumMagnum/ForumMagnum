@@ -260,9 +260,9 @@ const getEmojiReactionPower = (value?: boolean) =>
   value === true ? 1 : 0;
 
 registerVotingSystem({
-  name: "threeAxisEmojis",
+  name: "eaEmojis",
   description: "Two-axis approve and agree, plus emoji reactions",
-  getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
+  getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,

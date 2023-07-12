@@ -2486,7 +2486,7 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     canRead: ['guests'],
     resolver: async (post, _, context) => {
-      if (post.votingSystem !== "threeAxisEmojis") {
+      if (post.votingSystem !== "eaEmojis") {
         return null;
       }
       return context.repos.posts.getEmojiReactors(post._id);

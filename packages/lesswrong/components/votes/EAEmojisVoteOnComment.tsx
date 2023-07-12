@@ -310,17 +310,17 @@ const EmojiReactsSection: FC<{
   );
 }
 
-interface ThreeAxisEmojisVoteOnCommentProps extends CommentVotingComponentProps {
+interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType,
 }
 
-const ThreeAxisEmojisVoteOnComment = ({
+const EAEmojisVoteOnComment = ({
   document,
   hideKarma = false,
   collection,
   votingSystem,
   classes,
-}: ThreeAxisEmojisVoteOnCommentProps) => {
+}: EAEmojisVoteOnCommentProps) => {
   const voteProps = useVote(
     document,
     collection.options.collectionName,
@@ -360,14 +360,14 @@ const ThreeAxisEmojisVoteOnComment = ({
   );
 }
 
-const ThreeAxisEmojisVoteOnCommentComponent = registerComponent(
-  "ThreeAxisEmojisVoteOnComment",
-  ThreeAxisEmojisVoteOnComment,
+const EAEmojisVoteOnCommentComponent = registerComponent(
+  "EAEmojisVoteOnComment",
+  EAEmojisVoteOnComment,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ThreeAxisEmojisVoteOnComment: typeof ThreeAxisEmojisVoteOnCommentComponent
+    EAEmojisVoteOnComment: typeof EAEmojisVoteOnCommentComponent
   }
 }
