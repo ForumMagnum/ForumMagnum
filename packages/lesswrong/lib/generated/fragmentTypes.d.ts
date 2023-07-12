@@ -1182,7 +1182,6 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContentsRevision: any,
-  readonly commentEmojiReactors: any,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
@@ -1228,7 +1227,6 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly commentEmojiReactors: any,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -1384,6 +1382,7 @@ interface CommentsList { // fragment on Comments
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly voteCount: number,
+  readonly emojiReactors: any,
   readonly af: boolean,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,

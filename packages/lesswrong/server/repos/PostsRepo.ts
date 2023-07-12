@@ -12,7 +12,9 @@ export type MeanPostKarma = {
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
 
-const emojiReactorCache = new LRU<string, Record<string, Record<string, string[]>>>({
+type EmojiReactors = Record<string, Record<string, string[]>>;
+
+const emojiReactorCache = new LRU<string, Promise<EmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
 });
@@ -102,13 +104,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
-  async getEmojiReactors(
-    postId: string,
-  ): Promise<Record<string, Record<string, string[]>>> {
-    const cached = emojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
+  async getEmojiReactors(postId: string): Promise<EmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
@@ -146,6 +142,15 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         GROUP BY "commentId"
       ) q
     `, [postId, eaPublicEmojiNames]);
+    return emojiReactors;
+  }
+
+  async getEmojiReactorsWithCache(postId: string): Promise<EmojiReactors> {
+    const cached = emojiReactorCache.get(postId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const emojiReactors = this.getEmojiReactors(postId);
     emojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
   }

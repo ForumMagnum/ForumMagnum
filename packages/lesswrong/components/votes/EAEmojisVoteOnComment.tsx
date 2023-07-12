@@ -2,7 +2,6 @@ import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
-import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
@@ -196,7 +195,6 @@ const EmojiReactsSection: FC<{
   classes: ClassesType,
 }> = ({document, voteProps, classes}) => {
   const currentUser = useCurrentUser();
-  const post = usePostsPageContext();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [everOpened, setEverOpened] = useState(false);
@@ -260,7 +258,7 @@ const EmojiReactsSection: FC<{
                     currentUser={currentUser}
                     emojiOption={emojiOption}
                     isSelected={isSelected}
-                    reactors={post?.commentEmojiReactors?.[document._id]}
+                    reactors={(document as AnyBecauseHard).emojiReactors}
                     classes={classes}
                   />
                 )

@@ -40,6 +40,7 @@ registerFragment(`
     extendedScore
     score
     voteCount
+    emojiReactors
     af
     afDate
     moveToAlignmentUserId
