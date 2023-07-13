@@ -23,13 +23,13 @@ export async function triggerReviewIfNeeded(userId: string) {
 
   const {needsReview, reason} = getReasonForReview(user);
   if (needsReview) {
-    triggerReview(user._id, reason);
+    await triggerReview(user._id, reason);
   }
 }
 
-export function triggerReview(userId: string, reason?: string) {
+export async function triggerReview(userId: string, reason?: string) {
   // TODO: save the reason
-  void Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
+  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
 }
 
 interface VoteableAutomodRuleProps<T extends DbVoteableType>{
