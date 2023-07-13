@@ -778,7 +778,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'savedAndRead',
       path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Saved & Read',
+      title: 'Saved & read',
     },
   ],
   LessWrong: [

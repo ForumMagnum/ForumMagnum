@@ -344,12 +344,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
             </div>
             <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
+                showArchiveButton={false}
                 {...{
                   post,
                   showTrailingButtons,
                   showMostValuableCheckbox,
                   showDismissButton,
-                  showArchiveButton,
                   resumeReading,
                   onDismiss,
                   onArchive,

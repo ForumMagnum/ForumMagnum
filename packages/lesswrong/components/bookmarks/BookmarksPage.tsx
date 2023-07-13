@@ -13,12 +13,12 @@ type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 const styles = (theme: ThemeType): JssStyles => ({
   headline: {
     color: theme.palette.grey[1000],
-    fontSize: 28,
-    marginTop: 5,
-    marginLeft: 10,
+    fontSize: isEAForum ? 28 : undefined,
+    fontFamily: isEAForum ? undefined : theme.palette.fonts.serifStack,
+    marginTop: isEAForum ? 10 : 0,
     marginBottom: 20,
-    [theme.breakpoints.down('md')]: {
-      marginTop: 15
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
     }
   },
   tabs: {
@@ -47,18 +47,18 @@ const BookmarksPage = ({ classes }: {
       <Typography variant="display2" className={classes.headline}>
         {preferredHeadingCase(`Saved & Read`)}
       </Typography>
-        <Tabs
-          value={activeTab}
-          onChange={(_, value) => setActiveTab(value)}
-          className={classes.tabs}
-        >
-          <Tab className={classes.tab} value='bookmarks' label={isEAForum ? 'Saved' : 'Bookmarks'} />
-          <Tab className={classes.tab} value='readhistory' label='Read History' />
-          <Tab className={classes.tab} value='votehistory' label='Vote History' />
-        </Tabs>
-        {activeTab === 'bookmarks' && <BookmarksTab />}
-        {activeTab === 'readhistory' && <ReadHistoryTab />}
-        {activeTab === 'votehistory' && <VoteHistoryTab />}
+      <Tabs
+        value={activeTab}
+        onChange={(_, value) => setActiveTab(value)}
+        className={classes.tabs}
+      >
+        <Tab className={classes.tab} value='bookmarks' label={isEAForum ? 'Saved' : 'Bookmarks'} />
+        <Tab className={classes.tab} value='readhistory' label='Read History' />
+        <Tab className={classes.tab} value='votehistory' label='Vote History' />
+      </Tabs>
+      {activeTab === 'bookmarks' && <BookmarksTab />}
+      {activeTab === 'readhistory' && <ReadHistoryTab />}
+      {activeTab === 'votehistory' && <VoteHistoryTab />}
     </SingleColumnSection>
   </AnalyticsContext>
 }

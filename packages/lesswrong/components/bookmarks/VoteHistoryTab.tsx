@@ -3,11 +3,9 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { useMulti } from '../../lib/crud/withMulti';
+import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  loadMore: {
-    marginTop: 10
-  },
   loadMoreSpinner: {
     textAlign: 'left',
     paddingTop: 6,
@@ -15,7 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: 0
   },
   postItem: {
-    marginBottom: 17,
+    marginBottom: commentsNodeRootMarginBottom,
+    [maxSmallish]: {
+      marginBottom: 10,
+    },
+    [maxTiny]: {
+      marginBottom: 8,
+    },
   },
 })
 
@@ -23,7 +27,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
   const defaultLimit = 10;
   const pageSize = 30;
 
-  const { results: votes, loadMoreProps } = useMulti({
+  const { results: votes, loading, loadMoreProps } = useMulti({
     terms: {
       view: "userVotes",
       collectionNames: ["Posts", "Comments"],
@@ -34,12 +38,9 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
     itemsPerPage: pageSize,
   })
   
-  const {SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
-
-  if (!votes) {
-    return null;
-  }
-
+  /**
+   * Returns either a PostItem or CommentsNode, depending on the content type
+  */
   const getContentItemNode = (vote: UserVotesWithDocument) => {
     if (vote.post) {
       const item = vote.post;
@@ -53,19 +54,26 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
       return <CommentsNode
         key={item._id}
         comment={item}
-        treeOptions={{showPostTitle: true}}
+        treeOptions={{showPostTitle: true, forceNotSingleLine: true}}
+        truncated
       />
-    } else {
-      // eslint-disable-next-line
-      console.error("Invalid content item node:", vote);
     }
-  };
+    return null
+  }
   
-  // group the posts/commnts by when the user voted on them ("Today", "Yesterday", and "Older")
+  const {Loading, SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
+
+  if (loading) {
+    return <Loading />
+  }
+  if (!votes) {
+    return null
+  }
+  
+  // group the posts/comments by when the user voted on them ("Today", "Yesterday", and "Older")
   const todaysContent = votes.filter(v => moment(v.votedAt).isSame(moment(), 'day'))
   const yesterdaysContent = votes.filter(v => moment(v.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
   const olderContent = votes.filter(v => moment(v.votedAt).isBefore(moment().subtract(1, 'day'), 'day'))
-
   
   return <AnalyticsContext pageSectionContext="voteHistoryTab">
     {!!todaysContent.length && <SectionTitle title="Today"/>}

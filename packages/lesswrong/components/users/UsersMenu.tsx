@@ -125,6 +125,12 @@ const UsersMenu = ({classes}: {
     icon="Settings"
     iconClassName={classes.icon}
   />
+  const messagesNode = <DropdownItem
+    title={preferredHeadingCase("Private Messages")}
+    to="/inbox"
+    icon="Email"
+    iconClassName={classes.icon}
+  />
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -238,12 +244,7 @@ const UsersMenu = ({classes}: {
               </ThemePickerMenu>
             }
             {!isEAForum && accountSettingsNode}
-            <DropdownItem
-              title={preferredHeadingCase("Private Messages")}
-              to="/inbox"
-              icon="Email"
-              iconClassName={classes.icon}
-            />
+            {!isEAForum && messagesNode}
             <DropdownItem
               title={isEAForum ? "Saved & read" : "Bookmarks"}
               to={isEAForum ? "/saved" : "/bookmarks"}
@@ -261,6 +262,7 @@ const UsersMenu = ({classes}: {
                 iconClassName={classes.icon}
               />
             }
+            {isEAForum && messagesNode}
             {isEAForum && accountSettingsNode}
 
             <DropdownDivider />

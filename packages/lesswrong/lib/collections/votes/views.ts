@@ -63,6 +63,7 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
       userId: context?.currentUser?._id,
       cancelled: {$ne: true},
       isUnvote: {$ne: true},
+      // only include neutral votes that have extended vote data
       $or: {
         voteType: {$ne: "neutral"},
         extendedVoteType: {$exists: true},
@@ -75,4 +76,4 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
     }
   }
 })
-ensureIndex(Votes, {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
+ensureIndex(Votes, {collectionName: 1, userId: 1, cancelled: 1, isUnvote: 1, voteType: 1, extendedVoteType: 1, votedAt: 1})
