@@ -2,10 +2,9 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index } from 'react-instantsearch-dom';
 import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
-import { Hit } from 'react-instantsearch-core';
 import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
