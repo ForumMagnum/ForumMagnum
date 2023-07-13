@@ -21,15 +21,14 @@ export async function triggerReviewIfNeeded(userId: string) {
   if (!user)
     throw new Error("user is null");
 
-  const reviewReason = getReasonForReview(user);
-
-  const needsReview = reviewReason !== 'noReview' && reviewReason !== 'alreadyApproved';
+  const {needsReview, reason} = getReasonForReview(user);
   if (needsReview) {
-    triggerReview(user._id);
+    triggerReview(user._id, reason);
   }
 }
 
-export function triggerReview(userId: string) {
+export function triggerReview(userId: string, reason?: string) {
+  // TODO: save the reason
   void Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
 }
 

@@ -97,9 +97,10 @@ export function getCurrentContentCount(user: UserContentCountPartial) {
   return postCount + commentCount
 }
 
-export function getReasonForReview(user: DbUser|SunshineUsersList, override?: true) {
-  if (override) return 'override';
-
+export function getReasonForReview(user: DbUser|SunshineUsersList):
+  {needsReview: false, reason: "alreadyApproved"|"noReview"}
+  |{needsReview: true, reason: "mapLocation"|"firstPost"|"firstComment"|"contactedTooManyUsers"|"bio"|"profileImage"|"newContent"}
+{
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
   /**
    * This covers several cases
@@ -111,21 +112,27 @@ export function getReasonForReview(user: DbUser|SunshineUsersList, override?: tr
   const unreviewed = !user.reviewedByUserId;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
 
-  if (fullyReviewed) return 'alreadyApproved';
-
-  if (unreviewed) {
-    if (user.mapLocation && isEAForum) return 'mapLocation';
-    if (user.postCount) return 'firstPost';
-    if (user.commentCount) return 'firstComment';
-    if (user.usersContactedBeforeReview?.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) return 'contactedTooManyUsers';
-    // Depends on whether this is DbUser or SunshineUsersList
-    const htmlBio = 'htmlBio' in user ? user.htmlBio : user.biography?.html;
-    if (htmlBio) return 'bio';
-    if (user.profileImageId) return 'profileImage';  
-  } else if (snoozed) {
-    const contentCount = getCurrentContentCount(user);
-    if (contentCount >= user.snoozedUntilContentCount) return 'newContent';
+  if (fullyReviewed) {
+    return {needsReview: false, reason: 'alreadyApproved'};
   }
 
-  return 'noReview';
+  if (unreviewed) {
+    if (user.mapLocation && isEAForum) return {needsReview: true, reason: 'mapLocation'};
+    if (user.postCount) return {needsReview: true, reason: 'firstPost'};
+    if (user.commentCount) return {needsReview: true, reason: 'firstComment'};
+    if (user.usersContactedBeforeReview?.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) {
+      return {needsReview: true, reason: 'contactedTooManyUsers'};
+    }
+    // Depends on whether this is DbUser or SunshineUsersList
+    const htmlBio = 'htmlBio' in user ? user.htmlBio : user.biography?.html;
+    if (htmlBio) return {needsReview: true, reason: 'bio'};
+    if (user.profileImageId) return {needsReview: true, reason: 'profileImage'};
+  } else if (snoozed) {
+    const contentCount = getCurrentContentCount(user);
+    if (contentCount >= user.snoozedUntilContentCount) {
+      return {needsReview: true, reason: 'newContent'};
+    }
+  }
+
+  return {needsReview: false, reason: 'noReview'};
 }
