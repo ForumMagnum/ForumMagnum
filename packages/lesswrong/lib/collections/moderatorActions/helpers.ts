@@ -97,7 +97,7 @@ export function getCurrentContentCount(user: UserContentCountPartial) {
   return postCount + commentCount
 }
 
-export function getReasonForReview(user: DbUser | SunshineUsersList, override?: true) {
+export function getReasonForReview(user: DbUser|SunshineUsersList, override?: true) {
   if (override) return 'override';
 
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;

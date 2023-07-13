@@ -2,14 +2,14 @@ import { isActionActive } from '../../lib/collections/moderatorActions/schema';
 import { getNewModActionNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
+import { triggerReview } from './sunshineCallbackUtils';
 
-getCollectionHooks('ModeratorActions').createAfter.add(async function triggerReview(doc) {
+getCollectionHooks('ModeratorActions').createAfter.add(async function triggerReviewAfterModeration(doc) {
   const logger = loggerConstructor('callbacks-moderatoractions');
   logger('ModeratorAction created, triggering review if necessary')
   if (isActionActive(doc)) {
     logger('isActionActive truthy')
-    void triggerReviewIfNeeded(doc.userId, true);
+    void triggerReview(doc.userId);
   }
   return doc;
 });
