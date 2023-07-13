@@ -63,7 +63,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
   
   const {Loading, SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
 
-  if (loading) {
+  if (loading && !votes) {
     return <Loading />
   }
   if (!votes) {
