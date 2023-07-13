@@ -135,6 +135,7 @@ html {
 
 .ck-mentions-balloon {
   --ck-color-list-background: ${theme.palette.panelBackground.default};
+  --ck-color-panel-background: ${theme.palette.panelBackground.default};
   --ck-color-panel-border: ${theme.palette.border.mentionsBaloon};
   --ck-color-text: ${theme.palette.text.maxIntensity};
   --ck-color-list-button-hover-background: ${theme.palette.buttons.mentions.hover};
