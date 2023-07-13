@@ -704,14 +704,14 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
 
 Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
   selector: {
-    baseScore: {$gte: 30},
+    baseScore: {$gte: 20},
     shortform: {$ne: true},
-    postedAt: {$gte: moment().subtract(2, "days").toDate()},
+    postedAt: {$gte: moment().subtract(1, "month").toDate()},
   },
   options: {
     sort: {
       score: -1,
-      parentCommentId: -1,
+      parentCommentId: 1,
     },
   },
 }));
