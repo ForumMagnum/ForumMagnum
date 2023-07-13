@@ -249,6 +249,32 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
+}
+
+interface DbDigestPost extends DbObject {
+  __collectionName?: "DigestPosts"
+  digestId: string
+  postId: string
+  emailDigestStatus: string | null
+  onsiteDigestStatus: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface DigestsCollection extends CollectionBase<DbDigest, "Digests"> {
+}
+
+interface DbDigest extends DbObject {
+  __collectionName?: "Digests"
+  num: number
+  startDate: Date
+  endDate: Date | null
+  publishedDate: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
 }
 
@@ -416,7 +442,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -701,6 +727,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
   rejectedReason: string | null
@@ -987,6 +1014,7 @@ interface DbTag extends DbObject {
   subTagIds: Array<string>
   autoTagModel: string | null
   autoTagPrompt: string | null
+  noindex: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
@@ -1094,6 +1122,7 @@ interface DbUser extends DbObject {
   expandedFrontpageSections: {
     community: boolean | null,
     recommendations: boolean | null,
+    quickTakes: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
@@ -1441,6 +1470,8 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DigestPosts: DigestPostsCollection
+  Digests: DigestsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1494,6 +1525,8 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DigestPosts: DbDigestPost
+  Digests: DbDigest
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode

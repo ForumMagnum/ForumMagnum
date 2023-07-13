@@ -17,6 +17,8 @@ import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { getTagStructuredData } from "./TagPageRouter";
+import { EA_FORUM_HEADER_HEIGHT } from "../common/Header";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -49,14 +51,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: '100%',
     },
     position: 'absolute',
-    top: 90,
+    top: EA_FORUM_HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
         height: 200,
         width: '100%',
       },
-      top: 77,
       left: -4,
       right: -4,
     },
@@ -313,7 +314,9 @@ const TagPage = ({classes}: {
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
   if (isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
+      : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
@@ -336,6 +339,8 @@ const TagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
+      structuredData={getTagStructuredData(tag)}
+      noIndex={tag.noindex}
     />
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}

@@ -21,9 +21,11 @@ import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
+import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
+import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
@@ -31,6 +33,12 @@ import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
+import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
+import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
+import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -54,6 +62,10 @@ import MuiSettingsIcon from "@material-ui/icons/Settings";
 import MuiEmailIcon from "@material-ui/icons/Email";
 import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
+import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
+import MuiShareIcon from "@material-ui/icons/Share";
+import MuiSearchIcon from '@material-ui/icons/Search';
+import MuiMenuIcon from "@material-ui/icons/Menu";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -70,6 +82,9 @@ import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
+import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
+import { MenuIcon } from "../icons/menuIcon";
+import { CloseMenuIcon } from "../icons/closeMenuIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -100,9 +115,11 @@ export type ForumIconName =
   "MapPin" |
   "Pencil" |
   "Comment" |
+  "CommentFilled" |
   "Shortform" |
   "Warning" |
   "Report" |
+  "ListBullet" |
   "Eye" |
   "EyeOutline" |
   "Tag" |
@@ -119,7 +136,16 @@ export type ForumIconName =
   "MinusSmall" |
   "Settings" |
   "Email" |
-  "Puzzle";
+  "Puzzle" |
+  "SoftUpArrow" |
+  "EllipsisVertical" |
+  "Share" |
+  "ClipboardDocumentList" |
+  "ClipboardDocument" |
+  "QuestionMarkCircle" |
+  "Search" |
+  "Menu" |
+  "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -145,8 +171,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
     Comment: CommentIcon,
+    CommentFilled: CommentFilledIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
     Eye: MuiVisibility,
@@ -165,6 +193,15 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: MuiCheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    SoftUpArrow: SoftUpArrowIcon,
+    EllipsisVertical: MuiEllipsisVerticalIcon,
+    Share: MuiShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: MuiSearchIcon,
+    Menu: MuiMenuIcon,
+    CloseMenu: CloseMenuIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -189,8 +226,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MapPinIcon,
     Pencil: PencilIcon,
     Comment: CommentIcon,
+    CommentFilled: CommentFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
     Eye: EyeIcon,
@@ -209,6 +248,15 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Check: CheckIcon,
     Card: CardIcon,
     List: ListIcon,
+    SoftUpArrow: SoftUpArrowIcon,
+    EllipsisVertical: EllipsisVerticalIcon,
+    Share: ShareIcon,
+    ClipboardDocumentList: ClipboardDocumentListIcon,
+    ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: SearchIcon,
+    Menu: MenuIcon,
+    CloseMenu: CloseMenuIcon,
   },
 };
 
@@ -239,6 +287,9 @@ const styles = (_: ThemeType): JssStyles => ({
   },
   linkRotation: {
     transform: "rotate(-45deg)",
+    '&.MuiListItemIcon-root': {
+      marginRight: 12
+    }
   },
 });
 

@@ -7,6 +7,8 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { UserKarmaInfo } from '../../lib/rateLimits/types';
+import { truncate } from '../../lib/editor/ellipsize';
 
 export const CONTENT_LIMIT = 20
 
@@ -37,7 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   basicInfoRow: {
     padding: 16,
     paddingBottom: 14,
-    borderBottom: theme.palette.border.extraFaint
+    borderBottom: theme.palette.border.extraFaint,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -80,9 +85,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12
   },
   bio: {
+    wordBreak: "break-word",
     '& a': {
       color: theme.palette.primary.main,
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
+    overflow: "hidden",
   },
   website: {
     color: theme.palette.primary.main,
@@ -145,7 +155,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export function getDownvoteRatio(user: DbUser|SunshineUsersList): number {
+export const DEFAULT_BIO_WORDCOUNT = 250
+export const MAX_BIO_WORDCOUNT = 10000
+
+export function getDownvoteRatio(user: UserKarmaInfo): number {
   // First check if the sum of the individual vote count fields
   // add up to something close (with 5%) to the voteReceivedCount field.
   // (They should be equal, but we know there are bugs around counting votes,
@@ -169,13 +182,13 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, Row, LWTooltip, UserReviewStatus,
+    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
-    
+  const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
   const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
@@ -199,34 +212,19 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
-    <div className={classes.displayName}>
-      <UsersName user={user}/>
-      <FirstContentIcons user={user}/>
-      {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-      {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+    <div>
+      <div className={classes.displayName}>
+        <UsersName user={user}/>
+        <FirstContentIcons user={user}/>
+        {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+      </div>
+      <UserReviewStatus user={user}/>
+      <UserReviewMetadata user={user}/>
     </div>
-    <UserReviewStatus user={user}/>
-    <Row justifyContent="flex-start">
-      <MetaInfo className={classes.info}>
-        { user.karma || 0 } karma
-      </MetaInfo>
-      <MetaInfo>
-        {user.email}
-      </MetaInfo>
-      <MetaInfo className={classes.info}>
-        <FormatDate date={user.createdAt}/>
-      </MetaInfo>
-      <LWTooltip title={<ul>
-        <li>{user.smallUpvoteReceivedCount || 0} Small Upvotes</li>
-        <li>{user.bigUpvoteReceivedCount || 0} Big Upvotes</li>
-        <li>{user.smallDownvoteReceivedCount || 0} Small Downvotes</li>
-        <li>{user.bigDownvoteReceivedCount || 0} Big Downvotes</li>
-      </ul>}>
-        <MetaInfo className={classes.info}>
-          {getDownvoteRatio(user)}
-        </MetaInfo>
-      </LWTooltip>
-    </Row>
+    <div>
+      <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
+    </div>
   </div>
 
   const votesRow = <div className={classes.votesRow}>
@@ -254,6 +252,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   </div>
 
   const renderExpand = !!(posts?.length || comments?.length)
+  const truncatedHtml = truncate(user.htmlBio, bioWordcount, "words")
   
   return (
     <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
@@ -265,7 +264,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           </div>
         </div>
         <div className={classes.contentColumn}>
-          <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+          <div dangerouslySetInnerHTML={{__html: truncatedHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />

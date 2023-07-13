@@ -1,6 +1,7 @@
 import './server/databaseSettings'
 
 import './server/vulcan-lib/index';
+import './server/apolloServer';
 import './lib/index';
 
 import './server/cronUtil';
@@ -36,6 +37,7 @@ import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';
 import './server/scripts/generateUserActivityReport';
+import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
@@ -50,12 +52,12 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/removeRsvp';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
-import './server/scripts/removeObsoleteIndexes';
 import './server/scripts/fillMissing';
 import './server/scripts/recomputeDenormalized';
 import './server/scripts/recomputeReceivedVoteCounts';
@@ -100,6 +102,7 @@ import './server/notificationCallbacksHelpers';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
+import './server/recommendations/recommedationsCron';
 import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
@@ -134,6 +137,7 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/advisorRequestsCallbacks';
+import './server/callbacks/digestCallbacks';
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
@@ -159,7 +163,6 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
-import './server/resolvers/voteResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -287,7 +287,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Empathy",
     searchTerms: ["heart"],
     svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
-    description: "I feel empathy towards this",
+    description: "",
     filter: {opacity: 0.6, translateY: 1, scale: 1.05},
     deprecated:false
   },
@@ -410,7 +410,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "shrug",
     label: "Unsure",
     svg: "/reactionImages/nounproject/shrug.svg",
-    description: "I have don't know what to think of this",
+    description: "I don't know what to think of this",
   },
   {
     name: "scales",
@@ -466,6 +466,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     description: "I'm guessing it's probably not worth the time to resolve this?",
     searchTerms: ["time cost"],
     svg: "/reactionImages/nounproject/timequestion.svg",
+    filter: {scale: .8},
     deprecated:false
   },
   {
@@ -534,8 +535,8 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "I notice I'm confused",
     searchTerms: ["confused", "question", "questionmark", "bewildered"],
     svg: "/reactionImages/confused2.svg",
-    description: "I don't have clear explanation of what's going on here",
-    filter: {opacity: .9, translateY: -2.5, translateX: 0, scale: 1.15},
+    description: "I don't have a clear explanation of what's going on here",
+    filter: {opacity: .9, translateY: -2.5, translateX: 0, scale: 1},
   },
   {
     name: "smile",

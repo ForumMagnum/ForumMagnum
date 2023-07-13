@@ -134,6 +134,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       text: {
         primaryAlert: '#F3F9FA'
       },
+      link: {
+        visited: '#9b71be',
+      },
       panelBackground: {
         default: shadePalette.grey[20],
       },
@@ -153,12 +156,15 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
         },
       },
       MuiPaper: {
-        elevation1: {
-          boxShadow: "none",
-        },
-        elevation2: {
-          boxShadow: "none",
-        },
+        elevation1: {boxShadow: "none"},
+        elevation2: {boxShadow: "none"},
+        elevation3: {boxShadow: "none"},
+        elevation4: {boxShadow: "none"},
+        elevation5: {boxShadow: "none"},
+        elevation6: {boxShadow: "none"},
+        elevation7: {boxShadow: "none"},
+        elevation8: {boxShadow: "none"},
+        elevation24: {boxShadow: "none"},
       },
     },
     default: {},
@@ -186,7 +192,8 @@ export const darkModeTheme: UserThemeSpecification = {
       },
     },
     link: {
-      primaryDim: '#3a7883'
+      primaryDim: '#3a7883',
+      visited: "#bb7c43",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",

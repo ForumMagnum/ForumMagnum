@@ -1,7 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
+import { userCanComment } from '../../lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
@@ -12,8 +14,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ShortformThreadList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { LoadMore, CommentOnPostWithReplies, ShortformSubmitForm } = Components
-  const { results, loadMoreProps, refetch } = useMulti({
+  const currentUser = useCurrentUser();
+  const {results, loadMoreProps, refetch} = useMulti({
     terms: {
       view: 'shortform',
       limit:20
@@ -25,12 +27,21 @@ const ShortformThreadList = ({ classes }: {
     pollInterval: 0,
   });
 
+  const {
+    LoadMore, CommentOnPostWithReplies, ShortformSubmitForm,
+    QuickTakesEntry,
+  } = Components;
   return (
     <div>
-      <ShortformSubmitForm successCallback={refetch} />
-      
-      {results && results.map((comment, i) => {
-        if (!comment.post) return null
+      {isEAForum && userCanComment(currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
+      }
+      {!isEAForum && <ShortformSubmitForm successCallback={refetch} />}
+
+      {results && results.map((comment) => {
+        if (!comment.post) {
+          return null;
+        }
         return <div key={comment._id} className={classes.shortformItem}>
           <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
             treeOptions: {
@@ -51,4 +62,3 @@ declare global {
     ShortformThreadList: typeof ShortformThreadListComponent
   }
 }
-

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -23,6 +23,7 @@ declare global {
     after?: Date|string|null,
     reviewYear?: ReviewYear
     profileTagIds?: string[],
+    shortformFrontpage?: boolean,
   }
   
   /**
@@ -472,12 +473,18 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     : null
   );
 
+  const shortformFrontpage =
+    isEAForum && typeof terms.shortformFrontpage === "boolean"
+      ? {shortformFrontpage: terms.shortformFrontpage}
+      : {};
+
   return {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
-      ...timeRange
+      ...timeRange,
+      ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };
@@ -501,7 +508,6 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      postedAt: {$gt: moment().subtract(4, 'days').toDate()}
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

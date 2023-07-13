@@ -80,21 +80,17 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const slowerFrontpageABTest = new ABTest({
-  name: "slowerFrontpage",
-  description: "Frontpage is less recency-weighted for most users, and this weighting changes based on how active they are",
+export const postRecsPositionABTest = new ABTest({
+  name: "postsRecsPosition",
+  description: "Tests the position of recommendations on the post page",
   groups: {
-    control: {
-      description: "Original frontpage algorithm",
+    right: {
+      description: "Show recommendations at the right of the post",
       weight: 1,
     },
-    controlNoCache: {
-      description: "Original frontpage algorithm, bypassing cache as a way to check for performance as a confounder",
-      weight: 1,
-    },
-    treatment: {
-      description: "New 'slower' frontpage algorithm",
-      weight: 1,
+    underPost: {
+      description: "Show recommendations under the post, but above the comments",
+      weight: 4,
     },
   },
 });

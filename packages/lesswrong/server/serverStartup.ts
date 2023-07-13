@@ -3,21 +3,20 @@ import './datadog/tracer';
 import { MongoClient } from 'mongodb';
 import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
-import PgCollection from '../lib/sql/PgCollection';
+import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
+import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
 import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments, CommandLineArguments } from './commandLine';
+import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
-import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
-import { dropAndCreatePg } from './createTestingPgDb';
+import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -60,7 +59,7 @@ const initConsole = () => {
 }
 
 const connectToMongo = async (connectionString: string) => {
-  if (isEAForum) {
+  if (isEAForum || !connectionString) {
     return;
   }
   try {
@@ -83,7 +82,7 @@ const connectToMongo = async (connectionString: string) => {
   }
 }
 
-const connectToPostgres = async (connectionString: string) => {
+const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
       const branchDb = await getBranchDbName();
@@ -93,8 +92,8 @@ const connectToPostgres = async (connectionString: string) => {
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString);
-      setSqlClient(sql);
+      const sql = await createSqlConnection(connectionString, false, target);
+      setSqlClient(sql, target);
     }
   } catch(err) {
     // eslint-disable-next-line no-console
@@ -106,10 +105,11 @@ const connectToPostgres = async (connectionString: string) => {
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl}: CommandLineArguments) =>
+const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    connectToMongo(mongoUrl),
+    //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
+    connectToPostgres(postgresReadUrl, "read"),
   ]);
 
 const initSettings = () => {

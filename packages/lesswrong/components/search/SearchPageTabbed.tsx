@@ -14,7 +14,6 @@ import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, ta
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
 import Select from '@material-ui/core/Select';
 import moment from 'moment';
@@ -30,6 +29,7 @@ import {
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 import { userHasElasticsearch } from '../../lib/betas';
+import { communityPath } from '../../lib/routes';
 
 const hitsPerPage = 10
 
@@ -311,7 +311,7 @@ const SearchPageTabbed = ({classes}:{
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem,
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem, ForumIcon
   } = Components;
 
   // we try to keep the URL synced with the search state
@@ -423,7 +423,7 @@ const SearchPageTabbed = ({classes}:{
         <ClearRefinements />
 
         {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
-          <Link to="/community#individuals">View community map</Link>
+          <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
 
         {elasticCollectionIsCustomSortable(tab) && userHasElasticsearch(null) &&
@@ -449,7 +449,7 @@ const SearchPageTabbed = ({classes}:{
       <div className={classes.resultsColumn}>
         <div className={classes.searchBoxRow}>
           <div className={classes.searchInputArea}>
-            <SearchIcon className={classes.searchIcon}/>
+            <ForumIcon icon="Search" className={classes.searchIcon}/>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}

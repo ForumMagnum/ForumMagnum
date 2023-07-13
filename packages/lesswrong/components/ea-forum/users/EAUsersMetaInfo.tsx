@@ -1,12 +1,12 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { socialMediaIconPaths } from "../../form-components/PrefixedInput";
 import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
   CAREER_STAGES,
 } from "../../../lib/collections/users/schema";
+import { communityPath } from "../../../lib/routes";
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconsRow: {
@@ -22,6 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& a": {
       color: theme.palette.grey[600],
       "&:hover": {
+        color: theme.palette.grey[600],
+      },
+      "&:visited": {
         color: theme.palette.grey[600],
       }
     }
@@ -66,9 +69,7 @@ const EAUsersMetaInfo = ({user, classes}: {
     (field: SocialMediaProfileField) => user[field],
   );
 
-  const {
-    ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip,
-  } = Components;
+  const { ContentStyles, ForumIcon, FormatDate, SocialMediaLink, LWTooltip, SocialMediaIcon } = Components;
 
   return (
     <ContentStyles contentType="comment" className={classes.iconsRow}>
@@ -94,7 +95,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           : null;
       })}
       {user.mapLocation &&
-        <Link to="/community#individuals" className={classes.userMetaInfo}>
+        <Link to={`${communityPath}#individuals`} className={classes.userMetaInfo}>
           <ForumIcon icon="MapPin" className={classes.userMetaInfoIcon} />
           {user.mapLocation.formatted_address}
         </Link>
@@ -122,9 +123,7 @@ const EAUsersMetaInfo = ({user, classes}: {
           rel="noopener noreferrer"
           className={classes.website}
         >
-          <svg viewBox="0 0 24 24" className={classes.websiteIcon}>
-            {socialMediaIconPaths.website}
-          </svg>
+          <SocialMediaIcon name="website" className={classes.websiteIcon}/>
           {user.website}
         </a>
       }

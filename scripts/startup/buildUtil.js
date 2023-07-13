@@ -106,8 +106,8 @@ function getDatabaseConfig(opts) {
   }
 
   return {
-    mongoUrl: opts.mongoUrl || dbConfig?.mongoUrl || process.env.MONGO_URL || null,
-    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || null,
+    mongoUrl: opts.mongoUrl || dbConfig?.mongoUrl || process.env.MONGO_URL || '',
+    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || '',
     sshTunnelCommand,
   };
 }
@@ -177,4 +177,12 @@ async function startSshTunnel(sshTunnelCommand) {
   }
 }
 
-module.exports = { getDatabaseConfig, startSshTunnel };
+let outputDir = './build';
+function setOutputDir(dir) {
+  outputDir = dir;
+}
+function getOutputDir(dir) {
+  return outputDir;
+}
+
+module.exports = { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir };

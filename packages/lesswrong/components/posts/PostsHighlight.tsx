@@ -15,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
     fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    '&& a, && a:hover': {
+      color: theme.palette.primary.main,
+    },
   },
   smallerFonts: {
     fontSize: '1.1rem',

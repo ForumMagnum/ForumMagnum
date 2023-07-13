@@ -17,6 +17,7 @@ import { getCurrentContentCount, UserContentCountPartial } from '../../lib/colle
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -53,6 +54,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   permissionDisabled: {
     border: "none"
+  },
+  disabledButton: {
+    opacity: .5,
+    cursor: "default"
   },
   notes: {
     border: theme.palette.border.faint,
@@ -157,6 +162,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   }
   
   const handleNeedsReview = () => {
+    if (user.needsReview) return null;
     const newNotes = getModSignatureWithNote("set to manual review") + notes;
     void updateUser({
       selector: {_id: user._id},
@@ -245,7 +251,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisablePosting = () => {
     const abled = user.postingDisabled ? 'enabled' : 'disabled';
-    const newNotes = getModSignatureWithNote(`posting ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`publishing posts ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -271,7 +277,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleDisableCommentingOnOtherUsers = () => {
     const abled = user.commentingOnOtherUsersDisabled ? 'enabled' : 'disabled'
-    const newNotes = getModSignatureWithNote(`commenting on other's ${abled}`) + notes;
+    const newNotes = getModSignatureWithNote(`all commenting on others' content ${abled}`) + notes;
     void updateUser({
       selector: {_id: user._id},
       data: {
@@ -304,13 +310,13 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     <LWTooltip title="Snooze and Approve 1 (Appear in sidebar on next post or comment. User's future posts are autoapproved)" placement="top">
       <SnoozeIcon className={classes.modButton} onClick={() => handleSnooze(1)}/>
     </LWTooltip>
-    {user.needsReview && <LWTooltip
+    <LWTooltip
       title={`${userCommentsWarning ? "Warning: user has made a comment! " : ""}Remove from queue (i.e. snooze without approving posts)`}
     >
       <AlarmOffIcon className={classNames(classes.modButton, {
         [classes.warningButton]: userCommentsWarning,
       })} onClick={handleRemoveNeedsReview}/>
-    </LWTooltip>}
+    </LWTooltip>
     <LWTooltip title="Approve" placement="top">
       <DoneIcon onClick={handleReview} className={classes.modButton}/>
     </LWTooltip>
@@ -328,9 +334,9 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         {user.sunshineFlagged ? <FlagIcon /> : <OutlinedFlagIcon />}
       </div>
     </LWTooltip>
-    {!user.needsReview && <LWTooltip title="Return this user to the review queue">
-      <VisibilityOutlinedIcon className={classes.modButton} onClick={handleNeedsReview}/>
-    </LWTooltip>}
+    <LWTooltip title="Return this user to the review queue">
+      <VisibilityOutlinedIcon className={classNames(classes.modButton, {[classes.disabledButton]: user.needsReview})} onClick={handleNeedsReview}/>
+    </LWTooltip>
   </div>
 
   const permissionsRow = <div className={classes.row}>
@@ -339,7 +345,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         Posts
       </div>
     </LWTooltip>
-    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own shortform)`}>
+    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own ${isEAForum ? "quick takes" : "shortform"})`}>
       <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
         All Comments
       </div>

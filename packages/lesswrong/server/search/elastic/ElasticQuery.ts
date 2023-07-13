@@ -118,9 +118,27 @@ class ElasticQuery {
     return terms.length ? terms : undefined;
   }
 
+  private getDefaultQuery(
+    search: string,
+    fields: string[],
+  ): QueryDslQueryContainer {
+    return {
+      multi_match: {
+        query: search,
+        fields,
+        fuzziness: this.fuzziness,
+        max_expansions: 10,
+        prefix_length: 3,
+        minimum_should_match: "50%",
+        operator: "or",
+      },
+    };
+  }
+
   private compileSimpleQuery(): QueryDslQueryContainer {
     const {fields} = this.config;
     const {search} = this.queryData;
+    const mainField = fields[0].split("^")[0];
     return {
       bool: {
         should: [
@@ -131,18 +149,7 @@ class ElasticQuery {
               },
             },
           },
-          {
-            multi_match: {
-              query: search,
-              fields,
-              fuzziness: this.fuzziness,
-              max_expansions: 10,
-              prefix_length: 2,
-              minimum_should_match: "50%",
-              operator: "or",
-              analyzer: "fm_synonym_analyzer",
-            },
-          },
+          this.getDefaultQuery(search, fields),
           {
             multi_match: {
               query: search,
@@ -150,22 +157,26 @@ class ElasticQuery {
               type: "phrase",
               slop: 2,
               boost: 70,
-              analyzer: "fm_synonym_analyzer",
             },
           },
           {
             match_phrase_prefix: {
-              [fields[0].split("^")[0]]: {
+              [mainField]: {
                 query: search,
                 slop: 2,
                 boost: 70,
-                analyzer: "fm_synonym_analyzer",
               },
             },
           },
         ],
       },
     };
+  }
+
+  private textFieldToExactField(textField: string): string {
+    const [fieldName, relevance] = textField.split("^");
+    const exactField = `${fieldName}.exact`;
+    return relevance ? `${exactField}^${relevance}` : exactField;
   }
 
   private compileAdvancedQuery(tokens: QueryToken[]): QueryDslQueryContainer {
@@ -181,7 +192,7 @@ class ElasticQuery {
         must.push({
           multi_match: {
             query: token,
-            fields,
+            fields: fields.map(this.textFieldToExactField.bind(this)),
             type: "phrase",
           },
         });
@@ -195,17 +206,7 @@ class ElasticQuery {
         });
         break;
       case "should":
-        should.push({
-          multi_match: {
-            query: token,
-            fields,
-            fuzziness: this.fuzziness,
-            max_expansions: 10,
-            prefix_length: 2,
-            minimum_should_match: "75%",
-            operator: "and",
-          },
-        });
+        should.push(this.getDefaultQuery(token, fields));
         break;
       }
     }

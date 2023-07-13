@@ -1,22 +1,33 @@
 import React, { FC, ReactNode, MouseEvent, useCallback } from "react";
 import { useHistory } from "../../lib/reactRouterWrapper";
 
-export const useClickableCell = (href: string) => {
+export type ClickableCellProps = {
+  href: string,
+  onClick?: never,
+} | {
+  href?: never,
+  onClick: (e: MouseEvent<HTMLDivElement>) => void,
+};
+
+export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
   const history = useHistory();
 
-  // In order to make the entire "cell" a link to the post we need some special
-  // handling to make sure that all of the other links and buttons inside the cell
-  // still work. We do this by checking if the click happened inside an <a> tag
-  // before navigating to the post.
-  const onClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (typeof target.closest === "function" && !target.closest("a")) {
+  // We make the entire "cell" a link. In sub-items need to be separately
+  // clickable then wrap them in an `InteractionWrapper`.
+  const wrappedOnClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClick) {
+      onClick(e);
+    } else if (e.metaKey || e.ctrlKey) {
+      window.open(href, "_blank");
+    } else {
       history.push(href);
     }
-  }, [href, history]);
+  }, [href, onClick, history]);
 
   return {
-    onClick,
+    onClick: wrappedOnClick,
   };
 }
 
@@ -26,13 +37,20 @@ export const useClickableCell = (href: string) => {
  * in an InteractionWrapper.
  */
 export const InteractionWrapper: FC<{
+  href?: string,
   children: ReactNode,
   className?: string,
-}> = ({children, className}) => (
-  <a
-    onClick={(e) => e.stopPropagation()}
-    className={className}
-  >
-    {children}
-  </a>
-);
+}> = ({href, children, className}) => {
+  const history = useHistory();
+  const onClick = useCallback((e: MouseEvent) => {
+    e.stopPropagation();
+    if (href) {
+      history.push(href);
+    }
+  }, [href, history]);
+  return (
+    <div onClick={onClick} className={className}>
+      {children}
+    </div>
+  );
+}

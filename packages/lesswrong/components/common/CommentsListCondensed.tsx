@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox'
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (_: ThemeType): JssStyles => ({
   subheader: {
@@ -54,7 +55,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
       {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
         <SectionButton>
           <AddBoxIcon />
-          New shortform
+          {isEAForum ? "New quick take" : "New shortform"}
         </SectionButton>
       </div>}
     </SectionTitle>

@@ -11,6 +11,7 @@ import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
+import { communityPath } from '../../../lib/routes';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -199,7 +200,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>
+        <Link to={communityPath} className={classes.communityLink}>
           Explore the {communityName}
         </Link>
       </div>

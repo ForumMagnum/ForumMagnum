@@ -16,6 +16,8 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
+export type DbTarget = "read" | "write";
+
 type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
   projection: MongoProjection<T>;
@@ -72,13 +74,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   async executeQuery(
     query: Query<T>,
     data?: Partial<ExecuteQueryData<T>>,
+    target: DbTarget = "write"
   ): Promise<any[]> {
     executingQueries++;
     let result: any[];
     const quiet = data?.options?.quiet ?? false;
     try {
       const {sql, args} = query.compile();
-      const client = getSqlClientOrThrow();
+      const client = getSqlClientOrThrow(target);
       
       result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
 
@@ -101,6 +104,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       : result;
   }
 
+  async executeReadQuery(query: Query<T>, data?: Partial<ExecuteQueryData<T>>): Promise<any[]> {
+    return this.executeQuery(query, data, "read");
+  }
+
+  async executeWriteQuery(query: Query<T>, data?: Partial<ExecuteQueryData<T>>): Promise<any[]> {
+    return this.executeQuery(query, data, "write");
+  }
+
   getTable = () => {
     if (bundleIsServer) {
       return this.table;
@@ -113,12 +124,12 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return {
       fetch: async () => {
         const select = new SelectQuery<T>(this.getTable(), selector, options);
-        const result = await this.executeQuery(select, {selector, options});
+        const result = await this.executeReadQuery(select, {selector, options});
         return result as unknown as T[];
       },
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
-        const result = await this.executeQuery(select, {selector, options});
+        const result = await this.executeReadQuery(select, {selector, options});
         return parseInt(result?.[0].count ?? 0);
       },
     };
@@ -130,19 +141,19 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     projection?: MongoProjection<T>,
   ): Promise<T|null> => {
     const select = new SelectQuery<T>(this.getTable(), selector, {limit: 1, ...options, projection});
-    const result = await this.executeQuery(select, {selector, options, projection});
+    const result = await this.executeReadQuery(select, {selector, options, projection});
     return result ? result[0] as unknown as T : null;
   }
 
   findOneArbitrary = async (): Promise<T|null> => {
     const select = new SelectQuery<T>(this.getTable(), undefined, {limit: 1});
-    const result = await this.executeQuery(select);
+    const result = await this.executeReadQuery(select, undefined);
     return result ? result[0] as unknown as T : null;
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
     const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
-    const result = await this.executeQuery(insert, {data, options});
+    const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;
   }
 
@@ -161,7 +172,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       conflictStrategy: "upsert",
       upsertSelector: selector,
     });
-    const result = await this.executeQuery(upsert, {selector, modifier, options});
+    const result = await this.executeWriteQuery(upsert, {selector, modifier, options});
     const action = result[0]?.action;
     if (!action) {
       return 0;
@@ -186,7 +197,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       return this.upsert(selector, modifier, options);
     }
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
-    const result = await this.executeQuery(update, {selector, modifier, options});
+    const result = await this.executeWriteQuery(update, {selector, modifier, options});
     return result.length;
   }
 
@@ -196,14 +207,14 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options: MongoUpdateOptions<T>,
   ) => {
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
-    const result = await this.executeQuery(update, {selector, modifier, options});
+    const result = await this.executeWriteQuery(update, {selector, modifier, options});
     return result.length;
   }
 
   rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
     options = Object.assign({noSafetyHarness: true}, options);
     const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
-    const result = await this.executeQuery(query, {selector, options});
+    const result = await this.executeWriteQuery(query, {selector, options});
     return {deletedCount: result.length};
   }
 
@@ -213,7 +224,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
-    await this.executeQuery(query, {fieldOrSpec, options})
+    await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 
   aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
@@ -221,7 +232,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       toArray: async () => {
         try {
           const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
-          const result = await this.executeQuery(query, {pipeline, options});
+          const result = await this.executeReadQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {
           const {collectionName} = this;
@@ -255,7 +266,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       options: MongoUpdateOptions<T>,
     ) => {
       const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
-      const result = await this.executeQuery(update, {selector, modifier, options});
+      const result = await this.executeWriteQuery(update, {selector, modifier, options});
       return {
         ok: 1,
         value: result[0],
@@ -263,7 +274,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     },
     dropIndex: async (indexName: string, options?: MongoDropIndexOptions) => {
       const dropIndex = new DropIndexQuery(this.getTable(), indexName);
-      await this.executeQuery(dropIndex, {indexName, options})
+      await this.executeWriteQuery(dropIndex, {indexName, options})
     },
     indexes: (_options: never) => {
       return Promise.resolve(this.getTable().getIndexes().map((index) => index.getDetails()));

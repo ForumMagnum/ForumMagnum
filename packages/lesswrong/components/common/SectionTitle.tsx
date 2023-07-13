@@ -55,16 +55,17 @@ export const getAnchorId = (anchor: string|undefined, title: React.ReactNode) =>
   }
 }
 
-// This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({children, classes, className, title, noTopMargin, noBottomPadding, anchor}: {
+export type SectionTitleProps = {
   children?: React.ReactNode,
-  classes: ClassesType,
   className?: string,
   title: React.ReactNode,
   noTopMargin?: boolean,
   noBottomPadding?: boolean,
   anchor?: string,
-}) => {
+}
+
+// This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
+const SectionTitle = ({children, classes, className, title, noTopMargin, noBottomPadding, anchor}: SectionTitleProps & {classes: ClassesType}) => {
   return (
     <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography

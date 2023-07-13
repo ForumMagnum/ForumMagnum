@@ -90,7 +90,7 @@ export const ReviewQuickPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const reviewYear = REVIEW_YEAR
-  const [expandedPost, setExpandedPost] = useState<PostsListWithVotes|null>(null)
+  const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
 
   const { results: posts, loadMore, loading, totalCount } = useMulti({
@@ -108,14 +108,11 @@ export const ReviewQuickPage = ({classes}: {
     skip: !reviewYear
   });
 
-  // useMulti is incorrectly typed
-  const postsResults = posts as PostsListWithVotes[] | null;
-
   const { PostsItem, ReviewVotingExpandedPost, FrontpageReviewWidget, SectionFooter, Loading, ReviewPhaseInformation, ReviewDashboardButtons, KarmaVoteStripe } = Components
 
-  const sortedPostsResults = !!postsResults ? sortBy(posts, (post1,post2) => {
+  const sortedPostsResults = !!posts ? sortBy(posts, (post1,post2) => {
     return post1.currentUserVote === null
-  }) as PostsListWithVotes[] : []
+  }) : []
 
   const truncatedPostsResults = truncatePosts ? sortedPostsResults.slice(0,12) : sortedPostsResults
 

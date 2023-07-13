@@ -39,7 +39,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     primary: {
       main: '#0c869b',
       light: '#00b2be',
-      dark: '#085d6c'
+      dark: '#085d6c' 
     },
     secondary: {
       main: '#0c869b',
@@ -58,6 +58,9 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
     text: {
       primaryAlert: "#137283"
+    },
+    link: {
+      visited: "#7130a6",
     },
     background: {
       default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
@@ -107,6 +110,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     },
   }),
   make: (palette: ThemePalette) => {
+    const defaultBorderRadius = 6
     const basicText = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
@@ -119,7 +123,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         mainLayoutPaddingTop: 20
       },
       borderRadius: {
-        default: 6,
+        default: defaultBorderRadius,
         small: 4,
       },
       typography: {
@@ -240,26 +244,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             padding: ".7rem",
           }
         },
-        Header: {
-          root: {
-            height: 90,
-            '@media (max-width: 959.95px) and (min-width: 600px)': {
-              height: 86, // I don't know why headroom shifts by 4 pixels, don't ask me
-            },
-            [defaultTheme.breakpoints.down('xs')]: {
-              height: 77,
-            },
-          },
-          appBar: {
-            padding: 11,
-            '@media (min-width: 960px)': {
-              paddingLeft: 20,
-              paddingRight: 20,
-              paddingTop: 13,
-              paddingBottom: 13,
-            }
-          },
-        },
         MetaInfo: {
           root: {
             fontFamily: sansSerifStack
@@ -329,14 +313,6 @@ export const eaForumTheme: SiteThemeSpecification = {
             display: 'none'
           }
         },
-        SequencesPage: {
-          root: {
-            paddingTop: 345,
-          },
-          banner: {
-            top: 77,
-          },
-        },
         EAAllTagsPage: {
           portal: {
             background: palette.grey[0],
@@ -384,6 +360,11 @@ export const eaForumTheme: SiteThemeSpecification = {
             marginRight: 12,
           }
         },
+        MuiIconButton: {
+          root: {
+            borderRadius: defaultBorderRadius
+          }
+        }
       }
     }
   }

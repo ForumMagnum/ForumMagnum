@@ -39,6 +39,23 @@ const isDefaultExpanded = (
   }
 }
 
+const isInitialExpanded = (
+  section: ExpandedFrontpageSection,
+  defaultExpanded: DefaultExpandedType,
+  currentUser: UsersCurrent | null,
+  cookies: Record<string, string>,
+  cookieName: string,
+): boolean => {
+  if (cookies[cookieName]) {
+    return cookies[cookieName] === "true";
+  }
+  const userExpand = currentUser?.expandedFrontpageSections?.[section];
+  if (typeof userExpand === "boolean") {
+    return userExpand;
+  }
+  return isDefaultExpanded(currentUser, defaultExpanded);
+}
+
 export const useExpandedFrontpageSection = ({
   section,
   defaultExpanded,
@@ -47,19 +64,15 @@ export const useExpandedFrontpageSection = ({
   cookieName,
 }: UseExpandedFrontpageSectionProps) => {
   const currentUser = useCurrentUser();
-  const [expandFrontpageSection] = useMutation(expandFrontpageSectionMutation, {
-    errorPolicy: "all",
-    refetchQueries: ["getCurrentUser"],
-  });
-
+  const [expandFrontpageSection] = useMutation(
+    expandFrontpageSectionMutation,
+    {errorPolicy: "all"},
+  );
   const {captureEvent} = useTracking();
-  const [cookies, setCookie, removeCookie] = useCookiesWithConsent([cookieName]);
-
-  const userExpand = currentUser?.expandedFrontpageSections?.[section];
-  const cookieExpand = cookies[cookieName] && cookies[cookieName] !== "false";
-  const defaultExpand = isDefaultExpanded(currentUser, defaultExpanded);
-  const initialExpanded = userExpand ?? cookieExpand ?? defaultExpand ?? false;
-  const [expanded, setExpanded] = useState(initialExpanded);
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
+  const [expanded, setExpanded] = useState(
+    () => isInitialExpanded(section, defaultExpanded, currentUser, cookies, cookieName),
+  );
 
   const toggleExpanded = useCallback(() => {
     const newExpanded = !expanded;
@@ -72,10 +85,8 @@ export const useExpandedFrontpageSection = ({
         },
       });
     }
-    if (newExpanded && cookieName) {
-      setCookie(cookieName, "true", {expires: moment().add(10, "years").toDate()});
-    } else if (cookieName) {
-      removeCookie(cookieName);
+    if (cookieName) {
+      setCookie(cookieName, String(newExpanded), {expires: moment().add(10, "years").toDate()});
     }
     const event = newExpanded ? onExpandEvent : onCollapseEvent;
     if (event) {
@@ -91,7 +102,6 @@ export const useExpandedFrontpageSection = ({
     captureEvent,
     expandFrontpageSection,
     setCookie,
-    removeCookie,
   ]);
 
   return {

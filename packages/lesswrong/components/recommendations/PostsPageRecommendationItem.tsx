@@ -1,24 +1,11 @@
-import React, { FC, MouseEvent, useCallback } from "react";
+import React, { FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { gql, useMutation } from "@apollo/client";
-import { useObserver } from "../hooks/useObserver";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import classNames from "classnames";
 import { Link } from "../../lib/reactRouterWrapper";
-
-const observeRecommendationMutation = gql`
-  mutation observeRecommendation($postId: String!) {
-    observeRecommendation(postId: $postId)
-  }
-`;
-
-const clickRecommendationMutation = gql`
-  mutation clickRecommendation($postId: String!) {
-    clickRecommendation(postId: $postId)
-  }
-`;
+import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,44 +84,15 @@ const PostsPageRecommendationItem = ({
   classes: ClassesType,
 }) => {
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
-  const {onClick} = useClickableCell(postLink);
-  const [observeRecommendation] = useMutation(
-    observeRecommendationMutation,
-    {errorPolicy: "all"},
+  const {onClick: onClickCell} = useClickableCell({href: postLink});
+  const {ref, onClick} = useRecommendationAnalytics(
+    post._id,
+    onClickCell,
+    disableAnalytics,
   );
-  const [clickRecommendation] = useMutation(
-    clickRecommendationMutation,
-    {errorPolicy: "all"},
-  );
-
-  const onObserve = useCallback(() => {
-    if (!disableAnalytics) {
-      void observeRecommendation({
-        variables: {
-          postId: post._id,
-        },
-      });
-    }
-  }, [post._id, observeRecommendation, disableAnalytics]);
-
-  const ref = useObserver<HTMLDivElement>({
-    onEnter: onObserve,
-    maxTriggers: 1,
-  });
-
-  const onClicked = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    if (!disableAnalytics) {
-      void clickRecommendation({
-        variables: {
-          postId: post._id,
-        },
-      });
-    }
-    onClick(e);
-  }, [post._id, clickRecommendation, disableAnalytics, onClick]);
 
   const {
-    PostsItemTooltipWrapper, PostsItemKarma, PostsTitle, UsersName, LWTooltip,
+    PostsItemTooltipWrapper, KarmaDisplay, PostsTitle, UsersName, LWTooltip,
     PostActionsButton,
   } = Components;
 
@@ -146,13 +104,13 @@ const PostsPageRecommendationItem = ({
 
   return (
     <div
-      onClick={onClicked}
+      onClick={onClick}
       ref={ref}
       className={classNames(classes.root, className)}
     >
       <div className={classes.karma}>
         <div>
-          <PostsItemKarma post={post} />
+          <KarmaDisplay document={post} />
         </div>
         <div className={classes.voteArrow}>
           <SoftUpArrowIcon />
@@ -169,7 +127,7 @@ const PostsPageRecommendationItem = ({
         <div className={classes.author}>
           <InteractionWrapper className={classes.interactionWrapper}>
             <UsersName user={post.user} />
-            {post.coauthors.length > 0 &&
+            {post.coauthors?.length > 0 &&
               <LWTooltip
                 title={
                   <div>

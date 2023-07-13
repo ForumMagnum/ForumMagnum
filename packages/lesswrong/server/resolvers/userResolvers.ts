@@ -19,8 +19,10 @@ import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
 import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import GraphQLJSON from 'graphql-type-json';
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimits/utils';
-import { RateLimitInfo } from '../rateLimits/types';
+import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
+import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { UsersRepo } from '../repos';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -57,7 +59,7 @@ augmentFieldsDict(Users, {
       type: GraphQLJSON,
       arguments: 'postId: String',
       resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        return rateLimitDateWhenUserNextAbleToComment(user, args.postId);
+        return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
       }
     },
   },
@@ -75,6 +77,15 @@ augmentFieldsDict(Users, {
       }
     }
   },
+  recentKarmaInfo: {
+    nullable: true,
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+        return getRecentKarmaInfo(user._id)
+      }
+    }
+  }
 });
 
 addGraphQLSchema(`
@@ -310,7 +321,7 @@ addGraphQLResolvers({
       ])
       
       let totalKarmaChange
-      if (context?.repos?.votes) {
+      if (context.repos?.votes) {
         const karmaQueryArgs = {
           userId: currentUser._id,
           startDate: start,
@@ -318,11 +329,7 @@ addGraphQLResolvers({
           af: false,
           showNegative: true
         }
-        const [changedComments, changedPosts, changedTagRevisions] = await Promise.all([
-          context.repos.votes.getKarmaChangesForComments(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForPosts(karmaQueryArgs),
-          context.repos.votes.getKarmaChangesForTagRevisions(karmaQueryArgs),
-        ])
+        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getKarmaChanges(karmaQueryArgs);
         totalKarmaChange =
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)
@@ -358,6 +365,20 @@ addGraphQLResolvers({
       }
       results['alignment'] = getAlignment(results)
       return results
+    },
+    async GetRandomUser(root: void, {userIsAuthor}: {userIsAuthor: 'optional'|'required'}, context: ResolverContext) {
+      const { currentUser } = context
+      if (!userIsAdminOrMod(currentUser)) {
+        throw new Error('Must be an admin/mod to get a random user')
+      }
+      
+      if (userIsAuthor === 'optional') {
+        return new UsersRepo().getRandomActiveUser()
+      } else if (userIsAuthor === 'required') {
+        return new UsersRepo().getRandomActiveAuthor()
+      } else {
+        throw new Error('Invalid user type type')
+      }
     },
   },
 })
@@ -397,7 +418,7 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
   const query = `
     with ranked as (
       select user_id
-        , total_seconds 
+        , total_seconds
         , percent_rank() over (order by total_seconds asc) engagementPercentile
       from user_engagement_wrapped
       -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
@@ -439,3 +460,4 @@ addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
+addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')

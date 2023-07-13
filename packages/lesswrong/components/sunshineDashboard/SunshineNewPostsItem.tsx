@@ -15,6 +15,7 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { Posts } from '../../lib/collections/posts';
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -35,7 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   metaInfoRow: {
     marginBottom: 8,
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   vote: {
     marginRight: 8

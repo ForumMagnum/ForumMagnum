@@ -23,6 +23,7 @@ import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -315,8 +316,9 @@ const Layout = ({currentUser, children, classes}: {
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
+                sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen)}
+                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
               {/* enable during ACX Everywhere */}
               {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
