@@ -45,12 +45,16 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
       const item = vote.post;
       return (
         <div className={classes.postItem}>
-          <PostsItem key={item._id} post={item}/>
+          <PostsItem key={item._id} post={item} isVoteable />
         </div>
       );
     } else if (vote.comment) {
       const item = vote.comment;
-      return <CommentsNode key={item._id} comment={item} treeOptions={{showPostTitle: true}} />
+      return <CommentsNode
+        key={item._id}
+        comment={item}
+        treeOptions={{showPostTitle: true}}
+      />
     } else {
       // eslint-disable-next-line
       console.error("Invalid content item node:", vote);

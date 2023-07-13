@@ -61,8 +61,12 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
     selector: {
       collectionName: {$in: collectionNames},
       userId: context?.currentUser?._id,
-      cancelled: false,
-      isUnvote: false,
+      cancelled: {$ne: true},
+      isUnvote: {$ne: true},
+      $or: {
+        voteType: {$ne: "neutral"},
+        extendedVoteType: {$exists: true},
+      },
     },
     options: {
       sort: {
