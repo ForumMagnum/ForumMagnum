@@ -4,17 +4,15 @@ import { loggerConstructor } from '../../lib/utils/logging';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { triggerReview } from './sunshineCallbackUtils';
 
-getCollectionHooks('ModeratorActions').createAfter.add(async function triggerReviewAfterModeration(doc) {
+getCollectionHooks('ModeratorActions').createAsync.add(async function triggerReviewAfterModeration({ newDocument, currentUser, context }) {
+  const moderatorAction = newDocument;
   const logger = loggerConstructor('callbacks-moderatoractions');
   logger('ModeratorAction created, triggering review if necessary')
-  if (isActionActive(doc)) {
+  if (isActionActive(moderatorAction)) {
     logger('isActionActive truthy')
-    void triggerReview(doc.userId);
+    void triggerReview(moderatorAction.userId);
   }
-  return doc;
-});
 
-getCollectionHooks('ModeratorActions').createAsync.add(async function updateNotes({ newDocument, currentUser, context }) {
   const moderatedUserId = newDocument.userId;
   const moderatedUser = await context.loaders.Users.load(moderatedUserId);
   // In the case where there isn't a currentUser, that means that the moderator action was created using automod (via callback) rather than being manually applied
