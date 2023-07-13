@@ -37,7 +37,7 @@ const PostBody = ({post, html, sideCommentMode}: {
       idInsertions={sideCommentsMap}
     />
   }
-  
+
   return <ContentItemBody
     dangerouslySetInnerHTML={{__html: html}}
     description={`post ${post._id}`}

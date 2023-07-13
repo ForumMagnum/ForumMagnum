@@ -14,7 +14,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postRecsPositionABTest, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -26,7 +26,6 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
-import truncateTagDescription from '../../../lib/utils/truncateTagDescription';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -256,7 +255,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const location = useSubscribedLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
-  const { openDialog, closeDialog } = useDialog();
+  const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -281,7 +280,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   } : undefined;
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-  
+
   // On the EA Forum, show a reading progress bar to indicate how far in the post you are.
   // Your progress is hard to tell via the scroll bar because it includes the comments section.
   const postBodyRef = useRef<HTMLDivElement|null>(null)
@@ -291,7 +290,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     updateReadingProgressBar()
     window.addEventListener('scroll', updateReadingProgressBar)
-    
+
     return () => {
       window.removeEventListener('scroll', updateReadingProgressBar)
     };
@@ -307,7 +306,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
-  
+
   const getSequenceId = () => {
     const { params } = location;
     return params.sequenceId || post?.canonicalSequenceId;
@@ -361,7 +360,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList,
+    PostsPageRecommendationsList, PostSideRecommendations,
   } = Components
 
   useEffect(() => {
@@ -397,7 +396,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.question &&
     !post.debate &&
     !post.isEvent &&
-    !sequenceId;
+    !sequenceId &&
+    (post.contents?.wordCount ?? 0) >= 500;
+  const recommendationsPosition = useABTest(postRecsPositionABTest);
 
   const commentId = query.commentId || params.commentId
 
@@ -509,6 +510,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       tableOfContents={tableOfContents}
       header={header}
       welcomeBox={welcomeBox}
+      rhsRecommendations={showRecommendations && recommendationsPosition === "right"
+        ? <PostSideRecommendations post={post} />
+        : undefined
+      }
     >
       <div ref={postBodyRef} className={classes.centralColumn}>
         {/* Body */}
@@ -525,10 +530,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors && <PostBody
-                post={post} html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-              />}
+              {htmlWithAnchors &&
+                <PostBody
+                  post={post}
+                  html={htmlWithAnchors}
+                  sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                />
+              }
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>}
@@ -542,12 +550,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
-      {showRecommendations &&
-        <div className={classes.recommendations}>
-          <PostsPageRecommendationsList
-            strategy="tagWeightedCollabFilter"
-          />
-        </div>
+      {showRecommendations && recommendationsPosition === "underPost" &&
+        <AnalyticsContext pageSectionContext="postBottomRecommendations">
+          <div className={classes.recommendations}>
+            <PostsPageRecommendationsList
+              strategy="tagWeightedCollabFilter"
+            />
+          </div>
+        </AnalyticsContext>
       }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
