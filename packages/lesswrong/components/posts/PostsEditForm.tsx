@@ -118,6 +118,13 @@ const PostsEditForm = ({ documentId, classes }: {
               history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
             } else {
               history.push({pathname: postGetPageUrl(post)})
+              // TODO make this open if they are publishing a draft, and maybe always?
+              console.log("Opening dialog")
+              openDialog({
+                componentName: "SharePostPopup",
+                componentProps: {},
+                noClickawayCancel: true
+              });
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }
           }}

@@ -249,6 +249,7 @@ const Layout = ({currentUser, children, classes}: {
       IntercomWrapper,
       HomepageCommunityMap,
       CookieBanner,
+      SharePostPopup
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {

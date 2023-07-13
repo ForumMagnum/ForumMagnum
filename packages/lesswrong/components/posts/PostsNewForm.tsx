@@ -254,6 +254,11 @@ const PostsNewForm = ({classes}: {
                 history.push({pathname: postGetPageUrl(post)})
                 const postDescription = post.draft ? "Draft" : "Post";
                 flash({ messageString: `${postDescription} created.`, type: 'success'});
+                console.log("Opening dialog")
+                openDialog({
+                  componentName: "SharePostPopup",
+                  componentProps: {}
+                });
               }
             }}
             eventForm={eventForm}

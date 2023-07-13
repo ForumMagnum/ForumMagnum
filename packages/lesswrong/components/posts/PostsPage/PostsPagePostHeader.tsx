@@ -10,6 +10,8 @@ import moment from 'moment';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
+import Button from '@material-ui/core/Button';
+import { useDialog } from '../../common/withDialog';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
@@ -241,12 +243,23 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
 
+  const { openDialog } = useDialog();
+
   useEffect(() => {
     if(!cachedTooltipSeen) {
       setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
         expires: moment().add(2, 'years').toDate(),
       });
     }
+
+    // TODO remove
+    openDialog({
+      componentName: "SharePostPopup",
+      componentProps: {
+        post,
+      },
+      noClickawayCancel: true
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
