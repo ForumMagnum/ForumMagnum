@@ -29,12 +29,14 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "8px",
   },
+  postWrapper: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
   post: {
     color: theme.palette.grey[1000],
     fontWeight: 600,
     whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
   },
   postRead: {
     color: theme.palette.grey[600],
@@ -67,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    // Maybe we revist this in the future - Figma designs had a "Read more"
+    // Maybe we revisit this in the future - Figma designs had a "Read more"
     // but this is spectacularly difficult
     // "&::before": {
       // content: '"(Show more)"',
@@ -90,7 +92,7 @@ const PopularCommentTitle: FC<{
   const {isRead} = useRecordPostView(post);
   return (
     <div className={classes.row}>
-      <InteractionWrapper>
+      <InteractionWrapper className={classes.postWrapper}>
         <Link
           to={postGetPageUrl(post)}
           className={classNames(classes.post, {[classes.postRead]: isRead})}
