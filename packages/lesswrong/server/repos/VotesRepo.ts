@@ -51,16 +51,6 @@ type PostVoteCounts = {
   bigDownvoteCount: number
 }
 
-export type UserContent = {
-  comments: DbComment[],
-  posts: DbPost[],
-  voteInfo: Array<{
-    documentId: string,
-    collectionName: 'Posts' | 'Comments',
-    votedAt: Date
-  }>
-};
-
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);

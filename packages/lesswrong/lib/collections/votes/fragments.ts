@@ -39,7 +39,6 @@ registerFragment(`
   }
 `);
 
-// TODO use smaller fragments
 registerFragment(`
   fragment UserVotesWithDocument on Vote {
     ...UserVotes
