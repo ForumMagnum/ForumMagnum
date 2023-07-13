@@ -222,6 +222,7 @@ export const darkModeTheme: UserThemeSpecification = {
       primaryHighlight2: '#314a4e',
       secondaryHighlight: '#3e503a',
       secondaryHighlight2: '#3e503a',
+      mentionsBaloon: shadePalette.grey[100],
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,

@@ -133,6 +133,13 @@ html {
   --ck-z-modal: 10000000002 !important;
 }
 
+.ck-mentions-balloon {
+  --ck-color-list-background: ${theme.palette.panelBackground.default};
+  --ck-color-panel-border: ${theme.palette.border.mentionsBaloon};
+  --ck-color-text: ${theme.palette.text.maxIntensity};
+  --ck-color-list-button-on-background: #fff; /*TODO*/
+}
+
 /* ************************************************************************ */
 
 

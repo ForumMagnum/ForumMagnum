@@ -243,6 +243,7 @@ declare global {
       debateComment4: string,
       debateComment5: string,
       dashed500: string,
+      mentionsBaloon: string,
     },
     panelBackground: {
       default: ColorString,
