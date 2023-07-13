@@ -18,15 +18,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: isEAForum ? 10 : 0,
     marginBottom: 20,
     [theme.breakpoints.down('sm')]: {
-      marginTop: 20
+      marginTop: 20,
+      marginBottom: 10,
     }
   },
   tabs: {
-    marginBottom: 20
+    marginBottom: 20,
   },
   tab: {
     fontSize: 14,
-    fontWeight: isEAForum ? '700' : undefined
+    fontWeight: isEAForum ? '700' : undefined,
+    [theme.breakpoints.down('xs')]: {
+      fontSize: 13,
+    }
   }
 });
 
