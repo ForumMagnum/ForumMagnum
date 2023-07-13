@@ -421,6 +421,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
+    mentions: {
+      hover: "#e6e6e6",
+      selected: "#198cf0",
+      selectedHover: "#0e7fe1",
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),

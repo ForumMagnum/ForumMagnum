@@ -348,6 +348,11 @@ declare global {
       },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
+      mentions: {
+        hover: ColorString,
+        selected: ColorString,
+        selectedHover: ColorString,
+      },
     },
     tag: {
       text: ColorString,
