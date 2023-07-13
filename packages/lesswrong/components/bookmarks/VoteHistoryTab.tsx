@@ -1,10 +1,7 @@
-import React, {useState} from 'react';
-import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import {useCurrentUser} from "../common/withUser"
-import { gql, useQuery, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
-import type { UserContent } from '../../server/repos/VotesRepo';
 import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -16,43 +13,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 6,
     paddingLeft: 10,
     margin: 0
-  }
+  },
+  postItem: {
+    marginBottom: 17,
+  },
 })
 
-type ItemVoteInfo = UserContent['voteInfo'][number];
-type ContentItemWithVoteInfo = (PostsListWithVotes | CommentsList) & ItemVoteInfo;
-
 const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
-  const currentUser = useCurrentUser()
   const defaultLimit = 10;
   const pageSize = 30;
-  const [limit, setLimit] = useState(defaultLimit);
-  
-  // pull the latest 10 posts that the current user has read
-  const { data, fetchMore, networkStatus, loading } = useQuery(gql`
-    query getVoteHistory($limit: Int) {
-      UserVoteHistory(limit: $limit) {
-        posts {
-          ...PostsListWithVotes
-        }
-        comments {
-          ...CommentsList
-        }
-        voteInfo
-      }
-    }
-    ${fragmentTextForQuery("PostsListWithVotes")}
-    ${fragmentTextForQuery("CommentsList")}
-    `,
-    {
-      ssr: true,
-      fetchPolicy: "cache-and-network",
-      nextFetchPolicy: "cache-only",
-      skip: !currentUser,
-      variables: {limit: defaultLimit},
-      notifyOnNetworkStatusChange: true
-    }
-  )
 
   const { results: votes, loadMoreProps } = useMulti({
     terms: {
@@ -65,46 +34,29 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
     itemsPerPage: pageSize,
   })
   
-  const {SectionTitle, Loading, PostsItem, CommentsNode, LoadMore, VoteActivityRow } = Components
+  const {SectionTitle, PostsItem, CommentsNode, LoadMore } = Components
 
-  if (loading && networkStatus !== NetworkStatus.fetchMore) {
-    return <Loading />
-  }
-  // TODO delete
-  if (!data?.UserVoteHistory) {
-    return null;
-  }
   if (!votes) {
     return null;
   }
-  
-  const posts: (PostsListWithVotes & {content_type: 'post'})[] = data.UserVoteHistory.posts
-  const comments: (CommentsList & {content_type: 'comment'})[] = data.UserVoteHistory.comments
-  const voteInfo: UserContent['voteInfo'] = data.UserVoteHistory.voteInfo
 
-
-  // A matching voteInfo will always be present; TS thinks it's undefined because we're using `.find`
-  const postsWithVoteInfo = posts.map(post => ({ ...post, ...voteInfo.find(v => v.documentId === post._id)! }));
-  const commentsWithVoteInfo = comments.map(comment => ({ ...comment, ...voteInfo.find(v => v.documentId === comment._id)! }));
-
-  // TODO: seems like this order might be wrong?
-  const mixedFeed = [...postsWithVoteInfo, ...commentsWithVoteInfo].sort((a, b) => (
-    new Date(a.votedAt).getTime() - new Date(b.votedAt).getTime()
-  ));
-
-  const isPostItem = (contentItem: ContentItemWithVoteInfo): contentItem is PostsListWithVotes & ItemVoteInfo => {
-    return contentItem.collectionName === 'Posts';
-  };
-
-  const getContentItemNode = (item: ContentItemWithVoteInfo) => {
-    if (isPostItem(item)) {
-      return <PostsItem key={item._id} post={item}/>;
-    } else {
+  const getContentItemNode = (vote: UserVotesWithDocument) => {
+    if (vote.post) {
+      const item = vote.post;
+      return (
+        <div className={classes.postItem}>
+          <PostsItem key={item._id} post={item}/>
+        </div>
+      );
+    } else if (vote.comment) {
+      const item = vote.comment;
       return <CommentsNode key={item._id} comment={item} treeOptions={{showPostTitle: true}} />
+    } else {
+      // eslint-disable-next-line
+      console.error("Invalid content item node:", vote);
     }
   };
   
-  console.log({ voteHistory: mixedFeed });
   // group the posts/commnts by when the user voted on them ("Today", "Yesterday", and "Older")
   const todaysContent = votes.filter(v => moment(v.votedAt).isSame(moment(), 'day'))
   const yesterdaysContent = votes.filter(v => moment(v.votedAt).isSame(moment().subtract(1, 'day'), 'day'))
@@ -113,27 +65,14 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
   
   return <AnalyticsContext pageSectionContext="voteHistoryTab">
     {!!todaysContent.length && <SectionTitle title="Today"/>}
-    {todaysContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
+    {todaysContent.map((vote) => getContentItemNode(vote))}
     {!!yesterdaysContent.length && <SectionTitle title="Yesterday"/>}
-    {yesterdaysContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
+    {yesterdaysContent.map((vote) => getContentItemNode(vote))}
     {!!olderContent.length && <SectionTitle title="Older"/>}
-    {olderContent.map(vote => <VoteActivityRow key={vote._id} vote={vote} />)}
+    {olderContent.map((vote) => getContentItemNode(vote))}
     <div className={classes.loadMore}>
       <LoadMore
-        loading={networkStatus === NetworkStatus.fetchMore}
-        loadMore={() => {
-          const newLimit = limit + pageSize;
-          void fetchMore({
-            variables: {
-              limit: newLimit
-            },
-            updateQuery: (prev, { fetchMoreResult }) => {
-              if (!fetchMoreResult) return prev;
-              return fetchMoreResult
-            }
-          })
-          setLimit(newLimit);
-        }}
+        {...loadMoreProps}
         loadingClassName={classes.loadMoreSpinner}
       />
     </div>

@@ -2939,7 +2939,7 @@ interface UserVotes { // fragment on Votes
 
 interface UserVotesWithDocument extends UserVotes { // fragment on Votes
   readonly comment: CommentsList|null,
-  readonly post: PostsWithVotes|null,
+  readonly post: PostsListWithVotes|null,
 }
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights

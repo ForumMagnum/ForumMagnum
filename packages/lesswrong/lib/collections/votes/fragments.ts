@@ -47,7 +47,7 @@ registerFragment(`
       ...CommentsList
     }
     post {
-      ...PostsWithVotes
+      ...PostsListWithVotes
     }
   }
 `);
