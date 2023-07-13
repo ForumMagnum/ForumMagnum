@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
@@ -118,13 +118,21 @@ const PostsEditForm = ({ documentId, classes }: {
               history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
             } else {
               history.push({pathname: postGetPageUrl(post)})
-              // TODO make this open if they are publishing a draft, and maybe always?
-              console.log("Opening dialog")
-              openDialog({
-                componentName: "SharePostPopup",
-                componentProps: {},
-                noClickawayCancel: true
-              });
+              
+              // If editing from draft to non-draft
+              // FIXME: isDraft reflects the draft-state after the change, but
+              // we want to check the draft-state before the change. To bypass
+              // client-side updates we might need some useState(), and to deal
+              // with the fact that the post might not be loaded on the first
+              // render, also a useEffect().
+              if (isDraft && !post.draft) {
+                console.log("Opening dialog")
+                openDialog({
+                  componentName: "SharePostPopup",
+                  componentProps: {post},
+                  noClickawayCancel: true
+                });
+              }
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }
           }}

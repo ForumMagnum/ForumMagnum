@@ -253,13 +253,13 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     }
 
     // TODO remove
-    openDialog({
+    /*openDialog({
       componentName: "SharePostPopup",
       componentProps: {
         post,
       },
       noClickawayCancel: true
-    });
+    });*/
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
