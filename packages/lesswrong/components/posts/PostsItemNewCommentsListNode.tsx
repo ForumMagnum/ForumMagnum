@@ -21,7 +21,7 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   treeOptions: CommentTreeOptions,
   classes: ClassesType,
 }) => {
-  const { Loading, CommentsList } = Components
+  const { Loading, CommentThreads } = Components
 
   const lastCommentId = commentsList && commentsList[0]?._id
   const nestedComments = commentsList && unflattenComments(commentsList);
@@ -33,7 +33,7 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   return (
     <div>
       {title && <div className={classes.title}>{title}</div>}
-      {nestedComments && <CommentsList
+      {nestedComments && <CommentThreads
         treeOptions={{
           ...treeOptions,
           lastCommentId: lastCommentId,
