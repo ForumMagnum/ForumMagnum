@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
@@ -7,6 +7,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { isEAForum } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
@@ -37,14 +38,32 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BookmarksPage = ({ classes }: {
   classes: ClassesType
 }) => {
-  const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
-
+  const { history } = useNavigation()
+  const { location } = useLocation()
   const [activeTab, setActiveTab] = useState<TabType>('bookmarks')
+  
+  useEffect(() => {
+    // unfortunately the hash is unavailable on the server, so we check it here instead
+    if (location.hash === '#readhistory') {
+      setActiveTab('readhistory')
+    } else if (location.hash === '#votehistory') {
+      setActiveTab('votehistory')
+    }
+    //No exhaustive deps because this is supposed to run only on mount
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  
+  const handleChangeTab = (e: React.ChangeEvent, value: TabType) => {
+    setActiveTab(value)
+    history.replace({...location, hash: `#${value}`})
+  }
 
   const currentUser = useCurrentUser()
   if (!currentUser) {
     return <span>You must sign in to view this page.</span>
   }
+  
+  const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components
 
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
@@ -53,7 +72,7 @@ const BookmarksPage = ({ classes }: {
       </Typography>
       <Tabs
         value={activeTab}
-        onChange={(_, value) => setActiveTab(value)}
+        onChange={handleChangeTab}
         className={classes.tabs}
       >
         <Tab className={classes.tab} value='bookmarks' label={isEAForum ? 'Saved' : 'Bookmarks'} />
