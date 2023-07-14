@@ -10,7 +10,7 @@ import getSlug from 'speakingurl';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import type { ToCData } from '../../server/tableOfContents';
+import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)

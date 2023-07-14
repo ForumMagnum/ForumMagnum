@@ -79,11 +79,13 @@ export function useCookiePreferences(): {
   return { cookiePreferences, updateCookiePreferences, explicitConsentGiven, explicitConsentRequired };
 }
 
+export type Cookies = {
+  [name: string]: AnyBecauseTodo;
+};
+
 export function useCookiesWithConsent(dependencies?: string[]): [
-  {
-    [name: string]: any;
-  },
-  (name: string, value: any, options?: CookieSetOptions) => void,
+  Cookies,
+  (name: string, value: AnyBecauseTodo, options?: CookieSetOptions) => void,
   (name: string, options?: CookieSetOptions) => void
 ] {
   const { cookiePreferences } = useCookiePreferences();

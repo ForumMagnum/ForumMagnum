@@ -1,8 +1,12 @@
 import type { Express, Response } from 'express';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import { Notifications } from "../lib/collections/notifications/collection";
+import { getSiteUrl } from "../lib/vulcan-lib/utils";
+import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
+
+const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
 interface ConnectionInfo {
   newestNotificationTimestamp: Date|null,
@@ -12,14 +16,40 @@ const openConnections: Record<string, ConnectionInfo[]> = {};
 
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
+    const parsedUrl = new URL(req.url, getSiteUrl())
+    const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
+    const apiVersion = parseInt(apiVersionStr);
+    const currentUser = await getUserFromReq(req)
+
+    // Can't subscribe to notifications if logged out
+    if (!currentUser) {
+      if (apiVersion===1) {
+        // Wait awhile before closing the connection. A previous version of this
+        // code would see the connection close, and try to reconnect after only
+        // 3s, resulting in a very high number of reconnection requests. By
+        // keeping the connection open for awhile (as we would for a logged-in
+        // user's notifications channel), we slow down those requests.
+        setTimeout(() => {
+          // Status 204 ("no content") means the client should not rerequest,
+          // according to the server-sent events spec.
+          res.status(204).send();
+        }, 120000);
+      } else {
+        res.status(204).send();
+      }
+      return;
+    }
+    
+    
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders(); // flush the headers to establish SSE with client
-    const currentUser = await getUserFromReq(req)
     
-    // Can't subscribe if logged out
-    if (!currentUser) {
+    // If the disableServerSentEvents setting is set, send a message to request
+    // that this client not try to reconnect. Only if apiVersion>=2.
+    if (apiVersion>=2 && disableServerSentEvents.get()) {
+      res.write(`data: {"stop":true}\n\n`);
       res.end();
       return;
     }

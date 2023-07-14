@@ -65,6 +65,7 @@ const PostsPageRecommendationsList = ({
       bias,
       features,
       forceLoggedOutView,
+      context: "post-bottom",
     },
     count: COUNT,
   };

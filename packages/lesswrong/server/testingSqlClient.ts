@@ -1,23 +1,29 @@
-import { Collections } from "../../vulcan-lib/getCollection";
-import PgCollection from "../PgCollection";
-import CreateTableQuery from "../CreateTableQuery";
-import CreateIndexQuery from "../CreateIndexQuery";
-import { createSqlConnection } from "../../../server/sqlConnection";
-import { closeSqlClient, setSqlClient, getSqlClient } from "../sqlClient";
-import { expectedIndexes } from "../../collectionIndexUtils";
+import { Application, json, Request, Response } from "express";
+import PgCollection from "../lib/sql/PgCollection";
+import SwitchingCollection from "../lib/SwitchingCollection";
+import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
+import CreateTableQuery from "../lib/sql/CreateTableQuery";
+import { Collections } from "./vulcan-lib";
+import { expectedIndexes } from "../lib/collectionIndexUtils";
+import { ensurePostgresViewsExist } from "./postgresView";
+import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
+import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
+import { createSqlConnection } from "./sqlConnection";
 import { inspect } from "util";
-import SwitchingCollection from "../../SwitchingCollection";
-import { ensureMongo2PgLockTableExists } from "../../mongo2PgLock";
-import { ensurePostgresViewsExist } from "../../../server/postgresView";
+import { testServerSetting } from "../lib/instanceSettings";
+import Posts from "../lib/collections/posts/collection";
+import Comments from "../lib/collections/comments/collection";
+import Conversations from "../lib/collections/conversations/collection";
+import Messages from "../lib/collections/messages/collection";
+import LocalGroups from "../lib/collections/localgroups/collection";
+import Users from "../lib/collections/users/collection";
 
-export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
-  if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
-    throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
-  }
-  const lastSlash = connectionString.lastIndexOf('/');
-  const withoutDbName = connectionString.slice(0, lastSlash);
-  return `${withoutDbName}/${dbName}`;
-}
+import seedPosts from "../../../cypress/fixtures/posts";
+import seedComments from "../../../cypress/fixtures/comments";
+import seedConversations from "../../../cypress/fixtures/conversations";
+import seedMessages from "../../../cypress/fixtures/messages";
+import seedLocalGroups from "../../../cypress/fixtures/localgroups";
+import seedUsers from "../../../cypress/fixtures/users";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
@@ -191,5 +197,79 @@ export const killAllConnections = async (id?: string) => {
   const client = getSqlClient();
   if (client) {
     await closeSqlClient(client);
+  }
+}
+
+const seedData = async <T extends {}>(collection: CollectionBase<any>, data: T[]) => {
+  // eslint-disable-next-line no-console
+  console.log(`Importing Cypress seed data for ${collection.options.collectionName}`);
+  await collection.rawInsert(data);
+}
+
+type DropAndCreatePgArgs = {
+  seed?: boolean,
+  templateId?: string,
+  dropExisting?: boolean,
+}
+
+export const dropAndCreatePg = async ({seed, templateId, dropExisting}: DropAndCreatePgArgs) => {
+  const oldClient = getSqlClient();
+  setSqlClient(await createSqlConnection());
+  await oldClient?.$pool.end();
+  // eslint-disable-next-line no-console
+  console.log("Creating PG database");
+  await createTestingSqlClient(templateId, dropExisting);
+  if (seed) {
+    // eslint-disable-next-line no-console
+    console.log("Seeding PG database");
+    await Promise.all([
+      seedData(Posts, seedPosts),
+      seedData(Comments, seedComments),
+      seedData(Conversations, seedConversations),
+      seedData(Messages, seedMessages),
+      seedData(LocalGroups, seedLocalGroups),
+      seedData(Users, seedUsers),
+    ]);
+  }
+}
+
+// In development mode, we need a clean way to reseed the test database for Cypress.
+// We definitely don't ever want this in prod though.
+export const addCypressRoutes = (app: Application) => {
+  // TODO: better check for dev mode
+  if (testServerSetting.get()) {
+    const cypressRoute = "/api/recreateCypressPgDb";
+    app.use(cypressRoute, json({ limit: "1mb" }));
+    app.post(cypressRoute, async (req: Request, res: Response) => {
+      try {
+        const { templateId } = req.body;
+        if (!templateId || typeof templateId !== "string") {
+          throw new Error("No templateId provided");
+        }
+        const {dbName} = await createTestingSqlClientFromTemplate(templateId)
+        res.status(200).send({status: "ok", dbName});
+      } catch (e) {
+        res.status(500).send({status: "error", message: e.message});
+      }
+    });
+
+    const integrationRoute = "/api/dropAndCreatePg";
+    app.use(integrationRoute, json({ limit: "1mb" }));
+    app.post(integrationRoute, async (req: Request, res: Response) => {
+      try {
+        const { templateId } = req.body;
+        if (!templateId || typeof templateId !== "string") {
+          throw new Error("No templateId provided");
+        }
+        await dropAndCreatePg({
+          templateId,
+          dropExisting: true,
+          seed: false,
+        });
+        res.status(200).send({status: "ok"});
+      } catch (e) {
+        res.status(500).send({status: "error", message: e.message});
+      }
+    });
   }
 }

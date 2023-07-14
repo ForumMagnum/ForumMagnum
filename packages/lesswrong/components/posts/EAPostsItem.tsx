@@ -286,10 +286,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               />
               <div className={classes.meta}>
                 <div className={classes.metaLeft} ref={authorExpandContainer}>
-                  <TruncatedAuthorsList
-                    post={post}
-                    expandContainer={authorExpandContainer}
-                  />
+                  <InteractionWrapper className={classes.interactionWrapper}>
+                    <TruncatedAuthorsList
+                      post={post}
+                      expandContainer={authorExpandContainer}
+                    />
+                  </InteractionWrapper>
                   <div>
                     {' · '}
                     <PostsItemDate post={post} noStyles includeAgo />

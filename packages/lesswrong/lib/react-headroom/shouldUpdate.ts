@@ -1,8 +1,8 @@
 export default function (
   lastKnownScrollY = 0,
   currentScrollY = 0,
-  props = {},
-  state = {}
+  props: AnyBecauseTodo = {},
+  state: AnyBecauseTodo = {}
 ) {
   const scrollDirection = currentScrollY >= lastKnownScrollY ? 'down' : 'up'
   const distanceScrolled = Math.abs(currentScrollY - lastKnownScrollY)

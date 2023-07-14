@@ -1,6 +1,6 @@
 import { Globals } from "../vulcan-lib";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { calculateActivityFactor } from "../useractivities/utils";
+import { calculateActivityFactor } from "../../lib/collections/useractivities/utils";
 import { activityHalfLifeSetting } from "../../lib/scoring";
 import { fs } from "mz";
 

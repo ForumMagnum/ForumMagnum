@@ -24,15 +24,16 @@ import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: 5,
+    marginTop: isEAForum ? undefined : 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingLeft: isEAForum ? 12 : theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
+    borderRadius: isEAForum ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
@@ -40,13 +41,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
-    ...(isEAForum && {
-      lineHeight: '18px',
-      display: '-webkit-box',
-      "-webkit-box-orient": "vertical",
-      "-webkit-line-clamp": 2,
-      overflow: 'hidden'
-    })
+  },
+  userImageButton: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 4
+  },
+  arrowIcon: {
+    color: theme.palette.grey[600],
+    fontSize: 18
   },
   notAMember: {
     marginLeft: 5,
@@ -85,29 +88,49 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-
+  
   const {
-    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider,
-  } = Components;
+    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon
+  } = Components
+  
+  // By default, we show the user's display name as the menu button.
+  let userButtonNode = <span className={classes.userButtonContents}>
+    {userGetDisplayName(currentUser)}
+    {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
+      <div>Your account has been deactivated:</div>
+      <ul>
+        <li>Your username appears as '[Anonymous]' on comments/posts</li>
+        <li>Your profile page is not accessible</li>
+      </ul>
+    </div>}>
+      <span className={classes.deactivated}>[Deactivated]</span>
+    </LWTooltip>}
+    {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+  </span>
+  // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
+  if (isEAForum && !currentUser.deleted) {
+    userButtonNode = <div className={classes.userImageButton}>
+      <UsersProfileImage user={currentUser} size={32} />
+      <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
+    </div>
+  }
+  
+  const buttonNode = <Button classes={{root: classes.userButtonRoot}}>
+    {userButtonNode}
+  </Button>
+  
+  const accountSettingsNode = <DropdownItem
+    title={preferredHeadingCase("Account Settings")}
+    to="/account"
+    icon="Settings"
+    iconClassName={classes.icon}
+  />
+
   return (
     <div className={classes.root} {...eventHandlers}>
-      <Link to={`/users/${currentUser.slug}`}>
-        <Button classes={{root: classes.userButtonRoot}}>
-          <span className={classes.userButtonContents}>
-            {userGetDisplayName(currentUser)}
-            {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
-              <div>Your account has been deactivated:</div>
-              <ul>
-                <li>Your username appears as '[Anonymous]' on comments/posts</li>
-                <li>Your profile page is not accessible</li>
-              </ul>
-            </div>}>
-              <span className={classes.deactivated}>[Deactivated]</span>
-            </LWTooltip>}
-            {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
-          </span>
-        </Button>
-      </Link>
+      {isEAForum ? buttonNode : <Link to={`/users/${currentUser.slug}`}>
+        {buttonNode}
+      </Link>}
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
@@ -122,13 +145,13 @@ const UsersMenu = ({classes}: {
             }}>
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title="New Question"
+                  title={preferredHeadingCase("New Question")}
                   to="/newPost?question=true"
                 />
               }
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title="New Post"
+                  title={preferredHeadingCase("New Post")}
                   to="/newPost"
                 />
               }
@@ -136,27 +159,32 @@ const UsersMenu = ({classes}: {
                   !isEAForum &&
                   userCanCreateField(currentUser, postSchema['debate']) &&
                 <DropdownItem
-                  title="New Dialogue"
+                  title={preferredHeadingCase("New Dialogue")}
                   to="/newpost?debate=true"
                 />
               }
             </div>
-            {showNewButtons && userCanComment(currentUser) &&
+            {/*
+              * This is currently disabled for unreviewed users on the EA forum
+              * as there's issues with the new quick takes entry for such users.
+              * Long-term, we should fix these issues and reenable this option.
+              */}
+            {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
               <DropdownItem
-                title={isEAForum ? "New Quick take" : "New Shortform"}
+                title={isEAForum ? "New quick take" : "New Shortform"}
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
               />
             }
             {showNewButtons && <DropdownDivider />}
             {showNewButtons && userCanPost(currentUser) &&
               <DropdownItem
-                title="New Event"
+                title={preferredHeadingCase("New Event")}
                 to="/newPost?eventForm=true"
               />
             }
             {showNewButtons && currentUser.karma >= 1000 &&
               <DropdownItem
-                title="New Sequence"
+                title={preferredHeadingCase("New Sequence")}
                 to="/sequencesnew"
               />
             }
@@ -185,7 +213,7 @@ const UsersMenu = ({classes}: {
             }
             {!isEAForum &&
               <DropdownItem
-                title="My Drafts"
+                title={preferredHeadingCase("My Drafts")}
                 to="/drafts"
                 icon="Edit"
                 iconClassName={classes.icon}
@@ -193,7 +221,7 @@ const UsersMenu = ({classes}: {
             }
             {!currentUser.deleted &&
               <DropdownItem
-                title={("User Profile")}
+                title={preferredHeadingCase("User Profile")}
                 to={`/users/${currentUser.slug}`}
                 icon="User"
                 iconClassName={classes.icon}
@@ -209,12 +237,7 @@ const UsersMenu = ({classes}: {
                 />
               </ThemePickerMenu>
             }
-            <DropdownItem
-              title={preferredHeadingCase("Account Settings")}
-              to="/account"
-              icon="Settings"
-              iconClassName={classes.icon}
-            />
+            {!isEAForum && accountSettingsNode}
             <DropdownItem
               title={preferredHeadingCase("Private Messages")}
               to="/inbox"
@@ -231,7 +254,7 @@ const UsersMenu = ({classes}: {
             }
             {currentUser.shortformFeedId &&
               <DropdownItem
-                title={isEAForum ? "Your Quick takes" : "Shortform Page"}
+                title={isEAForum ? "Your quick takes" : "Shortform Page"}
                 to={postGetPageUrl({
                   _id: currentUser.shortformFeedId,
                   slug: "shortform",
@@ -240,6 +263,7 @@ const UsersMenu = ({classes}: {
                 iconClassName={classes.icon}
               />
             }
+            {isEAForum && accountSettingsNode}
 
             <DropdownDivider />
 

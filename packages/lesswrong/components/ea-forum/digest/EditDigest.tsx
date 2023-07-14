@@ -152,17 +152,6 @@ type TagUsage = {
   count: number
 }
 
-/**
- * Helper for sorting the posts list (doesn't correspond to actual vote strength)
- */
-const voteValues: Record<string, number> = {
-  'bigUpvote': 2,
-  'smallUpvote': 1,
-  'neutral': 0,
-  'smallDownvote': -1,
-  'bigDownvote': -2
-}
-
 
 const EditDigest = ({classes}:{classes: ClassesType}) => {
   const {params} = useLocation()
@@ -229,7 +218,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         onsiteDigestStatus: postData.digestPost.onsiteDigestStatus ?? 'pending'
       }
     })
-    // sort the list by curated, then suggested for curation, then rating, then the current user's vote, then karma
+    // sort the list by curated, then suggested for curation, then rating, then karma
     newPosts.sort((a,b) => {
       if (a.curatedDate && !b.curatedDate) return -1
       if (!a.curatedDate && b.curatedDate) return 1
@@ -237,10 +226,6 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
       if (!a.suggestForCuratedUserIds && b.suggestForCuratedUserIds) return 1
       // TODO: add this back in once we've implemented the rating
       // if (a.rating !== b.rating) return b.rating - a.rating
-      const aVote = voteValues[a.currentUserVote] ?? 0
-      const bVote = voteValues[b.currentUserVote] ?? 0
-      if (aVote > bVote) return -1
-      if (aVote < bVote) return 1
       return b.baseScore - a.baseScore
     })
     setPosts(newPosts)

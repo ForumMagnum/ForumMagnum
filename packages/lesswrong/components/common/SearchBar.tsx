@@ -3,15 +3,16 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
-import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
+import IconButton from '@material-ui/core/IconButton';
 import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
+import { useCurrentUser } from './withUser';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -52,6 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
       height: "100%",
       width: "100%",
+      paddingTop: isEAForum ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -61,31 +63,30 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
-      borderRadius:5,
-
-      [theme.breakpoints.down('tiny')]: {
-        backgroundColor: theme.palette.grey[200],
-        zIndex: theme.zIndexes.searchBar,
-        width:110,
-        height:36,
-        paddingLeft:10
-      },
+      borderRadius: 5,
     },
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
   },
+  searchInputAreaSmall: isEAForum ? {
+    minWidth: 34,
+  } : {},
   searchIcon: {
     position: 'fixed',
-    margin: '12px',
+    color: isEAForum ? undefined : theme.palette.header.text,
   },
+  searchIconSmall: isEAForum ? {
+    padding: 6,
+    marginTop: 6,
+  } : {},
   closeSearchIcon: {
     fontSize: 14,
   },
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: 15,
+    top: isEAForum ? 18 : 15,
     right: 5,
     cursor: "pointer"
   },
@@ -96,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .ais-SearchBox-input::placeholder": {
       color: theme.palette.text.invertedBackgroundText3,
     },
-  },  
+  },
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
@@ -104,6 +105,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   searchResultsArea: any,
   classes: ClassesType
 }) => {
+  const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
@@ -160,9 +162,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   }, [currentQuery, captureSearch])
 
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
-  const { SearchBarResults } = Components
+  const { SearchBarResults, ForumIcon } = Components
 
-  if(!isAlgoliaEnabled()) {
+  if (!isAlgoliaEnabled()) {
     return <div>Search is disabled (Algolia App ID not configured on server)</div>
   }
 
@@ -176,11 +178,13 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: alignmentForum}
+          {[classes.alignmentForum]: alignmentForum, [classes.searchInputAreaSmall]: !currentUser}
         )}>
           {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
-            <SearchIcon className={classes.searchIcon}/>
+            <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
+              <ForumIcon icon="Search" />
+            </IconButton>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
              // @ts-ignore */}
