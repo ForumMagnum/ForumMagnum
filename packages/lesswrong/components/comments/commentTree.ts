@@ -172,7 +172,8 @@ export interface CommentTreeOptions {
   dontExpandNewComments?: boolean
 
   /**
-   *
+   * If a comment is collapsed to single line and has children, show a
+   * comment-bubble on the right side showing the descendent count.
    */
   singleLineCommentsShowDescendentCount?: boolean,
 }
