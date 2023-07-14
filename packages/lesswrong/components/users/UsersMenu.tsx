@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -20,6 +20,8 @@ import { userCanPost } from '../../lib/collections/posts';
 import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import filter from 'lodash/filter';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -74,6 +76,7 @@ const UsersMenu = ({classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
+  const updateCurrentUser = useUpdateCurrentUser();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -265,8 +268,44 @@ const UsersMenu = ({classes}: {
             }
             {isEAForum && accountSettingsNode}
 
-            <DropdownDivider />
+            {/*
+              If you're both an admin and a moderator, you can disable your
+              powers and take them back. (If you're only an admin or only a
+              moderator, you can't use this feature, because in the disabled-
+              state we don't keep track of the difference between admins who are
+              vs aren't also moderators.
+            */}
+            {currentUser.isAdmin && userIsMemberOf(currentUser, "sunshineRegiment") && <DropdownItem
+              title={"Disable Admin Powers"}
+              onClick={async () => {
+                // If not a member of the realAdmins group, add that group
+                // before giving up admin powers so that we'll be able to take
+                // the admin powers back
+                let groups = currentUser.groups;
+                if (!groups.find(g=>g==="realAdmins")) {
+                  groups = [...currentUser.groups, "realAdmins"];
+                  await updateCurrentUser({ groups });
+                }
+                await updateCurrentUser({
+                  isAdmin: false,
+                  groups: filter(groups, g=>g!=="sunshineRegiment"),
+                });
+                window.location.reload();
+              }}
+            />}
+            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <DropdownItem
+              title={"Reenable Admin Powers"}
+              onClick={async () => {
+                await updateCurrentUser({
+                  isAdmin: true,
+                  groups: [...currentUser.groups, "sunshineRegiment"],
+                });
+                window.location.reload();
+              }}
+            />}
 
+            <DropdownDivider />
+            
             <DropdownItem
               title={preferredHeadingCase("Log Out")}
               to="/logout"
