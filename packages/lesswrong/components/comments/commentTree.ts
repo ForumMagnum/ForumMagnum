@@ -170,4 +170,9 @@ export interface CommentTreeOptions {
    * to single-line.
    */
   dontExpandNewComments?: boolean
+
+  /**
+   *
+   */
+  singleLineCommentsShowDescendentCount?: boolean,
 }

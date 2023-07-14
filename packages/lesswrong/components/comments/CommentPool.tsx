@@ -145,6 +145,11 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   const visibleComments = filter(loadedComments, c=>c.visibility!=="hidden");
   const tree = unflattenComments(visibleComments.map(c=>c.comment));
 
+  treeOptions = {
+    ...treeOptions,
+    singleLineCommentsShowDescendentCount: true,
+  };
+
   return <CommentPoolContext.Provider value={context}>
     {tree.map(comment =>
       <CommentsNode
