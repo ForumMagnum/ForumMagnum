@@ -44,6 +44,7 @@ export const zIndexes = {
   styledMapPopup: 6,
   nextUnread: 999,
   sunshineSidebar: 1000,
+  reactionsFooter: 1001,
   intercomButton: 1030,
   sideCommentBox: 1040,
   postItemMenu: 1050,
@@ -90,6 +91,10 @@ export const baseTheme: BaseThemeSpecification = {
         small: 3,
       },
       typography: {
+        cloudinaryFont: {
+          stack: "'Merriweather', serif",
+          url: "https://fonts.googleapis.com/css?family=Merriweather",
+        },
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
         },

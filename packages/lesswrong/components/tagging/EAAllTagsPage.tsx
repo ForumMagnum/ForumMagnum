@@ -12,6 +12,11 @@ import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingName
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  coreTagsTitle: {
+    [theme.breakpoints.down('sm')]: {
+      marginTop: 20
+    }
+  },
   portalSection: {
     marginBottom: theme.spacing.unit*8,
   },
@@ -63,7 +68,7 @@ const EAAllTagsPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <SingleColumnSection>
-        <SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin />
+        <SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin className={classes.coreTagsTitle} />
         <CoreTagsSection />
         <div className={classes.portalSection}>
           <SectionTitle title={portalTitle}>

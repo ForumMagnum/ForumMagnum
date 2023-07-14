@@ -1,10 +1,10 @@
-import { userOwns } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
 import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum, taggingNameSetting } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
@@ -70,7 +70,7 @@ const schema: SchemaType<DbComment> = {
   author: {
     type: String,
     optional: true,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     onInsert: async (document, currentUser) => {
       // if userId is changing, change the author name too
       if (document.userId) {
@@ -141,7 +141,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
-    canRead: ['guests'],
+    canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
   },
@@ -267,6 +267,16 @@ const schema: SchemaType<DbComment> = {
         return !!post.shortform;
       }
     }),
+  },
+
+  shortformFrontpage: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(true)
   },
 
   // users can write comments nominating posts for a particular review period.
@@ -403,7 +413,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     resolver: (comment: DbComment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
@@ -664,13 +674,7 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['members', 'admins', 'sunshineRegiment'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    label: `Shortform ${taggingNameSetting.get()}`,
-    tooltip: `Tagging your shortform will make it appear on the ${taggingNameSetting.get()} page, and will help users who follow a ${taggingNameSetting.get()} find it`,
-    control: "FormComponentTagsChecklist",
-    hidden: ({currentUser, document}: SmartFormProps): boolean => {
-        if (!userHasShortformTags(currentUser)) return true;
-        return !document.shortform
-    },
+    hidden: true,
   },
   'relevantTagIds.$': {
     type: String,
@@ -690,7 +694,7 @@ const schema: SchemaType<DbComment> = {
 
       const { post } = formProps;
       
-      const debateParticipantsIds = [post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)];
+      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
       return !debateParticipantsIds.includes(currentUser._id);
     },
   },
@@ -776,7 +780,7 @@ const schema: SchemaType<DbComment> = {
       collectionName: "Users",
       type: "User"
     }),
-    canRead: ['members'],
+    canRead: ['guests'],
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",

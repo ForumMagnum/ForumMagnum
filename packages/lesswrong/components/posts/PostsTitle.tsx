@@ -8,6 +8,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
 import { isEAForum } from '../../lib/instanceSettings';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -94,6 +95,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: -1,
     marginRight: 4,
   },
+  interactionWrapper: {
+    display: "inline-block",
+  },
   strikethroughTitle: {
     textDecoration: "line-through"
   },
@@ -106,7 +110,8 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   }
   const tagSettingIconKeys = Array.from(tagSettingIcons.keys())
   //Sometimes this function will be called with fragments that don't have the tag array, in that case assume that the tag array is empty
-  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : [] 
+  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : []
+  if (!postTags) return null
   const matchingTagSetting = tagSettingIconKeys.find(tagSetting => (postTags).find(tag => tag._id === tagSetting.get()));
   if (matchingTagSetting) {
     return tagSettingIcons.get(matchingTagSetting);
@@ -184,13 +189,17 @@ const PostsTitle = ({
       [classes.strikethroughTitle]: strikethroughTitle
     }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
-        <CuratedIcon hasColor />
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <CuratedIcon hasColor />
+        </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
         {isLink ? <Link to={url}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        </InteractionWrapper>
       </span>}
     </span>
   )

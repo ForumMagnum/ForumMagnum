@@ -3,10 +3,10 @@ import { Components, registerComponent, getCollection } from '../../lib/vulcan-l
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import type { VotingProps } from './withVote';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanVote } from '../../lib/collections/users/helpers';
+import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +29,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 4,
     lineHeight: 1,
     marginRight: 4,
+  },
+  tooltip: {
+    transform: isEAForum ? "translateY(-10px)" : undefined,
   },
 });
 
@@ -66,6 +69,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     ? ({children}: {children: React.ReactNode}) => <>{children}</>
     : ({children}: {children: React.ReactNode}) => <LWTooltip
       placement="top"
+      popperClassName={classes.tooltip}
       title={<>
         <div>{whyYouCantVote}</div>
         <div>{karmaTooltipTitle}</div>
@@ -75,17 +79,20 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     </LWTooltip>
   )
   const TooltipIfEnabled = (canVote
-    ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) => <LWTooltip {...props}>
-      {children}
-    </LWTooltip>
+    ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
+      <LWTooltip {...props} popperClassName={classes.tooltip}>
+        {children}
+      </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
   );
-  
+
+  const tooltipPlacement = isEAForum ? "top" : "bottom";
+
   return <TooltipIfDisabled>
     <span className={classes.agreementSection}>
       <TooltipIfEnabled
         title={<div><b>Agreement: Downvote</b><br />How much do you <b>disagree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong downvote, click-and-hold.<br />(Click twice on mobile)</em></div>}
-        placement="bottom"
+        placement={tooltipPlacement}
       >
         <AxisVoteButton
           VoteIconComponent={Components.VoteAgreementIcon}
@@ -95,9 +102,9 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
           {...voteProps}
         />
       </TooltipIfEnabled>
-      
+
       <span className={classes.agreementScore}>
-        <TooltipIfEnabled title={karmaTooltipTitle} placement="bottom">
+        <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
           {hideKarma
             ? <span>{' '}</span>
             : <span className={classes.voteScore}>
@@ -106,10 +113,10 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
           }
         </TooltipIfEnabled>
       </span>
-      
+
       <TooltipIfEnabled
         title={<div><b>Agreement: Upvote</b><br />How much do you <b>agree</b> with this, separate from whether you think it's a good comment?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-        placement="bottom"
+        placement={tooltipPlacement}
       >
         <AxisVoteButton
           VoteIconComponent={Components.VoteAgreementIcon}

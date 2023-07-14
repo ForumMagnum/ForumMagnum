@@ -6,7 +6,11 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginRight: isEAForum ? 7 : undefined,
+    ...(isEAForum && {
+      marginLeft: 2,
+      marginRight: 7,
+    }),
+
     "& a:hover, & a:active": {
       "& $icon": {
         color: `${theme.palette.icon.dim5} !important`,
@@ -58,21 +62,19 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
   } else {
     dateFormat = undefined;
   }
-
-  const dateNode = <FormatDate
-    date={comment.postedAt}
-    format={dateFormat}
-  />
   
   return (
     <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      {isEAForum ? dateNode : <LinkWrapper>
-        {dateNode}
-        <ForumIcon icon="Link" className={classes.icon} />
-      </LinkWrapper>}
+      <LinkWrapper>
+        <FormatDate
+          date={comment.postedAt}
+          format={dateFormat}
+        />
+        {!isEAForum && <ForumIcon icon="Link" className={classes.icon} />}
+      </LinkWrapper>
     </span>
   );
 }

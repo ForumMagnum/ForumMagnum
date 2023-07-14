@@ -7,10 +7,11 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
@@ -82,8 +83,7 @@ const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
-  const HIDE_FEATURED_RESOURCE_COOKIE = 'hide_featured_resource';
-  const [cookies, setCookie] = useCookies([HIDE_FEATURED_RESOURCE_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
   const { results, loading } = useMulti({
     terms,

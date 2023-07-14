@@ -1,11 +1,10 @@
-import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../algoliaUtil'
-import {promisify} from '../utils/asyncUtils'
+import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../search/algoliaUtil'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
-
+import type { Response } from 'algoliasearch'
 
 interface PostSearchHit {
   title: string,
@@ -31,22 +30,31 @@ const markers = {
 
 const linkPrefix = getSiteUrl()
 
-const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
-  const searchClient = getSearchClient()
-  const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  const search = (...args: AnyBecauseTodo[]) => index.search(...args)
-  return promisify(search)
+function initSearchForIndex<T>(collectionName: AlgoliaIndexCollectionName) {
+  const indexName = getAlgoliaIndexName(collectionName);
+  const searchClient = getSearchClient();
+  return async (
+    query: string,
+    attributesToRetrieve: string[],
+  ): Promise<Response<T> | null> => {
+    const response = await searchClient.search<T>([{
+      indexName,
+      query,
+      params: {
+        query,
+        attributesToRetrieve,
+        hitsPerPage: 20,
+      },
+    }]);
+    return response?.results?.[0];
+  };
 }
 
 async function fetchPostSuggestions(searchString: string) {
-  const search = initSearchForIndex('Posts')
-  const searchResults = await search({
-    query: searchString,
-    attributesToRetrieve: ['title', 'slug', '_id'],
-    hitsPerPage: 20,
-  }) as { hits: PostSearchHit[] }
+  const search = initSearchForIndex<PostSearchHit>('Posts')
+  const searchResults = await search(searchString, ['title', 'slug', '_id']);
 
-  return searchResults.hits.map(hit => ({
+  return searchResults?.hits.map(hit => ({
     id: markers.post + hit.title, //what gets displayed in the dropdown results, must have postMarker 
     link: `${linkPrefix}posts/${hit._id}/${hit.slug}`,
     text: hit.title,
@@ -54,14 +62,10 @@ async function fetchPostSuggestions(searchString: string) {
 }
 
 async function fetchUserSuggestions(searchString: string) {
-  const search = initSearchForIndex('Users')
-  const searchResults = await search({
-    query: searchString,
-    attributesToRetrieve: ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt', 'fullName'],
-    hitsPerPage: 20,
-  }) as { hits: UserSearchHit[] }
+  const search = initSearchForIndex<UserSearchHit>('Users')
+  const searchResults = await search(searchString, ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt', 'fullName']);
 
-  return searchResults.hits.map(hit => {
+  return searchResults?.hits.map(hit => {
     const displayName = markers.user + userGetDisplayName(hit)
     return ({
       id: displayName,

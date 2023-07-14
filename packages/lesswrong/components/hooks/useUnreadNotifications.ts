@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -30,6 +30,7 @@ export function useUnreadNotifications(): {
       unreadNotificationCounts {
         unreadNotifications
         unreadPrivateMessages
+        checkedAt
       }
     }
   `, {
@@ -60,11 +61,65 @@ export function useUnreadNotifications(): {
       ]);
     }
   }, [currentUser?._id, refetchCounts, refetchNotifications]);
+
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
-
+  
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
+
+  const refetchIfNewNotifications = useCallback((timestamp: Date) => {
+    if (!checkedAt || timestamp > checkedAt) {
+      void refetchBoth();
+    }
+  }, [checkedAt, refetchBoth]);
+  
+  useOnNotificationsChanged(currentUser, refetchIfNewNotifications);
+
   return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
 }
+
+export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (timestamp: Date)=>void) => {
+  useEffect(() => {
+    if (!currentUser)
+      return;
+
+    const onServerSentNotification = (timestamp: Date) => {
+      void cb(timestamp);
+    }
+    notificationEventListeners.push(onServerSentNotification);
+    serverSentEventsAPI.setServerSentEventsActive?.(true);
+    
+    return () => {
+      notificationEventListeners = notificationEventListeners.filter(l=>l!==onServerSentNotification);
+      
+      // When removing a server-sent event listener, wait 200ms (just in case this
+      // is a rerender with a remove-and-immediately-add-back) then check whether
+      // there are zero event listeners.
+      setTimeout(() => {
+        if (!notificationEventListeners.length)
+          serverSentEventsAPI.setServerSentEventsActive?.(false);
+      }, 200);
+    }
+  }, [currentUser, cb]);
+}
+
+let notificationEventListeners: Array<(newestNotificationTimestamp: Date)=>void> = [];
+
+export function onServerSentNotificationEvent(newestNotificationTimestamp: Date) {
+  for (let listener of [...notificationEventListeners]) {
+    listener(newestNotificationTimestamp);
+  }
+}
+
+// Provided by the client (if this is running on the client not the server),
+// otherwise methods will be null. Methods are filled in by `initServerSentEvents`
+// prior to React hydration.
+type ServerSentEventsAPI = {
+  setServerSentEventsActive: ((active:boolean)=>void)|null
+}
+export const serverSentEventsAPI: ServerSentEventsAPI = {
+  setServerSentEventsActive: null,
+};
+

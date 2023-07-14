@@ -5,14 +5,16 @@ import { createStyles } from '@material-ui/core/styles';
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   bannerImg: {
     width: '100vw',
-    height: 200,
+    height: 220,
     backgroundImage: `linear-gradient(to right, ${theme.palette.primary.dark} 20%, transparent), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_380,w_1600,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
     backgroundSize: 'cover',
     backgroundPosition: 'top right',
-    padding: 40,
+    padding: 50,
     marginBottom: 10,
+    marginTop: -theme.spacing.mainLayoutPaddingTop, // compensate for the padding added in Layout.tsx
     [theme.breakpoints.down('sm')]: {
       backgroundImage: `linear-gradient(to right, rgba(8, 93, 108, 1) 200px, rgba(8, 93, 108, 0.4)), url(https://res.cloudinary.com/cea/image/upload/c_fill,h_300,w_1000,q_auto,f_auto/236225045_2995791057331456_5749161116892625450_n.jpg.jpg)`,
+      marginTop: 0,
       marginLeft: -8,
       marginRight: -8,
     },
@@ -31,6 +33,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     maxWidth: 300,
     fontSize: 20,
+    fontStyle: 'italic',
     lineHeight: '1.5em',
     '&:before': {
       content: '"\\201C"',

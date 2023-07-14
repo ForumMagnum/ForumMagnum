@@ -21,8 +21,9 @@ import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
-import { hideMapCookieName } from './seasonal/HomepageMap/HomepageMapFilter';
-import { useCookies } from 'react-cookie';
+import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? 90 : 64}px)`,
+    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -180,7 +181,12 @@ const Layout = ({currentUser, children, classes}: {
   const theme = useTheme();
   const { currentRoute, params: { slug }, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
-  const [cookies] = useCookies()
+  const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
+  const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+
+  // enable during ACX Everywhere
+  // const [cookies] = useCookiesWithConsent()
+  // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -227,7 +233,23 @@ const Layout = ({currentUser, children, classes}: {
   }
   
   const render = () => {
-    const { NavigationStandalone, ErrorBoundary, Footer, Header, FlashMessages, AnalyticsClient, AnalyticsPageInitializer, NavigationEventSender, PetrovDayWrapper, NewUserCompleteProfile, CommentOnSelectionPageWrapper, SidebarsWrapper, IntercomWrapper, HomepageCommunityMap } = Components
+    const {
+      NavigationStandalone,
+      ErrorBoundary,
+      Footer,
+      Header,
+      FlashMessages,
+      AnalyticsClient,
+      AnalyticsPageInitializer,
+      NavigationEventSender,
+      PetrovDayWrapper,
+      NewUserCompleteProfile,
+      CommentOnSelectionPageWrapper,
+      SidebarsWrapper,
+      IntercomWrapper,
+      HomepageCommunityMap,
+      CookieBanner,
+    } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
       // Check whether the current route is one which should have standalone
@@ -259,9 +281,6 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
-    // enable during ACX Everywhere
-    const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[hideMapCookieName]
-
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -285,7 +304,10 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
-              <IntercomWrapper/>
+              {/* Only show intercom after they have accepted cookies */}
+              <NoSSR>
+                {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+              </NoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -294,11 +316,12 @@ const Layout = ({currentUser, children, classes}: {
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
+                sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen)}
+                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
               {/* enable during ACX Everywhere */}
-              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
+              {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {

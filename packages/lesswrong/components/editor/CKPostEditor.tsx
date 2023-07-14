@@ -8,7 +8,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useLocation } from '../../lib/routeUtil';
-import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -57,12 +57,28 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel, placeholder }: {
+const CKPostEditor = ({
+  data,
+  collectionName,
+  fieldName,
+  onSave,
+  onChange,
+  onFocus,
+  documentId,
+  userId,
+  formType,
+  onInit,
+  isCollaborative,
+  accessLevel,
+  placeholder,
+  classes,
+}: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
   onSave?: any,
   onChange?: any,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   documentId?: string,
   userId?: string,
   formType?: "new"|"edit",
@@ -90,7 +106,12 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
 
   // Get the linkSharingKey, if it exists
-  const { query : { key } } = useLocation();
+  const { query : { key, debate } } = useLocation();
+
+  const isDebatePost = !!debate;
+  if (isDebatePost && placeholder === defaultEditorPlaceholder) {
+    placeholder = debateEditorPlaceholder;
+  }
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -143,6 +164,7 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     {layoutReady && <CKEditor
       ref={editorRef}
       onChange={onChange}
+      onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={(editor: any) => {

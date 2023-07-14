@@ -7,16 +7,16 @@ import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import { AllowHidingFrontPagePostsContext } from '../posts/PostsPage/PostActions';
+import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useABTest } from '../../lib/abTestImpl';
-import { slowerFrontpageABTest } from '../../lib/abTests';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
@@ -84,8 +84,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
-  // required for side-effect of including this in analytics events
-  const abTestGroup = useABTest(slowerFrontpageABTest);
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
@@ -97,12 +95,12 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts,
+    CuratedPostsList, SectionTitle, StickiedPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
-  const now = moment().tz(timezone);
-  const dateCutoff = now.subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {
     ...query,
@@ -124,11 +122,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
       settings: filterSettings,
     })
   }
-  
-  const recentSubforumDiscussionTerms = {
-    view: "shortformFrontpage" as const,
-    profileTagIds: currentUser?.profileTagIds,
-  };
 
   const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
 
@@ -189,15 +182,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
-            {/* TODO: To be re-enabled in an upcoming PR, along with a checkbox allowing users to
-                opt-out of their shortform posts being shown on the frontpage */}
-            {/* {isEAForum && (
-              <CommentsListCondensed
-                label={"Shortform discussion"}
-                terms={recentSubforumDiscussionTerms}
-                initialLimit={3}
-              />
-            )} */}
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>

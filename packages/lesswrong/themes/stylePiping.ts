@@ -1,3 +1,4 @@
+import { isEAForum } from "../lib/instanceSettings";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -261,6 +262,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
+  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+    color: theme.palette.link.visited,
+  } : {},
   '& table': {
     ...tableStyles(theme)
   },
@@ -317,7 +321,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.palette.border.normal,
+      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -422,7 +426,7 @@ export const smallPostStyles = (theme: ThemeType) => {
       ...theme.typography.postStyle,
       fontSize: "1.28rem",
       lineHeight: "1.8rem",
-    },
+    }
   };
 }
 

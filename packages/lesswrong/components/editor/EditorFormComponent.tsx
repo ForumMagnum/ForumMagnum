@@ -4,10 +4,17 @@ import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable'
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
+  getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
+  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
+import { gql, useLazyQuery } from '@apollo/client';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { isEAForum } from '../../lib/instanceSettings';
+import Transition from 'react-transition-group/Transition';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -42,6 +49,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = isCollaborative(document, fieldName);
+  const { captureEvent } = useTracking()
   
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
     const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
@@ -57,7 +65,97 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
-  const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
+
+  // We used to show this warning to a variety of editor types, but now we only want
+  // to show it to people using the html editor. Converting from markdown to ckEditor
+  // is error prone and we don't want to encourage it. We no longer support draftJS
+  // but some old posts still are using it so we show the warning for them too.
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
+  
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
+  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
+
+  const { mutate: updatePostCriticismTips } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: "PostsEditCriticismTips",
+  })
+  const handleDismissCriticismTips = () => {
+    // hide the card
+    setCriticismTipsDismissed(true)
+    captureEvent('criticismTipsDismissed', {postId: document._id})
+    // make sure not to show the card for this post ever again
+    updateCurrentValues({criticismTipsDismissed: true})
+    if (formType !== 'new' && document._id) {
+      void updatePostCriticismTips({
+        selector: {_id: document._id},
+        data: {
+          criticismTipsDismissed: true
+        }
+      })
+    }
+  }
+  
+  const [checkPostIsCriticism] = useLazyQuery(gql`
+    query getPostIsCriticism($args: JSON) {
+      PostIsCriticism(args: $args)
+    }
+    `, {
+      onCompleted: (data) => {
+        const isCriticism = !!data.PostIsCriticism
+        setPostFlaggedAsCriticism(isCriticism)
+        if (isCriticism && !postFlaggedAsCriticism) {
+          captureEvent('criticismTipsShown', {postId: document._id})
+        }
+      }
+    }
+  )
+  
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
+  const checkIsCriticism = useCallback((contents: EditorContents) => {
+    // we're currently skipping linkposts, since the linked post's author is
+    // not always the same person posting it on the forum
+    if (
+      !isEAForum ||
+      collectionName !== 'Posts' ||
+      document.isEvent ||
+      document.debate ||
+      document.shortform ||
+      document.url ||
+      criticismTipsDismissed
+    ) return
+
+    checkPostIsCriticism({variables: { args: {
+      title: document.title ?? '',
+      contentType: contents.type,
+      body: contents.value
+    }}})
+  }, [
+    collectionName,
+    document.isEvent,
+    document.debate,
+    document.shortform,
+    document.url,
+    document.title,
+    criticismTipsDismissed,
+    checkPostIsCriticism
+  ])
+
+  // Run this check up to once per 20 min.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
+  // Run this check up to once per 2 min (called only when there is a significant amount of text added).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCheckIsCriticismLargeDiff = useCallback(_.throttle(checkIsCriticism, 1000*60*2), [])
+  
+  useEffect(() => {
+    // check when loading the post edit form
+    if (contents?.value?.length > 300) {
+      throttledCheckIsCriticism(contents)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const saveBackup = useCallback((newContents: EditorContents) => {
     if (isBlank(newContents)) {
@@ -92,14 +190,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   );
   
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
-    const {contents,autosave} = change;
-    setContents(contents);
+    const {contents: newContents, autosave} = change;
+    setContents(newContents);
     
     // Only save to localStorage if not using collaborative editing, since with
     // collaborative editing stuff is getting constantly sent through a
     // websocket and saved that way.
     if (!isCollabEditor) {
-      if (!isBlank(contents)) {
+      if (!isBlank(newContents)) {
         hasUnsavedDataRef.current.hasUnsavedData = true;
       }
     }
@@ -109,13 +207,23 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
-    updateCurrentValues({[`${fieldName}_type`]: change.contents?.type});
+    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
     void throttledSetContentsValue()
     
     if (autosave) {
-      throttledSaveBackup(contents);
+      throttledSaveBackup(newContents);
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup]);
+    
+    // We only check posts that have >300 characters, which is ~a few sentences.
+    if (newContents?.value?.length > 300) {
+      // If there's a lot more text (ex. something pasted in), we check the post sooner.
+      if (newContents.value.length - (contents?.value?.length ?? 0) > 300) {
+        throttledCheckIsCriticismLargeDiff(newContents)
+      } else {
+        throttledCheckIsCriticism(newContents)
+      }
+    }
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
   
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
@@ -172,17 +280,19 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     && (collectionName!=="Tags" || formType==="edit");
   
   const actualPlaceholder = (editorHintText || hintText || placeholder);
-  
+
+  // document isn't necessarily defined. TODO: clean up rest of file
+  // to not rely on document
   if (!document) return null;
-  
-  return <div>
+    
+  return <div className={classes.root}>
     {showEditorWarning &&
-    <Components.LastEditedInWarning
-      initialType={initialEditorType}
-      currentType={contents.type}
-      defaultType={defaultEditorType}
-      value={contents} setValue={wrappedSetContents}
-    />
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
@@ -219,6 +329,13 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         postId={document._id}
       />
     }
+    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+      {(state) => <Components.PostsEditBotTips
+        handleDismiss={handleDismissCriticismTips}
+        postId={document._id}
+        className={classes[`${state}BotTips`]}
+      />}
+    </Transition>
   </div>
 }
 

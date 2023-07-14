@@ -4,7 +4,11 @@ import chunk from 'lodash/chunk';
 import keyBy from 'lodash/keyBy';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
-import { getAlgoliaIndexName, collectionIsAlgoliaIndexed, AlgoliaIndexCollectionName } from '../../lib/algoliaUtil';
+import {
+  getAlgoliaIndexName,
+  collectionIsAlgoliaIndexed,
+  AlgoliaIndexCollectionName,
+} from '../../lib/search/algoliaUtil';
 import { Comments } from '../../lib/collections/comments';
 import { Posts } from '../../lib/collections/posts';
 import { postStatuses } from '../../lib/collections/posts/constants';
@@ -32,7 +36,7 @@ const USER_BIO_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS
 const TAG_MAX_SEARCH_CHARACTERS = COMMENT_MAX_SEARCH_CHARACTERS;
 
 Comments.toAlgolia = async (comment: DbComment): Promise<Array<AlgoliaComment>|null> => {
-  if (comment.deleted) return null;
+  if (comment.deleted || comment.rejected || comment.authorIsUnreviewed ) return null;
   
   const algoliaComment: AlgoliaComment = {
     objectID: comment._id,
@@ -180,6 +184,8 @@ Posts.toAlgolia = async (post: DbPost): Promise<Array<AlgoliaPost>|null> => {
   if (post.status !== postStatuses.STATUS_APPROVED)
     return null;
   if (post.authorIsUnreviewed)
+    return null;
+  if (post.rejected)
     return null;
   
   const tags = post.tagRelevance ? 

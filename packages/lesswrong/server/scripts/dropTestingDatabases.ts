@@ -1,4 +1,4 @@
 import { Vulcan } from "../vulcan-lib";
-import { dropTestingDatabases } from "../../lib/sql/tests/testingSqlClient";
+import { dropTestingDatabases } from "../testingSqlClient";
 
 Vulcan.dropTestingDatabases = dropTestingDatabases;

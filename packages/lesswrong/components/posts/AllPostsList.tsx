@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
-import { AllowHidingFrontPagePostsContext } from "./PostsPage/PostActions";
+import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {
   DEFAULT_LOW_KARMA_THRESHOLD,
@@ -18,6 +18,7 @@ import {
   forumAllPostsNumDaysSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
+import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -108,6 +109,15 @@ const AllPostsList = ({
     after: query.after,
   });
 
+  const hideTags = currentFilter !== "all";
+
+  let shortform: PostsTimeBlockShortformOption = "all";
+  if (currentFilter === "frontpage") {
+    shortform = "frontpage";
+  } else if (hideTags) {
+    shortform = "none";
+  }
+
   return (
     <div>
       <AnalyticsContext
@@ -128,7 +138,8 @@ const AllPostsList = ({
             after={after}
             before={before}
             reverse={query.reverse === "true"}
-            displayShortform={query.includeShortform !== "false"}
+            shortform={query.includeShortform === "false" ? "none" : shortform}
+            includeTags={!hideTags}
           />
         </AllowHidingFrontPagePostsContext.Provider>
       </AnalyticsContext>

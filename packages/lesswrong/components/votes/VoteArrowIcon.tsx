@@ -6,7 +6,6 @@ import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { VoteColor, cssVoteColors } from './voteColors';
-import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 'inherit',
     width: 'initial',
     height: 'initial',
-    marginTop: isEAForum ? 2 : undefined,
     padding: 0,
     '&:hover': {
       backgroundColor: 'transparent',
@@ -126,7 +124,3 @@ declare global {
     VoteArrowIcon: typeof VoteIconComponent
   }
 }
-
-
-
-

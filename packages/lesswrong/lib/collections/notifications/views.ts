@@ -57,6 +57,9 @@ ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
 // that is being deleted
 ensureIndex(Notifications, {documentId:1});
 
+// Used by server-sent events
+ensureIndex(Notifications, {createdAt:1});
+
 Notifications.addView("adminAlertNotifications", (terms: NotificationsViewTerms) => {
   return {
     selector: {

@@ -1,11 +1,15 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
-import {forumSelect} from "../../../lib/forumTypeUtils";
+import { forumSelect } from "../../../lib/forumTypeUtils";
+import { Link } from '../../../lib/reactRouterWrapper';
 
+const shortformDraftMessage = isEAForum
+  ? "This is a special post that holds your Quick takes. Because it's marked as a draft, your Quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
+  : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
@@ -21,6 +25,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
+  },
+  rejectionNotice: {
+    ...theme.typography.contentNotice,
+    ...theme.typography.postStyle,
+    maxWidth: 600,
+    opacity: .75,
+    marginBottom: 40
   },
   infoIcon: {
     width: 16,
@@ -58,7 +72,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton } = Components;
+  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -73,15 +87,29 @@ const PostBodyPrefix = ({post, query, classes}: {
     <AlignmentPendingApprovalMessage post={post} />
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
-      This is a special post that holds your short-form writing. Because it's
-      marked as a draft, your short-form posts will not be displayed. To un-draft
-      it, pick Edit from the menu above, then click Publish.
+      {shortformDraftMessage}
+    </div>}
+    {post.shortform && !post.draft && <div className={classes.contentNotice}>
+      {isEAForum
+        ? <>
+          This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+        </>
+        : <>
+          This is a special post for short-form writing by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/shortform">Shortform Page</Link> and <Link to="/allPosts">All Posts page</Link>.
+        </>
+      }
     </div>}
 
-    {post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
+    {post.rejected && <div className={classes.rejectionNotice}>
+      <p>This post was rejected{post.rejectedReason && " for the following reason(s):"}</p>
+      <ContentStyles contentType="postHighlight">
+        <ContentItemBody dangerouslySetInnerHTML={{__html: post.rejectedReason || "" }}/>
+      </ContentStyles>
+    </div>}
+    {!post.rejected && post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       {currentUser?._id === post.userId
         ? "Because this is your first post, this post is awaiting moderator approval."
-        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to go through moderation."
+        : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to be approved by a moderator."
       }
       <LWTooltip title={<p>
         New users' first posts on {siteNameWithArticleSetting.get()} are checked by moderators before they appear on the site.

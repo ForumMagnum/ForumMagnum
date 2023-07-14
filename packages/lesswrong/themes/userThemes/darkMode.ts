@@ -131,9 +131,18 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         main: "#0e9bb4",
         dark: "#0e9bb4",
       },
+      text: {
+        primaryAlert: '#F3F9FA'
+      },
+      link: {
+        visited: '#9b71be',
+      },
       panelBackground: {
         default: shadePalette.grey[20],
       },
+      background: {
+        primaryTranslucent: "rgba(12,134,155,0.4)"
+      }
     },
     default: {},
   });
@@ -145,6 +154,17 @@ const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides
         title: {
           color: palette.icon.dim,
         },
+      },
+      MuiPaper: {
+        elevation1: {boxShadow: "none"},
+        elevation2: {boxShadow: "none"},
+        elevation3: {boxShadow: "none"},
+        elevation4: {boxShadow: "none"},
+        elevation5: {boxShadow: "none"},
+        elevation6: {boxShadow: "none"},
+        elevation7: {boxShadow: "none"},
+        elevation8: {boxShadow: "none"},
+        elevation24: {boxShadow: "none"},
       },
     },
     default: {},
@@ -161,6 +181,8 @@ export const darkModeTheme: UserThemeSpecification = {
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
     text: {
+      primaryAlert: '#b2c5b5',
+      warning: '#FFF7E6',
       alwaysWhite: '#fff',
       primaryDarkOnDim: '#a8cad7',
       aprilFools: {
@@ -170,7 +192,8 @@ export const darkModeTheme: UserThemeSpecification = {
       },
     },
     link: {
-      primaryDim: '#3a7883'
+      primaryDim: '#3a7883',
+      visited: "#bb7c43",
     },
     panelBackground: {
       translucent: "rgba(0,0,0,.87)",
@@ -180,11 +203,15 @@ export const darkModeTheme: UserThemeSpecification = {
       deletedComment: "#3a0505",
       commentModeratorHat: "#202719",
       spoilerBlock: "#1b1b1b",
+      cookieBanner: shadePalette.grey[900],
     },
     background: {
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primaryTranslucent: "rgba(99,141,103,0.3)",
+      primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
+      warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent'
     },
     border: {
@@ -201,6 +228,11 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     embeddedPlayer: {
       opacity: 0.85,
+    },
+    dropdown: {
+      background: shadePalette.grey[100],
+      border: shadePalette.grey[250],
+      hoverBackground: shadePalette.grey[250],
     },
     editor: {
       commentPanelBackground: shadePalette.grey[200],

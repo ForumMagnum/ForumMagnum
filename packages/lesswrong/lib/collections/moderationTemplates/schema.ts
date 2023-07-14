@@ -1,8 +1,8 @@
 import {schemaDefaultValue} from "../../collectionUtils";
 
-const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
+export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 
-type TemplateType = 'Messages' | 'Comments' | 'Rejections';
+export type TemplateType = 'Messages' | 'Comments' | 'Rejections';
 
 const schema: SchemaType<DbModerationTemplate> = {
   name: {
@@ -30,7 +30,7 @@ const schema: SchemaType<DbModerationTemplate> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
-    ...schemaDefaultValue(0),
+    ...schemaDefaultValue(10), // set to 10 so that there's room to leave "primary" templates which show up earlier by default
   },
   deleted: {
     type: Boolean,

@@ -111,7 +111,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   const [showReplyState, setShowReplyState] = useState([...responseStates]);
   const [showEdit, setShowEdit] = useState([...responseStates]);
 
-  const fullParticipantSet = new Set([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)]);
+  const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
 
   const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
     e.preventDefault();

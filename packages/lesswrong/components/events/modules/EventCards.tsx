@@ -11,6 +11,7 @@ import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
+import { communityPath } from '../../../lib/routes';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -53,7 +54,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardContent: {
     position: 'relative',
-    height: 170,
+    height: 175,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -68,6 +69,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardTitle: {
     ...theme.typography.headline,
     fontSize: 20,
+    fontWeight: 600,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -89,14 +91,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardGroup: {
     ...theme.typography.commentStyle,
-    ...theme.typography.italic,
+    fontStyle: "italic",
     maxWidth: 290,
     color: theme.palette.text.dim,
     fontSize: 14,
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    marginTop: 10,
+    marginTop: 20,
   },
   addToCal: {
     ...theme.typography.commentStyle,
@@ -110,7 +112,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardImage: {
     borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
-    height: 200,
+    height: 195,
     width: 373,
   },
 }))
@@ -148,7 +150,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <Card key={event._id} className={classNames(classes.eventCard, cardClassName)}>
       <Link to={`/events/${event._id}/${event.slug}`}>
         {event.eventImageId ?
-          <CloudinaryImage2 height={200} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} /> :
+          <CloudinaryImage2 height={195} width={373} publicId={event.eventImageId} imgProps={{q: '100'}} className={classes.eventCardImage} /> :
           <img src={getDefaultEventImg(373)} className={classes.eventCardImage} />}
       </Link>
       {event.eventType === 'conference' && <div className={classes.eventCardTag}>Conference</div>}
@@ -198,7 +200,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
-        <Link to={'/community'} className={classes.communityLink}>
+        <Link to={communityPath} className={classes.communityLink}>
           Explore the {communityName}
         </Link>
       </div>

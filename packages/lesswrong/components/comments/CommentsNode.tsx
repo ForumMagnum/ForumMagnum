@@ -46,11 +46,9 @@ export interface CommentsNodeProps {
   shortform?: any,
   nestingLevel?: number,
   expandAllThreads?:boolean,
-  /**
-   * Determines whether this specific comment is expanded, without passing that
-   * expanded state to child comments
-   */
-  expandByDefault?: boolean,
+  forceUnTruncated?: boolean,
+  forceUnCollapsed?: boolean,
+  expandNewComments?: boolean,
   isChild?: boolean,
   parentAnswerId?: string|null,
   parentCommentId?: string,
@@ -94,7 +92,9 @@ const CommentsNode = ({
   shortform,
   nestingLevel=1,
   expandAllThreads,
-  expandByDefault,
+  forceUnTruncated,
+  forceUnCollapsed,
+  expandNewComments=true,
   isChild,
   parentAnswerId,
   parentCommentId,
@@ -114,7 +114,7 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const commentPoolContext = useContext(CommentPoolContext);
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene');
+  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments, singleLineCollapse } = treeOptions;
 
@@ -197,9 +197,10 @@ const CommentsNode = ({
     if (singleLineCollapse && !collapsed) {
       setSingleLine(true);
     } else {
+      onToggleCollapsed?.();
       setCollapsed(!collapsed);
     }
-  }, [singleLineCollapse, collapsed]);
+  }, [singleLineCollapse, collapsed, onToggleCollapsed]);
 
   const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
@@ -261,7 +262,7 @@ const CommentsNode = ({
             </AnalyticsContext>
           : <CommentsItem
               treeOptions={treeOptions}
-              truncated={isTruncated && !expandByDefault} // expandByDefault checked separately here, so isTruncated can also be passed to child nodes
+              truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
               nestingLevel={updatedNestingLevel}
               parentCommentId={parentCommentId}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}

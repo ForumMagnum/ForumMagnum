@@ -8,8 +8,15 @@ export const defaultSubscriptionTypeTable = {
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,
-  // TODO: Tags?
+  "Tags": subscriptionTypes.newTagPosts
+  // TODO: other subscription types?
 }
+
+export type DefaultSubscriptionType = keyof typeof defaultSubscriptionTypeTable;
+
+export const isDefaultSubscriptionType =
+  (value: string): value is DefaultSubscriptionType =>
+    value in defaultSubscriptionTypeTable;
 
 /**
  * @summary Perform the un/subscription after verification: update the collection item & the user

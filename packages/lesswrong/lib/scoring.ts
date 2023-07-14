@@ -1,4 +1,4 @@
-import { calculateActivityFactor } from '../server/useractivities/utils';
+import { calculateActivityFactor } from './collections/useractivities/utils';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
@@ -35,7 +35,6 @@ const decayFactorFastestSetting = new DatabasePublicSetting<number>('frontpageAl
 const activityWeightSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityWeight', 1.4)
 export const activityHalfLifeSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.activityHalfLife', 60)
 export const frontpageDaysAgoCutoffSetting = new DatabasePublicSetting<number>('frontpageAlgorithm.daysAgoCutoff', 90)
-export const frontpageAlgoCacheDisabled = new DatabasePublicSetting<boolean>('frontpageAlgorithm.cacheDisabled', true)
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories

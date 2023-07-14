@@ -10,7 +10,7 @@ import { gql } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useSingle } from '../../lib/crud/withSingle';
+import { useSingle, DocumentIdOrSlug } from '../../lib/crud/withSingle';
 import { useDelete } from '../../lib/crud/withDelete';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { getSchema } from '../../lib/utils/getSchema';
@@ -170,8 +170,11 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   const { queryFragment, mutationFragment } = getFragments("edit", props);
   const { extraVariables = {}, extraVariablesValues } = props
   
+  const selector: DocumentIdOrSlug = props.documentId
+    ? {documentId: props.documentId}
+    : {slug: props.slug}
   const { document, loading } = useSingle({
-    documentId: props.documentId,
+    ...selector,
     collectionName: props.collectionName,
     fragment: queryFragment,
     extraVariables,

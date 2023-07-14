@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: isEAForum ? 2 : 3,
   },
   curatedIconColor: {
-    color: theme.palette.primary.main,
+    color: isEAForum ? theme.palette.icon.yellow : theme.palette.primary.main,
   },
   question: {
     fontSize: "1.2rem",
@@ -109,7 +109,9 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
     </span>}
 
     {post.debate && <span className={classes.postIcon}>
-      <DebateIcon className={classes.icon} />
+      <LWTooltip title="Dialog" placement="right">
+        <DebateIcon className={classes.icon} />
+      </LWTooltip>
     </span>}
 
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>

@@ -1,97 +1,14 @@
-import Votes from '../lib/collections/votes/collection';
 import { Tags } from '../lib/collections/tags/collection';
 import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
-import { htmlToText } from 'html-to-text';
+import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo, { CommentKarmaChange, KarmaChangesArgs, PostKarmaChange, TagRevisionKarmaChange } from './repos/VotesRepo';
+import VotesRepo, { KarmaChangesArgs } from './repos/VotesRepo';
 
-
-type ExtendedCommentKarmaChange = CommentKarmaChange & {
-  tagSlug?: string,
-}
-type ExtendedTagRevisionKarmaChange = TagRevisionKarmaChange & {
-  tagName?: string,
-  tagSlug?: string,
-}
+// Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
+const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
-
-const getKarmaChangesForComments = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<CommentKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForComments(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Comments"),
-
-      {$lookup: {
-        from: "comments",
-        localField: "_id",
-        foreignField: "_id",
-        as: "comment"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        description: {$arrayElemAt: ["$comment.contents.html",0]},
-        postId: {$arrayElemAt: ["$comment.postId",0]},
-        tagId: {$arrayElemAt: ["$comment.tagId",0]},
-        tagCommentType: {$arrayElemAt: ["$comment.tagCommentType",0]},
-      }},
-    ]).toArray();
-}
-
-const getKarmaChangesForPosts = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<PostKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForPosts(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Posts"),
-
-      {$lookup: {
-        from: "posts",
-        localField: "_id",
-        foreignField: "_id",
-        as: "post"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        title: {$arrayElemAt: ["$post.title",0]},
-        slug: {$arrayElemAt: ["$post.slug",0]},
-      }},
-    ]).toArray();
-}
-
-const getKarmaChangesForTagRevisions = (
-  karmaChangesInCollectionPipeline: (collectionName: CollectionNameString) => any,
-  votesRepo: VotesRepo,
-  queryArgs: KarmaChangesArgs,
-): Promise<TagRevisionKarmaChange[]> => {
-  return Votes.isPostgres()
-    ? votesRepo.getKarmaChangesForTagRevisions(queryArgs)
-    : Votes.aggregate([
-      ...karmaChangesInCollectionPipeline("Revisions"),
-
-      {$lookup: {
-        from: "revisions",
-        localField: "_id",
-        foreignField: "_id",
-        as: "revision"
-      }},
-      {$project: {
-        _id:1,
-        scoreChange:1,
-        tagId: {$arrayElemAt: ["$revision.documentId",0]},
-      }},
-    ]).toArray();
-}
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -139,51 +56,12 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     showNegative: showNegativeKarmaSetting,
   };
 
-  function karmaChangesInCollectionPipeline(collectionName: CollectionNameString) {
-    return [
-      // Get votes cast on this user's content (including cancelled votes)
-      {$match: {
-        authorIds: user._id,
-        votedAt: {$gte: startDate, $lte: endDate},
-        userId: {$ne: user._id}, //Exclude self-votes
-        collectionName: collectionName,
-        ...(af && {afPower: {$exists: true}})
-      }},
-
-      // Group by thing-that-was-voted-on and calculate the total karma change
-      {$group: {
-        _id: "$documentId",
-        collectionName: { $first: "$collectionName" },
-        scoreChange: { $sum: af ? "$afPower" : "$power" },
-      }},
-
-      // Filter out things with zero or negative net change (eg where someone voted and then
-      // unvoted and nothing else happened)
-      // User setting determines whether we show negative changes
-      {$match: {
-        scoreChange: showNegativeKarmaSetting ? {$ne: 0} : {$gt: 0}
-      }}
-    ];
-  }
-
-  const [
-    changedComments,
-    changedPosts,
-    changedTagRevisions
-  ]: [
-    ExtendedCommentKarmaChange[],
-    PostKarmaChange[],
-    ExtendedTagRevisionKarmaChange[]
-  ] = await Promise.all([
-    getKarmaChangesForComments(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-    getKarmaChangesForPosts(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-    getKarmaChangesForTagRevisions(karmaChangesInCollectionPipeline, votesRepo, queryArgs),
-  ]);
+  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
   for (let comment of changedComments) {
-    comment.description = htmlToText(comment.description ?? "")
+    comment.description = htmlToTextDefault(comment.description ?? "")
       .substring(0, COMMENT_DESCRIPTION_LENGTH);
   }
 

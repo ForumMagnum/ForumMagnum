@@ -76,7 +76,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
   const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
 
   const {
-    SingleColumnSection, SectionTitle, SortButton, PostsListSettings, HeadTags,
+    SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
     AllPostsList,
   } = Components;
 
@@ -91,7 +91,10 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
           >
             <div className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                <SortButton label={formatSort(currentSorting)} />
+                {isEAForum ?
+                  <SortButton label={formatSort(currentSorting)} /> :
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                }
               </SectionTitle>
             </div>
           </Tooltip>

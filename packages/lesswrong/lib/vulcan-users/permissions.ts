@@ -1,7 +1,9 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
+import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 
 class Group {
   actions: Array<string>
@@ -30,10 +32,13 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
-export type PermissionableUser = UsersMinimumInfo & {
-  readonly groups: Array<string>
-  readonly banned: Date
-}
+export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
+  "groups" |
+  "banned" |
+  "allCommentingDisabled" |
+  "isAdmin" |
+  "reviewedByUserId"
+>;
 
 // get a list of a user's groups
 export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
@@ -93,8 +98,10 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
 };
 
+export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;
+
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -114,6 +121,46 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
+export const userOwnsAndOnLW = function (user:UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
+  return isLW && userOwns(user, document)
+}
+
+export const documentIsNotDeleted = (
+  user: PermissionableUser|DbUser|null,
+  document: OwnableDocument,
+) => {
+  // Admins and mods can see deleted content
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  // Authors can see their deleted content
+  if (userOwns(user, document)) {
+    return true;
+  }
+  // Unfortunately, different collections use different field names
+  // to represent "deleted-ness"
+  return !(
+    (document as unknown as DbComment).deleted ||
+    (document as unknown as DbPost).deletedDraft ||
+    (document as unknown as DbSequence).isDeleted
+  );
+}
+
+export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+  if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
+    return false;
+  }
+  return true;
+}
 
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
@@ -135,7 +182,7 @@ export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(use
 
 export const isAdmin = userIsAdmin;
 
-export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): user is Exclude<T, null> {
+export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): boolean {
   if (!user) return false;
   return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
 };

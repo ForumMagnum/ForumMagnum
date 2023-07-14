@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import moment from 'moment';
+import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -45,9 +46,23 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-  return (
-    (karmaThreshold && user.karma < karmaThreshold) || moment(user.createdAt).isAfter(moment().subtract(1, "week"))
-  );
+  const userKarma = user.karma ?? 0;
+  const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
+
+  // For the EA forum, return true if either:
+  // 1. the user is below the karma threshold, or
+  // 2. the user was created less than a week ago
+  if (isEAForum) {
+    return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+  }
+
+  // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
+  if (userBelowKarmaThreshold) {
+    return moment(user.createdAt).isAfter(moment().subtract(1, "year"));
+  }
+  
+  // But continue to return true for a week even if they pass the karma threshold
+  return moment(user.createdAt).isAfter(moment().subtract(1, "week"));
 }
 
 export interface SharableDocument {
@@ -193,26 +208,41 @@ export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost, postAuthor: PostsAuthors_user|DbUser|null): boolean => {
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PostsDetails|DbPost|null, postAuthor: PostsAuthors_user|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
-  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id)) return false // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
 
-  if (!post) return true
-  if (post.commentsLocked) return false
-  if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) return false
-
-  if (userIsBannedFromPost(user, post, postAuthor)) {
+  // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id))
     return false
-  }
 
-  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return false
-  }
+  if (post) {
+    if (post.shortform && post.userId && post.userId !== user._id && !isReply) {
+      return false;
+    }
 
-  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
-    return false
+    if (post.commentsLocked) {
+      return false
+    }
+    if (post.rejected) {
+      return false
+    }
+    if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) {
+      return false
+    }
+  
+    if (userIsBannedFromPost(user, post, postAuthor)) {
+      return false
+    }
+  
+    if (userIsBannedFromAllPosts(user, post, postAuthor)) {
+      return false
+    }
+  
+    if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+      return false
+    }
   }
 
   return true
@@ -525,6 +555,13 @@ export const getSignature = (name: string) => {
 export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
+
+export function getNewModActionNotes(responsibleAdminName: string, modActionType: DbModeratorAction["type"], sunshineNotes: string) {
+  const modActionDescription = MODERATOR_ACTION_TYPES[modActionType];
+  const newNote = getSignatureWithNote(responsibleAdminName, ` "${modActionDescription}"`);
+  const oldNotes = sunshineNotes ?? '';
+  return `${newNote}${oldNotes}`;
+}
 
 export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   // If the user is null, then returning true from this function is still valid;

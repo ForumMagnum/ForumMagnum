@@ -84,7 +84,7 @@ const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: 
   if (!post)
     return null;
   
-  return <HeadingLink text={`New comments on ${post.title}`} href={postGetPageUrl(post)} classes={classes}/>
+  return <HeadingLink text={`New comments on ${post.title}`} href={postGetPageUrl(post, true)} classes={classes}/>
 }
 
 const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType}) => {

@@ -5,7 +5,7 @@ import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
-import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
@@ -50,14 +50,21 @@ const removeNotification = async (notificationId: string) => {
   })
 }
 
-const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: string) => {
+const sendPostByEmail = async ({users, postId, reason, subject}: {
+  users: Array<DbUser>,
+  postId: string,
+  reason: string,
+  
+  // Subject line to use in the email. If omitted, uses the post title.
+  subject?: string,
+}) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
       await wrapAndSendEmail({
         user,
-        subject: post.title,
+        subject: subject ?? post.title,
         body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
       });
     } else {
@@ -150,9 +157,26 @@ function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost)
     return true;
   }
 
+  /* 
+   * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
+   * We can't check moment(null).isSame(moment(null)), since that always returns false.
+   * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
+   * We shouldn't send a notification in those cases, obviously.
+   */
+  const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
+  const { startTime: newStartTime, endTime: newEndTime } = newPost;
+
+  const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
+  const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
+
+  const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
+  const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
+
   if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
-    || !moment(newPost.startTime).isSame(moment(oldPost.startTime))
-    || !moment(newPost.endTime).isSame(moment(oldPost.endTime))
+    || startTimeAddedOrRemoved
+    || startTimeChanged
+    || endTimeAddedOrRemoved
+    || endTimeChanged
   ) {
     // Link, start time, or end time changed
     return true;
@@ -227,7 +251,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
 
       for(let i=0; i<u.emails.length; i++)
       {
-        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
           return true;
       }
       return false;
@@ -253,13 +277,15 @@ const curationEmailDelay = new EventDebouncer({
       //eslint-disable-next-line no-console
       console.log(`Sending curation emails`);
 
-      // Email only non-admins (admins get emailed immediately, without the
-      // delay).
-      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
+      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true});
 
       //eslint-disable-next-line no-console
       console.log(`Found ${usersToEmail.length} users to email`);
-      await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+      await sendPostByEmail({
+        users: usersToEmail,
+        postId,
+        reason: "you have the \"Email me new posts in Curated\" option enabled"
+      });
     } else {
       //eslint-disable-next-line no-console
       console.log(`Not sending curation notice for ${post?.title} because it was un-curated during the delay period.`);
@@ -270,10 +296,16 @@ const curationEmailDelay = new EventDebouncer({
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
     // Email admins immediately, everyone else after a 20-minute delay, so that
-    // we get a chance to catch formatting issues with the email.
-    
+    // we get a chance to catch formatting issues with the email. (Admins get
+    // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
-    await sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+
+    await sendPostByEmail({
+      users: adminsToEmail,
+      postId: post._id,
+      reason: "you have the \"Email me new posts in Curated\" option enabled",
+      subject: `[Admin preview] ${post.title}`,
+    });
     
     await curationEmailDelay.recordEvent({
       key: post._id,
@@ -410,7 +442,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
   // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
   if (post && comment.debateResponse) {
     // Get all the debate participants, but exclude the comment author if they're a debate participant
-    const debateParticipantIds = _.difference([post.userId, ...post.coauthorStatuses.map(coauthor => coauthor.userId)], [comment.userId]);
+    const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
 
     const debateSubscribers = await getSubscribedUsers({
       documentId: comment.postId,
@@ -440,7 +472,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
     documentId: comment.postId,
     collectionName: "Posts",
     type: subscriptionTypes.newComments,
-    potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+    potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
     userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
   })
   userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
@@ -562,7 +594,7 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  const { _id, shareWithUsers = [], coauthorStatuses = [] } = post;
+  const { _id, shareWithUsers = [], coauthorStatuses } = post;
   const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
   const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})

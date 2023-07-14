@@ -24,6 +24,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { getUserStructuredData } from './UsersSingle';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -185,7 +186,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
-      SortButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
+      SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
       Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
@@ -245,6 +246,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          structuredData={getUserStructuredData(user)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
@@ -337,7 +339,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           <SingleColumnSection>
             <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
-                <SortButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>
             </div>
             {showSettings && <PostsListSettings

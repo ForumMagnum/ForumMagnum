@@ -1,4 +1,4 @@
-import { userOwns } from '../vulcan-users/permissions';
+import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
@@ -43,10 +43,15 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
-`Write here. Select text to format it. Switch between rich text and markdown in your account settings.` :
+`Highlight text to format it. Type # to reference a post, @ to mention someone.` :
 `Write here. Select text for formatting options.
 We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
 You can switch between rich text and markdown in your user settings.`
+
+export const debateEditorPlaceholder = 
+`Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
+
+Other participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.`;
 
 const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
@@ -64,7 +69,7 @@ const defaultOptions: MakeEditableOptions = {
   // }
   getLocalStorageId: null,
   permissions: {
-    canRead: ['guests'],
+    canRead: [documentIsNotDeleted],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members']
   },

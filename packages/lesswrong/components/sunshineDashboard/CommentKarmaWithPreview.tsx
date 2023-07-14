@@ -23,8 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[900],
   },
   scoreTitleFormat: {
-    width: 20,
-    display: "inline-block"
+    width: 30,
+    marginRight: 8,
+    display: "inline-block",
+    textAlign: "center"
   },
   titleDisplay: {
     display: "block"
@@ -43,7 +45,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, CommentsNode } = Components
+  const { LWPopper, CommentsNode, FormatDate } = Components
 
   if (!comment) return null 
 
@@ -51,7 +53,12 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
     <Link className={classNames({[classes.highlight]: comment.postedAt > reviewedAt, [classes.deleted]: comment.deleted, [classes.default]: !comment.deleted})}
       to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}
     >
-      <span className={displayTitle ? classes.scoreTitleFormat : null}>{comment.baseScore} </span>
+      {displayTitle && <span className={classes.scoreTitleFormat}>
+        <FormatDate date={comment.postedAt} />
+      </span>}
+      <span className={displayTitle ? classes.scoreTitleFormat : null}>
+        {comment.baseScore} 
+      </span>
       {displayTitle && comment.post?.title }
     </Link>
     <LWPopper
@@ -60,7 +67,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
         placement={displayTitle ? "right-start" : "bottom-start"}
       >
       <div className={classes.commentPreview}>
-        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} expandByDefault/>
+        <CommentsNode treeOptions={{showPostTitle: true}} comment={comment} forceUnTruncated forceUnCollapsed/>
       </div>
     </LWPopper>
   </span>

@@ -68,6 +68,7 @@ declare global {
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
+    primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -109,7 +110,6 @@ declare global {
     text: {
       primary: ColorString,
       secondary: ColorString
-      
       normal: ColorString,
       maxIntensity: ColorString,
       slightlyIntense: ColorString,
@@ -141,8 +141,10 @@ declare global {
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
       invertedBackgroundText4: ColorString,
+      primaryAlert: ColorString,
       error: ColorString,
       error2: ColorString,
+      warning: ColorString,
       red: ColorString,
       alwaysWhite: ColorString,
       sequenceIsDraft: ColorString,
@@ -171,6 +173,7 @@ declare global {
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
+      visited: ColorString
     },
     icon: {
       normal: ColorString,
@@ -198,6 +201,7 @@ declare global {
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -238,6 +242,7 @@ declare global {
       debateComment3: string,
       debateComment4: string,
       debateComment5: string,
+      dashed500: string,
     },
     panelBackground: {
       default: ColorString,
@@ -288,7 +293,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
-      restoreSavedContentNotice: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
@@ -308,11 +313,13 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,
@@ -378,6 +385,9 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primaryTranslucent: ColorString,
+      primaryTranslucentHeavy: ColorString,
+      warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
     },
@@ -408,6 +418,11 @@ declare global {
     },
     embeddedPlayer: {
       opacity: number,
+    },
+    dropdown: {
+      background: ColorString,
+      border: ColorString,
+      hoverBackground: ColorString,
     },
     group: ColorString,
     contrastText: ColorString,
@@ -442,7 +457,11 @@ declare global {
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,

@@ -45,17 +45,21 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   });
 
   return <div className={classes.root}>
-    {results?.map(conversation => <LWTooltip title={`${conversation.messageCount} messages in this conversation`} key={conversation._id}>
-      <Link to={`/inbox/${conversation._id}`}>
-        <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-        <span className={classes.title}>
-          Conversation with{" "} 
-          {conversation.participants?.map(participant => {
-            if (participant._id !== user._id) return <UsersName simple user={participant} key={`${conversation._id}${user._id}`}/>
-          })}
-        </span>
-      </Link>
-    </LWTooltip>)}
+    {results?.map(conversation => <div key={conversation._id}>
+      <LWTooltip title={`${conversation.messageCount} messages in this conversation`}>
+        <Link to={`/inbox/${conversation._id}`}>
+          <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+          <span className={classes.title}>
+            Conversation with{" "} 
+            {conversation.participants.filter(participant => participant._id !== user._id).map(participant => {
+              return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                <UsersName simple user={participant}/>
+              </MetaInfo>
+            })}
+          </span>
+        </Link>
+      </LWTooltip>
+    </div>)}
     <SunshineSendMessageWithDefaults 
         user={user} 
         embedConversation={embedConversation}

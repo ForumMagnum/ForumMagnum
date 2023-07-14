@@ -1,11 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 
-const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hidePostCount=false, isVotingContext}:{
+const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hidePostCount=false, filters, isVotingContext}:{
   clickAction: (id: string, tag: AlgoliaTag | null) => void,
   placeholder?: string,
   hidePostCount?: boolean,
+  filters?: string
   isVotingContext?: boolean
 }) => {
   return <Components.SearchAutoComplete
@@ -14,6 +15,7 @@ const TagsSearchAutoComplete = ({clickAction, placeholder='Search for posts', hi
     renderSuggestion={(hit: any) => <Components.TagSearchHit hit={hit} hidePostCount={hidePostCount} isVotingContext={isVotingContext} />}
     placeholder={placeholder}
     noSearchPlaceholder='Tag ID'
+    filters={filters}
   />
 }
 

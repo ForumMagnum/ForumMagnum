@@ -3,15 +3,33 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed } from '../../lib/algoliaUtil';
+import {
+  isAlgoliaEnabled,
+  getSearchClient,
+  AlgoliaIndexCollectionName,
+  collectionIsAlgoliaIndexed,
+} from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import SearchIcon from '@material-ui/icons/Search';
 import InfoIcon from '@material-ui/icons/Info';
+import Select from '@material-ui/core/Select';
 import moment from 'moment';
+import { useSearchAnalytics } from './useSearchAnalytics';
+import {
+  ElasticSorting,
+  defaultElasticSorting,
+  elasticCollectionIsCustomSortable,
+  elasticSortingToUrlParam,
+  formatElasticSorting,
+  getElasticIndexNameWithSorting,
+  getElasticSortingsForCollection,
+  isValidElasticSorting,
+} from '../../lib/search/elasticUtil';
+import { userHasElasticsearch } from '../../lib/betas';
+import { communityPath } from '../../lib/routes';
 
 const hitsPerPage = 10
 
@@ -65,6 +83,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 18,
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    "&:not(:first-child)": {
+      marginTop: 35,
+    },
   },
   filterLabel: {
     fontSize: 14,
@@ -158,7 +179,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-  
+  sort: {
+    borderRadius: theme.borderRadius.small,
+    width: "100%",
+  },
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -181,7 +205,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[500]
     }
   }
-})
+});
 
 type ExpandedSearchState = SearchState & {
   contentType?: AlgoliaIndexCollectionName,
@@ -248,7 +272,8 @@ const SearchPageTabbed = ({classes}:{
   const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
-  
+  const captureSearch = useSearchAnalytics();
+
   // store these values for the search filter
   const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
   const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
@@ -263,13 +288,32 @@ const SearchPageTabbed = ({classes}:{
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
   )
-  const [searchState, setSearchState] = useState<ExpandedSearchState>(qs.parse(location.search.slice(1)))
+
+  const {sort: initialSorting, ...initialSearchState} = qs.parse(location.search.slice(1));
+  const [searchState, setSearchState] = useState<ExpandedSearchState>(initialSearchState);
+  const [sorting, setSorting] = useState<ElasticSorting>(
+    isValidElasticSorting(initialSorting) ? initialSorting : defaultElasticSorting,
+  );
+
+  const onSortingChange = (newSorting: string) => {
+    if (!isValidElasticSorting(newSorting)) {
+      throw new Error("Invalid algolia sorting: " + newSorting);
+    }
+    setSorting(newSorting);
+    history.replace({
+      ...location,
+      search: qs.stringify({
+        ...searchState,
+        sort: elasticSortingToUrlParam(newSorting),
+      }),
+    });
+  }
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip
-  } = Components
-    
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem, ForumIcon
+  } = Components;
+
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
     history.replace({
@@ -279,14 +323,16 @@ const SearchPageTabbed = ({classes}:{
         query: search.query,
         tags,
         toggle: search.toggle,
-        page: search.page
+        page: search.page,
+        sort: elasticSortingToUrlParam(sorting),
       })
     })
   }
-    
+
   const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
-    setTab(value)
-    setSearchState({...searchState, contentType: value, page: 1})
+    setTab(value);
+    setSorting(defaultElasticSorting);
+    setSearchState({...searchState, contentType: value, page: 1});
   }
   // filters that we want to persist when changing content type tabs need to be handled separately
   // (currently that's just the tags filter)
@@ -304,6 +350,12 @@ const SearchPageTabbed = ({classes}:{
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
   }
+
+  useEffect(() => {
+    if (searchState.query) {
+      captureSearch("searchPageTabbed", searchState);
+    }
+  }, [searchState, captureSearch])
 
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root}>
@@ -323,7 +375,7 @@ const SearchPageTabbed = ({classes}:{
 
   return <div className={classes.root}>
     <InstantSearch
-      indexName={getAlgoliaIndexName(tab)}
+      indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient()}
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
@@ -369,16 +421,35 @@ const SearchPageTabbed = ({classes}:{
           value={true}
         />}
         <ClearRefinements />
-        
+
         {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
-          <Link to="/community#individuals">View community map</Link>
+          <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
+
+        {elasticCollectionIsCustomSortable(tab) && userHasElasticsearch(null) &&
+          <>
+            <Typography variant="headline" className={classes.filtersHeadline}>
+              Sort
+            </Typography>
+            <Select
+              value={sorting}
+              onChange={(e) => onSortingChange(e.target.value)}
+              className={classes.sort}
+            >
+              {getElasticSortingsForCollection(tab).map((name, i) =>
+                <MenuItem key={i} value={name}>
+                  {formatElasticSorting(name)}
+                </MenuItem>
+              )}
+            </Select>
+          </>
+        }
       </div>
 
       <div className={classes.resultsColumn}>
         <div className={classes.searchBoxRow}>
           <div className={classes.searchInputArea}>
-            <SearchIcon className={classes.searchIcon}/>
+            <ForumIcon icon="Search" className={classes.searchIcon}/>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}

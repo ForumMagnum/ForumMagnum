@@ -11,6 +11,7 @@ export type DbTestObject = {
       e: string,
     },
   },
+  d?: string[],
   schemaVersion: number,
 }
 
@@ -29,6 +30,12 @@ export const TestCollection = {
     },
     c: {
       type: Object,
+    },
+    d: {
+      type: Array
+    },
+    'd.$': {
+      type: String
     },
     schemaVersion: {
       type: Number,
@@ -67,8 +74,33 @@ export const TestCollection2 = {
 
 export const testTable2 = Table.fromCollection(TestCollection2);
 
+export type DbTestObject3 = {
+  _id: string,
+  notNullData: string,
+  schemaVersion: number
+};
+
+export const TestCollection3 = {
+  collectionName: "TestCollection3",
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    notNullData: {
+      type: String,
+      nullable: false
+    },
+    schemaVersion: {
+      type: Number,
+    }
+  }
+} as unknown as CollectionBase<DbTestObject3>;
+
+export const testTable3 = Table.fromCollection(TestCollection3);
+
 registerCollection(TestCollection);
 registerCollection(TestCollection2);
+registerCollection(TestCollection3);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

@@ -323,10 +323,10 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   // Notify the main author of the post, the coauthors if any, and everyone
   // who's commented in the thread. Then filter out the person who wrote the
   // comment themself.
-  const coauthorUserIds = _.filter(post.coauthorStatuses, status=>status.confirmed).map(status => status.userId)
+  const coauthorUserIds = post.coauthorStatuses?.filter(status=>status.confirmed).map(status => status.userId) ?? [];
 
   const usersToNotify = _.uniq(_.filter(
-    [post.userId, ...(coauthorUserIds), ...commentersInThread],
+    [post.userId, ...coauthorUserIds, ...commentersInThread],
     u=>(!!u && u!==commenterUserId)
   ));
   

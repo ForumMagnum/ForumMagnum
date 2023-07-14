@@ -15,6 +15,7 @@ import qs from "qs";
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { useSubscribeUserToTag } from '../../../lib/filterSettings';
 import { defaultPostsLayout, isPostsLayout } from '../../../lib/collections/posts/dropdownOptions';
+import { getTagStructuredData } from '../TagPageRouter';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   tabRow: {
@@ -59,6 +60,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     ...theme.typography.headline,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     fontSize: 40,
@@ -339,7 +341,7 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} />
+      <HeadTags description={headTagDescription} structuredData={getTagStructuredData(tag)} noIndex={tag.noindex} />
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
         titleComponent={titleComponent}

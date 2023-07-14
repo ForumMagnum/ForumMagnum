@@ -11,11 +11,11 @@ export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.headerStyle,
   marginTop: isEAForum ? 5 : 0,
   marginLeft: 0,
-  marginBottom: isEAForum ? theme.spacing.unit : 0,
+  marginBottom: isEAForum ? 12 : 0,
   color: theme.palette.text.primary,
   [theme.breakpoints.down('sm')]: isEAForum
     ? {
-      fontSize: '2.1rem',
+      fontSize: '2.3rem',
       marginTop: 20,
     }
     : {
@@ -23,7 +23,7 @@ export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
     },
   ...(isEAForum
     ? {
-      fontSize: '2.5rem',
+      fontSize: '3rem',
     }
     : {}),
 })

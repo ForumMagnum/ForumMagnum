@@ -7,6 +7,8 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
+import { UserKarmaInfo } from '../../lib/rateLimits/types';
+import { truncate } from '../../lib/editor/ellipsize';
 
 export const CONTENT_LIMIT = 20
 
@@ -37,11 +39,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   basicInfoRow: {
     padding: 16,
     paddingBottom: 14,
-    borderBottom: theme.palette.border.extraFaint
-  },
-  row: {
+    borderBottom: theme.palette.border.extraFaint,
     display: "flex",
-    alignItems: "center",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   bigDownvotes: {
     color: theme.palette.error.dark,
@@ -84,9 +85,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12
   },
   bio: {
+    wordBreak: "break-word",
     '& a': {
       color: theme.palette.primary.main,
-    }
+    },
+    '& img': {
+      maxWidth: '100%',
+    },
+    overflow: "hidden",
   },
   website: {
     color: theme.palette.primary.main,
@@ -124,12 +130,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     marginTop: 16,
     marginBottom: 8,
-    borderTop: theme.palette.border.extraFaint
+    borderTop: theme.palette.border.extraFaint,
+    maxHeight: '90vh',
+    overflowY: "scroll"
   },
   expandButton: {
     display: "flex",
-    justifyContent: "right",
-    color: theme.palette.grey[500]
+    justifyContent: "center",
+    color: theme.palette.grey[500],
+    borderRadius: 2,
+    '&:hover': {
+      background: theme.palette.grey[100]
+    }
   },
   contentCollapsed: {
     maxHeight: 300,
@@ -143,6 +155,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export const DEFAULT_BIO_WORDCOUNT = 250
+export const MAX_BIO_WORDCOUNT = 10000
+
+export function getDownvoteRatio(user: UserKarmaInfo): number {
+  // First check if the sum of the individual vote count fields
+  // add up to something close (with 5%) to the voteReceivedCount field.
+  // (They should be equal, but we know there are bugs around counting votes,
+  // so to be fair to users we don't want to rate limit them if it's too buggy.)
+  const sumOfVoteCounts = user.smallUpvoteReceivedCount + user.bigUpvoteReceivedCount + user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  const denormalizedVoteCountSumDiff = Math.abs(sumOfVoteCounts - user.voteReceivedCount);
+  const voteCountsAreValid = user.voteReceivedCount > 0
+    && (denormalizedVoteCountSumDiff / user.voteReceivedCount) <= 0.05;
+  
+  const totalDownvoteCount = user.smallDownvoteReceivedCount + user.bigDownvoteReceivedCount;
+  // If vote counts are not valid (i.e. they are negative or voteReceivedCount is 0), then do nothing
+  const downvoteRatio = voteCountsAreValid ? (totalDownvoteCount / user.voteReceivedCount) : 0
+
+  return downvoteRatio
+}
+
 const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
@@ -150,13 +182,13 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   classes: ClassesType,
 }) => {
   const {
-    MetaInfo, FormatDate, SunshineUserMessages, LWTooltip, UserReviewStatus,
+    MetaInfo, UserReviewMetadata, LWTooltip, UserReviewStatus,
     SunshineNewUserPostsList, ContentSummaryRows, SunshineNewUserCommentsList, ModeratorActions,
-    UsersName, NewUserDMSummary, FirstContentIcons
+    UsersName, NewUserDMSummary, SunshineUserMessages, FirstContentIcons, UserAutoRateLimitsDisplay
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
-    
+  const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
   const { results: posts = [], loading: postsLoading } = useMulti({
     terms:{view:"sunshineNewUsersPosts", userId: user._id},
@@ -188,18 +220,10 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
       </div>
       <UserReviewStatus user={user}/>
+      <UserReviewMetadata user={user}/>
     </div>
-
-    <div className={classes.row}>
-      <MetaInfo className={classes.info}>
-        { user.karma || 0 } karma
-      </MetaInfo>
-      <MetaInfo>
-        {user.email}
-      </MetaInfo>
-      <MetaInfo className={classes.info}>
-        <FormatDate date={user.createdAt}/>
-      </MetaInfo>
+    <div>
+      <UserAutoRateLimitsDisplay user={user} showKarmaMeta/>
     </div>
   </div>
 
@@ -228,6 +252,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   </div>
 
   const renderExpand = !!(posts?.length || comments?.length)
+  const truncatedHtml = truncate(user.htmlBio, bioWordcount, "words")
   
   return (
     <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
@@ -236,11 +261,10 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         <div className={classes.infoColumn}>
           <div>
             <ModeratorActions user={user} currentUser={currentUser} refetch={refetch} comments={comments} posts={posts}/>
-            <UserReviewStatus user={user}/>
           </div>
         </div>
         <div className={classes.contentColumn}>
-          <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+          <div dangerouslySetInnerHTML={{__html: truncatedHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />

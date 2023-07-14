@@ -2,10 +2,9 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { getSearchClient } from '../../../lib/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -190,13 +189,13 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
 
-  const { NewConversationButton, SearchResultsMap, ContentStyles } = Components
+  const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
   
   const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
         labelWidth={0}
-        startAdornment={<Search className={classes.searchIcon}/>}
+        startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
         placeholder="Search people"
         value={currentRefinement}
         onChange={e => {

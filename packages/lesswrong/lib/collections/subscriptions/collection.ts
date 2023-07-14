@@ -19,7 +19,7 @@ const options: MutationOptions<DbSubscription> = {
 export const Subscriptions: SubscriptionsCollection = createCollection({
   collectionName: 'Subscriptions',
   typeName: 'Subscription',
-  collectionType: forumTypeSetting.get() === "EAForum" ? "pg" : "mongo",
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Subscriptions'),
   mutations: getDefaultMutations('Subscriptions', options),

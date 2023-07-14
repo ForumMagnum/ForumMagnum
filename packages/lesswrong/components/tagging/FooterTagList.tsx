@@ -13,6 +13,7 @@ import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isServer } from '../../lib/executionEnvironment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,13 +78,14 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
   const { flash } = useMessages();
   const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
-  // [Epistemic status - two years later guessing] This loads the tagrels via a
-  // database query instead of using the denormalized field on posts. This
-  // causes a shift of the tag in non-SSR contexts. I believe without
-  // empirically testing this, that it's to allow the mutation to seamlessly
-  // reorder the tags, by updating the result of this query. But you could
-  // imagine that this could start with the ordering of the tags on the post
-  // object, and then use the result from the database once we have it.
+  // We already have the tags as a resolver on the post, this additional query
+  // serves two purposes:
+  // - It fetches more info that is only required on hover (the tagRel score,
+  // the truncated description). Fetching this in a second round trip allows the
+  // initial render to be faster.
+  // - (somewhat speculative) It allows the mutation to be handled more seamlessly
+  // (incrementing the score and reordering the tags) by updating the result of
+  // this query
   const { results, loading, loadingInitial, refetch } = useMulti({
     terms: {
       view: "tagsOnPost",
@@ -93,6 +95,8 @@ const FooterTagList = ({post, classes, hideScore, hideAddTag, smallText=false, s
     fragmentName: "TagRelMinimumFragment", // Must match the fragment in the mutation
     limit: 100,
     fetchPolicy: 'cache-and-network',
+    // Only fetch this as a follow-up query on the client
+    ssr: false,
   });
 
   const tagIds = (results||[]).map((tag) => tag._id)

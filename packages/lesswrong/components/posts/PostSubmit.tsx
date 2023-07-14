@@ -8,7 +8,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     fontSize: isEAForum ? 14 : 16,
@@ -23,7 +23,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     })
   },
-
   secondaryButton: {
     ...(isEAForum ? {
       color: theme.palette.grey[680],
@@ -32,13 +31,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.dim40,
     })
   },
-
   submitButtons: {
     marginLeft: 'auto'
   },
-  
   submitButton: {
     ...(isEAForum ? {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
       marginLeft: 10,
     } : {
@@ -50,7 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   draft: {
   },
   feedback: {
-    
   }
 });
 

@@ -260,7 +260,7 @@ const RecentDiscussionThread = ({
               >
                 <CloseIcon className={classes.closeIcon} />
               </Button> : <div className={classes.actions}>
-                <PostActionsButton post={post} vertical />
+                <PostActionsButton post={post} autoPlace vertical />
               </div>}
             </div>
             <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>

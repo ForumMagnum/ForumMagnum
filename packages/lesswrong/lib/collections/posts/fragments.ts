@@ -8,6 +8,7 @@ registerFragment(`
     slug
     title
     draft
+    shortform
     hideCommentKarma
     af
     currentUserReviewVote {
@@ -105,6 +106,8 @@ registerFragment(`
     
     hideAuthor
     moderationStyle
+    ignoreRateLimits
+
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
@@ -112,20 +115,6 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
-
-    reviewVoteScoreAllKarma
-    reviewVotesAllKarma
-    reviewVoteScoreHighKarma
-    reviewVotesHighKarma
-    reviewVoteScoreAF
-    reviewVotesAF
-
-    finalReviewVoteScoreHighKarma
-    finalReviewVotesHighKarma
-    finalReviewVoteScoreAllKarma
-    finalReviewVotesAllKarma
-    finalReviewVoteScoreAF
-    finalReviewVotesAF
 
     group {
       _id
@@ -136,10 +125,10 @@ registerFragment(`
     podcastEpisodeId
 
     # deprecated
-    nominationCount2018
-    reviewCount2018
     nominationCount2019
     reviewCount2019
+
+    votingSystem
   }
 `);
 
@@ -160,10 +149,23 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment PostsListWithVotesAndSequence on Post {
+    ...PostsListWithVotes
+    canonicalSequence {
+      ...SequencesPageFragment
+    }
+  }
+`)
+
+registerFragment(`
   fragment PostsReviewVotingList on Post {
-    ...PostsListBase
-    currentUserVote
-    currentUserExtendedVote
+    ...PostsListWithVotes
+    reviewVoteScoreAllKarma
+    reviewVotesAllKarma
+    reviewVoteScoreHighKarma
+    reviewVotesHighKarma
+    reviewVoteScoreAF
+    reviewVotesAF
   }
 `)
 
@@ -193,6 +195,8 @@ registerFragment(`
     ...PostsBase
     ...PostsAuthors
     readTimeMinutes
+    rejectedReason
+    disableRecommendation
     moderationGuidelines {
       _id
       html
@@ -214,6 +218,7 @@ registerFragment(`
     }
 
     unreadDebateResponseCount
+    dialogTooltipPreview
   }
 `);
 
@@ -398,6 +403,7 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContentsRevision(version: $version)
+    commentEmojiReactors
   }
 `)
 
@@ -451,6 +457,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    commentEmojiReactors
   }
 `)
 
@@ -474,6 +481,7 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    criticismTipsDismissed
   }
 `);
 
@@ -532,6 +540,7 @@ registerFragment(`
     currentUserVote
     currentUserExtendedVote
     fmCrosspost
+    rejectedReason
 
     contents {
       _id
@@ -602,5 +611,12 @@ registerFragment(`
   fragment PostWithGeneratedSummary on Post {
     _id
     languageModelSummary
+  }
+`);
+
+registerFragment(`
+  fragment PostsEditCriticismTips on Post {
+    _id
+    criticismTipsDismissed
   }
 `);

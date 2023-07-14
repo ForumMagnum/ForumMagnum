@@ -6,7 +6,6 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -28,8 +27,7 @@ const options: MutationOptions<DbPost> = {
       return true
     }
 
-    
-    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document)
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document, null)
     // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 
@@ -48,7 +46,7 @@ interface ExtendedPostsCollection extends PostsCollection {
 export const Posts: ExtendedPostsCollection = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
-  collectionType: forumTypeSetting.get() === 'EAForum' ? 'pg' : 'mongo',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),

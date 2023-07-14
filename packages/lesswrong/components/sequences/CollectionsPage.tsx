@@ -83,7 +83,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -96,14 +96,24 @@ const CollectionsPage = ({ documentId, classes }: {
     const startedReading = false; //TODO: Check whether user has started reading sequences
     const collection = document;
     const canEdit = userCanDo(currentUser, 'collections.edit.all') || (userCanDo(currentUser, 'collections.edit.own') && userOwns(currentUser, collection))
-    const { html = "" } = collection.contents || {}
+    const { html = "", plaintextDescription } = collection.contents || {}
     
     // Workaround: MUI Button takes a component option and passes extra props to
     // that component, but has a type signature which fails to include the extra
     // props
     const ButtonUntyped = Button as any;
     
-    return (<ErrorBoundary><div className={classes.root}>
+    // hidden wordcount logged for admin convenience 
+    // we don't show to users because it'd be too intimidating
+    // (more info in BooksProgressBar for users)
+    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
+    // eslint-disable-next-line no-console
+    console.log(`${wordCount.toLocaleString()} words`)
+
+    return (<ErrorBoundary>
+      <HeadTags title={collection.title} description={plaintextDescription || undefined} />
+      <div className={classes.root}>
       <ToCColumn 
         tableOfContents={<CollectionTableOfContents collection={document}/>}
       >

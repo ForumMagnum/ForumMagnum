@@ -2,7 +2,7 @@ import React, { useState }  from "react";
 import classNames from "classnames";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { isEAForum, isLW } from "../../../lib/instanceSettings";
+import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink } from "./useCommentLink";
 import { Comments } from "../../../lib/collections/comments";
@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: `${theme.palette.linkHover.dim} !important`,
+      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -48,20 +48,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: 5,
+    marginRight: isEAForum ? 0 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
     paddingBottom: 4,
     display: "inline-block",
     verticalAlign: "middle",
+    transform: isEAForum ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
     },
   },
+  collapseChevron: {
+    width: 15,
+    transition: "transform 0.2s",
+  },
+  collapseChevronOpen: {
+    transform: "rotate(90deg)",
+  },
   username: {
-    marginRight: 10,
+    marginRight: isEAForum ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -71,6 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "inline-block",
       overflowX: "hidden",
     },
+  },
+  userMarkers: {
+    marginRight: 6,
   },
   moderatorHat: {
     marginRight: 8,
@@ -113,19 +124,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
     : {
       opacity: 0.35,
-    },
-  rejectedIcon: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  },
-  rejectedLabel: {
-    marginLeft: 'auto',
-    marginBottom: 2,
-    color: theme.palette.grey[500],
-    cursor: "pointer",
-  }
+    }
 });
 
 export const CommentsItemMeta = ({
@@ -158,7 +157,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  
+
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle,
@@ -166,6 +165,7 @@ export const CommentsItemMeta = ({
 
   const authorIsPostAuthor = post &&
     (post.userId === comment.userId || userIsPostCoauthor(comment.user, post));
+  const commentIsTopLevelShortform = post?.shortform && !comment.parentCommentId;
 
   const commentLinkProps = {
     comment,
@@ -215,7 +215,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, RejectContentButton
+    ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
   return (
@@ -238,13 +238,23 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || singleLineCollapse || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          [<span>{collapsed ? "+" : "-"}</span>]
+          {isEAForum
+            ? <ForumIcon icon="ThickChevronRight" className={classNames(
+                classes.collapseChevron,
+                {[classes.collapseChevronOpen]: !collapsed},
+              )} />
+            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+          }
         </a>
       }
       <CommentUserName
         comment={comment}
         className={classes.username}
-        isPostAuthor={authorIsPostAuthor}
+      />
+      <UserCommentMarkers
+        user={comment.user}
+        isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
+        className={classes.userMarkers}
       />
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&
@@ -252,7 +262,7 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && <SmallSideVote
+      {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
         collection={Comments}
         hideKarma={post?.hideCommentKarma}
@@ -284,7 +294,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling
+            neverCoreStyling={!isEAForum}
             smallText
           />
         )}
@@ -294,10 +304,6 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-
-      {isLW && userIsAdmin(currentUser) &&
-        <RejectContentButton contentWrapper={{ collectionName: 'Comments', content: comment }} classNames={classes} />
-      }
 
       <span className={classes.rightSection}>
         {isEAForum &&

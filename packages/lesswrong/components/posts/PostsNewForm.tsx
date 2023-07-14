@@ -1,6 +1,6 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts, userCanPost } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
@@ -14,13 +14,11 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
-import { Link } from '../../lib/reactRouterWrapper';
-import { NewPostModerationWarning } from '../sunshineDashboard/NewPostModerationWarning';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
-    width:715,
+    maxWidth: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -109,7 +107,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20
-  }
+  },
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -172,7 +170,8 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection, Typography, Loading, NewPostModerationWarning } = Components
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -200,6 +199,15 @@ const PostsNewForm = ({classes}: {
       tagRelevance: {[query.subforumTagId]: 1},
     }
   }
+
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser,
+  });
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
     return (<WrappedLoginForm />);
@@ -232,6 +240,7 @@ const PostsNewForm = ({classes}: {
       <RecaptchaWarning currentUser={currentUser}>
         <Components.PostsAcceptTos currentUser={currentUser} />
         {postWillBeHidden && <NewPostModerationWarning />}
+        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
           <WrappedSmartForm
             collectionName="Posts"
@@ -243,7 +252,8 @@ const PostsNewForm = ({classes}: {
                 history.push(postGetEditUrl(post._id));
               } else {
                 history.push({pathname: postGetPageUrl(post)})
-                flash({ messageString: "Post created.", type: 'success'});
+                const postDescription = post.draft ? "Draft" : "Post";
+                flash({ messageString: `${postDescription} created.`, type: 'success'});
               }
             }}
             eventForm={eventForm}

@@ -17,7 +17,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Search from '@material-ui/icons/Search';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
@@ -372,17 +371,6 @@ const Community = ({classes}: {
 
   return (
     <AnalyticsContext pageContext="Community">
-      
-      <div className={classes.section}>
-        <div className={classes.sectionHeadingRow}>
-          <h1 className={classes.sectionHeading}>
-            Connect
-          </h1>
-          <div className={classes.sectionDescription}>
-            Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.
-          </div>
-        </div>
-      </div>
         
       <CommunityBanner />
 
@@ -398,7 +386,7 @@ const Community = ({classes}: {
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
+                startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
                 placeholder="Search groups"
                 onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}
@@ -476,7 +464,7 @@ const Community = ({classes}: {
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
+                startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
                 placeholder="Search groups"
                 onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}

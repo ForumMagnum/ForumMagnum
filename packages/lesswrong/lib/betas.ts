@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { forumTypeSetting } from "./instanceSettings";
+import { testServerSetting, isEAForum, forumTitleSetting } from "./instanceSettings";
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -15,8 +15,7 @@ const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // 
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const karmaGated = (minKarma: number) => (user: UsersCurrent|DbUser|null): boolean => user ? user.karma>=minKarma : false;
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
@@ -39,6 +38,14 @@ export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 export const userHasSideComments = isEAForum ? disabled : shippedFeature;
 
 export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
+
+export const userHasCommentProfileImages = disabled;
+
+export const userHasEagProfileImport = disabled;
+
+export const userHasEAEmojiReacts = isEAForum ? testServerOnly : disabled;
+
+export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

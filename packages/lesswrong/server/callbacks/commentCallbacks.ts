@@ -11,12 +11,13 @@ import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
+import { captureEvent } from '../../lib/analyticsEvents';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -58,13 +59,14 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
         postId: currentUser.shortformFeedId
       });
     }
-    
+
+    const shortformName = isEAForum ? "Quick takes" : "Shortform";
     const post = await createMutator({
       collection: Posts,
       document: {
         userId: currentUser._id,
         shortform: true,
-        title: `${ currentUser.displayName }'s Shortform`,
+        title: `${currentUser.displayName}'s ${shortformName}`,
         af: currentUser.groups?.includes('alignmentForum'),
       },
       currentUser,
@@ -222,17 +224,18 @@ getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (c
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
-  firstMessageContents: string,
+  messageContents: string,
   lwAccount: DbUser,
   comment: DbComment,
   noEmail: boolean,
-  onWhat?: string | null
+  contentTitle?: string | null
 }
 
-async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEmail, onWhat, action }: SendModerationPMParams) {
+// TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
+async function sendModerationPM({ messageContents, lwAccount, comment, noEmail, contentTitle, action }: SendModerationPMParams) {
   const conversationData: CreateMutatorParams<DbConversation>['document'] = {
     participantIds: [comment.userId, lwAccount._id],
-    title: `Comment ${action} on ${onWhat}`,
+    title: `Comment ${action} on ${contentTitle}`,
     ...(action === 'rejected' ? { moderator: true } : {})
   };
 
@@ -243,35 +246,21 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
     validate: false
   });
 
-  const firstMessageData = {
+  const messageData = {
     userId: lwAccount._id,
     contents: {
       originalContents: {
         type: "html",
-        data: firstMessageContents
+        data: messageContents
       }
     },
     conversationId: conversation.data._id,
     noEmail: noEmail
   };
 
-  const secondMessageData = {
-    userId: lwAccount._id,
-    contents: comment.contents,
-    conversationId: conversation.data._id,
-    noEmail: noEmail
-  };
-
   await createMutator({
     collection: Messages,
-    document: firstMessageData,
-    currentUser: lwAccount,
-    validate: false
-  });
-
-  await createMutator({
-    collection: Messages,
-    document: secondMessageData,
+    document: messageData,
     currentUser: lwAccount,
     validate: false
   });
@@ -282,25 +271,38 @@ async function sendModerationPM({ firstMessageContents, lwAccount, comment, noEm
   }
 }
 
+export function getRejectionMessage (rejectedContentLink: string, rejectedReason: string|null) {
+  let messageContents = `
+  <p>Unfortunately, I rejected your ${rejectedContentLink}.</p>
+  <p>LessWrong aims for particularly high quality (and somewhat oddly-specific) discussion quality. We get a lot of content from new users and sadly can't give detailed feedback on every piece we reject, but I generally recommend checking out our <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User's Guide</a>, in particular the section on <a href="https://www.lesswrong.com/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong#How_to_ensure_your_first_post_or_comment_is_well_received">how to ensure your content is approved</a>.</p>`
+  if (rejectedReason) {
+    messageContents += `<p>Your content didn't meet the bar for at least the following reason(s):</p>
+    <p>${rejectedReason}</p>`;
+  }
+  return messageContents;
+}
+
 async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUser) {
-  const onWhat = comment.tagId
-    ? (await Tags.findOne(comment.tagId))?.name
-    : (comment.postId
-      ? (await Posts.findOne(comment.postId))?.title
-      : null
-    );
+  let rejectedContentLink = "[Error: content not found]"
+  let contentTitle: string|null = null
+
+  if (comment.tagId) {
+    const tag = await Tags.findOne(comment.tagId)
+    if (tag) {
+      contentTitle = tag.name
+      rejectedContentLink = `<a href="https://lesswrong.com/tag/${tag.slug}/discussion?commentId=${comment._id}">comment on ${tag.name}</a>`
+    }
+  } else if (comment.postId) {
+    const post = await Posts.findOne(comment.postId)
+    if (post) {
+      contentTitle = post.title
+      rejectedContentLink = `<a href="https://lesswrong.com/posts/${post._id}/${post.slug}?commentId=${comment._id}">comment on ${post.title}</a>`
+    }
+  }
 
   const commentUser = await Users.findOne({_id: comment.userId})
 
-  let firstMessageContents =
-      // TODO: make link conditional on forum, or something
-      `Unfortunately, I rejected your comment on "${onWhat}".  (The LessWrong moderator team is raising its moderation standards, see <a href="https://www.lesswrong.com/posts/kyDsgQGHoLkXz6vKL/lw-team-is-adjusting-moderation-policy">this announcement</a> for details).`
-
-  if (comment.rejectedReason) {
-    firstMessageContents += ` Your post didn't meet the bar for at least the following reason(s): ${comment.rejectedReason}`;
-  }
-  
-  firstMessageContents += `Your rejected content will be sent in another message below.`
+  let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
   const noEmail = forumTypeSetting.get() === "EAForum" 
@@ -310,10 +312,10 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
   await sendModerationPM({
     action: 'rejected',
     comment,
-    firstMessageContents,
+    messageContents,
     lwAccount: currentUser,
     noEmail,
-    onWhat
+    contentTitle
   });
 }
 
@@ -325,7 +327,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
 
   const noPmDeletionReason = comment.deletedReason === noDeletionPmReason;
   if (commentDeletedByAnotherUser && !noPmDeletionReason) {
-    const onWhat = comment.tagId
+    const contentTitle = comment.tagId
       ? (await Tags.findOne(comment.tagId))?.name
       : (comment.postId
         ? (await Posts.findOne(comment.postId))?.title
@@ -335,10 +337,16 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
 
-    let firstMessageContents =
-        `One of your comments on "${onWhat}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.`
+    let messageContents =
+        `<div>
+          <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
+          <p>The contents of your message are here:</p>
+          <blockquote>
+            ${comment.contents.html}
+          </blockquote>
+        </div>`
     if (comment.deletedReason && moderatingUser) {
-      firstMessageContents += ` They gave the following reason: "${comment.deletedReason}".`;
+      messageContents += ` They gave the following reason: "${comment.deletedReason}".`;
     }
 
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
@@ -349,10 +357,10 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     await sendModerationPM({
       action: 'deleted',
       comment,
-      firstMessageContents,
+      messageContents,
       lwAccount,
       noEmail,
-      onWhat
+      contentTitle
     });
   
   }
@@ -369,6 +377,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewUserApprove
 
 // Make users upvote their own new comments
 getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOwnComment(comment: DbComment) {
+  const start = Date.now();
   var commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
   const {modifiedDocument: votedComment} = await performVoteServer({
@@ -379,6 +388,12 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
     skipRateLimits: true,
     selfVote: true
   })
+
+  const timeElapsed = Date.now() - start;
+  captureEvent('selfUpvoteComment', {
+    commentId: comment._id,
+    timeElapsed
+  }, true);
   return {...comment, ...votedComment} as DbComment;
 });
 
