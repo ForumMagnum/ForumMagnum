@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
@@ -60,15 +60,12 @@ const CommentWithReplies = ({
     ...(commentNodeProps?.treeOptions || {}),
   };
 
-  const { CommentsNode } = Components;
+  const { CommentsNode, CommentNodeOrPlaceholder } = Components;
 
   const renderedChildren = comment.latestChildren.slice(0, maxChildren);
   const extraChildrenCount = Math.max(0, comment.latestChildren.length - renderedChildren.length);
 
   let nestedComments = unflattenComments(renderedChildren);
-  if (extraChildrenCount > 0) {
-    nestedComments = addGapIndicators(nestedComments);
-  }
 
   const showExtraChildrenButton =
     extraChildrenCount > 0 ? (

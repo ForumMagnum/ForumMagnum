@@ -151,7 +151,7 @@ const CommentFrame = ({
   className,
   classes
 }: {
-  comment: CommentsList,
+  comment: CommentsList|null,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
   id?: string,
@@ -179,13 +179,13 @@ const CommentFrame = ({
     classes.node,
     className,
     {
-      "af":comment.af,
+      "af":comment?.af,
       [classes.highlightAnimation]: highlighted,
       [classes.child]: isChild,
       [classes.new]: isNewComment,
-      [classes.deleted]: comment.deleted,
-      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment.isPinnedOnProfile,
-      [classes.isAnswer]: comment.answer,
+      [classes.deleted]: comment?.deleted,
+      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment?.isPinnedOnProfile,
+      [classes.isAnswer]: comment?.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
       [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && isReplyToAnswer,
@@ -194,8 +194,8 @@ const CommentFrame = ({
       [classes.condensed]: condensed,
       [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
-      [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
-      [classes.promoted]: comment.promoted
+      [classes.moderatorHat]: comment?.hideModeratorHat ? false : comment?.moderatorHat,
+      [classes.promoted]: comment?.promoted
     }
   )
   

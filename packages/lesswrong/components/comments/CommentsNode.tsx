@@ -26,12 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   children: {
     position: "relative"
   },
-  gapIndicator: {
-    border: theme.palette.border.commentBorder,
-    backgroundColor: theme.palette.grey[100],
-    marginLeft: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
-  },
   loadMoreReplies: {
     paddingLeft: 12,
     paddingBottom: 8,
@@ -40,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export interface CommentsNodeProps {
   treeOptions: CommentTreeOptions,
-  comment: CommentsList & {gapIndicator?: boolean},
+  comment: CommentsList,
   startThreadTruncated?: boolean,
   truncated?: boolean,
   shortform?: any,
@@ -219,21 +213,19 @@ const CommentsNode = ({
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
 
-  const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
-
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, showParentDefault }
 
   const numShownReplies = childComments?.length ?? 0
   const numHiddenReplies = comment.directChildrenCount - numShownReplies;
   const loadMoreMessage = `View ${numHiddenReplies} ${numHiddenReplies === 1 ? "reply" : "replies"}`;
 
-  return <div className={comment.gapIndicator && classes.gapIndicator}>
+  return <div>
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
       onClick={(event) => handleExpand(event)}
       id={!noHash ? comment._id : undefined}
-      nestingLevel={updatedNestingLevel}
+      nestingLevel={nestingLevel}
       hasChildren={childComments && childComments.length>0}
       highlighted={highlighted}
       isSingleLine={isSingleLine}
@@ -252,7 +244,7 @@ const CommentsNode = ({
                 <SingleLineComment
                   treeOptions={treeOptions}
                   comment={comment}
-                  nestingLevel={updatedNestingLevel}
+                  nestingLevel={nestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
                   showDescendentCount={loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount}
@@ -263,7 +255,7 @@ const CommentsNode = ({
           : <CommentsItem
               treeOptions={treeOptions}
               truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
-              nestingLevel={updatedNestingLevel}
+              nestingLevel={nestingLevel}
               parentCommentId={parentCommentId}
               parentAnswerId={parentAnswerId || (comment.answer && comment._id) || undefined}
               toggleCollapse={toggleCollapse}
@@ -279,16 +271,15 @@ const CommentsNode = ({
         <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
-          <Components.CommentsNode
+          <Components.CommentNodeOrPlaceholder
             isChild={true}
             treeOptions={treeOptions}
-            comment={child.item}
+            treeNode={child}
             parentCommentId={comment._id}
             parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
-            nestingLevel={updatedNestingLevel+1}
+            nestingLevel={nestingLevel+1}
             truncated={isTruncated}
-            childComments={child.children}
-            key={child.item._id}
+            key={child._id}
           />)}
       </div>}
 

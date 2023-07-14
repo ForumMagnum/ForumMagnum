@@ -84,7 +84,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   const [initialState] = useState(() => initialStateFromComments(initialComments));
   const forceRerender = useForceRerender();
   const stateRef = useRef<CommentPoolState>(initialState);
-  const { CommentsNode, LoadMore } = Components;
+  const { CommentNodeOrPlaceholder, LoadMore } = Components;
   const [haveLoadedAll,setHaveLoadedAll] = useState(false);
 
   const loadAll = useCallback(async () => {
@@ -152,19 +152,18 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
 
   return <CommentPoolContext.Provider value={context}>
     {tree.map(comment =>
-      <CommentsNode
+      <CommentNodeOrPlaceholder
         treeOptions={treeOptions}
         startThreadTruncated={startThreadTruncated}
         expandAllThreads={expandAllThreads}
-        comment={comment.item}
-        childComments={comment.children}
-        key={comment.item._id}
+        treeNode={comment}
+        key={comment._id}
         parentCommentId={parentCommentId}
         parentAnswerId={parentAnswerId}
         shortform={(treeOptions.post as PostsBase)?.shortform}
         isChild={defaultNestingLevel > 1}
-      />)
-    }
+      />
+    )}
     {/*topLevelCommentCount && loadMoreTopLevel && topLevelCommentCount>tree.length*/
       (
         (!haveLoadedAll && topLevelCommentCount && topLevelCommentCount > countVisibleTopLevelComments(stateRef.current))

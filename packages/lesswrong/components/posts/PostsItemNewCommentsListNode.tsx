@@ -27,7 +27,10 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   const nestedComments = commentsList && unflattenComments(commentsList);
 
   if (reverseOrder) {
-    nestedComments?.sort((a, b) => new Date(a.item.postedAt).getTime() - new Date(b.item.postedAt).getTime());
+    nestedComments?.sort((a, b) => {
+      if (!a.item || !b.item) return 0;
+      return new Date(a.item.postedAt).getTime() - new Date(b.item.postedAt).getTime()
+    });
   }
 
   return (

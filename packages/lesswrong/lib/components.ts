@@ -511,6 +511,8 @@ importComponent("ModeratorComments", () => require('../components/comments/Moder
 
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentPool", () => require('../components/comments/CommentPool'));
+importComponent("CommentPlaceholder", () => require('../components/comments/CommentPlaceholder'));
+importComponent("CommentNodeOrPlaceholder", () => require('../components/comments/CommentNodeOrPlaceholder'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentOnPostWithReplies", () => require('../components/comments/CommentOnPostWithReplies'));
 importComponent("CommentPermalink", () => require('../components/comments/CommentPermalink'));

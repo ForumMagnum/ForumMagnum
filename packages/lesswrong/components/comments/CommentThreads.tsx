@@ -31,7 +31,7 @@ const CommentThreads = ({treeOptions, comments, totalComments=0, startThreadTrun
   
   useOnSearchHotkey(() => setExpandAllThreads(true));
 
-  const { CommentsNode, SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
+  const { CommentNodeOrPlaceholder, SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
   
   const renderExpandOptions = () => {
     if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
@@ -66,13 +66,12 @@ const CommentThreads = ({treeOptions, comments, totalComments=0, startThreadTrun
     {renderExpandOptions()}
     <div>
       {comments.map(comment =>
-        <CommentsNode
+        <CommentNodeOrPlaceholder
           treeOptions={treeOptions}
+          treeNode={comment}
           startThreadTruncated={startThreadTruncated || totalComments >= POST_COMMENT_COUNT_TRUNCATE_THRESHOLD}
           expandAllThreads={expandAllThreads}
-          comment={comment.item}
-          childComments={comment.children}
-          key={comment.item._id}
+          key={comment._id}
           parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
           shortform={(treeOptions.post as PostsBase)?.shortform}

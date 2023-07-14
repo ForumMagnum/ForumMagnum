@@ -52,7 +52,7 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
     if (comment.parentCommentId && !usedCommentIds.has(comment.parentCommentId)) {
       addVirtualComment(comment.parentCommentId);
     }
-    if (!usedCommentIds.has(comment.topLevelCommentId)) {
+    if (comment.topLevelCommentId && !usedCommentIds.has(comment.topLevelCommentId)) {
       addVirtualComment(comment.topLevelCommentId);
     }
   }
@@ -90,63 +90,6 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
   }
   return rootComments;
 }
-
-// Recursive portion of unflattenComments. Produced by incremental modification
-// of Vulcan's Utils.unflatten.
-/*function unflattenCommentsRec<T extends ThreadableCommentType>(array: Array<CommentTreeNode<T>>, parent?: CommentTreeNode<T>): Array<CommentTreeNode<T>>
-{
-  let tree: Array<CommentTreeNode<T>> = [];
-
-  let children: Array<CommentTreeNode<T>> = [];
-
-  if (typeof parent === "undefined") {
-    let commentDict = new Set<string>();
-    array.forEach((node) => {
-      commentDict.add(node._id);
-    })
-    // if there is no parent, we're at the root level
-    // so we return all root nodes (i.e. nodes with no parent)
-    children = filter(array, (node:CommentTreeNode<T>) =>
-      (node.item && (!node.item.parentCommentId || !commentDict.has(node.item.parentCommentId)))
-    );
-  } else {
-    // if there *is* a parent, we return all its child nodes
-    // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = filter(array, (node:CommentTreeNode<T>) =>
-      node.item?.parentCommentId === parent._id
-     );
-  }
-
-  // if we found children, we keep on iterating
-  if (!!children.length) {
-
-    if (typeof parent === "undefined") {
-      // if we're at the root, then the tree consist of all root nodes
-      tree = children;
-    } else {
-      // else, we add the children to the parent as the "childrenResults" property
-      parent.children = children;
-    }
-
-    // we call the function on each child
-    children.forEach(child => {
-      unflattenCommentsRec(array, child);
-    });
-  }
-
-  return tree;
-}*/
-
-/*export function addGapIndicators<T extends ThreadableCommentType>(comments: Array<CommentTreeNode<T>>): Array<CommentTreeNode<T & {gapIndicator?: boolean}>> {
-  // Sometimes (such as /shortform page), a comment tree is rendered where some comments are not the direct descendant of the previous comment. 
-  // This function adds extra, empty comment nodes to make this UI more visually clear
-  return comments.map((node: CommentTreeNode<T>): CommentTreeNode<T & {gapIndicator?: boolean}> => {
-    if (node?.item?.parentCommentId !== node?.item?.topLevelCommentId) {
-      return {item: {...node.item, gapIndicator: true}, children: node.children}
-    }
-    return node
-  })
-}*/
 
 export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Array<CommentTreeNode<Fragment>>, b: Array<CommentTreeNode<Fragment>>) {
   if (!!a !== !!b) return false;

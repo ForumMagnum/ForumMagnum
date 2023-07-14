@@ -1,6 +1,5 @@
 import React, { ComponentProps, useState, useEffect, useRef, useContext } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { Comments } from '../../lib/collections/comments/collection';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -17,11 +16,9 @@ import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { CommentPoolContext } from './CommentPool';
-import { isLW } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
+import { isEAForum } from '../../lib/instanceSettings';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 
 export type CommentFormDisplayMode = "default" | "minimalist"

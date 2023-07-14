@@ -67,13 +67,13 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
-  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+  const { CommentNodeOrPlaceholder, ContentItemBody, ContentStyles } = Components;
 
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment._id);
   
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
@@ -122,15 +122,14 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     {nestedComments.length ? <div className={classes.content}>
       <div className={classes.commentsList}>
         {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-          <div key={comment.item._id}>
-            <CommentsNode
+          <div key={comment._id}>
+            <CommentNodeOrPlaceholder
               treeOptions={commentTreeOptions}
+              treeNode={comment}
               startThreadTruncated={true}
               expandAllThreads={initialExpandAllThreads || expandAllThreads}
               nestingLevel={1}
-              comment={comment.item}
-              childComments={comment.children}
-              key={comment.item._id}
+              key={comment._id}
             />
           </div>
         )}
