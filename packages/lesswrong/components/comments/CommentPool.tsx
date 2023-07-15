@@ -15,6 +15,7 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
   showParentOf: (commentId: string)=>Promise<void>
+  showAncestorChain: (commentId: string)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
   addComment: (comment: CommentsList)=>Promise<void>
 }
@@ -109,6 +110,12 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     stateRef.current = revealParent(stateRef.current, commentId);
     forceRerender();
   }, [forceRerender, loadAll]);
+  
+  const showAncestorChain = useCallback(async (commentId: string) => {
+    await loadAll();
+    stateRef.current = revealAncestorChain(stateRef.current, commentId);
+    forceRerender();
+  }, [forceRerender, loadAll]);
 
   const invalidateComment = useCallback(async (commentId: string): Promise<void> => {
     const updatedComment = await loadSingle({
@@ -132,8 +139,8 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   }, [forceRerender]);
 
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf, showParentOf, invalidateComment, addComment
-  }), [showMoreChildrenOf, showParentOf, invalidateComment, addComment]);
+    showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment
+  }), [showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();
@@ -254,6 +261,14 @@ function revealParent(state: CommentPoolState, commentId: string): CommentPoolSt
   const parentCommentId = state.commentsById[commentId]?.comment.parentCommentId;
   if (!parentCommentId) return state;
   return revealCommentIds(state, [parentCommentId]);
+}
+
+function revealAncestorChain(state: CommentPoolState, commentId: string): CommentPoolState {
+  const commentIdsToReveal: string[] = [];
+  for(let pos=commentId; pos; pos=state.commentsById[commentId]?.comment.parentCommentId) {
+    commentIdsToReveal.push(pos);
+  }
+  return revealCommentIds(state, commentIdsToReveal);
 }
 
 function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolState {

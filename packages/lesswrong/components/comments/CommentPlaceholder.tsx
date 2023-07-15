@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { CommentPoolContext } from './CommentPool';
 import type { CommentTreeOptions } from './commentTree';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 
@@ -19,27 +20,30 @@ const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, classes }: {
   nestingLevel: number
   classes: ClassesType,
 }) => {
-  const { CommentFrame, CommentNodeOrPlaceholder } = Components;
-  function onClick() {
-    // TODO
+  const commentPoolContext = useContext(CommentPoolContext);
+  const { CommentFrame, CommentNodeOrPlaceholder, LoadMore } = Components;
+
+  async function loadAncestors() {
+    await commentPoolContext?.showAncestorChain(treeNode._id);
   }
   
   return <CommentFrame
     comment={null}
     treeOptions={treeOptions}
-    onClick={onClick}
+    onClick={loadAncestors}
     id={treeNode._id}
     nestingLevel={nestingLevel}
   >
     <div className={classes.childrenOfPlaceholder}>
-    {treeNode.children.map(treeNode =>
-      <CommentNodeOrPlaceholder
-        key={treeNode._id}
-        treeOptions={treeOptions}
-        treeNode={treeNode}
-        nestingLevel={nestingLevel+1}
-      />
-    )}
+      <LoadMore loadMore={loadAncestors} />
+      {treeNode.children.map(treeNode =>
+        <CommentNodeOrPlaceholder
+          key={treeNode._id}
+          treeOptions={treeOptions}
+          treeNode={treeNode}
+          nestingLevel={nestingLevel+1}
+        />
+      )}
     </div>
   </CommentFrame>
 }
