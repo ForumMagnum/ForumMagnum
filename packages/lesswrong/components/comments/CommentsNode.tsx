@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import { CommentPoolContext } from './CommentPool';
+import { CommentPoolContext, CommentPoolContextType } from './CommentPool';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -108,8 +108,14 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const commentPoolContext = useContext(CommentPoolContext);
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
-  const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
+  const [collapsed, setCollapsed] = useCommentState(
+    "collapsed", comment._id, commentPoolContext,
+    !forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene')
+  );
+  const [truncatedState, setTruncated] = useCommentState(
+    "truncatedState", comment._id, commentPoolContext,
+    !!startThreadTruncated
+  );
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments, singleLineCollapse, onToggleCollapsed } = treeOptions;
 
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
@@ -142,7 +148,10 @@ const CommentsNode = ({
     return true;
   }
   
-  const [singleLine, setSingleLine] = useState(beginSingleLine());
+  const [singleLine, setSingleLine] = useCommentState(
+    "singleLine", comment._id, commentPoolContext,
+    beginSingleLine()
+  );
   const [hasClickedToExpand, setHasClickedToExpand] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
 
@@ -194,7 +203,7 @@ const CommentsNode = ({
       onToggleCollapsed?.();
       setCollapsed(!collapsed);
     }
-  }, [singleLineCollapse, collapsed, onToggleCollapsed]);
+  }, [singleLineCollapse, collapsed, setCollapsed, setSingleLine, onToggleCollapsed]);
 
   const isTruncated = ((): boolean => {
     if (expandAllThreads) return false;
@@ -307,6 +316,30 @@ const CommentsNode = ({
       }
     </CommentFrame>
   </div>
+}
+
+/**
+ * This function works similarly to React's useState, and if there's no comment
+ * pool context available, it wraps useState. However, if there *is* a
+ * comment-pool context available, it stores the state in the comment-pool
+ * context keyed by name and comment ID, rather than a React useState hook. The
+ * reason for this is that loading additional comments (in particular, comments
+ * that are this comment's ancestor) can cause the comment to be reparented in
+ * the React tree, losing its state.
+ */
+function useCommentState<T>(
+  name: string,
+  commentId: string,
+  commentPoolContext: CommentPoolContextType|null,
+  initialValue: T
+): [T,(newValue:T)=>void] {
+  const reactStateAndSetState = useState(initialValue);
+  
+  if (commentPoolContext) {
+    return commentPoolContext.getCommentState(name, commentId, initialValue);
+  } else {
+    return reactStateAndSetState;
+  }
 }
 
 const CommentsNodeComponent = registerComponent('CommentsNode', CommentsNode, {

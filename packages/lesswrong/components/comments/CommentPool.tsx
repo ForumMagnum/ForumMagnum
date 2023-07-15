@@ -18,6 +18,7 @@ export interface CommentPoolContextType {
   showAncestorChain: (commentId: string)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
   addComment: (comment: CommentsList)=>Promise<void>
+  getCommentState: <T>(name: string, commentId: string, initialValue: T) => [T,(newValue:T)=>void]
 }
 export const CommentPoolContext = createContext<CommentPoolContextType|null>(null);
 
@@ -28,6 +29,13 @@ interface SingleCommentState {
 interface CommentPoolState {
   commentsSortOrder: string[]
   commentsById: Record<string,SingleCommentState>
+  
+  /**
+   * Used for storing comment-specific state in a way that will survive
+   * reparenting. Accessed through CommentPoolContextType.getCommentState. See
+   * useCommentState in CommentsNode.tsx.
+   */
+  commentsState: Record<string,Record<string,[any,(newValue:any)=>void]>>
 }
 
 /**
@@ -137,10 +145,24 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     };
     forceRerender();
   }, [forceRerender]);
+  
+  const getCommentState = useCallback((name: string, commentId: string, initialValue: any) => {
+    if (!stateRef.current.commentsState[commentId]) {
+      stateRef.current.commentsState[commentId] = {};
+    }
+    if (!(name in stateRef.current.commentsState[commentId])) {
+      const setState = (newValue: any) => {
+        const [_oldState,oldSetState] = stateRef.current.commentsState[commentId][name];
+        stateRef.current.commentsState[commentId][name] = [newValue,oldSetState];
+      };
+      stateRef.current.commentsState[commentId][name] = [initialValue, setState];
+    }
+    return stateRef.current.commentsState[commentId][name];
+  }, []);
 
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment
-  }), [showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment]);
+    showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment, getCommentState
+  }), [showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment, getCommentState]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();
@@ -190,7 +212,8 @@ function initialStateFromComments(initialComments: CommentsList[]): CommentPoolS
     commentsById: keyBy(
       initialComments.map(comment => ({comment, visibility: "visible"})),
       c => c.comment._id
-    )
+    ),
+    commentsState: {},
   };
 }
 
@@ -265,7 +288,7 @@ function revealParent(state: CommentPoolState, commentId: string): CommentPoolSt
 
 function revealAncestorChain(state: CommentPoolState, commentId: string): CommentPoolState {
   const commentIdsToReveal: string[] = [];
-  for(let pos=commentId; pos; pos=state.commentsById[commentId]?.comment.parentCommentId) {
+  for(let pos=commentId; pos; pos=state.commentsById[pos]?.comment.parentCommentId) {
     commentIdsToReveal.push(pos);
   }
   return revealCommentIds(state, commentIdsToReveal);
