@@ -6,7 +6,9 @@ import type { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   childrenOfPlaceholder: {
-    padding: 8,
+  },
+  loadMoreAncestors: {
+    paddingLeft: 8,
   },
 });
 
@@ -14,10 +16,11 @@ const styles = (theme: ThemeType): JssStyles => ({
  * A placeholder for a comment that isn't loaded, but which is necessary to make
  * the comments that are loaded thread properly.
  */
-const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, classes }: {
+const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, isChild, classes }: {
   treeOptions: CommentTreeOptions,
   treeNode: CommentTreeNode<CommentsList>,
-  nestingLevel: number
+  nestingLevel: number,
+  isChild?: boolean
   classes: ClassesType,
 }) => {
   const commentPoolContext = useContext(CommentPoolContext);
@@ -33,14 +36,16 @@ const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, classes }: {
     onClick={loadAncestors}
     id={treeNode._id}
     nestingLevel={nestingLevel}
+    isChild={nestingLevel>1}
   >
     <div className={classes.childrenOfPlaceholder}>
-      <LoadMore loadMore={loadAncestors} />
+      <LoadMore className={classes.loadMoreAncestors} loadMore={loadAncestors} />
       {treeNode.children.map(treeNode =>
         <CommentNodeOrPlaceholder
           key={treeNode._id}
           treeOptions={treeOptions}
           treeNode={treeNode}
+          isChild={true}
           nestingLevel={nestingLevel+1}
         />
       )}

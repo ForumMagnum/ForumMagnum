@@ -41,6 +41,7 @@ const CommentNodeOrPlaceholder = ({treeOptions, treeNode, startThreadTruncated, 
       treeOptions={treeOptions}
       treeNode={treeNode}
       nestingLevel={nestingLevel}
+      isChild={isChild}
     />
   }
 }
