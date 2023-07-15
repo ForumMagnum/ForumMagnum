@@ -1,23 +1,17 @@
 import React, { useCallback } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
-import { useUpdate } from "../../../lib/crud/withUpdate";
+import { useUpdateComment } from "../../hooks/useUpdateComment";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
 
 const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const updateComment = useUpdateComment();
 
   const handleChange = useCallback(
     (value: boolean) => () => {
-      void updateComment({
-        selector: {_id: comment._id},
-        data: {shortformFrontpage: value},
-      });
+      void updateComment(comment._id, {shortformFrontpage: value});
     },
     [updateComment, comment._id],
   );

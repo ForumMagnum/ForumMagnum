@@ -11,10 +11,6 @@ import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
-interface SunshineNewCommentsItemProps extends WithHoverProps {
-  updateComment: any,
-}
-
 const SunshineNewCommentsItem = ({comment}: {
   comment: CommentsListWithParentMetadata
 }) => {

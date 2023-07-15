@@ -1,28 +1,19 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdateComment } from '../../hooks/useUpdateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
+  const updateComment = useUpdateComment();
 
   const handleRetract = () => {
-    void updateComment({
-      selector: {_id: comment._id},
-      data: {retracted: true},
-    });
+    void updateComment(comment._id, {retracted: true});
   }
 
   const handleUnretract = () => {
-    void updateComment({
-      selector: {_id: comment._id},
-      data: {retracted: false},
-    });
+    void updateComment(comment._id, {retracted: false});
   }
 
   if (!currentUser || comment.userId !== currentUser._id) {

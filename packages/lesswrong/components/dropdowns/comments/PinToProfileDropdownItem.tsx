@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdateComment } from '../../hooks/useUpdateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { isEAForum } from '../../../lib/instanceSettings';
 
@@ -16,17 +16,9 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const updateComment = useUpdateComment();
   const togglePinned = useCallback(() => {
-    void updateComment({
-      selector: {_id: comment._id},
-      data: {
-        isPinnedOnProfile: !comment.isPinnedOnProfile,
-      },
-    });
+    void updateComment(comment._id, { isPinnedOnProfile: !comment.isPinnedOnProfile });
   }, [updateComment, comment]);
 
   const isCommentAuthor = currentUser?._id === comment.userId
