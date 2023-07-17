@@ -704,9 +704,8 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
 
 Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
   selector: {
-    baseScore: {$gte: 20},
     shortform: {$ne: true},
-    postedAt: {$gte: moment().subtract(1, "month").toDate()},
+    postedAt: {$gte: moment().subtract(1, "week").toDate()},
   },
   options: {
     sort: {
