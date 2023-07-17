@@ -111,7 +111,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     padding: 12,
   },
-  shareButton: {
+  shareButtonIcon: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -128,11 +128,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[300],
     },
   },
-  shareButtonsWrapper: {
+  shareButtonRow: {
     display: "flex",
     justifyContent: "space-between",
   },
-  shareButtonWrapper: {
+  shareButton: {
     display: "flex",
     flexDirection: "column",
   },
@@ -155,8 +155,8 @@ const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) =>
 
   return (
     // TODO rename classes (shareButtonWrapper -> shareButton, shareButton -> shareButtonIcon)
-    <div className={classes.shareButtonWrapper}>
-      <div onClick={clickAction} className={classes.shareButton}>
+    <div className={classes.shareButton}>
+      <div onClick={clickAction} className={classes.shareButtonIcon}>
         {icon}
       </div>
       <div className={classes.shareButtonLabel}>{label}</div>
@@ -279,7 +279,7 @@ const SharePostPopup = ({
               <div className={classes.postPreviewHostname}>{urlHostname}</div>
             </div>
           </div>
-          <div className={classes.shareButtonsWrapper}>
+          <div className={classes.shareButtonRow}>
             {shareButtons.map((button, index) => (
               <ShareButton key={`shareButton_${index}`} {...button} />
             ))}
