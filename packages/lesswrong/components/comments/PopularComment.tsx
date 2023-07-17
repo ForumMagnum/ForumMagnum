@@ -123,7 +123,7 @@ const PopularComment = ({comment, classes}: {
 
   const {onClick} = useClickableCell({onClick: onClickCallback});
 
-  const {UsersName, LWTooltip, SmallSideVote} = Components;
+  const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
     <div onClick={onClick} className={classes.root}>
       {comment.post &&
@@ -157,10 +157,7 @@ const PopularComment = ({comment, classes}: {
       </div>
       {expanded
         ? (
-          <div
-            dangerouslySetInnerHTML={{__html: comment.contents?.html ?? ""}}
-            className={classes.body}
-          />
+          <CommentBody comment={comment} className={classes.body} />
         )
         : (
           <div className={classNames(classes.body, classes.bodyCollapsed)}>
