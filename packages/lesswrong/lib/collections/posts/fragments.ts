@@ -262,7 +262,10 @@ registerFragment(`
     canonicalSource
     noIndex
     viewCount
-    socialPreviewImageUrl
+    socialPreviewData {
+      text
+      imageUrl
+    }
     
     # Tags
     tagRelevance
@@ -401,6 +404,9 @@ registerFragment(`
   fragment PostsWithNavigationAndRevision on Post {
     ...PostsRevision
     ...PostSequenceNavigation
+    customHighlight {
+      ...RevisionDisplay
+    }
     
     tableOfContentsRevision(version: $version)
     commentEmojiReactors
@@ -455,6 +461,9 @@ registerFragment(`
     contents {
       ...RevisionDisplay
     }
+    customHighlight {
+      ...RevisionDisplay
+    }
     myEditorAccess
     linkSharingKey
     commentEmojiReactors
@@ -481,6 +490,11 @@ registerFragment(`
     subforumTagId
     sideComments
     socialPreviewImageId
+    socialPreview
+    socialPreviewData {
+      imageId
+      text
+    }
     criticismTipsDismissed
   }
 `);

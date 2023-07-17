@@ -665,6 +665,10 @@ interface DbPost extends DbObject {
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
+  socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  }
   fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
