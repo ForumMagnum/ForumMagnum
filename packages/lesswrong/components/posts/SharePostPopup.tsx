@@ -8,6 +8,10 @@ import { useForceRerender } from "../hooks/useFirstRender";
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
+    // TODO this may have to be "lg"
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
   root: {
     padding: "20px 16px 28px 20px",
@@ -54,7 +58,7 @@ const SharePostPopup = ({
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
 
-  const { Typography, ForumIcon } = Components;
+  const { Typography, ForumIcon, CloudinaryImage2 } = Components;
 
   // Force rerender because the element we are anchoring to is created after the first render
   useForceRerender();
@@ -89,7 +93,11 @@ const SharePostPopup = ({
             </Button>
           </div>
           <div className={classes.socialPreviewTitle}>Share post</div>
-          <div>{/* TODO social preview */}</div>
+          <div>
+            <div>
+              {/* <img src={post.social}> */}
+            </div>
+          </div>
           <div>{/* TODO share buttons */}</div>
         </div>
       </Paper>

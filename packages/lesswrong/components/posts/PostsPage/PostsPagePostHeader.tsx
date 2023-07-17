@@ -251,15 +251,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         expires: moment().add(2, 'years').toDate(),
       });
     }
-
-    // TODO remove
-    /*openDialog({
-      componentName: "SharePostPopup",
-      componentProps: {
-        post,
-      },
-      noClickawayCancel: true
-    });*/
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -30,6 +30,8 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
+export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
+
 const MAX_ANSWERS_QUERIED = 100
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
@@ -313,6 +315,19 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const { query, params } = location;
+
+  useEffect(() => {
+    if (!query[SHARE_POPUP_QUERY_PARAM]) return;
+
+    openDialog({
+      componentName: "SharePostPopup",
+      componentProps: {
+        post,
+      },
+      noClickawayCancel: true,
+      closeOnNavigate: true,
+    });
+  }, [query[SHARE_POPUP_QUERY_PARAM]]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({

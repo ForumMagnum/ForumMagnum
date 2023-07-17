@@ -14,6 +14,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -251,18 +252,13 @@ const PostsNewForm = ({classes}: {
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));
               } else {
-                history.push({pathname: postGetPageUrl(post)})
+                // If they are publishing a non-draft post, show the share popup
+                const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                const url  = `${postGetPageUrl(post)}${post.draft ? sharePostQuery : ''}`
+                history.push({pathname: url})
+
                 const postDescription = post.draft ? "Draft" : "Post";
                 flash({ messageString: `${postDescription} created.`, type: 'success'});
-
-                if (!post.draft) {
-                  console.log("Opening dialog")
-                  openDialog({
-                    componentName: "SharePostPopup",
-                    componentProps: {post},
-                    noClickawayCancel: true
-                  });
-                }
               }
             }}
             eventForm={eventForm}
