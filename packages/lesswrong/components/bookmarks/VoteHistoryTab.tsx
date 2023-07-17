@@ -45,8 +45,8 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
     if (vote.post) {
       const item = vote.post;
       return (
-        <div className={classes.postItem}>
-          <PostsItem key={item._id} post={item} isVoteable />
+        <div key={item._id} className={classes.postItem}>
+          <PostsItem post={item} isVoteable />
         </div>
       );
     } else if (vote.comment) {

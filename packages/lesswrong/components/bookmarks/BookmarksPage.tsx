@@ -49,9 +49,7 @@ const BookmarksPage = ({ classes }: {
     } else if (location.hash === '#votehistory') {
       setActiveTab('votehistory')
     }
-    //No exhaustive deps because this is supposed to run only on mount
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [location.hash])
   
   const handleChangeTab = (e: React.ChangeEvent, value: TabType) => {
     setActiveTab(value)
