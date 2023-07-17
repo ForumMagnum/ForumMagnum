@@ -14,14 +14,16 @@ import { siteImageSetting } from "../vulcan-core/App";
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
-    // TODO this may have to be "lg"
-    // [theme.breakpoints.down("md")]: {
-    //   display: "none",
-    // },
+    borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
   root: {
     padding: "11px 16px 28px 20px",
     fontFamily: theme.palette.fonts.sansSerifStack,
+    // TODO make background colour work on dark mode
+    borderRadius: theme.borderRadius.default,
     maxWidth: 380,
   },
   closeButtonRow: {
@@ -38,8 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
   },
   checkIcon: {
-    // TODO add to theme?
-    color: "#5ECE79",
+    color: theme.palette.icon.filledGreenCheckmark,
     width: 22,
     height: 22,
     marginRight: 10,
@@ -93,9 +94,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginBottom: 6,
     fontWeight: 500,
-    display: '-webkit-box',
+    display: "-webkit-box",
     "-webkit-line-clamp": 2,
-    "-webkit-box-orient": 'vertical',
+    "-webkit-box-orient": "vertical",
     overflow: "hidden",
   },
   postPreviewHostname: {
@@ -121,6 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: "50%",
     backgroundColor: theme.palette.grey[110],
     color: theme.palette.grey[1000],
+    fill: theme.palette.grey[1000],
     cursor: "pointer",
     "&:hover": {
       backgroundColor: theme.palette.grey[300],

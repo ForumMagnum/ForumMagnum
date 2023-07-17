@@ -250,6 +250,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     loadingDotsAlternate: shades.grey[0],
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
+    filledGreenCheckmark: "#5ECE79",
     onTooltip: "#fff",
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],

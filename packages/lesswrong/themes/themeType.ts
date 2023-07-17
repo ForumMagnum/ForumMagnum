@@ -196,6 +196,7 @@ declare global {
       loadingDotsAlternate: ColorString,
       horizRuleDots: ColorString,
       greenCheckmark: ColorString,
+      filledGreenCheckmark: ColorString,
       onTooltip: ColorString,
       inverted: ColorString,
       topAuthor: ColorString,

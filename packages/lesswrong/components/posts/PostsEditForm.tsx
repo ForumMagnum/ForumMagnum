@@ -127,10 +127,9 @@ const PostsEditForm = ({ documentId, classes }: {
             } else {
               // If they are publishing a draft, show the share popup
               // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-              const showSharePopup = wasEverDraft && !post.draft
+              const showSharePopup = wasEverDraft.current && !post.draft
               const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-              const url  = `${postGetPageUrl(post)}${showSharePopup ? sharePostQuery : ''}`
-              history.push({pathname: url})
+              history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 
               flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
             }

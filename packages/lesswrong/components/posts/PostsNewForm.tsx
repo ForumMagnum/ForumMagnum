@@ -254,8 +254,8 @@ const PostsNewForm = ({classes}: {
               } else {
                 // If they are publishing a non-draft post, show the share popup
                 const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                const url  = `${postGetPageUrl(post)}${post.draft ? sharePostQuery : ''}`
-                history.push({pathname: url})
+                const url  = postGetPageUrl(post);
+                history.push({pathname: url, search: !post.draft ? sharePostQuery: ''})
 
                 const postDescription = post.draft ? "Draft" : "Post";
                 flash({ messageString: `${postDescription} created.`, type: 'success'});
