@@ -47,6 +47,8 @@ export const userHasEAEmojiReacts = isEAForum ? testServerOnly : disabled;
 
 export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
 
+export const userHasPopularCommentsSection = isEAForum ? optInOnly : disabled;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;
