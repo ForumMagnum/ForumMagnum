@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
-  const {loading, loadMoreProps, results} = useMulti({
+  const {loadMoreProps, results} = useMulti({
     terms: {view: "frontpagePopular"},
     collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
@@ -23,13 +23,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     limit: 3,
   });
 
-  const {Loading, LoadMore, PopularComment} = Components;
-  if (loading) {
-    return (
-      <Loading />
-    );
-  }
-
+  const {LoadMore, PopularComment} = Components;
   return (
     <div className={classes.root}>
       {results?.map((comment) =>
