@@ -151,7 +151,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         });
       }, 0);
     }
-  }, [commentCount]);
+  }, [commentsAreClickable, quickTake]);
 
   const {
     KarmaDisplay, ForumIcon, UsersName, LWTooltip, FooterTag, CommentsMenu,
