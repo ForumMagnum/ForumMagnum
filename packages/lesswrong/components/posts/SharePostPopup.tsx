@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: "11px 16px 28px 20px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    // TODO make background colour work on dark mode
+    boxShadow: theme.palette.boxShadow.eaCard,
     borderRadius: theme.borderRadius.default,
     maxWidth: 380,
   },
