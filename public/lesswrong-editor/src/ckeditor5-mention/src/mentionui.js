@@ -848,11 +848,12 @@ function isPositionInExistingMention( position ) {
   // The text watcher listens only to changed range in selection - so the selection attributes are not yet available
   // and you cannot use selection.hasAttribute( 'mention' ) just yet.
   // See https://github.com/ckeditor/ckeditor5-engine/issues/1723.
-  const hasMention = position.textNode && position.textNode.hasAttribute( 'mention' );
+  if (nodeIsMention(position.textNode)) {
+    return true;
+  }
 
   const nodeBefore = getNonWhitespaceNodeBefore(position);
-
-  return hasMention || nodeIsMention(nodeBefore);
+  return nodeIsMention(nodeBefore);
 }
 
 // Checks if the closest marker offset is at the beginning of a mention.
