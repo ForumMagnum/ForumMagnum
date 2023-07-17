@@ -3,9 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import type { Hit } from 'react-instantsearch-core';
 import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import type { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,12 +35,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-  showIcon?: boolean
-}) => {
+const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
 
