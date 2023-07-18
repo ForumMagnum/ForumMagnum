@@ -7,6 +7,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { ExpandedDate } from "../common/FormatDate";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { HtmlToTextOptions, htmlToText } from "html-to-text";
+import classNames from "classnames";
 import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
@@ -62,6 +63,8 @@ const styles = (theme: ThemeType) => ({
     "& svg": {
       height: 14,
     },
+  },
+  commentCountClickable: {
     "&:hover": {
       color: theme.palette.grey[1000],
     },
@@ -120,6 +123,7 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   const {onClick} = useClickableCell({onClick: () => setExpanded(true)});
 
   const commentCount = quickTake.descendentCount ?? 0;
+  const commentsAreClickable = commentCount > 0;
   const primaryTag = quickTake.relevantTags?.[0];
   const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
 
@@ -132,6 +136,22 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
       window.location.href = commentsUrl;
     }
   }, [commentsUrl]);
+
+  const onClickComments = useCallback(() => {
+    if (commentsAreClickable) {
+      // Clicking also expands the item - setTimeout allows us to make sure
+      // this runs _after_ the expansion is already complete
+      setTimeout(() => {
+        const {_id} = quickTake;
+        const children = document.querySelector(`#${_id} .comments-children`);
+        children?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        });
+      }, 0);
+    }
+  }, [commentsAreClickable, quickTake]);
 
   const {
     KarmaDisplay, ForumIcon, UsersName, LWTooltip, FooterTag, CommentsMenu,
@@ -164,10 +184,15 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
           </InteractionWrapper>
         }
         <div className={classes.grow} />
-        <InteractionWrapper href={commentsUrl} className={classes.commentCount}>
+        <div
+          onClick={onClickComments}
+          className={classNames(classes.commentCount, {
+            [classes.commentCountClickable]: commentsAreClickable,
+          })}
+        >
           <ForumIcon icon="Comment" />
           {commentCount}
-        </InteractionWrapper>
+        </div>
         <div>
           <InteractionWrapper>
             <AnalyticsContext pageElementContext="tripleDotMenu">

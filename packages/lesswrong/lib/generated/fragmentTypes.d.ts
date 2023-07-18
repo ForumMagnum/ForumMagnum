@@ -621,6 +621,10 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
+  readonly socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  },
   readonly fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -1067,7 +1071,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
-  readonly socialPreviewImageUrl: string,
+  readonly socialPreviewData: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly sideCommentVisibility: string,
@@ -1181,6 +1185,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+  readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
   readonly commentEmojiReactors: any,
 }
@@ -1226,6 +1231,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
+  readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
   readonly commentEmojiReactors: any,
@@ -1253,6 +1259,11 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  },
+  readonly socialPreviewData: any,
   readonly criticismTipsDismissed: boolean,
 }
 
@@ -2986,6 +2997,11 @@ interface UserVotes { // fragment on Votes
   readonly collectionName: string,
 }
 
+interface UserVotesWithDocument extends UserVotes { // fragment on Votes
+  readonly comment: CommentsList|null,
+  readonly post: PostsListWithVotes|null,
+}
+
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
@@ -3301,6 +3317,7 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
+  UserVotesWithDocument: UserVotesWithDocument
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
@@ -3500,6 +3517,7 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
+  UserVotesWithDocument: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
