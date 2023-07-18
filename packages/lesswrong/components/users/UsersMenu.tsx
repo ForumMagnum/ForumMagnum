@@ -14,7 +14,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
 import postSchema from '../../lib/collections/posts/schema';
@@ -66,7 +66,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   deactivated: {
     color: theme.palette.grey[600],
     marginLeft: 20
-  }
+  },
+  adminToggleItem: isEAForum ? {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  } : {}
 })
 
 const UsersMenu = ({classes}: {
@@ -269,40 +275,41 @@ const UsersMenu = ({classes}: {
             {isEAForum && accountSettingsNode}
 
             {/*
-              If you're both an admin and a moderator, you can disable your
-              powers and take them back. (If you're only an admin or only a
-              moderator, you can't use this feature, because in the disabled-
-              state we don't keep track of the difference between admins who are
-              vs aren't also moderators.
+              If you're an admin, you can disable your admin + moderator
+              powers and take them back.
             */}
-            {currentUser.isAdmin && userIsMemberOf(currentUser, "sunshineRegiment") && <DropdownItem
-              title={"Disable Admin Powers"}
-              onClick={async () => {
-                // If not a member of the realAdmins group, add that group
-                // before giving up admin powers so that we'll be able to take
-                // the admin powers back
-                let groups = currentUser.groups;
-                if (!groups.find(g=>g==="realAdmins")) {
-                  groups = [...currentUser.groups, "realAdmins"];
-                  await updateCurrentUser({ groups });
-                }
-                await updateCurrentUser({
-                  isAdmin: false,
-                  groups: filter(groups, g=>g!=="sunshineRegiment"),
-                });
-                window.location.reload();
-              }}
-            />}
-            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <DropdownItem
-              title={"Reenable Admin Powers"}
-              onClick={async () => {
-                await updateCurrentUser({
-                  isAdmin: true,
-                  groups: [...currentUser.groups, "sunshineRegiment"],
-                });
-                window.location.reload();
-              }}
-            />}
+            {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Disable Admin Powers")}
+                onClick={async () => {
+                  // If not a member of the realAdmins group, add that group
+                  // before giving up admin powers so that we'll be able to take
+                  // the admin powers back
+                  let groups = currentUser.groups;
+                  if (!groups.find(g=>g==="realAdmins")) {
+                    groups = [...currentUser.groups, "realAdmins"];
+                    await updateCurrentUser({ groups });
+                  }
+                  await updateCurrentUser({
+                    isAdmin: false,
+                    groups: filter(groups, g=>g!=="sunshineRegiment"),
+                  });
+                  window.location.reload();
+                }}
+              />
+            </div>}
+            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Re-enable Admin Powers")}
+                onClick={async () => {
+                  await updateCurrentUser({
+                    isAdmin: true,
+                    groups: [...currentUser.groups, "sunshineRegiment"],
+                  });
+                  window.location.reload();
+                }}
+              />
+            </div>}
 
             <DropdownDivider />
             
