@@ -14,14 +14,13 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
 import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import filter from 'lodash/filter';
+import { useAdminToggle } from '../admin/useAdminToggle';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -82,7 +81,7 @@ const UsersMenu = ({classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
-  const updateCurrentUser = useUpdateCurrentUser();
+  const {toggleOn, toggleOff} = useAdminToggle();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -281,33 +280,13 @@ const UsersMenu = ({classes}: {
             {currentUser.isAdmin && <div className={classes.adminToggleItem}>
               <DropdownItem
                 title={preferredHeadingCase("Disable Admin Powers")}
-                onClick={async () => {
-                  // If not a member of the realAdmins group, add that group
-                  // before giving up admin powers so that we'll be able to take
-                  // the admin powers back
-                  let groups = currentUser.groups;
-                  if (!groups.find(g=>g==="realAdmins")) {
-                    groups = [...currentUser.groups, "realAdmins"];
-                    await updateCurrentUser({ groups });
-                  }
-                  await updateCurrentUser({
-                    isAdmin: false,
-                    groups: filter(groups, g=>g!=="sunshineRegiment"),
-                  });
-                  window.location.reload();
-                }}
+                onClick={toggleOff}
               />
             </div>}
             {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
               <DropdownItem
                 title={preferredHeadingCase("Re-enable Admin Powers")}
-                onClick={async () => {
-                  await updateCurrentUser({
-                    isAdmin: true,
-                    groups: [...currentUser.groups, "sunshineRegiment"],
-                  });
-                  window.location.reload();
-                }}
+                onClick={toggleOn}
               />
             </div>}
 

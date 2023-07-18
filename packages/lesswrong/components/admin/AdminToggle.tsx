@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { useAdminToggle } from './useAdminToggle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   toggle: {
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 26,
     backgroundColor: theme.palette.text.alwaysWhite,
     borderRadius: '50%',
-    transition: 'left .2s ease',
+    // transition: 'left .2s ease',
     [theme.breakpoints.down('md')]: {
       left: 70,
       height: 18,
@@ -82,49 +82,22 @@ export const AdminToggle = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const updateCurrentUser = useUpdateCurrentUser()
-  const [disabled, setDisabled] = useState(false)
+  const {loading, toggleOn, toggleOff} = useAdminToggle()
   
   if (!currentUser) return null
-  
-  const handleToggleOn = async () => {
-    setDisabled(true)
-    await updateCurrentUser({
-      isAdmin: true,
-      groups: [...currentUser.groups, "sunshineRegiment"],
-    })
-    window.location.reload()
-  }
- 
-  const handleToggleOff = async () => {
-    setDisabled(true)
-    // If not a member of the realAdmins group, add that group
-    // before giving up admin powers so that we'll be able to take
-    // the admin powers back
-    let groups = currentUser.groups;
-    if (!groups.some(g => g === "realAdmins")) {
-      groups = [...currentUser.groups, "realAdmins"]
-      await updateCurrentUser({ groups })
-    }
-    await updateCurrentUser({
-      isAdmin: false,
-      groups: groups.filter(g => g !== "sunshineRegiment"),
-    })
-    window.location.reload()
-  }
 
   if (currentUser.isAdmin) {
     return <div
-      className={classNames(classes.toggle, {[classes.toggleDisabled]: disabled})}
-      onClick={disabled ? undefined : handleToggleOff}
+      className={classNames(classes.toggle, {[classes.toggleDisabled]: loading})}
+      onClick={loading ? undefined : toggleOff}
     >
       <div className={classes.onText}>Admin on</div>
       <div className={classes.toggleDot}></div>
     </div>
   } else if (!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins")) {
     return <div
-      className={classNames(classes.toggle, classes.toggleOff, {[classes.toggleDisabled]: disabled})}
-      onClick={disabled ? undefined : handleToggleOn}
+      className={classNames(classes.toggle, classes.toggleOff, {[classes.toggleDisabled]: loading})}
+      onClick={loading ? undefined : toggleOn}
     >
       <div className={classes.offText}>Admin off</div>
       <div className={classNames(classes.toggleDot, classes.toggleDotOff)}></div>
