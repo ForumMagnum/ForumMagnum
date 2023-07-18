@@ -12,20 +12,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: 20,
     display: 'flex',
     alignItems: 'center',
-    height: 40,
-    width: 128,
+    height: 36,
+    width: 118,
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: theme.typography.fontFamily,
     fontWeight: 600,
-    padding: '6px 18px',
-    borderRadius: 20,
+    padding: '0 18px',
+    borderRadius: 18,
     boxShadow: theme.palette.boxShadow.eaCard,
     cursor: 'pointer',
     zIndex: theme.zIndexes.intercomButton,
     '&:hover': {
       backgroundColor: theme.palette.primary.dark,
+    },
+    [theme.breakpoints.down('md')]: {
+      left: 10,
+      bottom: 58,
+      height: 26,
+      width: 92,
+      fontSize: 11,
+      padding: '0 12px',
+      borderRadius: 13,
     },
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -49,15 +58,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   toggleDot: {
     position: 'absolute',
-    left: 92,
-    height: 30,
-    width: 30,
+    left: 87,
+    height: 26,
+    width: 26,
     backgroundColor: theme.palette.text.alwaysWhite,
     borderRadius: '50%',
     transition: 'left .2s ease',
+    [theme.breakpoints.down('md')]: {
+      left: 70,
+      height: 18,
+      width: 18,
+    }
   },
   toggleDotOff: {
-    left: 6
+    left: 5,
+    [theme.breakpoints.down('md')]: {
+      left: 4
+    }
   }
 });
 
