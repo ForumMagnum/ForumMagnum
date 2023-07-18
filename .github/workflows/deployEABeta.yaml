@@ -16,7 +16,7 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-    - run: pip3 install --upgrade pip awsebcli
+    - run: pip3 install --upgrade pip awsebcli --no-build-isolation # --no-build-isolation is a temporary workaround for this bug: https://github.com/aws/aws-cli/issues/8036
     - name: Run Deploy
       run: scripts/deploy.sh EAForum ${{ matrix.environment }}
       env:
