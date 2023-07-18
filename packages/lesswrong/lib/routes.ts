@@ -776,16 +776,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/saved'
     },
     {
-      name: 'savedPosts',
+      name: 'savedAndRead',
       path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Saved Posts',
-    },
-    {
-      name: 'readHistory',
-      path: '/history',
-      componentName: 'ReadHistoryPage',
-      title: 'Read History',
+      title: 'Saved & read',
     },
   ],
   LessWrong: [

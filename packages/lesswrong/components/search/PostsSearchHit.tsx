@@ -5,6 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import type { Hit } from 'react-instantsearch-core';
 import DescriptionIcon from '@material-ui/icons/Description';
+import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,12 +36,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-  showIcon?: boolean
-}) => {
+const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const post = (hit as AlgoliaPost);
   const { Typography, LWTooltip } = Components;
 

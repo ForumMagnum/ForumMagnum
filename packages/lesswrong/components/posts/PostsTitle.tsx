@@ -110,7 +110,8 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   }
   const tagSettingIconKeys = Array.from(tagSettingIcons.keys())
   //Sometimes this function will be called with fragments that don't have the tag array, in that case assume that the tag array is empty
-  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : [] 
+  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : []
+  if (!postTags) return null
   const matchingTagSetting = tagSettingIconKeys.find(tagSetting => (postTags).find(tag => tag._id === tagSetting.get()));
   if (matchingTagSetting) {
     return tagSettingIcons.get(matchingTagSetting);
@@ -196,7 +197,9 @@ const PostsTitle = ({
         {isLink ? <Link to={url}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        </InteractionWrapper>
       </span>}
     </span>
   )

@@ -32,7 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
     paddingLeft: isEAForum ? 12 : theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    borderRadius: isEAForum ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
@@ -117,6 +118,19 @@ const UsersMenu = ({classes}: {
   const buttonNode = <Button classes={{root: classes.userButtonRoot}}>
     {userButtonNode}
   </Button>
+  
+  const accountSettingsNode = <DropdownItem
+    title={preferredHeadingCase("Account Settings")}
+    to="/account"
+    icon="Settings"
+    iconClassName={classes.icon}
+  />
+  const messagesNode = <DropdownItem
+    title={preferredHeadingCase("Private Messages")}
+    to="/inbox"
+    icon="Email"
+    iconClassName={classes.icon}
+  />
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -137,13 +151,13 @@ const UsersMenu = ({classes}: {
             }}>
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title="New Question"
+                  title={preferredHeadingCase("New Question")}
                   to="/newPost?question=true"
                 />
               }
               {userCanPost(currentUser) &&
                 <DropdownItem
-                  title="New Post"
+                  title={preferredHeadingCase("New Post")}
                   to="/newPost"
                 />
               }
@@ -151,7 +165,7 @@ const UsersMenu = ({classes}: {
                   !isEAForum &&
                   userCanCreateField(currentUser, postSchema['debate']) &&
                 <DropdownItem
-                  title="New Dialogue"
+                  title={preferredHeadingCase("New Dialogue")}
                   to="/newpost?debate=true"
                 />
               }
@@ -163,20 +177,20 @@ const UsersMenu = ({classes}: {
               */}
             {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
               <DropdownItem
-                title={isEAForum ? "New Quick take" : "New Shortform"}
+                title={isEAForum ? "New quick take" : "New Shortform"}
                 onClick={() => openDialog({componentName:"NewShortformDialog"})}
               />
             }
             {showNewButtons && <DropdownDivider />}
             {showNewButtons && userCanPost(currentUser) &&
               <DropdownItem
-                title="New Event"
+                title={preferredHeadingCase("New Event")}
                 to="/newPost?eventForm=true"
               />
             }
             {showNewButtons && currentUser.karma >= 1000 &&
               <DropdownItem
-                title="New Sequence"
+                title={preferredHeadingCase("New Sequence")}
                 to="/sequencesnew"
               />
             }
@@ -229,29 +243,17 @@ const UsersMenu = ({classes}: {
                 />
               </ThemePickerMenu>
             }
+            {!isEAForum && accountSettingsNode}
+            {!isEAForum && messagesNode}
             <DropdownItem
-              title={preferredHeadingCase("Account Settings")}
-              to="/account"
-              icon="Settings"
+              title={isEAForum ? "Saved & read" : "Bookmarks"}
+              to={isEAForum ? "/saved" : "/bookmarks"}
+              icon="Bookmarks"
               iconClassName={classes.icon}
             />
-            <DropdownItem
-              title={preferredHeadingCase("Private Messages")}
-              to="/inbox"
-              icon="Email"
-              iconClassName={classes.icon}
-            />
-            {currentUser.bookmarkedPostsMetadata?.length > 0 &&
-              <DropdownItem
-                title={isEAForum ? "Saved posts" : "Bookmarks"}
-                to={isEAForum ? "/saved" : "/bookmarks"}
-                icon="Bookmarks"
-                iconClassName={classes.icon}
-              />
-            }
             {currentUser.shortformFeedId &&
               <DropdownItem
-                title={isEAForum ? "Your Quick takes" : "Shortform Page"}
+                title={isEAForum ? "Your quick takes" : "Shortform Page"}
                 to={postGetPageUrl({
                   _id: currentUser.shortformFeedId,
                   slug: "shortform",
@@ -260,6 +262,8 @@ const UsersMenu = ({classes}: {
                 iconClassName={classes.icon}
               />
             }
+            {isEAForum && messagesNode}
+            {isEAForum && accountSettingsNode}
 
             <DropdownDivider />
 

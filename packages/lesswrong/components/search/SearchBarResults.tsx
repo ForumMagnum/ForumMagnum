@@ -1,10 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
+import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -74,48 +75,29 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
 }) => {
   const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
+  const searchTypes: Array<{
+    type: AlgoliaIndexCollectionName;
+    Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
+  }> = [
+    { type: "Users", Component: UsersSearchHit },
+    { type: "Posts", Component: PostsSearchHit },
+    { type: "Tags", Component: TagsSearchHit },
+    { type: "Comments", Component: CommentsSearchHit },
+    { type: "Sequences", Component: SequencesSearchHit },
+  ];
+
   return <div className={classes.root}>
     <div className={classes.searchResults}>
-        <Components.ErrorBoundary>
-          <div className={classes.list}>
-            <Index indexName={getAlgoliaIndexName("Users")}>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.list}>
-            <Index indexName={getAlgoliaIndexName("Tags")}>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.list}>
-            <Index indexName={getAlgoliaIndexName("Posts")}>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.list}>
-            <Index indexName={getAlgoliaIndexName("Comments")}>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.list}>
-            <Index indexName={getAlgoliaIndexName("Sequences")}>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <SequencesSearchHit clickAction={closeSearch} {...props} showIcon/>} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
+        {searchTypes.map(({ type, Component }) => (
+          <Components.ErrorBoundary key={type}>
+            <div className={classes.list}>
+              <Index indexName={getAlgoliaIndexName(type)}>
+                <Configure hitsPerPage={3} />
+                <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
+              </Index>
+            </div>
+          </Components.ErrorBoundary>
+        ))}
         <Link to={`/search?query=${currentQuery}`} className={classes.seeAll}>
           See all results
         </Link>

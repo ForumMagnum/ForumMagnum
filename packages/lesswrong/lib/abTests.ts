@@ -79,3 +79,18 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+export const postRecsPositionABTest = new ABTest({
+  name: "postsRecsPosition",
+  description: "Tests the position of recommendations on the post page",
+  groups: {
+    right: {
+      description: "Show recommendations at the right of the post",
+      weight: 1,
+    },
+    underPost: {
+      description: "Show recommendations under the post, but above the comments",
+      weight: 4,
+    },
+  },
+});

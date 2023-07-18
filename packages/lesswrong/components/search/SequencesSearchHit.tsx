@@ -5,6 +5,7 @@ import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
 import { isEAForum } from '../../lib/instanceSettings';
+import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,12 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-  showIcon?: boolean
-}) => {
+const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: AlgoliaSequence = hit;
   const { LWTooltip, MetaInfo } = Components
   
