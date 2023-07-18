@@ -94,7 +94,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main ... sunshine"
+        "navSidebar ... main rhs sunshine"
       `,
       gridTemplateColumns: `
         minmax(0, min-content)
@@ -130,6 +130,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   navSidebar: {
     gridArea: 'navSidebar'
+  },
+  rhs: {
+    gridArea: 'rhs'
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -270,6 +273,9 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    // component that appears on the right hand side of the center column
+    const RHSComponent = currentRoute.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
+    console.log('RHSComponent', RHSComponent)
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -352,6 +358,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
+                {RHSComponent && <div className={classes.rhs}><RHSComponent /></div>}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
                     <SunshineSidebar/>
