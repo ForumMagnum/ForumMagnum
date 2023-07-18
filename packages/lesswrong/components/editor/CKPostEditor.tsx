@@ -7,7 +7,7 @@ import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/colle
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
-import { useLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import { debateEditorPlaceholder, defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
@@ -106,12 +106,28 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
 
   // Get the linkSharingKey, if it exists
-  const { query : { key, debate } } = useLocation();
+  const { query : { key, debate, tab } } = useSubscribedLocation();
 
   const isDebatePost = !!debate;
   if (isDebatePost && placeholder === defaultEditorPlaceholder) {
     placeholder = debateEditorPlaceholder;
   }
+
+  // TODO remove, this is just for testing if you can live change the query
+  if (tab === "question") {
+    placeholder = "Question placeholder";
+  }
+  console.log("placeholder", placeholder);
+  
+  // useEffect(() => {
+  //   const editor = editorRef.current;
+  //   if (editor) {
+  //     const placeholderElement = editorRef.current?.domContainer.querySelector('[data-placeholder]');
+  //     if (placeholderElement) {
+  //       placeholderElement.setAttribute('data-placeholder', placeholder ?? defaultEditorPlaceholder);
+  //     }
+  //   }
+  // }, [placeholder]);
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)

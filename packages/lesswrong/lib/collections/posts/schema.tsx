@@ -213,7 +213,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm,
+    hidden: (props) => props.eventForm || props.debateForm || props.prefilledProps?.tab === "post",
   },
   // Title
   title: {
@@ -2217,7 +2217,8 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: formGroups.options,
     blackbox: true,
-    hidden: (props) => !!props.debateForm
+    // TODO handle this hiding of fields more neatly
+    hidden: (props) => !!props.debateForm || props.prefilledProps?.tab == "post"
   },
   
   shareWithUsers: {

@@ -19,10 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: theme.palette.border.normal,
-    '&:focused': {
-      borderBottom: theme.palette.border.normal
-    },
+    borderBottom: !isEAForum && theme.palette.border.normal,
     "& textarea": {
       overflowY: "hidden",
     },

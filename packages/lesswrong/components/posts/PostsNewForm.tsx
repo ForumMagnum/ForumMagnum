@@ -3,17 +3,21 @@ import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
+import qs from 'qs';
+import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -108,7 +112,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 20,
     paddingBottom: 20
   },
+  tabs: {
+    margin: "16px 16px",
+    borderBottom: theme.palette.border.normal,
+    '& .MuiTab-root': {
+      fontSize: 14,
+      fontWeight: 600,
+    },
+    '& .MuiTabs-flexContainer': {
+      gap: "12px",
+    }
+  },
 })
+
+const tabs = new TupleSet(['post', 'linkpost', 'question'] as const);
+export type PostFormTab = UnionOf<typeof tabs>;
+export const postFormDefaultTab = 'post';
+
+// What to do about form being cleared when switching tabs?
+// - I think any approach that retains the form data is basically unworkable. Why?:
+//   - Changing placeholders and stuff is hard
+//   - What do you do if there is a field that is allowed in one tab but not another (in general these tabs might diverge more?)?
 
 const prefillFromTemplate = (template: PostsEdit) => {
   return pick(
@@ -176,7 +200,8 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
 
-  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
+  // TODO actually do TODO
+  let prefilledProps: AnyBecauseTodo = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
     question: query && !!query.question,
     activateRSVPs: true,
@@ -191,6 +216,22 @@ const PostsNewForm = ({classes}: {
     debate: debateForm
   }
   const eventForm = query && query.eventForm
+
+  const isTab = (tab: string): tab is PostFormTab => tabs.has(tab)
+  const tab = isTab(query.tab) ? query.tab : postFormDefaultTab
+  // const [tab, setTab] = useState<PostFormTab>(postFormDefaultTab)
+
+  const handleChangeTab = useCallback((_, value: PostFormTab) => {
+    const newQuery = {...query, tab: value}
+    history.push({...location, search: `?${qs.stringify(newQuery)}`})
+  }, [history, query])
+
+  console.log("rendering PostsNewForm")
+
+  // prefilledProps = {
+  //   ...prefilledProps,
+  //   tab,
+  // }
   
   if (query?.subforumTagId) {
     prefilledProps = {
@@ -238,6 +279,17 @@ const PostsNewForm = ({classes}: {
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
+        {isEAForum && <Tabs
+          value={tab}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={handleChangeTab}
+          className={classes.tabs}
+        >
+          <Tab label="Post" key="post" value="post" />
+          <Tab label="Linkpost" key="linkpost" value="linkpost" />
+          <Tab label="Question" key="question" value="question" />
+        </Tabs>}
         <Components.PostsAcceptTos currentUser={currentUser} />
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
