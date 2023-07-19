@@ -690,6 +690,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly topLevelCommentCount: number,
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
