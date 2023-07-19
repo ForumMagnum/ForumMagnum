@@ -1,5 +1,5 @@
 import { Components, getSiteUrl, registerComponent } from "../../lib/vulcan-lib";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
@@ -10,11 +10,22 @@ import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/PostsPage";
 import { siteImageSetting } from "../vulcan-core/App";
+import classNames from "classnames";
+import { useNavigation, useSubscribedLocation } from "../../lib/routeUtil";
+import isEmpty from "lodash/isEmpty";
+import qs from "qs";
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
     borderRadius: theme.borderRadius.default,
+    // The popper has its own translation applied, which
+    // means we can't apply the animation to it. Remove the box
+    // shadow so it isn't visible during the animation.
+    boxShadow: 'none',
+    '& .MuiPaper-elevation2': {
+      boxShadow: "none",
+    },
     [theme.breakpoints.down("md")]: {
       display: "none",
     },
@@ -25,6 +36,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.eaCard,
     borderRadius: theme.borderRadius.default,
     maxWidth: 380,
+    animation: "animateIn 0.3s ease-out",
+  },
+  rootAnimateOut: {
+    animation: "animateOut 0.3s ease-out",
+  },
+  "@keyframes animateIn": {
+    "0%": {
+      transform: "translateY(100%)",
+      opacity: 0,
+    },
+    "100%": {
+      transform: "translateY(0)",
+      opacity: 1,
+    },
+  },
+  "@keyframes animateOut": {
+    "0%": {
+      transform: "translateY(0)",
+      opacity: 1,
+    },
+    "100%": {
+      transform: "translateY(100%)",
+      opacity: 0,
+    },
   },
   closeButtonRow: {
     textAlign: "right",
@@ -177,6 +212,9 @@ const SharePostPopup = ({
   const postUrl = postGetPageUrl(post, true);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
+  const { history } = useNavigation();
+  const { query, location } = useSubscribedLocation();
+  const [isClosing, setIsClosing] = useState(false);
 
   const { Typography, ForumIcon, SocialMediaIcon } = Components;
 
@@ -255,12 +293,23 @@ const SharePostPopup = ({
     },
   ];
 
+  const onClickClose = useCallback(() => {
+    setIsClosing(true); // Start animation
+
+    // remove "sharePopup" from query
+    const currentQuery = isEmpty(query) ? {} : query
+    const newQuery = {...currentQuery, sharePopup: undefined}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+
+    setTimeout(onClose, 500);
+  }, [history, location.location, onClose, query]);
+
   return (
-    <Popper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper}>
+    <Popper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper} transition>
       <Paper>
-        <div className={classes.root}>
+        <div className={classNames(classes.root, {[classes.rootAnimateOut]: isClosing})}>
           <div className={classes.closeButtonRow}>
-            <Button className={classes.closeButton} onClick={onClose}>
+            <Button className={classes.closeButton} onClick={onClickClose}>
               <ForumIcon icon="Close" className={classes.closeIcon} />
             </Button>
           </div>
