@@ -10,7 +10,6 @@ import {
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
-import { userHasEAEmojiReacts } from "../../lib/betas";
 import { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
@@ -337,36 +336,21 @@ const EAEmojisVoteOnComment = ({
     collection.options.collectionName,
     votingSystem,
   );
-  const {OverallVoteAxis, TwoAxisVoteOnComment} = Components;
+  const {OverallVoteAxis} = Components;
   return (
     <>
-      {userHasEAEmojiReacts(null)
-        ? (
-          <>
-            <OverallVoteAxis
-              document={document}
-              hideKarma={hideKarma}
-              voteProps={voteProps}
-              className={classes.overallAxis}
-              showBox
-            />
-            <EmojiReactsSection
-              document={document}
-              voteProps={voteProps}
-              classes={classes}
-            />
-          </>
-        )
-        : (
-          <TwoAxisVoteOnComment
-            document={document}
-            hideKarma={hideKarma}
-            voteProps={voteProps}
-            collection={collection}
-            votingSystem={votingSystem}
-          />
-        )
-      }
+      <OverallVoteAxis
+        document={document}
+        hideKarma={hideKarma}
+        voteProps={voteProps}
+        className={classes.overallAxis}
+        showBox
+      />
+      <EmojiReactsSection
+        document={document}
+        voteProps={voteProps}
+        classes={classes}
+      />
     </>
   );
 }
