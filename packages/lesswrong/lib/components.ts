@@ -58,6 +58,7 @@ importComponent("EAUsersProfileImage", () => require('../components/ea-forum/use
 importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/users/EAUsersProfileLinks'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
+importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
 
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
@@ -415,7 +416,7 @@ importComponent("SmallSideVote", () => require('../components/votes/SmallSideVot
 importComponent("OverallVoteAxis", () => require('../components/votes/OverallVoteAxis'));
 importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
 importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
-importComponent("ThreeAxisEmojisVoteOnComment", () => require('../components/votes/ThreeAxisEmojisVoteOnComment'));
+importComponent("EAEmojisVoteOnComment", () => require('../components/votes/EAEmojisVoteOnComment'));
 importComponent("EAEmojiPalette", () => require('../components/votes/EAEmojiPalette'));
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
@@ -547,6 +548,8 @@ importComponent("SideCommentIcon", () => require('../components/comments/SideCom
 importComponent("SingleLineComment", () => require('../components/comments/SingleLineComment'));
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
+importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
+importComponent("PopularComment", () => require('../components/comments/PopularComment'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
