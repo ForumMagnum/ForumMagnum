@@ -143,6 +143,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
       comment,
       visibility: "visible",
     };
+    stateRef.current.commentsSortOrder.push(comment._id);
     forceRerender();
   }, [forceRerender]);
   
@@ -230,7 +231,7 @@ function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList
   }
   return {
     ...state,
-    commentsSortOrder: [...state.commentsSortOrder, ...addedCommentIds],
+    commentsSortOrder: state.commentsSortOrder,
     commentsById: newCommentStates,
   };
 }
@@ -298,8 +299,11 @@ function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolSt
   if (!ids.length)
     return state;
 
+  let revealedIds = ids.filter(id => state.commentsById[id].visibility!=="visible");
+
   return {
     ...state,
+    commentsSortOrder: [...state.commentsSortOrder, ...revealedIds],
     commentsById: mapValues(state.commentsById,
       (c: SingleCommentState): SingleCommentState => {
         if (includes(ids, c.comment._id))
