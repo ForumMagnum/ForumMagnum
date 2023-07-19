@@ -7,6 +7,13 @@ import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import pick from 'lodash/pick';
 
+
+type OptionalKeys<T> = Exclude<{ [P in keyof T]: undefined extends T[P] ? P : never }[keyof T], undefined>
+
+type OptionalToUndefined<T> = { 
+  [K in OptionalKeys<T> as undefined extends T[K] ? K : never]?: undefined
+}
+
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
     view?: CommentsViewName,
@@ -24,7 +31,17 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    userIds?: string[]
   }
+
+  // interface RecentUsersCommentsViewTerms extends OptionalToUndefined<Omit<OldCommentsViewTerms, 'view'>> {
+  //   view?: 'recentUsersComments',
+  //   userIds: string[]
+  // }
+
+  // type CommentsViewTerms = RecentUsersCommentsViewTerms | OldCommentsViewTerms;
+
+  // type CommentsViewTerms = OldCommentsViewTerms | RecentUsersCommentsViewTerms;
   
   /**
    * Comment sorting mode, a string which gets translated into a mongodb sort
@@ -706,7 +723,7 @@ Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
   selector: {
     baseScore: {$gte: 20},
     shortform: {$ne: true},
-    postedAt: {$gte: moment().subtract(1, "month").toDate()},
+    postedAt: {$gte: moment().subtract(3, "month").toDate()},
   },
   options: {
     sort: {
@@ -714,4 +731,15 @@ Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
       parentCommentId: 1,
     },
   },
+}));
+
+Comments.addView("recentUsersComments", (terms: CommentsViewTerms) => ({
+  selector: {
+    userId: { $in: terms.userIds }
+  },
+  options: {
+    sort: {
+      postedAt: -1
+    }
+  }
 }));
