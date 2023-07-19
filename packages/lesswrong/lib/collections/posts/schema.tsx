@@ -45,7 +45,7 @@ const STICKY_PRIORITIES = {
 
 function getDefaultVotingSystem() {
   return forumSelect({
-    EAForum: "twoAxis",
+    EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
@@ -1083,7 +1083,7 @@ const schema: SchemaType<DbPost> = {
     // Trying to use schemaDefaultValue here with a branch by forum type broke
     // schema generation/migrations.
     defaultValue: "twoAxis",
-    onCreate: () => getDefaultVotingSystem(),
+    onCreate: ({document}) => document.votingSystem ?? getDefaultVotingSystem(),
     canAutofillDefault: true,
   },
   myEditorAccess: resolverOnlyField({
