@@ -105,56 +105,25 @@ const CommentsNode = ({
   className,
   classes,
 }: CommentsNodeProps) => {
-  const currentUser = useCurrentUser();
   const commentPoolContext = useContext(CommentPoolContext);
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useCommentState(
     "collapsed", comment._id, commentPoolContext,
     !forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene')
   );
-  const [truncatedState, setTruncated] = useCommentState(
-    "truncatedState", comment._id, commentPoolContext,
-    !!startThreadTruncated
-  );
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, dontExpandNewComments, singleLineCollapse, onToggleCollapsed } = treeOptions;
+  const { post, highlightDate, scrollOnExpand, noHash, singleLineCollapse, onToggleCollapsed } = treeOptions;
 
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
-
-  const beginSingleLine = (): boolean => {
-    if (currentUser?.noSingleLineComments)
-      return false;
-
-    // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
-    const mostRecent = lastCommentId === comment._id
-    const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
-    const shortformAndTop = (nestingLevel === 1) && shortform
-    const postPageAndTop = (nestingLevel === 1) && postPage
-
-    if (forceSingleLine)
-      return true;
-    if (forceNotSingleLine)
-      return false;
-    if (treeOptions.isSideComment && nestingLevel>1)
-      return true;
-
-    if (expandAllThreads) return false;
-    if (!truncated && !startThreadTruncated) return false;
-    if (!lowKarmaOrCondensed) return false;
-    if (mostRecent && condensed) return false;
-    if (shortformAndTop) return false;
-    if (postPageAndTop) return false;
-    if (isNewComment && !dontExpandNewComments) return false;
-
-    return true;
-  }
-  
-  const [singleLine, setSingleLine] = useCommentState(
-    "singleLine", comment._id, commentPoolContext,
-    beginSingleLine()
-  );
   const [hasClickedToExpand, setHasClickedToExpand] = useState(false);
   const [highlighted, setHighlighted] = useState(false);
 
+
+  const {truncatedState, setTruncated, singleLine, setSingleLine, isTruncated, isSingleLine} = useExpansionState({
+    comment, commentPoolContext, treeOptions,
+    isNewComment, hasClickedToExpand,
+    expandAllThreads, nestingLevel, startThreadTruncated, shortform, truncated
+  });
+  
   const isInViewport = (): boolean => {
     if (!scrollTargetRef) return false;
     const top = scrollTargetRef.current?.getBoundingClientRect().top;
@@ -205,21 +174,6 @@ const CommentsNode = ({
     }
   }, [singleLineCollapse, collapsed, setCollapsed, setSingleLine, onToggleCollapsed]);
 
-  const isTruncated = ((): boolean => {
-    if (expandAllThreads) return false;
-    if (truncatedState) return true;
-    if (hasClickedToExpand) return false;
-    return truncated || !!startThreadTruncated
-  })();
-
-  const isSingleLine = ((): boolean => {
-    if (!singleLine) return false;
-    if (forceSingleLine) return true;
-    if (forceNotSingleLine) return false
-
-    return isTruncated
-  })();
-
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, showParentDefault }
@@ -227,6 +181,11 @@ const CommentsNode = ({
   const numShownReplies = childComments?.length ?? 0
   const numHiddenReplies = comment.directChildrenCount - numShownReplies;
   const loadMoreMessage = `View ${numHiddenReplies} ${numHiddenReplies === 1 ? "reply" : "replies"}`;
+  
+  const enableDescendentCount = loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount
+  const showDescendentCount = enableDescendentCount
+    ? (comment.descendentCount - (childComments?.length??0))
+    : undefined;
 
   return <div>
     <CommentFrame
@@ -256,7 +215,7 @@ const CommentsNode = ({
                   nestingLevel={nestingLevel}
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
-                  showDescendentCount={loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount}
+                  showDescendentCount={showDescendentCount}
                   displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
@@ -316,6 +275,81 @@ const CommentsNode = ({
       }
     </CommentFrame>
   </div>
+}
+
+function useExpansionState({comment, commentPoolContext, treeOptions, isNewComment, hasClickedToExpand, expandAllThreads, nestingLevel, startThreadTruncated, shortform, truncated}: {
+  comment: CommentsList,
+  commentPoolContext: CommentPoolContextType|null,
+  treeOptions: CommentTreeOptions,
+
+  // Computed inside CommentsNode
+  isNewComment: boolean,
+  hasClickedToExpand: boolean,
+
+  // Props to CommentsNode
+  expandAllThreads: boolean|undefined,
+  nestingLevel: number,
+  startThreadTruncated: boolean|undefined,
+  shortform: boolean|undefined,
+  truncated: boolean|undefined,
+}) {
+  const currentUser = useCurrentUser();
+  const { lastCommentId, condensed, postPage, forceSingleLine, forceNotSingleLine, dontExpandNewComments } = treeOptions;
+
+  const [truncatedState, setTruncated] = useCommentState(
+    "truncatedState", comment._id, commentPoolContext,
+    !!startThreadTruncated
+  );
+
+  const beginSingleLine = (): boolean => {
+    if (currentUser?.noSingleLineComments)
+      return false;
+
+    // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
+    const mostRecent = lastCommentId === comment._id
+    const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
+    const shortformAndTop = (nestingLevel === 1) && shortform
+    const postPageAndTop = (nestingLevel === 1) && postPage
+
+    if (forceSingleLine)
+      return true;
+    if (forceNotSingleLine)
+      return false;
+    if (treeOptions.isSideComment && nestingLevel>1)
+      return true;
+
+    if (expandAllThreads) return false;
+    if (!truncated && !startThreadTruncated) return false;
+    if (!lowKarmaOrCondensed) return false;
+    if (mostRecent && condensed) return false;
+    if (shortformAndTop) return false;
+    if (postPageAndTop) return false;
+    if (isNewComment && !dontExpandNewComments) return false;
+
+    return true;
+  }
+
+  const [singleLine, setSingleLine] = useCommentState(
+    "singleLine", comment._id, commentPoolContext,
+    beginSingleLine()
+  );
+
+  const isTruncated = ((): boolean => {
+    if (expandAllThreads) return false;
+    if (truncatedState) return true;
+    if (hasClickedToExpand) return false;
+    return truncated || !!startThreadTruncated
+  })();
+
+  const isSingleLine = ((): boolean => {
+    if (!singleLine) return false;
+    if (forceSingleLine) return true;
+    if (forceNotSingleLine) return false
+
+    return isTruncated
+  })();
+
+  return {truncatedState, setTruncated, singleLine, setSingleLine, isTruncated, isSingleLine};
 }
 
 /**

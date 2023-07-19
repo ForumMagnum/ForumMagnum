@@ -153,7 +153,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
-  showDescendentCount?: boolean,
+  showDescendentCount?: number,
   displayTagIcon?: boolean,
   classes: ClassesType,
 }) => {
@@ -205,9 +205,9 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
           {contentToRender}
         </ContentStyles>}
-        {showDescendentCount && comment.descendentCount>0 && <PostsItemComments
+        {showDescendentCount && showDescendentCount>0 && <PostsItemComments
           small={true}
-          commentCount={comment.descendentCount}
+          commentCount={showDescendentCount}
           unreadComments={false}
           newPromotedComments={false}
         />}
