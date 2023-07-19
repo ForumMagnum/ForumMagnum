@@ -237,7 +237,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [userId])
     return votes
   }
-  
+
   async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
     return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
       SELECT p._id as "postId",

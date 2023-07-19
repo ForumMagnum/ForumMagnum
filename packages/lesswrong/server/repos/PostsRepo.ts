@@ -2,6 +2,8 @@ import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
+import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import LRU from "lru-cache";
 
 export type MeanPostKarma = {
   _id: number,
@@ -9,6 +11,13 @@ export type MeanPostKarma = {
 }
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
+
+type EmojiReactors = Record<string, Record<string, string[]>>;
+
+const emojiReactorCache = new LRU<string, Promise<EmojiReactors>>({
+  maxAge: 30 * 1000, // 30 second TTL
+  updateAgeOnGet: false,
+});
 
 export default class PostsRepo extends AbstractRepo<DbPost> {
   constructor() {
@@ -95,21 +104,22 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
-  async getEmojiReactors(
-    postId: string,
-    maxReactorsPerEmoji = 4,
-  ): Promise<Record<string, Record<string, string[]>>> {
-    const result = await this.getRawDb().one(`
+  async getEmojiReactors(postId: string): Promise<EmojiReactors> {
+    const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
         SELECT
           "commentId",
-          JSON_OBJECT_AGG("key", "displayNames") AS "reactorDisplayNames"
+          JSON_OBJECT_AGG("key", "displayNames")
+            FILTER (WHERE "key" IN ($2:csv))
+            AS "reactorDisplayNames"
         FROM (
           SELECT
             "commentId",
             "key",
-            (ARRAY_AGG("displayName" ORDER BY "karma" DESC))[1:$2] AS "displayNames"
+            (ARRAY_AGG(
+              "displayName" ORDER BY COALESCE("karma", 0) DESC)
+            ) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
@@ -131,8 +141,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         ) q
         GROUP BY "commentId"
       ) q
-    `, [postId, maxReactorsPerEmoji]);
-    return result.emojiReactors;
+    `, [postId, eaPublicEmojiNames]);
+    return emojiReactors;
+  }
+
+  async getEmojiReactorsWithCache(postId: string): Promise<EmojiReactors> {
+    const cached = emojiReactorCache.get(postId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const emojiReactors = this.getEmojiReactors(postId);
+    emojiReactorCache.set(postId, emojiReactors);
+    return emojiReactors;
   }
 
   private getSearchDocumentQuery(): string {

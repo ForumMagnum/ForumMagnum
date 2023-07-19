@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
+import { userHasPopularCommentsSection } from '../../lib/betas'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -80,7 +81,7 @@ const EAHome = () => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
-          {isEAForum && <EAPopularCommentsSection />}
+          {userHasPopularCommentsSection(currentUser) && <EAPopularCommentsSection />}
           <RecentDiscussionFeed
             title="Recent discussion"
             af={false}

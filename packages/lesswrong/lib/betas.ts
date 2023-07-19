@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, forumTitleSetting } from "./instanceSettings";
+import { testServerSetting, isEAForum } from "./instanceSettings";
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -46,6 +46,8 @@ export const userHasEagProfileImport = disabled;
 export const userHasEAEmojiReacts = isEAForum ? testServerOnly : disabled;
 
 export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
+
+export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

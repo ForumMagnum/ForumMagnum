@@ -1,18 +1,11 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { excludeFromFrontpagePopularSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import pick from 'lodash/pick';
-
-
-type OptionalKeys<T> = Exclude<{ [P in keyof T]: undefined extends T[P] ? P : never }[keyof T], undefined>
-
-type OptionalToUndefined<T> = { 
-  [K in OptionalKeys<T> as undefined extends T[K] ? K : never]?: undefined
-}
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -34,15 +27,6 @@ declare global {
     userIds?: string[]
   }
 
-  // interface RecentUsersCommentsViewTerms extends OptionalToUndefined<Omit<OldCommentsViewTerms, 'view'>> {
-  //   view?: 'recentUsersComments',
-  //   userIds: string[]
-  // }
-
-  // type CommentsViewTerms = RecentUsersCommentsViewTerms | OldCommentsViewTerms;
-
-  // type CommentsViewTerms = OldCommentsViewTerms | RecentUsersCommentsViewTerms;
-  
   /**
    * Comment sorting mode, a string which gets translated into a mongodb sort
    * order. Not every mode is shown in the UI in every context. Corresponds to
@@ -723,7 +707,10 @@ Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
   selector: {
     baseScore: {$gte: 20},
     shortform: {$ne: true},
-    postedAt: {$gte: moment().subtract(3, "month").toDate()},
+    postedAt: {$gte: moment().subtract(1, "week").toDate()},
+    ...(excludeFromFrontpagePopularSetting.get().length && {
+      postId: {$not: {$in: excludeFromFrontpagePopularSetting.get()}},
+    }),
   },
   options: {
     sort: {

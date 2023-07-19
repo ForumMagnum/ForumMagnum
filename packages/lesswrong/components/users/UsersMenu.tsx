@@ -125,6 +125,12 @@ const UsersMenu = ({classes}: {
     icon="Settings"
     iconClassName={classes.icon}
   />
+  const messagesNode = <DropdownItem
+    title={preferredHeadingCase("Private Messages")}
+    to="/inbox"
+    icon="Email"
+    iconClassName={classes.icon}
+  />
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -238,20 +244,13 @@ const UsersMenu = ({classes}: {
               </ThemePickerMenu>
             }
             {!isEAForum && accountSettingsNode}
+            {!isEAForum && messagesNode}
             <DropdownItem
-              title={preferredHeadingCase("Private Messages")}
-              to="/inbox"
-              icon="Email"
+              title={isEAForum ? "Saved & read" : "Bookmarks"}
+              to={isEAForum ? "/saved" : "/bookmarks"}
+              icon="Bookmarks"
               iconClassName={classes.icon}
             />
-            {currentUser.bookmarkedPostsMetadata?.length > 0 &&
-              <DropdownItem
-                title={isEAForum ? "Saved posts" : "Bookmarks"}
-                to={isEAForum ? "/saved" : "/bookmarks"}
-                icon="Bookmarks"
-                iconClassName={classes.icon}
-              />
-            }
             {currentUser.shortformFeedId &&
               <DropdownItem
                 title={isEAForum ? "Your quick takes" : "Shortform Page"}
@@ -263,6 +262,7 @@ const UsersMenu = ({classes}: {
                 iconClassName={classes.icon}
               />
             }
+            {isEAForum && messagesNode}
             {isEAForum && accountSettingsNode}
 
             <DropdownDivider />
