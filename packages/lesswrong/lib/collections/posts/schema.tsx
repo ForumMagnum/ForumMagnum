@@ -45,7 +45,7 @@ const STICKY_PRIORITIES = {
 
 function getDefaultVotingSystem() {
   return forumSelect({
-    EAForum: "twoAxis",
+    EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
