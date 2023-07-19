@@ -38,3 +38,15 @@ registerFragment(`
     collectionName
   }
 `);
+
+registerFragment(`
+  fragment UserVotesWithDocument on Vote {
+    ...UserVotes
+    comment {
+      ...CommentsList
+    }
+    post {
+      ...PostsListWithVotes
+    }
+  }
+`);
