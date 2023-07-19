@@ -11,9 +11,8 @@ import { forumTitleSetting } from "../../lib/instanceSettings";
 import { getPostDescription } from "./PostsPage/PostsPage";
 import { siteImageSetting } from "../vulcan-core/App";
 import classNames from "classnames";
-import { useNavigation, useSubscribedLocation } from "../../lib/routeUtil";
-import isEmpty from "lodash/isEmpty";
-import qs from "qs";
+
+const ANIMATION_DURATION = 300;
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -36,10 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: theme.palette.boxShadow.eaCard,
     borderRadius: theme.borderRadius.default,
     maxWidth: 380,
-    animation: "animateIn 0.3s ease-out",
+    animation: `animateIn ${ANIMATION_DURATION}ms ease-out`,
   },
   rootAnimateOut: {
-    animation: "animateOut 0.3s ease-out",
+    animation: `animateOut ${ANIMATION_DURATION}ms ease-out`,
   },
   "@keyframes animateIn": {
     "0%": {
@@ -212,8 +211,6 @@ const SharePostPopup = ({
   const postUrl = postGetPageUrl(post, true);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
-  const { history } = useNavigation();
-  const { query, location } = useSubscribedLocation();
   const [isClosing, setIsClosing] = useState(false);
 
   const { Typography, ForumIcon, SocialMediaIcon } = Components;
@@ -296,13 +293,10 @@ const SharePostPopup = ({
   const onClickClose = useCallback(() => {
     setIsClosing(true); // Start animation
 
-    // remove "sharePopup" from query
-    const currentQuery = isEmpty(query) ? {} : query
-    const newQuery = {...currentQuery, sharePopup: undefined}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
-
-    setTimeout(onClose, 500);
-  }, [history, location.location, onClose, query]);
+    // onClose actually unmounts the component.
+    // Err on the side of unmounting early to avoid a flash of the component in the wrong position
+    setTimeout(onClose, ANIMATION_DURATION * 0.9);
+  }, [onClose]);
 
   return (
     <Popper open={true} anchorEl={anchorEl.current} placement="top-end" className={classes.popper} transition>

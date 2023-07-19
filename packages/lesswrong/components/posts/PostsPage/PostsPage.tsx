@@ -26,6 +26,8 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import isEmpty from 'lodash/isEmpty';
+import qs from 'qs';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -338,6 +340,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       noClickawayCancel: true,
       closeOnNavigate: true,
     });
+
+    // Remove "sharePopup" from query once the popup is open, to prevent accidentally
+    // sharing links with the popup open
+    const currentQuery = isEmpty(query) ? {} : query
+    const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+
   }, [query[SHARE_POPUP_QUERY_PARAM]]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
