@@ -34,11 +34,11 @@ export const up = async ({db}: MigrationContext) => {
   await addField(db, Posts, "topLevelCommentCount");
   
   await db.any(`
-    UPDATE Posts
+    UPDATE "Posts"
     SET "topLevelCommentCount" = subquery."topLevelCommentCount"
     FROM (
         SELECT COUNT(*) AS "topLevelCommentCount", "postId"
-        FROM Comments
+        FROM "Comments"
         WHERE deleted is not true
         AND "parentCommentId" is null
         AND "postId" is not null
