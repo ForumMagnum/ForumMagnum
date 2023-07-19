@@ -43,8 +43,6 @@ export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
 
-export const userHasEAEmojiReacts = isEAForum ? testServerOnly : disabled;
-
 export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
