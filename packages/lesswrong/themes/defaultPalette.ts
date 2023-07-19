@@ -296,7 +296,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment3: '#2671ff66',
     debateComment4: '#eb26ff66',
     debateComment5: '#efdc0066',
-    dashed500: `dashed 1px ${shades.grey[500]}`
+    dashed500: `dashed 1px ${shades.grey[500]}`,
+    mentionsBaloon: "#c4c4c4",
   },
   background: {
     default: shades.grey[60],
@@ -420,6 +421,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
+    mentions: {
+      hover: "#e6e6e6",
+      selected: "#198cf0",
+      selectedHover: "#0e7fe1",
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),

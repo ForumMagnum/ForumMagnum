@@ -243,6 +243,7 @@ declare global {
       debateComment4: string,
       debateComment5: string,
       dashed500: string,
+      mentionsBaloon: string,
     },
     panelBackground: {
       default: ColorString,
@@ -347,6 +348,11 @@ declare global {
       },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
+      mentions: {
+        hover: ColorString,
+        selected: ColorString,
+        selectedHover: ColorString,
+      },
     },
     tag: {
       text: ColorString,
