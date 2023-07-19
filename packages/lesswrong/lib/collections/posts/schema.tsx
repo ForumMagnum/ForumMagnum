@@ -2532,11 +2532,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (post.votingSystem !== "threeAxisEmojis") {
+    resolver: (post, _, context) => {
+      if (post.votingSystem !== "eaEmojis") {
         return null;
       }
-      return context.repos.posts.getEmojiReactors(post._id);
+      return context.repos.posts.getEmojiReactorsWithCache(post._id);
     },
   }),
 
