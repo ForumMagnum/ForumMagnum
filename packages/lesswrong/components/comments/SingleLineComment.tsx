@@ -205,12 +205,12 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
           {contentToRender}
         </ContentStyles>}
-        {showDescendentCount && showDescendentCount>0 && <PostsItemComments
+        {(showDescendentCount && showDescendentCount>0) ? <PostsItemComments
           small={true}
           commentCount={showDescendentCount}
           unreadComments={false}
           newPromotedComments={false}
-        />}
+        /> : undefined}
       </ContentStyles>
       <LWPopper
         open={displayHoverOver}
