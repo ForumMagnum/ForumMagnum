@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { excludeFromFrontpagePopularSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
@@ -707,6 +707,9 @@ Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
     baseScore: {$gte: 20},
     shortform: {$ne: true},
     postedAt: {$gte: moment().subtract(1, "week").toDate()},
+    ...(excludeFromFrontpagePopularSetting.get().length && {
+      postId: {$not: {$in: excludeFromFrontpagePopularSetting.get()}},
+    }),
   },
   options: {
     sort: {
