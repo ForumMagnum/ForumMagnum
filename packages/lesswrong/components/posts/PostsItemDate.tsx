@@ -92,7 +92,11 @@ const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
     </LWTooltip>
   }
 
-  const ago = includeAgo ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
+  const dateToDisplay = post.curatedDate || post.postedAt;
+  const timeFromNow = moment(new Date(dateToDisplay)).fromNow();
+  const ago = includeAgo && timeFromNow !== "now"
+    ? <span className={classes.xsHide}>&nbsp;ago</span>
+    : null;
 
   if (post.curatedDate) {
     return <LWTooltip
@@ -103,7 +107,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
       </div>}
     >
       <PostsItem2MetaInfo className={classes.postedAt}>
-        {moment(new Date(post.curatedDate)).fromNow()}
+        {timeFromNow}
         {ago}
       </PostsItem2MetaInfo>
     </LWTooltip>
@@ -114,7 +118,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
     title={<ExpandedDate date={post.postedAt}/>}
   >
     <PostsItem2MetaInfo className={classes.postedAt}>
-      {moment(new Date(post.postedAt)).fromNow()}
+      {timeFromNow}
       {ago}
     </PostsItem2MetaInfo>
   </LWTooltip>
