@@ -1,6 +1,7 @@
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../server/draftConvert'
 import { htmlToDraftServer } from '../server/resolvers/toDraft'
+import { dataToWordCount } from "../server/editor/conversionUtils";
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {
@@ -104,5 +105,70 @@ describe("htmlToDraft", () => {
     expect(draft1.blocks).toHaveLength(2);
     expect(typeof draft1.blocks[0].key).toBe("string");
     expect(draft1.blocks[0].key).not.toBe(draft2.blocks[1].key);
+  });
+});
+
+describe("dataToWordCount", () => {
+  it("counts words in HTML content", async () => {
+    expect(await dataToWordCount("<div><p>A sample piece of content</p></div>", "html")).toBe(5);
+  });
+  it("counts words in CKEditor content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "ckEditorMarkup")).toBe(5);
+  });
+  it("counts words in DraftJS content", async () => {
+    expect(await dataToWordCount({
+      blocks: [
+        {
+          key: "abcde",
+          text: "A sample piece of content",
+          type: "unstyled",
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        },
+      ],
+      entityMap: {},
+    }, "draftJS")).toBe(5);
+  });
+  it("counts words in MD content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "markdown")).toBe(5);
+  });
+  it("excludes simple footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^1] that has simple footnotes[^2]
+
+[^1]: First footnote
+
+[^2]:
+
+  Second footnote
+    `, "markdown")).toBe(9);
+  });
+  it("excludes complex footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
+
+1.  ^**[^](#footnote1)**^
+
+  First footnote
+
+2.  ^**[^](#footnote2)**^
+
+  Second footnote
+    `, "markdown")).toBe(9);
+  });
+  it("excludes appendices", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content that has one appendix.
+
+Section 1
+=========
+
+Appendix 1
+==========
+
+Lorem ipsum dolor sit amet.
+    `, "markdown")).toBe(11);
   });
 });
