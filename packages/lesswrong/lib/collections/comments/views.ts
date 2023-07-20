@@ -24,8 +24,9 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    userIds?: string[]
   }
-  
+
   /**
    * Comment sorting mode, a string which gets translated into a mongodb sort
    * order. Not every mode is shown in the UI in every context. Corresponds to
@@ -717,4 +718,15 @@ Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
       parentCommentId: 1,
     },
   },
+}));
+
+Comments.addView("recentUsersComments", (terms: CommentsViewTerms) => ({
+  selector: {
+    userId: { $in: terms.userIds }
+  },
+  options: {
+    sort: {
+      postedAt: -1
+    }
+  }
 }));

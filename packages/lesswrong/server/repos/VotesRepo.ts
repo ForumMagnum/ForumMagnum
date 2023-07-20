@@ -51,6 +51,12 @@ type PostVoteCounts = {
   bigDownvoteCount: number
 }
 
+export type TopUpvotedUser = {
+  authorId: string,
+  displayName: string,
+  netUpvoted: number,
+}
+
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);
@@ -246,5 +252,29 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         AND v.cancelled = false
       GROUP BY p._id
     `, [postIds]), "getDigestPlannerVotesForPosts");
+  }
+
+  async getTopUpvotedUsers(userId: string): Promise<TopUpvotedUser[]> {
+    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+    WITH latest_upvotes AS (
+      SELECT *
+      FROM "Votes"
+      WHERE "userId" = $1
+      AND NOT ("authorIds" @> ARRAY["userId"])
+      AND cancelled IS NOT TRUE
+      ORDER BY "votedAt" DESC
+      LIMIT 200
+    ), most_upvoted AS (
+      SELECT UNNEST("authorIds") AS "authorId", SUM("power") AS "netUpvoted"
+      FROM latest_upvotes
+      GROUP BY "authorId"
+      ORDER BY "netUpvoted" DESC
+      LIMIT 5
+    )
+    SELECT most_upvoted.*, u."displayName"
+    FROM most_upvoted
+    INNER JOIN "Users" u
+    ON u._id = most_upvoted."authorId"
+    `, [userId]), "getTopUpvotedUsers");
   }
 }
