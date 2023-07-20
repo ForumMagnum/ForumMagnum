@@ -37,7 +37,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum', 'EAForumWrapped'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum', 'EAForumWrapped'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -275,7 +275,6 @@ const Layout = ({currentUser, children, classes}: {
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // component that appears on the right hand side of the center column
     const RHSComponent = currentRoute.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
-    console.log('RHSComponent', RHSComponent)
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()

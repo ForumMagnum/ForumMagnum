@@ -1,0 +1,14 @@
+import React from 'react';
+
+export const overcastLogoIcon = <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M11 21C16.5228 21 21 16.5228 21 11C21 5.47715 16.5228 1 11 1C5.47715 1 1 5.47715 1 11C1 16.5228 5.47715 21 11 21Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  <path d="M5.57036 6.77734C5.57036 6.77734 4.1875 8.33734 4.1875 11.0631C4.1875 13.7888 5.57036 15.2859 5.57036 15.2859" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  <path d="M16.5859 6.77734C16.5859 6.77734 17.9688 8.33734 17.9688 11.0631C17.9688 13.7888 16.5859 15.2859 16.5859 15.2859" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  <path d="M14.375 8.59961C14.375 8.59961 15.3064 9.75961 15.2836 11.0568C15.255 12.6168 14.3864 13.4739 14.3864 13.4739" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  <path d="M7.7293 8.59961C7.7293 8.59961 6.79787 9.75961 6.82073 11.0568C6.8493 12.6168 7.71787 13.4739 7.71787 13.4739" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  <path d="M11.0004 12.829C12.0103 12.829 12.829 12.0103 12.829 11.0004C12.829 9.99055 12.0103 9.17188 11.0004 9.17188C9.99055 9.17188 9.17188 9.99055 9.17188 11.0004C9.17188 12.0103 9.99055 12.829 11.0004 12.829Z" fill="currentColor"/>
+  <path d="M11.3087 12.7079L10.0116 12.3594L7.85156 20.4279L9.14871 20.7765L11.3087 12.7079Z" fill="currentColor"/>
+  <path d="M10.8047 12.6964L12.0961 12.3535L14.2447 20.4278L12.9533 20.7707L10.8047 12.6964Z" fill="currentColor"/>
+  <path d="M9.60156 17.052L10.0816 16.5605L13.4073 19.8005L12.9273 20.292L9.60156 17.052Z" fill="currentColor"/>
+  <path d="M12.4189 17.0689L11.9846 16.6289L8.6875 19.9032L9.12179 20.3432L12.4189 17.0689Z" fill="currentColor"/>
+</svg>
