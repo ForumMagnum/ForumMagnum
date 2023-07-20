@@ -1,6 +1,6 @@
 import React, { createContext, useRef, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { unflattenComments } from '../../lib/utils/unflatten';
+import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import { loadSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import { useForceRerender } from '../hooks/useForceRerender';
@@ -171,9 +171,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     forceRerender();
   }, [forceRerender, loadAll]);
   
-  const loadedComments: SingleCommentState[] = stateRef.current.commentsSortOrder.map(commentId => stateRef.current.commentsById[commentId]);
-  const visibleComments = filter(loadedComments, c=>c.visibility!=="hidden");
-  const tree = unflattenComments(visibleComments.map(c=>c.comment));
+  const tree = getVisibleCommentsTree(stateRef.current);
 
   treeOptions = {
     ...treeOptions,
@@ -205,6 +203,25 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
       />
     }
   </CommentPoolContext.Provider>
+}
+
+/**
+ * Get a tree of all visible comments, excluding unloaded comments and comments
+ * hidden behind Load More links.
+ */
+function getVisibleCommentsTree(state: CommentPoolState): CommentTreeNode<CommentsList>[] {
+  const loadedComments: SingleCommentState[] = state.commentsSortOrder.map(commentId => state.commentsById[commentId]);
+  const visibleComments = filter(loadedComments, c=>c.visibility!=="hidden");
+  return unflattenComments(visibleComments.map(c=>c.comment));
+}
+
+/**
+ * Get a tree of all loaded comments, including comments hidden behind Load More
+ * links.
+ */
+function getLoadedCommentsTree(state: CommentPoolState): CommentTreeNode<CommentsList>[] {
+  const loadedComments: SingleCommentState[] = state.commentsSortOrder.map(commentId => state.commentsById[commentId]);
+  return unflattenComments(loadedComments.map(c=>c.comment));
 }
 
 function initialStateFromComments(initialComments: CommentsList[]): CommentPoolState {
@@ -301,9 +318,34 @@ function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolSt
 
   let revealedIds = ids.filter(id => state.commentsById[id].visibility!=="visible");
 
+  const newSortOrder = [...state.commentsSortOrder];
+  for (let revealedId of revealedIds) {
+    // If we reveal an ancestor of a comment that's already visible, insert it
+    // into the sort order at the same position as its descendent, rather than
+    // at the end.
+    const descendentIds: string[] = [];
+    getCommentTreeIds(state, descendentIds, revealedId);
+
+    let inserted = false;
+    for (let descendentId of descendentIds) {
+      if (state.commentsById[descendentId].visibility === 'visible') {
+        const descendentIndex = newSortOrder.findIndex((el)=>el===descendentId);
+        if (descendentIndex >= 0) {
+          newSortOrder.splice(descendentIndex, 0, revealedId);
+          inserted = true;
+          break;
+        }
+      }
+    }
+    
+    if (!inserted) {
+      newSortOrder.push(revealedId);
+    }
+  }
+
   return {
     ...state,
-    commentsSortOrder: [...state.commentsSortOrder, ...revealedIds],
+    commentsSortOrder: newSortOrder,
     commentsById: mapValues(state.commentsById,
       (c: SingleCommentState): SingleCommentState => {
         if (includes(ids, c.comment._id))
@@ -313,6 +355,15 @@ function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolSt
       }
     )
   };
+}
+
+function getCommentTreeIds(state: CommentPoolState, outIds: string[], root: string) {
+  outIds.push(root);
+  for (let childId of Object.keys(state.commentsById)) {
+    if (state.commentsById[childId].comment.parentCommentId === root) {
+      getCommentTreeIds(state, outIds, childId);
+    }
+  }
 }
 
 const CommentPoolComponent = registerComponent('CommentPool', CommentPool);
