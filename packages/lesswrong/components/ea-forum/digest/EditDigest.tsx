@@ -338,7 +338,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const copyDigestToClipboard = async () => {
     if (!posts) return
     
-    const digestPosts = posts.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')
+    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus))
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
