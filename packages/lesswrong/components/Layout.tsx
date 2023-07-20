@@ -252,6 +252,7 @@ const Layout = ({currentUser, children, classes}: {
       IntercomWrapper,
       HomepageCommunityMap,
       CookieBanner,
+      AdminToggle,
       SunshineSidebar,
     } = Components;
 
@@ -335,6 +336,7 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
+                {isEAForum && <AdminToggle />}
                 {standaloneNavigation && <NavigationStandalone
                   sidebarHidden={hideNavigationSidebar}
                   unspacedGridLayout={unspacedGridLayout}

@@ -409,7 +409,6 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
-    commentEmojiReactors
   }
 `)
 
@@ -466,7 +465,6 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
-    commentEmojiReactors
   }
 `)
 

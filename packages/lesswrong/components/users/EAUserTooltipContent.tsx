@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { htmlToText } from "html-to-text";
+import { htmlToTextDefault } from "../../lib/htmlToText";
 import moment from "moment";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -74,12 +74,7 @@ const formatRole = (jobTitle?: string, organization?: string): string =>
     ? `${jobTitle} @ ${organization}`
     : (jobTitle || organization) ?? "";
 
-const formatBio = (bio?: string): string => htmlToText(bio ?? "", {
-  selectors: [
-    {selector: "a", options: {ignoreHref: true}},
-    {selector: "img", format: "skip"},
-  ],
-});
+const formatBio = (bio?: string): string => htmlToTextDefault(bio ?? "");
 
 const formatStat = (value?: number): string => {
   value ??= 0;
