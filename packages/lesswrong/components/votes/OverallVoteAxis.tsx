@@ -66,12 +66,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
+const OverallVoteAxis = ({
+  document,
+  hideKarma=false,
+  voteProps,
+  classes,
+  showBox=false,
+  className,
+}: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   showBox?: boolean
+  className?: string,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -177,7 +185,7 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
         </LWTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <span className={classNames(classes.overallSection, {
+        <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,
         })}>
