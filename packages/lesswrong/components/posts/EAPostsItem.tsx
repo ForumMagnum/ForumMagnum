@@ -259,7 +259,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   const TitleWrapper: FC = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
-      <Link to={postLink}>{children}</Link>
+      {children}
     </PostsItemTooltipWrapper>
   );
 
