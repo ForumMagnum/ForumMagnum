@@ -51,7 +51,7 @@ interface CommentPoolState {
  * managing load-mores and truncation. The intention is that all of these
  * eventually route through CommentPool.
  */
-const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
+const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
   /**
    * Initial set of comments to show. If this changes, will show at least the
    * union of every set of comments that has been passed as initialComments. May
@@ -59,6 +59,8 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
    * settled unless representing a context in which there are no comments.
    */
   initialComments: CommentsList[],
+  
+  initialExpansionState?: Partial<Record<string,CommentExpansionState>>,
   
   /**
    * The number of top-level comments in the associated context, eg the number
@@ -94,7 +96,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   classes: ClassesType,
 }) => {
   const client = useApolloClient();
-  const [initialState] = useState(() => initialStateFromComments(initialComments));
+  const [initialState] = useState(() => initialStateFromComments(initialComments, initialExpansionState));
   const forceRerender = useForceRerender();
   const stateRef = useRef<CommentPoolState>(initialState);
   const { CommentNodeOrPlaceholder, LoadMore } = Components;
@@ -269,14 +271,14 @@ function findCommentInTree(tree: CommentTreeNode<CommentsList>[], commentId: str
 }
 
 
-function initialStateFromComments(initialComments: CommentsList[]): CommentPoolState {
+function initialStateFromComments(initialComments: CommentsList[], initialExpansionState: Partial<Record<string,CommentExpansionState>>|undefined): CommentPoolState {
   return {
     commentsSortOrder: initialComments.map(c=>c._id),
     commentsById: keyBy(
       initialComments.map(comment => ({
         comment,
         visibility: "visible",
-        expansion: "default",
+        expansion: initialExpansionState?.[comment._id] ?? "default",
         rerender: null,
         otherState: {},
       })),
@@ -373,7 +375,7 @@ function revealChildren(state: CommentPoolState, parentCommentId: string, n: num
  */
 function revealAncestorChain(state: CommentPoolState, commentId: string): CommentPoolState {
   const commentIdsToReveal: string[] = [];
-  for(let pos=commentId; pos; pos=state.commentsById[pos]?.comment.parentCommentId) {
+  for(let pos=state.commentsById[commentId]?.comment.parentCommentId; pos; pos=state.commentsById[pos]?.comment.parentCommentId) {
     commentIdsToReveal.push(pos);
   }
   
@@ -382,7 +384,7 @@ function revealAncestorChain(state: CommentPoolState, commentId: string): Commen
       [commentIdsToReveal[0]]: "truncated"
     });
   } else {
-    return revealComments(state, commentIdsToReveal, toDictionary(commentIdsToReveal, id=>id, _=>"truncated"));
+    return revealComments(state, commentIdsToReveal, toDictionary(commentIdsToReveal, id=>id, _=>"singleLine"));
   }
 }
 
@@ -419,7 +421,6 @@ function changeExpansionState(state: CommentPoolState, commentId: string, oldExp
   rerenderComments(state, [commentId]);
   return state;
 }
-
 
 
 /**
@@ -473,7 +474,7 @@ function revealComments(state: CommentPoolState, ids: string[], states?: Partial
     commentsSortOrder: newSortOrder,
     commentsById: mapValues(state.commentsById,
       (c: SingleCommentState): SingleCommentState => {
-        if (includes(ids, c.comment._id)) {
+        if (includes(revealedIds, c.comment._id)) {
           return {
             ...c,
             visibility: "visible",

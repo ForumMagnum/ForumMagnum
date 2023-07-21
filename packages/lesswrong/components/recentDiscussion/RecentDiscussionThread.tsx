@@ -13,6 +13,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { isEAForum } from '../../lib/instanceSettings';
+import { toDictionary } from '../../lib/utils/toDictionary';
+import type { CommentExpansionState } from '../comments/CommentPool';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -231,6 +233,8 @@ const RecentDiscussionThread = ({
     dontExpandNewComments: true,
     ...commentTreeOptions
   };
+  
+  const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments ? toDictionary(comments, c=>c._id, _=>"truncated") : undefined;
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
@@ -275,6 +279,7 @@ const RecentDiscussionThread = ({
           <div className={classes.commentsList}>
             <CommentPool
               initialComments={comments ?? []}
+              initialExpansionState={initialExpansion}
               topLevelCommentCount={post.topLevelCommentCount}
               treeOptions={treeOptions}
               startThreadTruncated={true}

@@ -4,7 +4,7 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
-import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual, countCommentsInTree } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { CommentPoolContext, CommentPoolContextType, CommentExpansionState } from './CommentPool';
@@ -160,8 +160,12 @@ const CommentsNode = ({
   const handleExpand = useCallback(async (event?: React.MouseEvent) => {
     event?.stopPropagation()
     if (isTruncated || isSingleLine) {
-      setExpansionState("expanded");
-      setHasClickedToExpand(true);
+      if (isSingleLine) {
+        setExpansionState("truncated");
+      } else {
+        setExpansionState("expanded");
+        setHasClickedToExpand(true);
+      }
       if (scrollOnExpand) {
         scrollIntoView(false, "auto") // should scroll instantly
       }
@@ -199,7 +203,7 @@ const CommentsNode = ({
   
   const enableDescendentCount = loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount
   const showDescendentCount = enableDescendentCount
-    ? (comment.descendentCount - (childComments?.length??0))
+    ? (comment.descendentCount - (childComments ? countCommentsInTree(childComments) : 0))
     : undefined;
 
   return <div>

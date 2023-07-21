@@ -104,3 +104,11 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
   }
   return true;
 }
+
+export function countCommentsInTree<T extends ThreadableCommentType>(tree: CommentTreeNode<T>[]): number {
+  let sum = tree.length;
+  for (let node of tree) {
+    sum += countCommentsInTree(node.children);
+  }
+  return sum;
+}
