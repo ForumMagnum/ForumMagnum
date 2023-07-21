@@ -18,7 +18,7 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
-import { CommentPoolContext } from '../CommentPool';
+import { CommentPoolContext, DontInheritCommentPool } from '../CommentPool';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
@@ -359,8 +359,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const voteProps = useVote(comment, "Comments", votingSystem);
 
-  return (
-    <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+  return <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+    <DontInheritCommentPool>
       <div className={classNames(
         classes.root,
         "recent-comments-node",
@@ -440,8 +440,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
-    </AnalyticsContext>
-  )
+    </DontInheritCommentPool>
+  </AnalyticsContext>
 }
 
 const CommentsItemComponent = registerComponent(

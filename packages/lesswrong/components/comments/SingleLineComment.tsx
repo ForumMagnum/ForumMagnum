@@ -9,6 +9,7 @@ import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
 import { isEAForum } from '../../lib/instanceSettings';
+import { DontInheritCommentPool } from "./CommentPool";
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -198,13 +199,15 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <Components.FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
-          {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
-          { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
-          { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
-          { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
-          {contentToRender}
-        </ContentStyles>}
+        <ContentStyles contentType="comment" className={classes.truncatedHighlight}>
+          {renderHighlight && <>
+            {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
+            { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
+            { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
+            { comment.promoted && !hideSingleLineMeta && <span className={classes.metaNotice}>Pinned</span>}
+            {contentToRender}
+          </>}
+        </ContentStyles>
         {(showDescendentCount && showDescendentCount>0) ? <PostsItemComments
           small={true}
           commentCount={showDescendentCount}
@@ -218,7 +221,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         placement="bottom-end"
         clickable={false}
       >
-          <div className={classes.preview}>
+        <div className={classes.preview}>
+          <DontInheritCommentPool>
             <CommentsNode
               truncated
               nestingLevel={1}
@@ -226,7 +230,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
               hoverPreview
             />
-          </div>
+          </DontInheritCommentPool>
+        </div>
       </LWPopper>
     </div>
   )

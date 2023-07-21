@@ -93,7 +93,6 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   parentAnswerId?: string,
   classes: ClassesType,
 }) => {
-  console.log("In CommentPool.render");
   const client = useApolloClient();
   const [initialState] = useState(() => initialStateFromComments(initialComments));
   const forceRerender = useForceRerender();
@@ -106,7 +105,6 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
 
     // TODO: Replace this with narrower loaders?
     if (!haveLoadedAll) {
-      console.log("Loading all comments");
       const loadedComments = await loadMoreTopLevel(5000);
       setHaveLoadedAll(true);
       stateRef.current = addLoadedComments(stateRef.current, loadedComments);
@@ -127,11 +125,8 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   
   const setExpansion = useCallback(async (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) => {
     if (newExpansionState !== oldExpansionState) {
-      console.log("In setExpansion");
       await loadAll();
-      console.log("Changing expansion state");
       stateRef.current = changeExpansionState(stateRef.current, commentId, oldExpansionState, newExpansionState),
-      console.log("Done");
       forceRerender();
     }
   }, [forceRerender, loadAll]);
@@ -222,6 +217,14 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   </CommentPoolContext.Provider>
 }
 
+export const DontInheritCommentPool = ({children}: {
+  children: React.ReactNode
+}) => {
+  return <CommentPoolContext.Provider value={null}>
+    {children}
+  </CommentPoolContext.Provider>
+}
+
 
 /**
  * Get a tree of all visible comments, excluding unloaded comments and comments
@@ -245,7 +248,7 @@ function getLoadedCommentsTree(state: CommentPoolState): CommentTreeNode<Comment
   }
 
   const otherComments: SingleCommentState[] = Object.keys(state.commentsById).filter(id => !commentsSeen.has(id)).map(id => state.commentsById[id]);
-  const otherCommentsSorted = orderBy(otherComments, c=>c.comment?.baseScore ?? 0);
+  const otherCommentsSorted = orderBy(otherComments, c => -c.comment?.baseScore ?? 0);
   
   return unflattenComments([...commentsIncludedInSortOrder, ...otherCommentsSorted].map(c=>c.comment));
 }
@@ -404,7 +407,7 @@ function changeExpansionState(state: CommentPoolState, commentId: string, oldExp
     if (commentNode) {
       const alreadyRevealedChildCount = commentNode.children.filter(c => state.commentsById[c._id].visibility==="visible").length;
       if (alreadyRevealedChildCount === 0) {
-        const childrenToReveal = take(orderBy(commentNode.children, c=>c.item?.baseScore??0), 5);
+        const childrenToReveal = take(orderBy(commentNode.children, c => -(c.item?.baseScore??0)), 5);
         state = revealComments(state,
           childrenToReveal.map(c=>c._id),
           toDictionary(childrenToReveal, c=>c._id, _=>"singleLine")
