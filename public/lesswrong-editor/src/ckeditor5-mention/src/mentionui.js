@@ -496,6 +496,7 @@ export default class MentionUI extends Plugin {
 	  // @if CK_DEBUG_MENTION // console.log( '%c[UI]%c Showing the UI.', 'color: green', 'color: black' );
 
 	  this._balloon.add( {
+		balloonClassName: "ck-mentions-balloon",
 		view: this._mentionsView,
 		position: this._getBalloonPanelPositionData( markerMarker, this._mentionsView.position ),
 		singleViewMode: true

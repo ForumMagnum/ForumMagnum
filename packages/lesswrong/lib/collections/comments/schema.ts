@@ -4,13 +4,13 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, isEAForum, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-import { userHasShortformTags } from '../../betas';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
+import GraphQLJSON from 'graphql-type-json';
 
 export const moderationOptionsGroup: FormGroupType = {
   order: 50,
@@ -760,6 +760,28 @@ const schema: SchemaType<DbComment> = {
     },
   },
 
+  emojiReactors: resolverOnlyField({
+    type: Object,
+    graphQLtype: GraphQLJSON,
+    blackbox: true,
+    nullable: true,
+    optional: true,
+    hidden: true,
+    canRead: ["guests"],
+    resolver: async (comment, _, context) => {
+      const {extendedScore} = comment;
+      if (
+        !isEAForum ||
+        !extendedScore ||
+        Object.keys(extendedScore).length < 1 ||
+        "agreement" in extendedScore
+      ) {
+        return {};
+      }
+      const reactors = await context.repos.posts.getEmojiReactorsWithCache(comment.postId);
+      return reactors[comment._id] ?? {};
+    },
+  }),
 
   /* Alignment Forum fields */
   af: {

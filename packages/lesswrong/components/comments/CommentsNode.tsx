@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import { AnalyticsContext } from "../../lib/analyticsEvents"
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
@@ -110,6 +110,7 @@ const CommentsNode = ({
   classes,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
@@ -162,6 +163,7 @@ const CommentsNode = ({
   const handleExpand = async (event?: React.MouseEvent) => {
     event?.stopPropagation()
     if (isTruncated || isSingleLine) {
+      captureEvent('commentExpanded', {postId: comment.postId, commentId: comment._id})
       setTruncated(false);
       setSingleLine(false);
       setTruncatedStateSet(true);

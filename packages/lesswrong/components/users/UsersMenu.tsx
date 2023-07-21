@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -20,6 +20,7 @@ import { userCanPost } from '../../lib/collections/posts';
 import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { useAdminToggle } from '../admin/useAdminToggle';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -64,7 +65,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   deactivated: {
     color: theme.palette.grey[600],
     marginLeft: 20
-  }
+  },
+  adminToggleItem: isEAForum ? {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  } : {}
 })
 
 const UsersMenu = ({classes}: {
@@ -74,6 +81,7 @@ const UsersMenu = ({classes}: {
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
+  const {toggleOn, toggleOff} = useAdminToggle();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -123,6 +131,12 @@ const UsersMenu = ({classes}: {
     title={preferredHeadingCase("Account Settings")}
     to="/account"
     icon="Settings"
+    iconClassName={classes.icon}
+  />
+  const messagesNode = <DropdownItem
+    title={preferredHeadingCase("Private Messages")}
+    to="/inbox"
+    icon="Email"
     iconClassName={classes.icon}
   />
 
@@ -238,20 +252,13 @@ const UsersMenu = ({classes}: {
               </ThemePickerMenu>
             }
             {!isEAForum && accountSettingsNode}
+            {!isEAForum && messagesNode}
             <DropdownItem
-              title={preferredHeadingCase("Private Messages")}
-              to="/inbox"
-              icon="Email"
+              title={isEAForum ? "Saved & read" : "Bookmarks"}
+              to={isEAForum ? "/saved" : "/bookmarks"}
+              icon="Bookmarks"
               iconClassName={classes.icon}
             />
-            {currentUser.bookmarkedPostsMetadata?.length > 0 &&
-              <DropdownItem
-                title={isEAForum ? "Saved posts" : "Bookmarks"}
-                to={isEAForum ? "/saved" : "/bookmarks"}
-                icon="Bookmarks"
-                iconClassName={classes.icon}
-              />
-            }
             {currentUser.shortformFeedId &&
               <DropdownItem
                 title={isEAForum ? "Your quick takes" : "Shortform Page"}
@@ -263,10 +270,28 @@ const UsersMenu = ({classes}: {
                 iconClassName={classes.icon}
               />
             }
+            {isEAForum && messagesNode}
             {isEAForum && accountSettingsNode}
 
-            <DropdownDivider />
+            {/*
+              If you're an admin, you can disable your admin + moderator
+              powers and take them back.
+            */}
+            {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Disable Admin Powers")}
+                onClick={toggleOff}
+              />
+            </div>}
+            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Re-enable Admin Powers")}
+                onClick={toggleOn}
+              />
+            </div>}
 
+            <DropdownDivider />
+            
             <DropdownItem
               title={preferredHeadingCase("Log Out")}
               to="/logout"

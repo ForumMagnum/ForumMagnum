@@ -45,7 +45,7 @@ const STICKY_PRIORITIES = {
 
 function getDefaultVotingSystem() {
   return forumSelect({
-    EAForum: "twoAxis",
+    EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
@@ -1083,7 +1083,7 @@ const schema: SchemaType<DbPost> = {
     // Trying to use schemaDefaultValue here with a branch by forum type broke
     // schema generation/migrations.
     defaultValue: "twoAxis",
-    onCreate: () => getDefaultVotingSystem(),
+    onCreate: ({document}) => document.votingSystem ?? getDefaultVotingSystem(),
     canAutofillDefault: true,
   },
   myEditorAccess: resolverOnlyField({
@@ -2436,6 +2436,22 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
+
+  topLevelCommentCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "topLevelCommentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && !comment.parentCommentId
+    }),
+    canRead: ['guests'],
+  },
   
   recentComments: resolverOnlyField({
     type: Array,
@@ -2532,11 +2548,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (post.votingSystem !== "threeAxisEmojis") {
+    resolver: (post, _, context) => {
+      if (post.votingSystem !== "eaEmojis") {
         return null;
       }
-      return context.repos.posts.getEmojiReactors(post._id);
+      return context.repos.posts.getEmojiReactorsWithCache(post._id);
     },
   }),
 

@@ -38,7 +38,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   expanded: boolean,
   toggleExpanded: () => void,
   afterTitleText?: string,
-  afterTitleTo: string,
+  afterTitleTo?: string,
   Content: ComponentType,
 }
 
@@ -75,7 +75,7 @@ const ExpandableSection = ({
             </div>
           }
         >
-          {expanded &&
+          {expanded && afterTitleTo &&
             <Link to={afterTitleTo} className={classes.afterTitleLink}>
               {afterTitleText}
             </Link>
