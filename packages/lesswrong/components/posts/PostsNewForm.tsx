@@ -260,7 +260,7 @@ const PostsNewForm = ({classes}: {
 
                 const postDescription = post.draft ? "Draft" : "Post";
                 if (!showSharePopup) {
-                  flash({ messageString: `${postDescription} created.`, type: 'success'});
+                  flash({ messageString: `${postDescription} created`, type: 'success'});
                 }
               }
             }}

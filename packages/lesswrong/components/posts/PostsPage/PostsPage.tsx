@@ -346,8 +346,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
-
-  }, [query[SHARE_POPUP_QUERY_PARAM]]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [history, location.location, openDialog, post, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({

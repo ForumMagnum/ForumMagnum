@@ -133,7 +133,7 @@ const PostsEditForm = ({ documentId, classes }: {
               history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 
               if (!showSharePopup) {
-                flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
+                flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
               }
             }
           }}

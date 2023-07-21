@@ -10,8 +10,6 @@ import moment from 'moment';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
-import Button from '@material-ui/core/Button';
-import { useDialog } from '../../common/withDialog';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
@@ -242,8 +240,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
-
-  const { openDialog } = useDialog();
 
   useEffect(() => {
     if(!cachedTooltipSeen) {
