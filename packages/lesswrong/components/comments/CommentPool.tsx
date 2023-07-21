@@ -4,6 +4,7 @@ import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import { loadSingle } from '../../lib/crud/withSingle';
 import type { CommentTreeOptions } from './commentTree';
 import { useForceRerender } from '../hooks/useForceRerender';
+import toDictionary from '../../lib/utils/toDictionary';
 import keyBy from 'lodash/keyBy';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
@@ -14,28 +15,31 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
-  showParentOf: (commentId: string)=>Promise<void>
   showAncestorChain: (commentId: string)=>Promise<void>
+  setExpansion: (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
   addComment: (comment: CommentsList)=>Promise<void>
-  getCommentState: <T>(name: string, commentId: string, initialValue: T) => [T,(newValue:T)=>void]
+  getCommentState: (commentId: string) => SingleCommentState
 }
 export const CommentPoolContext = createContext<CommentPoolContextType|null>(null);
+export type CommentExpansionState = "default"|"expanded"|"truncated"|"singleLine"
 
 interface SingleCommentState {
   comment: CommentsList
   visibility: "hidden"|"visible"
-}
-interface CommentPoolState {
-  commentsSortOrder: string[]
-  commentsById: Record<string,SingleCommentState>
+  expansion: CommentExpansionState
+  rerender: (()=>void)|null
   
   /**
    * Used for storing comment-specific state in a way that will survive
    * reparenting. Accessed through CommentPoolContextType.getCommentState. See
    * useCommentState in CommentsNode.tsx.
    */
-  commentsState: Record<string,Record<string,[any,(newValue:any)=>void]>>
+  otherState: Record<string,[any,(newValue:any)=>void]>
+}
+interface CommentPoolState {
+  commentsSortOrder: string[]
+  commentsById: Record<string,SingleCommentState>
 }
 
 /**
@@ -89,6 +93,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   parentAnswerId?: string,
   classes: ClassesType,
 }) => {
+  console.log("In CommentPool.render");
   const client = useApolloClient();
   const [initialState] = useState(() => initialStateFromComments(initialComments));
   const forceRerender = useForceRerender();
@@ -99,8 +104,9 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   const loadAll = useCallback(async () => {
     if (!loadMoreTopLevel) return;
 
-    // TODO: Replace this with narrower loaders
+    // TODO: Replace this with narrower loaders?
     if (!haveLoadedAll) {
+      console.log("Loading all comments");
       const loadedComments = await loadMoreTopLevel(5000);
       setHaveLoadedAll(true);
       stateRef.current = addLoadedComments(stateRef.current, loadedComments);
@@ -113,16 +119,21 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     forceRerender();
   }, [forceRerender, loadAll]);
   
-  const showParentOf = useCallback(async (commentId: string) => {
-    await loadAll();
-    stateRef.current = revealParent(stateRef.current, commentId);
-    forceRerender();
-  }, [forceRerender, loadAll]);
-  
   const showAncestorChain = useCallback(async (commentId: string) => {
     await loadAll();
     stateRef.current = revealAncestorChain(stateRef.current, commentId);
     forceRerender();
+  }, [forceRerender, loadAll]);
+  
+  const setExpansion = useCallback(async (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) => {
+    if (newExpansionState !== oldExpansionState) {
+      console.log("In setExpansion");
+      await loadAll();
+      console.log("Changing expansion state");
+      stateRef.current = changeExpansionState(stateRef.current, commentId, oldExpansionState, newExpansionState),
+      console.log("Done");
+      forceRerender();
+    }
   }, [forceRerender, loadAll]);
 
   const invalidateComment = useCallback(async (commentId: string): Promise<void> => {
@@ -142,12 +153,15 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
     stateRef.current.commentsById[comment._id] = {
       comment,
       visibility: "visible",
+      expansion: "default",
+      rerender: null,
+      otherState: {},
     };
     stateRef.current.commentsSortOrder.push(comment._id);
     forceRerender();
   }, [forceRerender]);
   
-  const getCommentState = useCallback((name: string, commentId: string, initialValue: any) => {
+  /*const getCommentState = useCallback((name: string, commentId: string, initialValue: any): SingleCommentState => {
     if (!stateRef.current.commentsState[commentId]) {
       stateRef.current.commentsState[commentId] = {};
     }
@@ -159,11 +173,14 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
       stateRef.current.commentsState[commentId][name] = [initialValue, setState];
     }
     return stateRef.current.commentsState[commentId][name];
+  }, []);*/
+  const getCommentState = useCallback((commentId: string): SingleCommentState => {
+    return stateRef.current.commentsById[commentId];
   }, []);
 
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment, getCommentState
-  }), [showMoreChildrenOf, showParentOf, showAncestorChain, invalidateComment, addComment, getCommentState]);
+    showMoreChildrenOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState
+  }), [showMoreChildrenOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();
@@ -205,6 +222,7 @@ const CommentPool = ({initialComments, topLevelCommentCount, loadMoreTopLevel, t
   </CommentPoolContext.Provider>
 }
 
+
 /**
  * Get a tree of all visible comments, excluding unloaded comments and comments
  * hidden behind Load More links.
@@ -220,18 +238,47 @@ function getVisibleCommentsTree(state: CommentPoolState): CommentTreeNode<Commen
  * links.
  */
 function getLoadedCommentsTree(state: CommentPoolState): CommentTreeNode<CommentsList>[] {
-  const loadedComments: SingleCommentState[] = state.commentsSortOrder.map(commentId => state.commentsById[commentId]);
-  return unflattenComments(loadedComments.map(c=>c.comment));
+  const commentsIncludedInSortOrder: SingleCommentState[] = state.commentsSortOrder.map(commentId => state.commentsById[commentId]);
+  const commentsSeen = new Set<string>();
+  for (let node of commentsIncludedInSortOrder) {
+    commentsSeen.add(node.comment._id);
+  }
+
+  const otherComments: SingleCommentState[] = Object.keys(state.commentsById).filter(id => !commentsSeen.has(id)).map(id => state.commentsById[id]);
+  const otherCommentsSorted = orderBy(otherComments, c=>c.comment?.baseScore ?? 0);
+  
+  return unflattenComments([...commentsIncludedInSortOrder, ...otherCommentsSorted].map(c=>c.comment));
 }
+
+/**
+ * Search a threaded comment-tree for a comment with the given ID. Returns the
+ * comment's tree node, or null if it's not in the tree.
+ */
+function findCommentInTree(tree: CommentTreeNode<CommentsList>[], commentId: string): CommentTreeNode<CommentsList>|null {
+  for (let node of tree) {
+    if (node._id === commentId)
+      return node;
+    const nodeInSubtree = findCommentInTree(node.children, commentId);
+    if (nodeInSubtree)
+      return nodeInSubtree;
+  }
+  return null;
+}
+
 
 function initialStateFromComments(initialComments: CommentsList[]): CommentPoolState {
   return {
     commentsSortOrder: initialComments.map(c=>c._id),
     commentsById: keyBy(
-      initialComments.map(comment => ({comment, visibility: "visible"})),
+      initialComments.map(comment => ({
+        comment,
+        visibility: "visible",
+        expansion: "default",
+        rerender: null,
+        otherState: {},
+      })),
       c => c.comment._id
     ),
-    commentsState: {},
   };
 }
 
@@ -242,7 +289,11 @@ function addLoadedComments(state: CommentPoolState, loadedComments: CommentsList
     if (!newCommentStates[comment._id]) {
       addedCommentIds.push(comment._id);
       newCommentStates[comment._id] = {
-        comment, visibility: "hidden"
+        comment,
+        visibility: "hidden",
+        expansion: "default",
+        rerender: null,
+        otherState: {},
       };
     }
   }
@@ -272,6 +323,11 @@ function hasHiddenTopLevelComments(state: CommentPoolState): boolean {
   return false;
 }
 
+
+/**
+ * Reveal up to n top-level comments. Called when clicking the Load More at the
+ * bottom of a comment pool.
+ */
 function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
   const hiddenTopLevelCommentIds: string[] = filter(
     Object.keys(state.commentsById),
@@ -282,9 +338,14 @@ function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
     commentId => -state.commentsById[commentId].comment.baseScore);
 
   const commentIdsToReveal = take(byDescendingKarma, n);
-  return revealCommentIds(state, commentIdsToReveal);
+  // TODO: Make a decision about the truncation-state of these
+  return revealComments(state, commentIdsToReveal);
 }
 
+/**
+ * Reveal up to n children of the given comment. Called when clicking a
+ * load-more within a comment that has hidden children.
+ */
 function revealChildren(state: CommentPoolState, parentCommentId: string, n: number): CommentPoolState {
   const hiddenChildComments = filter(
     Object.keys(state.commentsById),
@@ -295,24 +356,85 @@ function revealChildren(state: CommentPoolState, parentCommentId: string, n: num
     commentId => -state.commentsById[commentId].comment.baseScore);
 
   const commentIdsToReveal = take(byDescendingKarma, n);
-  return revealCommentIds(state, commentIdsToReveal);
+  // TODO: Make a decision about the truncation-state of these
+  return revealComments(state, commentIdsToReveal);
 }
 
-function revealParent(state: CommentPoolState, commentId: string): CommentPoolState {
-  const parentCommentId = state.commentsById[commentId]?.comment.parentCommentId;
-  if (!parentCommentId) return state;
-  return revealCommentIds(state, [parentCommentId]);
-}
-
+/**
+ * Called when clicking the up-arrow icon in the top-left corner of a comment
+ * which has its parent hidden. Reveals all comments along the ancestor-chain of
+ * that comment, up to the root.
+ *
+ * If this is one comment, reveals it as truncated. If this is multiple
+ * comments, reveals them as single-line.
+ */
 function revealAncestorChain(state: CommentPoolState, commentId: string): CommentPoolState {
   const commentIdsToReveal: string[] = [];
   for(let pos=commentId; pos; pos=state.commentsById[pos]?.comment.parentCommentId) {
     commentIdsToReveal.push(pos);
   }
-  return revealCommentIds(state, commentIdsToReveal);
+  
+  if (commentIdsToReveal.length === 1) {
+    return revealComments(state, commentIdsToReveal, {
+      [commentIdsToReveal[0]]: "truncated"
+    });
+  } else {
+    return revealComments(state, commentIdsToReveal, toDictionary(commentIdsToReveal, id=>id, _=>"truncated"));
+  }
 }
 
-function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolState {
+function changeExpansionState(state: CommentPoolState, commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) {
+  // Update the expansion-state
+  state = {
+    ...state,
+    commentsById: {
+      ...state.commentsById,
+      [commentId]: {
+        ...state.commentsById[commentId],
+        expansion: newExpansionState,
+      },
+    },
+  };
+  
+  // If we're expanding a single-line comment without any revealed children,
+  // reveal up to 5 children as single-line
+  if (oldExpansionState === "singleLine" && newExpansionState !== "singleLine") {
+    const tree = getLoadedCommentsTree(state);
+    const commentNode = findCommentInTree(tree, commentId);
+    if (commentNode) {
+      const alreadyRevealedChildCount = commentNode.children.filter(c => state.commentsById[c._id].visibility==="visible").length;
+      if (alreadyRevealedChildCount === 0) {
+        const childrenToReveal = take(orderBy(commentNode.children, c=>c.item?.baseScore??0), 5);
+        state = revealComments(state,
+          childrenToReveal.map(c=>c._id),
+          toDictionary(childrenToReveal, c=>c._id, _=>"singleLine")
+        );
+      }
+    }
+  }
+  
+  rerenderComments(state, [commentId]);
+  return state;
+}
+
+
+
+/**
+ * Reveal a list of comments that are currently loaded but hidden. If some of
+ * the comments selected are in the tree in a place where they're siblings of
+ * each other, such that they have a sort-order relative to each other, that
+ * sort order is the order in which they appear in `ids`. If they're siblings
+ * of any comments that are already loaded, they appear after those comments.
+ * Comments which were already visible are unchanged.
+ *
+ * If provided, `states` specifies the initial expansion state of revealed
+ * comments, ie whether they're truncated and whether they're single-line. If
+ * `states` is not provided or a comment ID is not included, the expansion-state
+ * is "default", which means it's inferred from rules inside CommentsNode in
+ * the same way it would be if it was part of the initially loaded set and was
+ * not in a CommentPool.
+ */
+function revealComments(state: CommentPoolState, ids: string[], states?: Partial<Record<string,CommentExpansionState>>): CommentPoolState {
   if (!ids.length)
     return state;
 
@@ -348,13 +470,24 @@ function revealCommentIds(state: CommentPoolState, ids: string[]): CommentPoolSt
     commentsSortOrder: newSortOrder,
     commentsById: mapValues(state.commentsById,
       (c: SingleCommentState): SingleCommentState => {
-        if (includes(ids, c.comment._id))
-          return {...c, visibility: "visible"}
-        else
+        if (includes(ids, c.comment._id)) {
+          return {
+            ...c,
+            visibility: "visible",
+            expansion: states?.[c.comment._id] ?? "default",
+          }
+        } else {
           return c;
+        }
       }
     )
   };
+}
+
+function rerenderComments(state: CommentPoolState, ids: string[]) {
+  for (let id of ids) {
+    state.commentsById[id]?.rerender?.();
+  }
 }
 
 function getCommentTreeIds(state: CommentPoolState, outIds: string[], root: string) {

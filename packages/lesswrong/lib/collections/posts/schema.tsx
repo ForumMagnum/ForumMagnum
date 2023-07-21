@@ -2396,7 +2396,7 @@ const schema: SchemaType<DbPost> = {
     defaultValue: 0,
     
     ...denormalizedCountOfReferences({
-      fieldName: "commentCount",
+      fieldName: "topLevelCommentCount",
       collectionName: "Posts",
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",

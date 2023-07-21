@@ -10,6 +10,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMoreAncestors: {
     paddingLeft: 8,
   },
+  topPadding: {
+    height: 8,
+  },
 });
 
 /**
@@ -39,7 +42,8 @@ const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, isChild, class
     isChild={nestingLevel>1}
   >
     <div className={classes.childrenOfPlaceholder}>
-      <LoadMore className={classes.loadMoreAncestors} loadMore={loadAncestors} />
+      {/*<LoadMore className={classes.loadMoreAncestors} loadMore={loadAncestors} />*/}
+      <div className={classes.topPadding}/>
       {treeNode.children.map(treeNode =>
         <CommentNodeOrPlaceholder
           key={treeNode._id}

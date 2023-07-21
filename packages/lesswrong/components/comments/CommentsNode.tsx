@@ -7,7 +7,8 @@ import { AnalyticsContext } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
-import { CommentPoolContext, CommentPoolContextType } from './CommentPool';
+import { CommentPoolContext, CommentPoolContextType, CommentExpansionState } from './CommentPool';
+import { useForceRerender } from '../hooks/useForceRerender';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -70,8 +71,6 @@ export interface CommentsNodeProps {
   classes: ClassesType,
 }
 
-type CommentExpansionState = "expanded"|"truncated"|"singleLine"
-
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
  * recurses to handle reply comments in the tree
@@ -106,6 +105,20 @@ const CommentsNode = ({
   classes,
 }: CommentsNodeProps) => {
   const commentPoolContext = useContext(CommentPoolContext);
+  const forceRerender = useForceRerender();
+  
+  useEffect(() => {
+    if (commentPoolContext) {
+      const commentPoolState = commentPoolContext.getCommentState(comment._id);
+      if (commentPoolState) {
+        commentPoolState.rerender = forceRerender;
+        return () => {
+          commentPoolState.rerender = null;
+        }
+      }
+    }
+  }, [commentPoolContext, comment._id, forceRerender]);
+
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useCommentState(
     "collapsed", comment._id, commentPoolContext,
@@ -118,7 +131,7 @@ const CommentsNode = ({
   const [highlighted, setHighlighted] = useState(false);
 
 
-  const {truncatedState, setTruncated, singleLine, setSingleLine, isTruncated, isSingleLine} = useExpansionState({
+  const {isTruncated, isSingleLine, setExpansionState} = useExpansionState({
     comment, commentPoolContext, treeOptions,
     isNewComment, hasClickedToExpand,
     expandAllThreads, nestingLevel, startThreadTruncated, shortform, truncated
@@ -131,34 +144,36 @@ const CommentsNode = ({
     return (top >= 0) && (top <= window.innerHeight);
   }
 
-  const scrollIntoView = useCallback((behavior:"auto"|"smooth"="smooth") => {
+  const scrollIntoView = useCallback((highlight=true, behavior:"auto"|"smooth"="smooth") => {
     if (!isInViewport()) {
       scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
     }
-    setHighlighted(true);
-    setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
-      setHighlighted(false);
-    }, HIGHLIGHT_DURATION*1000);
+    
+    if (highlight) {
+      setHighlighted(true);
+      setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
+        setHighlighted(false);
+      }, HIGHLIGHT_DURATION*1000);
+    }
   }, []);
 
-  const handleExpand = async (event?: React.MouseEvent) => {
+  const handleExpand = useCallback(async (event?: React.MouseEvent) => {
     event?.stopPropagation()
     if (isTruncated || isSingleLine) {
-      setTruncated(false);
-      setSingleLine(false);
+      setExpansionState("expanded");
       setHasClickedToExpand(true);
       if (scrollOnExpand) {
-        scrollIntoView("auto") // should scroll instantly
+        scrollIntoView(false, "auto") // should scroll instantly
       }
     }
-  }
+  }, [isTruncated, isSingleLine, setExpansionState, setHasClickedToExpand, scrollOnExpand, scrollIntoView]);
 
   const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
     if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
         void handleExpand()
-        scrollIntoView()
+        scrollIntoView(true)
       }, 0);
     }
     //No exhaustive deps because this is supposed to run only on mount
@@ -167,12 +182,12 @@ const CommentsNode = ({
 
   const toggleCollapse = useCallback(() => {
     if (singleLineCollapse && !collapsed) {
-      setSingleLine(true);
+      setExpansionState("singleLine");
     } else {
       onToggleCollapsed?.();
       setCollapsed(!collapsed);
     }
-  }, [singleLineCollapse, collapsed, setCollapsed, setSingleLine, onToggleCollapsed]);
+  }, [singleLineCollapse, collapsed, setCollapsed, setExpansionState, onToggleCollapsed]);
 
   const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
 
@@ -236,7 +251,7 @@ const CommentsNode = ({
       </div>}
 
       {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
+        <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
           <Components.CommentNodeOrPlaceholder
@@ -253,7 +268,7 @@ const CommentsNode = ({
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">
-          <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
+          <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>
           <RepliesToCommentList
             parentCommentId={comment._id}
             post={post as PostsBase}
@@ -294,10 +309,11 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
   truncated: boolean|undefined,
 }) {
   const currentUser = useCurrentUser();
+  const commentId = comment._id;
   const { lastCommentId, condensed, postPage, forceSingleLine, forceNotSingleLine, dontExpandNewComments } = treeOptions;
 
   const [truncatedState, setTruncated] = useCommentState(
-    "truncatedState", comment._id, commentPoolContext,
+    "truncatedState", commentId, commentPoolContext,
     !!startThreadTruncated
   );
 
@@ -306,7 +322,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
       return false;
 
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
-    const mostRecent = lastCommentId === comment._id
+    const mostRecent = lastCommentId === commentId
     const lowKarmaOrCondensed = (comment.baseScore < 10 || !!condensed)
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
@@ -330,7 +346,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
   }
 
   const [singleLine, setSingleLine] = useCommentState(
-    "singleLine", comment._id, commentPoolContext,
+    "singleLine", commentId, commentPoolContext,
     beginSingleLine()
   );
 
@@ -348,8 +364,50 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
 
     return isTruncated
   })();
+  
+  let expansionState: CommentExpansionState = "default";
+  if (commentPoolContext) {
+    expansionState = commentPoolContext.getCommentState(commentId).expansion;
+  }
+  
+  if (expansionState === "default") {
+    if (isSingleLine) expansionState = "singleLine";
+    else if (isTruncated)  expansionState = "truncated";
+    else expansionState = "expanded";
+  }
+  
+  const setExpansionState = useCallback((newExpansionState: CommentExpansionState) => {
+    if (commentPoolContext) {
+      void commentPoolContext.setExpansion(commentId, expansionState, newExpansionState);
+    } else {
+      if (newExpansionState === "singleLine") {
+        setSingleLine(true);
+        setTruncated(true);
+      } else if (newExpansionState === "truncated") {
+        setSingleLine(false);
+        setTruncated(true);
+      } else {
+        setSingleLine(false);
+        setTruncated(false);
+      }
+    }
+  }, [commentId, commentPoolContext, expansionState, setSingleLine, setTruncated]);
 
-  return {truncatedState, setTruncated, singleLine, setSingleLine, isTruncated, isSingleLine};
+  if (commentPoolContext) {
+    const expansionState = commentPoolContext.getCommentState(commentId)?.expansion ?? "default";
+    
+    return {
+      isTruncated: (expansionState==="default") ? isTruncated : (expansionState!=="expanded"),
+      isSingleLine: (expansionState==="default") ? isSingleLine : (expansionState==="singleLine"),
+      setExpansionState,
+    };
+  } else {
+    return {
+      isTruncated,
+      isSingleLine,
+      setExpansionState,
+    };
+  }
 }
 
 /**
@@ -370,7 +428,16 @@ function useCommentState<T>(
   const reactStateAndSetState = useState(initialValue);
   
   if (commentPoolContext) {
-    return commentPoolContext.getCommentState(name, commentId, initialValue);
+    const commentState = commentPoolContext.getCommentState(commentId);
+    if (!(name in commentState.otherState)) {
+      const setState = (newState: T) => {
+        const oldStateAndSetState = commentState.otherState[name];
+        commentState.otherState[name] = [newState, oldStateAndSetState[1]];
+        //TODO: force rerender
+      };
+      commentState.otherState[name] = [initialValue, setState];
+    }
+    return commentState.otherState[name];
   } else {
     return reactStateAndSetState;
   }

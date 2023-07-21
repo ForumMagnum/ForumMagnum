@@ -251,7 +251,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const toggleShowParent = () => {
     if (commentPoolContext) {
-      void commentPoolContext.showParentOf(comment._id);
+      void commentPoolContext.showAncestorChain(comment._id);
     } else {
       setShowParentState(!showParentState);
     }
