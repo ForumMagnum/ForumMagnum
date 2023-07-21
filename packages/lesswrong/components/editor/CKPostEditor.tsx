@@ -112,22 +112,6 @@ const CKPostEditor = ({
   if (isDebatePost && placeholder === defaultEditorPlaceholder) {
     placeholder = debateEditorPlaceholder;
   }
-
-  // TODO remove, this is just for testing if you can live change the query
-  if (tab === "question") {
-    placeholder = "Question placeholder";
-  }
-  console.log("placeholder", placeholder);
-  
-  // useEffect(() => {
-  //   const editor = editorRef.current;
-  //   if (editor) {
-  //     const placeholderElement = editorRef.current?.domContainer.querySelector('[data-placeholder]');
-  //     if (placeholderElement) {
-  //       placeholderElement.setAttribute('data-placeholder', placeholder ?? defaultEditorPlaceholder);
-  //     }
-  //   }
-  // }, [placeholder]);
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)

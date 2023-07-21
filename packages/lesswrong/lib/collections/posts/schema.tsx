@@ -27,6 +27,7 @@ import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import startCase from 'lodash/startCase';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -213,7 +214,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm || props.prefilledProps?.tab === "post",
+    hidden: (props) => props.eventForm || props.debateForm || props.prefilledProps?.tab !== "linkpost",
   },
   // Title
   title: {
@@ -224,7 +225,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     order: 10,
-    placeholder: "Title",
+    placeholder: (props) => `${startCase(props.prefilledProps?.tab || "post")} title`,
     control: 'EditTitle',
     group: formGroups.title,
   },
@@ -2215,10 +2216,9 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.options,
+    group: isEAForum ? formGroups.title : formGroups.options,
     blackbox: true,
-    // TODO handle this hiding of fields more neatly
-    hidden: (props) => !!props.debateForm || props.prefilledProps?.tab == "post"
+    hidden: (props) => !!props.debateForm
   },
   
   shareWithUsers: {

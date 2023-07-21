@@ -118,9 +118,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '& .MuiTab-root': {
       fontSize: 14,
       fontWeight: 600,
+      minWidth: "unset"
+    },
+    '& .MuiTab-labelContainer': {
+      padding: "6px 0px",
     },
     '& .MuiTabs-flexContainer': {
-      gap: "12px",
+      gap: "24px",
     }
   },
 })
@@ -219,7 +223,6 @@ const PostsNewForm = ({classes}: {
 
   const isTab = (tab: string): tab is PostFormTab => tabs.has(tab)
   const tab = isTab(query.tab) ? query.tab : postFormDefaultTab
-  // const [tab, setTab] = useState<PostFormTab>(postFormDefaultTab)
 
   const handleChangeTab = useCallback((_, value: PostFormTab) => {
     const newQuery = {...query, tab: value}
@@ -228,10 +231,10 @@ const PostsNewForm = ({classes}: {
 
   console.log("rendering PostsNewForm")
 
-  // prefilledProps = {
-  //   ...prefilledProps,
-  //   tab,
-  // }
+  prefilledProps = {
+    ...prefilledProps,
+    tab,
+  }
   
   if (query?.subforumTagId) {
     prefilledProps = {
