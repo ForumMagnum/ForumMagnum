@@ -131,6 +131,8 @@ const MixedTypeFeed = (args: {
     nextFetchPolicy: "cache-only",
     ssr: true,
   });
+
+  console.log({ data });
   
   if (refetchRef && refetch)
     refetchRef.current = refetch;

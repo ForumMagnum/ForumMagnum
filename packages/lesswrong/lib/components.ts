@@ -539,6 +539,8 @@ importComponent("DebateResponseBlock", () => require('../components/comments/Deb
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 
+importComponent("RecentCommentsFeed", () => require('../components/recentComments/RecentCommentsFeed'));
+
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
 importComponent("ModerationGuidelinesEditForm", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesEditForm'))

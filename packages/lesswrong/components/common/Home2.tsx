@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection } = Components
+  const { RecentDiscussionFeed, RecentCommentsFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -27,12 +27,13 @@ const Home2 = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          <EAPopularCommentsSection />
-          <RecentDiscussionFeed
+          {/* <EAPopularCommentsSection /> */}
+          <RecentCommentsFeed />
+          {/* <RecentDiscussionFeed
             af={false}
             commentsLimit={4}
             maxAgeHours={18}
-          />
+          /> */}
         </React.Fragment>
       </AnalyticsContext>
   )

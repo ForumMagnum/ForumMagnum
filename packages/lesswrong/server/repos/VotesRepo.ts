@@ -269,12 +269,14 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       FROM latest_upvotes
       GROUP BY "authorId"
       ORDER BY "netUpvoted" DESC
-      LIMIT 5
+      LIMIT 10
     )
     SELECT most_upvoted.*, u."displayName"
     FROM most_upvoted
     INNER JOIN "Users" u
     ON u._id = most_upvoted."authorId"
+    WHERE u.deleted IS NOT TRUE
+    LIMIT 5
     `, [userId]), "getTopUpvotedUsers");
   }
 }

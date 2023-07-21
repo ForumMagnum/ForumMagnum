@@ -119,23 +119,23 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   });
 }
 
-const applyCutoff = <SortKeyType>(
-  sortedResults: {sortKey: SortKeyType}[],
+const applyCutoff = <SortKeyType, T extends {sortKey: SortKeyType}>(
+  sortedResults: T[],
   cutoff: SortKeyType,
   sortDirection: SortDirection,
 ) => {
   const cutoffFilter = sortDirection === "asc"
     ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
     : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
-  return _.filter(sortedResults, cutoffFilter);
+  return _.filter<T>(sortedResults, cutoffFilter);
 }
 
-export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sortDirection, subqueries}: {
+export async function mergeFeedQueries<SortKeyType, T extends FeedSubquery<any, any>[] = FeedSubquery<any, any>[]>({limit, cutoff, offset, sortDirection, subqueries}: {
   limit: number
   cutoff?: SortKeyType,
   offset?: number,
   sortDirection?: SortDirection,
-  subqueries: Array<any>,
+  subqueries: T,
 }) {
   sortDirection ??= "desc";
 
@@ -153,13 +153,13 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
   );
   
   // Merge the result lists
-  const unsortedResults = _.flatten(unsortedSubqueryResults);
+  const unsortedResults = unsortedSubqueryResults.flat();// _.flatten(unsortedSubqueryResults);
   
   // Split into results with numeric indexes and results with sort-key indexes
   const [
     numericallyPositionedResults,
     orderedResults,
-  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => isNumericallyPositioned);
+  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
   
   // Sort by shared sort key
   const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
@@ -194,12 +194,12 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
 // of results that have numeric indexes instead, and merge them. Eg, Recent
 // Discussion contains posts sorted by date, but with some things mixed in
 // with their position defined as "index 5".
-function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<any>, numericallyPositionedResults: Array<any>, offset: number) {
+function mergeSortedAndNumericallyPositionedResults<T extends {sortKey: AnyBecauseHard}>(sortedResults: Array<T>, numericallyPositionedResults: Array<T>, offset: number) {
   // Take the numerically positioned results. Sort them by index, discard ones
   // from below the offset, and resolve collisions.
   const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
   
-  let mergedResults: Array<any> = [...sortedResults];
+  let mergedResults: Array<T> = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
     const insertedResult = sortedNumericallyPositionedResults[i];
     const insertionPosition = insertedResult.sortKey-offset;

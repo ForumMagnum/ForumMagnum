@@ -4,9 +4,10 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents"
-import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual, unflattenComments } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -113,7 +114,41 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
+  const [skipLoadChildren, setSkipLoadChildren] = useState(true);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
+
+  const { results } = useMulti({
+    collectionName: 'Comments',
+    fragmentName: 'CommentsListWithParentMetadata',
+    terms: {
+      view: 'repliesToCommentThread',
+      topLevelCommentId: comment.topLevelCommentId ?? comment._id
+    },
+    skip: skipLoadChildren,
+    limit: 1000,
+    ssr: false
+  });
+
+  const findOriginalCommentNode = (nodes: CommentTreeNode<CommentsListWithParentMetadata>[]) => {
+    while (nodes.length) {
+      const currentNode = nodes.shift();
+      if (currentNode) {
+        if (currentNode.item._id === comment._id) {
+          return currentNode;
+        }
+        nodes.push(...currentNode.children);
+      }
+    }
+    
+    return undefined;
+  };
+
+  if (results) {
+    const commentNodes = unflattenComments(results);
+    const childNodes = comment.topLevelCommentId ? findOriginalCommentNode(commentNodes)?.children : commentNodes;
+    childComments ??= childNodes;
+    console.log({ topLevelCommentId: comment.topLevelCommentId, childNodes, commentNodes, results, childComments })
+  }
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -168,6 +203,10 @@ const CommentsNode = ({
       if (scrollOnExpand) {
         scrollIntoView("auto") // should scroll instantly
       }
+    }
+
+    if (treeOptions.loadChildrenOnClick && !childComments?.length) {
+      setSkipLoadChildren(false);
     }
   }
 
