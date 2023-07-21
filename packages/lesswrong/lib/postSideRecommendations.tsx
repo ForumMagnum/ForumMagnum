@@ -147,7 +147,8 @@ const getAvailableGenerators = (
     generators.push(useNewAndUpvotedInTagRecommendations.bind(null, post));
   }
   if (!user && cookies[HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE] !== "true") {
-    generators.push(useMoreFromTheForumRecommendations);
+    // Temporarily disabled
+    // generators.push(useMoreFromTheForumRecommendations);
   }
   return generators;
 }
