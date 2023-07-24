@@ -297,6 +297,7 @@ importComponent("LoginPage", () => require('../components/users/LoginPage'));
 importComponent("CrosspostLoginPage", () => require('../components/users/CrosspostLoginPage'));
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton'));
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
+importComponent("SharePostPopup", () => require('../components/posts/SharePostPopup'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
 importComponent("KarmaChangeNotifierSettings", () => require('../components/users/KarmaChangeNotifierSettings'));
 importComponent("EmailTokenPage", () => require('../components/users/EmailTokenPage'));

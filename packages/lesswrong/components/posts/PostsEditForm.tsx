@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
@@ -13,6 +13,8 @@ import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFN
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -30,6 +32,13 @@ const PostsEditForm = ({ documentId, classes }: {
   const currentUser = useCurrentUser();
   const { params } = location; // From withLocation
   const isDraft = document && document.draft;
+
+  const wasEverDraft = useRef(isDraft);
+  useEffect(() => {
+    if (wasEverDraft.current === undefined && isDraft !== undefined) {
+      wasEverDraft.current = isDraft;
+    }
+  }, [isDraft]);
 
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
     RateLimitWarning } = Components
@@ -117,8 +126,15 @@ const PostsEditForm = ({ documentId, classes }: {
             if (options?.submitOptions?.redirectToEditor) {
               history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
             } else {
-              history.push({pathname: postGetPageUrl(post)})
-              flash({ messageString: `Post "${post.title}" edited.`, type: 'success'});
+              // If they are publishing a draft, show the share popup
+              // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
+              const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+              const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+              history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
+
+              if (!showSharePopup) {
+                flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
+              }
             }
           }}
           eventForm={document.isEvent}
