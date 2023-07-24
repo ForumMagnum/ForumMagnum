@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory, postCategories } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
@@ -193,11 +193,16 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
 
-  const postCategory = isPostCategory(query.tab) ? query.tab : postDefaultCategory
+  const questionInQuery = query && !!query.question
+  const postCategory = isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+    ? ("question" as const)
+    : postDefaultCategory;
 
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
-    question: (postCategory === "question") || (query && !!query.question),
+    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,

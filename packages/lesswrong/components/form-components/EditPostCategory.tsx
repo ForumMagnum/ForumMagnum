@@ -59,9 +59,6 @@ const EditPostCategory = ({document, value, path, placeholder, updateCurrentValu
     const categoryQuestion = value === "question";
     const documentQuestion = document.question;
     const questionChanged = categoryQuestion !== documentQuestion;
-    
-    const updateValuesValue = {[path]: value, ...(questionChanged && {question: categoryQuestion})}
-    console.log("updateValuesValue", updateValuesValue)
 
     updateCurrentValues({[path]: value, ...(questionChanged && {question: categoryQuestion})});
   }, [path, document.question, updateCurrentValues]);

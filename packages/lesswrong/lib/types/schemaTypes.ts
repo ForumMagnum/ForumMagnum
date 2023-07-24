@@ -90,7 +90,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
   input?: FormInputType,
   control?: FormInputType,
-  placeholder?: MaybeFunction<string,SmartFormProps>,
+  placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps>,
   group?: FormGroupType<T>,
   inputType?: any,

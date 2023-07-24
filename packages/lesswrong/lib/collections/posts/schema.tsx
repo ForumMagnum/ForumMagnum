@@ -217,6 +217,7 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.options,
     hidden: (props) => props.eventForm || props.debateForm,
   },
+  // Category (post, linkpost, or question)
   postCategory: {
     type: String,
     allowedValues: [...postCategories],

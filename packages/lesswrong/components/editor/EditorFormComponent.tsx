@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -15,6 +15,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
+import { PostCategory } from '../../lib/collections/posts/helpers';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -26,6 +27,16 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   return false;
+}
+
+const getPostPlaceholder = (post: PostsBase) => {
+  const { question, postCategory } = post;
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+
+  if (post.debate) return debateEditorPlaceholder;
+  if (effectiveCategory === "question") return questionEditorPlaceholder;
+  if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
+  return defaultEditorPlaceholder;
 }
 
 export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
@@ -278,8 +289,17 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
-  
-  const actualPlaceholder = (editorHintText || hintText || placeholder);
+
+  const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
+
+  // The logic here is to make sure that the placeholder is updated when it changes in the props.
+  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
+  // to force it to unmount and remount the whole component. Only do this where there are no contents,
+  // as this is the only time the placeholder is visible.
+  const placeholderKey = useRef(actualPlaceholder);
+  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
+    placeholderKey.current = actualPlaceholder;
+  }
 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
@@ -299,6 +319,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       onRestore={onRestoreLocalStorage}
     />}
     <Components.Editor
+      key={placeholderKey.current}
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

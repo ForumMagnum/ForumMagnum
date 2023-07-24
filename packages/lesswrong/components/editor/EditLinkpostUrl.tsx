@@ -36,6 +36,9 @@ const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeho
   const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
 
+  const { postCategory } = document;
+  if (postCategory !== "linkpost") return null;
+
   const updateValue = (value: string | null) => {
     updateCurrentValues({
       [path]: value,

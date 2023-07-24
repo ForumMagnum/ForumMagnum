@@ -347,11 +347,6 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
       field.options = field.options.call(fieldSchema, this.props);
     }
 
-    // if placeholder is a function, call it
-    if (typeof field.placeholder === 'function') {
-      field.placeholder = field.placeholder.call(fieldSchema, this.props);
-    }
-
     // add any properties specified in fieldSchema.form as extra props passed on
     // to the form component, calling them if they are functions
     const inputProperties = fieldSchema.form || {};

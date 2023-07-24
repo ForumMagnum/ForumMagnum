@@ -56,9 +56,6 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   }
 }
 
-const getPlaceholder = (isDebatePost: boolean) => {
-}
-
 
 const CKPostEditor = ({
   data,
@@ -109,18 +106,7 @@ const CKPostEditor = ({
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
 
   // Get the linkSharingKey, if it exists
-  const { query : { key, debate, tab } } = useSubscribedLocation();
-
-  const isDebatePost = !!debate;
-  if (isDebatePost && placeholder === defaultEditorPlaceholder) {
-    placeholder = debateEditorPlaceholder;
-  } else if (tab === "linkpost" && placeholder !== linkpostEditorPlaceholder) {
-    placeholder = linkpostEditorPlaceholder;
-  } else if (tab === "question" && placeholder !== questionEditorPlaceholder) {
-    placeholder = questionEditorPlaceholder;
-  } else if (tab === "post" && placeholder !== defaultEditorPlaceholder) {
-    placeholder = defaultEditorPlaceholder;
-  }
+  const { query : { key } } = useSubscribedLocation();
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
