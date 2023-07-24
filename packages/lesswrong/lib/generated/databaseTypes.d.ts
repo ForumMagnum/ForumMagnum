@@ -985,6 +985,7 @@ interface DbTag extends DbObject {
   slug: string
   oldSlugs: Array<string>
   core: boolean
+  isPostType: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
   descriptionTruncationCount: number
@@ -1011,7 +1012,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
