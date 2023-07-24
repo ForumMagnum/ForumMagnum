@@ -201,7 +201,6 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
         hasErrors={this.hasErrors()}
         flexStyle={flexStyle}
       >
-        {/* TODO fix type error here */}
         {fields.map(field => (
           <FormComponents.FormComponent
             key={field.name}

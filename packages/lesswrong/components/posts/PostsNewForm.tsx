@@ -88,7 +88,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
-      width: "100%"
+      ...(isEAForum && {width: "100%"})
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -109,21 +109,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20
-  },
-  tabs: {
-    margin: "16px 16px",
-    borderBottom: theme.palette.border.normal,
-    '& .MuiTab-root': {
-      fontSize: 14,
-      fontWeight: 600,
-      minWidth: "unset"
-    },
-    '& .MuiTab-labelContainer': {
-      padding: "6px 0px",
-    },
-    '& .MuiTabs-flexContainer': {
-      gap: "24px",
-    }
   },
 })
 

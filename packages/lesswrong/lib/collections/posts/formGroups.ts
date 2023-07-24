@@ -14,7 +14,6 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     order: -20,
     paddingStyle: true,
     defaultStyle: true,
-    // flexStyle: true,
   },
   title: {
     name: "title",

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata, postCategories, postDefaultCategory } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -27,7 +27,6 @@ import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-import startCase from 'lodash/startCase';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 

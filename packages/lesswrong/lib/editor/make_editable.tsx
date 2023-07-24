@@ -54,7 +54,6 @@ export const debateEditorPlaceholder =
 
 Other participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.`;
 
-// TODO not sure about including the default in all of these
 export const linkpostEditorPlaceholder =
 `Share an excerpt, a summary, or a note about why you like the post.
 

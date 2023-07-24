@@ -33,7 +33,6 @@ const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeho
   placeholder?: string,
   updateCurrentValues<T extends {}>(values: T) : void,
 }) => {
-  const [active, setActive] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>();
 
   const { postCategory } = document;
@@ -46,12 +45,6 @@ const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeho
   }
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateValue(event.target.value);
-  const onFocus = () => setActive(true);
-  const onBlur = () => {
-    if (!value || value.length < 1) {
-      setActive(false);
-    }
-  }
 
   return (
     <div className={classes.root}>
@@ -61,8 +54,6 @@ const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeho
         className={classes.input}
         value={(document && document[path]) || defaultValue || ""}
         onChange={onChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
         placeholder={placeholder}
         disableUnderline
         fullWidth
