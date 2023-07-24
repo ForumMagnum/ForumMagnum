@@ -293,7 +293,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
   }
 }
 
-function buildInflationAdjustedField(): any {
+export function buildInflationAdjustedField(): any {
   const karmaInflationSeries = getKarmaInflationSeries();
   return {
     karmaInflationAdjustedScore: {

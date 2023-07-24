@@ -37,6 +37,7 @@ import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';
 import './server/scripts/generateUserActivityReport';
+import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
@@ -51,12 +52,12 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/removeRsvp';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
-import './server/scripts/removeObsoleteIndexes';
 import './server/scripts/fillMissing';
 import './server/scripts/recomputeDenormalized';
 import './server/scripts/recomputeReceivedVoteCounts';

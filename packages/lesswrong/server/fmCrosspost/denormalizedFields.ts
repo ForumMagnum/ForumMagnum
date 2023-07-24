@@ -19,6 +19,7 @@ export const denormalizedFieldKeys = [
   "title",
   "isEvent",
   "question",
+  "url",
 ] as const;
 
 export const isValidDenormalizedData = (payload: unknown): payload is DenormalizedCrosspostData =>
@@ -26,7 +27,8 @@ export const isValidDenormalizedData = (payload: unknown): payload is Denormaliz
   hasBooleanParam(payload, "deletedDraft") &&
   hasStringParam(payload, "title") &&
   hasBooleanParam(payload, "isEvent") &&
-  hasBooleanParam(payload, "question");
+  hasBooleanParam(payload, "question") &&
+  hasStringParam(payload, "url");
 
 export type DenormalizedCrosspostData = Pick<DbPost, typeof denormalizedFieldKeys[number]>;
 

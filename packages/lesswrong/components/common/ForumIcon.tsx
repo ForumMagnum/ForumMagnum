@@ -15,6 +15,7 @@ import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -25,6 +26,7 @@ import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
+import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
@@ -37,6 +39,7 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -62,6 +65,7 @@ import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
+import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 
 /**
@@ -116,6 +120,7 @@ export type ForumIconName =
   "Shortform" |
   "Warning" |
   "Report" |
+  "ListBullet" |
   "Eye" |
   "EyeOutline" |
   "Tag" |
@@ -126,6 +131,7 @@ export type ForumIconName =
   "ThickChevronDown" |
   "Plus" |
   "Check" |
+  "CheckCircle" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -138,9 +144,10 @@ export type ForumIconName =
   "Share" |
   "ClipboardDocumentList" |
   "ClipboardDocument" |
+  "QuestionMarkCircle" |
+  "Search" |
   "Menu" |
-  "CloseMenu" |
-  "QuestionMarkCircle";
+  "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -169,6 +176,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CommentFilled: CommentFilledIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
     Eye: MuiVisibility,
@@ -185,6 +193,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: MuiEmailIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -192,9 +201,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: MuiSearchIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -222,6 +232,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CommentFilled: CommentFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
     Eye: EyeIcon,
@@ -238,6 +249,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: EmailIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -245,9 +257,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: SearchIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
   },
 };
 

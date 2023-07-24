@@ -61,6 +61,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     alignItems: "center",
   },
+  postsVote: {
+    position: "relative",
+    fontSize: 30,
+    textAlign: "center",
+    "& .PostsVote-voteBlock": {
+      marginTop: -5,
+    },
+  },
   tagRelWrapper: {
     position: "relative",
     transform: "translateY(1px)",
@@ -207,6 +215,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     condensedAndHiddenComments,
     isRepeated,
     analyticsProps,
+    isVoteable,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
   const authorExpandContainer = useRef(null);
@@ -219,6 +228,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
+    PostsVote,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -249,7 +259,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   const TitleWrapper: FC = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
-      <Link to={postLink}>{children}</Link>
+      {children}
     </PostsItemTooltipWrapper>
   );
 
@@ -263,12 +273,24 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
         }
         <div className={classes.expandedCommentsWrapper}>
           <div className={classes.container} onClick={onClick}>
-            <div className={classes.karma}>
-              <div className={classes.voteArrow}>
-                <SoftUpArrowIcon />
-              </div>
-              <KarmaDisplay document={post} />
-            </div>
+            {isVoteable
+              ? (
+                <InteractionWrapper className={classNames(
+                  classes.interactionWrapper,
+                  classes.postsVote,
+                )}>
+                  <PostsVote post={post} />
+                </InteractionWrapper>
+              )
+              : (
+                <div className={classes.karma}>
+                  <div className={classes.voteArrow}>
+                    <SoftUpArrowIcon />
+                  </div>
+                  <KarmaDisplay document={post} />
+                </div>
+              )
+            }
             <div className={classes.details}>
               <PostsTitle
                 {...{
@@ -286,10 +308,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               />
               <div className={classes.meta}>
                 <div className={classes.metaLeft} ref={authorExpandContainer}>
-                  <TruncatedAuthorsList
-                    post={post}
-                    expandContainer={authorExpandContainer}
-                  />
+                  <InteractionWrapper className={classes.interactionWrapper}>
+                    <TruncatedAuthorsList
+                      post={post}
+                      expandContainer={authorExpandContainer}
+                    />
+                  </InteractionWrapper>
                   <div>
                     {' · '}
                     <PostsItemDate post={post} noStyles includeAgo />
@@ -320,12 +344,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
             </div>
             <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
+                showArchiveButton={false}
                 {...{
                   post,
                   showTrailingButtons,
                   showMostValuableCheckbox,
                   showDismissButton,
-                  showArchiveButton,
                   resumeReading,
                   onDismiss,
                   onArchive,

@@ -166,6 +166,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
@@ -332,7 +333,7 @@ const schema: SchemaType<DbUser> = {
     input: 'checkbox',
     optional: true,
     canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
   },
@@ -488,7 +489,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     control: 'checkboxgroup',
     canCreate: ['admins'],
-    canUpdate: ['alignmentForumAdmins', 'admins'],
+    canUpdate: ['alignmentForumAdmins', 'admins', 'realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
     form: {
@@ -648,6 +649,7 @@ const schema: SchemaType<DbUser> = {
     allowedValues: ['listView', 'gridView'],
     ...schemaDefaultValue('listView'),
     defaultValue: "listView",
+    hidden: isEAForum,
     control: "select",
     form: {
       options: function () { // options for the select form control

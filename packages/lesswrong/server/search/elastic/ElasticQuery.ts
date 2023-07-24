@@ -138,7 +138,7 @@ class ElasticQuery {
   private compileSimpleQuery(): QueryDslQueryContainer {
     const {fields} = this.config;
     const {search} = this.queryData;
-    const mainField = fields[0].split("^")[0];
+    const mainField = this.textFieldToExactField(fields[0], false);
     return {
       bool: {
         should: [
@@ -156,15 +156,14 @@ class ElasticQuery {
               fields,
               type: "phrase",
               slop: 2,
-              boost: 70,
+              boost: 2,
             },
           },
           {
             match_phrase_prefix: {
               [mainField]: {
                 query: search,
-                slop: 2,
-                boost: 70,
+                boost: 20,
               },
             },
           },
@@ -173,10 +172,15 @@ class ElasticQuery {
     };
   }
 
-  private textFieldToExactField(textField: string): string {
+  private textFieldToExactField(
+    textField: string,
+    keepRelevance = true,
+  ): string {
     const [fieldName, relevance] = textField.split("^");
     const exactField = `${fieldName}.exact`;
-    return relevance ? `${exactField}^${relevance}` : exactField;
+    return relevance && keepRelevance
+      ? `${exactField}^${relevance}`
+      : exactField;
   }
 
   private compileAdvancedQuery(tokens: QueryToken[]): QueryDslQueryContainer {
@@ -192,7 +196,7 @@ class ElasticQuery {
         must.push({
           multi_match: {
             query: token,
-            fields: fields.map(this.textFieldToExactField.bind(this)),
+            fields: fields.map((field) => this.textFieldToExactField(field)),
             type: "phrase",
           },
         });

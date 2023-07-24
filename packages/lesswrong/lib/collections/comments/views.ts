@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { excludeFromFrontpagePopularSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
@@ -23,6 +23,7 @@ declare global {
     after?: Date|string|null,
     reviewYear?: ReviewYear
     profileTagIds?: string[],
+    shortformFrontpage?: boolean,
   }
   
   /**
@@ -472,12 +473,18 @@ Comments.addView('topShortform', (terms: CommentsViewTerms) => {
     : null
   );
 
+  const shortformFrontpage =
+    isEAForum && typeof terms.shortformFrontpage === "boolean"
+      ? {shortformFrontpage: terms.shortformFrontpage}
+      : {};
+
   return {
     selector: {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
-      ...timeRange
+      ...timeRange,
+      ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
   };
@@ -694,3 +701,20 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
+  selector: {
+    baseScore: {$gte: 20},
+    shortform: {$ne: true},
+    postedAt: {$gte: moment().subtract(1, "week").toDate()},
+    ...(excludeFromFrontpagePopularSetting.get().length && {
+      postId: {$not: {$in: excludeFromFrontpagePopularSetting.get()}},
+    }),
+  },
+  options: {
+    sort: {
+      score: -1,
+      parentCommentId: 1,
+    },
+  },
+}));

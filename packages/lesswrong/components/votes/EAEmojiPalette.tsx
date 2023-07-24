@@ -1,94 +1,98 @@
-import React, { useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
-import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
+import React, { FC } from "react";
+import { registerComponent, Components } from "../../lib/vulcan-lib";
+import {
+  eaAnonymousEmojiPalette,
+  eaEmojiPalette,
+  EmojiOption,
+} from "../../lib/voting/eaEmojiPalette";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "flex",
-    gap: "10px",
-    fontSize: 13,
+    padding: 6,
   },
-  emojiContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    margin: "12px",
+  title: {
+    margin: "4px 6px -4px 4px",
+    fontSize: 11,
+  },
+  divider: {
+    border: "none",
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    margin: "6px 0",
   },
   emoji: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexBasis: "20%",
-    fontSize: "1.6em",
-    aspectRatio: 1,
-    borderRadius: theme.borderRadius.small,
-    cursor: "pointer",
-    userSelect: "none",
-    "&:hover": {
-      background: theme.palette.grey[110],
-    },
-    "&:nth-child(n-5)": {
-      marginTop: -1,
-    },
-  },
-  nameContainer: {
-    display: "flex",
-    alignItems: "center",
-    padding: "1.2em",
+    padding: "8px 12px 8px 0",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
-    color: theme.palette.grey[600],
-    background: theme.palette.grey[60],
-    gap: "8px",
-    height: 44,
-    fontSize: "14px",
+    fontSize: 14,
+    cursor: "pointer",
+    userSelect: "none",
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[200],
+    },
   },
-  emojiPreview: {
-    fontSize: "1.6em",
+  icon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.primary.main,
+    textAlign: "center",
+    width: 28,
   },
 });
+
+const PaletteSection: FC<{
+  title: string,
+  options: EmojiOption[],
+  onSelectEmoji: (emojiOption: EmojiOption) => void,
+  classes: ClassesType,
+}> = ({title, options, onSelectEmoji, classes}) => {
+  const {SectionTitle} = Components;
+  return (
+    <>
+      <SectionTitle
+        title={title}
+        className={classes.title}
+        noTopMargin
+      />
+      <div>
+        {options.map((emojiOption) =>
+          <div
+            key={emojiOption.name}
+            onClick={() => onSelectEmoji(emojiOption)}
+            className={classes.emoji}
+          >
+            <div className={classes.icon}>
+              <emojiOption.Component />
+            </div>
+            {emojiOption.label}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
 
 const EAEmojiPalette = ({onSelectEmoji, classes}: {
   onSelectEmoji: (emojiOption: EmojiOption) => void,
   classes: ClassesType,
 }) => {
-  const [hovered, setHovered] = useState<EmojiOption | null>(null);
-
-  const onEnter = useCallback((emojiOption: EmojiOption) => {
-    setHovered(emojiOption);
-  }, []);
-
-  const onLeave = useCallback((emojiOption: EmojiOption) => {
-    if (emojiOption.name === hovered?.name) {
-      setHovered(null);
-    }
-  }, [hovered]);
-
   return (
-    <div>
-      <div className={classes.emojiContainer}>
-        {eaEmojiPalette.map((emojiOption) =>
-          <div
-            key={emojiOption.name}
-            onMouseEnter={() => onEnter(emojiOption)}
-            onMouseLeave={() => onLeave(emojiOption)}
-            onClick={() => onSelectEmoji(emojiOption)}
-            className={classes.emoji}
-          >
-            {emojiOption.emoji}
-          </div>
-        )}
-      </div>
-      <div className={classes.nameContainer}>
-        {hovered
-          ? (
-            <>
-              <div className={classes.emojiPreview}>{hovered.emoji}</div>
-              <div>{hovered.label}</div>
-            </>
-          )
-          : "What did you think of this?"
-        }
-      </div>
+    <div className={classes.root}>
+      <PaletteSection
+        title="Anonymous"
+        options={eaAnonymousEmojiPalette}
+        onSelectEmoji={onSelectEmoji}
+        classes={classes}
+      />
+      <hr className={classes.divider} />
+      <PaletteSection
+        title="Non-anonymous"
+        options={eaEmojiPalette}
+        onSelectEmoji={onSelectEmoji}
+        classes={classes}
+      />
     </div>
   );
 }

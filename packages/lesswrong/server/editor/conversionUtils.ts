@@ -268,6 +268,9 @@ export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
  * In both cases, the footnote must start at character 0 on the line. The strategy here
  * is just to find the first place where this occurs and then to ignore to the end of
  * the document.
+ *
+ * We adopt a similar strategy for ignoring appendices. We find the first header tag that
+ * contains the word 'appendix' (case-insensitive), and ignore to the end of the document.
  */
 export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   try {
@@ -275,7 +278,10 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
     const withoutFootnotes = markdown
       .split(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m)[0]
       .split(/^\[\^1\]:.*/m)[0];
-    const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
+    const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown") ?? "";
+    const withoutFootnotesAndAppendices = htmlWithoutFootnotes
+      .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
+    const words = withoutFootnotesAndAppendices.match(/[^\s]+/g) ?? [];
     return words.length;
   } catch(err) {
     // eslint-disable-next-line no-console

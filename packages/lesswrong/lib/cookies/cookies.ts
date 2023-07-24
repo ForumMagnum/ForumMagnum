@@ -40,6 +40,12 @@ export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   description: "Whether to show the Quick takes section on the EA Forum home page",
 })
 
+export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
+  name: 'show_popular_comments_section',
+  type: "functional",
+  description: "Whether to show the popular comments section on the EA Forum home page",
+})
+
 export const HIDE_HANDBOOK_COOKIE = registerCookie({
   name: "hide_home_handbook",
   type: "functional",
@@ -90,6 +96,12 @@ export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
   name: "hide_import_eag_profile",
   type: "functional",
   description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
+});
+
+export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
+  name: "hide_more_from_the_forum_recommendations",
+  type: "functional",
+  description: "Don't show the \"More from the forum\" recommendations section",
 });
 
 // Third party cookies
