@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory, postCategories } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'

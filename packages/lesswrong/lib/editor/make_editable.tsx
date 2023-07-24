@@ -5,7 +5,6 @@ import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isEAForum } from '../instanceSettings';
-import { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
