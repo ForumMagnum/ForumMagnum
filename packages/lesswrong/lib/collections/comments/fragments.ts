@@ -40,6 +40,7 @@ registerFragment(`
     extendedScore
     score
     voteCount
+    emojiReactors
     af
     afDate
     moveToAlignmentUserId
@@ -145,6 +146,7 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+      isRead
     }
     tag {
       ...TagBasicInfo

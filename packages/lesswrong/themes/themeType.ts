@@ -131,6 +131,7 @@ declare global {
       notificationLabel: ColorString,
       eventType: ColorString,
       tooltipText: ColorString,
+      tooltipTextDim: ColorString,
       negativeKarmaRed: ColorString,
       moderationGuidelinesEasygoing: ColorString,
       moderationGuidelinesNormEnforcing: ColorString,
@@ -196,6 +197,7 @@ declare global {
       loadingDotsAlternate: ColorString,
       horizRuleDots: ColorString,
       greenCheckmark: ColorString,
+      filledGreenCheckmark: ColorString,
       onTooltip: ColorString,
       inverted: ColorString,
       topAuthor: ColorString,
@@ -243,6 +245,7 @@ declare global {
       debateComment4: string,
       debateComment5: string,
       dashed500: string,
+      mentionsBaloon: string,
     },
     panelBackground: {
       default: ColorString,
@@ -280,6 +283,7 @@ declare global {
       notificationMenuTabBar: ColorString,
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
+      tooltipBackground2: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -347,6 +351,11 @@ declare global {
       },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
+      mentions: {
+        hover: ColorString,
+        selected: ColorString,
+        selectedHover: ColorString,
+      },
     },
     tag: {
       text: ColorString,

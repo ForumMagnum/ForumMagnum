@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import { AnalyticsContext } from "../../lib/analyticsEvents"
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, countCommentsInTree } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
@@ -106,6 +106,7 @@ const CommentsNode = ({
 }: CommentsNodeProps) => {
   const commentPoolContext = useContext(CommentPoolContext);
   const forceRerender = useForceRerender();
+  const { captureEvent } = useTracking()
   
   useEffect(() => {
     if (commentPoolContext) {
@@ -160,6 +161,7 @@ const CommentsNode = ({
   const handleExpand = useCallback(async (event?: React.MouseEvent) => {
     event?.stopPropagation()
     if (isTruncated || isSingleLine) {
+      captureEvent('commentExpanded', {postId: comment.postId, commentId: comment._id})
       if (isSingleLine) {
         setExpansionState("truncated");
       } else {

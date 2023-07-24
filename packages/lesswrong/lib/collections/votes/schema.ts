@@ -147,6 +147,32 @@ const schema: SchemaType<DbVote> = {
     }
   }),
 
+  comment: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: 'Comment',
+    canRead: ['guests'],
+    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
+      if (vote.collectionName === "Comments") {
+        return await context.loaders.Comments.load(vote.documentId);
+      } else {
+        return null;
+      }
+    }
+  }),
+
+  post: resolverOnlyField({
+    type: "Post",
+    graphQLtype: 'Post',
+    canRead: ['guests'],
+    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
+      if (vote.collectionName === "Posts") {
+        return await context.loaders.Posts.load(vote.documentId);
+      } else {
+        return null;
+      }
+    }
+  }),
+
   // This flag allows us to calculate the baseScore/karma of documents and users using nothing but the votes
   // collection. Otherwise doing that calculation would require a lookup, which is pretty expensive
   documentIsAf: {

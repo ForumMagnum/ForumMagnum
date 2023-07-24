@@ -258,5 +258,15 @@
     "acceptsSchemaHash": "d6b5c3a5a64a7eea065377c71e1b8acf",
     "acceptedByMigration": "20230620T120843.add_noindex.ts",
     "timestamp": "2023-06-20T12:08:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4b4e757dda0d5609834188196a6c1742",
+    "acceptedByMigration": "20230707T152842.migrate_socialPreview.ts",
+    "timestamp": "2023-07-07T15:28:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1f4a770fddeffde4615bb22682170332",
+    "acceptedByMigration": "20230719T202158.top_level_comment_count.ts",
+    "timestamp": "2023-07-19T20:21:58.000Z"
   }
 ]

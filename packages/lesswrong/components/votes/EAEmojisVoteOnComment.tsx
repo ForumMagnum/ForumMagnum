@@ -1,62 +1,69 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import {
-  CommentVotingComponentProps,
-  getVotingSystemByName,
-} from "../../lib/voting/votingSystems";
+import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
-import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
-import { eaEmojiPalette, EmojiOption } from "../../lib/voting/eaEmojiPalette";
-import { userHasEAEmojiReacts } from "../../lib/betas";
+import {
+  eaAnonymousEmojiPalette,
+  eaEmojiPalette,
+  EmojiOption,
+} from "../../lib/voting/eaEmojiPalette";
+import { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
-import { VotingProps } from "./votingProps";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    display: "flex",
-    gap: "10px",
+  overallAxis: {
+    marginRight: 1,
+    "&.OverallVoteAxis-overallSection": {
+      height: 22,
+      "& > *": {
+        transform: "translateY(-1px)",
+      },
+      "& > *:nth-child(2)": {
+        transform: "translateY(-2px)",
+      },
+    },
   },
   button: {
     display: "flex",
     alignItems: "center",
     borderRadius: theme.borderRadius.small,
-    background: theme.palette.grey[110],
-    border: `1px solid ${theme.palette.grey[110]}`,
     color: theme.palette.grey[600],
-    padding: "0 6px",
+    padding: "0 4px",
     gap: "4px",
-    height: 26,
-    transform: "translateY(-1px)",
+    marginLeft: 2,
+    height: 24,
     cursor: "pointer",
     userSelect: "none",
+    border: "1px solid transparent",
     "&:hover": {
-      background: theme.palette.grey[250],
-      border: `1px solid ${theme.palette.grey[250]}`,
-      color: theme.palette.grey[700],
+      background: theme.palette.grey[100],
     },
   },
   buttonSelected: {
-    background: theme.palette.primaryAlpha(0.1),
-    border: `1px solid ${theme.palette.primaryAlpha(0.6)}`,
+    background: theme.palette.primaryAlpha(0.05),
     color: theme.palette.primary.main,
+    border: `1px solid ${theme.palette.primaryAlpha(0.5)}`,
     "&:hover": {
       background: theme.palette.primaryAlpha(0.2),
-      border: `1px solid ${theme.palette.primaryAlpha(0.7)}`,
     },
   },
   emojiPreview: {
-    fontSize: "1.1em",
+    display: "flex",
+    color: theme.palette.primary.main,
   },
   tooltip: {
-    background: theme.palette.grey[800],
-    color: theme.palette.grey[0],
+    background: theme.palette.panelBackground.tooltipBackground2,
+    color: theme.palette.text.tooltipText,
     transform: "translateY(-8px)",
     textAlign: "center",
     maxWidth: 190,
+  },
+  tooltipWide: {
+    maxWidth: 400,
   },
   addEmojiTooltip: {
     transform: "translateY(-10px)",
@@ -65,14 +72,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "translateY(2px)",
   },
   tooltipSecondaryText: {
-    color: theme.palette.grey[400],
+    color: theme.palette.text.tooltipTextDim,
+  },
+  tooltipEmojiRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "4px",
   },
   tooltipEmoji: {
     fontSize: "1.4em",
+    color: theme.palette.primary.main,
   },
   menu: {
     "& .MuiPaper-root": {
-      transform: "translateY(-8px) !important",
+      transform: "translateY(8px) !important",
+      border: `1px solid ${theme.palette.grey[200]}`,
     },
     "& .MuiList-padding": {
       padding: 0,
@@ -89,20 +104,50 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
   voteProps: VotingProps<T>,
 ) => {
   const extendedScore = voteProps.document?.extendedScore;
-  if (!extendedScore || !Object.keys(extendedScore).length) {
-    return [];
+  const result = [];
+  for (const emojiOption of eaAnonymousEmojiPalette) {
+    result.push({
+      emojiOption,
+      score: extendedScore?.[emojiOption.name] ?? 0,
+      anonymous: true,
+    });
   }
 
-  const result = [];
+  if (!extendedScore || !Object.keys(extendedScore).length) {
+    return result;
+  }
+
   for (const emojiOption of eaEmojiPalette) {
     if ((extendedScore[emojiOption.name] ?? 0) > 0) {
       result.push({
         emojiOption,
         score: extendedScore[emojiOption.name],
+        anonymous: false,
       });
     }
   }
   return result;
+}
+
+const AnonymousEmojiTooltipContent: FC<{
+  emojiOption: EmojiOption,
+  count: number,
+  classes: ClassesType,
+}> = ({emojiOption, count, classes}) => {
+  return (
+    <div>
+      <div>
+        {count === 1 ? "1 person" : `${count} people`}{" "}
+        <span className={classes.tooltipSecondaryText}>reacted with</span>
+      </div>
+      <div className={classes.tooltipEmojiRow}>
+        <span className={classes.tooltipEmoji}>
+          <emojiOption.Component />
+        </span>{" "}
+        {emojiOption.label}
+      </div>
+    </div>
+  );
 }
 
 const joinStringList = (items: string[]) =>
@@ -133,8 +178,10 @@ const EmojiTooltipContent: FC<{
           <span className={classes.tooltipSecondaryText}>reacted with</span>
         </div>
       }
-      <div className={classes.tooltipSecondaryText}>
-        <span className={classes.tooltipEmoji}>{emojiOption.emoji}</span>{" "}
+      <div className={classes.tooltipEmojiRow}>
+        <span className={classes.tooltipEmoji}>
+          <emojiOption.Component />
+        </span>{" "}
         {emojiOption.label}
       </div>
     </div>
@@ -147,7 +194,6 @@ const EmojiReactsSection: FC<{
   classes: ClassesType,
 }> = ({document, voteProps, classes}) => {
   const currentUser = useCurrentUser();
-  const post = usePostsPageContext();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [everOpened, setEverOpened] = useState(false);
@@ -178,7 +224,7 @@ const EmojiReactsSection: FC<{
 
     voteProps.vote({
       document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
+      voteType: voteProps.document.currentUserVote ?? "neutral",
       extendedVote: {
         ...voteProps.document.currentUserExtendedVote,
         [emojiOption.name]: !isEmojiSelected(voteProps, emojiOption),
@@ -192,22 +238,34 @@ const EmojiReactsSection: FC<{
   const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
-      {reactions.map(({emojiOption, score}) => {
+      {reactions.map(({emojiOption, anonymous, score}) => {
         const isSelected = isEmojiSelected(voteProps, emojiOption);
         return (
           <LWTooltip
             key={emojiOption.name}
             title={
-              <EmojiTooltipContent
-                currentUser={currentUser}
-                emojiOption={emojiOption}
-                isSelected={isSelected}
-                reactors={post?.commentEmojiReactors?.[document._id]}
-                classes={classes}
-              />
+              anonymous
+                ? (
+                  <AnonymousEmojiTooltipContent
+                    emojiOption={emojiOption}
+                    count={score}
+                    classes={classes}
+                  />
+                )
+                : (
+                  <EmojiTooltipContent
+                    currentUser={currentUser}
+                    emojiOption={emojiOption}
+                    isSelected={isSelected}
+                    reactors={(document as AnyBecauseHard).emojiReactors}
+                    classes={classes}
+                  />
+                )
             }
             placement="top"
-            popperClassName={classes.tooltip}
+            popperClassName={classNames(classes.tooltip, {
+              [classes.tooltipWide]: score > 10,
+            })}
           >
             <div
               role="button"
@@ -216,7 +274,9 @@ const EmojiReactsSection: FC<{
                 [classes.buttonSelected]: isSelected,
               })}
             >
-              <div className={classes.emojiPreview}>{emojiOption.emoji}</div>
+              <div className={classes.emojiPreview}>
+                <emojiOption.Component />
+              </div>
               <div>{score}</div>
             </div>
           </LWTooltip>
@@ -245,11 +305,11 @@ const EmojiReactsSection: FC<{
         anchorEl={anchorEl}
         getContentAnchorEl={null}
         anchorOrigin={{
-          vertical: "top",
+          vertical: "bottom",
           horizontal: "left",
         }}
         transformOrigin={{
-          vertical: "bottom",
+          vertical: "top",
           horizontal: "left",
         }}
         className={classes.menu}
@@ -260,50 +320,49 @@ const EmojiReactsSection: FC<{
   );
 }
 
-interface ThreeAxisEmojisVoteOnCommentProps extends CommentVotingComponentProps {
+interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType,
 }
 
-const ThreeAxisEmojisVoteOnComment = ({
+const EAEmojisVoteOnComment = ({
   document,
   hideKarma = false,
   collection,
   votingSystem,
   classes,
-}: ThreeAxisEmojisVoteOnCommentProps) => {
+}: EAEmojisVoteOnCommentProps) => {
   const voteProps = useVote(
     document,
     collection.options.collectionName,
     votingSystem,
   );
-  const {TwoAxisVoteOnComment} = Components;
+  const {OverallVoteAxis} = Components;
   return (
-    <div className={classes.root}>
-      <TwoAxisVoteOnComment
+    <>
+      <OverallVoteAxis
         document={document}
         hideKarma={hideKarma}
-        collection={collection}
-        votingSystem={getVotingSystemByName("twoAxis")}
+        voteProps={voteProps}
+        className={classes.overallAxis}
+        showBox
       />
-      {userHasEAEmojiReacts(null) &&
-        <EmojiReactsSection
-          document={document}
-          voteProps={voteProps}
-          classes={classes}
-        />
-      }
-    </div>
+      <EmojiReactsSection
+        document={document}
+        voteProps={voteProps}
+        classes={classes}
+      />
+    </>
   );
 }
 
-const ThreeAxisEmojisVoteOnCommentComponent = registerComponent(
-  "ThreeAxisEmojisVoteOnComment",
-  ThreeAxisEmojisVoteOnComment,
+const EAEmojisVoteOnCommentComponent = registerComponent(
+  "EAEmojisVoteOnComment",
+  EAEmojisVoteOnComment,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    ThreeAxisEmojisVoteOnComment: typeof ThreeAxisEmojisVoteOnCommentComponent
+    EAEmojisVoteOnComment: typeof EAEmojisVoteOnCommentComponent
   }
 }

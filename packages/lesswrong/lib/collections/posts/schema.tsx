@@ -26,6 +26,7 @@ import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -44,7 +45,7 @@ const STICKY_PRIORITIES = {
 
 function getDefaultVotingSystem() {
   return forumSelect({
-    EAForum: "twoAxis",
+    EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
@@ -85,6 +86,14 @@ const rsvpType = new SimpleSchema({
     optional: true
   },
 })
+
+addGraphQLSchema(`
+  type SocialPreviewType {
+    imageId: String
+    imageUrl: String
+    text: String
+  }
+`)
 
 const MINIMUM_COAUTHOR_KARMA = 10;
 
@@ -458,7 +467,8 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
   }),
-  
+
+  // DEPRECATED: use socialPreview.imageUrl instead
   socialPreviewImageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
@@ -1073,7 +1083,7 @@ const schema: SchemaType<DbPost> = {
     // Trying to use schemaDefaultValue here with a branch by forum type broke
     // schema generation/migrations.
     defaultValue: "twoAxis",
-    onCreate: () => getDefaultVotingSystem(),
+    onCreate: ({document}) => document.votingSystem ?? getDefaultVotingSystem(),
     canAutofillDefault: true,
   },
   myEditorAccess: resolverOnlyField({
@@ -1338,16 +1348,16 @@ const schema: SchemaType<DbPost> = {
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
+  // DEPRECATED: use socialPreview.imageId instead
   socialPreviewImageId: {
     type: String,
     optional: true,
+    hidden: true,
     label: "Social Preview Image",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
-    hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1361,6 +1371,43 @@ const schema: SchemaType<DbPost> = {
     // TODO: should this be more restrictive?
     canUpdate: ['members'],
     canCreate: ['members'],
+  },
+
+  socialPreview: {
+    type: new SimpleSchema({
+      imageId: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+      text: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+    }),
+    resolveAs: {
+      type: "SocialPreviewType",
+      fieldName: "socialPreviewData",
+      addOriginalField: true,
+      resolver: async (post: DbPost, args, context: ResolverContext) => {
+        const { imageId, text } = post.socialPreview || {};
+        const imageUrl = getSocialPreviewImage(post);
+        return {
+          imageId,
+          imageUrl,
+          text,
+        }
+      }
+    },
+    optional: true,
+    label: "Social Preview Image",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
+    order: 4,
   },
 
   fmCrosspost: {
@@ -2389,7 +2436,7 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
-  
+
   topLevelCommentCount: {
     type: Number,
     optional: true,
@@ -2501,11 +2548,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (post.votingSystem !== "threeAxisEmojis") {
+    resolver: (post, _, context) => {
+      if (post.votingSystem !== "eaEmojis") {
         return null;
       }
-      return context.repos.posts.getEmojiReactors(post._id);
+      return context.repos.posts.getEmojiReactorsWithCache(post._id);
     },
   }),
 
