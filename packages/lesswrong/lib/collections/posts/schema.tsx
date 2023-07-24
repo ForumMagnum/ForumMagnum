@@ -203,10 +203,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: 'EditLinkpostUrl',
-    // TODO check for protocol (https://) on write and add if missing
-    // TODO make this placeholder a setting
-    placeholder: "http://johnsalvatier.org/blog/2017/reality-has-a-surprising-amount-of-detail",
+    control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
     order: 12,
     form: {
       labels: {
@@ -229,6 +226,7 @@ const schema: SchemaType<DbPost> = {
     order: 9,
     group: formGroups.category,
     control: 'EditPostCategory',
+    hidden: (props) => !isEAForum || props.eventForm || props.debateForm,
     ...schemaDefaultValue(postDefaultCategory),
   },
   // Title

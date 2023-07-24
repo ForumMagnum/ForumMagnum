@@ -20,7 +20,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     order: -10,
     paddingStyle: true,
     defaultStyle: true,
-    flexStyle: true,
+    flexAlignTopStyle: true,
   },
   coauthors: {
     order: 21,

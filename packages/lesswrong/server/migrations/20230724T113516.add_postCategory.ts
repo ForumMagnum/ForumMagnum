@@ -31,7 +31,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "edd4ae60c5320ea4aa4d4e87bf92cafe";
+export const acceptsSchemaHash = "edd4ae60c5320ea4aa4d4e87bf92cafe";
 
 import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
@@ -40,6 +40,17 @@ export const up = async ({db}: MigrationContext) => {
   if (!Posts.isPostgres()) return;
   
   await addField(db, Posts, "postCategory");
+  // set postCategory to 'post' for all existing posts
+  // set postCategory to 'linkpost' if post.url is not null or empty
+  // set postCategory to 'question' if post.question is true
+  await db.any(`
+    UPDATE "Posts"
+    SET "postCategory" = CASE
+      WHEN "url" IS NOT NULL AND "url" != '' THEN 'linkpost'
+      WHEN "question" = true THEN 'question'
+      ELSE 'post'
+    END
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {

@@ -15,6 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isEAForum && {
       fontWeight: 700,
       fontSize: 32,
+      marginBottom: 12,
     }),
     width: "100%",
     resize: "none",
@@ -57,7 +58,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question, postCategory } = document;
 
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
-  const displayPlaceholder = placeholders[effectiveCategory];
+  const displayPlaceholder = isEAForum ? placeholders[effectiveCategory] : placeholder;
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {

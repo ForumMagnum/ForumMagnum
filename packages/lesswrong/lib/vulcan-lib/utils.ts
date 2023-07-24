@@ -94,7 +94,13 @@ export const makeAbsolute = function (url: string): string {
  * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
 export const getOutgoingUrl = function (url: string, foreignId?: string): string {
-  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+  // If no protocol is specified, guess that it is https://
+  let cleanedUrl = url;
+  if (cleanedUrl.indexOf('://') === -1) {
+    return `https://${cleanedUrl}`;
+  }
+
+  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
   return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
 };
 

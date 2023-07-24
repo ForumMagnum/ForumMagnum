@@ -1,14 +1,17 @@
-import React, { useState, useRef } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import Input from '@material-ui/core/Input';
+import React, { useRef } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
+import Input from "@material-ui/core/Input";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
+
+const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://johnsalvatier.org/blog/2017/reality-has-a-surprising-amount-of-detail")
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: '100%',
+    width: "100%",
     padding: 12,
-    margin: "12px 0 16px 0",
+    margin: "0 0 16px 0",
     backgroundColor: theme.palette.grey[100],
-    boxSizing: 'border-box',
+    boxSizing: "border-box",
     borderRadius: theme.borderRadius.default,
     fontSize: 14,
   },
@@ -16,22 +19,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRadius: theme.borderRadius.default,
-    padding: '8px 8px 5px 8px',
+    padding: "8px 8px 5px 8px",
     color: theme.palette.grey[1000],
+    fontSize: 14,
   },
   title: {
     color: theme.palette.grey[1000],
-  }
+  },
 });
 
-const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeholder, updateCurrentValues }: {
-  value: string,
-  path: keyof DbPost,
-  classes: ClassesType,
-  document: Partial<DbPost>,
-  defaultValue?: string,
-  placeholder?: string,
-  updateCurrentValues<T extends {}>(values: T) : void,
+const EditLinkpostUrl = ({
+  value,
+  path,
+  classes,
+  document,
+  defaultValue,
+  placeholder,
+  updateCurrentValues,
+}: {
+  value: string;
+  path: keyof DbPost;
+  classes: ClassesType;
+  document: Partial<DbPost>;
+  defaultValue?: string;
+  placeholder?: string;
+  updateCurrentValues<T extends {}>(values: T): void;
 }) => {
   const inputRef = useRef<HTMLInputElement>();
 
@@ -42,30 +54,33 @@ const EditLinkpostUrl = ({ value, path, classes, document, defaultValue, placeho
     updateCurrentValues({
       [path]: value,
     });
-  }
+  };
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateValue(event.target.value);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    updateValue(event.target.value);
 
   return (
     <div className={classes.root}>
-      <Components.Typography variant='body2' className={classes.title}>This is a linkpost for</Components.Typography>
+      <Components.Typography variant="body2" className={classes.title}>
+        This is a linkpost for
+      </Components.Typography>
       <Input
         inputRef={inputRef}
         className={classes.input}
         value={(document && document[path]) || defaultValue || ""}
         onChange={onChange}
-        placeholder={placeholder}
+        placeholder={placeholderSetting.get()}
         disableUnderline
         fullWidth
       />
     </div>
   );
-}
+};
 
-export const EditLinkpostUrlComponent = registerComponent("EditLinkpostUrl", EditLinkpostUrl, {styles});
+export const EditLinkpostUrlComponent = registerComponent("EditLinkpostUrl", EditLinkpostUrl, { styles });
 
 declare global {
   interface ComponentTypes {
-    EditLinkpostUrl: typeof EditLinkpostUrlComponent
+    EditLinkpostUrl: typeof EditLinkpostUrlComponent;
   }
 }
