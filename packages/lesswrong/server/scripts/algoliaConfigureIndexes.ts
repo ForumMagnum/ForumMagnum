@@ -99,12 +99,14 @@ export const algoliaConfigureIndexes = async () => {
   ]
   await algoliaSetIndexSettingsAndWait(usersIndex, {
     searchableAttributes: isEAForum ? eaForumUsersSearchableAttrs : [
-      'unordered(displayName)',
+      'displayName',
+      'slug',
       'unordered(_id)',
     ],
     ranking: isEAForum ? eaForumUsersRanking : [
+      'exact',
       'desc(karma)',
-      'typo','geo','words','filters','proximity','attribute','exact',
+      'typo','geo','words','filters','proximity','attribute',
       'desc(createdAt)'
     ],
     attributesForFaceting: [
