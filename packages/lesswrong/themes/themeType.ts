@@ -148,6 +148,7 @@ declare global {
       warning: ColorString,
       red: ColorString,
       alwaysWhite: ColorString,
+      alwaysBlack: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,

@@ -24,7 +24,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   popupTitle: {
     display: 'flex',
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    color: theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
