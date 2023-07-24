@@ -16,8 +16,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRadius: theme.borderRadius.default,
-    padding: '8px 8px 7px 8px',
-    color: theme.palette.grey[600],
+    padding: '8px 8px 5px 8px',
+    color: theme.palette.grey[1000],
   },
   title: {
     color: theme.palette.grey[1000],

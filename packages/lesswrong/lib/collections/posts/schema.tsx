@@ -204,6 +204,8 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: 'EditLinkpostUrl',
+    // TODO check for protocol (https://) on write and add if missing
+    // TODO make this placeholder a setting
     placeholder: "http://johnsalvatier.org/blog/2017/reality-has-a-surprising-amount-of-detail",
     order: 12,
     form: {
