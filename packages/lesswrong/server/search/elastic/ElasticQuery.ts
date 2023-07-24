@@ -44,6 +44,11 @@ export type QueryData = {
 
 export type Fuzziness = "AUTO" | number;
 
+type CompiledQuery = {
+  searchQuery: QueryDslQueryContainer,
+  highlightQuery?: QueryDslQueryContainer,
+}
+
 class ElasticQuery {
   private config: IndexConfig;
 
@@ -135,39 +140,41 @@ class ElasticQuery {
     };
   }
 
-  private compileSimpleQuery(): QueryDslQueryContainer {
+  private compileSimpleQuery(): CompiledQuery {
     const {fields} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     return {
-      bool: {
-        should: [
-          {
-            term: {
-              objectID: {
-                value: search,
+      searchQuery: {
+        bool: {
+          should: [
+            {
+              term: {
+                objectID: {
+                  value: search,
+                },
               },
             },
-          },
-          this.getDefaultQuery(search, fields),
-          {
-            multi_match: {
-              query: search,
-              fields,
-              type: "phrase",
-              slop: 2,
-              boost: 2,
-            },
-          },
-          {
-            match_phrase_prefix: {
-              [mainField]: {
+            this.getDefaultQuery(search, fields),
+            {
+              multi_match: {
                 query: search,
-                boost: 20,
+                fields,
+                type: "phrase",
+                slop: 2,
+                boost: 2,
               },
             },
-          },
-        ],
+            {
+              match_phrase_prefix: {
+                [mainField]: {
+                  query: search,
+                  boost: 20,
+                },
+              },
+            },
+          ],
+        },
       },
     };
   }
@@ -183,7 +190,7 @@ class ElasticQuery {
       : exactField;
   }
 
-  private compileAdvancedQuery(tokens: QueryToken[]): QueryDslQueryContainer {
+  private compileAdvancedQuery(tokens: QueryToken[]): CompiledQuery {
     const {fields} = this.config;
 
     const must: QueryDslQueryContainer[] = [];
@@ -215,21 +222,37 @@ class ElasticQuery {
       }
     }
 
+    // Using nested `bool` queries breaks highlighting, so we add in a simple
+    // generic query to highlight the results in a separate pass
+    const highlightQuery = this.getDefaultQuery(
+      this.queryData.search,
+      this.config.fields,
+    );
+
     return {
-      bool: {
-        must,
-        must_not,
-        should,
+      searchQuery: {
+        bool: {
+          must,
+          must_not,
+          should,
+        },
+      },
+      highlightQuery,
+    };
+  }
+
+  private compileEmptyQuery(): CompiledQuery {
+    return {
+      searchQuery: {
+        match_all: {},
       },
     };
   }
 
-  private compileQuery(): QueryDslQueryContainer {
+  private compileQuery(): CompiledQuery {
     const {search} = this.queryData;
     if (!search) {
-      return {
-        match_all: {},
-      };
+      return this.compileEmptyQuery();
     }
     const {tokens, isAdvanced} = parseQuery(search);
     return isAdvanced
@@ -271,7 +294,11 @@ class ElasticQuery {
       limit = 10,
     } = this.queryData;
     const {snippet, highlight, privateFields} = this.config;
-    const tags = this.getHighlightTags();
+    const {searchQuery, highlightQuery} = this.compileQuery();
+    const highlightConfig = {
+      ...this.getHighlightTags(),
+      highlight_query: highlightQuery,
+    };
     return {
       index,
       from: offset,
@@ -281,8 +308,8 @@ class ElasticQuery {
         track_total_hits: true,
         highlight: {
           fields: {
-            [snippet]: tags,
-            ...(highlight && {[highlight]: tags}),
+            [snippet]: highlightConfig,
+            ...(highlight && {[highlight]: highlightConfig}),
           },
           fragment_size: 140,
           no_match_size: 140,
@@ -291,7 +318,7 @@ class ElasticQuery {
           script_score: {
             query: {
               bool: {
-                must: this.compileQuery(),
+                must: searchQuery,
                 should: [],
                 filter: this.compileFilters(),
               },
