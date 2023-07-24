@@ -34,11 +34,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-// TODO forum gate
 const placeholders: Record<PostCategory, string> = {
   "post": "Post title",
   "question": "Question title",
-  "linkpost": "Linkpost title", // TODO try to add icon, but may not do
+  "linkpost": "Linkpost title",
 }
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
