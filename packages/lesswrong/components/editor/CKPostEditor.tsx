@@ -8,7 +8,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { debateEditorPlaceholder, defaultEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -54,6 +54,9 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
     annotationsUIs.deactivateAll();
     annotationsUIs.activate('wideSidebar');
   }
+}
+
+const getPlaceholder = (isDebatePost: boolean) => {
 }
 
 
@@ -111,6 +114,12 @@ const CKPostEditor = ({
   const isDebatePost = !!debate;
   if (isDebatePost && placeholder === defaultEditorPlaceholder) {
     placeholder = debateEditorPlaceholder;
+  } else if (tab === "linkpost" && placeholder !== linkpostEditorPlaceholder) {
+    placeholder = linkpostEditorPlaceholder;
+  } else if (tab === "question" && placeholder !== questionEditorPlaceholder) {
+    placeholder = questionEditorPlaceholder;
+  } else if (tab === "post" && placeholder !== defaultEditorPlaceholder) {
+    placeholder = defaultEditorPlaceholder;
   }
   
   // To make sure that the refs are populated we have to do two rendering passes

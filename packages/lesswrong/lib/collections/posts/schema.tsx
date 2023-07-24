@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -204,7 +204,8 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: 'EditUrl',
+    control: 'EditLinkpostUrl',
+    placeholder: "http://johnsalvatier.org/blog/2017/reality-has-a-surprising-amount-of-detail",
     order: 12,
     form: {
       labels: {
@@ -214,7 +215,19 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm || props.prefilledProps?.tab !== "linkpost",
+    hidden: (props) => props.eventForm || props.debateForm,
+  },
+  postCategory: {
+    type: String,
+    allowedValues: [...postCategories],
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    order: 9,
+    group: formGroups.category,
+    control: 'EditPostCategory',
+    ...schemaDefaultValue(postDefaultCategory),
   },
   // Title
   title: {
@@ -225,7 +238,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     order: 10,
-    placeholder: (props) => `${startCase(props.prefilledProps?.tab || "post")} title`,
+    placeholder: "Title",
     control: 'EditTitle',
     group: formGroups.title,
   },

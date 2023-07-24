@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { isEAForum } from '../../lib/instanceSettings';
+import { PostCategory } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,6 +33,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// TODO forum gate
+const placeholders: Record<PostCategory, string> = {
+  "post": "Post title",
+  "question": "Question title",
+  "linkpost": "Linkpost title", // TODO try to add icon, but may not do
+}
+
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
   document: PostsBase,
   value: any,
@@ -46,7 +54,10 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
   });
-  const { question } = document;
+  const { question, postCategory } = document;
+
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+  const displayPlaceholder = placeholders[effectiveCategory];
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
@@ -59,8 +70,8 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
-    className={classNames(classes.root, {[classes.question]: question})}
-    placeholder={ question ? "Question Title" : placeholder }
+    className={classNames(classes.root, {[classes.question]: question && !isEAForum})}
+    placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {
       updateCurrentValues({
