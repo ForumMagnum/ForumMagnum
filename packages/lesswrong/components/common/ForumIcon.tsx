@@ -15,6 +15,7 @@ import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -130,6 +131,7 @@ export type ForumIconName =
   "ThickChevronDown" |
   "Plus" |
   "Check" |
+  "CheckCircle" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -191,6 +193,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: MuiEmailIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -246,6 +249,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: EmailIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
