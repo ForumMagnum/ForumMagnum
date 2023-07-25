@@ -257,9 +257,17 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     </>
   );
 
+  // The nesting here gets a little messy: we need to add the extra `Link`
+  // around the title to make it right-clickable/cmd+clickable. However,
+  // clicking this adds a second history item when navigating to the post
+  // normally requiring the user to press back twice to get to where they
+  // started so we need to wrap that whole thing in an `InteractionWrapper`
+  // too.
   const TitleWrapper: FC = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
-      {children}
+      <InteractionWrapper>
+        <Link to={postLink}>{children}</Link>
+      </InteractionWrapper>
     </PostsItemTooltipWrapper>
   );
 
