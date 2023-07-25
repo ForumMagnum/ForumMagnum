@@ -263,5 +263,10 @@
     "acceptsSchemaHash": "1f4a770fddeffde4615bb22682170332",
     "acceptedByMigration": "20230719T202158.top_level_comment_count.ts",
     "timestamp": "2023-07-19T20:21:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9988fb19e4c7b7f901b58c0eae949a49",
+    "acceptedByMigration": "20230724T182314.add_isPostType_field.ts",
+    "timestamp": "2023-07-24T18:23:14.000Z"
   }
 ]
