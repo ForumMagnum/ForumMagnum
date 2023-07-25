@@ -17,6 +17,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * Split a single array of tag ids into separate arrays based on boolean
+ * predicates
+ */
 const splitBy = (
   predicates: ((tagId: string) => boolean)[],
   tagIds: string[],
@@ -46,7 +50,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
   const showCoreAndTypesTopicSections = isEAForum;
 
-  let { results: coreTags, loading: loadingCore } = useMulti({
+  const coreTagResult = useMulti({
     terms: {
       view: "coreTags",
     },
@@ -56,7 +60,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     skip: !showCoreAndTypesTopicSections,
   });
 
-  let { results: postTypeTags, loading: loadingPostTypes } = useMulti({
+  const postTypeResult = useMulti({
     terms: {
       view: "postTypeTags",
     },
@@ -66,10 +70,14 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     skip: !showCoreAndTypesTopicSections,
   });
 
-  coreTags ??= [];
-  postTypeTags ??= [];
+  const loading = coreTagResult.loading || postTypeResult.loading;
 
-  if (loadingCore || loadingPostTypes) return <Loading/>
+  const coreTags = coreTagResult.results ?? [];
+  const postTypeTags = postTypeResult.results ?? [];
+
+  if (loading) {
+    return <Loading/>;
+  }
 
   const selectedTagIds = Object.keys(value||{});
 
