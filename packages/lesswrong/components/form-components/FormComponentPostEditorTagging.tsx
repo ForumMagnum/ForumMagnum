@@ -2,11 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import toDictionary from '../../lib/utils/toDictionary';
 import mapValues from 'lodash/mapValues';
-import { forumTypeSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
-import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +17,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const splitBy = (
+  predicates: ((tagId: string) => boolean)[],
+  tagIds: string[],
+): string[][] => {
+  const result = predicates.map(() => [] as string[]);
+  for (const tagId of tagIds) {
+    for (let i = 0; i < predicates.length; i++) {
+      if (predicates[i](tagId)) {
+        result[i].push(tagId);
+        break;
+      }
+    }
+  }
+  return result;
+}
+
 /**
  * Edit tags on the new or edit post form. If it's the new form, use
  * TagMultiSelect; a server-side callback will convert tags to tag-relevances.
@@ -30,28 +44,44 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   classes: ClassesType,
 }) => {
   const { TagsChecklist, TagMultiselect, FooterTagList, Loading } = Components
-  const showCoreTopicSection = forumTypeSetting.get() === "EAForum";
-  const currentUser = useCurrentUser();
-  
-  const { results: coreTags, loading } = useMulti({
+  const showCoreAndTypesTopicSections = isEAForum;
+
+  let { results: coreTags, loading: loadingCore } = useMulti({
     terms: {
       view: "coreTags",
     },
     collectionName: "Tags",
     fragmentName: "TagFragment",
     limit: 100,
+    skip: !showCoreAndTypesTopicSections,
   });
 
-  if (loading) return <Loading/>
-  if (!coreTags) return null
+  let { results: postTypeTags, loading: loadingPostTypes } = useMulti({
+    terms: {
+      view: "postTypeTags",
+    },
+    collectionName: "Tags",
+    fragmentName: "TagFragment",
+    limit: 100,
+    skip: !showCoreAndTypesTopicSections,
+  });
 
-  const post = {userId: currentUser?._id};
-  const coreTagsToDisplay = coreTags.filter(
-    tag => tag.isSubforum && !shouldHideTagForVoting(currentUser, tag, post),
-  );
+  coreTags ??= [];
+  postTypeTags ??= [];
 
-  const selectedTagIds = Object.keys(value||{})
-  const selectedCoreTagIds = showCoreTopicSection ? selectedTagIds.filter(tagId => coreTagsToDisplay.find(tag => tag._id === tagId)) : []
+  if (loadingCore || loadingPostTypes) return <Loading/>
+
+  const selectedTagIds = Object.keys(value||{});
+
+  const [
+    selectedCoreTagIds,
+    selectedPostTypeTagIds,
+    selectedOtherTagIds,
+  ] = splitBy([
+    (tagId: string) => !!coreTags?.find((tag) => tag._id === tagId),
+    (tagId: string) => !!postTypeTags?.find((tag) => tag._id === tagId),
+    () => true,
+  ], selectedTagIds);
 
   /**
    * post tagRelevance field needs to look like {string: number}
@@ -66,11 +96,15 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       )
     );
   }
-  
+
   const onMultiselectUpdate = (changes: { tagRelevance: string[] }) => {
-    updateValuesWithArray([...changes.tagRelevance, ...selectedCoreTagIds]);
+    updateValuesWithArray([
+      ...changes.tagRelevance,
+      ...selectedCoreTagIds,
+      ...selectedPostTypeTagIds,
+    ]);
   };
-  
+
   /**
    * When a tag is selected, add both it and its parent to the list of tags.
    */
@@ -102,15 +136,23 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
   } else {
     return (
       <div className={classes.root}>
-        {showCoreTopicSection && (
+        {showCoreAndTypesTopicSections && (
           <>
             <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
             <TagsChecklist
-              tags={coreTagsToDisplay}
+              tags={coreTags}
               selectedTagIds={selectedTagIds}
               onTagSelected={onTagSelected}
               onTagRemoved={onTagRemoved}
-              displaySelected={"highlight"}
+              displaySelected="highlight"
+            />
+            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Common post types</h3>
+            <TagsChecklist
+              tags={postTypeTags}
+              selectedTagIds={selectedTagIds}
+              onTagSelected={onTagSelected}
+              onTagRemoved={onTagRemoved}
+              displaySelected="highlight"
             />
             <h3 className={classes.header}>Other topics</h3>
           </>
@@ -118,7 +160,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
         <TagMultiselect
           path={path}
           placeholder={placeholder ?? `+ Add ${taggingNamePluralCapitalSetting.get()}`}
-          value={selectedTagIds.filter((tagId) => !selectedCoreTagIds.includes(tagId))}
+          value={selectedOtherTagIds}
           updateCurrentValues={onMultiselectUpdate}
           isVotingContext
         />
@@ -134,5 +176,3 @@ declare global {
     FormComponentPostEditorTagging: typeof FormComponentPostEditorTaggingComponent
   }
 }
-
-
