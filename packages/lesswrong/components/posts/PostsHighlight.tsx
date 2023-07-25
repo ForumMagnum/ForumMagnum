@@ -79,10 +79,10 @@ const HighlightBody = ({
       expanded={expanded}
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
         {(forceSeeMore || wordsLeft < 1000)
-          ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
+          ? <Link to={postGetPageUrl(post)} onClick={clickExpand} eventProps={{intent: 'expandPost'}}>
               ({preferredHeadingCase("See More")} – {wordsLeft} more words)
             </Link>
-          : <Link to={postGetPageUrl(post)}>
+          : <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
               ({preferredHeadingCase("Continue Reading")}  – {wordsLeft} more words)
             </Link>
         }

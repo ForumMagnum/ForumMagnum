@@ -200,6 +200,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     warning: "#832013",
     red: "#ff0000",
     alwaysWhite: "#fff",
+    alwaysBlack: "#000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
@@ -251,6 +252,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     loadingDotsAlternate: shades.grey[0],
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
+    filledGreenCheckmark: "#5ECE79",
     onTooltip: "#fff",
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],

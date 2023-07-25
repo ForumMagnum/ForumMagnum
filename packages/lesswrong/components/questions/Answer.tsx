@@ -48,14 +48,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexShrink: 0,
   },
   vote: {
-    display: 'inline-block',
+    display: "flex",
     marginLeft: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.grey[500],
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: -4
+    top: isEAForum ? 0 : -4,
   },
   footer: {
     marginTop: 5,

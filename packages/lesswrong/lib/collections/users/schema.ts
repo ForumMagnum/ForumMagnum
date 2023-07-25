@@ -333,7 +333,7 @@ const schema: SchemaType<DbUser> = {
     input: 'checkbox',
     optional: true,
     canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
   },
@@ -489,7 +489,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     control: 'checkboxgroup',
     canCreate: ['admins'],
-    canUpdate: ['alignmentForumAdmins', 'admins'],
+    canUpdate: ['alignmentForumAdmins', 'admins', 'realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
     form: {
