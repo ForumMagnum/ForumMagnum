@@ -29,7 +29,7 @@ class ElasticService {
     const result = await this.client.search({
       index,
       sorting,
-      search: params.query,
+      search: params.query ?? "",
       offset: page * hitsPerPage,
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
@@ -61,7 +61,7 @@ class ElasticService {
         nbHits: true,
         typo: true,
       },
-      query: params.query,
+      query: params.query ?? "",
       params: this.urlEncode(params),
       index: indexName,
       processingTimeMS: timeMS,
