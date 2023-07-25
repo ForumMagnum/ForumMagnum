@@ -385,7 +385,13 @@ addGraphQLResolvers({
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        return service.recommend(currentUser, clientId, count, algorithm.strategy);
+        return service.recommend(
+          currentUser,
+          clientId,
+          count,
+          algorithm.strategy,
+          algorithm.disableFallbacks,
+        );
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})

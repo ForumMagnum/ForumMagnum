@@ -100,6 +100,7 @@ const useGeneratorWithStrategy = (
       ...strategy,
     },
     count: 3,
+    disableFallbacks: true,
   };
   const {
     recommendations: posts = [],
