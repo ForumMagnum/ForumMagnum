@@ -207,6 +207,8 @@ const PostsNewForm = ({classes}: {
     fragmentName: "UsersCurrentPostRateLimit",
     fetchPolicy: "cache-and-network",
     skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: !!eventForm }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 

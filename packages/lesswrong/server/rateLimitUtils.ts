@@ -27,7 +27,7 @@ async function getPostsInTimeframe(user: DbUser, maxHours: number) {
   return await Posts.find({
     userId:user._id, 
     draft: false,
-    event: false, // I've never seen event-spam, and sometimes people need to make 100+ events for special occassions -- Ray
+    isEvent: false, // I've never seen event-spam, and sometimes people need to make 100+ events for special occassions -- Ray
     postedAt: {$gte: moment().subtract(maxHours, 'hours').toDate()}
   }, {sort: {postedAt: -1}, projection: {postedAt: 1}}).fetch()
 }
