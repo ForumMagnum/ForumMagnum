@@ -256,31 +256,33 @@ registerVotingSystem({
   },
 });
 
-const getEmojiReactionPower = (value?: boolean) => {
-  switch (value) {
-  case true:
-    return 1;
-  case false:
-    return -1;
-  default:
-    return 0;
-  }
-}
+const getEmojiReactionPower = (value?: boolean) =>
+  value === true ? 1 : 0;
 
 registerVotingSystem({
-  name: "threeAxisEmojis",
-  description: "Two-axis approve and agree, plus emoji reactions",
-  getCommentVotingComponent: () => Components.ThreeAxisEmojisVoteOnComment,
-  addVoteClient: ({oldExtendedScore, extendedVote}: {
+  name: "eaEmojis",
+  description: "Approval voting, plus EA Forum emoji reactions",
+  getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
+  addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,
     currentUser: UsersCurrent,
+    document: VoteableType,
+    voteType: string | null,
   }): Record<string, number> => {
+    const oldApprovalVoteCount =
+      oldExtendedScore && "approvalVoteCount" in oldExtendedScore
+        ? oldExtendedScore.approvalVoteCount
+        : document.voteCount;
+    const newVoteIncludesApproval = (voteType && voteType !== "neutral");
     const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
       const power = getEmojiReactionPower(extendedVote?.[reaction]);
       return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
     }));
-    return filterZeroes({...emojiReactCounts});
+    return {
+      ...filterZeroes({...emojiReactCounts}),
+      approvalVoteCount: oldApprovalVoteCount + (newVoteIncludesApproval ? 1 : 0),
+    };
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
     oldExtendedScore?: Record<string, number>,

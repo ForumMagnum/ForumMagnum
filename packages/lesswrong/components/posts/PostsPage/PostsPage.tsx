@@ -26,9 +26,13 @@ import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import isEmpty from 'lodash/isEmpty';
+import qs from 'qs';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+
+export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 
 const MAX_ANSWERS_QUERIED = 100
 
@@ -39,22 +43,33 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 ];
 
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
-  if (post.contents?.plaintextDescription) {
+export const getPostDescription = (post: {
+  contents?: { plaintextDescription: string | null } | null;
+  customHighlight?: { plaintextDescription: string | null } | null;
+  socialPreviewData?: { text: string | null } | null;
+  shortform: boolean;
+  user: { displayName: string } | null;
+}) => {
+  if (post?.socialPreviewData?.text) {
+    return post.socialPreviewData.text;
+  }
+
+  const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
+  if (longDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
-    const plaintextPars = post.contents.plaintextDescription
+    const plaintextPars = longDescription
       // paragraphs in the plaintext description are separated by double-newlines
       .split(/\n\n/)
       // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
-      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)))
-      
-    if (!plaintextPars.length) return ''
-    
+      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)));
+
+    if (!plaintextPars.length) return "";
+
     // concatenate paragraphs together with a delimiter, until they reach an
     // acceptable length (target is 100-200 characters)
     // this will return a longer description if one of the first couple of
     // paragraphs is longer than 200
-    let firstFewPars = plaintextPars[0]
+    let firstFewPars = plaintextPars[0];
     for (const par of plaintextPars.slice(1)) {
       const concat = `${firstFewPars} • ${par}`;
       // If we're really short, we need more
@@ -71,8 +86,8 @@ export const getPostDescription = (post: {contents?: {plaintextDescription: stri
       // paragraph, so we should stop
       break;
     }
-    if (firstFewPars.length > 198) {
-      return firstFewPars.slice(0, 199).trim() + "…";
+    if (firstFewPars.length > 148) {
+      return firstFewPars.slice(0, 149).trim() + "…";
     }
     return firstFewPars + " …";
   }
@@ -314,6 +329,25 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const { query, params } = location;
 
+  useEffect(() => {
+    if (!query[SHARE_POPUP_QUERY_PARAM]) return;
+
+    openDialog({
+      componentName: "SharePostPopup",
+      componentProps: {
+        post,
+      },
+      noClickawayCancel: true,
+      closeOnNavigate: true,
+    });
+
+    // Remove "sharePopup" from query once the popup is open, to prevent accidentally
+    // sharing links with the popup open
+    const currentQuery = isEmpty(query) ? {} : query
+    const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [history, location.location, openDialog, post, query]);
+
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({
     terms: {
@@ -406,7 +440,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
-  let socialPreviewImageUrl = post.socialPreviewImageUrl
+  let socialPreviewImageUrl = post.socialPreviewData?.imageUrl ?? "";
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
