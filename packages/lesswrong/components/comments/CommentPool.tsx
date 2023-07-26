@@ -15,6 +15,7 @@ import { useApolloClient } from '@apollo/client/react/hooks';
 
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
+  showParentOf: (commentId: string)=>Promise<void>
   showAncestorChain: (commentId: string)=>Promise<void>
   setExpansion: (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
@@ -119,6 +120,12 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
     forceRerender();
   }, [forceRerender, loadAll]);
   
+  const showParentOf = useCallback(async (commentId: string) => {
+    await loadAll();
+    stateRef.current = revealParentOf(stateRef.current, commentId);
+    forceRerender();
+  }, [forceRerender, loadAll]);
+
   const showAncestorChain = useCallback(async (commentId: string) => {
     await loadAll();
     stateRef.current = revealAncestorChain(stateRef.current, commentId);
@@ -176,8 +183,8 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
   }, []);
 
   const context: CommentPoolContextType = useMemo(() => ({
-    showMoreChildrenOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState
-  }), [showMoreChildrenOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState]);
+    showMoreChildrenOf, showParentOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState
+  }), [showMoreChildrenOf, showParentOf, showAncestorChain, setExpansion, invalidateComment, addComment, getCommentState]);
   
   const wrappedLoadMoreTopLevel = useCallback(async () => {
     await loadAll();
@@ -363,6 +370,15 @@ function revealChildren(state: CommentPoolState, parentCommentId: string, n: num
   const commentIdsToReveal = take(byDescendingKarma, n);
   // TODO: Make a decision about the truncation-state of these
   return revealComments(state, commentIdsToReveal);
+}
+
+function revealParentOf(state: CommentPoolState, commentId: string): CommentPoolState {
+  const parentCommentId = state.commentsById[commentId]?.comment.parentCommentId;
+  if (parentCommentId) {
+    return revealComments(state, [parentCommentId], {[parentCommentId]: "truncated"});
+  } else {
+    return state;
+  }
 }
 
 /**
