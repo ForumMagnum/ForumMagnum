@@ -1,7 +1,7 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "../../lib/sql/SelectQuery";
-import PgCollection from "../../lib/sql/PgCollection";
+import { toDictionary } from "../../lib/utils/toDictionary";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -137,5 +137,29 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Comments"`);
     return count;
+  }
+  
+  /**
+   * Given a list of comment IDs, return a mapping from comment ID to parent ID,
+   * for the listed comments plus all of their ancestors. Used for the
+   * Comments.ancestorCommentIds resolver.
+   */
+  async getCommentAncestorIds(commentIds: string[]): Promise<Record<string,string>> {
+    const idPairs = await this.getRawDb().manyOrNone(`
+      WITH RECURSIVE ancestor_comments AS (
+          SELECT _id, parentId
+          FROM Comments
+          WHERE _id IN ($1:csv)
+          
+          UNION ALL
+          
+          SELECT c._id, c.parentId
+          FROM Comments c
+          INNER JOIN ancestor_comments ac ON c._id = ac.parentId
+      )
+      SELECT * FROM ancestor_comments;
+    `, [commentIds]);
+    
+    return toDictionary(idPairs, row=>row._id, row=>row.parentCommentId);
   }
 }

@@ -1378,6 +1378,7 @@ interface CommentsList { // fragment on Comments
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
+  readonly ancestorCommentIds: Array<string>,
   readonly descendentCount: number,
   readonly title: string,
   readonly contents: CommentsList_contents|null,
