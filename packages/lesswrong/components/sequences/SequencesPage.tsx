@@ -143,9 +143,10 @@ const SequencesPage = ({ documentId, classes }: {
         <NoSSR>
           <div>
             <CloudinaryImage
-              publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+              publicId={document.bannerImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg")}
               width="auto"
               height="380"
+              imgProps={{quality: '100'}}
             />
             <div className={classes.imageScrim}/>
           </div>
