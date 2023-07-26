@@ -2,12 +2,12 @@ import { z } from "zod";
 
 /**
  * The is the schema of the request sent from the InstantSearch frontend to
- * Algolia, and we implmenet this same interface in Elasticsearch.
+ * Algolia, and we implement this same interface in Elasticsearch.
  */
 const querySchema = z.object({
   indexName: z.string(),
   params: z.object({
-    query: z.string(),
+    query: z.optional(z.string()),
     highlightPreTag: z.optional(z.string()),
     highlightPostTag: z.optional(z.string()),
     hitsPerPage: z.optional(z.number().int().nonnegative()),
