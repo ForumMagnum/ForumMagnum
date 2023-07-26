@@ -83,6 +83,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     minWidth: 0, // flexbox black magic
   },
+  titleWrapper: {
+    display: "inline",
+  },
   title: {
     fontWeight: 600,
     fontSize: 16,
@@ -265,7 +268,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
   // too.
   const TitleWrapper: FC = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
-      <InteractionWrapper>
+      <InteractionWrapper className={classes.titleWrapper}>
         <Link to={postLink}>{children}</Link>
       </InteractionWrapper>
     </PostsItemTooltipWrapper>
