@@ -88,6 +88,40 @@ export const makeAbsolute = function (url: string): string {
     return baseUrl+url;
 }
 
+const tryToFixUrl = (oldUrl: string, newUrl: string) => {
+  try {
+    // Only return the edited version if this actually fixed the problem
+    new URL(newUrl);
+    return newUrl;
+  } catch (e) {
+    return oldUrl;
+  }
+}
+
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// which can't be imported directly because it is part of the editor bundle
+const validateUrl = (url: string) => {
+  try {
+    // This will validate the URL - importantly, it will fail if the
+    // protocol is missing
+    new URL(url);
+  } catch (e) {
+    if (url.search(/[^@]+@[^.]+\.[^\n\r\f]+$/) === 0) {
+      // Add mailto: to email addresses
+      return tryToFixUrl(url, `mailto:${url}`);
+    } else if (url.search(/\/.*/) === 0) {
+      // This is probably _meant_ to be relative. We could prepend the
+      // siteUrl from instanceSettings, but this seems unnecessarily
+      // risky - let's just do nothing.
+    } else if (url.search(/(https?:)?\/\//) !== 0) {
+      // Add https:// to anything else
+      return tryToFixUrl(url, `https://${url}`);
+    }
+  }
+
+  return url;
+}
+
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
@@ -95,10 +129,7 @@ export const makeAbsolute = function (url: string): string {
  */
 export const getOutgoingUrl = function (url: string, foreignId?: string): string {
   // If no protocol is specified, guess that it is https://
-  let cleanedUrl = url;
-  if (cleanedUrl.indexOf('://') === -1) {
-    return `https://${cleanedUrl}`;
-  }
+  const cleanedUrl = validateUrl(url);
 
   const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
   return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
