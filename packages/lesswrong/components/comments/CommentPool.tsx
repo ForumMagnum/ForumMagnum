@@ -52,7 +52,7 @@ interface CommentPoolState {
  * managing load-mores and truncation. The intention is that all of these
  * eventually route through CommentPool.
  */
-const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCount, loadMoreTopLevel, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
+const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCount, loadMoreTopLevel, disableTopLevelLoadMore, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
   /**
    * Initial set of comments to show. If this changes, will show at least the
    * union of every set of comments that has been passed as initialComments. May
@@ -87,6 +87,12 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
    *   comment that should be shown.
    */
   loadMoreTopLevel?: (limit: number)=>Promise<CommentsList[]>,
+
+  /**
+   * If set, a top-level load more will never be shown (even if loading comments
+   * tells us that they're there). Used for shortform-container posts.
+   */
+  disableTopLevelLoadMore?: boolean
 
   treeOptions: CommentTreeOptions,
   startThreadTruncated?: boolean,
@@ -199,6 +205,11 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
     singleLineCommentsShowDescendentCount: true,
   };
 
+  const showTopLevelLoadMore = !disableTopLevelLoadMore && (
+    (!haveLoadedAll && topLevelCommentCount && topLevelCommentCount > countVisibleTopLevelComments(stateRef.current))
+    || hasHiddenTopLevelComments(stateRef.current)
+  );
+  
   return <CommentPoolContext.Provider value={context}>
     {tree.map(comment =>
       <CommentNodeOrPlaceholder
@@ -213,16 +224,11 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
         isChild={defaultNestingLevel > 1}
       />
     )}
-    {/*topLevelCommentCount && loadMoreTopLevel && topLevelCommentCount>tree.length*/
-      (
-        (!haveLoadedAll && topLevelCommentCount && topLevelCommentCount > countVisibleTopLevelComments(stateRef.current))
-          || hasHiddenTopLevelComments(stateRef.current)
-      ) && <LoadMore
-        loadMore={wrappedLoadMoreTopLevel}
-        count={tree.length}
-        totalCount={topLevelCommentCount}
-      />
-    }
+    {showTopLevelLoadMore && <LoadMore
+      loadMore={wrappedLoadMoreTopLevel}
+      count={tree.length}
+      totalCount={topLevelCommentCount}
+    />}
   </CommentPoolContext.Provider>
 }
 

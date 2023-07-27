@@ -17,7 +17,9 @@ describe("unflatten comments", () => {
         {_id:"1", parentCommentId:null, topLevelCommentId:"1"},
         {_id:"2", parentCommentId:"1", topLevelCommentId:"1"},
         {_id:"3", parentCommentId:"1", topLevelCommentId:"1"},
-      ]),
+      ], {
+        usePlaceholders: true
+      }),
       [{
         _id:"1",
         item: {_id:"1", parentCommentId:null, topLevelCommentId:"1"},
@@ -42,7 +44,9 @@ describe("unflatten comments", () => {
       unflattenComments<MinimalComment>([
         {_id:"2", parentCommentId:"1", topLevelCommentId:"1"},
         {_id:"3", parentCommentId:"1", topLevelCommentId:"1"},
-      ]),
+      ], {
+        usePlaceholders: true
+      }),
       [{
         _id:"1",
         item: null,
@@ -69,7 +73,9 @@ describe("unflatten comments", () => {
       unflattenComments<MinimalComment>([
         {_id:"3", parentCommentId:"1", topLevelCommentId:"1"},
         {_id:"4", parentCommentId:"2", topLevelCommentId:"1"},
-      ]),
+      ], {
+        usePlaceholders: true
+      }),
       [{
         _id:"1",
         item: null,

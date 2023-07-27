@@ -47,6 +47,8 @@ export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
 
+export const userHasCommentPoolInRecentDiscussion = isEAForum ? disabled : adminOnly;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;

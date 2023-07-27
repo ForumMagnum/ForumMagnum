@@ -14,7 +14,9 @@ import classNames from 'classnames';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { isEAForum } from '../../lib/instanceSettings';
 import { toDictionary } from '../../lib/utils/toDictionary';
+import { userHasCommentPoolInRecentDiscussion } from '../../lib/betas';
 import type { CommentExpansionState } from '../comments/CommentPool';
+import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -205,7 +207,7 @@ const RecentDiscussionThread = ({
     });
   }, [client, postId]);
 
-  const { PostsGroupDetails, PostsItemMeta, CommentPool, PostsHighlight, PostActionsButton } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentPool, PostsHighlight, PostActionsButton, CommentNodeOrPlaceholder } = Components
 
   const lastCommentId = comments && comments[0]?._id
 
@@ -235,6 +237,10 @@ const RecentDiscussionThread = ({
   };
   
   const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments ? toDictionary(comments, c=>c._id, _=>"truncated") : undefined;
+  const nestedComments = unflattenComments(comments ?? [], {
+    usePlaceholders: userHasCommentPoolInRecentDiscussion(currentUser)
+  });
+
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
@@ -277,15 +283,30 @@ const RecentDiscussionThread = ({
         </div>
         <div className={classes.content}>
           <div className={classes.commentsList}>
-            <CommentPool
-              initialComments={comments ?? []}
-              initialExpansionState={initialExpansion}
-              topLevelCommentCount={post.topLevelCommentCount}
-              treeOptions={treeOptions}
-              startThreadTruncated={true}
-              expandAllThreads={initialExpandAllThreads || expandAllThreads}
-              loadMoreTopLevel={loadMoreComments}
-            />
+            {userHasCommentPoolInRecentDiscussion(currentUser)
+              ? <CommentPool
+                  initialComments={comments ?? []}
+                  initialExpansionState={initialExpansion}
+                  topLevelCommentCount={post.topLevelCommentCount}
+                  treeOptions={treeOptions}
+                  startThreadTruncated
+                  expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                  loadMoreTopLevel={loadMoreComments}
+                  disableTopLevelLoadMore={post.shortform}
+                />
+              : !!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+                  <div key={comment._id}>
+                    <CommentNodeOrPlaceholder
+                      treeOptions={treeOptions}
+                      treeNode={comment}
+                      startThreadTruncated
+                      expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                      nestingLevel={1}
+                      key={comment._id}
+                    />
+                  </div>
+                )
+            }
           </div>
         </div>
       </div>

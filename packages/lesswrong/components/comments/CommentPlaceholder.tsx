@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentPoolContext } from './CommentPool';
 import type { CommentTreeOptions } from './commentTree';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import { userHasCommentPoolInRecentDiscussion } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   childrenOfPlaceholder: {
@@ -27,34 +29,50 @@ const CommentPlaceholder = ({treeOptions, treeNode, nestingLevel, isChild, class
   classes: ClassesType,
 }) => {
   const commentPoolContext = useContext(CommentPoolContext);
-  const { CommentFrame, CommentNodeOrPlaceholder, LoadMore } = Components;
+  const currentUser = useCurrentUser();
+  const { CommentFrame, CommentNodeOrPlaceholder } = Components;
 
   async function loadAncestors() {
     await commentPoolContext?.showAncestorChain(treeNode._id);
   }
   
-  return <CommentFrame
-    comment={null}
-    treeOptions={treeOptions}
-    onClick={loadAncestors}
-    id={treeNode._id}
-    nestingLevel={nestingLevel}
-    isChild={nestingLevel>1}
-  >
-    <div className={classes.childrenOfPlaceholder}>
-      {/*<LoadMore className={classes.loadMoreAncestors} loadMore={loadAncestors} />*/}
-      <div className={classes.topPadding}/>
+  const showFrame = userHasCommentPoolInRecentDiscussion(currentUser);
+
+  if (showFrame) {
+    return <CommentFrame
+      comment={null}
+      treeOptions={treeOptions}
+      onClick={loadAncestors}
+      id={treeNode._id}
+      nestingLevel={nestingLevel}
+      isChild={nestingLevel>1}
+    >
+      <div className={classes.childrenOfPlaceholder}>
+        <div className={classes.topPadding}/>
+        {treeNode.children.map(treeNode =>
+          <CommentNodeOrPlaceholder
+            key={treeNode._id}
+            treeOptions={treeOptions}
+            treeNode={treeNode}
+            isChild={true}
+            nestingLevel={nestingLevel+1}
+          />
+        )}
+      </div>
+    </CommentFrame>
+  } else {
+    return <>
       {treeNode.children.map(treeNode =>
         <CommentNodeOrPlaceholder
           key={treeNode._id}
           treeOptions={treeOptions}
           treeNode={treeNode}
-          isChild={true}
-          nestingLevel={nestingLevel+1}
+          isChild={isChild}
+          nestingLevel={nestingLevel}
         />
       )}
-    </div>
-  </CommentFrame>
+    </>;
+  }
 }
 
 const CommentPlaceholderComponent = registerComponent('CommentPlaceholder', CommentPlaceholder, {styles});

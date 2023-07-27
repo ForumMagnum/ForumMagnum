@@ -13,6 +13,10 @@ export interface CommentTreeNode<T extends ThreadableCommentType> {
   children: Array<CommentTreeNode<T>>
 }
 
+type UnflattenOptions = {
+  usePlaceholders?: boolean
+};
+
 // Given a set of comments with `parentCommentId`s in them, restructure as a
 // tree. Do this in a functional way: rather than edit a children property into
 // the existing comments (which requires cloning), like Vulcan-Starter does,
@@ -25,7 +29,7 @@ export interface CommentTreeNode<T extends ThreadableCommentType> {
 // ancestors of comments that are. In that case, nodes appear in the tree with
 // `item:null`, representing the fact that there exists a comment there but it
 // isn't loaded.
-export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>): Array<CommentTreeNode<T>>
+export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>, options: UnflattenOptions={}): Array<CommentTreeNode<T>>
 {
   const usedCommentIds = new Set<string>();
   
@@ -48,12 +52,14 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
   
   // Check if any of the comments mention a parentCommentId or topLevelCommentId
   // that wasn't in the set; if so, add a tree node for those.
-  for (let comment of comments) {
-    if (comment.parentCommentId && !usedCommentIds.has(comment.parentCommentId)) {
-      addVirtualComment(comment.parentCommentId);
-    }
-    if (comment.topLevelCommentId && !usedCommentIds.has(comment.topLevelCommentId)) {
-      addVirtualComment(comment.topLevelCommentId);
+  if (options.usePlaceholders) {
+    for (let comment of comments) {
+      if (comment.parentCommentId && !usedCommentIds.has(comment.parentCommentId)) {
+        addVirtualComment(comment.parentCommentId);
+      }
+      if (comment.topLevelCommentId && !usedCommentIds.has(comment.topLevelCommentId)) {
+        addVirtualComment(comment.topLevelCommentId);
+      }
     }
   }
   
@@ -64,17 +70,19 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
     if (result.item) {
       if (result.item.parentCommentId) {
         const parent = resultsById[result.item.parentCommentId]
-        parent.children.push(result);
-        nonRootCommentIds.add(result._id);
-        
-        // If the parent is an unloaded comment, we can infer that the parent
-        // is a descendent of the same top-level comment as we are
-        if (!parent.item) {
-          const topLevelComment = resultsById[result.item.topLevelCommentId];
-          if (parent._id != topLevelComment._id) {
-            nonRootCommentIds.add(parent._id);
-            if (!some(topLevelComment.children, c=>c._id===parent._id)) {
-              topLevelComment.children.push(parent);
+        if (parent) {
+          parent.children.push(result);
+          nonRootCommentIds.add(result._id);
+
+          // If the parent is an unloaded comment, we can infer that the parent
+          // is a descendent of the same top-level comment as we are
+          if (!parent.item) {
+            const topLevelComment = resultsById[result.item.topLevelCommentId];
+            if (parent._id != topLevelComment._id) {
+              nonRootCommentIds.add(parent._id);
+              if (!some(topLevelComment.children, c=>c._id===parent._id)) {
+                topLevelComment.children.push(parent);
+              }
             }
           }
         }
