@@ -8,7 +8,6 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
-    alignItems: "center",
     gap: "4px",
   },
   date: {
@@ -16,13 +15,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       color: theme.palette.grey[800],
     },
+  },
+  datePicker: {
+    transform: 'translateY(-12px)',
+    zIndex: 2
   }
 });
 
-export const EditDigestHeader = ({digest, classes}: {
+export const EditDigestHeader = ({digest, refetchPosts, classes}: {
   digest: DigestsMinimumInfo,
+  refetchPosts: () => void,
   classes: ClassesType,
 }) => {
+  // clicking on the start or end date lets you edit it
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
   const {mutate: updateDigest} = useUpdate({
@@ -35,7 +40,7 @@ export const EditDigestHeader = ({digest, classes}: {
 
   const onChangeDate = (field: string, date?: Date) => {
     if (date) {
-      updateDigest({
+      void updateDigest({
         selector: {_id: digest._id},
         data: {
           [field]: date,
@@ -48,12 +53,15 @@ export const EditDigestHeader = ({digest, classes}: {
 
   const startNode = isEditingStartDate
     ? (
-      <DatePicker
-        label="Start date"
-        value={new Date(digest.startDate)}
-        onChange={onChangeDate.bind(null, "startDate")}
-        below
-      />
+      <div className={classes.datePicker}>
+        <DatePicker
+          label="Start date"
+          value={new Date(digest.startDate)}
+          onChange={onChangeDate.bind(null, "startDate")}
+          onClose={refetchPosts}
+          below
+        />
+      </div>
     )
     : (
       <span onClick={() => setIsEditingStartDate(true)} className={classes.date}>
@@ -63,12 +71,15 @@ export const EditDigestHeader = ({digest, classes}: {
 
   const endNode = isEditingEndDate && digest.endDate
     ? (
-      <DatePicker
-        label="End date"
-        value={new Date(digest.endDate)}
-        onChange={onChangeDate.bind(null, "endDate")}
-        below
-      />
+      <div className={classes.datePicker}>
+        <DatePicker
+          label="End date"
+          value={new Date(digest.endDate)}
+          onChange={onChangeDate.bind(null, "endDate")}
+          onClose={refetchPosts}
+          below
+        />
+      </div>
     )
     : (
       <span

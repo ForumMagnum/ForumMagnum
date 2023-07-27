@@ -243,12 +243,13 @@ const styles = (theme: ThemeType): JssStyles => ({
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, below, onChange, classes}: {
+const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
   label?: string,
   name?: string,
   value?: Date,
   below?: boolean,
   onChange: (newValue: Date)=>void,
+  onClose?: (newValue: Date)=>void,
   classes: ClassesType
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
@@ -272,8 +273,11 @@ const DatePicker = ({label, name, value, below, onChange, classes}: {
         }}
         onChange={(newDate: Moment) => {
           // newDate argument is a Moment object given by react-datetime.
-          // HACK: Convert to `Date` in a more sensible way than this
-          onChange((newDate as any)._d)
+          onChange(newDate.toDate())
+        }}
+        onBlur={(newDate: Moment) => {
+          // newDate argument is a Moment object given by react-datetime.
+          onClose?.(newDate.toDate())
         }}
       />
     </div>

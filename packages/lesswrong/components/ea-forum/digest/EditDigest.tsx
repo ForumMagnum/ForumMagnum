@@ -172,7 +172,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data } = useQuery(gql`
+  const { data, refetch } = useQuery(gql`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
@@ -201,12 +201,13 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
-  // disable all status icons while processing the previous click
+  // by default, the current user's votes are hidden, but they can click the column header to reveal them
   const [votesVisible, setVotesVisible] = useState<boolean>(false)
   
   useEffect(() => {
-    // this is just to initialize the list of posts and statuses
-    if (!eligiblePosts || posts) return
+    // This is just to initialize the list of posts and statuses.
+    // It should only happen again if the digest dates change and we refetch the posts.
+    if (!eligiblePosts) return
     
     const newPosts: Array<PostWithRating> = []
     const newPostStatuses: Record<string,DigestPost> = {}
@@ -230,7 +231,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     })
     setPosts(newPosts)
     setPostStatuses(newPostStatuses)
-  }, [eligiblePosts]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eligiblePosts])
   
   // the digest status of each post is saved on a DigestPost record
   const { create: createDigestPost } = useCreate({
@@ -445,7 +446,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   // if we have no posts to display, just show the page heading
-  const pageHeadingNode = <EditDigestHeader digest={digest} />
+  const pageHeadingNode = <EditDigestHeader digest={digest} refetchPosts={refetch} />
   if (!posts.length) {
     return <div className={classes.root}>
       {pageHeadingNode}
