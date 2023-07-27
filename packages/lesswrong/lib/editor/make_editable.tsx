@@ -53,6 +53,15 @@ export const debateEditorPlaceholder =
 
 Other participants will be able to participate by leaving comments on the draft, which will automatically be converted into dialogue responses.`;
 
+export const linkpostEditorPlaceholder =
+`Share an excerpt, a summary, or a note about why you like the post.
+
+You can paste the whole post if you have permission from the author, or add them as co-author in the Options below.
+`
+
+export const questionEditorPlaceholder =
+`Kick off a discussion or solicit answers to something you’re confused about.`
+
 const defaultOptions: MakeEditableOptions = {
   // Determines whether to use the comment editor configuration (e.g. Toolbars)
   commentEditor: false,
