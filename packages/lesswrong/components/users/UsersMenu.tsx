@@ -152,151 +152,153 @@ const UsersMenu = ({classes}: {
       >
         <Paper>
           <DropdownMenu>
-            <div onClick={(ev) => {
-              if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
-                ev.preventDefault()
-              }
-            }}>
-              {userCanPost(currentUser) &&
-                <DropdownItem
-                  title={preferredHeadingCase("New Question")}
-                  to="/newPost?question=true"
-                />
-              }
-              {userCanPost(currentUser) &&
-                <DropdownItem
-                  title={preferredHeadingCase("New Post")}
-                  to="/newPost"
-                />
-              }
-              {userCanPost(currentUser) &&
-                  !isEAForum &&
-                  userCanCreateField(currentUser, postSchema['debate']) &&
-                <DropdownItem
-                  title={preferredHeadingCase("New Dialogue")}
-                  to="/newpost?debate=true"
-                />
-              }
-            </div>
-            {/*
-              * This is currently disabled for unreviewed users on the EA forum
-              * as there's issues with the new quick takes entry for such users.
-              * Long-term, we should fix these issues and reenable this option.
-              */}
-            {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
-              <DropdownItem
-                title={isEAForum ? "New quick take" : "New Shortform"}
-                onClick={() => openDialog({componentName:"NewShortformDialog"})}
-              />
-            }
-            {showNewButtons && <DropdownDivider />}
-            {showNewButtons && userCanPost(currentUser) &&
-              <DropdownItem
-                title={preferredHeadingCase("New Event")}
-                to="/newPost?eventForm=true"
-              />
-            }
-            {showNewButtons && currentUser.karma >= 1000 &&
-              <DropdownItem
-                title={preferredHeadingCase("New Sequence")}
-                to="/sequencesnew"
-              />
-            }
-
-            <DropdownDivider />
-
-            {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember &&
-              <DropdownItem
-                title={preferredHeadingCase("Apply for Membership")}
-                onClick={() => openDialog({componentName: "AFApplicationForm"})}
-              />
-            }
-            {currentUser.noKibitz &&
-              <DropdownItem
-                title={preferredHeadingCase(
-                  disableNoKibitz
-                    ? "Hide Names"
-                    : "Reveal Names"
-                )}
-                onClick={() => setDisableNoKibitz(!disableNoKibitz)}
-                icon={() => disableNoKibitz
-                  ? <EyeIcon className={classes.icon} />
-                  : <EyeIconCrossed className={classes.icon} />
+            <div>
+              <div onClick={(ev) => {
+                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+                  ev.preventDefault()
                 }
-              />
-            }
-            {!isEAForum &&
-              <DropdownItem
-                title={preferredHeadingCase("My Drafts")}
-                to="/drafts"
-                icon="Edit"
-                iconClassName={classes.icon}
-              />
-            }
-            {!currentUser.deleted &&
-              <DropdownItem
-                title={preferredHeadingCase("User Profile")}
-                to={`/users/${currentUser.slug}`}
-                icon="User"
-                iconClassName={classes.icon}
-              />
-            }
-            {userHasThemePicker(currentUser) &&
-              <ThemePickerMenu>
+              }}>
+                {userCanPost(currentUser) &&
+                  <DropdownItem
+                    title={preferredHeadingCase("New Question")}
+                    to="/newPost?question=true"
+                  />
+                }
+                {userCanPost(currentUser) &&
+                  <DropdownItem
+                    title={preferredHeadingCase("New Post")}
+                    to="/newPost"
+                  />
+                }
+                {userCanPost(currentUser) &&
+                    !isEAForum &&
+                    userCanCreateField(currentUser, postSchema['debate']) &&
+                  <DropdownItem
+                    title={preferredHeadingCase("New Dialogue")}
+                    to="/newpost?debate=true"
+                  />
+                }
+              </div>
+              {/*
+                * This is currently disabled for unreviewed users on the EA forum
+                * as there's issues with the new quick takes entry for such users.
+                * Long-term, we should fix these issues and reenable this option.
+                */}
+              {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
                 <DropdownItem
-                  title="Theme"
-                  onClick={() => {}}
-                  icon="Puzzle"
+                  title={isEAForum ? "New quick take" : "New Shortform"}
+                  onClick={() => openDialog({componentName:"NewShortformDialog"})}
+                />
+              }
+              {showNewButtons && <DropdownDivider />}
+              {showNewButtons && userCanPost(currentUser) &&
+                <DropdownItem
+                  title={preferredHeadingCase("New Event")}
+                  to="/newPost?eventForm=true"
+                />
+              }
+              {showNewButtons && currentUser.karma >= 1000 &&
+                <DropdownItem
+                  title={preferredHeadingCase("New Sequence")}
+                  to="/sequencesnew"
+                />
+              }
+  
+              <DropdownDivider />
+  
+              {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember &&
+                <DropdownItem
+                  title={preferredHeadingCase("Apply for Membership")}
+                  onClick={() => openDialog({componentName: "AFApplicationForm"})}
+                />
+              }
+              {currentUser.noKibitz &&
+                <DropdownItem
+                  title={preferredHeadingCase(
+                    disableNoKibitz
+                      ? "Hide Names"
+                      : "Reveal Names"
+                  )}
+                  onClick={() => setDisableNoKibitz(!disableNoKibitz)}
+                  icon={() => disableNoKibitz
+                    ? <EyeIcon className={classes.icon} />
+                    : <EyeIconCrossed className={classes.icon} />
+                  }
+                />
+              }
+              {!isEAForum &&
+                <DropdownItem
+                  title={preferredHeadingCase("My Drafts")}
+                  to="/drafts"
+                  icon="Edit"
                   iconClassName={classes.icon}
                 />
-              </ThemePickerMenu>
-            }
-            {!isEAForum && accountSettingsNode}
-            {!isEAForum && messagesNode}
-            <DropdownItem
-              title={isEAForum ? "Saved & read" : "Bookmarks"}
-              to={isEAForum ? "/saved" : "/bookmarks"}
-              icon="Bookmarks"
-              iconClassName={classes.icon}
-            />
-            {currentUser.shortformFeedId &&
+              }
+              {!currentUser.deleted &&
+                <DropdownItem
+                  title={preferredHeadingCase("User Profile")}
+                  to={`/users/${currentUser.slug}`}
+                  icon="User"
+                  iconClassName={classes.icon}
+                />
+              }
+              {userHasThemePicker(currentUser) &&
+                <ThemePickerMenu>
+                  <DropdownItem
+                    title="Theme"
+                    onClick={() => {}}
+                    icon="Puzzle"
+                    iconClassName={classes.icon}
+                  />
+                </ThemePickerMenu>
+              }
+              {!isEAForum && accountSettingsNode}
+              {!isEAForum && messagesNode}
               <DropdownItem
-                title={isEAForum ? "Your quick takes" : "Shortform Page"}
-                to={postGetPageUrl({
-                  _id: currentUser.shortformFeedId,
-                  slug: "shortform",
-                })}
-                icon={isEAForum ? "CommentFilled" : "Shortform"}
+                title={isEAForum ? "Saved & read" : "Bookmarks"}
+                to={isEAForum ? "/saved" : "/bookmarks"}
+                icon="Bookmarks"
                 iconClassName={classes.icon}
               />
-            }
-            {isEAForum && messagesNode}
-            {isEAForum && accountSettingsNode}
-
-            {/*
-              If you're an admin, you can disable your admin + moderator
-              powers and take them back.
-            */}
-            {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+              {currentUser.shortformFeedId &&
+                <DropdownItem
+                  title={isEAForum ? "Your quick takes" : "Shortform Page"}
+                  to={postGetPageUrl({
+                    _id: currentUser.shortformFeedId,
+                    slug: "shortform",
+                  })}
+                  icon={isEAForum ? "CommentFilled" : "Shortform"}
+                  iconClassName={classes.icon}
+                />
+              }
+              {isEAForum && messagesNode}
+              {isEAForum && accountSettingsNode}
+  
+              {/*
+                If you're an admin, you can disable your admin + moderator
+                powers and take them back.
+              */}
+              {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+                <DropdownItem
+                  title={preferredHeadingCase("Disable Admin Powers")}
+                  onClick={toggleOff}
+                />
+              </div>}
+              {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+                <DropdownItem
+                  title={preferredHeadingCase("Re-enable Admin Powers")}
+                  onClick={toggleOn}
+                />
+              </div>}
+  
+              <DropdownDivider />
+              
               <DropdownItem
-                title={preferredHeadingCase("Disable Admin Powers")}
-                onClick={toggleOff}
+                title={preferredHeadingCase("Log Out")}
+                to="/logout"
+                rawLink
               />
-            </div>}
-            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
-              <DropdownItem
-                title={preferredHeadingCase("Re-enable Admin Powers")}
-                onClick={toggleOn}
-              />
-            </div>}
-
-            <DropdownDivider />
-            
-            <DropdownItem
-              title={preferredHeadingCase("Log Out")}
-              to="/logout"
-              rawLink
-            />
+            </div>
           </DropdownMenu>
         </Paper>
       </LWPopper>
