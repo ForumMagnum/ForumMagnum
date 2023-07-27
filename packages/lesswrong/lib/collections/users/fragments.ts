@@ -24,6 +24,7 @@ registerFragment(`
     afCommentCount
     spamRiskScore
     tagRevisionCount
+    reviewedByUserId
   }
 `);
 
