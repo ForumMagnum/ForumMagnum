@@ -9,10 +9,10 @@
             "name": "TagRel"
           },
           {
-            "name": "Post"
+            "name": "Comment"
           },
           {
-            "name": "Comment"
+            "name": "Post"
           },
           {
             "name": "Revision"

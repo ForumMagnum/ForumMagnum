@@ -5,21 +5,56 @@ import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
+import { makeSortableListComponent } from '../form-components/sortableList';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 
+const SortableList = makeSortableListComponent({
+  renderItem: ({contents, removeItem, classes}) => {
+    return <li className={classes.item}>
+      <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
+    </li>
+  }
+});
+
+const styles = (theme: ThemeType) => ({
+  list: {
+    display: "flex",
+    flexWrap: "wrap",
+    paddingTop: 4,
+    justifyContent: "end"
+  },
+  item: {
+    listStyle: "none",
+    fontFamily: theme.typography.fontFamily,
+  },
+  search: {
+    display: "flex",
+    justifyContent: "end",
+    '& .react-autosuggest__suggestions-container--open': {
+      position: "absolute",
+      zIndex: 1,
+      backgroundColor: theme.palette.background.default
+    }
+  }
+});
+
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
-  title="Recent Discussion", shortformButton=true
+  title="Recent Discussion", shortformButton=true,
+  classes
 }: {
   commentsLimit?: number,
   maxAgeHours?: number,
   af?: boolean,
   title?: string,
   shortformButton?: boolean,
+  classes: ClassesType
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
+  const [userIds, setUserIds] = useState<string[]>([]);
   const refetchRef = useRef<null|(()=>void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
@@ -51,6 +86,7 @@ const RecentDiscussionFeed = ({
     RecentDiscussionMeetupsPoke,
     AnalyticsInViewTracker,
     RecentDiscussionSubforumThread,
+    SearchAutoComplete
   } = Components;
   
   const refetch = useCallback(() => {
@@ -72,22 +108,41 @@ const RecentDiscussionFeed = ({
             </div>}
           </SectionTitle>
           {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+          <div className={classes.search}>
+            <SearchAutoComplete
+              indexName={getAlgoliaIndexName("Users")}
+              clickAction={(userId) => setUserIds([...userIds, userId])}
+              renderSuggestion={(hit: any) => <Components.UsersAutoCompleteHit document={hit} />}
+              renderInputComponent={(hit: any) => <Components.UsersSearchInput inputProps={hit} />}
+              placeholder={"Search for Users"}
+              noSearchPlaceholder='User ID'
+            />
+          </div>
+          <SortableList
+            axis="xy"
+            value={userIds}
+            setValue={setUserIds}
+            className={classes.list}
+            classes={classes}
+          />
           <MixedTypeFeed
             firstPageSize={10}
             pageSize={20}
             refetchRef={refetchRef}
             resolverName="RecentDiscussionFeed"
             sortKeyType="Date"
-            resolverArgs={{ af: 'Boolean' }}
-            resolverArgsValues={{ af }}
+            resolverArgs={{ af: 'Boolean', userIds: '[String!]' }}
+            resolverArgsValues={{ af, userIds }}
             fragmentArgs={{
               commentsLimit: 'Int',
               maxAgeHours: 'Int',
               tagCommentsLimit: 'Int',
+              commentUserIds: '[String!]'
             }}
             fragmentArgsValues={{
               commentsLimit, maxAgeHours,
               tagCommentsLimit: commentsLimit,
+              commentUserIds: userIds
             }}
             renderers={{
               postCommented: {
@@ -96,7 +151,18 @@ const RecentDiscussionFeed = ({
                   <RecentDiscussionThread
                     post={post}
                     refetch={refetch}
-                    comments={post.recentComments}
+                    comments={post.recentCommentsPlus}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
+              recentComment: {
+                fragmentName: "CommentsListWithDiscussionThread",
+                render: (comment: CommentsListWithDiscussionThread) => (
+                  comment.post && <RecentDiscussionThread
+                    post={comment.post}
+                    refetch={refetch}
+                    comments={[comment, ...comment.post.recentCommentsPlus.filter(c => c._id !== comment._id)]}
                     expandAllThreads={expandAll}
                   />
                 )
@@ -152,6 +218,7 @@ const RecentDiscussionFeed = ({
 
 const RecentDiscussionFeedComponent = registerComponent('RecentDiscussionFeed', RecentDiscussionFeed, {
   areEqual: "auto",
+  styles
 });
 
 declare global {

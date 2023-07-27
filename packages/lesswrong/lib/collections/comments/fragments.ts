@@ -154,6 +154,18 @@ registerFragment(`
   }
 `);
 
+registerFragment(`
+  fragment CommentsListWithDiscussionThread on Comment {
+    ...CommentsList
+    post {
+      ...PostsRecentDiscussion
+    }
+    tag {
+      ...TagRecentDiscussion
+    }
+  }
+`);
+
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
 registerFragment(`

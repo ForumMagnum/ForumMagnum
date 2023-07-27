@@ -2,6 +2,11 @@ import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import SelectQuery from '../../lib/sql/SelectQuery';
+import PgCollection from '../../lib/sql/PgCollection';
+import AbstractRepo from '../repos/AbstractRepo';
+import PostsRepo from '../repos/PostsRepo';
+import { Posts } from '../../lib/collections/posts';
 
 export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
@@ -38,6 +43,22 @@ export function viewBasedSubquery<
     isNumericallyPositioned: !!sticky,
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
       return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
+    }
+  };
+}
+
+export function sqlBasedSubquery<
+  SortKeyType,
+  SortFieldName extends keyof DbPost
+>(props: ViewBasedSubqueryProps<DbPost, SortFieldName>): FeedSubquery<DbPost, SortKeyType> {
+  props.sortDirection ??= "desc";
+  const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
+  return {
+    type,
+    getSortKey: (item: DbPost) => item[props.sortField] as unknown as SortKeyType,
+    isNumericallyPositioned: !!sticky,
+    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<DbPost>> => {
+      return queryWithSQL({context, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
   };
 }
@@ -119,23 +140,23 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   });
 }
 
-const applyCutoff = <SortKeyType>(
-  sortedResults: {sortKey: SortKeyType}[],
+const applyCutoff = <SortKeyType, T extends {sortKey: SortKeyType}>(
+  sortedResults: T[],
   cutoff: SortKeyType,
   sortDirection: SortDirection,
 ) => {
   const cutoffFilter = sortDirection === "asc"
     ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
     : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
-  return _.filter(sortedResults, cutoffFilter);
+  return _.filter<T>(sortedResults, cutoffFilter);
 }
 
-export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sortDirection, subqueries}: {
+export async function mergeFeedQueries<SortKeyType, T extends FeedSubquery<any, any>[] = FeedSubquery<any, any>[]>({limit, cutoff, offset, sortDirection, subqueries}: {
   limit: number
   cutoff?: SortKeyType,
   offset?: number,
   sortDirection?: SortDirection,
-  subqueries: Array<any>,
+  subqueries: T,
 }) {
   sortDirection ??= "desc";
 
@@ -153,13 +174,13 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
   );
   
   // Merge the result lists
-  const unsortedResults = _.flatten(unsortedSubqueryResults);
+  const unsortedResults = unsortedSubqueryResults.flat();//_.flatten(unsortedSubqueryResults);
   
   // Split into results with numeric indexes and results with sort-key indexes
   const [
     numericallyPositionedResults,
     orderedResults,
-  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => isNumericallyPositioned);
+  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
   
   // Sort by shared sort key
   const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
@@ -194,12 +215,12 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
 // of results that have numeric indexes instead, and merge them. Eg, Recent
 // Discussion contains posts sorted by date, but with some things mixed in
 // with their position defined as "index 5".
-function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<any>, numericallyPositionedResults: Array<any>, offset: number) {
+function mergeSortedAndNumericallyPositionedResults<T extends {sortKey: AnyBecauseHard}>(sortedResults: Array<T>, numericallyPositionedResults: Array<T>, offset: number) {
   // Take the numerically positioned results. Sort them by index, discard ones
   // from below the offset, and resolve collisions.
   const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
   
-  let mergedResults: Array<any> = [...sortedResults];
+  let mergedResults: Array<T> = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
     const insertedResult = sortedNumericallyPositionedResults[i];
     const insertionPosition = insertedResult.sortKey-offset;
@@ -244,10 +265,38 @@ async function queryWithCutoff<ResultType extends DbObject>({
     cutoffSelector
   )
   const finalizedSelector = replaceSpecialFieldSelectors(mergedSelector);
+  // console.log({ finalizedSelector: JSON.stringify(finalizedSelector, null, 2), sort, limit });
   const resultsRaw = await collection.find(finalizedSelector, {
     sort: sort as Partial<Record<keyof ResultType, number>>,
     limit,
   }).fetch();
 
   return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
+}
+
+async function queryWithSQL<ResultType extends DbObject>({
+  context, selector, limit, cutoffField, cutoff, sortDirection
+}: {
+  context: ResolverContext,
+  selector: MongoSelector<DbComment>,
+  limit: number,
+  cutoffField: keyof ResultType,
+  cutoff: any,
+  sortDirection: SortDirection,
+}) {
+  const {currentUser} = context;
+
+  const sort = { postedAt: sortDirection === "asc" ? 1 : -1, _id: 1 };
+  const cutoffSelector = cutoff
+    ? {[cutoffField]: {[sortDirection === "asc" ? "$gt" : "$lt"]: cutoff}}
+    : {};
+  const mergedSelector = mergeSelectors(
+    getDefaultViewSelector('Comments'),
+    selector,
+    cutoffSelector
+  )
+  const finalizedSelector = replaceSpecialFieldSelectors(mergedSelector);
+  const resultsRaw = await (new PostsRepo().getRecentDiscussionThreads(finalizedSelector, { sort, limit }));
+
+  return await accessFilterMultiple(currentUser, Posts, resultsRaw, context);
 }

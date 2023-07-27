@@ -1,4 +1,4 @@
-import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
+import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery, sqlBasedSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
@@ -24,21 +24,22 @@ type CommunityFilter = typeof communityFilters[keyof typeof communityFilters];
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
-  args: "af: Boolean",
+  args: "af: Boolean, userIds: [String!]",
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     postCommented: Post
+    recentComment: Comment
     tagDiscussed: Tag
     tagSubforumComments: Comment
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
     limit?: number, cutoff?: Date, offset?: number,
-    args: {af: boolean},
+    args: {af: boolean, userIds?: string[]},
     context: ResolverContext
   }) => {
     type SortKeyType = Date;
-    const {af} = args;
+    const {af, userIds} = args;
     const {currentUser} = context;
     
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
@@ -59,43 +60,66 @@ defineFeedResolver<Date>({
       postCommentedExcludeCommunity = communityFilters.none;
     }
 
+    const userFilterSubquery = userIds?.length
+    ? viewBasedSubquery({
+        type: "recentComment",
+        collection: Comments,
+        sortField: "postedAt",
+        context,
+        selector: {
+          userId: { $in: userIds },
+          ...(af ? {af: true} : undefined),
+        },
+      })
+      // sqlBasedSubquery({
+      //   type: "postCommented",
+      //   collection: Posts,
+      //   sortField: "lastCommentedAt",
+      //   context,
+      //   selector: {
+      //     ...(userIds.length ? { userId: { $in: userIds } } : undefined),
+      //     ...(af ? {af: true} : undefined),
+      //   },
+      // })
+    : viewBasedSubquery({
+        type: "postCommented",
+        collection: Posts,
+        sortField: "lastCommentedAt",
+        context,
+        selector: {
+          baseScore: {$gt:0},
+          hideFrontpageComments: false,
+          lastCommentedAt: {$exists: true},
+          hideFromRecentDiscussions: {$ne: true},
+          hiddenRelatedQuestion: viewFieldAllowAny,
+          shortform: viewFieldAllowAny,
+          groupId: viewFieldAllowAny,
+          ...(af ? {af: true} : undefined),
+          ...(isEAForum
+            ? {$and: [
+              postCommentedEventsCriteria,
+              postCommentedExcludeCommunity,
+            ]}
+            : postCommentedEventsCriteria),
+        },
+      });
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
         // Post commented
-        viewBasedSubquery({
-          type: "postCommented",
-          collection: Posts,
-          sortField: "lastCommentedAt",
-          context,
-          selector: {
-            baseScore: {$gt:0},
-            hideFrontpageComments: false,
-            lastCommentedAt: {$exists: true},
-            hideFromRecentDiscussions: {$ne: true},
-            hiddenRelatedQuestion: viewFieldAllowAny,
-            shortform: viewFieldAllowAny,
-            groupId: viewFieldAllowAny,
-            ...(af ? {af: true} : undefined),
-            ...(isEAForum
-              ? {$and: [
-                postCommentedEventsCriteria,
-                postCommentedExcludeCommunity,
-              ]}
-              : postCommentedEventsCriteria),
-          },
-        }),
+        userFilterSubquery,
         // Tags with discussion comments
-        viewBasedSubquery({
-          type: "tagDiscussed",
-          collection: Tags,
-          sortField: "lastCommentedAt",
-          context,
-          selector: {
-            lastCommentedAt: {$exists: true},
-            ...(af ? {af: true} : undefined),
-          },
-        }),
+        // viewBasedSubquery({
+        //   type: "tagDiscussed",
+        //   collection: Tags,
+        //   sortField: "lastCommentedAt",
+        //   context,
+        //   selector: {
+        //     lastCommentedAt: {$exists: true},
+        //     ...(af ? {af: true} : undefined),
+        //   },
+        // }),
         // Subforum comments
         viewBasedSubquery({
           type: "tagSubforumComments",
@@ -110,18 +134,18 @@ defineFeedResolver<Date>({
           },
         }),
         // Large revision to tag
-        viewBasedSubquery({
-          type: "tagRevised",
-          collection: Revisions,
-          sortField: "editedAt",
-          context,
-          selector: {
-            collectionName: "Tags",
-            fieldName: "description",
-            "changeMetrics.added": {$gt: 100},
-            editedAt: {$exists: true},
-          },
-        }),
+        // viewBasedSubquery({
+        //   type: "tagRevised",
+        //   collection: Revisions,
+        //   sortField: "editedAt",
+        //   context,
+        //   selector: {
+        //     collectionName: "Tags",
+        //     fieldName: "description",
+        //     "changeMetrics.added": {$gt: 100},
+        //     editedAt: {$exists: true},
+        //   },
+        // }),
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",

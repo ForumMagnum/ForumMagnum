@@ -81,6 +81,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     const quiet = data?.options?.quiet ?? false;
     try {
       const {sql, args} = query.compile();
+      // if (this.getTable().getName() === 'Posts') console.log({ query, data, sql, args });
       const client = getSqlClientOrThrow(target);
       
       result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);

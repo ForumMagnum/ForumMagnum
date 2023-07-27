@@ -482,7 +482,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumIntroPostId: string,
@@ -1282,6 +1282,7 @@ interface PostsRevisionsList { // fragment on Posts
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
+  readonly recentCommentsPlus: Array<CommentsList>,
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
@@ -1487,6 +1488,11 @@ interface CommentsListWithParentMetadata extends CommentsList { // fragment on C
 
 interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // fragment on Posts
   readonly isRead: boolean,
+}
+
+interface CommentsListWithDiscussionThread extends CommentsList { // fragment on Comments
+  readonly post: PostsRecentDiscussion|null,
+  readonly tag: TagRecentDiscussion|null,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
@@ -2156,7 +2162,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2200,7 +2206,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2253,7 +2259,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2271,7 +2277,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -3207,6 +3213,7 @@ interface FragmentTypes {
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
+  CommentsListWithDiscussionThread: CommentsListWithDiscussionThread
   StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
@@ -3407,6 +3414,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
+  CommentsListWithDiscussionThread: "Comments"
   StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
