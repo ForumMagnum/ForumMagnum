@@ -147,15 +147,15 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   async getCommentAncestorIds(commentIds: string[]): Promise<Record<string,string>> {
     const idPairs = await this.getRawDb().manyOrNone(`
       WITH RECURSIVE ancestor_comments AS (
-          SELECT _id, parentId
-          FROM Comments
+          SELECT _id, "parentCommentId"
+          FROM "Comments"
           WHERE _id IN ($1:csv)
           
           UNION ALL
           
-          SELECT c._id, c.parentId
-          FROM Comments c
-          INNER JOIN ancestor_comments ac ON c._id = ac.parentId
+          SELECT c._id, c."parentCommentId"
+          FROM "Comments" c
+          INNER JOIN ancestor_comments ac ON c._id = ac."parentCommentId"
       )
       SELECT * FROM ancestor_comments;
     `, [commentIds]);

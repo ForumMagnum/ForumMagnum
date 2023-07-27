@@ -15,7 +15,6 @@ registerFragment(`
     tagCommentType
     parentCommentId
     topLevelCommentId
-    ancestorCommentIds
     descendentCount
     title
     contents {
