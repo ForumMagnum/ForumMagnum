@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { isEAForum } from '../../lib/instanceSettings';
+import { PostCategory } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,15 +15,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isEAForum && {
       fontWeight: 700,
       fontSize: 32,
+      marginBottom: 12,
     }),
     width: "100%",
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: theme.palette.border.normal,
-    '&:focused': {
-      borderBottom: theme.palette.border.normal
-    },
+    borderBottom: !isEAForum && theme.palette.border.normal,
     "& textarea": {
       overflowY: "hidden",
     },
@@ -34,6 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '1.2em',
   },
 })
+
+const placeholders: Record<PostCategory, string> = {
+  "post": "Post title",
+  "question": "Question title",
+  "linkpost": "Linkpost title",
+}
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
   document: PostsBase,
@@ -49,7 +54,10 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
   });
-  const { question } = document;
+  const { question, postCategory } = document;
+
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+  const displayPlaceholder = isEAForum ? placeholders[effectiveCategory] : placeholder;
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
@@ -62,8 +70,8 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
-    className={classNames(classes.root, {[classes.question]: question})}
-    placeholder={ question ? "Question Title" : placeholder }
+    className={classNames(classes.root, {[classes.question]: question && !isEAForum})}
+    placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {
       updateCurrentValues({

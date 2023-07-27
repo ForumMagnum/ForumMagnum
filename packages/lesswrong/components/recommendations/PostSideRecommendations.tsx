@@ -95,6 +95,10 @@ const PostSideRecommendations = ({post, className, classes}: {
     return null;
   }
 
+  if (!loading && items.length < 1) {
+    return null;
+  }
+
   const {Loading, IntercomFeedbackButton} = Components;
   const List = numbered ? "ol" : "ul";
   return (

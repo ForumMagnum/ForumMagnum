@@ -225,7 +225,7 @@ registerFragment(`
 registerFragment(`
   fragment UsersCurrentPostRateLimit on User {
     _id
-    rateLimitNextAbleToPost
+    rateLimitNextAbleToPost(eventForm: $eventForm)
   }
 `);
 

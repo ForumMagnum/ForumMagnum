@@ -8,6 +8,12 @@ import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicS
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+
+export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
+export type PostCategory = UnionOf<typeof postCategories>;
+export const postDefaultCategory = 'post';
+export const isPostCategory = (tab: string): tab is PostCategory => postCategories.has(tab)
 
 //////////////////
 // Link Helpers //

@@ -807,6 +807,40 @@ function createFeedCallback( feedItems ) {
   };
 }
 
+function getNonWhitespaceNodeBefore(position) {
+  let nodeBefore = position.nodeBefore;
+  while (
+    nodeBefore &&
+    typeof nodeBefore._data === "string" &&
+    nodeBefore._data.trim().length === 0
+  ) {
+    nodeBefore = nodeBefore.previousSibling
+  }
+  return nodeBefore;
+}
+
+function nodeIsMention(node) {
+  if (!node || !node.is("$text")) {
+    return false
+  }
+  if (node.hasAttribute("mention")) {
+    return true;
+  }
+  const link = node.getAttribute("linkHref");
+  if (!link) {
+    return false;
+  }
+  try {
+    const url = new URL(link);
+    const search = url.search.slice(1);
+    const params = new URLSearchParams(search);
+    const mention = params.get("mention");
+    return !!mention;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Checks if position in inside or right after a text with a mention.
 //
 // @param {module:engine/model/position~Position} position.
@@ -815,11 +849,12 @@ function isPositionInExistingMention( position ) {
   // The text watcher listens only to changed range in selection - so the selection attributes are not yet available
   // and you cannot use selection.hasAttribute( 'mention' ) just yet.
   // See https://github.com/ckeditor/ckeditor5-engine/issues/1723.
-  const hasMention = position.textNode && position.textNode.hasAttribute( 'mention' );
+  if (nodeIsMention(position.textNode)) {
+    return true;
+  }
 
-  const nodeBefore = position.nodeBefore;
-
-  return hasMention || nodeBefore && nodeBefore.is( '$text' ) && nodeBefore.hasAttribute( 'mention' );
+  const nodeBefore = getNonWhitespaceNodeBefore(position);
+  return nodeIsMention(nodeBefore);
 }
 
 // Checks if the closest marker offset is at the beginning of a mention.
@@ -831,7 +866,7 @@ function isPositionInExistingMention( position ) {
 function isMarkerInExistingMention( markerPosition ) {
   const nodeAfter = markerPosition.nodeAfter;
 
-  return nodeAfter && nodeAfter.is( '$text' ) && nodeAfter.hasAttribute( 'mention' );
+  return nodeAfter && nodeIsMention(nodeAfter);
 }
 
 // Checks if string is a valid mention marker.

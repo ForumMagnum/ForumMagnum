@@ -482,7 +482,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumIntroPostId: string,
@@ -544,6 +544,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -904,6 +905,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -2156,7 +2158,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2200,7 +2202,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2253,7 +2255,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2271,7 +2273,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions

@@ -58,6 +58,10 @@ const styles = (theme: ThemeType) => ({
   date: {
     color: theme.palette.grey[600],
   },
+  vote: {
+    display: "flex",
+    alignItems: "center",
+  },
   body: {
     lineHeight: "160%",
     letterSpacing: "-0.14px",
@@ -146,7 +150,7 @@ const PopularComment = ({comment, classes}: {
           </LWTooltip>
         </div>
         {!comment.debateResponse && !comment.rejected &&
-          <InteractionWrapper>
+          <InteractionWrapper className={classes.vote}>
             <SmallSideVote
               document={comment}
               collection={Comments}
