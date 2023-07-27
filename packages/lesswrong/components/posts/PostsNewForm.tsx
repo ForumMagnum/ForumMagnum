@@ -1,7 +1,7 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
@@ -88,6 +88,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
+      ...(isEAForum && {width: "100%"})
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -177,9 +178,16 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
 
+  const questionInQuery = query && !!query.question
+  const postCategory = isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+    ? ("question" as const)
+    : postDefaultCategory;
+
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
-    question: query && !!query.question,
+    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -189,10 +197,11 @@ const PostsNewForm = ({classes}: {
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
-    debate: debateForm
+    debate: debateForm,
+    postCategory
   }
   const eventForm = query && query.eventForm
-  
+
   if (query?.subforumTagId) {
     prefilledProps = {
       ...prefilledProps,

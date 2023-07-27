@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -203,7 +203,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: 'EditUrl',
+    control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
     order: 12,
     form: {
       labels: {
@@ -214,6 +214,20 @@ const schema: SchemaType<DbPost> = {
     },
     group: formGroups.options,
     hidden: (props) => props.eventForm || props.debateForm,
+  },
+  // Category (post, linkpost, or question)
+  postCategory: {
+    type: String,
+    allowedValues: [...postCategories],
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    order: 9,
+    group: formGroups.category,
+    control: 'EditPostCategory',
+    hidden: (props) => !isEAForum || props.eventForm || props.debateForm,
+    ...schemaDefaultValue(postDefaultCategory),
   },
   // Title
   title: {
@@ -2215,7 +2229,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.options,
+    group: isEAForum ? formGroups.title : formGroups.options,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },

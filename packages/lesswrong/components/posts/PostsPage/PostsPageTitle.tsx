@@ -43,6 +43,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: "unset"
     }
+  },
+  linkIcon: {
+    color: theme.palette.grey[500],
+    marginLeft: 4,
+    fontSize: "0.8em",
   }
 })
 
@@ -51,7 +56,8 @@ const PostsPageTitle = ({classes, post}: {
   post: PostsDetails,
 }) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
-  const { Typography } = Components;
+  const { Typography, ForumIcon } = Components;
+  const showLinkIcon = post.url && isEAForum;
   
   return (
     <div>
@@ -67,7 +73,7 @@ const PostsPageTitle = ({classes, post}: {
       </Typography>}
       <Typography variant="display3" className={classes.root}>
         <Link to={postGetPageUrl(post)} className={classes.link}>{post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title}</Link>
+        {post.title} {showLinkIcon && <ForumIcon className={classes.linkIcon} icon="BoldLink" />}</Link>
       </Typography>
     </div>
   )
