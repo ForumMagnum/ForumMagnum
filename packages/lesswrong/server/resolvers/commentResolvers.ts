@@ -5,6 +5,7 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
+import { createPaginatedResolver } from './paginatedResolver';
 
 const specificResolvers = {
   Mutation: {
@@ -75,3 +76,12 @@ addGraphQLSchema(`
 `);
 
 addGraphQLQuery('CommentsWithReacts(limit: Int): CommentsWithReactsResult')
+
+createPaginatedResolver({
+  name: "PopularComments",
+  graphQLType: "Comment",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
+});
