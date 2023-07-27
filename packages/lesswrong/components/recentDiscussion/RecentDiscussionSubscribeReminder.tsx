@@ -18,7 +18,7 @@ import TextField from '@material-ui/core/TextField';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 // mailchimp link to sign up for the EA Forum's digest
-const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
+export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

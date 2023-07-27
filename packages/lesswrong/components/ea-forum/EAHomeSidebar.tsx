@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,34 +12,107 @@ import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { overcastLogoIcon } from '../icons/OvercastLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { useCurrentUser } from '../common/withUser';
+import { getPostAuthors } from '../../lib/collections/digests/helpers';
+import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
+import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
+import TextField from '@material-ui/core/TextField';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useMessages } from '../common/withMessages';
+import { useUserLocation } from '../../lib/collections/users/helpers';
+import sortBy from 'lodash/sortBy';
+import findIndex from 'lodash/findIndex';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     minHeight: 250,
+    maxWidth: 390,
     paddingLeft: 40,
-    borderLeft: theme.palette.border.normal,
+    paddingRight: 10,
+    borderLeft: theme.palette.border.faint,
     marginTop: 30,
     marginLeft: 50
   },
   section: {
     display: 'flex',
     flexDirection: 'column',
-    rowGap: '10px',
+    rowGap: '9px',
     fontSize: 13,
     // lineHeight: '18px',
     fontFamily: theme.typography.fontFamily,
-    marginBottom: 32,
+    marginBottom: 30,
+  },
+  digestAd: {
+    maxWidth: 334,
+    backgroundColor: theme.palette.grey[200],
+    padding: '12px 16px',
+    borderRadius: theme.borderRadius.default
+  },
+  digestAdHeadingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    columnGap: 8,
+    marginBottom: 12
+  },
+  digestAdHeading: {
+    fontWeight: 600,
+    fontSize: 16,
+    margin: 0
+  },
+  digestAdClose: {
+    height: 16,
+    width: 16,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    }
+  },
+  digestAdBody: {
+    fontSize: 13,
+    lineHeight: '19px',
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    marginBottom: 12
+  },
+  digestForm: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    columnGap: 8,
+    rowGap: '8px'
+  },
+  digestFormInput: {
+    flexGrow: 1,
+    background: theme.palette.grey[0],
+    borderRadius: 4,
+    '& .MuiInputLabel-outlined': {
+      transform: 'translate(14px,12px) scale(1)',
+      '&.MuiInputLabel-shrink': {
+        transform: 'translate(14px,-6px) scale(0.75)',
+      }
+    },
+    '& .MuiOutlinedInput-input': {
+      padding: 10
+    }
   },
   sectionTitle: {
-    fontSize: 12
+    fontSize: 12,
+    lineHeight: '16px'
   },
   resourceLink: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    columnGap: 6,
     color: theme.palette.primary.main,
     fontWeight: 600,
   },
+  icon: {
+    height: 16,
+    width: 16,
+  },
   postTitle: {
     fontWeight: 600,
-    marginBottom: 1
+    // marginBottom: 1
   },
   postTitleLink: {
     display: 'inline-block',
@@ -49,7 +122,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: 'ellipsis',
   },
   postMetadata: {
-    color: theme.palette.text.dim3
+    color: theme.palette.text.dim3,
+    '& .PostsItemDate-postedAt': {
+      fontWeight: 400
+    }
   },
   eventDate: {
     display: 'inline-block',
@@ -87,6 +163,46 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const DigestAd = ({classes}: {
+  classes: ClassesType,
+}) => {
+  const updateCurrentUser = useUpdateCurrentUser()
+  const [loading, setLoading] = useState(false)
+  const { flash } = useMessages()
+  
+  const handleSubscribe = async () => {
+    setLoading(true)
+    try {
+      await updateCurrentUser({
+        subscribedToDigest: true,
+        unsubscribeFromAll: false
+      })
+      flash('Thanks for subscribing!')
+    } catch(e) {
+      flash('There was a problem subscribing you to the digest. Please try again later.')
+    }
+    setLoading(false)
+  }
+  
+  const { ForumIcon, EAButton } = Components
+  
+  return <div className={classes.digestAd}>
+    <div className={classes.digestAdHeadingRow}>
+      <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
+      <ForumIcon icon="Close" className={classes.digestAdClose} />
+    </div>
+    <div className={classes.digestAdBody}>
+      Sign up for the EA Forum Digest to get curated recommendations every week
+    </div>
+    <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
+      <TextField variant="outlined" label="Email address" placeholder="example@email.com" name="EMAIL" required className={classes.digestFormInput} />
+      <EAButton className={classes.digestFormSubmitBtn}>
+        Subscribe
+      </EAButton>
+    </form>
+  </div>
+}
+
 export const EAHomeSidebar = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -112,14 +228,20 @@ export const EAHomeSidebar = ({classes}: {
     fetchPolicy: "cache-and-network",
   })
   
+  const {lat, lng, known} = useUserLocation(currentUser, true)
+  const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
+    view: 'nearbyEvents',
+    lat: lat,
+    lng: lng,
+    limit: 3,
+  } : {
+    view: 'globalEvents',
+    limit: 3,
+  }
   const { results: upcomingEvents } = useMulti({
     collectionName: "Posts",
-    terms: {
-      view: 'nearbyEvents',
-      limit: 3,
-    },
+    terms: upcomingEventsTerms,
     fragmentName: 'PostsBase',
-    enableTotal: false,
     fetchPolicy: 'cache-and-network',
   })
   
@@ -129,27 +251,47 @@ export const EAHomeSidebar = ({classes}: {
       view: "myBookmarkedPosts",
       limit: 3,
     },
-    fragmentName: "PostsListBase",
+    fragmentName: "PostsList",
     fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
   })
+  // HACK: The results are not properly sorted, so we sort them here.
+  // See also comments in the myBookmarkedPosts view.
+  const sortedSavedPosts = sortBy(savedPosts,
+    post => -findIndex(
+      currentUser?.bookmarkedPostsMetadata || [],
+      (bookmark) => bookmark.postId === post._id
+    )
+  )
   
-  const { SectionTitle, PostsItemDate, PostsAuthors } = Components
+  const { SectionTitle, PostsItemDate, PostsAuthors, ForumIcon } = Components
   
   const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <div className={classes.root}>
     <div className={classes.section}>
+      <DigestAd classes={classes} />
+    </div>
+    <div className={classes.section}>
       <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      <Link to="/handbook" className={classes.resourceLink}>
-        The EA Handbook
-      </Link>
-      <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
-        The Introductory EA Program
-      </Link>
-      <Link to="/groups" className={classes.resourceLink}>
-        Discover EA groups
-      </Link>
+      <div>
+        <Link to="/handbook" className={classes.resourceLink}>
+          <ForumIcon icon="BookOpen" className={classes.icon} />
+          The EA Handbook
+        </Link>
+      </div>
+      <div>
+        <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
+          <ForumIcon icon="ComputerDesktop" className={classes.icon} />
+          The Introductory EA Program
+        </Link>
+      </div>
+      <div>
+        <Link to="/groups" className={classes.resourceLink}>
+          <ForumIcon icon="Users" className={classes.icon} />
+          Discover EA groups
+        </Link>
+      </div>
     </div>
     
     <div className={classes.section}>
@@ -194,22 +336,30 @@ export const EAHomeSidebar = ({classes}: {
       </div>
     </div>
     
-    <div className={classes.section}>
-      <SectionTitle title="Unread saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      {savedPosts?.map(post => <div key={post._id} className={classes.post}>
-        <div className={classes.postTitle}>
-          <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-            {post.title}
-          </Link>
+    {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
+      <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
+      {sortedSavedPosts.map(post => {
+        let postAuthor = '[anonymous]'
+        if (post.user && !post.hideAuthor) {
+          postAuthor = post.user.displayName
+        }
+        const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+        return <div key={post._id} className={classes.post}>
+          <div className={classes.postTitle}>
+            <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
+              {post.title}
+            </Link>
+          </div>
+          <div className={classes.postMetadata}>
+            {/* <PostsAuthors post={post} /> TODO figure out what to do here */}
+            {postAuthor}{readTime}
+          </div>
         </div>
-        <div className={classes.postMetadata}>
-          <PostsAuthors post={post} />
-        </div>
-      </div>)}
+      })}
       <div>
         <Link to="/saved" className={classes.viewMore}>View more</Link>
       </div>
-    </div>
+    </div>}
     
     <div className={classes.section}>
       <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />

@@ -128,11 +128,32 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
+  eaHomeGrid: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main rhs ..."
+      `,
+      gridTemplateColumns: `
+        minmax(0, min-content)
+        minmax(0, 1fr)
+        minmax(0, min-content)
+        minmax(0, min-content)
+        minmax(0, 1fr)
+      `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
   navSidebar: {
     gridArea: 'navSidebar'
   },
   rhs: {
-    gridArea: 'rhs'
+    gridArea: 'rhs',
+    '@media(max-width: 1500px)': {
+      display: 'none'
+    }
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -274,8 +295,9 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
     // component that appears on the right hand side of the center column
-    const RHSComponent = currentRoute.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
+    const RHSComponent = currentRoute?.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -334,6 +356,7 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isEAForum && <AdminToggle />}
@@ -359,7 +382,9 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {RHSComponent && <div className={classes.rhs}><RHSComponent /></div>}
+                {!renderSunshineSidebar && RHSComponent && <div className={classes.rhs}>
+                  <RHSComponent />
+                </div>}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
                     <SunshineSidebar/>
