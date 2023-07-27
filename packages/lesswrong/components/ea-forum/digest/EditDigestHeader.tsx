@@ -38,7 +38,7 @@ export const EditDigestHeader = ({digest, refetchPosts, classes}: {
   const startFormatted = moment(digest.startDate).format('MMM D')
   const endFormatted = digest.endDate ? moment(digest.endDate).format('MMM D') : 'now'
 
-  const onChangeDate = (field: string, date?: Date) => {
+  const onChangeDate = (field: "startDate"|"endDate", date?: Date) => {
     if (date) {
       void updateDigest({
         selector: {_id: digest._id},
