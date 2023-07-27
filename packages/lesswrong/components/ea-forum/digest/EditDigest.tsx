@@ -8,7 +8,7 @@ import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
-import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
+import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -348,7 +348,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
 
 
-  const { Loading, SectionTitle, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
+  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
     EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
@@ -445,10 +445,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   // if we have no posts to display, just show the page heading
-  const pageHeadingNode = <SectionTitle
-    title={getDigestName({digest})}
-    noTopMargin
-  />
+  const pageHeadingNode = <EditDigestHeader digest={digest} />
   if (!posts.length) {
     return <div className={classes.root}>
       {pageHeadingNode}
