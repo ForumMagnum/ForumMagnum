@@ -12,6 +12,7 @@ import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
 import type { ToCData } from '../../lib/tableOfContents';
 import sanitizeHtml from 'sanitize-html';
+import { containsKana, fromKana } from "hepburn";
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -136,6 +137,10 @@ export const getOutgoingUrl = function (url: string, foreignId?: string): string
 };
 
 export const slugify = function (s: string): string {
+  if (containsKana(s)) {
+    s = fromKana(s);
+  }
+
   var slug = getSlug(s, {
     truncate: 60
   });
