@@ -85,6 +85,7 @@ importComponent("EditorTypeSelect", () => require('../components/editor/EditorTy
 importComponent("EditTitle", () => require('../components/editor/EditTitle'));
 importComponent("EditCommentTitle", () => require('../components/editor/EditCommentTitle'));
 importComponent("EditUrl", () => require('../components/editor/EditUrl'));
+importComponent("EditLinkpostUrl", () => require('../components/editor/EditLinkpostUrl'));
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
@@ -790,6 +791,7 @@ importComponent("CuratedSequences", () => require('../components/sequences/Curat
 importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIntroCurriculum'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
+importComponent("EditPostCategory", () => require('../components/form-components/EditPostCategory'));
 importComponent("ImageUpload", () => require('../components/form-components/ImageUpload'));
 importComponent("ImageUpload2", () => require('../components/form-components/ImageUpload2')); // TODO maybe combine this with the original
 importComponent("SocialPreviewUpload", () => require('../components/form-components/SocialPreviewUpload'));

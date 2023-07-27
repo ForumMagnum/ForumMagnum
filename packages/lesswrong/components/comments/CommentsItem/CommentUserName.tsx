@@ -1,5 +1,5 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import React, { ReactElement } from 'react';
+import React, { ReactNode } from 'react';
 import classNames from 'classnames';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
@@ -42,6 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     height: 26, // match height of vote buttons
     padding: "1px 4px 1px 2px",
+    marginLeft: -6,
     "&:hover": {
       background: theme.palette.grey[300],
     },
@@ -87,7 +88,7 @@ const CommentUserName = ({
       </span>
     );
   } else if (isEAForum) {
-    const Wrapper = ({children}: {children: ReactElement|ReactElement[]}) => simple
+    const Wrapper = ({children}: {children: ReactNode}) => simple
       ? (
         <div className={classes.mainWrapper}>
           {children}

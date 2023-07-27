@@ -71,10 +71,15 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap"
+  },
+  flexAlignTop: {
+    display: "flex",
+    alignItems: "baseline",
+    flexWrap: "wrap"
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, toggle, classes }: {
+const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
   children: React.ReactNode
   label?: string
   heading: React.ReactNode
@@ -84,6 +89,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
   groupStyling: any
   paddingStyling: any
   flexStyle: any
+  flexAlignTopStyle: any
   toggle: ()=>void
   classes: ClassesType
 }) => {
@@ -99,6 +105,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
           [classes.formSectionCollapsed]: collapsed && !hasErrors,
           [classes.formSectionBody]: groupStyling,
           [classes.flex]: flexStyle,
+          [classes.flexAlignTop]: flexAlignTopStyle,
           [classes.formSectionPadding]: groupStyling,
         }
       )}
@@ -184,7 +191,7 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle, paddingStyle, formProps } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
@@ -200,6 +207,7 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
         paddingStyling={paddingStyle}
         hasErrors={this.hasErrors()}
         flexStyle={flexStyle}
+        flexAlignTopStyle={flexAlignTopStyle}
       >
         {fields.map(field => (
           <FormComponents.FormComponent
