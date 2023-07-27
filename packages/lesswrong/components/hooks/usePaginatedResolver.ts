@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
-import { take } from "lodash";
+import take from "lodash/take";
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
 
 export type UsePaginatedResolverResult<
