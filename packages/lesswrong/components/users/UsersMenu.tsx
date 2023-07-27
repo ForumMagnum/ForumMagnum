@@ -21,6 +21,7 @@ import postSchema from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
+import { isMobile } from '../../lib/utils/isMobile'
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -78,7 +79,7 @@ const UsersMenu = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const {eventHandlers, hover, anchorEl} = useHover();
+  const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
@@ -152,7 +153,11 @@ const UsersMenu = ({classes}: {
       >
         <Paper>
           <DropdownMenu>
-            <div>
+            <div
+              onClick={() => {
+                forceUnHover();
+              }}
+            >
               <div onClick={(ev) => {
                 if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
                   ev.preventDefault()
@@ -246,7 +251,11 @@ const UsersMenu = ({classes}: {
                 <ThemePickerMenu>
                   <DropdownItem
                     title="Theme"
-                    onClick={() => {}}
+                    onClick={(ev) => {
+                      if (isMobile()) {
+                        ev.stopPropagation();
+                      }
+                    }}
                     icon="Puzzle"
                     iconClassName={classes.icon}
                   />
