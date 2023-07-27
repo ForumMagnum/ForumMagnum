@@ -22,9 +22,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const EditDigestHeader = ({digest, refetchPosts, classes}: {
+export const EditDigestHeader = ({digest, classes}: {
   digest: DigestsMinimumInfo,
-  refetchPosts: () => void,
   classes: ClassesType,
 }) => {
   // clicking on the start or end date lets you edit it
@@ -58,7 +57,9 @@ export const EditDigestHeader = ({digest, refetchPosts, classes}: {
           label="Start date"
           value={new Date(digest.startDate)}
           onChange={onChangeDate.bind(null, "startDate")}
-          onClose={refetchPosts}
+          onClose={(newDate: Date) => {
+            setIsEditingStartDate(false)
+          }}
           below
         />
       </div>
@@ -76,7 +77,9 @@ export const EditDigestHeader = ({digest, refetchPosts, classes}: {
           label="End date"
           value={new Date(digest.endDate)}
           onChange={onChangeDate.bind(null, "endDate")}
-          onClose={refetchPosts}
+          onClose={(newDate: Date) => {
+            setIsEditingEndDate(false)
+          }}
           below
         />
       </div>

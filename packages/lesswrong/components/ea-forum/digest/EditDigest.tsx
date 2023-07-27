@@ -172,7 +172,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data, refetch } = useQuery(gql`
+  const { data } = useQuery(gql`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
@@ -446,7 +446,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   // if we have no posts to display, just show the page heading
-  const pageHeadingNode = <EditDigestHeader digest={digest} refetchPosts={refetch} />
+  const pageHeadingNode = <EditDigestHeader digest={digest} />
   if (!posts.length) {
     return <div className={classes.root}>
       {pageHeadingNode}
