@@ -22,6 +22,8 @@ getCollectionHooks("Digests").updateAsync.add(async ({document, oldDocument, con
 })
 
 getCollectionHooks("Digests").updateAsync.add(async ({document, oldDocument, context}: {document: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
+  // if we change a digest's start date, make sure to update the preceeding digest's end date to match,
+  // so that we don't miss any eligible posts
   if (document.startDate && document.startDate !== oldDocument.startDate) {
     void updateMutator({
       collection: Digests,
@@ -35,6 +37,8 @@ getCollectionHooks("Digests").updateAsync.add(async ({document, oldDocument, con
     });
   }
 
+  // if we change a digest's end date, make sure to update any subsequent digest's start date to match,
+  // so that we don't miss any eligible posts
   if (document.endDate && document.endDate !== oldDocument.endDate) {
     void updateMutator({
       collection: Digests,
