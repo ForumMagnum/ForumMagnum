@@ -146,6 +146,9 @@ import './collections/useractivities/schema';
 import './collections/pagecache/collection';
 import './collections/pagecache/schema';
 
+import './collections/hybridViewLogs/collection';
+import './collections/hybridViewLogs/schema';
+
 import './collections/digestPosts/collection';
 import './collections/digestPosts/fragments';
 import './collections/digestPosts/schema';

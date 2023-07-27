@@ -326,6 +326,22 @@ interface DbGardenCode extends DbObject {
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
+interface HybridViewLogsCollection extends CollectionBase<DbHybridViewLog, "HybridViewLogs"> {
+}
+
+interface DbHybridViewLog extends DbObject {
+  __collectionName?: "HybridViewLogs"
+  identifier: string
+  versionHash: string
+  action: "CREATE_VIEW" | "REFRESH_VIEW"
+  actionStartTime: Date
+  actionEndTime: Date | null
+  latest: boolean
+  status: "IN_PROGRESS" | "SUCCESS" | "FAILURE"
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface ImagesCollection extends CollectionBase<DbImages, "Images"> {
 }
 
@@ -1011,7 +1027,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -1481,6 +1497,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  HybridViewLogs: HybridViewLogsCollection
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -1536,6 +1553,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  HybridViewLogs: DbHybridViewLog
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData

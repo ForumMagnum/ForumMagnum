@@ -5,6 +5,24 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulca
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 
+// TODO:
+//  - Write a resolver which returns all the fields ("views", "reads", karma, comments)
+//  - Make it relatively fast for views and reads (with materialized views)
+//  - Architecture:
+//    - Define a view (not materialized) for the specific field, which can be selected by date
+//    - (Automatically) define a materialized view which just does SELECT * FROM view WHERE timestamp < some_cutoff
+//    - Write a cron job which refreshes the materialized view every x hours, and logs this in another table,
+//      called "materialized_view_refresh_log" or something
+//    - Define a resolver which selects from the materialized view, and unions it with data from after
+//      the last refresh (found by joining on the materialized_view_refresh_log table)
+
+export type PostAnalytics2Result = {
+  views: number
+  reads: number
+  karma: number
+  comments: number
+}
+
 /**
  * Based on an analytics query, returns a function that runs that query
  */
@@ -161,6 +179,34 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
+//     SELECT
+// 	sum(total_count) AS total_count
+// FROM ((
+// 		SELECT
+// 			total_count,
+// 			'materialized' AS source
+// 		FROM
+// 			hv_page_view
+// 		WHERE
+// 			post_id = 'aJwcgm2nqiZu6zq2S')
+// 	UNION ALL (
+// 		SELECT
+// 			count(*) AS total_count,
+// 			'live' AS source
+// 		FROM
+// 			raw
+// 		WHERE
+// 			post_id = 'aJwcgm2nqiZu6zq2S'
+// 			AND timestamp > '2023-07-03 00:00:00.00')) subquery;
+    async PostAnalytics2(
+      root: void,
+      { postId }: { postId: string },
+      context: ResolverContext
+    ): Promise<PostAnalytics2Result> {
+      const { currentUser } = context;
+
+      return {views: 0, reads: 0, karma: 0, comments: 0} as PostAnalytics2Result;
+    },
   },
 });
 
@@ -180,4 +226,14 @@ addGraphQLSchema(`
   }
 `);
 
+addGraphQLSchema(`
+  type PostAnalytics2Result {
+    views: Int
+    reads: Int
+    karma: Int
+    comments: Int
+  }
+`);
+
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
+addGraphQLQuery("PostAnalytics2(postId: String!): PostAnalytics2Result!");
