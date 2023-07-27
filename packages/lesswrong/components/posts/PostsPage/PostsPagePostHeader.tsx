@@ -308,7 +308,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </CommentsLink>
     );
 
-  const nonhumanAudio = post.podcastEpisodeId === null
+  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
 
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
