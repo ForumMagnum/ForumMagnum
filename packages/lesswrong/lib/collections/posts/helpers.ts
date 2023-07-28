@@ -363,6 +363,8 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
+/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
+const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity)
 
 /**
  * Whether the post is allowed AI generated audio
@@ -375,7 +377,9 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
 
     return (
-      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF || TYPE_III_ALLOWED_POST_IDS.includes(post._id)) &&
+      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
+        TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
+        post.baseScore > type3KarmaCutoffSetting.get()) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&
