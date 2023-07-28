@@ -226,7 +226,7 @@ const onConnectQueries: string[] = [
   `CREATE OR REPLACE FUNCTION fm_comment_confidence(
     comment_id TEXT,
     downvote_multiplier FLOAT DEFAULT 1
-  ) RETURNS FLOAT LANGUAGE sql IMMUTABLE AS $$
+  ) RETURNS FLOAT LANGUAGE sql AS $$
     SELECT
       fm_confidence_sort(
         COALESCE(
