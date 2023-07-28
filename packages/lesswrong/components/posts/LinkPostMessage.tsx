@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     wordBreak: 'break-word',
     width: '100%',
     padding: 16,
-    margin: "-14px 0 18px 0",
+    margin: "0 0 18px 0",
     backgroundColor: theme.palette.grey[100],
     color: theme.palette.grey[1000],
     boxSizing: 'border-box',
