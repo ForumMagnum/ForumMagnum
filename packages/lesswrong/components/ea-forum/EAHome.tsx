@@ -50,6 +50,7 @@ const getStructuredData = () => ({
 const styles = (theme: ThemeType) => ({
   survey: {
     marginBottom: 25,
+    height: 230,
   },
   surveyButton: {
     fontFamily: theme.palette.fonts.sansSerifStack,
