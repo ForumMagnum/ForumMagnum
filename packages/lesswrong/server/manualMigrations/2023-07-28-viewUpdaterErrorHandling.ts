@@ -28,8 +28,8 @@ registerMigration({
       LOOP
         BEGIN
             IF rec.table_name != LOWER(rec.table_name) THEN
-                EXECUTE format(E'drop view if exists %s; create view %s as select %s from %I;',
-                    rec.table_name, rec.table_name, rec.cols, rec.table_name);
+                EXECUTE format(E'drop view if exists %I; create view %I as select %s from %I;',
+                    LOWER(rec.table_name), LOWER(rec.table_name), rec.cols, rec.table_name);
             END IF;
         EXCEPTION
           WHEN others THEN
@@ -57,7 +57,7 @@ registerMigration({
       LOOP
         BEGIN
           IF rec.table_name != LOWER(rec.table_name) THEN
-              EXECUTE format(E'drop view if exists %s', LOWER(rec.table_name));
+              EXECUTE format(E'drop view if exists %I', LOWER(rec.table_name));
           END IF;
         EXCEPTION
           WHEN others THEN
