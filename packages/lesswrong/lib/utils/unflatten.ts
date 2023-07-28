@@ -1,6 +1,4 @@
-import map from 'lodash/map';
 import keyBy from 'lodash/keyBy';
-import some from 'lodash/some';
 
 interface ThreadableCommentType {
   _id: string
@@ -34,7 +32,7 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
   const usedCommentIds = new Set<string>();
   
   // Convert comments into (disconnected) tree nodes
-  const resultsRestructured = map(comments, (comment:T): CommentTreeNode<T> => {
+  const resultsRestructured = comments.map((comment:T): CommentTreeNode<T> => {
     usedCommentIds.add(comment._id);
     return { _id: comment._id, item:comment, children:[] }
   });
@@ -80,7 +78,7 @@ export function unflattenComments<T extends ThreadableCommentType>(comments: Arr
             const topLevelComment = resultsById[result.item.topLevelCommentId];
             if (parent._id != topLevelComment._id) {
               nonRootCommentIds.add(parent._id);
-              if (!some(topLevelComment.children, c=>c._id===parent._id)) {
+              if (!topLevelComment.children.some(c=>c._id===parent._id)) {
                 topLevelComment.children.push(parent);
               }
             }

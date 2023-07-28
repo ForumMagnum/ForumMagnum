@@ -2,6 +2,7 @@ import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
 import {OpenDialogContextType} from "../../components/common/withDialog";
+import type {UpdateCommentCallback} from "../../components/hooks/useUpdateComment";
 
 export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
@@ -15,7 +16,7 @@ export const afCommentNonMemberSuccessHandling = ({currentUser, comment, openDia
   currentUser: UsersCurrent|null,
   comment: CommentsList,
   openDialog: OpenDialogContextType["openDialog"],
-  updateComment: (commentId: string, data: NullablePartial<DbComment>)=>Promise<void>
+  updateComment: UpdateCommentCallback,
 }) => {
   //displays explanation of what happens upon non-member submission and submits to queue
 
