@@ -26,8 +26,8 @@ export const usePaginatedResolver = <
   resolverName,
   limit: initialLimit = 10,
   itemsPerPage = 10,
-  ssr,
-  skip,
+  ssr = true,
+  skip = false,
 }: {
   fragmentName: FragmentName,
   resolverName: string,
