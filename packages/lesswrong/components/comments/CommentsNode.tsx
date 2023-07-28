@@ -172,7 +172,7 @@ const CommentsNode = ({
         scrollIntoView(false, "auto") // should scroll instantly
       }
     }
-  }, [isTruncated, isSingleLine, setExpansionState, setHasClickedToExpand, scrollOnExpand, scrollIntoView]);
+  }, [isTruncated, isSingleLine, setExpansionState, setHasClickedToExpand, scrollOnExpand, scrollIntoView, captureEvent, comment._id, comment.postId]);
 
   const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
