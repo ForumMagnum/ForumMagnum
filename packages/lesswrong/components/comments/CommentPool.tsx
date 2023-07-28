@@ -492,7 +492,13 @@ function revealComments(state: CommentPoolState, ids: string[], states?: Partial
 
 function rerenderComments(state: CommentPoolState, ids: string[]) {
   for (let id of ids) {
-    state.commentsById[id]?.rerender?.();
+    const rerender = state.commentsById[id]?.rerender
+    if (rerender) {
+      // Defer rerender through a setTimeout because otherwise the render
+      // function happens *immediately*, and will go looking for comment-expansion
+      // state that we haven't saved yet.
+      setTimeout(rerender, 0);
+    }
   }
 }
 
