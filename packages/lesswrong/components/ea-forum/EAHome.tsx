@@ -7,6 +7,11 @@ import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { userHasPopularCommentsSection } from '../../lib/betas'
+import {
+  TypeformPopupEmbed,
+  TypeformSideEmbed,
+  TypeformStandardEmbed,
+} from "../common/TypeformEmbeds";
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -42,8 +47,26 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = (theme: ThemeType) => ({
+  survey: {
+    marginBottom: 25,
+  },
+  surveyButton: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 500,
+    padding: "8px 12px",
+    margin: 4,
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.primary.main,
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.primary.dark,
+    },
+  },
+});
 
-const EAHome = () => {
+const EAHome = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
@@ -76,6 +99,26 @@ const EAHome = () => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
+      <SingleColumnSection>
+        <TypeformStandardEmbed
+          widgetId="WukolH8z"
+          title="EA Forum Survey"
+          className={classes.survey}
+        />
+        <TypeformPopupEmbed
+          widgetId="WukolH8z"
+          title="EA Forum Survey"
+          label="Popup embed"
+          className={classes.surveyButton}
+        />
+        <TypeformSideEmbed
+          widgetId="WukolH8z"
+          title="EA Forum Survey"
+          label="Side embed"
+          className={classes.surveyButton}
+        />
+      </SingleColumnSection>
+
       <EAHomeMainContent FrontpageNode={
         () => <>
           <HomeLatestPosts />
@@ -94,7 +137,7 @@ const EAHome = () => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome)
+const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
 
 declare global {
   interface ComponentTypes {
