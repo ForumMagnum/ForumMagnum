@@ -84,6 +84,7 @@ const connectToMongo = async (connectionString: string) => {
 
 const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
+    console.log('about to test connection string', connectionString)
     if (connectionString) {
       const branchDb = await getBranchDbName();
       if (branchDb) {
@@ -109,7 +110,7 @@ const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArgu
   Promise.all([
     //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
-    connectToPostgres(postgresReadUrl, "read"),
+    // connectToPostgres(postgresReadUrl, "read"),
   ]);
 
 const initSettings = () => {
@@ -140,13 +141,14 @@ const initPostgres = async () => {
     }
   }
   await Promise.all(polls);
+  console.log('exiting initializing switching collections')
 
-  try {
-    await ensurePostgresViewsExist(getSqlClientOrThrow());
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to ensure Postgres views exist:", e);
-  }
+  // try {
+  //   await ensurePostgresViewsExist(getSqlClientOrThrow());
+  // } catch (e) {
+  //   // eslint-disable-next-line no-console
+  //   console.error("Failed to ensure Postgres views exist:", e);
+  // }
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
@@ -175,12 +177,15 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
 }
 
 export const initServer = async (commandLineArguments?: CommandLineArguments) => {
+  console.log('initserver')
   initConsole();
   const args = commandLineArguments ?? getCommandLineArguments();
+  console.log('hello 2', args)
   await initDatabases(args);
   await initSettings();
   require('../server.ts');
   await initPostgres();
+  console.log('exit  initserver')
   return args;
 }
 
@@ -199,6 +204,7 @@ export const serverStartup = async () => {
     // Initialize db connection and a few other things such as settings, but don't start a webserver.
     console.log("Initializing primary process");
     await initServer();
+    console.log('done with init server')
 
     const numWorkers = numWorkersSetting.get();
 

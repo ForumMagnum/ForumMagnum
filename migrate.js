@@ -113,6 +113,7 @@ const settingsFileName = (mode, forum) => {
   if (isRunCommand) {
     const {initServer} = require("./packages/lesswrong/server/serverStartup");
     await initServer(args);
+    console.log('init server done')
   }
 
   let exitCode = 0;
@@ -121,13 +122,21 @@ const settingsFileName = (mode, forum) => {
     ? getSqlClientOrThrow()
     : await createSqlConnection(args.postgresUrl);
 
+  console.log('hello 1')
+
   try {
     await db.tx(async (transaction) => {
+      console.log('in db tx')
       setSqlClient(transaction);
+      console.log('hello 2')
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
+      console.log('hello 3')
       const migrator = await createMigrator(transaction);
+      console.log('hello 4')
       const result = await migrator.runAsCLI();
+      console.log('hello 5')
       if (!result) {
+        console.log('nno resut')
         // If the migration throws an error it will have already been reported,
         // but we need to manually propagate it to the exitCode
         exitCode = 1;
