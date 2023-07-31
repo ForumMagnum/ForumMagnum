@@ -234,6 +234,18 @@ Both commands support a `-watch` suffix to watch the file system, and a `-covera
 Branch off of `master` and submit to `master`. Deploys occur when `master` is
 merged into `ea-deploy` and `lw-deploy`.
 
+## Third Party integrations
+
+(note: this section is incomplete, just listing quick notes so it's better-than-nothing)
+
+Some integrations we use include:
+
+* Elasticsearch (handling the search bar and search page)
+* Mailgun (handling all emails to users, including curated-post emails, notifications, registrations and password resets)
+* Cloudinary (handling image hosting and mirroring, including all images in posts and comments)
+* ckEditor (primary post editor, although you only need to set it up if you're using the collaborative editing features)
+* Mapbox (used for the community/events page)
+
 ## EA Forum-Specific
 
 ### \[CEA-Specific] Local Dev Database
