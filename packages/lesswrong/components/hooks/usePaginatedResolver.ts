@@ -92,7 +92,7 @@ export const usePaginatedResolver = <
     if (results?.length && results.length > (list?.length ?? 0)) {
       setList(results);
     }
-  }, [results]);
+  }, [results, list?.length]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the
