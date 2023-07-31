@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import Helmet from "react-helmet";
 
 const TypeformScript: FC = () => (
@@ -6,6 +6,26 @@ const TypeformScript: FC = () => (
     <script src="https://embed.typeform.com/next/embed.js" />
   </Helmet>
 );
+
+const useTypeformOnCloseCallback = (
+  widgetId: string,
+  onClose?: () => void,
+) => {
+  const callbackName = `fm_tf_on_close_${widgetId}`;
+  useEffect(() => {
+    if (onClose) {
+      // Typeform needs to be supplied with a function name that is defined on
+      // the window object
+      // @ts-ignore
+      window[callbackName] = onClose;
+      return () => {
+        // @ts-ignore
+        delete window[callbackName];
+      };
+    }
+  }, [widgetId, onClose]);
+  return onClose ? {"data-tf-on-close": callbackName} : {};
+}
 
 export const TypeformStandardEmbed: FC<{
   widgetId: string,
@@ -50,25 +70,30 @@ export const TypeformPopupEmbed: FC<{
   widgetId: string,
   title: string,
   label?: string,
+  onClose?: () => void,
   parameters?: Record<string, boolean | string>,
   className?: string,
-}> = ({widgetId, title, label, parameters, className}) => (
-  <>
-    <TypeformScript />
-    <button
-      data-tf-popup={widgetId}
-      data-tf-opacity="100"
-      data-tf-size="100"
-      data-tf-iframe-props={`title=${title}`}
-      data-tf-transitive-search-params
-      data-tf-medium="snippet"
-      className={className}
-      {...parameters}
-    >
-      {label ?? title}
-    </button>
-  </>
-);
+}> = ({widgetId, title, label, onClose, parameters, className}) => {
+  const onCloseProps = useTypeformOnCloseCallback(widgetId, onClose);
+  return (
+    <>
+      <TypeformScript />
+      <button
+        data-tf-popup={widgetId}
+        data-tf-opacity="100"
+        data-tf-size="100"
+        data-tf-iframe-props={`title=${title}`}
+        data-tf-transitive-search-params
+        data-tf-medium="snippet"
+        className={className}
+        {...onCloseProps}
+        {...parameters}
+      >
+        {label ?? title}
+      </button>
+    </>
+  );
+}
 
 /**
  * Defines when to open the side popup.
@@ -83,6 +108,7 @@ export const TypeformSideEmbed: FC<{
   widgetId: string,
   title: string,
   label?: string,
+  onClose?: () => void,
   parameters?: Record<string, boolean | string>,
   openBehaviour?: TypeformSideEmbedOpenBehaviour,
   className?: string,
@@ -90,10 +116,12 @@ export const TypeformSideEmbed: FC<{
   widgetId,
   title,
   label,
+  onClose,
   parameters,
   openBehaviour = "onClick",
   className,
 }) => {
+  const onCloseProps = useTypeformOnCloseCallback(widgetId, onClose);
   const tfOpen = openBehaviour === "onClick"
     ? undefined
     : (openBehaviour === "onLoad" ? "load" : "scroll");
@@ -113,6 +141,7 @@ export const TypeformSideEmbed: FC<{
         data-tf-open={tfOpen}
         data-tf-open-value={tfOpenValue}
         className={className}
+        {...onCloseProps}
         {...parameters}
       >
         {label ?? title}
