@@ -2287,6 +2287,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
+  readonly isPostType: boolean,
   readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
