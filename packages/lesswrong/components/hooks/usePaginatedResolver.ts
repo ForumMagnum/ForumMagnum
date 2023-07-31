@@ -2,6 +2,7 @@ import { useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
+import { isServer } from "../../lib/executionEnvironment";
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
 
 export type UsePaginatedResolverResult<
@@ -57,17 +58,18 @@ export const usePaginatedResolver = <
     fetchMore,
     networkStatus,
   } = useQuery(query, {
-    ssr,
+    ssr: ssr || !isServer,
+    notifyOnNetworkStatusChange: true,
     skip,
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
     variables: {
       limit,
     },
   });
 
-  const count = (data &&
-    data[resolverName] &&
-    data[resolverName].results &&
-    data[resolverName].results.length) ?? 0;
+  const count = data?.[resolverName]?.results?.length ?? 0;
 
   const loadMore: LoadMoreCallback = (limitOverride?: number) => {
     const newLimit = limitOverride ?? (limit + itemsPerPage);
@@ -87,7 +89,7 @@ export const usePaginatedResolver = <
 
   if (error) {
     // This error was already caught by the apollo middleware, but the
-    // middleware had no idea who  made the query. To aid in debugging, log a
+    // middleware had no idea who made the query. To aid in debugging, log a
     // stack trace here.
     // eslint-disable-next-line no-console
     console.error(error.message)
