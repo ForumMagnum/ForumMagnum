@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
@@ -38,6 +38,7 @@ export const usePaginatedResolver = <
   skip?: boolean,
 }): UsePaginatedResolverResult<FragmentName> => {
   const [limit, setLimit] = useState(initialLimit);
+  const [list, setList] = useState<FragmentTypes[FragmentName][] | undefined>();
 
   const query = gql`
     query get${resolverName}($limit: Int) {
@@ -87,6 +88,12 @@ export const usePaginatedResolver = <
     results = take(results, limit);
   }
 
+  useEffect(() => {
+    if (results?.length && results.length > (list?.length ?? 0)) {
+      setList(results);
+    }
+  }, [results]);
+
   if (error) {
     // This error was already caught by the apollo middleware, but the
     // middleware had no idea who made the query. To aid in debugging, log a
@@ -99,7 +106,7 @@ export const usePaginatedResolver = <
     loading: loading || networkStatus === NetworkStatus.fetchMore,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
-    results,
+    results: list,
     refetch,
     error,
     count,
