@@ -146,22 +146,30 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
       <div className={classes.root}>
         {showCoreAndTypesTopicSections && (
           <>
-            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
-            <TagsChecklist
-              tags={coreTags}
-              selectedTagIds={selectedTagIds}
-              onTagSelected={onTagSelected}
-              onTagRemoved={onTagRemoved}
-              displaySelected="highlight"
-            />
-            <h3 className={classNames(classes.coreTagHeader, classes.header)}>Common post types</h3>
-            <TagsChecklist
-              tags={postTypeTags}
-              selectedTagIds={selectedTagIds}
-              onTagSelected={onTagSelected}
-              onTagRemoved={onTagRemoved}
-              displaySelected="highlight"
-            />
+            {!!coreTags.length &&
+              <>
+                <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
+                <TagsChecklist
+                  tags={coreTags}
+                  selectedTagIds={selectedTagIds}
+                  onTagSelected={onTagSelected}
+                  onTagRemoved={onTagRemoved}
+                  displaySelected="highlight"
+                />
+              </>
+            }
+            {!!postTypeTags.length &&
+              <>
+                <h3 className={classNames(classes.coreTagHeader, classes.header)}>Common post types</h3>
+                <TagsChecklist
+                  tags={postTypeTags}
+                  selectedTagIds={selectedTagIds}
+                  onTagSelected={onTagSelected}
+                  onTagRemoved={onTagRemoved}
+                  displaySelected="highlight"
+                />
+              </>
+            }
             <h3 className={classes.header}>Other topics</h3>
           </>
         )}
