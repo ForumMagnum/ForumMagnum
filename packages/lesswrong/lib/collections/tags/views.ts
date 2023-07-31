@@ -104,6 +104,22 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
 });
 ensureIndex(Tags, {deleted: 1, core:1, name: 1});
 
+Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      isPostType: true,
+      adminOnly: viewFieldAllowAny
+    },
+    options: {
+      sort: {
+        defaultOrder: -1,
+        name: 1
+      }
+    },
+  }
+});
+ensureIndex(Tags, {deleted: 1, isPostType:1, name: 1});
+
 Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
   return {
     selector: {

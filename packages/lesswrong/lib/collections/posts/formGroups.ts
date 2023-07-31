@@ -96,7 +96,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 22 : 60,
+    order: isEAForum ? 20 : 60,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false
