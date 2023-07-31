@@ -23,6 +23,13 @@ export type PostAnalytics2Result = {
   comments: number
 }
 
+export type AuthorAnalyticsResult = {
+  views: number
+  reads: number
+  karma: number
+  comments: number
+}
+
 /**
  * Based on an analytics query, returns a function that runs that query
  */
@@ -179,28 +186,19 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
-//     SELECT
-// 	sum(total_count) AS total_count
-// FROM ((
-// 		SELECT
-// 			total_count,
-// 			'materialized' AS source
-// 		FROM
-// 			hv_page_view
-// 		WHERE
-// 			post_id = 'aJwcgm2nqiZu6zq2S')
-// 	UNION ALL (
-// 		SELECT
-// 			count(*) AS total_count,
-// 			'live' AS source
-// 		FROM
-// 			raw
-// 		WHERE
-// 			post_id = 'aJwcgm2nqiZu6zq2S'
-// 			AND timestamp > '2023-07-03 00:00:00.00')) subquery;
     async PostAnalytics2(
       root: void,
       { postId }: { postId: string },
+      context: ResolverContext
+    ): Promise<PostAnalytics2Result> {
+      const { currentUser } = context;
+
+      // TODO this result type might change
+      return {views: 0, reads: 0, karma: 0, comments: 0} as PostAnalytics2Result;
+    },
+    async AuthorAnalytics(
+      root: void,
+      { authorId }: { authorId: string },
       context: ResolverContext
     ): Promise<PostAnalytics2Result> {
       const { currentUser } = context;
@@ -235,5 +233,15 @@ addGraphQLSchema(`
   }
 `);
 
+addGraphQLSchema(`
+  type AuthorAnalyticsResult {
+    views: Int
+    reads: Int
+    karma: Int
+    comments: Int
+  }
+`);
+
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
 addGraphQLQuery("PostAnalytics2(postId: String!): PostAnalytics2Result!");
+addGraphQLQuery("AuthorAnalytics(authorId: String!): AuthorAnalyticsResult!");

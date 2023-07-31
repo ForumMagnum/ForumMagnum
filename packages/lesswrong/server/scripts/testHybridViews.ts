@@ -1,30 +1,40 @@
 import { Globals } from "../vulcan-lib";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { HybridView } from "../analytics/hybridViews";
+import { getAnalyticsConnectionFromString } from "../analytics/postgresConnection";
 
 const testHybridViews = async () => {
+  const connectionString = 'postgresql://postgres:zKHt2DRF5hxMcxhympDp@forum-analytics-debug.cm4g2jxq8i8x.us-east-1.rds.amazonaws.com/forumanalytics'
+  const analyticsDb = getAnalyticsConnectionFromString(connectionString)
+  if (!analyticsDb) {
+    throw new Error("No analytics DB configured");
+  }
+
+  // This takes a _really_ long time to run, about 3 hours. Possibly a dealbreaker.
   const viewQuery = (crossoverTime: Date) => `
     SELECT
-      SUM(v.power),
-      "documentId",
-      "collectionName",
-      (date_trunc('day', v."createdAt") + interval '1 second') AS window_start,
-      (date_trunc('day', v."createdAt") + interval '1 day') AS window_end
+      count(*) AS view_count,
+      post_id,
+      (date_trunc('day', timestamp) + interval '1 second') AS window_start,
+      (date_trunc('day', timestamp) + interval '1 day') AS window_end
     FROM
-      "Votes" v
+      page_view
     WHERE
-      cancelled <> TRUE AND
-      "createdAt" > '${crossoverTime.toISOString()}'
+      timestamp > '${crossoverTime.toISOString()}'
     GROUP BY
-      "documentId",
-      "collectionName",
-      date_trunc('day', v."createdAt")
+      post_id,
+      date_trunc('day', timestamp)
   `;
   const uniqueIndexGenerator = (viewName: string) => `
-    CREATE UNIQUE INDEX "${viewName}_unique_index" ON "${viewName}" ("documentId", "collectionName", window_end);
+    CREATE UNIQUE INDEX "${viewName}_unique_index" ON "${viewName}" (post_id, window_end);
   `;
 
-  const hybridView = new HybridView({queryGenerator: viewQuery, identifier: "test_hybrid_view", indexQueryGenerators: [uniqueIndexGenerator]});
+  const hybridView = new HybridView({
+    queryGenerator: viewQuery,
+    identifier: "page_views",
+    indexQueryGenerators: [uniqueIndexGenerator],
+    viewSqlClient: analyticsDb,
+  });
 
   await hybridView.ensureView();
   await hybridView.refreshMaterializedView();
@@ -43,7 +53,7 @@ const testHybridViews = async () => {
   `;
   
   console.log(fullQuery);
-  const res = await db.any(fullQuery, []);
+  const res = await analyticsDb.any(fullQuery, []);
   console.log({res});
 };
 

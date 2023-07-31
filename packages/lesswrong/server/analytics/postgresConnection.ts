@@ -13,8 +13,8 @@ export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
-
-function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null{
+// TODO don't export this
+export function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null{
   if (isAnyTest && forumTypeSetting.get() !== 'EAForum') {
     return null;
   }

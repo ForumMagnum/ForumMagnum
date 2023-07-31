@@ -7,23 +7,23 @@ export class HybridView {
   protected indexQueryGenerators: ((viewName: string) => string)[];
   protected versionHash: string;
   protected identifier: string;
-  private db: SqlClient;
+  private db: RawSqlClient;
   private matViewName: string;
 
   constructor({
     queryGenerator,
     identifier,
-    viewSqlClient,
     indexQueryGenerators,
+    viewSqlClient,
   }: {
     queryGenerator: (after: Date) => string;
     identifier: string;
-    viewSqlClient?: SqlClient;
     /**
      * Array of functions that generate index queries, given the view name. You must provide at least one
      * UNIQUE index, without this it isn't possible to refresh the view without locking the table.
      */
     indexQueryGenerators: ((viewName: string) => string)[];
+    viewSqlClient?: RawSqlClient;
   }) {
     const db = viewSqlClient ?? getSqlClient();
     if (!db) throw new Error("Unable to connect to analytics database - no database configured");
