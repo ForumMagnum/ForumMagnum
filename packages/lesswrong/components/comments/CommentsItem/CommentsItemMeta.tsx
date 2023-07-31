@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: isEAForum ? 0 : 5,
+    marginRight: isEAForum ? 6 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",

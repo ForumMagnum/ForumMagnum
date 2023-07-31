@@ -103,8 +103,8 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(_id)',
     ],
     ranking: isEAForum ? eaForumUsersRanking : [
-      'desc(karma)',
       'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(karma)',
       'desc(createdAt)'
     ],
     attributesForFaceting: [

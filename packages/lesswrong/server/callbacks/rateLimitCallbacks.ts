@@ -6,7 +6,7 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
-  if (!post.draft) {
+  if (!post.draft && !post.isEvent) {
     await enforcePostRateLimit(currentUser!);
   }
   return validationErrors;
@@ -14,7 +14,7 @@ getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit 
 
 getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
   // Only undrafting is rate limited, not other edits
-  if (oldDocument.draft && !newDocument.draft) {
+  if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
     await enforcePostRateLimit(currentUser!);
   }
   return validationErrors;

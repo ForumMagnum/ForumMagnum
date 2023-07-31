@@ -96,12 +96,21 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     return this.none(`
       UPDATE "Users"
       SET services = jsonb_set(
-        jsonb_set(
-          services,
-          '{password, bcrypt}'::TEXT[],
-          to_jsonb($2::TEXT),
-          true
-        ),
+        CASE WHEN services -> 'password' IS NULL THEN
+          jsonb_set(
+            services,
+            '{password}'::TEXT[],
+            jsonb_build_object('bcrypt', $2),
+            true
+          )
+        ELSE
+          jsonb_set(
+            services,
+            '{password, bcrypt}'::TEXT[],
+            to_jsonb($2::TEXT),
+            true
+          )
+        END,
         '{resume, loginTokens}'::TEXT[],
         '[]'::JSONB,
         true
