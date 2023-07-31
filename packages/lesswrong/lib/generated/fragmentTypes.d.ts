@@ -455,6 +455,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
+  readonly isPostType: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
