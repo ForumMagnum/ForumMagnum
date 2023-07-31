@@ -5,6 +5,7 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -71,9 +72,9 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
-      <div className={classes.profilePhotoCol}>
+      {isEAForum && <div className={classes.profilePhotoCol}>
         <UsersProfileImage user={user} size={36} />
-      </div>
+      </div>}
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>

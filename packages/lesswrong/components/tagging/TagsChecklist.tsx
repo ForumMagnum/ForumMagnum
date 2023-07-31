@@ -96,6 +96,7 @@ const TagsChecklist = ({
   tooltips = true,
   truncate = false,
   smallText = false,
+  shortNames = false,
 }: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
@@ -109,6 +110,7 @@ const TagsChecklist = ({
   tooltips?: boolean;
   truncate?: boolean;
   smallText?: boolean,
+  shortNames?: boolean,
 }) => {
   const { LWTooltip, LoadMore, ForumIcon } = Components;
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
@@ -144,7 +146,7 @@ const TagsChecklist = ({
   const handleOnTagSelected = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagSelected({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
   const handleOnTagRemoved = (tag: AnyBecauseTodo, existingTagIds: AnyBecauseTodo) => onTagRemoved({ tagId: tag._id, tagName: tag.name, parentTagId: tag.parentTag?._id }, existingTagIds)
 
-  const getTagName = ({tag}: TagsChecklistItem) => smallText
+  const getTagName = ({tag}: TagsChecklistItem) => smallText || shortNames
     ? tag.shortName ?? tag.name
     : tag.name;
 
