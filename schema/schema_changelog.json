@@ -273,5 +273,10 @@
     "acceptsSchemaHash": "e7d890dadc54453234507be13698b7b7",
     "acceptedByMigration": "20230727T122027.add_isPostType_field.ts",
     "timestamp": "2023-07-27T12:20:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "990a07731677d3093ec04920425699e5",
+    "acceptedByMigration": "20230731T212756.post_embeddings_have_vector_type.ts",
+    "timestamp": "2023-07-31T21:27:56.000Z"
   }
 ]
