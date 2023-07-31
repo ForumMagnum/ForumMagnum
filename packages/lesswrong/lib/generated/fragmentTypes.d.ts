@@ -2434,6 +2434,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
+  readonly reviewedByUserId: string,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
