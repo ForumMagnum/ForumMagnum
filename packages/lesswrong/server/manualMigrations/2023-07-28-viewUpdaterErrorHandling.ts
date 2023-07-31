@@ -10,6 +10,11 @@ registerMigration({
   action: async () => {
     const db = getSqlClientOrThrow();
 
+    // In both queries below 'rec' will have the following shape:
+    // | table_name     | cols                                                     |
+    // |----------------|----------------------------------------------------------|
+    // | AdvisorRequests| "jobAds" as jobAds, "schemaVersion" as schemaVersion,... |
+    // |...             |...                                                       |
     const sql = `
     create or replace function refresh_lowercase_views() returns void as
     $$
