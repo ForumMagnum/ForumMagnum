@@ -130,6 +130,11 @@ addRoute(
     componentName: "UsersSingle",
   },
   {
+    name: "userAnalytics",
+    path:'/users/:slug/stats',
+    componentName: "AuthorAnalyticsPage",
+  },
+  {
     name:'users.single.u',
     path:'/u/:slug',
     componentName: 'UsersSingle'

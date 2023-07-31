@@ -4,31 +4,7 @@ import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-
-// TODO:
-//  - Write a resolver which returns all the fields ("views", "reads", karma, comments)
-//  - Make it relatively fast for views and reads (with materialized views)
-//  - Architecture:
-//    - Define a view (not materialized) for the specific field, which can be selected by date
-//    - (Automatically) define a materialized view which just does SELECT * FROM view WHERE timestamp < some_cutoff
-//    - Write a cron job which refreshes the materialized view every x hours, and logs this in another table,
-//      called "materialized_view_refresh_log" or something
-//    - Define a resolver which selects from the materialized view, and unions it with data from after
-//      the last refresh (found by joining on the materialized_view_refresh_log table)
-
-export type PostAnalytics2Result = {
-  views: number
-  reads: number
-  karma: number
-  comments: number
-}
-
-export type AuthorAnalyticsResult = {
-  views: number
-  reads: number
-  karma: number
-  comments: number
-}
+import { AuthorAnalyticsResult } from "../../components/users/useAuthorAnalytics";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -186,24 +162,17 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
-    async PostAnalytics2(
-      root: void,
-      { postId }: { postId: string },
-      context: ResolverContext
-    ): Promise<PostAnalytics2Result> {
-      const { currentUser } = context;
-
-      // TODO this result type might change
-      return {views: 0, reads: 0, karma: 0, comments: 0} as PostAnalytics2Result;
-    },
     async AuthorAnalytics(
       root: void,
-      { authorId }: { authorId: string },
+      { userId }: { userId: string },
       context: ResolverContext
-    ): Promise<PostAnalytics2Result> {
+    ): Promise<AuthorAnalyticsResult> {
       const { currentUser } = context;
+      // TODO permissions
 
-      return {views: 0, reads: 0, karma: 0, comments: 0} as PostAnalytics2Result;
+      return {
+        posts: [{views: 0, reads: 0, karma: 0, comments: 0, _id: "1"}]
+       } as AuthorAnalyticsResult;
     },
   },
 });
@@ -230,18 +199,13 @@ addGraphQLSchema(`
     reads: Int
     karma: Int
     comments: Int
+    _id: String
   }
-`);
 
-addGraphQLSchema(`
   type AuthorAnalyticsResult {
-    views: Int
-    reads: Int
-    karma: Int
-    comments: Int
+    posts: [PostAnalytics2Result]
   }
 `);
 
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
-addGraphQLQuery("PostAnalytics2(postId: String!): PostAnalytics2Result!");
-addGraphQLQuery("AuthorAnalytics(authorId: String!): AuthorAnalyticsResult!");
+addGraphQLQuery("AuthorAnalytics(userId: String!): AuthorAnalyticsResult!");

@@ -25,6 +25,28 @@ const testHybridViews = async () => {
       post_id,
       date_trunc('day', timestamp)
   `;
+  // TODO this one too
+  // const readingTimeQuery = (crossoverTime: Date, postId: string) => `
+  //     SELECT
+  //         client_id,
+  //         post_id,
+  //         (date_trunc('day', timestamp) + interval '1 second') AS window_start,
+  //         (date_trunc('day', timestamp) + interval '1 day') AS window_end,
+  //         sum(INCREMENT) AS reading_time
+  //     FROM
+  //         event_timer_event
+  //     WHERE
+  //         client_id IS NOT NULL
+  //         AND timestamp > '${crossoverTime.toISOString()}'
+  //         AND post_id = '${postId}'
+  //     GROUP BY
+  //         client_id,
+  //         post_id,
+  //         date_trunc('day', timestamp)
+  //     ORDER BY
+  //         window_end DESC;
+  // `;
+
   const uniqueIndexGenerator = (viewName: string) => `
     CREATE UNIQUE INDEX "${viewName}_unique_index" ON "${viewName}" (post_id, window_end);
   `;
@@ -38,8 +60,6 @@ const testHybridViews = async () => {
 
   await hybridView.ensureView();
   await hybridView.refreshMaterializedView();
-
-  const db = getSqlClientOrThrow();
 
   const hvQuery = await hybridView.hybridViewQuery();
 
