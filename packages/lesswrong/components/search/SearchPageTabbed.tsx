@@ -357,6 +357,16 @@ const SearchPageTabbed = ({classes}:{
     }
   }, [searchState, captureSearch])
 
+  useEffect(() => {
+    if (query.query !== searchState?.query) {
+      setSearchState((current) => ({
+        ...current,
+        page: "1",
+        query: query.query,
+      }));
+    }
+  }, [query.query, searchState?.query]);
+
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root}>
       Search is disabled (Algolia App ID not configured on server)

@@ -44,11 +44,10 @@ type RecommendationsGenerator = (post: RecommendablePost) => PostSideRecommendat
 const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
   _post: RecommendablePost,
 ) => {
-  // TODO: Add the correct link URLs
-  const usefulLinks = "#";
+  const usefulLinks = "/posts/BsnGqnLzrLdmsYTGt/new-start-here-useful-links-1";
   const podcast = "/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum";
   const digest = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
-  const jobs = "#";
+  const jobs = "/topics/take-action";
   return {
     loading: false,
     title: "More from the Forum",
@@ -148,7 +147,8 @@ const getAvailableGenerators = (
     generators.push(useNewAndUpvotedInTagRecommendations.bind(null, post));
   }
   if (!user && cookies[HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE] !== "true") {
-    generators.push(useMoreFromTheForumRecommendations);
+    // Temporarily disabled
+    // generators.push(useMoreFromTheForumRecommendations);
   }
   return generators;
 }
