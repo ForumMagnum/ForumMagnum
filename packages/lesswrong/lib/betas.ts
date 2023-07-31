@@ -43,8 +43,6 @@ export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
 
-export const userHasElasticsearch = isEAForum ? shippedFeature : disabled;
-
 export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
 
 // Shipped Features
@@ -53,3 +51,4 @@ export const userCanCreateTags = shippedFeature;
 export const userCanUseTags = shippedFeature;
 export const userCanViewRevisionHistory = shippedFeature;
 export const userHasPingbacks = shippedFeature;
+export const userHasElasticsearch = shippedFeature;
