@@ -67,7 +67,11 @@ augmentFieldsDict(Users, {
     nullable: true,
     resolveAs: {
       type: GraphQLJSON,
-      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RateLimitInfo|null> => {
+      arguments: 'eventForm: Boolean',
+      resolver: async (user: DbUser, args: { eventForm?: boolean }, context: ResolverContext): Promise<RateLimitInfo|null> => {
+        const { eventForm } = args
+        if (eventForm) return null
+
         const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
         if (rateLimit) {
           return rateLimit

@@ -28,7 +28,6 @@ import {
   getElasticSortingsForCollection,
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
-import { userHasElasticsearch } from '../../lib/betas';
 import { communityPath } from '../../lib/routes';
 
 const hitsPerPage = 10
@@ -357,6 +356,16 @@ const SearchPageTabbed = ({classes}:{
     }
   }, [searchState, captureSearch])
 
+  useEffect(() => {
+    if (query.query !== searchState?.query) {
+      setSearchState((current) => ({
+        ...current,
+        page: "1",
+        query: query.query,
+      }));
+    }
+  }, [query.query, searchState?.query]);
+
   if (!isAlgoliaEnabled()) {
     return <div className={classes.root}>
       Search is disabled (Algolia App ID not configured on server)
@@ -426,7 +435,7 @@ const SearchPageTabbed = ({classes}:{
           <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
 
-        {elasticCollectionIsCustomSortable(tab) && userHasElasticsearch(null) &&
+        {elasticCollectionIsCustomSortable(tab) &&
           <>
             <Typography variant="headline" className={classes.filtersHeadline}>
               Sort
