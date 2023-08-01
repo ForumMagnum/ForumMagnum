@@ -1,10 +1,12 @@
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
+import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, viewFieldAllowAny } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 import { AuthorAnalyticsResult } from "../../components/users/useAuthorAnalytics";
+import Posts from "../../lib/collections/posts/collection";
+import { getHybridView } from "../analytics/hybridViews";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -170,8 +172,74 @@ addGraphQLResolvers({
       const { currentUser } = context;
       // TODO permissions
 
+      // Selector adapted from 'userPosts' view, these are all the posts that would appear
+      // in the user's profile
+      const userPosts = await Posts.find({
+        $or: [{userId: userId}, {"coauthorStatuses.userId": userId}],
+        rejected: {$ne: true}
+      }, {projection: {
+        _id: 1,
+        baseScore: 1,
+        commentCount: 1,
+      }}).fetch()
+
+      const postsById = Object.fromEntries(userPosts.map(post => [post._id, post]))
+      const postIds = userPosts.map(post => post._id)
+
+      if (!postIds.length) {
+        return {
+          posts: []
+        }
+      }
+
+      const postViewsView = getHybridView("post_views");
+      const postViewTimesView = getHybridView("post_view_times");
+      if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
+
+      const analyticsDb = getAnalyticsConnectionOrThrow();
+
+      const viewsTable = await postViewsView.virtualTable();
+      const viewsResult = await analyticsDb.any<{_id: string, total_view_count: number}>(`
+        SELECT
+          post_id AS _id,
+          sum(view_count) AS total_view_count
+        FROM
+          (${viewsTable}) q
+        WHERE
+          post_id IN ( $1:csv )
+        GROUP BY
+          post_id;
+      `, [postIds]);
+
+      const postViewTimesTable = await postViewTimesView.virtualTable();
+      // Note that this currently double counts reads from the same client that
+      // happen on different days
+      const readsResult = await analyticsDb.any<{_id: string, total_read_count: number}>(`
+        SELECT
+          post_id AS _id,
+          -- A "read" is anything with a reading_time over 30 seconds
+          sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
+        FROM
+          (${postViewTimesTable}) q
+        WHERE
+          post_id IN ( $1:csv )
+        GROUP BY
+          post_id;
+      `, [postIds]);
+
+      const posts = viewsResult.map((row, idx) => {
+        return {
+          _id: row._id,
+          views: row.total_view_count,
+          // FIXME there is a better way to do this
+          reads: readsResult[idx]?.total_read_count ?? 0,
+          karma: postsById[row._id].baseScore,
+          comments: postsById[row._id].commentCount ?? 0,
+        }
+      })
+
       return {
-        posts: [{views: 0, reads: 0, karma: 0, comments: 0, _id: "1"}]
+        posts: posts
        } as AuthorAnalyticsResult;
     },
   },

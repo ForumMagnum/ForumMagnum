@@ -195,4 +195,5 @@ import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
 
 // Hybrid views
-import './server/analytics/pageViewsHybridView';
+import './server/analytics/postViewsHybridView';
+import './server/analytics/postViewTimesHybridView';

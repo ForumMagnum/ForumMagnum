@@ -61,7 +61,7 @@ const testHybridViews = async () => {
   // await hybridView.ensureView();
   // await hybridView.refreshMaterializedView();
 
-  const hvQuery = await hybridView.hybridViewQuery();
+  const hvQuery = await hybridView.virtualTable();
 
   const fullQuery = `
     SELECT

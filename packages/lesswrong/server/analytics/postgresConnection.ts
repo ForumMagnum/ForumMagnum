@@ -41,6 +41,14 @@ export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   return getAnalyticsConnectionFromString(connectionString);
 };
 
+export const getAnalyticsConnectionOrThrow = (): AnalyticsConnectionPool => {
+  const connection = getAnalyticsConnection();
+  if (!connection) {
+    throw new Error("No analytics DB configured");
+  }
+  return connection;
+};
+
 export const getMirrorAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   // We make sure that the settingsCache is initialized before we access the connection strings
   const connectionString = mirrorConnectionSettingString.get();

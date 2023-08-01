@@ -25,7 +25,7 @@ const timeIndexGenerator = (viewName: string) => `
 `;
 
 registerHybridAnalyticsView({
-  identifier: "page_views",
+  identifier: "post_views",
   queryGenerator: viewQuery,
   indexQueryGenerators: [uniqueIndexGenerator, timeIndexGenerator],
 });

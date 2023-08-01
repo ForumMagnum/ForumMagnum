@@ -138,7 +138,7 @@ export class HybridView {
     }
   }
 
-  async hybridViewQuery() {
+  async virtualTable() {
     /**
      * Use the penultimate window_end as the crossover time, as the last window_end may contain incomplete data.
      * This will return undefined if the view doesn't exist, or there is some other error (such as there being only one window_end)
@@ -242,7 +242,7 @@ export function registerHybridAnalyticsView({
   hybridViews[identifier] = hybridView;
 }
 
-export function getHybridView(identifier: string) {
+export function getHybridView(identifier: string): HybridView | undefined {
   return hybridViews[identifier];
 }
 
