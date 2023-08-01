@@ -116,6 +116,12 @@ export class HybridView {
   }
 
   async ensureIndexes() {
+    if (!(await this.viewExists())) {
+      // eslint-disable-next-line no-console
+      console.error(`Cannot ensure indexes for "${this.matViewName}" as it doesn't exist`);
+      return;
+    }
+
     // Apply each index generator
     for (let i = 0; i < this.indexQueryGenerators.length; i++) {
       const indexQuery = this.indexQueryGenerators[i](this.matViewName);
@@ -129,7 +135,7 @@ export class HybridView {
   }
 
   async refreshMaterializedView() {
-    if (!this.viewExists()) {
+    if (!(await this.viewExists())) {
       await this.ensureView();
     } else {
       await this.ensureIndexes();

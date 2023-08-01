@@ -176,9 +176,12 @@ addGraphQLResolvers({
       // in the user's profile
       const userPosts = await Posts.find({
         $or: [{userId: userId}, {"coauthorStatuses.userId": userId}],
-        rejected: {$ne: true}
+        rejected: {$ne: true},
+        draft: false,
+        isEvent: false,
       }, {projection: {
         _id: 1,
+        title: 1,
         baseScore: 1,
         commentCount: 1,
       }}).fetch()
@@ -213,7 +216,8 @@ addGraphQLResolvers({
 
       const postViewTimesTable = await postViewTimesView.virtualTable();
       // Note that this currently double counts reads from the same client that
-      // happen on different days
+      // happen on different days. I think this is an ok tradeoff to be able to
+      // get consistent results for reads per day more easily
       const readsResult = await analyticsDb.any<{_id: string, total_read_count: number}>(`
         SELECT
           post_id AS _id,
@@ -230,6 +234,7 @@ addGraphQLResolvers({
       const posts = viewsResult.map((row, idx) => {
         return {
           _id: row._id,
+          title: postsById[row._id].title,
           views: row.total_view_count,
           // FIXME there is a better way to do this
           reads: readsResult[idx]?.total_read_count ?? 0,
@@ -263,11 +268,12 @@ addGraphQLSchema(`
 
 addGraphQLSchema(`
   type PostAnalytics2Result {
+    _id: String
+    title: String
     views: Int
     reads: Int
     karma: Int
     comments: Int
-    _id: String
   }
 
   type AuthorAnalyticsResult {
