@@ -4,6 +4,7 @@ import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import type { DbTarget } from "../lib/sql/PgCollection";
+import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
@@ -49,6 +50,18 @@ declare global {
   };
 }
 
+export const postgresExtensions = [
+  // btree_gin allows us to use a lot of BTREE operators with GIN indexes that
+  // otherwise wouldn't work
+  "btree_gin",
+  // earthdistance is used for finding nearby events
+  "earthdistance",
+  // intarray is used for collab filtering recommendations
+  "intarray",
+  // vector is used for text embeddings
+  "vector",
+] as const;
+
 /**
  * When a new database connection is created we run these queries to
  * ensure the environment is setup correctly. The order in which they
@@ -59,15 +72,6 @@ const onConnectQueries: string[] = [
   // uses slightly more disk space in exchange for _much_ faster compression and
   // decompression times
   `SET default_toast_compression = lz4`,
-  // Enable to btree_gin extension - this allows us to use a lot of BTREE operators
-  // with GIN indexes that otherwise wouldn't work
-  `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
-  // Enable the earthdistance extension - this is used for finding nearby events
-  `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
-  // Enable the intarray extension - this is used for collab filtering recommendations
-  `CREATE EXTENSION IF NOT EXISTS "intarray" CASCADE`,
-  // Enable the vector extension - this is used for text embeddings
-  `CREATE EXTENSION IF NOT EXISTS "vector" CASCADE`,
   // Build a nested JSON object from a path and a value - this is a dependency of
   // fm_add_to_set below
   `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
@@ -233,7 +237,11 @@ export const createSqlConnection = async (
 
   if (target === "write") {
     try {
-      await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+      let queries = postgresExtensions.map(
+        (extension) => new CreateExtensionQuery(extension).compile().sql,
+      );
+      queries = queries.concat(onConnectQueries);
+      await Promise.all(queries.map((query) => queryWithLock(client, query)));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Failed to run Postgres onConnectQuery:", e);
