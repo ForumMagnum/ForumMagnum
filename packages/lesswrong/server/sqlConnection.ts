@@ -165,29 +165,6 @@ const onConnectQueries: string[] = [
   END;
   $$ LANGUAGE plpgsql;
   `,
-  // Calculate the dot product between two arrays of floats. The arrays should be
-  // of the same length. Note that the `pgvector` extension provides a much more
-  // efficient implementation of this that's written in C, but in order to use that
-  // on AWS RDS we need to upgrade to at least Postgres 15.2 - maybe something for
-  // the future?
-  `CREATE OR REPLACE FUNCTION fm_dot_product(
-    IN vector1 DOUBLE PRECISION[],
-    IN vector2 DOUBLE PRECISION[]
-  )
-    RETURNS DOUBLE PRECISION AS
-    $BODY$
-      BEGIN
-        RETURN(
-          SELECT SUM(mul)
-          FROM (
-            SELECT v1e * v2e AS mul
-            FROM UNNEST(vector1, vector2) AS t(v1e, v2e)
-          ) AS denominator
-        );
-      END;
-    $BODY$
-    LANGUAGE 'plpgsql'
-  `,
   // Extract an array of strings containing all of the tag ids that are attached to a
   // post. Only tags with a relevance score >= 1 are included.
   `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)

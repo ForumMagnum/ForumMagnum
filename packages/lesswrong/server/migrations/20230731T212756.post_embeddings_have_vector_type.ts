@@ -6,6 +6,9 @@ export const up = async ({db}: MigrationContext) => {
   const n = EMBEDDINGS_VECTOR_SIZE;
   await db.tx(async (tx) => {
     await tx.none(`
+      DROP FUNCTION IF EXISTS fm_dot_product
+    `);
+    await tx.none(`
       ALTER TABLE "PostEmbeddings" ADD COLUMN "embeddings_tmp" VECTOR(${n})
     `);
     await tx.none(`
