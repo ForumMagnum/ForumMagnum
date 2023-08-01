@@ -1,5 +1,5 @@
 import Posts from "../lib/collections/posts/collection";
-import { PostEmbeddingsRepo } from "./repos";
+import { PostEmbeddingsRepo, PostsRepo } from "./repos";
 import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import { getOpenAI } from "./languageModels/languageModelIntegration";
 import { htmlToTextDefault } from "../lib/htmlToText";
@@ -7,12 +7,39 @@ import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest } from "../lib/executionEnvironment";
+import { isEAForum } from "../lib/instanceSettings";
+import { addCronJob } from "./cronUtil";
+import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 
-export const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-ada-002";
+export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
+
+export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
+const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
 
 type EmbeddingsResult = {
   embeddings: number[],
   model: string,
+}
+
+const trimText = (
+  text: string,
+  model: TiktokenModel,
+  maxTokens: number,
+): string => {
+  const encoding = encoding_for_model(model);
+
+  for (
+    let encoded = encoding.encode(text);
+    encoded.length > maxTokens;
+    encoded = encoding.encode(text)
+  ) {
+    // 1 token is ~4 characters
+    const charsToRemove = 1 + ((encoded.length - maxTokens) * 4);
+    text = text.slice(0, text.length - charsToRemove);
+  }
+
+  encoding.free();
+  return text;
 }
 
 const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
@@ -27,8 +54,10 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
     throw new Error("OpenAI client is not configured");
   }
   const model = DEFAULT_EMBEDDINGS_MODEL;
+  const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
+  const trimmedText = trimText(text, model, maxTokens);
   const result = await api.createEmbedding({
-    input: text,
+    input: trimmedText,
     model,
   });
   const embeddings = result?.data?.data?.[0].embedding;
@@ -80,5 +109,27 @@ const updateAllPostEmbeddings = async () => {
   });
 }
 
+export const updateMissingPostEmbeddings = async () => {
+  const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
+  for (const id of ids) {
+    try {
+      // One at a time to avoid being rate limited by the API
+      await updatePostEmbeddings(id);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error((e as AnyBecauseIsInput).response ?? e);
+    }
+  }
+}
+
 Globals.updatePostEmbeddings = updatePostEmbeddings;
 Globals.updateAllPostEmbeddings = updateAllPostEmbeddings;
+Globals.updateMissingPostEmbeddings = updateMissingPostEmbeddings;
+
+if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
+  addCronJob({
+    name: "updateMissingEmbeddings",
+    interval: "every 24 hours",
+    job: updateMissingPostEmbeddings,
+  });
+}
