@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users';
 import { useMulti } from '../../../lib/crud/withMulti';
