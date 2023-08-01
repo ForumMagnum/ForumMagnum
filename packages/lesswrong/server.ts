@@ -193,3 +193,6 @@ import './server/search/algoliaCron';
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
+
+// Hybrid views
+import './server/analytics/pageViewsHybridView';

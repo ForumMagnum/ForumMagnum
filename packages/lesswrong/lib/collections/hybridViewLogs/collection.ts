@@ -3,6 +3,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
 
+// TODO remove
 export const HybridViewLogs: HybridViewLogsCollection = createCollection({
   collectionName: 'HybridViewLogs',
   typeName: 'HybridViewLog',

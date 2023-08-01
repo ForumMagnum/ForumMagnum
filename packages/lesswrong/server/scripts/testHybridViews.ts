@@ -58,8 +58,8 @@ const testHybridViews = async () => {
     viewSqlClient: analyticsDb,
   });
 
-  await hybridView.ensureView();
-  await hybridView.refreshMaterializedView();
+  // await hybridView.ensureView();
+  // await hybridView.refreshMaterializedView();
 
   const hvQuery = await hybridView.hybridViewQuery();
 
