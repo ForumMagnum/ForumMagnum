@@ -62,6 +62,8 @@ export const postgresExtensions = [
   "vector",
 ] as const;
 
+export type PostgresExtension = typeof postgresExtensions[number];
+
 /**
  * When a new database connection is created we run these queries to
  * ensure the environment is setup correctly. The order in which they

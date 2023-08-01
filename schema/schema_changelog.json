@@ -275,7 +275,7 @@
     "timestamp": "2023-07-27T12:20:27.000Z"
   },
   {
-    "acceptsSchemaHash": "990a07731677d3093ec04920425699e5",
+    "acceptsSchemaHash": "92d86f7f1604cb3549a341bbb15a079e",
     "acceptedByMigration": "20230731T212756.post_embeddings_have_vector_type.ts",
     "timestamp": "2023-07-31T21:27:56.000Z"
   }
