@@ -7,11 +7,6 @@ import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { userHasPopularCommentsSection } from '../../lib/betas'
-import {
-  TypeformPopupEmbed,
-  TypeformSideEmbed,
-  TypeformStandardEmbed,
-} from "../common/TypeformEmbeds";
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -99,26 +94,6 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
-
-      <SingleColumnSection>
-        <TypeformStandardEmbed
-          widgetId="WukolH8z"
-          title="EA Forum Survey"
-          className={classes.survey}
-        />
-        <TypeformPopupEmbed
-          widgetId="WukolH8z"
-          title="EA Forum Survey"
-          label="Popup embed"
-          className={classes.surveyButton}
-        />
-        <TypeformSideEmbed
-          widgetId="WukolH8z"
-          title="EA Forum Survey"
-          label="Side embed"
-          className={classes.surveyButton}
-        />
-      </SingleColumnSection>
 
       <EAHomeMainContent FrontpageNode={
         () => <>
