@@ -81,6 +81,7 @@
     "@babel/runtime": "^7.12.1",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
     "@datadog/browser-rum": "^4.26.0",
+    "@dqbd/tiktoken": "^1.0.7",
     "@elastic/elasticsearch": "^8.7.0",
     "@googlemaps/google-maps-services-js": "^3.1.13",
     "@heroicons/react": "^2.0.16",
