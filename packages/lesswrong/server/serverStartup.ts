@@ -141,6 +141,12 @@ const initPostgres = async () => {
   }
   await Promise.all(polls);
 
+  // If we're migrating up, we might be migrating from the start on a fresh database, so skip the check
+  // for whether postgres views exist
+  const migrating = process.argv.some(arg => arg.indexOf('migrate') > -1)
+  const migratingUp = process.argv.some(arg => arg === 'up')
+  if (migrating && migratingUp) return;
+
   try {
     await ensurePostgresViewsExist(getSqlClientOrThrow());
   } catch (e) {
