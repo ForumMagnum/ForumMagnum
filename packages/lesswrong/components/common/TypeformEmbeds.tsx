@@ -23,7 +23,7 @@ const useTypeformOnCloseCallback = (
         delete window[callbackName];
       };
     }
-  }, [widgetId, onClose]);
+  }, [callbackName, onClose]);
   return onClose ? {"data-tf-on-close": callbackName} : {};
 }
 

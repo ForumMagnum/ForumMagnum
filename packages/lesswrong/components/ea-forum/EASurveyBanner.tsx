@@ -1,6 +1,10 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
+import { useTracking } from "../../lib/analyticsEvents";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
+import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "../../lib/cookies/cookies";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -46,11 +50,29 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
-  const onCloseSurvey = useCallback(() => {
-  }, []);
+  const cookieName = HIDE_EA_FORUM_SURVEY_BANNER_COOKIE;
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
+  const {captureEvent} = useTracking();
+
+  const hideBanner = useCallback(() => {
+    setCookie(cookieName, "true", {
+      expires: moment().add(10, "years").toDate(),
+    });
+  }, [cookieName, setCookie]);
 
   const onDismissBanner = useCallback(() => {
-  }, []);
+    hideBanner();
+    captureEvent("ea_forum_survey_banner_dismissed");
+  }, [hideBanner, captureEvent]);
+
+  const onCloseSurvey = useCallback(() => {
+    hideBanner();
+    captureEvent("ea_forum_survey_closed");
+  }, [hideBanner, captureEvent]);
+
+  if (cookies[cookieName] === "true") {
+    return null;
+  }
 
   const {ForumIcon} = Components;
   return (
