@@ -26,8 +26,10 @@ export const PrefersDarkModeProvider = ({children}: {
         prefersDarkMode: matches,
       });
     }
-    query.addEventListener("change", handler);
-    return () => query.removeEventListener("change", handler);
+    if (query.addEventListener) {
+      query.addEventListener("change", handler);
+      return () => query.removeEventListener("change", handler);
+    }
   }, [query]);
 
   return (
