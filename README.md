@@ -54,9 +54,18 @@ yarn install
 
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
-TODO: Postgres instructions (but basically: run a postgres db)
+Run a local postgres instance, version 15. For example, if you're on macos:
 
-(Then there's probably something about migrating, see Database Migrations)
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+```
+
+Configure the schema:
+
+```bash
+psql -f ./schema/accepted_schema.sql
+```
 
 ### Creating branch-specific development databases
 
