@@ -54,7 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[680],
     verticalAlign: 'middle',
     lineHeight: '1.25em',
-    marginTop: '3px'
+    marginTop: '3px',
+    cursor: 'pointer'
   },
   checkbox: {
     padding: 6
