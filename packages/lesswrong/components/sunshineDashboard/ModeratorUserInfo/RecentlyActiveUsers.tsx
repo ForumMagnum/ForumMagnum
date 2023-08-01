@@ -123,7 +123,7 @@ const RecentlyActiveUsers = ({ classes }: {
   const [expandId, setExpandId] = useState<string|null>(null);
 
   const [sorting, setSorting] = useState<SortingType>("lastNotificationsCheck");
-  const [ignoreLowKarma, setIgnoreLowKarma] = useState<boolean>(false); // TODO: implement this optio
+  const [ignoreLowKarma, setIgnoreLowKarma] = useState<boolean>(false);
 
   const {query} = useLocation();
   const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
@@ -187,7 +187,7 @@ const RecentlyActiveUsers = ({ classes }: {
     })
   };
 
-  let sortedUsers = results;
+  let sortedUsers = ignoreLowKarma ? results.filter(user => user.karma >= 5) : results;;
   switch (sorting) {
     case "karma":
       sortedUsers = usersSortByKarma(results);
@@ -208,8 +208,6 @@ const RecentlyActiveUsers = ({ classes }: {
       sortedUsers = userSortByLastNotificationsCheck(results);
       break
   } 
-
-  sortedUsers = ignoreLowKarma ? sortedUsers.filter(user => user.karma >= 5) : sortedUsers;
 
   return (
     <div className={classes.root}>
