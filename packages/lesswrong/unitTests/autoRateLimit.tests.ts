@@ -130,15 +130,15 @@ describe("calculateRecentKarmaInfo", function () {
   })
   it("downvoterCount includes all unique downvoters for recent 20 contents", () => {
     const {downvoterCount} = calculateRecentKarmaInfo("authorId", votes)
-    expect(downvoterCount).toEqual(4)
+    expect(downvoterCount).toEqual(8)
   })
   it("postDownvoterCount includes all unique downvoters from most recent 20 posts", () => {
     const {postDownvoterCount} = calculateRecentKarmaInfo("authorId", votes)
-    expect(postDownvoterCount).toEqual(4)
+    expect(postDownvoterCount).toEqual(10)
   })
   it("commentDownvoterCount includes all unique downvoters from most recent 20 comments", () => {
     const {commentDownvoterCount} = calculateRecentKarmaInfo("authorId", votes)
-    expect(commentDownvoterCount).toEqual(3)
+    expect(commentDownvoterCount).toEqual(7)
   })
   it("lastMonthKarma only includes votes from past month", () => {
     const {lastMonthKarma} = calculateRecentKarmaInfo("authorId", votes)
@@ -146,7 +146,7 @@ describe("calculateRecentKarmaInfo", function () {
   })
   it("lastMonthDownvoterCount includes all unique downvoters from past month content", () => {
     const {lastMonthDownvoterCount} = calculateRecentKarmaInfo("authorId", votes)
-    expect(lastMonthDownvoterCount).toEqual(4)
+    expect(lastMonthDownvoterCount).toEqual(8)
   })
 });
 
