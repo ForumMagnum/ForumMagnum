@@ -104,6 +104,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   cell: {
     cursor: "pointer",
+  },
+  checkbox: {
+    marginRight: 12
   }
 });
 
@@ -113,13 +116,14 @@ type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"
 const RecentlyActiveUsers = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay } = Components;
+  const { UsersReviewInfoCard, LoadMore, LWTooltip, UsersName, FormatDate, MetaInfo, UserAutoRateLimitsDisplay, SectionFooterCheckbox, Row } = Components;
 
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
 
   const [sorting, setSorting] = useState<SortingType>("lastNotificationsCheck");
+  const [ignoreLowKarma, setIgnoreLowKarma] = useState<boolean>(false); // TODO: implement this optio
 
   const {query} = useLocation();
   const limit = parseInt(query.limit) || 200 // this is using || instead of ?? because it correclty handles NaN 
@@ -203,7 +207,9 @@ const RecentlyActiveUsers = ({ classes }: {
     case "lastNotificationsCheck":
       sortedUsers = userSortByLastNotificationsCheck(results);
       break
-  }
+  } 
+
+  sortedUsers = ignoreLowKarma ? sortedUsers.filter(user => user.karma >= 5) : sortedUsers;
 
   return (
     <div className={classes.root}>
@@ -215,9 +221,16 @@ const RecentlyActiveUsers = ({ classes }: {
           Reviewed Users
         </Link>
         <div className={classNames(classes.tabButton, classes.recentlyActiveTab)}>
-          Recently Active Users <LoadMore {...recentlyActiveLoadMoreProps}/>
+          Recently Active Users 
+          <Row>
+            <span className={classes.checkbox}>
+              <SectionFooterCheckbox onClick={() => setIgnoreLowKarma(!ignoreLowKarma)} value={ignoreLowKarma} label={"Hide Low Karma"} />
+            </span>
+            <LoadMore {...recentlyActiveLoadMoreProps}/>
+          </Row>
         </div>
       </div>
+
       <table className={classes.table}>
         <thead className={classes.header}>
           <tr>
