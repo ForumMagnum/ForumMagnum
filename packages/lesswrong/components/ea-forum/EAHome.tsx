@@ -42,27 +42,8 @@ const getStructuredData = () => ({
   }),
 })
 
-const styles = (theme: ThemeType) => ({
-  survey: {
-    marginBottom: 25,
-    height: 230,
-  },
-  surveyButton: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
-    fontWeight: 500,
-    padding: "8px 12px",
-    margin: 4,
-    color: theme.palette.text.alwaysWhite,
-    background: theme.palette.primary.main,
-    borderRadius: theme.borderRadius.default,
-    "&:hover": {
-      background: theme.palette.primary.dark,
-    },
-  },
-});
 
-const EAHome = ({classes}: {classes: ClassesType}) => {
+const EAHome = () => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
@@ -113,7 +94,7 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
+const EAHomeComponent = registerComponent('EAHome', EAHome)
 
 declare global {
   interface ComponentTypes {
