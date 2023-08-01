@@ -130,13 +130,13 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const last20PostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   const last20CommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   
-  const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
   const downvoterCount = uniq(downvoters).length
-  const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
   const commentDownvoterCount = uniq(commentDownvoters).length
-  const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
   const postDownvoterCount = uniq(postDownvotes).length
-  const lastMonthDownvotes = lastMonthVotes.filter((vote: RecentVoteInfo) => vote.power < 0).map((vote: RecentVoteInfo) => vote.userId)
+  const lastMonthDownvotes = lastMonthVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
   const lastMonthDownvoterCount = uniq(lastMonthDownvotes).length
   return { 
     last20Karma: last20Karma ?? 0, 

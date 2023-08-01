@@ -87,4 +87,5 @@ export type RecentKarmaInfo = {
 
 export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"> & {
   postedAt: Date,
+  totalDocumentKarma: number
 }
