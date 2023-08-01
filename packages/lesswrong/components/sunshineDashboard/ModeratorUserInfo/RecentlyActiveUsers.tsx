@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users';
 import { useMulti } from '../../../lib/crud/withMulti';
@@ -136,9 +136,6 @@ const RecentlyActiveUsers = ({ classes }: {
     enableTotal: true
   });
 
-  if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    return null;
-  }
 
   const handleExpand = (id: string) => {
     if (expandId === id) {
@@ -187,7 +184,8 @@ const RecentlyActiveUsers = ({ classes }: {
     })
   };
 
-  let sortedUsers = ignoreLowKarma ? results.filter(user => user.karma >= 5) : results;;
+  let sortedUsers = results
+
   switch (sorting) {
     case "karma":
       sortedUsers = usersSortByKarma(results);
@@ -208,6 +206,12 @@ const RecentlyActiveUsers = ({ classes }: {
       sortedUsers = userSortByLastNotificationsCheck(results);
       break
   } 
+
+  sortedUsers = ignoreLowKarma ? sortedUsers.filter(user => user.karma >= 5) : sortedUsers;
+
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
+    return null;
+  }
 
   return (
     <div className={classes.root}>

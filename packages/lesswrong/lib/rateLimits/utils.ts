@@ -52,7 +52,7 @@ export function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, docume
 export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
   // rate limit conditions
   const { karmaThreshold, downvoteRatioThreshold, 
-          last20KarmaThreshold, recentPostKarmaThreshold, recentCommentKarmaThreshold,
+          last20KarmaThreshold, last20PostKarmaThreshold: recentPostKarmaThreshold, last20CommentKarmaThreshold: recentCommentKarmaThreshold,
           downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold, 
           lastMonthKarmaThreshold, lastMonthDownvoterCountThreshold } = rateLimit
 
@@ -109,6 +109,11 @@ function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): Recen
   return sortedVotes.filter((vote) => latestDocumentIds.has(vote.documentId))
 }
 
+function getDownvoterCount (votes: RecentVoteInfo[]) {
+  const downvoters = votes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma <= 0).map((vote: RecentVoteInfo) => vote.userId)
+  return uniq(downvoters).length
+}
+
 export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInfo[]): RecentKarmaInfo  {
   const top20DocumentVotes = getVotesOnLatestDocuments(allVotes)
   
@@ -129,15 +134,12 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const last20Karma = nonUserIdTop20DocVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   const last20PostKarma = postVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
   const last20CommentKarma = commentVotes.reduce((sum: number, vote: RecentVoteInfo) => sum + vote.power, 0)
+
+  const downvoterCount = getDownvoterCount(nonUserIdTop20DocVotes)
+  const commentDownvoterCount = getDownvoterCount(commentVotes)
+  const postDownvoterCount = getDownvoterCount(postVotes)
+  const lastMonthDownvoterCount = getDownvoterCount(lastMonthVotes)
   
-  const downvoters = nonUserIdTop20DocVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
-  const downvoterCount = uniq(downvoters).length
-  const commentDownvoters = commentVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
-  const commentDownvoterCount = uniq(commentDownvoters).length
-  const postDownvotes = postVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
-  const postDownvoterCount = uniq(postDownvotes).length
-  const lastMonthDownvotes = lastMonthVotes.filter((vote: RecentVoteInfo) => vote.power < 0 && vote.totalDocumentKarma < 0).map((vote: RecentVoteInfo) => vote.userId)
-  const lastMonthDownvoterCount = uniq(lastMonthDownvotes).length
   return { 
     last20Karma: last20Karma ?? 0, 
     lastMonthKarma: lastMonthKarma ?? 0,

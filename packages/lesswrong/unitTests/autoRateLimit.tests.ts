@@ -177,7 +177,7 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user post karma is less than recentPostKarmaThreshold", () => {
     const recentKarmaInfoPostVotes = calculateRecentKarmaInfo("authorId", postDownVotes)
     const recentKarmaInfoCommentVotes = calculateRecentKarmaInfo("authorId", commentDownVotes)
-    const rateLimit = createCommentRateLimit({recentPostKarmaThreshold: -1})
+    const rateLimit = createCommentRateLimit({last20PostKarmaThreshold: -1})
     const user1 = createUserKarmaInfo()
     
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfoPostVotes)).toEqual(true)
@@ -186,7 +186,7 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user comment karma is less than recentCommentKarmaThreshold", () => {
     const recentKarmaInfoPostVotes = calculateRecentKarmaInfo("authorId", postDownVotes)
     const recentKarmaInfoCommentVotes = calculateRecentKarmaInfo("authorId", commentDownVotes)
-    const rateLimit = createCommentRateLimit({recentCommentKarmaThreshold: -1})
+    const rateLimit = createCommentRateLimit({last20CommentKarmaThreshold: -1})
     const user1 = createUserKarmaInfo()
     
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfoPostVotes)).toEqual(false)
