@@ -1,11 +1,16 @@
+import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 
+const stableDiffusionApiKey = new PublicInstanceSetting<string | null>('stablediffusion.api', null, 'optional');
 
 export async function generateImage(prompt: string) {
-  var myHeaders = new Headers();
+  if (!stableDiffusionApiKey) {
+    throw new Error('Mising API key for Stable Diffusion!');
+  }
+  const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   
-  var raw = JSON.stringify({
-    "key": "cbXBiLt05agETjJtHWQbAGw053LFQltLg2PlHwKwQ0GfeEW1MZmEH6jTTUn4",
+  const raw = JSON.stringify({
+    "key": stableDiffusionApiKey.get(),
     "model_id": "midjourney",
     "prompt": prompt,
     "negative_prompt": "extra fingers, mutated hands, poorly drawn hands, poorly drawn face, deformed, ugly, blurry, bad anatomy, bad proportions, extra limbs, cloned face, skinny, glitchy, double torso, extra arms, extra hands, mangled fingers, missing lips, ugly face, distorted face, extra legs, anime",
@@ -28,7 +33,7 @@ export async function generateImage(prompt: string) {
     "track_id": null
   });
   
-  var requestOptions = {
+  const requestOptions = {
     method: 'POST',
     headers: myHeaders,
     body: raw,
@@ -36,9 +41,9 @@ export async function generateImage(prompt: string) {
   };
 
   try {
-    let response = await fetch("https://stablediffusionapi.com/api/v4/dreambooth", requestOptions);
-    let result = await response.text();
-    return JSON.parse(result).output[0]
+    const response = await fetch("https://stablediffusionapi.com/api/v4/dreambooth", requestOptions);
+    const result = await response.json();
+    return result.output[0]
   } catch (err) {
     return err.toString()
   }

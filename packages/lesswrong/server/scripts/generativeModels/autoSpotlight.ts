@@ -26,51 +26,76 @@ async function queryClaude(prompt: string) {
     });
     return completion.completion
   }
-  return await main().catch(console.error);
+  return await main().catch(err => {
+    console.error(err);
+    return undefined;
+  });
 }
 
 type AIResponse = {
   docId: string,
   docTitle: string,
   type: string,
-  result: string|void
+  result: string|undefined
 }
 
 async function queryClaudeWithDoc(docId: string, docTitle: string, type: string, prompt: string): Promise<AIResponse> {
-  console.log("querying claude", docId, docTitle, type)
+  // console.log("querying claude", docId, docTitle, type)
   return { docId, docTitle, type, result: await queryClaude(prompt) }
 }
 
 function trimFirstParagraph(text: string) {
   let output = text;
+  console.log({ output });
   if (/\n\n/.test(text)) {
-    output = text.split("\n\n")[1];
+    output = text.split("\n\n").at(-1) ?? text.split("\n\n")[1];
   }
   return output
 }
 
-function createSpotlight(post: DbPost): Array<Promise<any>> {
-  const querySummaryRoot = `
-    Write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences. 
-    
-    Also, do NOT include any prefix or preamble to the summary, (i.e. instead of saying "here are two sentences summarizing the post: [summary]", just give the summary itself.
-  `
+function createArtDescription(post: DbPost) {
   const queryImageRoot = `
-    Write a short description of a painting related to this post. It should be about 10 words long. It can be written in approx. 3-word sentence fragments, separated by commas. Each fragment should describe a different aspect of the art piece's subject or setting.
+  Summarize this post. Then describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be relatively simple, such that key elements and themes are easily distinguishable when people see it.
+
+  After doing that, please write three distinct prompts, each two to three sentences long. Each prompt should end with the sentence, "Minimalist aquarelle painting by Thomas Schaller, on a white background." Separate each prompt with a paragraph break. It is very important that your answer ends with the prompts, with no additional commentary.
   `
+
+  return [
+    queryClaudeWithDoc(post._id, post.title, "artPrompt", `${queryImageRoot}${post.contents.html}`).then(({ result }) => result),
+    queryClaudeWithDoc(post._id, post.title, "artPrompt", `${queryImageRoot}${post.contents.html}`).then(({ result }) => result)
+  ]
+}
+
+// const querySummaryRoot = `
+// Write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences. 
+
+// Also, do NOT include any prefix or preamble to the summary, (i.e. instead of saying "here are two sentences summarizing the post: [summary]", just give the summary itself.
+// `
+
+const querySummaryRoot = `
+Copy the first paragraph of the this post which is the best standalone introductory paragraph.
+`
+
+function createSpotlight(post: DbPost): Array<Promise<any>> {
+  
   return [
     queryClaudeWithDoc(post._id, post.title, "summary", `${querySummaryRoot}${post.contents.html}`),
     queryClaudeWithDoc(post._id, post.title, "summary", `${querySummaryRoot}${post.contents.html}`),
-    queryClaudeWithDoc(post._id, post.title, "artPrompt", `${queryImageRoot}${post.contents.html}`),
-    queryClaudeWithDoc(post._id, post.title, "artPrompt",     `${queryImageRoot}${post.contents.html}`)
   ]
 }
 
 async function generateSpotlightImage(prompt: string) {
   const trimmedPrompt = trimFirstParagraph(prompt)
-  const combinedPrompt = "minimalist aquarelle painting by Thomas Schaller, on a white background" + trimmedPrompt
-  console.log("generating image:\n\n", combinedPrompt)
+  const combinedPrompt = "Minimalist aquarelle painting by Thomas Schaller, on a white background, " + trimmedPrompt
+  // console.log("generating image:\n\n", combinedPrompt)
   return generateImage(combinedPrompt)
+}
+
+interface PostResults {
+  docTitle: string,
+  // artPrompts: string[],
+  // artResults: any[],
+  summaries: string[]
 }
 
 async function createSpotlights() {
@@ -81,34 +106,41 @@ async function createSpotlights() {
     ).fetch()
 
     const results: Array<AIResponse> = []
-    const date = new Date()
+    const start = new Date()
+
+    const spotlightPosts = posts.splice(0,5);
+
+    const postResults: Record<string, PostResults> = {};
     
-    for (let i = 0; i < posts.splice(0,1).length; i++) {
-      const newResults = await Promise.all(createSpotlight(posts[i]))
-      results.push(...newResults)
-      const artPrompts = newResults.filter((result) => result.type === "artPrompt").map((result) => result.result)
-      console.log(artPrompts)
-      const artResult = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
-      results.push(...artResult.map((result) => ({docId: posts[i]._id, docTitle: posts[i].title, type: "art", result})))
-      // setTimeout(() => {}, 1000)
+    for (const post of spotlightPosts) {
+      const newResults = await Promise.all(createSpotlight(post))
+      // const artPrompts = (await Promise.all(createArtDescription(post))).filter((prompt): prompt is string => !!prompt);
+      // const artResults = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
+
+      postResults[post._id] = {
+        docTitle: post.title,
+        summaries: newResults,
+        // artPrompts,
+        // artResults
+      };
     }
-    const apiCompletionTime = (new Date()).getMilliseconds() - date.getMilliseconds()
-    console.log(apiCompletionTime)
+    const apiCompletionTime = (new Date()).getTime() - start.getTime()
+    console.log({ apiCompletionTime })
     
-    Object.values(groupBy(results, (result) => result.docId)).forEach((results, i) => {
-      console.log(results[0].docTitle)
-      const summaries = results.filter((result) => result.type === "summary").map((result) => result.result)
-      const artPrompts = results.filter((result) => result.type === "artPrompt").map((result) => result.result)
-      const artResults = results.filter((result) => result.type === "art").map((result) => result.result)
-      console.log(summaries.join("\n\n"))
-      console.log(artPrompts.join("\n\n"))
-      console.log(artResults.join("\n\n"))
-      void Spotlights.rawInsert({
-        documentId: results[0].docId,
-        documentType: "Post",
-        draft: true,
-        duration: 1
-      })
+    Object.entries(postResults).forEach(([postId, result]) => {
+      const { summaries, docTitle } = result;
+
+      console.log({ docTitle })
+      console.log({ summaries })
+      // console.log({ artPrompts })
+      // console.log({ artResults })
+
+      // void Spotlights.rawInsert({
+      //   documentId: postId,
+      //   documentType: "Post",
+      //   draft: true,
+      //   duration: 1
+      // })
     })
   }
   return "Done"
