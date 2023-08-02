@@ -87,15 +87,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   digestFormInput: {
     flexGrow: 1,
     background: theme.palette.grey[0],
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.default,
     '& .MuiInputLabel-outlined': {
       transform: 'translate(14px,12px) scale(1)',
       '&.MuiInputLabel-shrink': {
         transform: 'translate(14px,-6px) scale(0.75)',
       }
     },
+    '& .MuiNotchedOutline-root': {
+      borderRadius: theme.borderRadius.default,
+    },
     '& .MuiOutlinedInput-input': {
-      padding: 10
+      padding: 11
     }
   },
   sectionTitle: {
@@ -283,11 +286,11 @@ const UpcomingEventsSection = ({classes}: {
   const { results: upcomingEvents } = useMulti({
     collectionName: "Posts",
     terms: upcomingEventsTerms,
-    fragmentName: 'PostsBase',
+    fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
   
-  const { SectionTitle } = Components
+  const { SectionTitle, PostsItemTooltipWrapper } = Components
   
   return <div className={classes.section}>
     <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
@@ -295,9 +298,11 @@ const UpcomingEventsSection = ({classes}: {
       const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
       return <div key={event._id} className={classes.post}>
         <div className={classes.postTitle}>
-          <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
-            {event.title}
-          </Link>
+          <PostsItemTooltipWrapper post={event} As="span">
+            <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
+              {event.title}
+            </Link>
+          </PostsItemTooltipWrapper>
         </div>
         <div className={classes.postMetadata}>
           <span className={classes.eventDate}>
@@ -335,7 +340,7 @@ export const EAHomeSidebar = ({classes}: {
       after: dateCutoff,
       limit: 3
     },
-    fragmentName: "PostsBase",
+    fragmentName: "PostsList",
     enableTotal: false,
     fetchPolicy: "cache-and-network",
   })
@@ -359,7 +364,7 @@ export const EAHomeSidebar = ({classes}: {
     )
   )
   
-  const { SectionTitle, PostsItemDate, PostsAuthors, ForumIcon } = Components
+  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, PostsAuthors, ForumIcon } = Components
   
   const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
@@ -393,9 +398,11 @@ export const EAHomeSidebar = ({classes}: {
       <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
       {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
         <div className={classes.postTitle}>
-          <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-            {post.title}
-          </Link>
+          <PostsItemTooltipWrapper post={post} As="span">
+            <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
+              {post.title}
+            </Link>
+          </PostsItemTooltipWrapper>
         </div>
         <div className={classes.postMetadata}>
           Posted <PostsItemDate post={post} includeAgo />
@@ -420,9 +427,11 @@ export const EAHomeSidebar = ({classes}: {
         const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
         return <div key={post._id} className={classes.post}>
           <div className={classes.postTitle}>
-            <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-              {post.title}
-            </Link>
+            <PostsItemTooltipWrapper post={post} As="span">
+              <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
+                {post.title}
+              </Link>
+            </PostsItemTooltipWrapper>
           </div>
           <div className={classes.postMetadata}>
             {/* <PostsAuthors post={post} /> TODO figure out what to do here */}
