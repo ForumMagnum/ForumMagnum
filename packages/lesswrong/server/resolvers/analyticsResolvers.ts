@@ -4,9 +4,10 @@ import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analyt
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, viewFieldAllowAny } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { AuthorAnalyticsResult } from "../../components/users/useAuthorAnalytics";
+import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/users/useAuthorAnalytics";
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
+import { userIsAdminOrMod } from "../../lib/vulcan-users";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -170,10 +171,11 @@ addGraphQLResolvers({
       context: ResolverContext
     ): Promise<AuthorAnalyticsResult> {
       const { currentUser } = context;
-      // TODO permissions
 
-      // Selector adapted from 'userPosts' view, these are all the posts that would appear
-      // in the user's profile
+      if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
+        throw new Error("Permission denied");
+      }
+
       const userPosts = await Posts.find({
         $or: [{userId: userId}, {"coauthorStatuses.userId": userId}],
         rejected: {$ne: true},
@@ -182,6 +184,8 @@ addGraphQLResolvers({
       }, {projection: {
         _id: 1,
         title: 1,
+        slug: 1,
+        postedAt: 1,
         baseScore: 1,
         commentCount: 1,
       }}).fetch()
@@ -231,12 +235,14 @@ addGraphQLResolvers({
           post_id;
       `, [postIds]);
 
-      const posts = viewsResult.map((row, idx) => {
+      // TODO base this on postsById instead of viewsResult
+      const posts: PostAnalytics2Result[] = viewsResult.map((row, idx) => {
         return {
           _id: row._id,
           title: postsById[row._id].title,
+          slug: postsById[row._id].slug,
+          postedAt: postsById[row._id].postedAt,
           views: row.total_view_count,
-          // FIXME there is a better way to do this
           reads: readsResult[idx]?.total_read_count ?? 0,
           karma: postsById[row._id].baseScore,
           comments: postsById[row._id].commentCount ?? 0,
@@ -270,6 +276,8 @@ addGraphQLSchema(`
   type PostAnalytics2Result {
     _id: String
     title: String
+    slug: String
+    postedAt: Date
     views: Int
     reads: Int
     karma: Int

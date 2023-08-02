@@ -1,6 +1,6 @@
 import { registerHybridAnalyticsView } from "./hybridViews";
 
-const viewQuery = (crossoverTime: Date) => `
+const viewQuery = (crossoverTime: Date, materialized = false) => `
   SELECT
     client_id,
     post_id,
@@ -12,7 +12,7 @@ const viewQuery = (crossoverTime: Date) => `
   WHERE
     client_id IS NOT NULL
     AND timestamp > '${crossoverTime.toISOString()}'
-    AND timestamp < NOW()
+    ${materialized ? 'AND timestamp < NOW()' : ''}
   GROUP BY
     client_id,
     post_id,

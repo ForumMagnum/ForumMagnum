@@ -6,7 +6,11 @@ import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
 import { getUserFromResults } from "./UsersProfile";
-import { useAuthorAnalytics } from "./useAuthorAnalytics";
+import { PostAnalytics2Result, useAuthorAnalytics } from "./useAuthorAnalytics";
+import classNames from "classnames";
+import moment from "moment";
+import { Link } from "../../lib/reactRouterWrapper";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 
 // lw-look-here
 // TODO do we still need to handle these?
@@ -33,24 +37,77 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[1000],
   },
   grid: {
-    display: 'grid',
-    gridTemplateColumns: '3fr 1fr 1fr 1fr 1fr', // 3fr for "Date", 1fr for others
-    alignItems: 'center',
-    marginBottom: 8,
+    display: "grid",
+    gridTemplateColumns: "65% 1fr 1fr 1fr 1fr",
+    alignItems: "center",
   },
-  cell: {
-    padding: 8,
-  }
+  gridHeader: {
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    padding: '12px 4px 12px 0',
+    fontWeight: 500,
+  },
+  postsItem: {
+    padding: '12px 4px 12px 12px',
+    border: `1px solid ${theme.palette.grey[200]}`,
+    borderRadius: theme.borderRadius.default,
+  },
+  postTitleCell: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  valueHeader: {
+    textAlign: "center",
+  },
+  valueCell: {
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  postTitle: {
+    fontSize: 14,
+    lineHeight: "22px",
+    fontWeight: "600",
+    paddingRight: 12,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    width: 'fit-content'
+  },
+  postSubtitle: {
+    fontSize: 13,
+    color: theme.palette.grey[700],
+    fontWeight: 500,
+  },
+  xsHide: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
 });
 
-const AnalyticsPostItem = ({ post, classes }: { post: any; classes: ClassesType }) => {
-  return <div className={classes.grid}>
-    <div className={classes.cell}>{post._id /* TODO replace with the title etc when available */}</div>
-    <div className={classes.cell}>{post.views}</div>
-    <div className={classes.cell}>{post.reads}</div>
-    <div className={classes.cell}>{post.karma}</div>
-    <div className={classes.cell}>{post.comments}</div>
-  </div>
+const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; classes: ClassesType }) => {
+  const timeFromNow = moment(new Date(post.postedAt)).fromNow();
+  const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
+
+  const postAnalyticsLink = `/postAnalytics?postId=${post._id}`
+
+  return (
+    <div className={classNames(classes.grid, classes.postsItem)}>
+      <div className={classes.postTitleCell}>
+        <Link to={postGetPageUrl(post)} className={classes.postTitle}>{post.title}</Link>
+        <div className={classes.postSubtitle}>
+          {timeFromNow}
+          {ago}<Link to={postAnalyticsLink}> · view post stats</Link>
+        </div>
+      </div>
+      <div className={classes.valueCell}>{post.views}</div>
+      <div className={classes.valueCell}>{post.reads}</div>
+      <div className={classes.valueCell}>{post.karma}</div>
+      <div className={classes.valueCell}>{post.comments}</div>
+    </div>
+  );
 };
 
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
@@ -67,9 +124,9 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   });
   const user = getUserFromResults(results);
 
-  const { authorAnalytics, loading: analyticsLoading, error } = useAuthorAnalytics(user?._id);
+  const { authorAnalytics, loading: analyticsLoading } = useAuthorAnalytics(user?._id);
 
-  const { SingleColumnSection, HeadTags, Typography } = Components;
+  const { SingleColumnSection, HeadTags, Typography, Loading } = Components;
 
   if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
@@ -80,15 +137,6 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const title = `Stats for ${user.displayName}`;
 
   const posts = authorAnalytics?.posts || [];
-  // Each element is of type:
-  // {
-  //   views: number
-  //   reads: number
-  //   karma: number
-  //   comments: number
-  //   // TODO include regular post data here like title etc, for now we just have _id
-  //   _id: string
-  // }
 
   return (
     <>
@@ -99,14 +147,14 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
           <Typography variant="headline" className={classes.subheading}>
             Posts
           </Typography>
-          <div className={classes.grid}>
-            <div className={classes.cell}>Date</div>
-            <div className={classes.cell}>Views</div>
-            <div className={classes.cell}>Reads</div>
-            <div className={classes.cell}>Karma</div>
-            <div className={classes.cell}>Comments</div>
+          <div className={classNames(classes.grid, classes.gridHeader)}>
+            <div>Date</div>
+            <div className={classes.valueHeader}>Views</div>
+            <div className={classes.valueHeader}>Reads</div>
+            <div className={classes.valueHeader}>Karma</div>
+            <div className={classes.valueHeader}>Comments</div>
           </div>
-          {posts.map((post) => (
+          {analyticsLoading ? <Loading /> : posts.map((post) => (
             <AnalyticsPostItem key={post._id} post={post} classes={classes} />
           ))}
         </div>

@@ -1,12 +1,14 @@
 import { useQuery, gql } from '@apollo/client'
 
 export type PostAnalytics2Result = {
+  _id: string
+  title: string
+  slug: string
+  postedAt: Date
   views: number
   reads: number
   karma: number
   comments: number
-  // TODO include regular post data here like title etc, for now we just have _id
-  _id: string
 }
 
 export type AuthorAnalyticsResult = {
@@ -24,6 +26,9 @@ export const useAuthorAnalytics = (userId?: string) => {
       AuthorAnalytics(userId: $userId) {
         posts {
           _id
+          title
+          slug
+          postedAt
           views
           reads
           karma

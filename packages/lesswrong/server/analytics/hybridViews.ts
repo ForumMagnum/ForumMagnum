@@ -4,7 +4,7 @@ import { getAnalyticsConnection } from "./postgresConnection";
 import { addCronJob } from "../cronUtil";
 
 export class HybridView {
-  protected queryGenerator: (after: Date) => string;
+  protected queryGenerator: (after: Date, materialized: boolean) => string;
   protected indexQueryGenerators: ((viewName: string) => string)[];
   protected versionHash: string;
   protected identifier: string;
@@ -18,7 +18,7 @@ export class HybridView {
     viewSqlClient,
   }: {
     identifier: string;
-    queryGenerator: (after: Date) => string;
+    queryGenerator: (after: Date, materialized: boolean) => string;
     /**
      * Array of functions that generate index queries, given the view name. You must provide at least one
      * UNIQUE index, without this it isn't possible to refresh the view without locking the table.
@@ -32,7 +32,7 @@ export class HybridView {
     this.viewSqlClient = viewSqlClientToUse;
 
     this.queryGenerator = queryGenerator;
-    const allTimeQuery = queryGenerator(new Date(0));
+    const allTimeQuery = queryGenerator(new Date(0), true);
     const indexQuerySignatures = indexQueryGenerators.map((generator) => generator("view_name"));
     const versionSignature = `${allTimeQuery}::${indexQuerySignatures.join("::")}`;
 
@@ -98,7 +98,7 @@ export class HybridView {
 
     // Create the materialized view, filtering by a date in the distant past to include all rows
     await this.viewSqlClient.none(
-      `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0))})`
+      `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0), true)})`
     );
 
     // Drop older versions of this view, if this fails just continue
@@ -151,10 +151,10 @@ export class HybridView {
      */
     const getCrossoverTime = async () => {
       try {
-        const res = await this.viewSqlClient.oneOrNone<{window_end: Date}>(`
-          SELECT window_end
+        const res = await this.viewSqlClient.oneOrNone<{window_end: string}>(`
+          SELECT window_end::text
           FROM (
-            SELECT window_end
+            SELECT DISTINCT window_end
             FROM ${this.matViewName}
             ORDER BY window_end DESC
             LIMIT 2
@@ -162,7 +162,8 @@ export class HybridView {
           ORDER BY window_end ASC
           LIMIT 1
         `);
-        return res?.window_end;
+        // Enforce a UTC timezone, to avoid issues with the location of the server
+        return res?.window_end ? new Date(res.window_end + "Z") : undefined;
       } catch (error) {
         // This can throw an error if the view doesn't exist yet
         return undefined;
@@ -185,7 +186,7 @@ export class HybridView {
             *,
             'live' AS source
         FROM
-            (${this.queryGenerator(new Date(0))}) AS live_subquery
+            (${this.queryGenerator(new Date(0), false)}) AS live_subquery
         `;
     }
 
@@ -205,7 +206,7 @@ export class HybridView {
                 *,
                 'live' AS source
             FROM
-                (${this.queryGenerator(crossoverTime)}) AS live_subquery
+                (${this.queryGenerator(crossoverTime, false)}) AS live_subquery
         )
     `;
   }
@@ -219,7 +220,7 @@ export function registerHybridAnalyticsView({
   indexQueryGenerators,
 }: {
   identifier: string;
-  queryGenerator: (after: Date) => string;
+  queryGenerator: (after: Date, materialized: boolean) => string;
   /**
    * Array of functions that generate index queries, given the view name. You must provide at least one
    * UNIQUE index, without this it isn't possible to refresh the view without locking the table.

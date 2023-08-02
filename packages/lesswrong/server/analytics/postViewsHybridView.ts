@@ -1,6 +1,6 @@
 import { registerHybridAnalyticsView } from "./hybridViews";
 
-const viewQuery = (crossoverTime: Date) => `
+const viewQuery = (crossoverTime: Date, materialized = false) => `
     SELECT
       count(*) AS view_count,
       post_id,
@@ -10,7 +10,7 @@ const viewQuery = (crossoverTime: Date) => `
       page_view
     WHERE
       timestamp > '${crossoverTime.toISOString()}'
-      AND timestamp < NOW()
+      ${materialized ? 'AND timestamp < NOW()' : ''}
     GROUP BY
       post_id,
       date_trunc('day', timestamp)
