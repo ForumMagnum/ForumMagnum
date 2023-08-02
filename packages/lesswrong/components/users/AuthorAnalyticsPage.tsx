@@ -14,7 +14,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 
-const mdTitleWidth = 65;
+const mdTitleWidth = 60;
 const smTitleWidth = 50;
 const xsTitleWidth = 40;
 const valueWidth = (titleWidth: number) => (100 - titleWidth) / 4;
@@ -24,7 +24,7 @@ const gridColumns = (titleWidth: number) =>
   )}%`;
 
 // lw-look-here
-// TODO do we still need to handle these?
+// TODO we need to handle these once the graph is added in?
 const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021";
 const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01";
 const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020";
@@ -75,11 +75,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
   },
   dateHeader: {
-    cursor: "pointer",
+    justifyContent: "flex-start",
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer"
   },
   valueHeader: {
-    textAlign: "center",
+    justifyContent: "center",
+    display: "flex",
+    alignItems: "center",
     cursor: "pointer",
+    marginLeft: 14,
   },
   valueCell: {
     textAlign: "center",
@@ -108,6 +114,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     marginTop: 10,
     marginLeft: 4,
+  },
+  sortArrow: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    marginLeft: 2,
+    // flip vertically
+    transform: "scaleY(-1)",
+  },
+  desc: {
+    transform: "scaleY(1)",
+  },
+  hide: {
+    // Set opacity: 0 rather than display: none to avoid layout shift
+    opacity: 0,
   }
 });
 
@@ -197,7 +217,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     desc: sortDesc,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore } = Components;
+  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon } = Components;
 
   if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
@@ -221,18 +241,23 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               Date
+              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "postedAt"})} icon="NarrowArrowDown" />
             </div>
             <div onClick={() => onClickHeader("views")} className={classes.valueHeader}>
               Views
+              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "views"})} icon="NarrowArrowDown" />
             </div>
             <div onClick={() => onClickHeader("reads")} className={classes.valueHeader}>
               Reads
+              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "reads"})} icon="NarrowArrowDown" />
             </div>
             <div onClick={() => onClickHeader("baseScore")} className={classes.valueHeader}>
               Karma
+              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "baseScore"})} icon="NarrowArrowDown" />
             </div>
             <div onClick={() => onClickHeader("commentCount")} className={classes.valueHeader}>
               Comments
+              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "commentCount"})} icon="NarrowArrowDown" />
             </div>
           </div>
           {posts.map((post) => (

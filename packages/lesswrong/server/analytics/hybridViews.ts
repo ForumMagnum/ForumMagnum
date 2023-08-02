@@ -2,6 +2,8 @@ import { getSqlClient } from "../../lib/sql/sqlClient";
 import crypto from "crypto";
 import { getAnalyticsConnection } from "./postgresConnection";
 import { addCronJob } from "../cronUtil";
+import { isAnyTest } from "../../lib/executionEnvironment";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export class HybridView {
   protected queryGenerator: (after: Date, materialized: boolean) => string;
@@ -244,7 +246,10 @@ export function registerHybridAnalyticsView({
     await hybridView.ensureView();
     await hybridView.ensureIndexes();
   };
-  void ensureViewAndIndexes();
+
+  if (!isAnyTest && isEAForum) {
+    void ensureViewAndIndexes();
+  }
 
   hybridViews[identifier] = hybridView;
 }
