@@ -14,6 +14,8 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from '../../lib/cookies/cookies';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -175,7 +177,14 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
-  
+  const [cookies] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
+
+  // Force the header to stay at the top on the EA forum when we show the
+  // survey banner
+  // TODO: Revert this when we remove the survey banner!
+  if (isEAForum && cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] !== true) {
+    stayAtTop = true;
+  }
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
