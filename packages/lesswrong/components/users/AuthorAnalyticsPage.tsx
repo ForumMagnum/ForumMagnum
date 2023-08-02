@@ -1,6 +1,6 @@
 import React from "react";
 import { isEAForum } from "../../lib/instanceSettings";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
@@ -11,6 +11,17 @@ import classNames from "classnames";
 import moment from "moment";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import qs from "qs";
+import isEmpty from "lodash/isEmpty";
+
+const mdTitleWidth = 65;
+const smTitleWidth = 50;
+const xsTitleWidth = 40;
+const valueWidth = (titleWidth: number) => (100 - titleWidth) / 4;
+const gridColumns = (titleWidth: number) =>
+  `${titleWidth}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(
+    titleWidth
+  )}%`;
 
 // lw-look-here
 // TODO do we still need to handle these?
@@ -38,17 +49,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "65% 1fr 1fr 1fr 1fr",
+    gridTemplateColumns: gridColumns(mdTitleWidth),
     alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      gridTemplateColumns: gridColumns(smTitleWidth),
+    },
+    [theme.breakpoints.down("xs")]: {
+      gridTemplateColumns: gridColumns(xsTitleWidth),
+    },
   },
   gridHeader: {
     color: theme.palette.grey[600],
     fontSize: 13,
-    padding: '12px 4px 12px 0',
+    padding: "12px 4px 12px 0",
     fontWeight: 500,
   },
   postsItem: {
-    padding: '12px 4px 12px 12px',
+    padding: "12px 4px 12px 12px",
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: theme.borderRadius.default,
   },
@@ -57,8 +74,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "space-between",
   },
+  dateHeader: {
+    cursor: "pointer",
+  },
   valueHeader: {
     textAlign: "center",
+    cursor: "pointer",
   },
   valueCell: {
     textAlign: "center",
@@ -73,7 +94,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
-    width: 'fit-content'
   },
   postSubtitle: {
     fontSize: 13,
@@ -85,21 +105,28 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  loadMore: {
+    marginTop: 10,
+    marginLeft: 4,
+  }
 });
 
 const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; classes: ClassesType }) => {
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
-  const postAnalyticsLink = `/postAnalytics?postId=${post._id}`
+  const postAnalyticsLink = `/postAnalytics?postId=${post._id}`;
 
   return (
     <div className={classNames(classes.grid, classes.postsItem)}>
       <div className={classes.postTitleCell}>
-        <Link to={postGetPageUrl(post)} className={classes.postTitle}>{post.title}</Link>
+        <div className={classes.postTitle}>
+          <Link to={postGetPageUrl(post)}>{post.title}</Link>
+        </div>
         <div className={classes.postSubtitle}>
           {timeFromNow}
-          {ago}<Link to={postAnalyticsLink}> · view post stats</Link>
+          {ago}
+          <Link to={postAnalyticsLink}> · view post stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views}</div>
@@ -111,7 +138,8 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
 };
 
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
-  const { params } = useLocation();
+  const { params, query, location } = useLocation();
+  const { history } = useNavigation();
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
@@ -124,9 +152,52 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   });
   const user = getUserFromResults(results);
 
-  const { authorAnalytics, loading: analyticsLoading } = useAuthorAnalytics(user?._id);
+  const { sortBy, sortDesc: sortDescRaw } = query;
+  const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : undefined;
 
-  const { SingleColumnSection, HeadTags, Typography, Loading } = Components;
+  const onClickHeader = (headerField: string) => {
+    let newSortBy: string | undefined = sortBy;
+    let newSortDesc: boolean | undefined = sortDesc;
+
+    if (headerField === sortBy) {
+      if (sortDesc === true) {
+        newSortDesc = false;
+      } else if (sortDesc === false) {
+        newSortBy = undefined;
+        newSortDesc = undefined;
+      }
+    } else {
+      newSortBy = headerField;
+      newSortDesc = true;
+    }
+
+    const currentQuery = isEmpty(query)
+      ? {}
+      : Object.keys(query)
+          .filter((key) => key !== "sortBy" && key !== "sortDesc")
+          .reduce((obj, key) => {
+            obj[key] = query[key];
+            return obj;
+          }, {} as Record<string, string>);
+    const newQuery = {
+      ...currentQuery,
+      ...(newSortBy !== undefined && { sortBy: newSortBy }),
+      ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
+    };
+    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+  };
+
+  const {
+    authorAnalytics,
+    loading: analyticsLoading,
+    loadMoreProps,
+  } = useAuthorAnalytics({
+    userId: user?._id,
+    sortBy,
+    desc: sortDesc,
+  });
+
+  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore } = Components;
 
   if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
@@ -148,15 +219,27 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
             Posts
           </Typography>
           <div className={classNames(classes.grid, classes.gridHeader)}>
-            <div>Date</div>
-            <div className={classes.valueHeader}>Views</div>
-            <div className={classes.valueHeader}>Reads</div>
-            <div className={classes.valueHeader}>Karma</div>
-            <div className={classes.valueHeader}>Comments</div>
+            <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
+              Date
+            </div>
+            <div onClick={() => onClickHeader("views")} className={classes.valueHeader}>
+              Views
+            </div>
+            <div onClick={() => onClickHeader("reads")} className={classes.valueHeader}>
+              Reads
+            </div>
+            <div onClick={() => onClickHeader("baseScore")} className={classes.valueHeader}>
+              Karma
+            </div>
+            <div onClick={() => onClickHeader("commentCount")} className={classes.valueHeader}>
+              Comments
+            </div>
           </div>
-          {analyticsLoading ? <Loading /> : posts.map((post) => (
+          {posts.map((post) => (
             <AnalyticsPostItem key={post._id} post={post} classes={classes} />
           ))}
+          {analyticsLoading && <Loading />}
+          <LoadMore className={classes.loadMore} {...loadMoreProps} />
         </div>
       </SingleColumnSection>
     </>

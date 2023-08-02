@@ -8,6 +8,7 @@ import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/us
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { post } from "request";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -167,27 +168,39 @@ addGraphQLResolvers({
     },
     async AuthorAnalytics(
       root: void,
-      { userId }: { userId: string },
+      { userId, sortBy = "postedAt", desc = true, limit = 10 }: { userId: string, sortBy?: string, desc?: boolean, limit?: number },
       context: ResolverContext
     ): Promise<AuthorAnalyticsResult> {
+      // sortBy will be postedAt, views, reads, baseScore, or commentCount
       const { currentUser } = context;
+      const analyticsDb = getAnalyticsConnectionOrThrow();
 
       if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
         throw new Error("Permission denied");
       }
 
-      const userPosts = await Posts.find({
+      const directlySortableFields = ["postedAt", "baseScore", "commentCount"];
+      const indirectlySortableFields = ["views", "reads"];
+      
+      const directlySortable = directlySortableFields.includes(sortBy);
+
+      const postSelector = {
         $or: [{userId: userId}, {"coauthorStatuses.userId": userId}],
         rejected: {$ne: true},
         draft: false,
         isEvent: false,
-      }, {projection: {
-        _id: 1,
-        title: 1,
-        slug: 1,
-        postedAt: 1,
-        baseScore: 1,
-        commentCount: 1,
+      }
+      const postCountPromise = Posts.find(postSelector).count();
+      const userPosts = await Posts.find(postSelector, {
+        ...(directlySortable && {sort: {[sortBy]: desc ? -1 : 1}}),
+        ...(directlySortable && {limit}),
+        projection: {
+          _id: 1,
+          title: 1,
+          slug: 1,
+          postedAt: 1,
+          baseScore: 1,
+          commentCount: 1,
       }}).fetch()
 
       const postsById = Object.fromEntries(userPosts.map(post => [post._id, post]))
@@ -195,63 +208,81 @@ addGraphQLResolvers({
 
       if (!postIds.length) {
         return {
-          posts: []
+          posts: [],
+          totalCount: 0
         }
       }
 
       const postViewsView = getHybridView("post_views");
       const postViewTimesView = getHybridView("post_view_times");
+      
       if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
 
-      const analyticsDb = getAnalyticsConnectionOrThrow();
+      const [viewsTable, postViewTimesTable] = await Promise.all([
+        postViewsView.virtualTable(),
+        postViewTimesView.virtualTable()
+      ])
 
-      const viewsTable = await postViewsView.virtualTable();
-      const viewsResult = await analyticsDb.any<{_id: string, total_view_count: number}>(`
-        SELECT
-          post_id AS _id,
-          sum(view_count) AS total_view_count
-        FROM
-          (${viewsTable}) q
-        WHERE
-          post_id IN ( $1:csv )
-        GROUP BY
-          post_id;
-      `, [postIds]);
+      const [viewsResult, readsResult] = await Promise.all([
+        analyticsDb.any<{_id: string, total_view_count: number}>(`
+          SELECT
+            post_id AS _id,
+            sum(view_count) AS total_view_count
+          FROM
+            (${viewsTable}) q
+          WHERE
+            post_id IN ( $1:csv )
+          GROUP BY
+            post_id;
+        `, [postIds]),
+        // Note that this currently double counts reads from the same client that
+        // happen on different days. I think this is an ok tradeoff to be able to
+        // get consistent results for reads per day more easily
+        analyticsDb.any<{_id: string, total_read_count: number}>(`
+          SELECT
+            post_id AS _id,
+            -- A "read" is anything with a reading_time over 30 seconds
+            sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
+          FROM
+            (${postViewTimesTable}) q
+          WHERE
+            post_id IN ( $1:csv )
+          GROUP BY
+            post_id;
+        `, [postIds])
+      ])
 
-      const postViewTimesTable = await postViewTimesView.virtualTable();
-      // Note that this currently double counts reads from the same client that
-      // happen on different days. I think this is an ok tradeoff to be able to
-      // get consistent results for reads per day more easily
-      const readsResult = await analyticsDb.any<{_id: string, total_read_count: number}>(`
-        SELECT
-          post_id AS _id,
-          -- A "read" is anything with a reading_time over 30 seconds
-          sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
-        FROM
-          (${postViewTimesTable}) q
-        WHERE
-          post_id IN ( $1:csv )
-        GROUP BY
-          post_id;
-      `, [postIds]);
+      const viewsById = Object.fromEntries(viewsResult.map(row => [row._id, row.total_view_count]))
+      const readsById = Object.fromEntries(readsResult.map(row => [row._id, row.total_read_count]))
 
-      // TODO base this on postsById instead of viewsResult
-      const posts: PostAnalytics2Result[] = viewsResult.map((row, idx) => {
+      let sortedAndLimitedPostIds: string[] = postIds;
+      if (indirectlySortableFields.includes(sortBy)) {
+        const sortMap = sortBy === "views" ? viewsById : readsById;
+        sortedAndLimitedPostIds = postIds.sort((a, b) => {
+          const aVal = sortMap[a] ?? 0;
+          const bVal = sortMap[b] ?? 0;
+          return desc ? bVal - aVal : aVal - bVal;
+        })
+      }
+      sortedAndLimitedPostIds = sortedAndLimitedPostIds.slice(0, limit);
+
+      const posts: PostAnalytics2Result[] = sortedAndLimitedPostIds.map((_id, idx) => {
         return {
-          _id: row._id,
-          title: postsById[row._id].title,
-          slug: postsById[row._id].slug,
-          postedAt: postsById[row._id].postedAt,
-          views: row.total_view_count,
-          reads: readsResult[idx]?.total_read_count ?? 0,
-          karma: postsById[row._id].baseScore,
-          comments: postsById[row._id].commentCount ?? 0,
+          _id,
+          title: postsById[_id].title,
+          slug: postsById[_id].slug,
+          postedAt: postsById[_id].postedAt,
+          views: viewsById[_id] ?? 0,
+          reads: readsById[_id] ?? 0,
+          karma: postsById[_id].baseScore,
+          comments: postsById[_id].commentCount ?? 0,
         }
       })
 
       return {
-        posts: posts
-       } as AuthorAnalyticsResult;
+        posts: posts,
+        totalCount: await postCountPromise
+      };
     },
   },
 });
@@ -286,8 +317,9 @@ addGraphQLSchema(`
 
   type AuthorAnalyticsResult {
     posts: [PostAnalytics2Result]
+    totalCount: Int!
   }
 `);
 
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
-addGraphQLQuery("AuthorAnalytics(userId: String!): AuthorAnalyticsResult!");
+addGraphQLQuery("AuthorAnalytics(userId: String!, sortBy: String, desc: Boolean, limit: Int): AuthorAnalyticsResult!");
