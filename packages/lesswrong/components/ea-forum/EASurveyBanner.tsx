@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     textAlign: "center",
     gap: "25px",
-    padding: 16,
+    padding: 12,
     background: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 15,
