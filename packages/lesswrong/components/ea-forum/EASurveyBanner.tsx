@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     right: 20,
     cursor: "pointer",
     "&:hover": {
-      opacity: 0.9,
+      opacity: 0.75,
     },
   },
 });
