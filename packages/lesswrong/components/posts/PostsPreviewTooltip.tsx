@@ -113,7 +113,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
-  if (post.isEvent) categories.push(`Event`)
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
@@ -135,7 +134,8 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   classes: ClassesType,
   comment?: any,
 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
+    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const foreignApolloClient = useForeignApolloClient();
@@ -159,13 +159,17 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
     ? post.dialogTooltipPreview
     : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
-  const renderWordCount = !comment && (wordCount > 0)
+  const renderWordCount = !comment && !post.isEvent && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   const renderedComment = comment || post.bestAnswer
 
   const tags = sortTags(post.tags, t=>t)
   
+  let eventLocation = post.onlineEvent ? 'Online event' : null
+  if (post.isEvent && post.location) {
+    eventLocation = post.location
+  }
   const postCategory: string|null = getPostCategory(post);
 
   return <AnalyticsContext pageElementContext="hoverPreview">
@@ -176,7 +180,9 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
               <PostsTitle post={post} wrap showIcons={false} />
             </div>
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
-              { postsList && <span> 
+              { postsList && <span>
+                {post.startTime && <EventTime post={post} />}
+                {eventLocation}
                 {postCategory}
                 {postCategory && (tags?.length > 0) && " – "}
                 {tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
