@@ -138,7 +138,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, min-content)
+        minmax(50px, min-content)
         minmax(0, 1fr)
       `,
     },
