@@ -23,7 +23,6 @@ export const SpotlightsPage = ({classes}: {
   const currentUser = useCurrentUser();
 
   const {query} = useLocation()
-  console.log(query)
 
   const { results: spotlights = [], loading, refetch } = useMulti({
     collectionName: 'Spotlights',
@@ -31,6 +30,7 @@ export const SpotlightsPage = ({classes}: {
     terms: {
       view: "spotlightsPage",
       after: query?.after,
+      draft: query?.draft ? true : undefined,
       limit: 100
     },
     fetchPolicy: 'network-only',

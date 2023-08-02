@@ -10,7 +10,7 @@ import { time } from "console";
 import { generateImage } from "./stablediffusionGeneration";
 import Spotlights from "../../../lib/collections/spotlights/collection";
 
-const API_KEY = new PublicInstanceSetting<string>('claudeTestKey', "LessWrong", "required")
+const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "required")
 
 async function queryClaude(prompt: string) {
   const anthropic = new Anthropic({
@@ -103,6 +103,12 @@ async function createSpotlights() {
       console.log(summaries.join("\n\n"))
       console.log(artPrompts.join("\n\n"))
       console.log(artResults.join("\n\n"))
+      void Spotlights.rawInsert({
+        documentId: results[0].docId,
+        documentType: "Post",
+        draft: true,
+        duration: 1
+      })
     })
   }
   return "Done"
