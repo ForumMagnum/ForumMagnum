@@ -3,7 +3,7 @@ import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@material-ui/icons/Person';
 import React from 'react';
-import type { Hit } from 'react-instantsearch-core';
+import type { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,12 +25,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-  showIcon?: boolean
-}) => {
+const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as AlgoliaUser
 

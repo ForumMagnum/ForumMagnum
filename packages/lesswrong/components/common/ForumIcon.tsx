@@ -15,6 +15,7 @@ import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -85,6 +86,7 @@ import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
+import { BoldLinkIcon } from "../icons/boldLink";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -105,6 +107,7 @@ export type ForumIconName =
   "BellBorder" |
   "AddEmoji" |
   "Link" |
+  "BoldLink" |
   "Pin" |
   "Author" |
   "Sprout" |
@@ -130,6 +133,7 @@ export type ForumIconName =
   "ThickChevronDown" |
   "Plus" |
   "Check" |
+  "CheckCircle" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -161,6 +165,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
@@ -191,6 +196,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: MuiEmailIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -216,6 +222,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
@@ -246,6 +253,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: EmailIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,

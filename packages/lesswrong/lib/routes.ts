@@ -356,7 +356,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
+    componentName: 'SearchPageTabbed',
     title: 'Search',
     background: "white"
   },
@@ -775,16 +775,10 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/saved'
     },
     {
-      name: 'savedPosts',
+      name: 'savedAndRead',
       path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Saved Posts',
-    },
-    {
-      name: 'readHistory',
-      path: '/history',
-      componentName: 'ReadHistoryPage',
-      title: 'Read History',
+      title: 'Saved & read',
     },
   ],
   LessWrong: [

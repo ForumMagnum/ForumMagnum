@@ -183,6 +183,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     notificationLabel: shades.greyAlpha(.66),
     eventType: "#c0a688",
     tooltipText: "#fff",
+    tooltipTextDim: "#c2c2c2",
     negativeKarmaRed: "#ff8a80",
     moderationGuidelinesEasygoing: 'rgba(100, 169, 105, 0.9)',
     moderationGuidelinesNormEnforcing: '#2B6A99',
@@ -199,6 +200,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     warning: "#832013",
     red: "#ff0000",
     alwaysWhite: "#fff",
+    alwaysBlack: "#000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
@@ -250,6 +252,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     loadingDotsAlternate: shades.grey[0],
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
+    filledGreenCheckmark: "#5ECE79",
     onTooltip: "#fff",
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
@@ -296,7 +299,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment3: '#2671ff66',
     debateComment4: '#eb26ff66',
     debateComment5: '#efdc0066',
-    dashed500: `dashed 1px ${shades.grey[500]}`
+    dashed500: `dashed 1px ${shades.grey[500]}`,
+    mentionsBaloon: "#c4c4c4",
   },
   background: {
     default: shades.grey[60],
@@ -351,6 +355,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     notificationMenuTabBar: shades.grey[100],
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
+    tooltipBackground2: "#373737",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
@@ -420,6 +425,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
+    mentions: {
+      hover: "#e6e6e6",
+      selected: "#198cf0",
+      selectedHover: "#0e7fe1",
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),

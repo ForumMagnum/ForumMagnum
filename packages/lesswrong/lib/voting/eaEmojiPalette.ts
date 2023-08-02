@@ -1,20 +1,56 @@
+import type { ComponentType } from "react";
+import { TickReactionIcon } from "../../components/icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../../components/icons/reactions/CrossReactionIcon";
+import { HeartReactionIcon } from "../../components/icons/reactions/HeartReactionIcon";
+import { HandshakeReactionIcon } from "../../components/icons/reactions/HandshakeReactionIcon";
+import { LightbulbReactionIcon } from "../../components/icons/reactions/LightbulbReactionIcon";
+import { DeltaReactionIcon } from "../../components/icons/reactions/DeltaReactionIcon";
+
 export type EmojiOption = {
-  emoji: string,
+  Component: ComponentType,
   name: string,
   label: string,
 }
 
-export const eaEmojiPalette: EmojiOption[] = [
-  {emoji: "🤝", name: "helpful", label: "Helpful"},
-  {emoji: "💡", name: "changed-mind", label: "This changed my mind"},
-  {emoji: "🕵️", name: "scout-mindset", label: "Scout mindset"},
-  {emoji: "🧠", name: "well-reasoned", label: "Well-reasoned"},
-  {emoji: "📖", name: "well-cited", label: "Well-cited"},
-  {emoji: "❤️", name: "love", label: "Send love"},
-  {emoji: "🙏", name: "thanks", label: "Thank you"},
-  {emoji: "🎉", name: "celebrate", label: "Celebrate"},
-  {emoji: "🤔", name: "confused", label: "I'm confused"},
-  {emoji: "😂", name: "funny", label: "Funny"},
+export const eaAnonymousEmojiPalette: EmojiOption[] = [
+  {
+    Component: TickReactionIcon,
+    name: "agree",
+    label: "Agree",
+  },
+  {
+    Component: CrossReactionIcon,
+    name: "disagree",
+    label: "Disagree",
+  },
 ];
 
-export const eaEmojiNames = eaEmojiPalette.map(({name}) => name);
+export const eaEmojiPalette: EmojiOption[] = [
+  {
+    Component: HeartReactionIcon,
+    name: "love",
+    label: "Heart",
+  },
+  {
+    Component: HandshakeReactionIcon,
+    name: "helpful",
+    label: "Helpful",
+  },
+  {
+    Component: LightbulbReactionIcon,
+    name: "insightful",
+    label: "Insightful",
+  },
+  {
+    Component: DeltaReactionIcon,
+    name: "changed-mind",
+    label: "Changed my mind",
+  },
+];
+
+export const eaEmojiNames = [
+  ...eaAnonymousEmojiPalette,
+  ...eaEmojiPalette,
+].map(({name}) => name);
+
+export const eaPublicEmojiNames = eaEmojiPalette.map(({name}) => name);

@@ -22,7 +22,7 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSyst
       document={document}
       hideKarma={hideKarma}
       voteProps={voteProps}
-      showBox={true}
+      showBox
     />
     <AgreementVoteAxis
       document={document}

@@ -6,6 +6,7 @@ import moment from '../../lib/moment-timezone';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import type { Moment } from 'moment';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
@@ -20,6 +21,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   timezone: {
     marginLeft: 4
+  },
+
+  wrapperAbove: {
+    "& .rdtPicker": {
+      bottom: 30,
+    },
+  },
+  wrapperBelow: {
+    "& .rdtOpen .DatePicker-input": {
+      borderBottom: `solid 1px ${theme.palette.grey[550]}`,
+    },
   },
 
   // Styles from react-datetime (https://github.com/arqex/react-datetime)
@@ -40,7 +52,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.moreFocused,
       border: `1px solid ${theme.palette.grey[55]}`,
-      bottom: 30,
     },
     "& .rdtOpen .rdtPicker": {
       display: "block",
@@ -232,11 +243,13 @@ const styles = (theme: ThemeType): JssStyles => ({
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, onChange, classes}: {
+const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
   label?: string,
   name?: string,
   value?: Date,
+  below?: boolean,
   onChange: (newValue: Date)=>void,
+  onClose?: (newValue: Date)=>void,
   classes: ClassesType
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
@@ -247,7 +260,10 @@ const DatePicker = ({label, name, value, onChange, classes}: {
     <InputLabel className={classes.label}>
       { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
     </InputLabel>
-    <div className={classes.wrapper}>
+    <div className={classNames(classes.wrapper, {
+      [classes.wrapperAbove]: !below,
+      [classes.wrapperBelow]: below,
+    })}>
       <DateTimePicker
         value={value}
         inputProps={{
@@ -257,8 +273,11 @@ const DatePicker = ({label, name, value, onChange, classes}: {
         }}
         onChange={(newDate: Moment) => {
           // newDate argument is a Moment object given by react-datetime.
-          // HACK: Convert to `Date` in a more sensible way than this
-          onChange((newDate as any)._d)
+          onChange(newDate.toDate())
+        }}
+        onBlur={(newDate: Moment) => {
+          // newDate argument is a Moment object given by react-datetime.
+          onClose?.(newDate.toDate())
         }}
       />
     </div>

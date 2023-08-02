@@ -42,6 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonIcon: {
     cursor: "pointer"
   },
+  disabledIcon: {
+    opacity: .35,
+  },
   spacer: {
     flexGrow: 1,
   },
@@ -129,9 +132,11 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
   
   if (!userCanUseSharing(currentUser))
-    return null;
+    return <LWTooltip title="You need at least 1 karma or to be approved by a mod to share">
+      <PersonAddIcon className={classes.disabledIcon}/>
+    </LWTooltip>
   
-  return <LWTooltip title="Share this document (Beta)">
+  return <LWTooltip title="Share this document">
     <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
   </LWTooltip>
 }

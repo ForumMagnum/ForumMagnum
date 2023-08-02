@@ -109,6 +109,12 @@ const fullTextMapping: MappingProperty = {
 const shingleTextMapping: MappingProperty = {
   type: "text",
   analyzer: "fm_shingle_analyzer",
+  fields: {
+    exact: {
+      type: "text",
+      analyzer: "standard",
+    },
+  },
 };
 
 /**
