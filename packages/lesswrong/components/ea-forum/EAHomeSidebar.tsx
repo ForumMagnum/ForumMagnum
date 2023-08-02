@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
@@ -18,9 +18,12 @@ import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionS
 import TextField from '@material-ui/core/TextField';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
-import { useUserLocation } from '../../lib/collections/users/helpers';
+import { useUserLocation, userHasEmailAddress } from '../../lib/collections/users/helpers';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
+import NoSSR from 'react-no-ssr';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -141,6 +144,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     gridTemplateColumns: "100px 150px",
     rowGap: '14px',
+    marginBottom: 3,
   },
   podcastApp: {
     display: 'flex',
@@ -166,40 +170,148 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DigestAd = ({classes}: {
   classes: ClassesType,
 }) => {
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_DIGEST_AD_COOKIE])
+  const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
+  const emailRef = useRef<HTMLInputElement|null>(null)
   const [loading, setLoading] = useState(false)
+  const [formSubmitted, setFormSubmitted] = useState(false)
   const { flash } = useMessages()
+  const { captureEvent } = useTracking()
   
-  const handleSubscribe = async () => {
-    setLoading(true)
-    try {
-      await updateCurrentUser({
-        subscribedToDigest: true,
-        unsubscribeFromAll: false
-      })
-      flash('Thanks for subscribing!')
-    } catch(e) {
-      flash('There was a problem subscribing you to the digest. Please try again later.')
+  // if the user just submitted the form, make sure not to hide it, so that it properly finishes submitting
+  if (!formSubmitted && (
+    // user clicked the X in this ad, or previously submitted the form
+    cookies[HIDE_DIGEST_AD_COOKIE] ||
+    // user is already subscribed
+    currentUser?.subscribedToDigest ||
+    // user is logged in and clicked the X in this ad, or "Don't ask again" in the ad in "Recent discussion"
+    currentUser?.hideSubscribePoke
+  )) {
+    return null
+  }
+  
+  // If the user is logged in and has an email address, we just show the "Subscribe" button.
+  // Otherwise, we show the form with the email address input.
+  const showForm = !currentUser || !userHasEmailAddress(currentUser)
+  
+  const handleClose = () => {
+    captureEvent("digestAdClosed")
+    setCookie(HIDE_DIGEST_AD_COOKIE, "true")
+    if (currentUser) {
+      void updateCurrentUser({hideSubscribePoke: true})
     }
+  }
+  
+  const handleUserSubscribe = async () => {
+    setLoading(true)
+    captureEvent("digestAdSubscribed")
+    
+    if (currentUser) {
+      try {
+        await updateCurrentUser({
+          subscribedToDigest: true,
+          unsubscribeFromAll: false
+        })
+        setCookie(HIDE_DIGEST_AD_COOKIE, "true")
+        flash('Thanks for subscribing!')
+      } catch(e) {
+        flash('There was a problem subscribing you to the digest. Please try again later.')
+      }
+    }
+    if (showForm && emailRef.current?.value) {
+      setFormSubmitted(true)
+      setCookie(HIDE_DIGEST_AD_COOKIE, "true")
+    }
+    
     setLoading(false)
   }
   
   const { ForumIcon, EAButton } = Components
   
-  return <div className={classes.digestAd}>
-    <div className={classes.digestAdHeadingRow}>
-      <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
-      <ForumIcon icon="Close" className={classes.digestAdClose} />
-    </div>
-    <div className={classes.digestAdBody}>
-      Sign up for the EA Forum Digest to get curated recommendations every week
-    </div>
+  const buttonProps = loading ? {disabled: true} : {}
+  const formNode = showForm ? (
     <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
-      <TextField variant="outlined" label="Email address" placeholder="example@email.com" name="EMAIL" required className={classes.digestFormInput} />
-      <EAButton className={classes.digestFormSubmitBtn}>
+      <TextField
+        inputRef={emailRef}
+        variant="outlined"
+        label="Email address"
+        placeholder="example@email.com"
+        name="EMAIL"
+        required
+        className={classes.digestFormInput}
+      />
+      <EAButton type="submit" onClick={handleUserSubscribe} {...buttonProps}>
         Subscribe
       </EAButton>
     </form>
+  ) : (
+    <EAButton onClick={handleUserSubscribe} {...buttonProps}>
+      Subscribe
+    </EAButton>
+  )
+  
+  return <div className={classes.section}>
+    <div className={classes.digestAd}>
+      <div className={classes.digestAdHeadingRow}>
+        <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
+        <ForumIcon icon="Close" className={classes.digestAdClose} onClick={handleClose} />
+      </div>
+      <div className={classes.digestAdBody}>
+        Sign up for the EA Forum Digest to get curated recommendations every week
+      </div>
+      {formNode}
+    </div>
+  </div>
+}
+
+const UpcomingEventsSection = ({classes}: {
+  classes: ClassesType,
+}) => {
+  const { timezone } = useTimezone()
+  const currentUser = useCurrentUser()
+  const {lat, lng, known} = useUserLocation(currentUser, true)
+  const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
+    view: 'nearbyEvents',
+    lat: lat,
+    lng: lng,
+    limit: 3,
+  } : {
+    view: 'globalEvents',
+    limit: 3,
+  }
+  const { results: upcomingEvents } = useMulti({
+    collectionName: "Posts",
+    terms: upcomingEventsTerms,
+    fragmentName: 'PostsBase',
+    fetchPolicy: 'cache-and-network',
+  })
+  
+  const { SectionTitle } = Components
+  
+  return <div className={classes.section}>
+    <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
+    {upcomingEvents?.map(event => {
+      const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
+      return <div key={event._id} className={classes.post}>
+        <div className={classes.postTitle}>
+          <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
+            {event.title}
+          </Link>
+        </div>
+        <div className={classes.postMetadata}>
+          <span className={classes.eventDate}>
+            {shortDate}
+          </span>
+          <span className={classes.eventLocation}>
+            {event.onlineEvent ? "Online" : getCityName(event)}
+          </span>
+        </div>
+      </div>
+    })}
+    <div>
+      <Link to="/events" className={classes.viewMore}>View more</Link>
+    </div>
   </div>
 }
 
@@ -228,23 +340,6 @@ export const EAHomeSidebar = ({classes}: {
     fetchPolicy: "cache-and-network",
   })
   
-  const {lat, lng, known} = useUserLocation(currentUser, true)
-  const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
-    view: 'nearbyEvents',
-    lat: lat,
-    lng: lng,
-    limit: 3,
-  } : {
-    view: 'globalEvents',
-    limit: 3,
-  }
-  const { results: upcomingEvents } = useMulti({
-    collectionName: "Posts",
-    terms: upcomingEventsTerms,
-    fragmentName: 'PostsBase',
-    fetchPolicy: 'cache-and-network',
-  })
-  
   const {results: savedPosts} = useMulti({
     collectionName: "Posts",
     terms: {
@@ -269,9 +364,9 @@ export const EAHomeSidebar = ({classes}: {
   const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <div className={classes.root}>
-    <div className={classes.section}>
+    <NoSSR>
       <DigestAd classes={classes} />
-    </div>
+    </NoSSR>
     <div className={classes.section}>
       <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
       <div>
@@ -294,7 +389,7 @@ export const EAHomeSidebar = ({classes}: {
       </div>
     </div>
     
-    <div className={classes.section}>
+    {!!opportunityPosts?.length && <div className={classes.section}>
       <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
       {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
         <div className={classes.postTitle}>
@@ -309,32 +404,11 @@ export const EAHomeSidebar = ({classes}: {
       <div>
         <Link to="/topics/take-action" className={classes.viewMore}>View more</Link>
       </div>
-    </div>
+    </div>}
     
-    <div className={classes.section}>
-      <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      {upcomingEvents?.map(event => {
-        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
-        return <div key={event._id} className={classes.post}>
-          <div className={classes.postTitle}>
-            <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
-              {event.title}
-            </Link>
-          </div>
-          <div className={classes.postMetadata}>
-            <span className={classes.eventDate}>
-              {shortDate}
-            </span>
-            <span className={classes.eventLocation}>
-              {event.onlineEvent ? "Online" : getCityName(event)}
-            </span>
-          </div>
-        </div>
-      })}
-      <div>
-        <Link to="/events" className={classes.viewMore}>View more</Link>
-      </div>
-    </div>
+    <NoSSR>
+      <UpcomingEventsSection classes={classes} />
+    </NoSSR>
     
     {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
       <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />

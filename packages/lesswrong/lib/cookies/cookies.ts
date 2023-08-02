@@ -52,6 +52,12 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   description: "Whether to hide the EA Handbook on the EA Home page",
 });
 
+export const HIDE_DIGEST_AD_COOKIE = registerCookie({
+  name: "hide_home_digest_ad",
+  type: "functional",
+  description: "Whether to hide the forum digest ad on the EA Home page",
+})
+
 export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "functional", description: 'Controls whether job ads are hidden'});
 
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
