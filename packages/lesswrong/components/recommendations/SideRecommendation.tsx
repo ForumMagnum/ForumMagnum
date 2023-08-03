@@ -70,7 +70,9 @@ const SideRecommendation = ({post, classes}: {
         </div>
         <KarmaDisplay document={post} />
       </div>
-      <Link to={href}>{post.title}</Link>
+      <Link to={href} onClick={(e) => e.preventDefault()}>
+        {post.title}
+      </Link>
     </div>
   );
 }
