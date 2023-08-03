@@ -1,6 +1,6 @@
 import { getCollectionHooks } from '../mutationCallbacks';
 import Digests from '../../lib/collections/digests/collection';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { createMutator } from '../vulcan-lib/mutators';
 
 getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, context}: {newDocument: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
   // if we are not currently publishing this digest, skip
