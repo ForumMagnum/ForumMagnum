@@ -34,6 +34,7 @@ import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
@@ -149,7 +150,8 @@ export type ForumIconName =
   "QuestionMarkCircle" |
   "Search" |
   "Menu" |
-  "CloseMenu";
+  "CloseMenu" |
+  "BarChart";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -208,6 +210,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Search: MuiSearchIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -265,6 +268,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Search: SearchIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
 };
 

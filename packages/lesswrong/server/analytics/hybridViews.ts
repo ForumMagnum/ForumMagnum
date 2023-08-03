@@ -4,6 +4,7 @@ import { getAnalyticsConnection } from "./postgresConnection";
 import { addCronJob } from "../cronUtil";
 import { isAnyTest } from "../../lib/executionEnvironment";
 import { isEAForum } from "../../lib/instanceSettings";
+import { Globals } from "../vulcan-lib";
 
 export class HybridView {
   protected queryGenerator: (after: Date, materialized: boolean) => string;
@@ -268,3 +269,4 @@ addCronJob({
   job: refreshHybridViews,
 });
 
+Globals.refreshHybridViews = refreshHybridViews;

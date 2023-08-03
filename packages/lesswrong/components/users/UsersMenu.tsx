@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
@@ -251,6 +251,12 @@ const UsersMenu = ({classes}: {
                 />
               </ThemePickerMenu>
             }
+            {isEAForum && userIsAdminOrMod(currentUser) && <DropdownItem
+              title={"Post stats"}
+              to={`/users/${currentUser.slug}/stats`}
+              icon="BarChart"
+              iconClassName={classes.icon}
+            />}
             {!isEAForum && accountSettingsNode}
             {!isEAForum && messagesNode}
             <DropdownItem

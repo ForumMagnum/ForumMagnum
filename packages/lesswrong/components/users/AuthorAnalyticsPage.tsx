@@ -146,7 +146,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
         <div className={classes.postSubtitle}>
           {timeFromNow}
           {ago}
-          <Link to={postAnalyticsLink}> · view post stats</Link>
+          {" · "}<Link to={postAnalyticsLink}>view post stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views}</div>
