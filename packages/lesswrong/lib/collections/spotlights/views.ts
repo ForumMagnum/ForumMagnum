@@ -27,8 +27,9 @@ ensureIndex(Spotlights, { position: -1 });
 Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   let selector = {
-    createdAt: terms.after ? { $gt: new Date(terms.after) } : {},
-    draft: terms.draft ?? undefined,
+    draft: true
+    // createdAt: terms.after ? { $gt: new Date(terms.after) } : {},
+    // draft: terms.draft ?? undefined,
   }
   return {
     selector,
