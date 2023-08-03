@@ -78,7 +78,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
-      Take the 5 minute EA Forum Survey to help inform our strategy and funding decisions
+      Take the 3 minute EA Forum Survey to help inform our strategy and funding decisions
       <TypeformPopupEmbed
         widgetId="Z1wH4v8v"
         title="EA Forum survey"
