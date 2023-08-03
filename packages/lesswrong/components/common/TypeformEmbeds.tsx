@@ -29,14 +29,16 @@ const useTypeformOnCloseCallback = (
 
 export const TypeformStandardEmbed: FC<{
   widgetId: string,
+  domain?: string,
   title: string,
   parameters?: Record<string, boolean | string>,
   className?: string,
-}> = ({widgetId, title, parameters, className}) => (
+}> = ({widgetId, domain, title, parameters, className}) => (
   <>
     <TypeformScript />
     <div
       data-tf-widget={widgetId}
+      data-tf-domain={domain}
       data-tf-opacity="100"
       data-tf-iframe-props={`title=${title}`}
       data-tf-transitive-search-params
@@ -50,12 +52,14 @@ export const TypeformStandardEmbed: FC<{
 export const TypeformFullPageEmbed: FC<{
   widgetId: string,
   title: string,
+  domain?: string,
   parameters?: Record<string, boolean | string>,
   className?: string,
-}> = ({widgetId, title, parameters, className}) => (
+}> = ({widgetId, domain, title, parameters, className}) => (
   <TypeformStandardEmbed
     widgetId={widgetId}
     title={title}
+    domain={domain}
     className={className}
     parameters={{
       "data-tf-inline-on-mobile": true,
@@ -68,18 +72,20 @@ export const TypeformFullPageEmbed: FC<{
 
 export const TypeformPopupEmbed: FC<{
   widgetId: string,
+  domain?: string,
   title: string,
   label?: string,
   onClose?: () => void,
   parameters?: Record<string, boolean | string>,
   className?: string,
-}> = ({widgetId, title, label, onClose, parameters, className}) => {
+}> = ({widgetId, domain, title, label, onClose, parameters, className}) => {
   const onCloseProps = useTypeformOnCloseCallback(widgetId, onClose);
   return (
     <>
       <TypeformScript />
       <button
         data-tf-popup={widgetId}
+        data-tf-domain={domain}
         data-tf-opacity="100"
         data-tf-size="100"
         data-tf-iframe-props={`title=${title}`}
@@ -106,6 +112,7 @@ export type TypeformSideEmbedOpenBehaviour = "onClick" | "onLoad" | number;
 
 export const TypeformSideEmbed: FC<{
   widgetId: string,
+  domain?: string,
   title: string,
   label?: string,
   onClose?: () => void,
@@ -114,6 +121,7 @@ export const TypeformSideEmbed: FC<{
   className?: string,
 }> = ({
   widgetId,
+  domain,
   title,
   label,
   onClose,
@@ -133,6 +141,7 @@ export const TypeformSideEmbed: FC<{
       <TypeformScript />
       <button
         data-tf-slider={widgetId}
+        data-tf-domain={domain}
         data-tf-position="right"
         data-tf-opacity="100"
         data-tf-iframe-props={`title=${title}`}

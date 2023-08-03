@@ -81,6 +81,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
       Take the 3 minute EA Forum Survey to help inform our strategy and funding decisions
       <TypeformPopupEmbed
         widgetId="Z1wH4v8v"
+        domain="cea-core.typeform.com"
         title="EA Forum survey"
         label="Take the survey"
         onClose={onCloseSurvey}
