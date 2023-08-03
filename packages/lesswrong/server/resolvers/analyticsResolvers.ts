@@ -9,6 +9,8 @@ import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { post } from "request";
+import chunk from "lodash/chunk";
+import { inspect } from "util";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -55,6 +57,14 @@ function makePgAnalyticsQuerySeries({query, resultColumnRenaming, resultKey}: {q
     ))}
     return result
   }
+}
+
+/**
+ * Generates an OR condition that is essentially equivalent to `columnName IN (ids)`.
+ * This forces postgres to use the index on `columnName` if one exists.
+ */
+function generateOrConditionQuery(columnName: string, ids: string[]): string {
+  return ids.map((id, index) => `${columnName} = $${index + 1}`).join(' OR ');
 }
 
 type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>;
@@ -168,10 +178,33 @@ addGraphQLResolvers({
     },
     async AuthorAnalytics(
       root: void,
-      { userId, sortBy = "postedAt", desc = true, limit = 10 }: { userId: string, sortBy?: string, desc?: boolean, limit?: number },
+      {
+        userId,
+        sortBy,
+        desc,
+        limit,
+      }: { userId: string; sortBy: string | null; desc: boolean | null; limit: number | null },
       context: ResolverContext
     ): Promise<AuthorAnalyticsResult> {
-      // sortBy will be postedAt, views, reads, baseScore, or commentCount
+      // These are null (not undefined) if not provided, so we have to explicitly set them to the default
+      sortBy = sortBy ?? "postedAt";
+      desc = desc ?? true;
+      limit = limit ?? 10;
+
+      // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
+      // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
+      // many ids at once it will try to filter by timestamp first and then sequentially scan to filter
+      // by post_id, which is much slower.
+      const MAX_CONCURRENT_QUERIES = 8;
+      const BATCH_SIZE = 10;
+      
+      // Directly sortable fields can be sorted and filtered on before querying the analytics database,
+      // so we can avoid querying for most of the post ids. Indirectly sortable fields are calculated
+      // rely on the results from the analytics database, so we have to query for all the post ids and then
+      // sort and filter afterwards.
+      const DIRECTLY_SORTABLE_FIELDS = ["postedAt", "baseScore", "commentCount"];
+      const INDIRECTLY_SORTABLE_FIELDS = ["views", "reads"];
+
       const { currentUser } = context;
       const analyticsDb = getAnalyticsConnectionOrThrow();
 
@@ -179,21 +212,18 @@ addGraphQLResolvers({
         throw new Error("Permission denied");
       }
 
-      const directlySortableFields = ["postedAt", "baseScore", "commentCount"];
-      const indirectlySortableFields = ["views", "reads"];
-      
-      const directlySortable = directlySortableFields.includes(sortBy);
+      const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
       const postSelector = {
-        $or: [{userId: userId}, {"coauthorStatuses.userId": userId}],
-        rejected: {$ne: true},
+        $or: [{ userId: userId }, { "coauthorStatuses.userId": userId }],
+        rejected: { $ne: true },
         draft: false,
         isEvent: false,
-      }
+      };
       const postCountPromise = Posts.find(postSelector).count();
       const userPosts = await Posts.find(postSelector, {
-        ...(directlySortable && {sort: {[sortBy]: desc ? -1 : 1}}),
-        ...(directlySortable && {limit}),
+        ...(directlySortable && { sort: { [sortBy]: desc ? -1 : 1 } }),
+        ...(directlySortable && { limit }),
         projection: {
           _id: 1,
           title: 1,
@@ -201,44 +231,56 @@ addGraphQLResolvers({
           postedAt: 1,
           baseScore: 1,
           commentCount: 1,
-      }}).fetch()
+        },
+      }).fetch();
 
-      const postsById = Object.fromEntries(userPosts.map(post => [post._id, post]))
-      const postIds = userPosts.map(post => post._id)
+      const postsById = Object.fromEntries(userPosts.map((post) => [post._id, post]));
+      const postIds = userPosts.map((post) => post._id);
 
       if (!postIds.length) {
         return {
           posts: [],
-          totalCount: 0
-        }
+          totalCount: 0,
+        };
       }
 
       const postViewsView = getHybridView("post_views");
       const postViewTimesView = getHybridView("post_view_times");
-      
+
       if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
 
       const [viewsTable, postViewTimesTable] = await Promise.all([
         postViewsView.virtualTable(),
-        postViewTimesView.virtualTable()
-      ])
+        postViewTimesView.virtualTable(),
+      ]);
 
-      const [viewsResult, readsResult] = await Promise.all([
-        analyticsDb.any<{_id: string, total_view_count: number}>(`
+      const postIdsBatches = chunk(postIds, BATCH_SIZE);
+
+      let viewsResults: { _id: string; total_view_count: number }[] = [];
+      let readsResults: { _id: string; total_read_count: number }[] = [];
+
+      async function runViewsQuery(batch: string[]) {
+        const viewsResult = await analyticsDb.any<{ _id: string; total_view_count: number }>(
+          `
           SELECT
             post_id AS _id,
             sum(view_count) AS total_view_count
           FROM
             (${viewsTable}) q
           WHERE
-            post_id IN ( $1:csv )
+            ${generateOrConditionQuery("post_id", batch)}
           GROUP BY
             post_id;
-        `, [postIds]),
-        // Note that this currently double counts reads from the same client that
-        // happen on different days. I think this is an ok tradeoff to be able to
-        // get consistent results for reads per day more easily
-        analyticsDb.any<{_id: string, total_read_count: number}>(`
+        `,
+          batch
+        );
+
+        viewsResults.push(...viewsResult);
+      }
+
+      async function runReadsQuery(batch: string[]) {
+        const readsResult = await analyticsDb.any<{ _id: string; total_read_count: number }>(
+          `
           SELECT
             post_id AS _id,
             -- A "read" is anything with a reading_time over 30 seconds
@@ -246,23 +288,53 @@ addGraphQLResolvers({
           FROM
             (${postViewTimesTable}) q
           WHERE
-            post_id IN ( $1:csv )
+            ${generateOrConditionQuery("post_id", batch)}
           GROUP BY
             post_id;
-        `, [postIds])
-      ])
+        `,
+          batch
+        );
 
-      const viewsById = Object.fromEntries(viewsResult.map(row => [row._id, row.total_view_count]))
-      const readsById = Object.fromEntries(readsResult.map(row => [row._id, row.total_read_count]))
+        readsResults.push(...readsResult);
+      }
+
+      // Pair batches of ids with their corresponding query functions and then zip these pairs together
+      const zippedPairs = postIdsBatches.flatMap((batch) => [
+        { batch, func: runViewsQuery },
+        { batch, func: runReadsQuery },
+      ]);
+
+      let queue: Promise<any>[] = [];
+
+      // Execute up to maxConcurrent queries at a time
+      for (const { batch, func } of zippedPairs) {
+        // Add the new promise to the queue
+        const promise = func(batch);
+        queue.push(promise);
+
+        // If the queue is full, wait for one promise to finish
+        if (queue.length >= MAX_CONCURRENT_QUERIES) {
+          await Promise.race(queue);
+          // Remove resolved promises from the queue
+          queue = queue.filter((p) => inspect(p).includes("pending"));
+        }
+      }
+
+      // Wait for all remaining promises to finish
+      await Promise.all(queue);
+
+      // Flatten the results
+      const viewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_view_count]));
+      const readsById = Object.fromEntries(readsResults.map((row) => [row._id, row.total_read_count]));
 
       let sortedAndLimitedPostIds: string[] = postIds;
-      if (indirectlySortableFields.includes(sortBy)) {
+      if (INDIRECTLY_SORTABLE_FIELDS.includes(sortBy)) {
         const sortMap = sortBy === "views" ? viewsById : readsById;
         sortedAndLimitedPostIds = postIds.sort((a, b) => {
           const aVal = sortMap[a] ?? 0;
           const bVal = sortMap[b] ?? 0;
           return desc ? bVal - aVal : aVal - bVal;
-        })
+        });
       }
       sortedAndLimitedPostIds = sortedAndLimitedPostIds.slice(0, limit);
 
@@ -276,12 +348,12 @@ addGraphQLResolvers({
           reads: readsById[_id] ?? 0,
           karma: postsById[_id].baseScore,
           comments: postsById[_id].commentCount ?? 0,
-        }
-      })
+        };
+      });
 
       return {
         posts: posts,
-        totalCount: await postCountPromise
+        totalCount: await postCountPromise,
       };
     },
   },
