@@ -1,5 +1,5 @@
 import React, { MouseEvent, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
@@ -7,14 +7,16 @@ import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
+    display: "flex",
+    alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "160%",
-    marginBottom: 20,
     background: "transparent",
     borderRadius: theme.borderRadius.default,
     padding: 8,
+    marginBottom: 4,
     cursor: "pointer",
     "& a": {
       color: theme.palette.grey[1000],
@@ -23,7 +25,23 @@ const styles = (theme: ThemeType) => ({
       },
     },
     "&:hover": {
-      background: theme.palette.grey[200],
+      background: theme.palette.grey[100],
+    },
+  },
+  karma: {
+    width: 50,
+    minWidth: 50,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    color: theme.palette.grey[600],
+  },
+  voteArrow: {
+    color: theme.palette.grey[400],
+    margin: "-6px 0 2px 0",
+    height: 16,
+    "& svg": {
+      width: 10,
     },
   },
 });
@@ -39,12 +57,19 @@ const SideRecommendation = ({post, classes}: {
     onClickLink(e);
     onClickCell(e);
   }, [onClickCell, onClickLink]);
+  const {ForumIcon, KarmaDisplay} = Components;
   return (
     <div
       className={classes.root}
       onClick={onClick}
       ref={ref}
     >
+      <div className={classes.karma}>
+        <div className={classes.voteArrow}>
+          <ForumIcon icon="SoftUpArrow" />
+        </div>
+        <KarmaDisplay document={post} />
+      </div>
       <Link to={href}>{post.title}</Link>
     </div>
   );
