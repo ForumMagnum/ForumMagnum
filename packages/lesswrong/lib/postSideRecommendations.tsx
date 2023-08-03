@@ -2,7 +2,6 @@ import React, { ComponentType, FC, useRef } from "react";
 import { Link } from "./reactRouterWrapper";
 import { useRecommendations } from "../components/recommendations/withRecommendations";
 import { useSsrRenderedAt } from "./utils/timeUtil";
-import { userGetDisplayName } from "./collections/users/helpers";
 import { postGetPageUrl, postGetPrimaryTag } from "./collections/posts/helpers";
 import { HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE } from "./cookies/cookies";
 import { useCookiesWithConsent, Cookies } from "../components/hooks/useCookiesWithConsent";
@@ -26,8 +25,8 @@ export type PostSideRecommendations = {
   loading: boolean,
   /** Title for the section (generally the algorithm name) */
   title: string,
-  /** Whether to use a numbered list or a bullet list */
-  numbered: boolean,
+  /** The container type to place the results in (defaults to "div") */
+  Container?: "div" | "ol" | "ul",
   /** List of recommendations to display - may be empty if loading */
   items: ComponentType[],
   /** An optional cookie name to handle hiding the section - if undefined
@@ -51,7 +50,7 @@ const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
   return {
     loading: false,
     title: "More from the Forum",
-    numbered: false,
+    Container: "ul",
     items: [
       () => <li>
         New? <Link to={usefulLinks}>Expore useful links</Link>
@@ -75,16 +74,13 @@ const LiPostRecommendation: FC<{
   post: PostsListWithVotesAndSequence,
 }> = ({post}) => {
   const url = postGetPageUrl(post);
-  const author = userGetDisplayName(post.user);
-  const readTimeMinutes = Math.max(post.readTimeMinutes, 1);
-  const mins = readTimeMinutes === 1 ? "1 min" : `${readTimeMinutes} mins`;
   const {
     ref,
     onClick,
   } = useRecommendationAnalytics<HTMLLIElement, HTMLAnchorElement>(post._id);
   return (
     <li ref={ref}>
-      <Link to={url} onClick={onClick}>{post.title}</Link> ({author}, {mins})
+      <Link to={url} onClick={onClick}>{post.title}</Link>
     </li>
   );
 }
@@ -92,7 +88,7 @@ const LiPostRecommendation: FC<{
 const useGeneratorWithStrategy = (
   title: string,
   strategy: StrategySpecification,
-) => {
+): PostSideRecommendations => {
   const algorithm: RecommendationsAlgorithmWithStrategy = {
     strategy: {
       context: "post-right",
@@ -108,7 +104,6 @@ const useGeneratorWithStrategy = (
   return {
     loading,
     title,
-    numbered: true,
     items: posts.map((post) => () => <LiPostRecommendation post={post} />),
   };
 }

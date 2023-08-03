@@ -41,11 +41,6 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-  numberedList: {
-    "& li": {
-      marginBottom: 14,
-    },
-  },
   buttons: {
     display: "flex",
     flexDirection: "row-reverse",
@@ -63,7 +58,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-
 const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
@@ -74,7 +68,7 @@ const PostSideRecommendations = ({post, className, classes}: {
   const {
     loading,
     title,
-    numbered,
+    Container = "div",
     items,
     hideCookieName,
   } = usePostSideRecommendations(currentUser, post);
@@ -103,17 +97,14 @@ const PostSideRecommendations = ({post, className, classes}: {
   }
 
   const {Loading, IntercomFeedbackButton} = Components;
-  const List = numbered ? "ol" : "ul";
   return (
     <AnalyticsContext pageSectionContext="postSideRecommendations">
       <div className={classNames(classes.root, className)}>
         <div className={classes.title}>{title}</div>
         {loading && <Loading />}
-        <List className={classNames(classes.list, {
-          [classes.numberedList]: numbered,
-        })}>
+        <Container className={classes.list}>
           {items.map((Item, i) => <Item key={i} />)}
-        </List>
+        </Container>
         <div className={classes.buttons}>
           <IntercomFeedbackButton eventName="postSideRecommendationsFeedback" />
           {hideCookieName &&
