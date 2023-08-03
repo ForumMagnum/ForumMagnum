@@ -12,6 +12,9 @@ const WIDTH = 250;
 const styles = (theme: ThemeType) => ({
   root: {
     marginTop: "100vh",
+    background: theme.palette.grey[55],
+    padding: 16,
+    borderRadius: theme.borderRadius.default,
     width: WIDTH,
     minWidth: WIDTH,
     maxWidth: WIDTH,
