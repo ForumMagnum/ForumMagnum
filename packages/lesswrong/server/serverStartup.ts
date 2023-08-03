@@ -98,16 +98,12 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err.message);
-    // TODO: Remove forum gating here when we expand Postgres usage
-    if (forumTypeSetting.get() === "EAForum") {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
+const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
     connectToPostgres(postgresReadUrl, "read"),
   ]);
@@ -183,6 +179,9 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
 export const initServer = async (commandLineArguments?: CommandLineArguments) => {
   initConsole();
   const args = commandLineArguments ?? getCommandLineArguments();
+  if (!args.postgresUrl) {
+    throw new Error("Missing postgresUrl");
+  }
   await initDatabases(args);
   await initSettings();
   require('../server.ts');

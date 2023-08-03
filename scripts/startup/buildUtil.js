@@ -29,9 +29,6 @@ const execAsync = promisify(exec);
  *     sshTunnelCommand: string[]|null
  *   }
  *
- * (Currently, LW connects to both a mongodb database and a postgres database.
- * However the mongodb database (and associated options) is deprecated.)
- *
  * If mongoUrlFile or postgresUrlFile is provided, it's the path to a text file
  * containing the value of mongoUrl or postgresUrl. If "db" is provided, it's
  * the path to a JSON file containing a JSON object of type:
@@ -64,12 +61,6 @@ function getDatabaseConfig(opts) {
     }
   }
   
-  if (opts.mongoUrlFile) {
-    if (opts.mongoUrl) {
-      die("More than one mongodb URL given");
-    }
-    opts.mongoUrl = readFileOrDie(opts.mongoUrlFile);
-  }
   if (opts.postgresUrlFile) {
     opts.postgresUrl = readFileOrDie(opts.postgresUrlFile);
   }

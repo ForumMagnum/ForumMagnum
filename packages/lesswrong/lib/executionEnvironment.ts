@@ -20,7 +20,6 @@ export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
 
 export interface CommandLineArguments {
-  mongoUrl: string
   postgresUrl: string
   postgresReadUrl: string
   settingsFileName: string
