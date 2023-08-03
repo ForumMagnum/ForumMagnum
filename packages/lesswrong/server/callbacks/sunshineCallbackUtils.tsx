@@ -16,17 +16,20 @@ import { forumSelect } from "../../lib/forumTypeUtils";
  * This function contains all logic for determining whether a given user needs review in the moderation sidebar.
  * It's important this this only be be added to async callbacks on posts and comments, so that postCount and commentCount have time to update first
  */
-export async function triggerReviewIfNeeded(userId: string, override?: true) {
+export async function triggerReviewIfNeeded(userId: string) {
   const user = await Users.findOne({ _id: userId });
   if (!user)
     throw new Error("user is null");
 
-  const reviewReason = getReasonForReview(user, override);
+  const {needsReview, reason} = getReasonForReview(user);
+  if (needsReview) {
+    await triggerReview(user._id, reason);
+  }
+}
 
-  // TODO: we probably don't want to actually be updating needsReview in these two cases?  That'd clobber automod updates
-  const needsReview = reviewReason !== 'noReview' && reviewReason !== 'alreadyApproved';
-
-  void Users.rawUpdateOne({ _id: user._id }, { $set: { needsReview: needsReview } });
+export async function triggerReview(userId: string, reason?: string) {
+  // TODO: save the reason
+  await  Users.rawUpdateOne({ _id: userId }, { $set: { needsReview: true } });
 }
 
 interface VoteableAutomodRuleProps<T extends DbVoteableType>{
