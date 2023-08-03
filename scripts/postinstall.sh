@@ -74,11 +74,6 @@ else
   echo
 fi
 
-if [ ! -f settings.json ]; then
-  echo "Creating settings.json"
-  cp sample_settings.json settings.json
-fi
-
 if [ ! -f settings-dev.json ]; then
   echo "Creating settings-dev.json"
   cp sample_settings.json settings-dev.json

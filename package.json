@@ -12,7 +12,7 @@
     "build": "./build.js",
     "migrate": "node migrate",
     "branchdb": "ts-node scripts/branchDb.ts",
-    "start-local-db": "./build.js -run --watch --settings ../ForumCredentials/settings-dev.json",
+    "start-local-db": "./build.js -run --watch --settings settings-dev.json",
     "start-dev-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
     "lw-start-local-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/local.json --settings settings.json",
