@@ -5,8 +5,6 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
     fontSize: 14,
     lineHeight: '20px',
     textTransform: 'none',
@@ -14,11 +12,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     boxShadow: 'none',
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
       opacity: 1
+    },
+  },
+  variantContained: {
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark,
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
     }
   },
-  grey: {
+  greyContained: {
     backgroundColor: theme.palette.grey[250],
     color: theme.palette.grey[1000],
     '&:hover': {
@@ -31,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * Button component with the standard EA Forum styling
  * (see login and sign up site header buttons for example)
  */
-const EAButton = ({style, className, children, classes, ...buttonProps}: {
+const EAButton = ({style, variant="contained", className, children, classes, ...buttonProps}: {
   style?: 'primary'|'grey',
   className?: string,
   children: React.ReactNode,
@@ -40,9 +49,12 @@ const EAButton = ({style, className, children, classes, ...buttonProps}: {
 
   return (
     <Button
-      variant="contained"
+      variant={variant}
       color="primary"
-      className={classNames(classes.root, className, {[classes.grey]: style === 'grey'})}
+      className={classNames(classes.root, className, {
+        [classes.variantContained]: variant === 'contained',
+        [classes.greyContained]: variant === 'contained' && style === 'grey'
+      })}
       {...buttonProps}
     >
       {children}

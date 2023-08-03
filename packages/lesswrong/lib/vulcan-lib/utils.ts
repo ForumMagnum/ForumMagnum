@@ -289,6 +289,8 @@ export const sanitizeAllowedTags = [
   'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
 ]
 
+const cssSizeRegex = /^(?:\d|\.)+(?:px|em|%)$/;
+
 const allowedTableStyles = {
   'background-color': [/^.*$/],
   'border-bottom': [/^.*$/],
@@ -298,8 +300,8 @@ const allowedTableStyles = {
   'border': [/^.*$/],
   'border-color': [/^.*$/],
   'border-style': [/^.*$/],
-  'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-  'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+  'width': [cssSizeRegex],
+  'height': [cssSizeRegex],
   'text-align': [/^.*$/],
   'vertical-align': [/^.*$/],
   'padding': [/^.*$/],
@@ -310,7 +312,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      img: [ 'src' , 'srcset', 'alt'],
+      img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
       table: ['style'],
       tbody: ['style'],
@@ -343,8 +345,15 @@ export const sanitize = function(s: string): string {
     },
     allowedStyles: {
       figure: {
-        'width': [/^(?:\d|\.)+(?:px|em|%)$/],
-        'height': [/^(?:\d|\.)+(?:px|em|%)$/],
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'padding': [/^.*$/],
+      },
+      img: {
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'max-width': [cssSizeRegex],
+        'max-height': [cssSizeRegex],
         'padding': [/^.*$/],
       },
       table: {
