@@ -97,9 +97,13 @@ export function getCurrentContentCount(user: UserContentCountPartial) {
   return postCount + commentCount
 }
 
-export function getReasonForReview(user: DbUser|SunshineUsersList):
-  {needsReview: false, reason: "alreadyApproved"|"noReview"}
-  |{needsReview: true, reason: "mapLocation"|"firstPost"|"firstComment"|"contactedTooManyUsers"|"bio"|"profileImage"|"newContent"}
+type ReasonNoReviewNeeded = "alreadyApproved"|"noReview";
+type ReasonReviewIsNeeded = "mapLocation"|"firstPost"|"firstComment"|"contactedTooManyUsers"|"bio"|"profileImage"|"newContent";
+type GetReasonForReviewResult =
+    { needsReview: false, reason: ReasonNoReviewNeeded }
+  | { needsReview: true, reason: ReasonReviewIsNeeded }
+
+export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonForReviewResult
 {
   const fullyReviewed = user.reviewedByUserId && !user.snoozedUntilContentCount;
   /**
