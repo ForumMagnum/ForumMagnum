@@ -14,7 +14,6 @@ getCollectionHooks('ModeratorActions').createAsync.add(async function triggerRev
   }
 
   const moderatedUserId = newDocument.userId;
-  //const moderatedUser = await context.loaders.Users.load(moderatedUserId);
   // In the case where there isn't a currentUser, that means that the moderator action was created using automod (via callback) rather than being manually applied
   const responsibleAdminName = currentUser?.displayName ?? 'Automod';
 
