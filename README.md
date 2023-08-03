@@ -67,6 +67,12 @@ Configure the schema:
 psql -f ./schema/accepted_schema.sql
 ```
 
+TODOs:
+
+* You won't have any database settings yet. TODO: add instructions.
+* You won't be able to run migrations yet. TODO: fix migrations so they can be
+  run from a fresh start.
+
 ### Creating branch-specific development databases
 
 When developing features that require changing database schemas, it can be
