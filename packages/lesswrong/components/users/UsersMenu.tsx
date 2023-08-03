@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanComment, userCanCreateField, userCanDo, userIsMemberOf } from '../../lib/vulcan-users/permissions';
@@ -124,9 +124,14 @@ const UsersMenu = ({classes}: {
     </div>
   }
   
-  const buttonNode = <Button classes={{root: classes.userButtonRoot}}>
-    {userButtonNode}
-  </Button>
+  /** Prevent navigation to your profile on mobile, where the only way to open
+   * the menu is to click the button */
+  const menuButtonOnClick = (ev: MouseEvent) => {
+    if (isMobile()) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+  }
   
   const accountSettingsNode = <DropdownItem
     title={preferredHeadingCase("Account Settings")}
@@ -143,9 +148,11 @@ const UsersMenu = ({classes}: {
 
   return (
     <div className={classes.root} {...eventHandlers}>
-      {isEAForum ? buttonNode : <Link to={`/users/${currentUser.slug}`}>
-        {buttonNode}
-      </Link>}
+      <Link to={`/users/${currentUser.slug}`}>
+        <Button classes={{root: classes.userButtonRoot}} onClick={menuButtonOnClick}>
+          {userButtonNode}
+        </Button>
+      </Link>
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
