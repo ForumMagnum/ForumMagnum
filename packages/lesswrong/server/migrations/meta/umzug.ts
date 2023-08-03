@@ -85,7 +85,9 @@ export const createMigrator = async (db: SqlClient) => {
           name,
           up: async () => {
             context.timers[name] = {start: new Date()};
+            await safeRun(context.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
             const result = await require(path).up(context);
+            await safeRun(context.db, `refresh_lowercase_views`) // add the views back in
             context.timers[name].end = new Date();
             return result;
           },

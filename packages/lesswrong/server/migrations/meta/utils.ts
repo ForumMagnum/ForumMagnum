@@ -63,15 +63,7 @@ export const updateDefaultValue = async <T extends DbObject>(
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
-  let defaultValueQuery: UpdateDefaultValueQuery<T>|undefined
-  try {
-    defaultValueQuery = new UpdateDefaultValueQuery(collection.getTable(), fieldName)
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error(err)
-    return
-  }
-  const {sql, args} = defaultValueQuery.compile();
+  const {sql, args} = new UpdateDefaultValueQuery(collection.getTable(), fieldName).compile();
   await db.none(sql, args);
 }
 
