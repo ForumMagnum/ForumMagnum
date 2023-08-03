@@ -587,6 +587,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
+  postCategory: "post" | "linkpost" | "question"
   title: string
   slug: string
   viewCount: number
@@ -665,6 +666,10 @@ interface DbPost extends DbObject {
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
+  socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  }
   fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -727,6 +732,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
@@ -980,6 +986,7 @@ interface DbTag extends DbObject {
   slug: string
   oldSlugs: Array<string>
   core: boolean
+  isPostType: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
   descriptionTruncationCount: number
@@ -1006,7 +1013,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -1123,6 +1130,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean

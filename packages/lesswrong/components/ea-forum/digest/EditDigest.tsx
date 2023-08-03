@@ -8,7 +8,7 @@ import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
-import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
+import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -201,12 +201,13 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
-  // disable all status icons while processing the previous click
+  // by default, the current user's votes are hidden, but they can click the column header to reveal them
   const [votesVisible, setVotesVisible] = useState<boolean>(false)
   
   useEffect(() => {
-    // this is just to initialize the list of posts and statuses
-    if (!eligiblePosts || posts) return
+    // This is just to initialize the list of posts and statuses.
+    // It should only happen again if the digest dates change and we refetch the posts.
+    if (!eligiblePosts) return
     
     const newPosts: Array<PostWithRating> = []
     const newPostStatuses: Record<string,DigestPost> = {}
@@ -230,7 +231,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     })
     setPosts(newPosts)
     setPostStatuses(newPostStatuses)
-  }, [eligiblePosts]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eligiblePosts])
   
   // the digest status of each post is saved on a DigestPost record
   const { create: createDigestPost } = useCreate({
@@ -338,7 +339,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const copyDigestToClipboard = async () => {
     if (!posts) return
     
-    const digestPosts = posts.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')
+    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus))
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
@@ -348,7 +349,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
 
 
-  const { Loading, SectionTitle, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
+  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
     EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
@@ -445,10 +446,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   // if we have no posts to display, just show the page heading
-  const pageHeadingNode = <SectionTitle
-    title={getDigestName({digest})}
-    noTopMargin
-  />
+  const pageHeadingNode = <EditDigestHeader digest={digest} />
   if (!posts.length) {
     return <div className={classes.root}>
       {pageHeadingNode}

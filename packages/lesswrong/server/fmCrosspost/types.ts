@@ -63,6 +63,7 @@ const DenormalizedCrosspostValidator = t.strict({
   title: t.string,
   isEvent: t.boolean,
   question: t.boolean,
+  url: t.string,
 });
 
 /**

@@ -9,12 +9,18 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     order: 0,
     paddingStyle: true,
   },
+  category: {
+    name: "category",
+    order: -20,
+    paddingStyle: true,
+    defaultStyle: true,
+  },
   title: {
     name: "title",
     order: -10,
     paddingStyle: true,
     defaultStyle: true,
-    flexStyle: true,
+    flexAlignTopStyle: true,
   },
   coauthors: {
     order: 21,
@@ -90,7 +96,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     startCollapsed: true
   },
   tags: {
-    order: isEAForum ? 22 : 60,
+    order: isEAForum ? 20 : 60,
     name: "tags",
     label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
     startCollapsed: false

@@ -44,10 +44,10 @@ const formPreviewSizeByImageType: AnyBecauseTodo = {
   },
 }
 
-const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
-  document: AnyBecauseTodo,
-  updateCurrentValues: Function,
+  value: string | null | undefined,
+  updateValue: (value: string) => void,
   clearField: Function,
   label: string,
   croppingAspectRatio?: number,
@@ -58,7 +58,7 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {
       setImageId(publicImageId);
-      updateCurrentValues({[name]: publicImageId});
+      updateValue(publicImageId);
     },
     onUploadError: (error: Error) => {
       // eslint-disable-next-line no-console
@@ -72,12 +72,7 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
     setImageId(null)
   }
 
-  const [imageId, setImageId] = useState(() => {
-    if (document && document[name]) {
-      return document[name];
-    }
-    return ''
-  })
+  const [imageId, setImageId] = useState(value)
 
   const formPreviewSize = formPreviewSizeByImageType[name]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
@@ -113,11 +108,6 @@ const ImageUpload2 = ({name, document, updateCurrentValues, clearField, label, c
       </div>
     </div>
   );
-};
-
-(ImageUpload2 as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
 };
 
 const ImageUpload2Component = registerComponent("ImageUpload2", ImageUpload2, {styles});

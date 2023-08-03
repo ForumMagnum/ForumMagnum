@@ -1,3 +1,4 @@
+import { forumSelect } from '../../forumTypeUtils';
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
@@ -68,7 +69,7 @@ export const MODERATOR_ACTION_TYPES = {
 /** The max # of users an unapproved account is allowed to DM before being flagged */
 export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 /** The max # of users an unapproved account is allowed to DM */
-export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = 9;
+export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = forumSelect({EAForum: 4, default: 9});
 
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.

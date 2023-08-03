@@ -145,6 +145,7 @@ type FormGroupType<T extends DbObject = DbObject> = {
   defaultStyle?: boolean,
   helpText?: string,
   flexStyle?: boolean,
+  flexAlignTopStyle?: boolean,
   fields?: FormField<T>[]
 }
 

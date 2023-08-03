@@ -66,6 +66,7 @@ interface UsersDefaultFragment { // fragment on Users
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    popularComments: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
@@ -454,6 +455,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
+  readonly isPostType: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
@@ -481,7 +483,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly contributionStats: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly introSequenceId: string,
   readonly postsDefaultSortOrder: string,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
   readonly isSubforum: boolean,
   readonly subforumModeratorIds: Array<string>,
   readonly subforumIntroPostId: string,
@@ -543,6 +545,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -621,6 +624,10 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly hasCoauthorPermission: boolean,
   readonly socialPreviewImageId: string,
   readonly socialPreviewImageAutoUrl: string,
+  readonly socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  },
   readonly fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -686,6 +693,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
   readonly commentCount: number,
+  readonly topLevelCommentCount: number,
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
@@ -898,6 +906,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -1067,7 +1076,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalSource: string,
   readonly noIndex: boolean,
   readonly viewCount: number,
-  readonly socialPreviewImageUrl: string,
+  readonly socialPreviewData: any,
   readonly tagRelevance: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentSortOrder: string,
   readonly sideCommentVisibility: string,
@@ -1181,8 +1190,8 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 }
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
+  readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
-  readonly commentEmojiReactors: any,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
@@ -1226,9 +1235,9 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string,
   readonly contents: RevisionDisplay|null,
+  readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly commentEmojiReactors: any,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -1253,6 +1262,11 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly subforumTagId: string,
   readonly sideComments: any,
   readonly socialPreviewImageId: string,
+  readonly socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  },
+  readonly socialPreviewData: any,
   readonly criticismTipsDismissed: boolean,
 }
 
@@ -1384,6 +1398,7 @@ interface CommentsList { // fragment on Comments
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
   readonly score: number,
   readonly voteCount: number,
+  readonly emojiReactors: any,
   readonly af: boolean,
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
@@ -1469,8 +1484,12 @@ interface DeletedCommentsModerationLog_post { // fragment on Posts
 }
 
 interface CommentsListWithParentMetadata extends CommentsList { // fragment on Comments
-  readonly post: PostsMinimumInfo|null,
+  readonly post: CommentsListWithParentMetadata_post|null,
   readonly tag: TagBasicInfo|null,
+}
+
+interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // fragment on Posts
+  readonly isRead: boolean,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
@@ -2140,7 +2159,7 @@ interface TagFragment extends TagDetailsFragment { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagFragment_description { // fragment on Revisions
@@ -2184,7 +2203,7 @@ interface TagPreviewFragment extends TagBasicInfo { // fragment on Tags
   readonly parentTag: TagBasicInfo|null,
   readonly subTags: Array<TagBasicInfo>,
   readonly description: TagPreviewFragment_description|null,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPreviewFragment_description { // fragment on Revisions
@@ -2237,7 +2256,7 @@ interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageFragment_subforumWelcomeText { // fragment on Revisions
@@ -2255,7 +2274,7 @@ interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { 
   readonly subforumIntroPost: PostsList|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
-  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
 }
 
 interface TagPageWithRevisionFragment_subforumWelcomeText { // fragment on Revisions
@@ -2268,6 +2287,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
+  readonly isPostType: boolean,
   readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
@@ -2414,6 +2434,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
+  readonly reviewedByUserId: string,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
@@ -2484,6 +2505,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    popularComments: boolean | null,
   } | null,
   readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string,
@@ -2986,6 +3008,11 @@ interface UserVotes { // fragment on Votes
   readonly collectionName: string,
 }
 
+interface UserVotesWithDocument extends UserVotes { // fragment on Votes
+  readonly comment: CommentsList|null,
+  readonly post: PostsListWithVotes|null,
+}
+
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
@@ -3301,6 +3328,7 @@ interface FragmentTypes {
   TagRelVotes: TagRelVotes
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
+  UserVotesWithDocument: UserVotesWithDocument
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
@@ -3500,6 +3528,7 @@ interface CollectionNamesByFragmentName {
   TagRelVotes: "Votes"
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
+  UserVotesWithDocument: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"

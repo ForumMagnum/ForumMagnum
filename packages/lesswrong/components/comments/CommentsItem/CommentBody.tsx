@@ -35,21 +35,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentBody = ({ comment, classes, collapsed, truncated, postPage, commentBodyHighlights, commentItemRef, voteProps }: {
+const CommentBody = ({
+  comment,
+  collapsed,
+  truncated,
+  postPage,
+  commentBodyHighlights,
+  commentItemRef,
+  voteProps,
+  className,
+  classes,
+}: {
   comment: CommentsList,
   collapsed?: boolean,
   truncated?: boolean,
   postPage?: boolean,
-  classes: ClassesType,
   commentBodyHighlights?: string[],
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
   voteProps?: VotingProps<VoteableTypeClient>
+  className?: string,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
-  const bodyClasses = classNames(
+  const bodyClasses = classNames(className,
     { [classes.commentStyling]: !comment.answer,
       [classes.answerStyling]: comment.answer,
       [classes.retracted]: comment.retracted }

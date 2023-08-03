@@ -1,19 +1,20 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
-import { postGetPageUrl, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -87,6 +88,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
+      ...(isEAForum && {width: "100%"})
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -176,9 +178,16 @@ const PostsNewForm = ({classes}: {
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
 
+  const questionInQuery = query && !!query.question
+  const postCategory = isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+    ? ("question" as const)
+    : postDefaultCategory;
+
   let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
-    question: query && !!query.question,
+    question: (postCategory === "question") || questionInQuery,
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
@@ -188,10 +197,11 @@ const PostsNewForm = ({classes}: {
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
-    debate: debateForm
+    debate: debateForm,
+    postCategory
   }
   const eventForm = query && query.eventForm
-  
+
   if (query?.subforumTagId) {
     prefilledProps = {
       ...prefilledProps,
@@ -206,6 +216,8 @@ const PostsNewForm = ({classes}: {
     fragmentName: "UsersCurrentPostRateLimit",
     fetchPolicy: "cache-and-network",
     skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: !!eventForm }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
@@ -251,9 +263,16 @@ const PostsNewForm = ({classes}: {
               if (options?.submitOptions?.redirectToEditor) {
                 history.push(postGetEditUrl(post._id));
               } else {
-                history.push({pathname: postGetPageUrl(post)})
+                // If they are publishing a non-draft post, show the share popup
+                const showSharePopup = isEAForum && !post.draft
+                const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                const url  = postGetPageUrl(post);
+                history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+
                 const postDescription = post.draft ? "Draft" : "Post";
-                flash({ messageString: `${postDescription} created.`, type: 'success'});
+                if (!showSharePopup) {
+                  flash({ messageString: `${postDescription} created`, type: 'success'});
+                }
               }
             }}
             eventForm={eventForm}
