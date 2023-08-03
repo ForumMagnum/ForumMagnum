@@ -4,7 +4,7 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
-import { CommentTreeNode, commentTreesEqual, countCommentsInTree } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual, countCommentsInTree, groupCommentThread } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { CommentPoolContext, CommentPoolContextType, CommentExpansionState } from './CommentPool';
@@ -132,7 +132,7 @@ const CommentsNode = ({
   const [highlighted, setHighlighted] = useState(false);
 
 
-  const {isTruncated, isSingleLine, setExpansionState} = useExpansionState({
+  const {isTruncated, isSingleLine, isGroupable, setExpansionState} = useExpansionState({
     comment, commentPoolContext, treeOptions,
     isNewComment, hasClickedToExpand,
     expandAllThreads, nestingLevel, startThreadTruncated, shortform, truncated
@@ -195,7 +195,7 @@ const CommentsNode = ({
     }
   }, [singleLineCollapse, collapsed, setCollapsed, setExpansionState, onToggleCollapsed]);
 
-  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore } = Components
+  const { CommentFrame, SingleLineComment, CommentsItem, RepliesToCommentList, AnalyticsTracker, LoadMore, GroupedCommentsNode } = Components
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, showParentDefault }
 
@@ -207,6 +207,26 @@ const CommentsNode = ({
   const showDescendentCount = enableDescendentCount
     ? (comment.descendentCount - (childComments ? countCommentsInTree(childComments) : 0))
     : undefined;
+
+  // If rendered with children, the comment that is the parent of those children.
+  // Differs from `comment` if we're rendering a chain of comments, in which case
+  // it's the last comment in the chain.
+  let parentOfChildComments = comment;
+
+  // Check whether we should render this as a chain of comments.
+  let groupedComments: CommentsList[]|null = null;
+  if (commentPoolContext && isGroupable && childComments) {
+    const grouping = groupCommentThread(
+      (commentId: string) =>
+        commentPoolContext.getCommentState(commentId).expansion === "singleLineGroupable",
+      comment, childComments
+    );
+    if (grouping && grouping.groupedComments.length >= 2) {
+      groupedComments = grouping.groupedComments;
+      childComments = grouping.childComments;
+      parentOfChildComments = groupedComments[groupedComments.length-1];
+    }
+  }
 
   return <div>
     <CommentFrame
@@ -227,8 +247,13 @@ const CommentsNode = ({
       className={className}
     >
       {comment._id && <div ref={scrollTargetRef}>
-        {isSingleLine
-          ? <AnalyticsContext singleLineComment commentId={comment._id}>
+        {groupedComments && <GroupedCommentsNode
+          groupedComments={groupedComments}
+          treeOptions={treeOptions}
+          nestingLevel={nestingLevel}
+        />}
+        {!groupedComments && isSingleLine &&
+            <AnalyticsContext singleLineComment commentId={comment._id}>
               <AnalyticsTracker eventType="singeLineComment">
                 <SingleLineComment
                   treeOptions={treeOptions}
@@ -240,8 +265,9 @@ const CommentsNode = ({
                   displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
-            </AnalyticsContext>
-          : <CommentsItem
+            </AnalyticsContext>}
+        {!groupedComments && !isSingleLine &&
+            <CommentsItem
               treeOptions={treeOptions}
               truncated={isTruncated && !forceUnTruncated} // forceUnTruncated checked separately here, so isTruncated can also be passed to child nodes
               nestingLevel={nestingLevel}
@@ -264,8 +290,8 @@ const CommentsNode = ({
             isChild={true}
             treeOptions={treeOptions}
             treeNode={child}
-            parentCommentId={comment._id}
-            parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
+            parentCommentId={parentOfChildComments._id}
+            parentAnswerId={parentAnswerId || (parentOfChildComments.answer && parentOfChildComments._id) || null}
             nestingLevel={nestingLevel+1}
             truncated={isTruncated}
             key={child._id}
@@ -386,7 +412,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
     if (commentPoolContext) {
       void commentPoolContext.setExpansion(commentId, expansionState, newExpansionState);
     } else {
-      if (newExpansionState === "singleLine") {
+      if (newExpansionState==="singleLine" || newExpansionState==="singleLineGroupable") {
         setSingleLine(true);
         setTruncated(true);
       } else if (newExpansionState === "truncated") {
@@ -401,16 +427,19 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
 
   if (commentPoolContext) {
     const expansionState = commentPoolContext.getCommentState(commentId)?.expansion ?? "default";
+    const singleLine = (expansionState==="default") ? isSingleLine : (expansionState==="singleLine" || expansionState==="singleLineGroupable");
     
     return {
       isTruncated: (expansionState==="default") ? isTruncated : (expansionState!=="expanded"),
-      isSingleLine: (expansionState==="default") ? isSingleLine : (expansionState==="singleLine"),
+      isSingleLine,
+      isGroupable: singleLine && expansionState==="singleLineGroupable",
       setExpansionState,
     };
   } else {
     return {
       isTruncated,
       isSingleLine,
+      isGroupable: false,
       setExpansionState,
     };
   }

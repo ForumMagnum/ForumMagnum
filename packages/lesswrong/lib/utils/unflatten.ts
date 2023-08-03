@@ -1,4 +1,5 @@
 import keyBy from 'lodash/keyBy';
+import type { CommentPoolContextType } from '../../components/comments/CommentPool';
 
 interface ThreadableCommentType {
   _id: string
@@ -27,8 +28,7 @@ type UnflattenOptions = {
 // ancestors of comments that are. In that case, nodes appear in the tree with
 // `item:null`, representing the fact that there exists a comment there but it
 // isn't loaded.
-export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>, options: UnflattenOptions={}): Array<CommentTreeNode<T>>
-{
+export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>, options: UnflattenOptions={}): Array<CommentTreeNode<T>> {
   const usedCommentIds = new Set<string>();
   
   // Convert comments into (disconnected) tree nodes
@@ -117,4 +117,63 @@ export function countCommentsInTree<T extends ThreadableCommentType>(tree: Comme
     sum += countCommentsInTree(node.children);
   }
   return sum;
+}
+
+/**
+ * Given a groupable comment and its children, group consecutive one-child comments
+ * whose expansion state is singleLineGroupable together. For example if the
+ * comment tree is
+ *   A
+ *   |
+ *   +-B
+ *     |
+ *     +-C
+ *       |
+ *       +-D
+ *       | |
+ *       | +-E
+ *       | |
+ *       | +-F
+ *       |
+ *       +-G
+ * and A, B, C are groupable, then this would return
+ *   {
+ *     groupedComments: [A, B, C]
+ *     childComments: [D, G]
+ *   }
+ */
+export function groupCommentThread<T extends ThreadableCommentType>(isGroupable: (commentId:string)=>boolean, comment: T, children: CommentTreeNode<T>[]): {
+  groupedComments: T[],
+  childComments: CommentTreeNode<T>[],
+}|null {
+  if (!isGroupable(comment._id))
+    return null;
+  let rootNode: CommentTreeNode<T> = {
+    _id: comment._id,
+    item: comment,
+    children: children,
+  };
+  let chain: CommentTreeNode<T>[] = [];
+  
+  let pos = rootNode;
+  while (isGroupable(pos._id)) {
+    chain.push(pos);
+    
+    if (pos.children.length===1) {
+      pos = pos.children[0];
+    } else {
+      break;
+    }
+  }
+  
+  if (!pos.children.length) {
+    chain = chain.slice(0, chain.length-1);
+  }
+  if (chain.length <= 1) {
+    return null;
+  }
+  return {
+    groupedComments: chain.map(c=>c.item!),
+    childComments: chain[chain.length-1].children,
+  };
 }

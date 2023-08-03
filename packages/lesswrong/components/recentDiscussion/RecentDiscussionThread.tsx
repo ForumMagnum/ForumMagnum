@@ -17,6 +17,7 @@ import { toDictionary } from '../../lib/utils/toDictionary';
 import { userHasCommentPoolInRecentDiscussion } from '../../lib/betas';
 import type { CommentExpansionState } from '../comments/CommentPool';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import uniq from "lodash/uniq";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -161,7 +162,7 @@ const RecentDiscussionThread = ({
   classes,
 }: {
   post: PostsRecentDiscussion,
-  comments?: Array<CommentsList>,
+  comments?: RecentDiscussionCommentsList[],
   refetch: any,
   expandAllThreads?: boolean,
   maxLengthWords?: number,
@@ -236,7 +237,18 @@ const RecentDiscussionThread = ({
     ...commentTreeOptions
   };
   
-  const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments ? toDictionary(comments, c=>c._id, _=>"truncated") : undefined;
+  const ancestorComments = comments
+    ? uniq(comments
+        .flatMap(comment => comment.ancestorComments)
+        .filter(comment => !comments.some(c => c._id===comment._id)))
+    : [];
+  const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments
+    ? toDictionary(comments, c=>c._id, _=>"truncated")
+    : {};
+  for (let ancestorComment of ancestorComments) {
+    initialExpansion[ancestorComment._id] = "singleLineGroupable";
+  }
+  
   const nestedComments = unflattenComments(comments ?? [], {
     usePlaceholders: userHasCommentPoolInRecentDiscussion(currentUser)
   });
@@ -285,7 +297,7 @@ const RecentDiscussionThread = ({
           <div className={classes.commentsList}>
             {userHasCommentPoolInRecentDiscussion(currentUser)
               ? <CommentPool
-                  initialComments={comments ?? []}
+                  initialComments={comments ? [...comments, ...ancestorComments] : []}
                   initialExpansionState={initialExpansion}
                   topLevelCommentCount={post.topLevelCommentCount}
                   treeOptions={treeOptions}

@@ -22,7 +22,7 @@ export interface CommentPoolContextType {
   getCommentState: (commentId: string) => SingleCommentState
 }
 export const CommentPoolContext = createContext<CommentPoolContextType|null>(null);
-export type CommentExpansionState = "default"|"expanded"|"truncated"|"singleLine"
+export type CommentExpansionState = "default"|"expanded"|"truncated"|"singleLine"|"singleLineGroupable"
 
 interface SingleCommentState {
   comment: CommentsList

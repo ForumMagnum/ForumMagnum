@@ -528,7 +528,7 @@ registerFragment(`
     ...PostsList
     topLevelCommentCount
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
+      ...RecentDiscussionCommentsList
     }
   }
 `);
