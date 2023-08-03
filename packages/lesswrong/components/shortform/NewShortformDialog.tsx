@@ -41,10 +41,8 @@ const NewShortformDialog = ({onClose, classes}: {
             history.push(isEAForum ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
-            if (isEAForum) {
-              setOpen(false);
-              onClose?.();
-            }
+            setOpen(false);
+            onClose?.();
           }}
         />
       </DialogContent>
