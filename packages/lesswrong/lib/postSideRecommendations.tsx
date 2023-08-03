@@ -1,15 +1,15 @@
-import React, { ComponentType, FC, useRef } from "react";
+import React, { ComponentType, useRef } from "react";
 import { Link } from "./reactRouterWrapper";
 import { useRecommendations } from "../components/recommendations/withRecommendations";
 import { useSsrRenderedAt } from "./utils/timeUtil";
-import { postGetPageUrl, postGetPrimaryTag } from "./collections/posts/helpers";
+import { postGetPrimaryTag } from "./collections/posts/helpers";
 import { HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE } from "./cookies/cookies";
 import { useCookiesWithConsent, Cookies } from "../components/hooks/useCookiesWithConsent";
 import type {
   RecommendationsAlgorithmWithStrategy,
   StrategySpecification,
 } from "./collections/users/recommendationSettings";
-import { useRecommendationAnalytics } from "../components/recommendations/useRecommendationsAnalytics";
+import { Components } from "./vulcan-lib";
 
 type RecommendablePost = PostsWithNavigation|PostsWithNavigationAndRevision;
 
@@ -70,21 +70,6 @@ const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
   };
 }
 
-const LiPostRecommendation: FC<{
-  post: PostsListWithVotesAndSequence,
-}> = ({post}) => {
-  const url = postGetPageUrl(post);
-  const {
-    ref,
-    onClick,
-  } = useRecommendationAnalytics<HTMLLIElement, HTMLAnchorElement>(post._id);
-  return (
-    <li ref={ref}>
-      <Link to={url} onClick={onClick}>{post.title}</Link>
-    </li>
-  );
-}
-
 const useGeneratorWithStrategy = (
   title: string,
   strategy: StrategySpecification,
@@ -104,7 +89,7 @@ const useGeneratorWithStrategy = (
   return {
     loading,
     title,
-    items: posts.map((post) => () => <LiPostRecommendation post={post} />),
+    items: posts.map((post) => () => <Components.SideRecommendation post={post} />),
   };
 }
 
