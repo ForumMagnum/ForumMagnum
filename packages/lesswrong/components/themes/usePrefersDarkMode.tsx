@@ -26,6 +26,8 @@ export const PrefersDarkModeProvider = ({children}: {
         prefersDarkMode: matches,
       });
     }
+    // Check that query.addEventListener exists before using it, because on
+    // some browsers (older iOS Safari) it doesn't.
     if (query.addEventListener) {
       query.addEventListener("change", handler);
       return () => query.removeEventListener("change", handler);
