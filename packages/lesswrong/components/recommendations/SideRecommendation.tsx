@@ -57,7 +57,7 @@ const SideRecommendation = ({post, classes}: {
     onClickLink(e);
     onClickCell(e);
   }, [onClickCell, onClickLink]);
-  const {ForumIcon, KarmaDisplay} = Components;
+  const {ForumIcon, KarmaDisplay, PostsItemTooltipWrapper} = Components;
   return (
     <div
       className={classes.root}
@@ -70,9 +70,11 @@ const SideRecommendation = ({post, classes}: {
         </div>
         <KarmaDisplay document={post} />
       </div>
-      <Link to={href} onClick={(e) => e.preventDefault()}>
-        {post.title}
-      </Link>
+      <PostsItemTooltipWrapper post={post}>
+        <Link to={href} onClick={(e) => e.preventDefault()}>
+          {post.title}
+        </Link>
+      </PostsItemTooltipWrapper>
     </div>
   );
 }
