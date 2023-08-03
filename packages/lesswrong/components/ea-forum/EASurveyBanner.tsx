@@ -24,6 +24,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
+      gap: "12px",
       paddingRight: 60,
     },
   },
