@@ -206,8 +206,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     limit: CONTENT_LIMIT
   });
 
-  const reviewTrigger = getReasonForReview(user)
-  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
+  const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
