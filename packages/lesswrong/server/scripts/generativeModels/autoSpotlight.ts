@@ -1,15 +1,10 @@
-import { query } from "express";
 import { Posts } from "../../../lib/collections/posts";
 import Tags from "../../../lib/collections/tags/collection";
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
 
 import Anthropic from '@anthropic-ai/sdk';
-import groupBy from "lodash/groupBy";
-import { time } from "console";
-import { generateImage } from "./stablediffusionGeneration";
 import Spotlights from "../../../lib/collections/spotlights/collection";
-import { sleep } from "../../../lib/utils/asyncUtils";
 
 const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "required")
 
@@ -20,14 +15,15 @@ async function queryClaude(prompt: string) {
   const HUMAN_PROMPT = '\n\nHuman: ';
   const AI_PROMPT = '\n\nAssistant:'
   async function main() {
-    const completion = await anthropic.completions.create({
+    const response = await anthropic.completions.create({
       model: 'claude-1',
       max_tokens_to_sample: 300,
       prompt: `${HUMAN_PROMPT}${prompt}${AI_PROMPT}`,
     });
-    return completion.completion
+    return response.completion
   }
   return await main().catch(err => {
+    // eslint-disable-next-line no-console
     console.error(err);
     return undefined;
   });
@@ -40,75 +36,63 @@ type AIResponse = {
   result: string|undefined
 }
 
-async function queryClaudeWithDoc(docId: string, docTitle: string, type: string, prompt: string): Promise<AIResponse> {
-  // console.log("querying claude", docId, docTitle, type)
-  return { docId, docTitle, type, result: await queryClaude(prompt) }
-}
-
-function trimFirstParagraph(text: string) {
-  let output = text;
-  console.log({ output });
-  if (/\n\n/.test(text)) {
-    output = text.split("\n\n").at(-1) ?? text.split("\n\n")[1];
-  }
-  return output
-}
-
-function createArtDescription(post: DbPost) {
+async function createArtDescription(post: DbPost) {
   const queryImageRoot = `
-  Please respond with an html string that has <p> tags inserted as paragraph breaks where needed.
-  
-  Summarize this post. After that, write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences.
-  
-  Then describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be relatively simple, such that key elements and themes are easily distinguishable when people see it.
 
-  After that, please write three distinct prompts, each two to three sentences long. Each prompt should end with the sentence, "Minimalist aquarelle painting by Thomas Schaller, on a white background." Separate each prompt with a paragraph break. It is very important that your answer ends with the prompts, with no additional commentary.
+    Summarize the key ideas in this post in one paragraph. 
+    
+    Then, in a second paragraph, describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be relatively simple, such that key elements and themes are easily distinguishable when people see it.
+
+    After that, please write a one sentence prompt, ending with the phrase 'Minimalist watercolor painting on a white background, cartographic, diagrammtic --ar 2:1'. The entire prompty should be a single paragraph. It is very important that your answer ends with the prompt, with no additional commentary.
+
+    Write your response as html with paragraph tags.
+
+    Post Title: ${post.title}
   `
 
-  return [
-    queryClaudeWithDoc(post._id, post.title, "artPrompt", `${queryImageRoot}${post.contents.html}`).then(({ result }) => result),
-    // queryClaudeWithDoc(post._id, post.title, "artPrompt", `${queryImageRoot}${post.contents.html}`).then(({ result }) => result)
-  ]
+  const response = await queryClaude(`${queryImageRoot}${post.contents.html}`)
+  return `<p><b>Art Prompt:</b></p>${response}`
 }
 
-const querySummaryRoot = `
-Write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences.  Don't use the phrase "the author". Don't use the phrase "the post".
-`
+function createSpotlightDescription(post: DbPost) {
+  const querySummaryRoot = `
+    Write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences.  Don't use the phrase "the author". Don't use the phrase "the post".
+  `
+  const queryQuestionRoot = `
+    Write two sentences that ask the question that this essay is ultimately answering. (Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
+  `
 
-// const querySummaryRoot = `
-//   Write the following in html formatting, separated by <p> tags.
-
-//   First, summarize the overall post in 2-3 sentences. Don't use the phrase 'the author'. Don't use the phrase 'the post'.
-
-//   Then, in a second paragraph, Describe one key insight from this post that was particularly interesting. Don't use the phrase 'the author'. Don't use the phrase 'the post'. 2-3 sentences.
-
-//   Then, in a third paragraph, pick one paragraph from the post that feels like a good introduction paragraph and write it out.
-
-//   After that, in a fourth paragraph, describe what strategy you would follow to make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be relatively simple, such that key elements and themes are easily distinguishable when people see it. Describe your reasoning.
-
-//   Finally, in a fifth paragraph, write a prompt to give to Midjourney, which describes an art piece that matches the insight from the post. It should end with the sentence "Minimalist aquarelle painting by Thomas Schaller, on a white background."
-// `
-
-function createSpotlight(post: DbPost) {
-  
+  const queryBestParagraphRoot = `
+    Pick the paragraph from this essay that most encapsulate the idea the essay is abou.(Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
+  `
+  const queryFirstParagraphRoot = `
+    Pick the first parapgrah from this essay that works as a good introduction. (Just write paragraph, without any preamble)
+  `
   return [
     queryClaude(`${querySummaryRoot}${post.contents.html}`),
-    // queryClaudeWithDoc(post._id, post.title, "summary", `${querySummaryRoot}${post.contents.html}`),
+    queryClaude(`${queryQuestionRoot}${post.contents.html}`),
+    queryClaude(`${queryBestParagraphRoot}${post.contents.html}`),
+    queryClaude(`${queryFirstParagraphRoot}${post.contents.html}`),
   ]
 }
 
-async function generateSpotlightImage(prompt: string) {
-  const trimmedPrompt = trimFirstParagraph(prompt)
-  const combinedPrompt = "Minimalist aquarelle painting by Thomas Schaller, on a white background, " + trimmedPrompt
-  // console.log("generating image:\n\n", combinedPrompt)
-  return generateImage(combinedPrompt)
-}
-
-interface PostResults {
-  docTitle: string,
-  artPrompts: string[],
-  // artResults: any[],
-  summaries: string[]
+function createSpotlight (postId: string, summaries: string[]) {
+  const description = summaries.map(summary => `<p>${summary}</p>`).join("")
+  const context = createAdminContext();
+  void createMutator({
+    collection: Spotlights,
+    document: {
+      documentId: postId,
+      documentType: "Post",
+      duration: 1,
+      draft: true,
+      showAuthor: true,
+      description: { originalContents: { type: 'ckEditorMarkup', data: description } },
+      lastPromotedAt: new Date(0),
+    },
+    currentUser: context.currentUser,
+    context
+  })
 }
 
 async function createSpotlights() {
@@ -120,54 +104,20 @@ async function createSpotlights() {
       {[`tagRelevance.${tag._id}`]: {$gt: 0}}
     ).fetch()
 
-    const start = new Date()
+    const spotlightPosts = posts.filter(post => !spotlightDocIds.includes(post._id))
 
-    const spotlightPosts = posts.filter(post => !spotlightDocIds.includes(post._id)).slice(0, 1)
-    console.log({ spotlightPosts: spotlightPosts.map(p => p.title) });
+    const postResults: Record<string, string[]> = {};
 
-    const postResults: Record<string, PostResults> = {};
-    
-    for (const post of spotlightPosts) {
-      const summaries =  (await Promise.all(createSpotlight(post))).filter((prompt): prompt is string => !!prompt);
-      const artPrompts = (await Promise.all(createArtDescription(post))).filter((prompt): prompt is string => !!prompt);
+    for (const [i, post] of Object.entries(spotlightPosts)) {
+      // eslint-disable-next-line no-console
+      console.log(i, posts.length, post.title)
+      const summaries =  await Promise.all([...createSpotlightDescription(post), createArtDescription(post)])
+      const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
+            
       // const artResults = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
-      console.log(post.title)
-      postResults[post._id] = {
-        docTitle: post.title,
-        summaries,
-        artPrompts,
-        // artResults
-      };
-      await sleep(250)
+      postResults[post._id] = filteredSummaries
+      createSpotlight(post._id, filteredSummaries)
     }
-    const apiCompletionTime = (new Date()).getTime() - start.getTime()
-    console.log({ apiCompletionTime })
-    
-    Object.entries(postResults).forEach(([postId, result]) => {
-      const { summaries, artPrompts, docTitle } = result;
-
-      console.log({ docTitle })
-      console.log({ summaries })
-      console.log({ artPrompts })
-      // console.log({ artResults })
-
-      const description = `${summaries[0]}<p /><p />${artPrompts[0]}`;
-
-      const context = createAdminContext();
-      void createMutator({
-        collection: Spotlights,
-        document: {
-          documentId: postId,
-          documentType: "Post",
-          duration: 1,
-          draft: true,
-          description: { originalContents: { type: 'ckEditorMarkup', data: description } },
-          lastPromotedAt: new Date(0),
-        },
-        currentUser: context.currentUser,
-        context
-      })
-    })
   }
   return "Done"
 }
