@@ -49,8 +49,8 @@ type HybridViewParams = {
    */
   indexQueryGenerators: ((viewName: string) => string)[];
   /**
-   * The SQL client for the database you are creating the view in. Currently they are all in the analytics DB,
-   * but this would work in the main DB as well.
+   * The SQL client for the database you are creating the view in. At time of writing (2023-08-04) they are
+   * all in the analytics DB, but this would work in the main DB as well.
    */
   viewSqlClient?: RawSqlClient;
 }
@@ -184,7 +184,13 @@ export class HybridView {
       await this.ensureIndexes();
     } else {
       await this.ensureIndexes();
-      await this.viewSqlClient.none(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.matViewName}"`);
+      try {
+        await this.viewSqlClient.none(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.matViewName}"`);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to refresh materialized view "${this.matViewName}". This may be because there is no unique index, which is required to refresh "CONCURRENTLY" (i.e. without locking the view from reads)`);
+        throw e;
+      }
     }
   }
 
@@ -269,7 +275,9 @@ export function registerHybridAnalyticsView({
   const analyticsDb = getAnalyticsConnection();
 
   if (!analyticsDb) {
-    throw new Error("No analytics DB configured");
+    // eslint-disable-next-line no-console
+    console.log("No analytics DB configured, ignoring hybrid view");
+    return;
   }
 
   const hybridView = new HybridView({

@@ -251,6 +251,7 @@ const UsersMenu = ({classes}: {
                 />
               </ThemePickerMenu>
             }
+            {/* TODO un-admin gate when ready for production use */}
             {isEAForum && userIsAdminOrMod(currentUser) && <DropdownItem
               title={"Post stats"}
               to={`/users/${currentUser.slug}/stats`}

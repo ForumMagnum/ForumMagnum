@@ -8,7 +8,6 @@ import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/us
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import { post } from "request";
 import chunk from "lodash/chunk";
 import { inspect } from "util";
 import { POST_VIEWS_IDENTIFIER } from "../analytics/postViewsHybridView";
@@ -63,7 +62,7 @@ function makePgAnalyticsQuerySeries({query, resultColumnRenaming, resultKey}: {q
 
 /**
  * Generates an OR condition that is essentially equivalent to `columnName IN (ids)`.
- * This forces postgres to use the index on `columnName` if one exists.
+ * This encourages postgres to use the index on `columnName` if one exists.
  */
 function generateOrConditionQuery(columnName: string, ids: string[]): string {
   return ids.map((id, index) => `${columnName} = $${index + 1}`).join(' OR ');
