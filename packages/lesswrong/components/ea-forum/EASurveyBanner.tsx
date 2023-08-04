@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     gap: "25px",
     padding: 12,
-    background: theme.palette.primary.main,
+    background: theme.palette.buttons.alwaysPrimary,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 15,
     fontWeight: 450,
