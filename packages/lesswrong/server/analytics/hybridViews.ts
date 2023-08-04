@@ -264,6 +264,8 @@ export function registerHybridAnalyticsView({
   queryGenerator,
   indexQueryGenerators,
 }: Omit<HybridViewParams, "viewSqlClient">) {
+  if (isAnyTest || !isEAForum) return;
+
   const analyticsDb = getAnalyticsConnection();
 
   if (!analyticsDb) {
@@ -282,9 +284,7 @@ export function registerHybridAnalyticsView({
     await hybridView.ensureIndexes();
   };
 
-  if (!isAnyTest && isEAForum) {
-    void ensureViewAndIndexes();
-  }
+  void ensureViewAndIndexes();
 
   hybridViews[identifier] = hybridView;
 }
