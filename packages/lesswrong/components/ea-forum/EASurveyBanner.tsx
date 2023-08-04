@@ -1,9 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, Fragment } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
+import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "../../lib/cookies/cookies";
+import NoSSR from "react-no-ssr";
 import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
@@ -54,6 +56,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
   const cookieName = HIDE_EA_FORUM_SURVEY_BANNER_COOKIE;
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const {captureEvent} = useTracking();
+  const currentUser = useCurrentUser();
 
   const hideBanner = useCallback(() => {
     setCookie(cookieName, "true", {
@@ -75,24 +78,28 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
     return null;
   }
 
+  const Wrapper = currentUser ? Fragment : NoSSR;
+
   const {ForumIcon} = Components;
   return (
-    <div className={classes.root}>
-      Take the 4 minute EA Forum Survey to help inform our strategy and funding decisions
-      <TypeformPopupEmbed
-        widgetId="Z1wH4v8v"
-        domain="cea-core.typeform.com"
-        title="EA Forum survey"
-        label="Take the survey"
-        onClose={onCloseSurvey}
-        className={classes.button}
-      />
-      <ForumIcon
-        icon="Close"
-        onClick={onDismissBanner}
-        className={classes.close}
-      />
-    </div>
+    <Wrapper>
+      <div className={classes.root}>
+        Take the 4 minute EA Forum Survey to help inform our strategy and funding decisions
+        <TypeformPopupEmbed
+          widgetId="Z1wH4v8v"
+          domain="cea-core.typeform.com"
+          title="EA Forum survey"
+          label="Take the survey"
+          onClose={onCloseSurvey}
+          className={classes.button}
+        />
+        <ForumIcon
+          icon="Close"
+          onClick={onDismissBanner}
+          className={classes.close}
+        />
+      </div>
+    </Wrapper>
   );
 }
 
