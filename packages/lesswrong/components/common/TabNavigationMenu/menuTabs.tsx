@@ -292,7 +292,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'takeAction',
       title: 'Take action',
-      link: `/${taggingNamePluralSetting.get()}/take-action`,
+      link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
       iconComponent: TakeActionIcon,
       selectedIconComponent: TakeActionSelectedIcon,
       tooltip: "Opportunities to get involved with impactful work",

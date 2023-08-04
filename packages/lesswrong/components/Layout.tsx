@@ -135,10 +135,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         "navSidebar ... main rhs ..."
       `,
       gridTemplateColumns: `
-        minmax(0, min-content)
+        min-content
         minmax(0, 1fr)
-        minmax(0, min-content)
-        minmax(50px, min-content)
+        min-content
+        minmax(50px, max-content)
         minmax(0, 1fr)
       `,
     },
@@ -151,9 +151,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   rhs: {
     gridArea: 'rhs',
-    '@media(max-width: 1500px)': {
-      display: 'none'
-    }
   },
   sunshine: {
     gridArea: 'sunshine'

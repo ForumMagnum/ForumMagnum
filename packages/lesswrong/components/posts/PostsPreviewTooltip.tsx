@@ -113,6 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
+  if (post.isEvent) return null
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
@@ -166,9 +167,9 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
 
   const tags = sortTags(post.tags, t=>t)
   
-  let eventLocation = post.onlineEvent ? 'Online event' : null
+  let eventLocation = post.onlineEvent ? <div>Online event</div> : null
   if (post.isEvent && post.location) {
-    eventLocation = post.location
+    eventLocation = <div>{post.location}</div>
   }
   const postCategory: string|null = getPostCategory(post);
 

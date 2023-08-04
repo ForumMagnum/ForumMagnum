@@ -24,18 +24,22 @@ import findIndex from 'lodash/findIndex';
 import NoSSR from 'react-no-ssr';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     minHeight: 250,
-    maxWidth: 390,
     paddingLeft: 40,
-    paddingRight: 10,
+    paddingRight: 30,
     borderLeft: theme.palette.border.faint,
     marginTop: 30,
-    marginLeft: 50
+    marginLeft: 50,
+    '@media(max-width: 1370px)': {
+      display: 'none'
+    }
   },
   section: {
+    maxWidth: 250,
     display: 'flex',
     flexDirection: 'column',
     rowGap: '9px',
@@ -44,8 +48,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     marginBottom: 30,
   },
-  digestAd: {
+  digestAdSection: {
     maxWidth: 334,
+  },
+  digestAd: {
     backgroundColor: theme.palette.grey[200],
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default
@@ -82,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: 'wrap',
     alignItems: 'baseline',
     columnGap: 8,
-    rowGap: '8px'
+    rowGap: '12px'
   },
   digestFormInput: {
     flexGrow: 1,
@@ -118,6 +124,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postTitle: {
     fontWeight: 600,
+    // lineHeight: '18px',
     // marginBottom: 1
   },
   postTitleLink: {
@@ -254,7 +261,7 @@ const DigestAd = ({classes}: {
     </EAButton>
   )
   
-  return <div className={classes.section}>
+  return <div className={classNames(classes.section, classes.digestAdSection)}>
     <div className={classes.digestAd}>
       <div className={classes.digestAdHeadingRow}>
         <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
@@ -334,7 +341,7 @@ export const EAHomeSidebar = ({classes}: {
     terms: {
       view: "magic",
       filterSettings: {tags: [{
-        tagId: 'uRdzfbywnyQ6JkJqK', // TODO replace
+        tagId: 'uRdzfbywnyQ6JkJqK', //'z8qFsGt5iXyZiLbjN', // TODO replace
         filterMode: 'Required'
       }]},
       after: dateCutoff,
@@ -366,12 +373,18 @@ export const EAHomeSidebar = ({classes}: {
   
   const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, PostsAuthors, ForumIcon } = Components
   
+  // NoSSR sections that could affect the logged out user cache
+  let digestAdNode = <DigestAd classes={classes} />
+  let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
+  if (!currentUser) {
+    digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
+    upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
+  }
+
   const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <div className={classes.root}>
-    <NoSSR>
-      <DigestAd classes={classes} />
-    </NoSSR>
+    {digestAdNode}
     <div className={classes.section}>
       <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
       <div>
@@ -409,13 +422,11 @@ export const EAHomeSidebar = ({classes}: {
         </div>
       </div>)}
       <div>
-        <Link to="/topics/take-action" className={classes.viewMore}>View more</Link>
+        <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
       </div>
     </div>}
     
-    <NoSSR>
-      <UpcomingEventsSection classes={classes} />
-    </NoSSR>
+    {upcomingEventsNode}
     
     {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
       <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
