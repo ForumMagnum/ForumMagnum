@@ -3,6 +3,7 @@ import Spotlights from "./collection";
 
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
+
   }
 }
 
