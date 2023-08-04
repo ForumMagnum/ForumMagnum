@@ -12,22 +12,22 @@ const TypeformScript: FC = () => (
 const useTypeformCallback = (
   widgetId: string,
   event: "close" | "submit",
-  onClose?: () => void,
+  onEvent?: () => void,
 ) => {
   const callbackName = `fm_tf_on_${event}_${widgetId}`;
   useEffect(() => {
-    if (onClose) {
+    if (onEvent) {
       // Typeform needs to be supplied with a function name that is defined on
       // the window object
       // @ts-ignore
-      window[callbackName] = onClose;
+      window[callbackName] = onEvent;
       return () => {
         // @ts-ignore
         delete window[callbackName];
       };
     }
-  }, [callbackName, onClose]);
-  return onClose ? {[`data-tf-on-${event}`]: callbackName} : {};
+  }, [callbackName, onEvent]);
+  return onEvent ? {[`data-tf-on-${event}`]: callbackName} : {};
 }
 
 export const TypeformStandardEmbed: FC<{
