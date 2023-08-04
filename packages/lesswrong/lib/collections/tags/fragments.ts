@@ -270,6 +270,7 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
+    isPostType
     parentTag {
       ...TagBasicInfo
     }

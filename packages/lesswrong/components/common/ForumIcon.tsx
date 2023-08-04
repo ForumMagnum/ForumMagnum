@@ -88,6 +88,7 @@ import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
+import { BoldLinkIcon } from "../icons/boldLink";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -108,6 +109,7 @@ export type ForumIconName =
   "BellBorder" |
   "AddEmoji" |
   "Link" |
+  "BoldLink" |
   "Pin" |
   "Author" |
   "Sprout" |
@@ -167,6 +169,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
@@ -225,6 +228,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,

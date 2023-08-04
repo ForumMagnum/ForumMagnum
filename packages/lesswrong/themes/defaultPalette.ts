@@ -200,6 +200,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     warning: "#832013",
     red: "#ff0000",
     alwaysWhite: "#fff",
+    alwaysBlack: "#000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color

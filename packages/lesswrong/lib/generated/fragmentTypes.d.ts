@@ -455,6 +455,7 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly slug: string,
   readonly oldSlugs: Array<string>,
   readonly core: boolean,
+  readonly isPostType: boolean,
   readonly suggestedAsFilter: boolean,
   readonly defaultOrder: number,
   readonly descriptionTruncationCount: number,
@@ -544,6 +545,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -904,6 +906,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -2284,6 +2287,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
+  readonly isPostType: boolean,
   readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
@@ -2430,6 +2434,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
+  readonly reviewedByUserId: string,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users

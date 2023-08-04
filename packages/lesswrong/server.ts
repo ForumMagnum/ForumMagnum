@@ -53,6 +53,7 @@ import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
 import './server/scripts/removeRsvp';
+import './server/scripts/regenerateUnicodeSlugs';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';

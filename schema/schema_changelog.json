@@ -263,5 +263,15 @@
     "acceptsSchemaHash": "1f4a770fddeffde4615bb22682170332",
     "acceptedByMigration": "20230719T202158.top_level_comment_count.ts",
     "timestamp": "2023-07-19T20:21:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edd4ae60c5320ea4aa4d4e87bf92cafe",
+    "acceptedByMigration": "20230724T113516.add_postCategory.ts",
+    "timestamp": "2023-07-24T11:35:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e7d890dadc54453234507be13698b7b7",
+    "acceptedByMigration": "20230727T122027.add_isPostType_field.ts",
+    "timestamp": "2023-07-27T12:20:27.000Z"
   }
 ]

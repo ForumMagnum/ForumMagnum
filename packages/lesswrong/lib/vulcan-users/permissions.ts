@@ -169,6 +169,13 @@ export const userOverNKarmaFunc = (n: number) => {
     }
 }
 
+export const userOverNKarmaOrApproved = (n: number) => {
+  return (user: UsersMinimumInfo|DbUser|null): boolean => {
+    if (!user) return false
+    return (user.karma > n || !!user.reviewedByUserId)
+  }
+}
+
 export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean => {
   if (!user) return false
   return !user.previousDisplayName

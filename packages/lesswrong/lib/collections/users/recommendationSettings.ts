@@ -62,8 +62,14 @@ export interface StrategySpecification extends StrategySettings {
 }
 
 export interface RecommendationsAlgorithmWithStrategy {
+  /** The strategy to use */
   strategy: StrategySpecification,
+  /** The maximum number of results to return */
   count?: number,
+  /** If the selected strategy fails to generate `count` results then, by
+   * default, we automatically switch to using a different strategy as a
+   * fallback. Set `disableFallbacks` to true to prevent this. */
+  disableFallbacks?: boolean,
 }
 
 export interface DefaultRecommendationsAlgorithm {

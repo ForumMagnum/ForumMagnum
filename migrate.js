@@ -8,7 +8,6 @@
  */
 require("ts-node/register");
 const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
-const { readFile } = require("fs").promises;
 
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
@@ -61,7 +60,7 @@ const settingsFileName = (mode, forum) => {
     }
     return 'settings-local-dev-devdb.json'
   }
-  return `settings-${mode}.json`;  
+  return `settings-${mode}.json`;
 };
 
 (async () => {
@@ -77,7 +76,7 @@ const settingsFileName = (mode, forum) => {
     mode = "dev";
   } else if (mode === "production") {
     mode = "prod";
-  } else if (!isRunCommand) {
+  } else if (!["up", "down", "pending", "executed"].includes(command)) {
     mode = "dev";
   }
 

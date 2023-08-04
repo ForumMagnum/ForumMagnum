@@ -38,6 +38,7 @@ registerFragment(`
     frontpageDate
     meta
     deletedDraft
+    postCategory
 
     shareWithUsers
     sharingSettings
