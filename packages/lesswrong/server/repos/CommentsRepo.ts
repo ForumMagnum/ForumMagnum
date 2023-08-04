@@ -80,9 +80,11 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     minScore?: number,
   }): Promise<DbComment[]> {
     return this.any(`
-      SELECT *
+      SELECT c.*
       FROM (
-        SELECT DISTINCT ON ("postId") *
+        SELECT DISTINCT ON ("postId")
+          "_id",
+          fm_comment_confidence("_id", 3) AS "confidence"
         FROM "Comments"
         WHERE
           CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
@@ -92,9 +94,10 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
           "needsReview" IS NOT TRUE
-        ORDER BY "postId"
-      ) c
-      ORDER BY fm_comment_confidence(c."_id", 3) DESC
+        ORDER BY "postId", "confidence" DESC
+      ) q
+      JOIN "Comments" c ON c."_id" = q."_id"
+      ORDER BY q."confidence" DESC
       OFFSET $2
       LIMIT $3
     `, [minScore, offset, limit]);
