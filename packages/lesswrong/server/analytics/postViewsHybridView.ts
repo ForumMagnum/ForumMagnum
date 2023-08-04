@@ -1,5 +1,7 @@
 import { registerHybridAnalyticsView } from "./hybridViews";
 
+export const POST_VIEWS_IDENTIFIER = "post_views";
+
 const viewQuery = (crossoverTime: Date, materialized = false) => `
     SELECT
       count(*) AS view_count,
@@ -24,8 +26,12 @@ const timeIndexGenerator = (viewName: string) => `
   CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
 `;
 
+const postIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_post_index" ON "${viewName}" (post_id);
+`;
+
 registerHybridAnalyticsView({
-  identifier: "post_views",
+  identifier: POST_VIEWS_IDENTIFIER,
   queryGenerator: viewQuery,
-  indexQueryGenerators: [uniqueIndexGenerator, timeIndexGenerator],
+  indexQueryGenerators: [uniqueIndexGenerator, timeIndexGenerator, postIndexGenerator],
 });

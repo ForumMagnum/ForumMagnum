@@ -30,7 +30,6 @@ const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01";
 const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {},
   postsListSection: {
     background: theme.palette.grey[0],
     padding: "24px 24px",
@@ -63,6 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     padding: "12px 4px 12px 0",
     fontWeight: 500,
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 11,
+    },
   },
   postsItem: {
     padding: "12px 4px 12px 12px",
@@ -77,15 +79,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   dateHeader: {
     justifyContent: "flex-start",
     display: "flex",
+  },
+  dateHeaderLabel: {
+    cursor: "pointer",
+    display: "flex",
     alignItems: "center",
-    cursor: "pointer"
   },
   valueHeader: {
     justifyContent: "center",
     display: "flex",
-    alignItems: "center",
+  },
+  valueHeaderLabel: {
     cursor: "pointer",
     marginLeft: 14,
+    display: "flex",
+    alignItems: "center",
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: 0,
+    }
   },
   valueCell: {
     textAlign: "center",
@@ -121,6 +132,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 2,
     // flip vertically
     transform: "scaleY(-1)",
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: 0,
+    }
   },
   desc: {
     transform: "scaleY(1)",
@@ -128,7 +142,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   hide: {
     // Set opacity: 0 rather than display: none to avoid layout shift
     opacity: 0,
-  }
+    [theme.breakpoints.down("xs")]: {
+      // On mobile: accept some layout shift in return for having more space
+      display: "none",
+    }
+  },
 });
 
 const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; classes: ClassesType }) => {
@@ -146,13 +164,14 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
         <div className={classes.postSubtitle}>
           {timeFromNow}
           {ago}
-          {" · "}<Link to={postAnalyticsLink}>view post stats</Link>
+          {" · "}
+          <Link to={postAnalyticsLink}>view post stats</Link>
         </div>
       </div>
-      <div className={classes.valueCell}>{post.views}</div>
-      <div className={classes.valueCell}>{post.reads}</div>
-      <div className={classes.valueCell}>{post.karma}</div>
-      <div className={classes.valueCell}>{post.comments}</div>
+      <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
+      <div className={classes.valueCell}>{post.reads.toLocaleString()}</div>
+      <div className={classes.valueCell}>{post.karma.toLocaleString()}</div>
+      <div className={classes.valueCell}>{post.comments.toLocaleString()}</div>
     </div>
   );
 };
@@ -229,6 +248,21 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const posts = authorAnalytics?.posts || [];
 
+  const renderHeaderCell = (headerField: string, label: string) => (
+    <div onClick={() => onClickHeader(headerField)} className={classes.valueHeader}>
+      <div className={classes.valueHeaderLabel}>
+        {label}
+        <ForumIcon
+          className={classNames(classes.sortArrow, {
+            [classes.desc]: sortDesc,
+            [classes.hide]: sortBy !== headerField,
+          })}
+          icon="NarrowArrowDown"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <>
       <HeadTags title={title} />
@@ -240,25 +274,21 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
           </Typography>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
-              Date
-              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "postedAt"})} icon="NarrowArrowDown" />
+              <div className={classes.dateHeaderLabel}>
+                Date
+                <ForumIcon
+                  className={classNames(classes.sortArrow, {
+                    [classes.desc]: sortDesc,
+                    [classes.hide]: sortBy !== "postedAt",
+                  })}
+                  icon="NarrowArrowDown"
+                />
+              </div>
             </div>
-            <div onClick={() => onClickHeader("views")} className={classes.valueHeader}>
-              Views
-              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "views"})} icon="NarrowArrowDown" />
-            </div>
-            <div onClick={() => onClickHeader("reads")} className={classes.valueHeader}>
-              Reads
-              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "reads"})} icon="NarrowArrowDown" />
-            </div>
-            <div onClick={() => onClickHeader("baseScore")} className={classes.valueHeader}>
-              Karma
-              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "baseScore"})} icon="NarrowArrowDown" />
-            </div>
-            <div onClick={() => onClickHeader("commentCount")} className={classes.valueHeader}>
-              Comments
-              <ForumIcon className={classNames(classes.sortArrow, {[classes.desc]: sortDesc, [classes.hide]: sortBy !== "commentCount"})} icon="NarrowArrowDown" />
-            </div>
+            {renderHeaderCell("views", "Views")}
+            {renderHeaderCell("reads", "Reads")}
+            {renderHeaderCell("baseScore", "Karma")}
+            {renderHeaderCell("commentCount", "Comments")}
           </div>
           {posts.map((post) => (
             <AnalyticsPostItem key={post._id} post={post} classes={classes} />

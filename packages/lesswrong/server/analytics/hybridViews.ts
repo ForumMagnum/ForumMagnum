@@ -43,7 +43,9 @@ type HybridViewParams = {
   queryGenerator: (after: Date, materialized: boolean) => string;
   /**
    * Array of functions that generate index queries, given the view name. You must provide at least one
-   * UNIQUE index, without this it isn't possible to refresh the view without locking the table.
+   * UNIQUE index, without this it isn't possible to refresh the view without locking the table. They
+   * should also all include "IF NOT EXISTS", not including this will cause errors to be logged (although
+   * it will still work).
    */
   indexQueryGenerators: ((viewName: string) => string)[];
   /**
@@ -74,8 +76,7 @@ export class HybridView {
 
     this.queryGenerator = queryGenerator;
     const allTimeQuery = queryGenerator(new Date(0), true);
-    const indexQuerySignatures = indexQueryGenerators.map((generator) => generator("view_name"));
-    const versionSignature = `${allTimeQuery}::${indexQuerySignatures.join("::")}`;
+    const versionSignature = `${allTimeQuery}`;
 
     this.versionHash = crypto.createHash("sha256").update(versionSignature).digest("hex").slice(0, 16);
     this.identifier = identifier;
@@ -122,26 +123,7 @@ export class HybridView {
     `);
   }
 
-  async ensureView() {
-    if (await this.viewExists()) {
-      // eslint-disable-next-line no-console
-      console.log(`Materialized view for ${this.identifier} already exists`);
-      return;
-    }
-
-    const createInProgress = await this.createInProgress();
-    if (createInProgress) {
-      const duration = createInProgress.duration;
-      // eslint-disable-next-line no-console
-      console.log(`Materialized view for ${this.identifier} is already in the process of being created. Query has been running for: ${duration}`);
-      return;
-    }
-
-    // Create the materialized view, filtering by a date in the distant past to include all rows
-    await this.viewSqlClient.none(
-      `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0), true)})`
-    );
-
+  async dropOldVersions() {
     // Drop older versions of this view, if this fails just continue
     try {
       const olderViews = await this.viewSqlClient.manyOrNone<{matviewname: string}>(
@@ -154,6 +136,27 @@ export class HybridView {
       // eslint-disable-next-line no-console
       console.error(e);
     }
+  }
+
+  async ensureView() {
+    if (await this.viewExists()) {
+      await this.dropOldVersions();
+      return;
+    }
+
+    const createInProgress = await this.createInProgress();
+    if (createInProgress) {
+      // eslint-disable-next-line no-console
+      console.log(`Materialized view for ${this.identifier} is already in the process of being created.`);
+      return;
+    }
+
+    // Create the materialized view, filtering by a date in the distant past to include all rows
+    await this.viewSqlClient.none(
+      `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0), true)})`
+    );
+
+    await this.dropOldVersions();
   }
 
   async ensureIndexes() {
@@ -178,9 +181,9 @@ export class HybridView {
   async refreshMaterializedView() {
     if (!(await this.viewExists())) {
       await this.ensureView();
+      await this.ensureIndexes();
     } else {
       await this.ensureIndexes();
-      
       await this.viewSqlClient.none(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.matViewName}"`);
     }
   }

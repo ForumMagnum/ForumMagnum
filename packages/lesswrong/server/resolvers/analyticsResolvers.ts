@@ -1,7 +1,7 @@
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, viewFieldAllowAny } from "../vulcan-lib";
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/users/useAuthorAnalytics";
@@ -11,6 +11,8 @@ import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { post } from "request";
 import chunk from "lodash/chunk";
 import { inspect } from "util";
+import { POST_VIEWS_IDENTIFIER } from "../analytics/postViewsHybridView";
+import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -244,8 +246,8 @@ addGraphQLResolvers({
         };
       }
 
-      const postViewsView = getHybridView("post_views");
-      const postViewTimesView = getHybridView("post_view_times");
+      const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
+      const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
 
       if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
 
@@ -279,18 +281,6 @@ addGraphQLResolvers({
       }
 
       async function runReadsQuery(batch: string[]) {
-        // console.log(`
-        //   SELECT
-        //     post_id AS _id,
-        //     -- A "read" is anything with a reading_time over 30 seconds
-        //     sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
-        //   FROM
-        //     (${postViewTimesTable}) q
-        //   WHERE
-        //     ${generateOrConditionQuery("post_id", batch)}
-        //   GROUP BY
-        //     post_id;
-        // `)
         const readsResult = await analyticsDb.any<{ _id: string; total_read_count: number }>(
           `
           SELECT
