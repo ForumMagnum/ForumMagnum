@@ -58,7 +58,7 @@ const schema: SchemaType<DbSpotlight> = {
       }
     },
   },
-
+  
   /**
    * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
    * Note subtle distinction: those are type names, not collection names.
