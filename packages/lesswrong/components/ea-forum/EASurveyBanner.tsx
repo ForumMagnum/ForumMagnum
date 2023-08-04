@@ -69,7 +69,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
     captureEvent("ea_forum_survey_banner_dismissed");
   }, [hideBanner, captureEvent]);
 
-  const onCloseSurvey = useCallback(() => {
+  const onSubmitSurvey = useCallback(() => {
     hideBanner();
     captureEvent("ea_forum_survey_closed");
   }, [hideBanner, captureEvent]);
@@ -90,7 +90,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
           domain="cea-core.typeform.com"
           title="EA Forum survey"
           label="Take the survey"
-          onClose={onCloseSurvey}
+          onSubmit={onSubmitSurvey}
           className={classes.button}
         />
         <ForumIcon

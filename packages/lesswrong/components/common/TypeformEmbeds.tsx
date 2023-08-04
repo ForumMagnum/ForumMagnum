@@ -1,17 +1,20 @@
 import React, { FC, useEffect } from "react";
 import Helmet from "react-helmet";
 
+type TypeformParameters = Record<string, boolean | string>;
+
 const TypeformScript: FC = () => (
   <Helmet>
     <script src="https://embed.typeform.com/next/embed.js" />
   </Helmet>
 );
 
-const useTypeformOnCloseCallback = (
+const useTypeformCallback = (
   widgetId: string,
+  event: "close" | "submit",
   onClose?: () => void,
 ) => {
-  const callbackName = `fm_tf_on_close_${widgetId}`;
+  const callbackName = `fm_tf_on_${event}_${widgetId}`;
   useEffect(() => {
     if (onClose) {
       // Typeform needs to be supplied with a function name that is defined on
@@ -24,14 +27,14 @@ const useTypeformOnCloseCallback = (
       };
     }
   }, [callbackName, onClose]);
-  return onClose ? {"data-tf-on-close": callbackName} : {};
+  return onClose ? {[`data-tf-on-${event}`]: callbackName} : {};
 }
 
 export const TypeformStandardEmbed: FC<{
   widgetId: string,
   domain?: string,
   title: string,
-  parameters?: Record<string, boolean | string>,
+  parameters?: TypeformParameters,
   className?: string,
 }> = ({widgetId, domain, title, parameters, className}) => (
   <>
@@ -53,7 +56,7 @@ export const TypeformFullPageEmbed: FC<{
   widgetId: string,
   title: string,
   domain?: string,
-  parameters?: Record<string, boolean | string>,
+  parameters?: TypeformParameters,
   className?: string,
 }> = ({widgetId, domain, title, parameters, className}) => (
   <TypeformStandardEmbed
@@ -76,10 +79,12 @@ export const TypeformPopupEmbed: FC<{
   title: string,
   label?: string,
   onClose?: () => void,
-  parameters?: Record<string, boolean | string>,
+  onSubmit?: () => void,
+  parameters?: TypeformParameters,
   className?: string,
-}> = ({widgetId, domain, title, label, onClose, parameters, className}) => {
-  const onCloseProps = useTypeformOnCloseCallback(widgetId, onClose);
+}> = ({widgetId, domain, title, label, onClose, onSubmit, parameters, className}) => {
+  const onCloseProps = useTypeformCallback(widgetId, "close", onClose);
+  const onSubmitProps = useTypeformCallback(widgetId, "submit", onSubmit);
   return (
     <>
       <TypeformScript />
@@ -93,6 +98,7 @@ export const TypeformPopupEmbed: FC<{
         data-tf-medium="snippet"
         className={className}
         {...onCloseProps}
+        {...onSubmitProps}
         {...parameters}
       >
         {label ?? title}
@@ -116,7 +122,8 @@ export const TypeformSideEmbed: FC<{
   title: string,
   label?: string,
   onClose?: () => void,
-  parameters?: Record<string, boolean | string>,
+  onSubmit?: () => void,
+  parameters?: TypeformParameters,
   openBehaviour?: TypeformSideEmbedOpenBehaviour,
   className?: string,
 }> = ({
@@ -125,11 +132,13 @@ export const TypeformSideEmbed: FC<{
   title,
   label,
   onClose,
+  onSubmit,
   parameters,
   openBehaviour = "onClick",
   className,
 }) => {
-  const onCloseProps = useTypeformOnCloseCallback(widgetId, onClose);
+  const onCloseProps = useTypeformCallback(widgetId, "close", onClose);
+  const onSubmitProps = useTypeformCallback(widgetId, "submit", onSubmit);
   const tfOpen = openBehaviour === "onClick"
     ? undefined
     : (openBehaviour === "onLoad" ? "load" : "scroll");
@@ -151,6 +160,7 @@ export const TypeformSideEmbed: FC<{
         data-tf-open-value={tfOpenValue}
         className={className}
         {...onCloseProps}
+        {...onSubmitProps}
         {...parameters}
       >
         {label ?? title}
