@@ -57,7 +57,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
 
   const hideBanner = useCallback(() => {
     setCookie(cookieName, "true", {
-      expires: moment().add(10, "years").toDate(),
+      expires: moment().add(3, "months").toDate(),
     });
   }, [cookieName, setCookie]);
 
