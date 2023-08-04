@@ -9,7 +9,7 @@ import Table from "./Table";
 class UpdateDefaultValueQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table<T>, fieldName: string) {
     const fields = table.getFields();
-    if (fields[fieldName]) {
+    if (!fields[fieldName]) {
       throw new Error(`Table does not have field ${fieldName}`)
     }
     const defaultValue = fields[fieldName].getDefaultValueString();
