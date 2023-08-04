@@ -29,13 +29,6 @@ async function queryClaude(prompt: string) {
   });
 }
 
-type AIResponse = {
-  docId: string,
-  docTitle: string,
-  type: string,
-  result: string|undefined
-}
-
 async function createArtDescription(post: DbPost) {
   const queryImageRoot = `
 
