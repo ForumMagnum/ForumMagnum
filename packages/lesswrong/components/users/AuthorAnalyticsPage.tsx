@@ -24,7 +24,7 @@ const gridColumns = (titleWidth: number) =>
   )}%`;
 
 // lw-look-here
-// TODO we need to handle these once the graph is added in?
+// TODO we need to handle these once the graph is added back in
 const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021";
 const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01";
 const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020";

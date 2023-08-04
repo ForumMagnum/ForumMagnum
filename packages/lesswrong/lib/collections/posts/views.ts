@@ -194,9 +194,6 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
     },
     options: {},
   }
-  if (terms.postIds && terms.postIds.length) {
-    params.selector._id = {$in: terms.postIds}
-  }
   // TODO: Use default threshold in default view
   // TODO: Looks like a bug in cases where karmaThreshold = 0, because we'd
   // still want to filter.

@@ -194,9 +194,9 @@ addGraphQLResolvers({
       // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
       // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
       // many ids at once it will try to filter by timestamp first and then sequentially scan to filter
-      // by post_id, which is much slower.
+      // by post_id, which is much (much!) slower.
       const MAX_CONCURRENT_QUERIES = 8;
-      const BATCH_SIZE = 10;
+      const BATCH_SIZE = 5;
       
       // Directly sortable fields can be sorted and filtered on before querying the analytics database,
       // so we can avoid querying for most of the post ids. Indirectly sortable fields are calculated
@@ -279,6 +279,18 @@ addGraphQLResolvers({
       }
 
       async function runReadsQuery(batch: string[]) {
+        // console.log(`
+        //   SELECT
+        //     post_id AS _id,
+        //     -- A "read" is anything with a reading_time over 30 seconds
+        //     sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
+        //   FROM
+        //     (${postViewTimesTable}) q
+        //   WHERE
+        //     ${generateOrConditionQuery("post_id", batch)}
+        //   GROUP BY
+        //     post_id;
+        // `)
         const readsResult = await analyticsDb.any<{ _id: string; total_read_count: number }>(
           `
           SELECT
