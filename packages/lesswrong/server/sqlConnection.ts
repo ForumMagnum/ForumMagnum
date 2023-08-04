@@ -242,6 +242,7 @@ const onConnectQueries: string[] = [
     FROM "Comments" c
     JOIN "Votes" v ON
       v."documentId" = c."_id" AND
+      v."collectionType" = 'Comments' AND
       v."isUnvote" IS NOT TRUE AND
       v."cancelled" IS NOT TRUE
     WHERE c."_id" = comment_id;
