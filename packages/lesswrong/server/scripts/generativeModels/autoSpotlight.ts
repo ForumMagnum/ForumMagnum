@@ -6,7 +6,7 @@ import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
 import Anthropic from '@anthropic-ai/sdk';
 import Spotlights from "../../../lib/collections/spotlights/collection";
 
-const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "required")
+const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
 async function queryClaude(prompt: string) {
   const anthropic = new Anthropic({
@@ -103,7 +103,7 @@ async function createSpotlights() {
 
     for (const [i, post] of Object.entries(spotlightPosts)) {
       // eslint-disable-next-line no-console
-      console.log(i, spotlightPosts.length, post.title)
+      console.log(i, posts.length, post.title)
       const summaries =  await Promise.all([...createSpotlightDescription(post), createArtDescription(post)])
       const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
             
