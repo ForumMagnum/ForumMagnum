@@ -39,24 +39,24 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 };
 
 const schema: SchemaType<DbSpotlight> = {
-documentId: {
-type: String,
-canRead: ['guests'],
-canUpdate: ['admins', 'sunshineRegiment'],
-canCreate: ['admins', 'sunshineRegiment'],
-order: 10,
-resolveAs: {
-fieldName: 'document',
-addOriginalField: true,
-// TODO: try a graphql union type?
-type: 'Post!',
-resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
-  const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
-  const collection = context[collectionName];
-  const document = await collection.findOne(spotlight.documentId);
-  return accessFilterSingle(context.currentUser, collection, document, context);
-}
-},
+  documentId: {
+  type: String,
+  canRead: ['guests'],
+  canUpdate: ['admins', 'sunshineRegiment'],
+  canCreate: ['admins', 'sunshineRegiment'],
+  order: 10,
+  resolveAs: {
+  fieldName: 'document',
+  addOriginalField: true,
+  // TODO: try a graphql union type?
+  type: 'Post!',
+  resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
+      const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
+      const collection = context[collectionName];
+      const document = await collection.findOne(spotlight.documentId);
+      return accessFilterSingle(context.currentUser, collection, document, context);
+    }
+  },
 },
 
 /**

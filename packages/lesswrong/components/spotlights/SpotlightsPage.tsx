@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
-import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   form: {
@@ -22,15 +20,11 @@ export const SpotlightsPage = ({classes}: {
 
   const currentUser = useCurrentUser();
 
-  const {query} = useLocation()
-
   const { results: spotlights = [], loading, refetch } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: "spotlightsPage",
-      after: query?.after,
-      draft: query?.draft ? true : undefined,
       limit: 100
     },
     fetchPolicy: 'network-only',
