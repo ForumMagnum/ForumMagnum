@@ -12,8 +12,10 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from '../../lib/cookies/cookies';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -155,6 +157,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "fixed !important",
     },
   },
+  headroomWithTopBanner: {
+    "& .headroom": {
+      top: "unset",
+    },
+  },
 });
 
 const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
@@ -175,7 +182,12 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
-  
+  const [cookies] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
+
+  // Force the header to stay at the top on the EA forum when we show the
+  // survey banner
+  // TODO: Revert this when we remove the survey banner!
+  const hasTopBanner = isEAForum && cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] !== true;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -273,7 +285,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
     </React.Fragment>
   }
 
-  const hasLogo = forumTypeSetting.get() === 'EAForum'
+  const hasLogo = isEAForum;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -294,16 +306,16 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
           disableInlineStyles
           downTolerance={10} upTolerance={10}
           height={64}
-          className={classNames(
-            classes.headroom,
-            { [classes.headroomPinnedOpen]: searchOpen }
-          )}
+          className={classNames(classes.headroom, {
+            [classes.headroomPinnedOpen]: searchOpen,
+            [classes.headroomWithTopBanner]: hasTopBanner,
+          })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
           <header className={classes.appBar}>
-            <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
+            <Toolbar disableGutters={isEAForum}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
