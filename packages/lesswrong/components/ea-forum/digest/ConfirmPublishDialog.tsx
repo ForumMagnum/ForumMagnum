@@ -1,11 +1,8 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import DialogContent from '@material-ui/core/DialogContent';
-import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import classNames from 'classnames';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,15 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginBottom: 14
   },
-  btn: {
-    fontSize: 14,
-    textTransform: 'none',
-    boxShadow: 'none'
-  },
-  btnPrimary: {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-  }
 })
 
 const ConfirmPublishDialog = ({ digest, onClose, classes }: {
@@ -55,9 +43,11 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
     })
     onClose?.()
   }
+  
+  const { LWDialog, EAButton } = Components
 
   return (
-    <Components.LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
+    <LWDialog open onClose={onClose} dialogClasses={{paper: classes.root}}>
       <DialogContent className={classes.text}>
         <div className={classes.heading}>
           Are you sure you want to publish this digest?
@@ -68,14 +58,14 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
         </div>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" color="primary" onClick={onClose} className={classes.btn}>
+        <EAButton variant="outlined" onClick={onClose}>
           Cancel
-        </Button>
-        <Button variant="contained" color="primary" onClick={handlePublish} className={classNames(classes.btn, classes.btnPrimary)}>
+        </EAButton>
+        <EAButton onClick={handlePublish}>
           Publish
-        </Button>
+        </EAButton>
       </DialogActions>
-    </Components.LWDialog>
+    </LWDialog>
   )
 }
 
