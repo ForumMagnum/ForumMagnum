@@ -194,7 +194,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     const voteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName"`
     const votes = await this.getRawDb().any(`
       (
-        SELECT ${voteFields}, "Posts"."postedAt"
+        SELECT ${voteFields}, "Posts"."postedAt", "Posts"."baseScore" AS "totalDocumentKarma"
         FROM "Votes"
         JOIN "Posts" on "Posts"._id = "Votes"."documentId"
         WHERE
@@ -213,7 +213,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
       UNION
       (
-        SELECT ${voteFields}, "Comments"."postedAt"
+        SELECT ${voteFields}, "Comments"."postedAt", "Comments"."baseScore" AS "totalDocumentKarma"
         FROM "Votes"
         JOIN "Comments" on "Comments"._id = "Votes"."documentId"
         WHERE

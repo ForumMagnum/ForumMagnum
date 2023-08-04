@@ -1,11 +1,10 @@
-import algoliasearch, { Client } from "algoliasearch/lite";
+import type { Client } from "algoliasearch/lite";
 import NativeSearchClient from "./NativeSearchClient";
 import {
   algoliaAppIdSetting,
   algoliaSearchKeySetting,
   algoliaPrefixSetting,
 } from '../publicSettings';
-import { userHasElasticsearch } from "../betas";
 
 export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
@@ -32,16 +31,6 @@ export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSe
 
 let searchClient: Client | null = null;
 
-const getAlgoliaSearchClient = (): Client | null => {
-  const algoliaAppId = algoliaAppIdSetting.get()
-  const algoliaSearchKey = algoliaSearchKeySetting.get()
-  if (!algoliaAppId || !algoliaSearchKey)
-    return null;
-  if (!searchClient)
-    searchClient = algoliasearch(algoliaAppId, algoliaSearchKey);
-  return searchClient;
-}
-
 const getNativeSearchClient = (): Client | null => {
   if (!searchClient) {
     searchClient = new NativeSearchClient();
@@ -50,9 +39,7 @@ const getNativeSearchClient = (): Client | null => {
 }
 
 export const getSearchClient = (): Client => {
-  const client = userHasElasticsearch(null)
-    ? getNativeSearchClient()
-    : getAlgoliaSearchClient();
+  const client = getNativeSearchClient();
   if (!client) {
     throw new Error("Couldn't initialize search client");
   }

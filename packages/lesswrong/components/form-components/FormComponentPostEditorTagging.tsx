@@ -204,6 +204,7 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
                 onTagSelected={onTagSelected}
                 onTagRemoved={onTagRemoved}
                 displaySelected="highlight"
+                shortNames
               />
             </>
           }
