@@ -250,6 +250,7 @@ const Layout = ({currentUser, children, classes}: {
       HomepageCommunityMap,
       CookieBanner,
       AdminToggle,
+      EASurveyBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -313,7 +314,9 @@ const Layout = ({currentUser, children, classes}: {
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
-              
+
+              {isEAForum && <EASurveyBanner />}
+
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}

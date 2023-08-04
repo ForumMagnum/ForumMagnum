@@ -1,6 +1,6 @@
 import { getCollectionHooks } from '../mutationCallbacks';
 import Digests from '../../lib/collections/digests/collection';
-import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { createMutator } from '../vulcan-lib/mutators';
 
 getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, context}: {newDocument: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
   // if we are not currently publishing this digest, skip
@@ -25,30 +25,18 @@ getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, 
   // if we change a digest's start date, make sure to update the preceeding digest's end date to match,
   // so that we don't miss any eligible posts
   if (newDocument.startDate && newDocument.startDate !== oldDocument.startDate) {
-    void updateMutator({
-      collection: Digests,
-      selector: {
-        num: newDocument.num - 1,
-      },
-      set: {
-        endDate: newDocument.startDate,
-      },
-      validate: false,
-    });
+    await Digests.rawUpdateOne(
+      {num: newDocument.num - 1},
+      {$set: {endDate: newDocument.startDate}},
+    );
   }
 
   // if we change a digest's end date, make sure to update any subsequent digest's start date to match,
   // so that we don't miss any eligible posts
   if (newDocument.endDate && newDocument.endDate !== oldDocument.endDate) {
-    void updateMutator({
-      collection: Digests,
-      selector: {
-        num: newDocument.num + 1,
-      },
-      set: {
-        startDate: newDocument.endDate,
-      },
-      validate: false,
-    });
+    await Digests.rawUpdateOne(
+      {num: newDocument.num + 1},
+      {$set: {startDate: newDocument.endDate}},
+    );
   }
 });

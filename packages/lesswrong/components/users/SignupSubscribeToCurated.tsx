@@ -4,15 +4,17 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
+  checkboxLabel: {
     ...theme.typography.body2,
     marginBottom: 10,
     whiteSpace: 'nowrap',
     display: 'flex',
     alignItems: 'center',
-    marginTop: 4
+    marginTop: 4,
+    cursor: 'pointer'
   },
   checkbox: {
     paddingLeft: 0,
@@ -42,20 +44,22 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
     'the EA Forum weekly digest email' : 'Curated posts';
 
   return <div className={classes.root}>
-    <Checkbox
-      checked={checked}
-      className={classes.checkbox}
-      onChange={(ev, newChecked) => {
-        setChecked(newChecked)
-        onChange(newChecked)
-      }}
-    />
-    Subscribe to {emailType}
-    {forumTypeSetting.get() !== 'EAForum' && (
-      <Tooltip title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
-        <Info className={classes.infoIcon}/>
-      </Tooltip>
-    )}
+    <InputLabel className={classes.checkboxLabel}>
+      <Checkbox
+        checked={checked}
+        className={classes.checkbox}
+        onChange={(ev, newChecked) => {
+          setChecked(newChecked)
+          onChange(newChecked)
+        }}
+      />
+      Subscribe to {emailType}
+      {forumTypeSetting.get() !== 'EAForum' && (
+        <Tooltip title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
+          <Info className={classes.infoIcon}/>
+        </Tooltip>
+      )}
+    </InputLabel>
   </div>
 }
 

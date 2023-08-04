@@ -15,7 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height:0
   },
   inline: {
-    display:"inline",
+    display: "inline",
+    cursor: "pointer",
   }
 })
 
