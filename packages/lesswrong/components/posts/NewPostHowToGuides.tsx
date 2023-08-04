@@ -1,8 +1,8 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import type { ForumIconName } from "../common/ForumIcon";
 import { Link } from "../../lib/reactRouterWrapper";
+import type { ForumIconName } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,6 +27,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     fontSize: 14,
     marginTop: 14,
+    "& svg": {
+      fontSize: "1.5em",
+    },
+    "&:hover": {
+      color: theme.palette.primary.light,
+      opacity: 1,
+    },
   },
 });
 
