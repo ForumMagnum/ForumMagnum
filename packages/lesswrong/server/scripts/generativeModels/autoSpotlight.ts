@@ -110,7 +110,7 @@ async function createSpotlights() {
 
     for (const [i, post] of Object.entries(spotlightPosts)) {
       // eslint-disable-next-line no-console
-      console.log(i, posts.length, post.title)
+      console.log(i, spotlightPosts.length, post.title)
       const summaries =  await Promise.all([...createSpotlightDescription(post), createArtDescription(post)])
       const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
             
