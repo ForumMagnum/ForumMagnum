@@ -378,6 +378,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
+importComponent("NewPostHowToGuides", () => require('../components/posts/NewPostHowToGuides'));
 importComponent("PostsEditBotTips", () => require('../components/posts/PostsEditBotTips'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));

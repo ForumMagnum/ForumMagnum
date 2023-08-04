@@ -171,9 +171,11 @@ const PostsNewForm = ({classes}: {
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
-  
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
+
+  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    RecaptchaWarning, SingleColumnSection, PostsAcceptTos, NewPostHowToGuides,
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning,
+  } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -250,7 +252,8 @@ const PostsNewForm = ({classes}: {
   return (
     <div className={classes.postForm}>
       <RecaptchaWarning currentUser={currentUser}>
-        <Components.PostsAcceptTos currentUser={currentUser} />
+        <PostsAcceptTos currentUser={currentUser} />
+        {isEAForum && <NewPostHowToGuides />}
         {postWillBeHidden && <NewPostModerationWarning />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
