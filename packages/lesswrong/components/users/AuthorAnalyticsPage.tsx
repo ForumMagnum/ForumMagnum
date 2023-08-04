@@ -238,7 +238,11 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon } = Components;
 
-  if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
+  // TODO: This is admin/mod gated while in development. Uncomment below when it is ready for public use.
+  // if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
+  //   return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
+  // }
+  if (!userIsAdminOrMod(currentUser)) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
   }
 
