@@ -8,6 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "absolute",
     right: 100, // TODO: Proper positioning
+    top: 150,
     background: theme.palette.primaryAlpha(0.1),
     color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -15,16 +16,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
   },
   title: {
-    fontWeight: 600,
+    fontWeight: 700,
     fontSize: 16,
-    marginBottom: 12,
+    paddingBottom: 6,
   },
   howToGuide: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "12px",
     fontWeight: 500,
     fontSize: 14,
+    marginTop: 14,
   },
 });
 
@@ -36,8 +38,18 @@ type HowToGuide = {
 
 const guides: HowToGuide[] = [
   {
-    icon: "Close",
+    icon: "Document",
     label: "Import Google Doc with footnotes",
+    url: "#",
+  },
+  {
+    icon: "Image",
+    label: "Add images, videos, graphs",
+    url: "#",
+  },
+  {
+    icon: "PencilSquare",
+    label: "Write productive criticism",
     url: "#",
   },
 ];
