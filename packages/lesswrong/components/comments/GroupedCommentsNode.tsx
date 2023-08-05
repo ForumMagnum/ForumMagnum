@@ -11,6 +11,8 @@ import sumBy from 'lodash/sumBy';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...singleLineStyles(theme),
+    marginBottom: 2,
+    paddingLeft: 3,
   },
   odd: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -21,6 +23,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   contents: {
     display: "flex",
     width: "100%",
+    marginTop: 6,
+    marginLeft: 5,
+    marginBottom: 4,
   },
   groupedCommentsExceptLast: {
     flexShrink: 1,
@@ -29,6 +34,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     //textOverflow: "ellipsis",
   },
   lastGroupedComment: {
+    flexShrink: 0,
+    flexGrow: 1,
   },
   commentCount: {
   },
@@ -36,10 +43,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   groupedComment: {
     color: theme.palette.text.dim60,
+    border: theme.palette.border.commentBorder,
+    marginRight: 4,
+    padding: 4,
+    borderRadius: 2,
+  },
+  groupedCommentOdd: {
+    backgroundColor: theme.palette.panelBackground.commentNodeOdd,
+  },
+  groupedCommentEven: {
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
   },
   separator: {
-    marginLeft: 7,
-    marginRight: 7,
+    marginLeft: 4,
+    marginRight: 6,
     fontSize: 20,
     verticalAlign: "baseline",
     position: "relative",
@@ -60,9 +77,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const GroupedCommentsNode = ({groupedComments, treeOptions, nestingLevel, hideKarma=false, classes}: {
+const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nestingLevel, hideKarma=false, classes}: {
   groupedComments: CommentsList[],
-  //childComments: CommentTreeNode<CommentsList>[],
+  childComments: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
   nestingLevel: number,
   hideKarma?: boolean,
@@ -70,16 +87,23 @@ const GroupedCommentsNode = ({groupedComments, treeOptions, nestingLevel, hideKa
 }) => {
   const { PostsItemComments } = Components;
   const commentPoolContext = useContext(CommentPoolContext);
-  const hiddenCommentCount = sumBy(groupedComments, c=>c.directChildrenCount-1);
   const groupedCommentsExceptLast = groupedComments.slice(0, groupedComments.length-1);
   const lastGroupedComment = groupedComments[groupedComments.length-1];
+
+  // Count up off-chain hidden comments. Uses descendentCount, and subtracts the
+  // number of comments at the next level of the chain in order to not double-count.
+  // Then subtract off the number accounted for by child-comments.
+  let hiddenCommentCount = groupedComments[0].descendentCount
+    - groupedComments.length
+    - sumBy(childComments, c=>(c.item?.descendentCount??0)+1)
+    + 1;
   
   const onClickExpand = () => {
     if (commentPoolContext) {
       for (let comment of groupedComments) {
         const oldExpansionState = commentPoolContext.getCommentState(comment._id).expansion;
         if (oldExpansionState === "singleLineGroupable") {
-          void commentPoolContext.setExpansion(comment._id, oldExpansionState, "singleLine");
+          void commentPoolContext.setExpansion(comment._id, "singleLine");
         }
       }
     }
@@ -99,6 +123,7 @@ const GroupedCommentsNode = ({groupedComments, treeOptions, nestingLevel, hideKa
               {i>0 && <GroupedCommentSeparator classes={classes}/>}
               <GroupedCommentsEntry
                 comment={groupedComment}
+                nestingLevel={/*nestingLevel+i+1*/ nestingLevel+1}
                 treeOptions={treeOptions}
                 hideKarma={hideKarma}
                 classes={classes}
@@ -111,6 +136,7 @@ const GroupedCommentsNode = ({groupedComments, treeOptions, nestingLevel, hideKa
             <GroupedCommentSeparator classes={classes}/>
             <GroupedCommentsEntry
               comment={lastGroupedComment}
+              nestingLevel={/*nestingLevel+groupedComments.length*/ nestingLevel+1}
               treeOptions={treeOptions}
               hideKarma={hideKarma}
               classes={classes}
@@ -145,12 +171,13 @@ const GroupedCommentSeparator = ({classes}: {
   classes: ClassesType
 }) => {
   return <span className={classes.separator}>
-    {"|"}
+    {"›"}
   </span>
 }
 
-const GroupedCommentsEntry = ({comment, treeOptions, hideKarma, classes}: {
+const GroupedCommentsEntry = ({comment, nestingLevel, treeOptions, hideKarma, classes}: {
   comment: CommentsList,
+  nestingLevel: number,
   treeOptions: CommentTreeOptions,
   hideKarma: boolean,
   classes: ClassesType
@@ -167,16 +194,26 @@ const GroupedCommentsEntry = ({comment, treeOptions, hideKarma, classes}: {
           truncated
           nestingLevel={1}
           comment={comment}
-          treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
+          treeOptions={{
+            ...treeOptions, hideReply: true,
+            forceSingleLine: false,
+            forceNotSingleLine: true,
+            hideParentCommentToggle: true,
+          }}
           hoverPreview
         />
       </DontInheritCommentPool>
     </div>}
   >
     <ContentStyles
-      contentType={comment.answer ? "post" : "comment"}
+      contentType={/*comment.answer ? "post" : "comment"*/ "comment"}
     >
-      <span className={classes.groupedComment}>
+      <span className={classNames(
+        classes.groupedComment, {
+          [classes.groupedCommentOdd]: (nestingLevel%2)===1,
+          [classes.groupedCommentEven]: (nestingLevel%2)===0,
+        }
+      )}>
         {!hideKarma && <span className={classes.karma}>
           {commentGetKarma(comment)}
         </span>}

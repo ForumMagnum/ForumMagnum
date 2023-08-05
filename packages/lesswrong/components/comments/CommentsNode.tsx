@@ -9,6 +9,7 @@ import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { CommentPoolContext, CommentPoolContextType, CommentExpansionState } from './CommentPool';
 import { useForceRerender } from '../hooks/useForceRerender';
+import classNames from 'classnames';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -26,6 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   children: {
     position: "relative"
+  },
+  childrenOfGroup: {
+    marginLeft: 12,
   },
   loadMoreReplies: {
     paddingLeft: 12,
@@ -251,6 +255,7 @@ const CommentsNode = ({
           groupedComments={groupedComments}
           treeOptions={treeOptions}
           nestingLevel={nestingLevel}
+          childComments={childComments||[]}
         />}
         {!groupedComments && isSingleLine &&
             <AnalyticsContext singleLineComment commentId={comment._id}>
@@ -282,7 +287,11 @@ const CommentsNode = ({
         }
       </div>}
 
-      {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
+      {!collapsed && childComments && childComments.length>0 && <div className={classNames(
+        classes.children, {
+          [classes.childrenOfGroup]: !!groupedComments,
+        }
+      )}>
         <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
@@ -410,7 +419,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
   
   const setExpansionState = useCallback((newExpansionState: CommentExpansionState) => {
     if (commentPoolContext) {
-      void commentPoolContext.setExpansion(commentId, expansionState, newExpansionState);
+      void commentPoolContext.setExpansion(commentId, newExpansionState);
     } else {
       if (newExpansionState==="singleLine" || newExpansionState==="singleLineGroupable") {
         setSingleLine(true);
@@ -431,7 +440,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
     
     return {
       isTruncated: (expansionState==="default") ? isTruncated : (expansionState!=="expanded"),
-      isSingleLine,
+      isSingleLine: singleLine,
       isGroupable: singleLine && expansionState==="singleLineGroupable",
       setExpansionState,
     };

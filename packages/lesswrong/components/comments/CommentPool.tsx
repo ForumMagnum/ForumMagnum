@@ -16,7 +16,7 @@ export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
   showParentOf: (commentId: string)=>Promise<void>
   showAncestorChain: (commentId: string)=>Promise<void>
-  setExpansion: (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState)=>Promise<void>
+  setExpansion: (commentId: string, newExpansionState: CommentExpansionState)=>Promise<void>
   invalidateComment: (commentId: string)=>Promise<void>
   addComment: (comment: CommentsList)=>Promise<void>
   getCommentState: (commentId: string) => SingleCommentState
@@ -137,7 +137,8 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
     forceRerender();
   }, [forceRerender, loadAll]);
   
-  const setExpansion = useCallback(async (commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) => {
+  const setExpansion = useCallback(async (commentId: string, newExpansionState: CommentExpansionState) => {
+    const oldExpansionState = stateRef.current.commentsById[commentId]?.expansion ?? "default";
     if (newExpansionState !== oldExpansionState) {
       await loadAll();
       stateRef.current = changeExpansionState(stateRef.current, commentId, oldExpansionState, newExpansionState),
@@ -391,6 +392,8 @@ function revealAncestorChain(state: CommentPoolState, commentId: string): Commen
 }
 
 function changeExpansionState(state: CommentPoolState, commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) {
+  console.log(`Changing expansion state of ${commentId} from ${oldExpansionState} to ${newExpansionState}`);
+
   // Update the expansion-state
   state = {
     ...state,
