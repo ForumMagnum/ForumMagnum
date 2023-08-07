@@ -398,6 +398,24 @@ export const EAHomeRightHandSide = ({classes}: {
     upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
   }
 
+  // data for podcasts section
+  const podcasts = [{
+    url: 'https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH',
+    icon: spotifyLogoIcon,
+    name: 'Spotify'
+  }, {
+    url: 'https://podcasts.apple.com/us/podcast/1657526204',
+    icon: applePodcastsLogoIcon,
+    name: 'Apple Podcasts'
+  }, {
+    url: 'https://pca.st/zlt4n89d',
+    icon: pocketCastsLogoIcon,
+    name: 'Pocket Casts'
+  }, {
+    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
+    icon: googlePodcastsLogoIcon,
+    name: 'Google Podcasts'
+  }]
   const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
@@ -483,38 +501,14 @@ export const EAHomeRightHandSide = ({classes}: {
         <div className={classes.section}>
           <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
           <div className={classes.podcastApps}>
-            <Link to="https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-              <div className={classes.podcastAppIcon}>{spotifyLogoIcon}</div>
-              <div>
-                <div className={classes.listenOn}>Listen on</div>
-                <div className={classes.podcastAppName}>Spotify</div>
-              </div>
-            </Link>
-            <Link to="https://podcasts.apple.com/us/podcast/1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-              <div className={classes.podcastAppIcon}>{applePodcastsLogoIcon}</div>
-              <div>
-                <div className={classes.listenOn}>Listen on</div>
-                <div className={classes.podcastAppName}>Apple Podcasts</div>
-              </div>
-            </Link>
-            <Link to="https://pca.st/zlt4n89d" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-              <div className={classes.podcastAppIcon}>{pocketCastsLogoIcon}</div>
-              <div>
-                <div className={classes.listenOn}>Listen on</div>
-                <div className={classes.podcastAppName}>Pocket Casts</div>
-              </div>
-            </Link>
-            <Link
-              to="https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M"
-              target="_blank" rel="noopener noreferrer"
-              className={classes.podcastApp}
-            >
-              <div className={classes.podcastAppIcon}>{googlePodcastsLogoIcon}</div>
-              <div>
-                <div className={classes.listenOn}>Listen on</div>
-                <div className={classes.podcastAppName}>Google Podcasts</div>
-              </div>
-            </Link>
+            {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
+                <div className={classes.podcastAppIcon}>{podcast.icon}</div>
+                <div>
+                  <div className={classes.listenOn}>Listen on</div>
+                  <div className={classes.podcastAppName}>{podcast.name}</div>
+                </div>
+              </Link>
+            )}
           </div>
           <div>
             <Link to={podcastPost} className={classes.viewMore}>View more</Link>
