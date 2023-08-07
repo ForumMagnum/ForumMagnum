@@ -31,10 +31,7 @@ async function queryClaude(prompt: string) {
 
 async function createArtDescription(post: DbPost) {
   const queryImageRoot = `
-
-    Summarize the key ideas in this post in one paragraph. 
-    
-    Then, in a second paragraph, describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be relatively simple, such that key elements and themes are easily distinguishable when people see it.
+    Describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be simple, such that key elements and themes are easily distinguishable when people see it.
 
     After that, please write a one sentence prompt, ending with the phrase 'Minimalist watercolor painting on a white background, cartographic, diagrammtic --ar 2:1'. The entire prompty should be a single paragraph. It is very important that your answer ends with the prompt, with no additional commentary.
 
@@ -48,22 +45,21 @@ async function createArtDescription(post: DbPost) {
 }
 
 function createSpotlightDescription(post: DbPost) {
-  const querySummaryRoot = `
-    Write two sentences that give an idea of what this post is about. Word them from the perspective of the post's author, as if you were just having a conversation with someone about why they might want to read this post. Limit it to JUST two sentences.  Don't use the phrase "the author". Don't use the phrase "the post".
-  `
   const queryQuestionRoot = `
     Write two sentences that ask the question that this essay is ultimately answering. (Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
   `
-
   const queryBestParagraphRoot = `
-    Pick the paragraph from this essay that most encapsulate the idea the essay is abou.(Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
+    Pick the paragraph from this essay that most encapsulate the idea the essay is about.(Do not start your with any preamble such as "Here is a pagraph:", just copy the paragraph itself)
+  `
+  const queryBestQuestionParagraphRoot = `
+    Pick the paragraph from this essay that most encapsulates the question this post is trying to answer.(Do not start your with any preamble such as "Here is a paragraph:", just write the paragraph)
   `
   const queryFirstParagraphRoot = `
-    Pick the first parapgrah from this essay that works as a good introduction. (Just write paragraph, without any preamble)
+    Pick the first paragraph from the essay that isn't some kind of metadata. (Just write paragraph, without any preamble)
   `
   return [
-    queryClaude(`${querySummaryRoot}${post.contents.html}`),
     queryClaude(`${queryQuestionRoot}${post.contents.html}`),
+    queryClaude(`${queryBestQuestionParagraphRoot}${post.contents.html}`),
     queryClaude(`${queryBestParagraphRoot}${post.contents.html}`),
     queryClaude(`${queryFirstParagraphRoot}${post.contents.html}`),
   ]
