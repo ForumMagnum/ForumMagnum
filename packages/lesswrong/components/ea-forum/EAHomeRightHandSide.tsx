@@ -1,35 +1,34 @@
 import React, { useRef, useState } from 'react';
+import NoSSR from 'react-no-ssr';
+import moment from 'moment';
+import classNames from 'classnames';
+import sortBy from 'lodash/sortBy';
+import findIndex from 'lodash/findIndex';
+import TextField from '@material-ui/core/TextField';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useTimezone } from '../common/withTimezone';
-import moment from 'moment';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { useMessages } from '../common/withMessages';
+import { useUserLocation, userHasEmailAddress } from '../../lib/collections/users/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
+import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
+import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
+import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
+import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
-import { useCurrentUser } from '../common/withUser';
-import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
-import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import TextField from '@material-ui/core/TextField';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useMessages } from '../common/withMessages';
-import { useUserLocation, userHasEmailAddress } from '../../lib/collections/users/helpers';
-import sortBy from 'lodash/sortBy';
-import findIndex from 'lodash/findIndex';
-import NoSSR from 'react-no-ssr';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
-import classNames from 'classnames';
-import { userHasEAHomeRHS } from '../../lib/betas';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    minHeight: 250,
     paddingLeft: 40,
     paddingRight: 30,
     borderLeft: theme.palette.border.faint,
@@ -118,14 +117,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     fontWeight: 600,
   },
-  icon: {
+  resourceIcon: {
     height: 16,
     width: 16,
   },
   postTitle: {
     fontWeight: 600,
-    // lineHeight: '18px',
-    // marginBottom: 1
   },
   postTitleLink: {
     display: 'inline-block',
@@ -285,6 +282,9 @@ const DigestAd = ({classes}: {
   </AnalyticsContext>
 }
 
+/**
+ * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
+ */
 const UpcomingEventsSection = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -339,6 +339,9 @@ const UpcomingEventsSection = ({classes}: {
   </AnalyticsContext>
 }
 
+/**
+ * This is the primary EA Forum home page right-hand side component.
+ */
 export const EAHomeRightHandSide = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -352,7 +355,7 @@ export const EAHomeRightHandSide = ({classes}: {
     terms: {
       view: "magic",
       filterSettings: {tags: [{
-        tagId: 'z8qFsGt5iXyZiLbjN', //'uRdzfbywnyQ6JkJqK', // TODO replace
+        tagId: 'z8qFsGt5iXyZiLbjN',
         filterMode: 'Required'
       }]},
       after: dateCutoff,
@@ -374,7 +377,7 @@ export const EAHomeRightHandSide = ({classes}: {
     skip: !currentUser?._id,
   })
   // HACK: The results are not properly sorted, so we sort them here.
-  // See also comments in the myBookmarkedPosts view.
+  // See also comments in BookmarksList.tsx and the myBookmarkedPosts view.
   const sortedSavedPosts = sortBy(savedPosts,
     post => -findIndex(
       currentUser?.bookmarkedPostsMetadata || [],
@@ -406,19 +409,19 @@ export const EAHomeRightHandSide = ({classes}: {
           <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
           <div>
             <Link to="/handbook" className={classes.resourceLink}>
-              <ForumIcon icon="BookOpen" className={classes.icon} />
+              <ForumIcon icon="BookOpen" className={classes.resourceIcon} />
               The EA Handbook
             </Link>
           </div>
           <div>
             <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
-              <ForumIcon icon="ComputerDesktop" className={classes.icon} />
+              <ForumIcon icon="ComputerDesktop" className={classes.resourceIcon} />
               The Introductory EA Program
             </Link>
           </div>
           <div>
             <Link to="/groups" className={classes.resourceLink}>
-              <ForumIcon icon="Users" className={classes.icon} />
+              <ForumIcon icon="Users" className={classes.resourceIcon} />
               Discover EA groups
             </Link>
           </div>
@@ -448,7 +451,7 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {upcomingEventsNode}
       
-      {sortedSavedPosts && sortedSavedPosts.length > 0 && <AnalyticsContext pageSubSectionContext="savedPosts">
+      {!!sortedSavedPosts?.length && <AnalyticsContext pageSubSectionContext="savedPosts">
         <div className={classes.section}>
           <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
           {sortedSavedPosts.map(post => {
