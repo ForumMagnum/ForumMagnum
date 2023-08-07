@@ -36,7 +36,6 @@ export type Route = {
   redirect?: (location: RouterLocation)=>string,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
-  rhsComponentName?: keyof ComponentTypes,
   _id?: string|null,
   noIndex?: boolean,
   background?: string,

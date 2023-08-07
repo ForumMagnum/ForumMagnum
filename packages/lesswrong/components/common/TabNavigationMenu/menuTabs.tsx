@@ -328,11 +328,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
     }, {
-      id: 'intro',
-      title: 'About EA',
-      link: 'https://www.effectivealtruism.org',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'How to use the Forum',
       link: '/about',

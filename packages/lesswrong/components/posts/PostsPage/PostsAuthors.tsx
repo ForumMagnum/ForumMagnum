@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType,
-  post: PostsListBase|PostsDetails,
+  post: PostsDetails,
   pageSectionContext?: string,
 }) => {
   const { UsersName, UserCommentMarkers, PostsCoauthor, Typography } = Components

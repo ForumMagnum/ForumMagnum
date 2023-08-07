@@ -1,35 +1,35 @@
 import React, { useRef, useState } from 'react';
+import NoSSR from 'react-no-ssr';
+import moment from 'moment';
+import classNames from 'classnames';
+import sortBy from 'lodash/sortBy';
+import findIndex from 'lodash/findIndex';
+import TextField from '@material-ui/core/TextField';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useTimezone } from '../common/withTimezone';
-import moment from 'moment';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { getCityName } from '../localGroups/TabNavigationEventsList';
-import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
-import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
-import { overcastLogoIcon } from '../icons/OvercastLogoIcon';
-import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { useCurrentUser } from '../common/withUser';
-import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
-import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import TextField from '@material-ui/core/TextField';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { useUserLocation, userHasEmailAddress } from '../../lib/collections/users/helpers';
-import sortBy from 'lodash/sortBy';
-import findIndex from 'lodash/findIndex';
-import NoSSR from 'react-no-ssr';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { getCityName } from '../localGroups/TabNavigationEventsList';
+import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
+import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
 import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
-import classNames from 'classnames';
-import { userHasEAHomePageRHS } from '../../lib/betas';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { userHasEAHomeRHS } from '../../lib/betas';
+import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
+import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
+import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
+import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    minHeight: 250,
     paddingLeft: 40,
     paddingRight: 32,
     borderLeft: theme.palette.border.faint,
@@ -138,14 +138,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     fontWeight: 600,
   },
-  icon: {
+  resourceIcon: {
     height: 16,
     width: 16,
   },
   postTitle: {
     fontWeight: 600,
-    // lineHeight: '18px',
-    // marginBottom: 1
   },
   postTitleLink: {
     display: 'inline-block',
@@ -172,7 +170,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   podcastApps: {
     display: 'grid',
-    gridTemplateColumns: "100px 150px",
+    gridTemplateColumns: "122px 128px",
     rowGap: '14px',
     marginBottom: 3,
   },
@@ -197,6 +195,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+/**
+ * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
+ * It has some overlap with the Forum Digest ad that appears in "Recent discussion".
+ * In particular, both components use currentUser.hideSubscribePoke,
+ * so for logged in users, hiding one ad hides the other.
+ *
+ * See RecentDiscussionSubscribeReminder.tsx for the other component.
+ */
 const DigestAd = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -281,20 +287,25 @@ const DigestAd = ({classes}: {
     </EAButton>
   )
   
-  return <div className={classNames(classes.section, classes.digestAdSection)}>
-    <div className={classes.digestAd}>
-      <div className={classes.digestAdHeadingRow}>
-        <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
-        <ForumIcon icon="Close" className={classes.digestAdClose} onClick={handleClose} />
+  return <AnalyticsContext pageSubSectionContext="digestAd">
+    <div className={classNames(classes.section, classes.digestAdSection)}>
+      <div className={classes.digestAd}>
+        <div className={classes.digestAdHeadingRow}>
+          <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
+          <ForumIcon icon="Close" className={classes.digestAdClose} onClick={handleClose} />
+        </div>
+        <div className={classes.digestAdBody}>
+          Sign up for the EA Forum Digest to get curated recommendations every week
+        </div>
+        {formNode}
       </div>
-      <div className={classes.digestAdBody}>
-        Sign up for the EA Forum Digest to get curated recommendations every week
-      </div>
-      {formNode}
     </div>
-  </div>
+  </AnalyticsContext>
 }
 
+/**
+ * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
+ */
 const UpcomingEventsSection = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -319,35 +330,40 @@ const UpcomingEventsSection = ({classes}: {
   
   const { SectionTitle, PostsItemTooltipWrapper } = Components
   
-  return <div className={classes.section}>
-    <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
-    {upcomingEvents?.map(event => {
-      const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
-      return <div key={event._id} className={classes.post}>
-        <div className={classes.postTitle}>
-          <PostsItemTooltipWrapper post={event} As="span">
-            <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
-              {event.title}
-            </Link>
-          </PostsItemTooltipWrapper>
+  return <AnalyticsContext pageSubSectionContext="upcomingEvents">
+    <div className={classes.section}>
+      <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
+      {upcomingEvents?.map(event => {
+        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
+        return <div key={event._id} className={classes.post}>
+          <div className={classes.postTitle}>
+            <PostsItemTooltipWrapper post={event} As="span">
+              <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
+                {event.title}
+              </Link>
+            </PostsItemTooltipWrapper>
+          </div>
+          <div className={classes.postMetadata}>
+            <span className={classes.eventDate}>
+              {shortDate}
+            </span>
+            <span className={classes.eventLocation}>
+              {event.onlineEvent ? "Online" : getCityName(event)}
+            </span>
+          </div>
         </div>
-        <div className={classes.postMetadata}>
-          <span className={classes.eventDate}>
-            {shortDate}
-          </span>
-          <span className={classes.eventLocation}>
-            {event.onlineEvent ? "Online" : getCityName(event)}
-          </span>
-        </div>
+      })}
+      <div>
+        <Link to="/events" className={classes.viewMore}>View more</Link>
       </div>
-    })}
-    <div>
-      <Link to="/events" className={classes.viewMore}>View more</Link>
     </div>
-  </div>
+  </AnalyticsContext>
 }
 
-export const EAHomeSidebar = ({classes}: {
+/**
+ * This is the primary EA Forum home page right-hand side component.
+ */
+export const EAHomeRightHandSide = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
@@ -362,7 +378,7 @@ export const EAHomeSidebar = ({classes}: {
     terms: {
       view: "magic",
       filterSettings: {tags: [{
-        tagId: 'z8qFsGt5iXyZiLbjN', //'uRdzfbywnyQ6JkJqK', // TODO replace
+        tagId: 'z8qFsGt5iXyZiLbjN',
         filterMode: 'Required'
       }]},
       after: dateCutoff,
@@ -384,7 +400,7 @@ export const EAHomeSidebar = ({classes}: {
     skip: !currentUser?._id,
   })
   // HACK: The results are not properly sorted, so we sort them here.
-  // See also comments in the myBookmarkedPosts view.
+  // See also comments in BookmarksList.tsx and the myBookmarkedPosts view.
   const sortedSavedPosts = sortBy(savedPosts,
     post => -findIndex(
       currentUser?.bookmarkedPostsMetadata || [],
@@ -392,21 +408,21 @@ export const EAHomeSidebar = ({classes}: {
     )
   )
   
-  const rhsHidden = currentUser?.hideHomepageRHS
+  const rhsHidden = currentUser?.hideHomeRHS
   const handleToggleSidebar = () => {
     if (!currentUser) return
     
     if (rhsHidden) {
-      captureEvent("homepageRhsShown")
-      void updateCurrentUser({hideHomepageRHS: false})
+      captureEvent("homeRhsShown")
+      void updateCurrentUser({hideHomeRHS: false})
     } else {
-      captureEvent("homepageRhsHidden")
-      void updateCurrentUser({hideHomepageRHS: true})
+      captureEvent("homeRhsHidden")
+      void updateCurrentUser({hideHomeRHS: true})
     }
   }
   
   // Currently, this is only visible to beta users.
-  if (!userHasEAHomePageRHS(currentUser)) return null
+  if (!userHasEAHomeRHS(currentUser)) return null
   
   const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
   
@@ -424,64 +440,59 @@ export const EAHomeSidebar = ({classes}: {
     upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
   }
 
-  const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
+  // data for podcasts section
+  const podcasts = [{
+    url: 'https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH',
+    icon: spotifyLogoIcon,
+    name: 'Spotify'
+  }, {
+    url: 'https://podcasts.apple.com/us/podcast/1657526204',
+    icon: applePodcastsLogoIcon,
+    name: 'Apple Podcasts'
+  }, {
+    url: 'https://pca.st/zlt4n89d',
+    icon: pocketCastsLogoIcon,
+    name: 'Pocket Casts'
+  }, {
+    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
+    icon: googlePodcastsLogoIcon,
+    name: 'Google Podcasts'
+  }]
+  const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
-  return <>
+  return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
       {digestAdNode}
-      <div className={classes.section}>
-        <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
-        <div>
-          <Link to="/handbook" className={classes.resourceLink}>
-            <ForumIcon icon="BookOpen" className={classes.icon} />
-            The EA Handbook
-          </Link>
-        </div>
-        <div>
-          <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
-            <ForumIcon icon="ComputerDesktop" className={classes.icon} />
-            The Introductory EA Program
-          </Link>
-        </div>
-        <div>
-          <Link to="/groups" className={classes.resourceLink}>
-            <ForumIcon icon="Users" className={classes.icon} />
-            Discover EA groups
-          </Link>
-        </div>
-      </div>
       
-      {!!opportunityPosts?.length && <div className={classes.section}>
-        <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
-        {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
-          <div className={classes.postTitle}>
-            <PostsItemTooltipWrapper post={post} As="span">
-              <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-                {post.title}
-              </Link>
-            </PostsItemTooltipWrapper>
+      <AnalyticsContext pageSubSectionContext="resources">
+        <div className={classes.section}>
+          <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <div>
+            <Link to="/handbook" className={classes.resourceLink}>
+              <ForumIcon icon="BookOpen" className={classes.resourceIcon} />
+              The EA Handbook
+            </Link>
           </div>
-          <div className={classes.postMetadata}>
-            Posted <PostsItemDate post={post} includeAgo />
+          <div>
+            <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
+              <ForumIcon icon="ComputerDesktop" className={classes.resourceIcon} />
+              The Introductory EA Program
+            </Link>
           </div>
-        </div>)}
-        <div>
-          <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
+          <div>
+            <Link to="/groups" className={classes.resourceLink}>
+              <ForumIcon icon="Users" className={classes.resourceIcon} />
+              Discover EA groups
+            </Link>
+          </div>
         </div>
-      </div>}
+      </AnalyticsContext>
       
-      {upcomingEventsNode}
-      
-      {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
-        <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
-        {sortedSavedPosts.map(post => {
-          let postAuthor = '[anonymous]'
-          if (post.user && !post.hideAuthor) {
-            postAuthor = post.user.displayName
-          }
-          const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-          return <div key={post._id} className={classes.post}>
+      {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
+        <div className={classes.section}>
+          <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
                 <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -490,63 +501,71 @@ export const EAHomeSidebar = ({classes}: {
               </PostsItemTooltipWrapper>
             </div>
             <div className={classes.postMetadata}>
-              {postAuthor}{readTime}
+              Posted <PostsItemDate post={post} includeAgo />
             </div>
+          </div>)}
+          <div>
+            <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
           </div>
-        })}
-        <div>
-          <Link to="/saved" className={classes.viewMore}>View more</Link>
         </div>
-      </div>}
+      </AnalyticsContext>}
       
-      <div className={classes.section}>
-        <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
-        <div className={classes.podcastApps}>
-          <a href="https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-            <div className={classes.podcastAppIcon}>{spotifyLogoIcon}</div>
-            <div>
-              <div className={classes.listenOn}>Listen on</div>
-              <div className={classes.podcastAppName}>Spotify</div>
+      {upcomingEventsNode}
+      
+      {!!sortedSavedPosts?.length && <AnalyticsContext pageSubSectionContext="savedPosts">
+        <div className={classes.section}>
+          <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          {sortedSavedPosts.map(post => {
+            let postAuthor = '[anonymous]'
+            if (post.user && !post.hideAuthor) {
+              postAuthor = post.user.displayName
+            }
+            const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+            return <div key={post._id} className={classes.post}>
+              <div className={classes.postTitle}>
+                <PostsItemTooltipWrapper post={post} As="span">
+                  <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
+                    {post.title}
+                  </Link>
+                </PostsItemTooltipWrapper>
+              </div>
+              <div className={classes.postMetadata}>
+                {postAuthor}{readTime}
+              </div>
             </div>
-          </a>
-          <a href="https://podcasts.apple.com/us/podcast/1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-            <div className={classes.podcastAppIcon}>{applePodcastsLogoIcon}</div>
-            <div>
-              <div className={classes.listenOn}>Listen on</div>
-              <div className={classes.podcastAppName}>Apple Podcasts</div>
-            </div>
-          </a>
-          <a href="https://overcast.fm/itunes1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-            <div className={classes.podcastAppIcon}>{overcastLogoIcon}</div>
-            <div>
-              <div className={classes.listenOn}>Listen on</div>
-              <div className={classes.podcastAppName}>Overcast</div>
-            </div>
-          </a>
-          <a
-            href="https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M"
-            target="_blank" rel="noopener noreferrer"
-            className={classes.podcastApp}
-          >
-            <div className={classes.podcastAppIcon}>{googlePodcastsLogoIcon}</div>
-            <div>
-              <div className={classes.listenOn}>Listen on</div>
-              <div className={classes.podcastAppName}>Google Podcasts</div>
-            </div>
-          </a>
+          })}
+          <div>
+            <Link to="/saved" className={classes.viewMore}>View more</Link>
+          </div>
         </div>
-        <div>
-          <Link to={podcastPost} className={classes.viewMore}>View more</Link>
+      </AnalyticsContext>}
+      
+      <AnalyticsContext pageSubSectionContext="podcasts">
+        <div className={classes.section}>
+          <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <div className={classes.podcastApps}>
+            {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
+                <div className={classes.podcastAppIcon}>{podcast.icon}</div>
+                <div>
+                  <div className={classes.listenOn}>Listen on</div>
+                  <div className={classes.podcastAppName}>{podcast.name}</div>
+                </div>
+              </Link>
+            )}
+          </div>
+          <div>
+            <Link to={podcastPost} className={classes.viewMore}>View more</Link>
+          </div>
         </div>
-      </div>
+      </AnalyticsContext>
     </div>
-  </>
+  </AnalyticsContext>
 }
 
-const EAHomeSidebarComponent = registerComponent('EAHomeSidebar', EAHomeSidebar, {styles});
+const EAHomeRightHandSideComponent = registerComponent('EAHomeRightHandSide', EAHomeRightHandSide, {styles});
 
 declare global {
   interface ComponentTypes {
-    EAHomeSidebar: typeof EAHomeSidebarComponent
+    EAHomeRightHandSide: typeof EAHomeRightHandSideComponent
   }
 }

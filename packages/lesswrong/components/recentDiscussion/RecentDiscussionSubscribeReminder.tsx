@@ -104,6 +104,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * This is the ad that appears in "Recent discussion".
+ * For LW it's for the Curated email, and for EA Forum it's for the Forum Digest.
+ *
+ * It has some overlap with the Forum Digest ad that appears on the EA Forum home rhs.
+ * In particular, both components use currentUser.hideSubscribePoke,
+ * so for logged in users, hiding one ad hides the other.
+ *
+ * See EAHomeRightHandSide.tsx for the other component.
+ */
 const RecentDiscussionSubscribeReminder = ({classes}: {
   classes: ClassesType,
 }) => {

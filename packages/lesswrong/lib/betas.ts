@@ -42,7 +42,7 @@ export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
-export const userHasEAHomePageRHS = isEAForum ? optInOnly : disabled;
+export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
 export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
 
 // Shipped Features

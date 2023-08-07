@@ -1470,7 +1470,7 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(false),
   },
   
-  hideHomepageRHS: {
+  hideHomeRHS: {
     type: Boolean,
     optional: true,
     hidden: true,
