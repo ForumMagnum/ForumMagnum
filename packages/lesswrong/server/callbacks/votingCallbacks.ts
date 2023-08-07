@@ -1,10 +1,16 @@
-import Users from '../../lib/collections/users/collection';
+import moment from 'moment';
 import { Posts } from '../../lib/collections/posts/collection';
+import Users from '../../lib/collections/users/collection';
+import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
+import { loadByIds } from '../../lib/loaders';
+import { RateLimitInfo } from '../../lib/rateLimits/types';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { getCollectionHooks } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
+import { cacheRateLimitInfoForUsers, compareCachedRateLimitsForReview } from '../rateLimitCache';
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
-import { triggerAutomodIfNeeded, triggerCommentAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { triggerCommentAutomodIfNeeded, triggerReview } from "./sunshineCallbackUtils";
 
 /**
  * @summary Update the karma of the item's owner
@@ -72,10 +78,22 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
   }
 });
 
-voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
+
+getCollectionHooks("Votes").createBefore.add(async function recordPreVoteAutomodState(vote, { context }) {
+  // Cache the state of auto-rate-limits for users who are being voted on _before_ the vote takes effect
+  // This is used in the `checkAutomod` castVoteAsync callback to see if we need to put anyone in review for triggering a stricter rate limit
+  await cacheRateLimitInfoForUsers(vote.authorIds, null, context);
+
+  return vote;
+})
+
+voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection, user, context) {
   if (vote.collectionName === 'Comments') {
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
+
+  // Check if anyone has a stricter rate limit after the vote that was just cast, and put them in review if so
+  void compareCachedRateLimitsForReview(vote.authorIds, null, context);
 });
 
 

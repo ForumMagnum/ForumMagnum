@@ -158,7 +158,7 @@ function getRateLimitName (rateLimit: AutoRateLimit) {
   return rateLimitName += ` (${thresholdInfo.join(", ")})`
 }
 
-function getActiveRateLimits (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
   return nonUniversalLimits.filter(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo))
 }
@@ -167,7 +167,7 @@ export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits:
   return getActiveRateLimits(user, autoRateLimits).map(rateLimit => getRateLimitName(rateLimit))
 }
 
-export function getStrictestActiveRateLimitNames (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+export function getStrictestActiveRateLimitNames (user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: AutoRateLimit[]) {
   const activeRateLimits = getActiveRateLimits(user, autoRateLimits)
   const rateLimitsByType = Object.values(
     groupBy(activeRateLimits, rateLimit => `${rateLimit.timeframeUnit}${rateLimit.actionType}`)
