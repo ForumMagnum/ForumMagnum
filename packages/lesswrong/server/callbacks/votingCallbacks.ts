@@ -1,16 +1,10 @@
-import moment from 'moment';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
-import { loadByIds } from '../../lib/loaders';
-import { RateLimitInfo } from '../../lib/rateLimits/types';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
-import { getCollectionHooks } from '../mutationCallbacks';
 import { postPublishedCallback } from '../notificationCallbacks';
-import { cacheRateLimitInfoForUsers, compareCachedRateLimitsForReview } from '../rateLimitCache';
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { compareCachedRateLimitsForReview2 } from '../rateLimitCache';
 import { batchUpdateScore } from '../updateScores';
-import { triggerCommentAutomodIfNeeded, triggerReview } from "./sunshineCallbackUtils";
+import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 
 /**
  * @summary Update the karma of the item's owner
@@ -20,12 +14,14 @@ import { triggerCommentAutomodIfNeeded, triggerReview } from "./sunshineCallback
  * @param {string} operation - The operation being performed
  */
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser, context) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
+    await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
+
+  void compareCachedRateLimitsForReview2(vote.authorIds, context);
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
@@ -79,13 +75,13 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
 });
 
 
-getCollectionHooks("Votes").createBefore.add(async function recordPreVoteAutomodState(vote, { context }) {
-  // Cache the state of auto-rate-limits for users who are being voted on _before_ the vote takes effect
-  // This is used in the `checkAutomod` castVoteAsync callback to see if we need to put anyone in review for triggering a stricter rate limit
-  await cacheRateLimitInfoForUsers(vote.authorIds, null, context);
+// getCollectionHooks("Votes").createBefore.add(async function recordPreVoteAutomodState(vote, { context }) {
+//   // Cache the state of auto-rate-limits for users who are being voted on _before_ the vote takes effect
+//   // This is used in the `checkAutomod` castVoteAsync callback to see if we need to put anyone in review for triggering a stricter rate limit
+//   await cacheRateLimitInfoForUsers(vote.authorIds, null, context);
 
-  return vote;
-})
+//   return vote;
+// })
 
 voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection, user, context) {
   if (vote.collectionName === 'Comments') {
@@ -93,7 +89,7 @@ voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}
   }
 
   // Check if anyone has a stricter rate limit after the vote that was just cast, and put them in review if so
-  void compareCachedRateLimitsForReview(vote.authorIds, null, context);
+  // void compareCachedRateLimitsForReview2(vote.authorIds, context);
 });
 
 
