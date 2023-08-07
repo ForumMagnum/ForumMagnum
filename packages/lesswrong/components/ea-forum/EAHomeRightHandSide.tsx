@@ -177,6 +177,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+/**
+ * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
+ * It has some overlap with the Forum Digest ad that appears in "Recent discussion".
+ * In particular, both components use currentUser.hideSubscribePoke,
+ * so for logged in users, hiding one ad hides the other.
+ *
+ * See RecentDiscussionSubscribeReminder.tsx for the other component.
+ */
 const DigestAd = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -335,7 +343,6 @@ export const EAHomeRightHandSide = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const { captureEvent } = useTracking()
   const { timezone } = useTimezone()
 
   const now = moment().tz(timezone)
