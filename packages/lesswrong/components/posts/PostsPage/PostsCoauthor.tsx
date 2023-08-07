@@ -9,7 +9,7 @@ const styles = (_: ThemeType): JssStyles => ({
 });
 
 const PostsCoauthor = ({ post, coauthor, pageSectionContext, classes }: {
-  post: PostsListBase|PostsDetails,
+  post: PostsDetails,
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
   classes: ClassesType,

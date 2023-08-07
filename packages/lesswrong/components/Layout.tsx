@@ -273,6 +273,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EASurveyBanner,
+      EAHomeRightHandSide,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -293,10 +294,8 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
     const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
-    // This is the component that appears on the right hand side of the center column.
-    // Warning: This is currently only supported for use on the EA Forum's home page.
-    const RHSComponent = currentRoute?.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -383,8 +382,8 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {!renderSunshineSidebar && RHSComponent && <div className={classes.rhs}>
-                  <RHSComponent />
+                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
+                  <EAHomeRightHandSide />
                 </div>}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
