@@ -1470,6 +1470,7 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(false),
   },
   
+  // Used by the EA Forum to allow users to hide the right-hand side of the home page
   hideHomeRHS: {
     type: Boolean,
     optional: true,
