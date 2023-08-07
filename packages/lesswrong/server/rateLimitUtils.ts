@@ -8,9 +8,11 @@ import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { RateLimitInfo, RecentKarmaInfo, UserRateLimit } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, getVotesForComparison, shouldIgnorePostRateLimit, triggerReviewForStricterRateLimits } from "../lib/rateLimits/utils"
+import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
+import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
 import Users from "../lib/collections/users/collection"
+import { triggerReview } from "./callbacks/sunshineCallbackUtils"
+import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 
 
 
@@ -229,6 +231,60 @@ export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaIn
   const votesRepo = new VotesRepo()
   const allVotes = await votesRepo.getVotesOnRecentContent(userId)
   return calculateRecentKarmaInfo(userId, allVotes)
+}
+
+async function getVotesForComparison(userId: string, currentVotes: RecentVoteInfo[]) {
+  currentVotes = currentVotes.sort((a, b) => moment(b.votedAt).diff(a.votedAt));
+  const [mostRecentVoteInfo] = currentVotes;
+
+  const comparisonVotes = [...currentVotes];
+  comparisonVotes.shift();
+
+  if (documentOnlyHasSelfVote(userId, mostRecentVoteInfo, currentVotes)) {
+    // Check whether it was a self-vote on a post or comment
+    const { collectionName } = mostRecentVoteInfo;
+    // Fetch all the votes on the post or comment that would've been pushed out of the 20-item window by this one, and use those instead
+    const votesRepo = new VotesRepo();
+    const votesOnNextMostRecentDocument = await votesRepo.getVotesOnPreviousContentItem(userId, collectionName, mostRecentVoteInfo.postedAt);
+    comparisonVotes.push(...votesOnNextMostRecentDocument);
+  }
+
+  return comparisonVotes;
+}
+
+function triggerReviewForStricterRateLimits(
+  userId: string,
+  commentRateLimitComparison: RateLimitComparison<CommentAutoRateLimit>,
+  postRateLimitComparison: RateLimitComparison<PostAutoRateLimit>,
+  context: ResolverContext
+) {
+  if (!commentRateLimitComparison.isStricter && !postRateLimitComparison.isStricter) {
+    return;
+  }
+
+  if (commentRateLimitComparison.isStricter) {
+    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
+
+    void triggerReview(userId);
+    void appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: 'Automod',
+      text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
+      context,
+    });
+  }
+
+  if (postRateLimitComparison.isStricter) {
+    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
+
+    void triggerReview(userId);
+    void appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: 'Automod',
+      text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
+      context,
+    });
+  }
 }
 
 export async function checkForStricterRateLimits(userIds: string[], context: ResolverContext) {

@@ -243,7 +243,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     return votes
   }
 
-  async getVotesOnPastContent(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {
+  async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {
     if (collectionName === 'Posts') {
       return this.getRawDb().any(`
         ${this.selectVotesOnPostsJoin}

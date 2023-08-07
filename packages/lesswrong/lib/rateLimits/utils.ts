@@ -1,14 +1,11 @@
+import groupBy from "lodash/groupBy"
+import uniq from "lodash/uniq"
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds, RateLimitComparison, CommentAutoRateLimit, PostAutoRateLimit, UserKarmaInfoWindow } from "./types"
-import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
-import uniq from "lodash/uniq"
-import groupBy from "lodash/groupBy"
-import { triggerReview } from "../../server/callbacks/sunshineCallbackUtils"
-import { appendToSunshineNotes } from "../collections/users/helpers"
 import { forumSelect } from "../forumTypeUtils"
+import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import VotesRepo from "../../server/repos/VotesRepo"
+import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -228,41 +225,6 @@ function areNewRateLimitsStricter<T extends AutoRateLimit>(newRateLimits: T[], o
   }
 }
 
-export function triggerReviewForStricterRateLimits(
-  userId: string,
-  commentRateLimitComparison: RateLimitComparison<CommentAutoRateLimit>,
-  postRateLimitComparison: RateLimitComparison<PostAutoRateLimit>,
-  context: ResolverContext
-) {
-  if (!commentRateLimitComparison.isStricter && !postRateLimitComparison.isStricter) {
-    return;
-  }
-
-  if (commentRateLimitComparison.isStricter) {
-    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
-
-    void triggerReview(userId);
-    void appendToSunshineNotes({
-      moderatedUserId: userId,
-      adminName: 'Automod',
-      text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
-      context,
-    });
-  }
-
-  if (postRateLimitComparison.isStricter) {
-    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
-
-    void triggerReview(userId);
-    void appendToSunshineNotes({
-      moderatedUserId: userId,
-      adminName: 'Automod',
-      text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
-      context,
-    });
-  }
-}
-
 export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: RecentVoteInfo[], previousVotes: RecentVoteInfo[]): UserKarmaInfoWindow {
   const currentKarmaInfo = calculateRecentKarmaInfo(user._id, currentVotes);
   const previousKarmaInfo = calculateRecentKarmaInfo(user._id, previousVotes);
@@ -296,28 +258,9 @@ export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarma
   return { commentRateLimitComparison, postRateLimitComparison };
 }
 
-function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: RecentVoteInfo, allVoteInfo: RecentVoteInfo[]) {
+export function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: RecentVoteInfo, allVoteInfo: RecentVoteInfo[]) {
   return (
     mostRecentVoteInfo.userId === userId &&
     allVoteInfo.filter(v => v.userId === userId && v.documentId === mostRecentVoteInfo.documentId).length === 1
   );
-}
-
-export async function getVotesForComparison(userId: string, currentVotes: RecentVoteInfo[]) {
-  currentVotes = currentVotes.sort((a, b) => moment(b.votedAt).diff(a.votedAt));
-  const [mostRecentVoteInfo] = currentVotes;
-
-  const comparisonVotes = [...currentVotes];
-  comparisonVotes.shift();
-
-  if (documentOnlyHasSelfVote(userId, mostRecentVoteInfo, currentVotes)) {
-    // Check whether it was a self-vote on a post or comment
-    const { collectionName } = mostRecentVoteInfo;
-    // Fetch all the votes on the post or comment that would've been pushed out of the 20-item window by this one, and use those instead
-    const votesRepo = new VotesRepo();
-    const votesOnNextMostRecentDocument = await votesRepo.getVotesOnPastContent(userId, collectionName, mostRecentVoteInfo.postedAt);
-    comparisonVotes.push(...votesOnNextMostRecentDocument);
-  }
-
-  return comparisonVotes;
 }
