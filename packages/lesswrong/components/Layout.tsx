@@ -94,7 +94,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main rhs sunshine"
+        "navSidebar ... main ... sunshine"
       `,
       gridTemplateColumns: `
         minmax(0, min-content)
@@ -294,7 +294,8 @@ const Layout = ({currentUser, children, classes}: {
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
-    // component that appears on the right hand side of the center column
+    // This is the component that appears on the right hand side of the center column.
+    // Warning: This is currently only supported for use on the EA Forum's home page.
     const RHSComponent = currentRoute?.rhsComponentName ? Components[currentRoute.rhsComponentName] : null
 
     const renderPetrovDay = () => {

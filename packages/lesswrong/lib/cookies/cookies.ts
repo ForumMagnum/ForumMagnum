@@ -49,13 +49,13 @@ export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
 export const HIDE_HANDBOOK_COOKIE = registerCookie({
   name: "hide_home_handbook",
   type: "functional",
-  description: "Whether to hide the EA Handbook on the EA Home page",
+  description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
 export const HIDE_DIGEST_AD_COOKIE = registerCookie({
   name: "hide_home_digest_ad",
   type: "functional",
-  description: "Whether to hide the forum digest ad on the EA Home page",
+  description: "Whether to hide the Forum Digest ad on the EA Forum home page",
 })
 
 export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "functional", description: 'Controls whether job ads are hidden'});

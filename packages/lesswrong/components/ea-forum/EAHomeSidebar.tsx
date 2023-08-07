@@ -12,7 +12,6 @@ import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { overcastLogoIcon } from '../icons/OvercastLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { useCurrentUser } from '../common/withUser';
-import { getPostAuthors } from '../../lib/collections/digests/helpers';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
 import TextField from '@material-ui/core/TextField';
@@ -25,6 +24,7 @@ import NoSSR from 'react-no-ssr';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
 import classNames from 'classnames';
+import { userHasEAHomePageRHS } from '../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,7 +44,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: 'column',
     rowGap: '9px',
     fontSize: 13,
-    // lineHeight: '18px',
     fontFamily: theme.typography.fontFamily,
     marginBottom: 30,
   },
@@ -341,7 +340,7 @@ export const EAHomeSidebar = ({classes}: {
     terms: {
       view: "magic",
       filterSettings: {tags: [{
-        tagId: 'uRdzfbywnyQ6JkJqK', //'z8qFsGt5iXyZiLbjN', // TODO replace
+        tagId: 'z8qFsGt5iXyZiLbjN', //'uRdzfbywnyQ6JkJqK', // TODO replace
         filterMode: 'Required'
       }]},
       after: dateCutoff,
@@ -371,7 +370,10 @@ export const EAHomeSidebar = ({classes}: {
     )
   )
   
-  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, PostsAuthors, ForumIcon } = Components
+  // Currently, this is only visible to beta users.
+  if (!userHasEAHomePageRHS(currentUser)) return null
+
+  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, ForumIcon } = Components
   
   // NoSSR sections that could affect the logged out user cache
   let digestAdNode = <DigestAd classes={classes} />
@@ -445,7 +447,6 @@ export const EAHomeSidebar = ({classes}: {
             </PostsItemTooltipWrapper>
           </div>
           <div className={classes.postMetadata}>
-            {/* <PostsAuthors post={post} /> TODO figure out what to do here */}
             {postAuthor}{readTime}
           </div>
         </div>
