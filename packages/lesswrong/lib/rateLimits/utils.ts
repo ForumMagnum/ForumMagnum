@@ -1,9 +1,14 @@
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds } from "./types"
+import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds, RateLimitComparison, CommentAutoRateLimit, PostAutoRateLimit, UserKarmaInfoWindow } from "./types"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import uniq from "lodash/uniq"
 import groupBy from "lodash/groupBy"
+import { triggerReview } from "../../server/callbacks/sunshineCallbackUtils"
+import { appendToSunshineNotes } from "../collections/users/helpers"
+import { forumSelect } from "../forumTypeUtils"
+import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
+import VotesRepo from "../../server/repos/VotesRepo"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -158,7 +163,7 @@ function getRateLimitName (rateLimit: AutoRateLimit) {
   return rateLimitName += ` (${thresholdInfo.join(", ")})`
 }
 
-export function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
+function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
   return nonUniversalLimits.filter(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo))
 }
@@ -180,4 +185,139 @@ export function getStrictestActiveRateLimitNames (user: UserKarmaInfo & { recent
     })[0]
   })
   return strictestRateLimits.map(rateLimit => getRateLimitName(rateLimit))
+}
+
+function sortRateLimitsByTimeframe<T extends AutoRateLimit>(rateLimits: T[]) {
+  const now = Date.now();
+
+  return [...rateLimits].sort((a, b) => (
+    moment(now)
+      .add(b.timeframeLength / b.itemsPerTimeframe, b.timeframeUnit)
+      .diff(
+        moment(now).add(a.timeframeLength / a.itemsPerTimeframe, a.timeframeUnit)
+      )
+  ));
+}
+
+function areNewRateLimitsStricter<T extends AutoRateLimit>(newRateLimits: T[], oldRateLimits: T[]): RateLimitComparison<T> {
+  if (newRateLimits.length === 0) {
+    return { isStricter: false };
+  }
+
+  const now = Date.now();
+
+  // Cast because we check that it's non-zero length above
+  const strictestNewRateLimit = sortRateLimitsByTimeframe(newRateLimits).shift() as T;
+  const strictestOldRateLimit = sortRateLimitsByTimeframe(oldRateLimits).shift();
+
+  if (!strictestOldRateLimit) {
+    return { isStricter: true, strictestNewRateLimit };
+  }
+
+  const { timeframeLength: newLength, timeframeUnit: newUnit, itemsPerTimeframe: newItemsPerTimeframe } = strictestNewRateLimit;
+  const { timeframeLength: oldLength, timeframeUnit: oldUnit, itemsPerTimeframe: oldItemsPerTimeframe } = strictestOldRateLimit;
+
+  const newRateLimitMoment = moment(now).add(newLength / newItemsPerTimeframe, newUnit);
+  const oldRateLimitMoment = moment(now).add(oldLength / oldItemsPerTimeframe, oldUnit);
+
+  const isStricter = newRateLimitMoment.isAfter(oldRateLimitMoment);
+  if (isStricter) {
+    return { isStricter, strictestNewRateLimit };
+  } else {
+    return { isStricter };
+  }
+}
+
+export function triggerReviewForStricterRateLimits(
+  userId: string,
+  commentRateLimitComparison: RateLimitComparison<CommentAutoRateLimit>,
+  postRateLimitComparison: RateLimitComparison<PostAutoRateLimit>,
+  context: ResolverContext
+) {
+  if (!commentRateLimitComparison.isStricter && !postRateLimitComparison.isStricter) {
+    return;
+  }
+
+  if (commentRateLimitComparison.isStricter) {
+    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = commentRateLimitComparison;
+
+    void triggerReview(userId);
+    void appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: 'Automod',
+      text: `User triggered a stricter ${itemsPerTimeframe} comment(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
+      context,
+    });
+  }
+
+  if (postRateLimitComparison.isStricter) {
+    const { strictestNewRateLimit: { itemsPerTimeframe, timeframeUnit, timeframeLength } } = postRateLimitComparison;
+
+    void triggerReview(userId);
+    void appendToSunshineNotes({
+      moderatedUserId: userId,
+      adminName: 'Automod',
+      text: `User triggered a stricter ${itemsPerTimeframe} post(s) per ${timeframeLength} ${timeframeUnit} rate limit`,
+      context,
+    });
+  }
+}
+
+export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: RecentVoteInfo[], previousVotes: RecentVoteInfo[]): UserKarmaInfoWindow {
+  const currentKarmaInfo = calculateRecentKarmaInfo(user._id, currentVotes);
+  const previousKarmaInfo = calculateRecentKarmaInfo(user._id, previousVotes);
+
+  // Adjust the user's karma back to what it was before the most recent vote
+  // This doesn't always handle the case where the voter is modifying an existing vote's strength correctly, but we don't really care about those
+  const mostRecentVotePower = currentVotes[0].power;
+  const previousUserKarma = user.karma - mostRecentVotePower;
+
+  const currentUserKarmaInfo = { ...user, recentKarmaInfo: currentKarmaInfo };
+  const previousUserKarmaInfo = { ...user, recentKarmaInfo: previousKarmaInfo, karma: previousUserKarma };
+
+  return { currentUserKarmaInfo, previousUserKarmaInfo };
+}
+
+export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow) {
+  const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
+
+  const commentRateLimits = forumSelect(autoCommentRateLimits);
+  const postRateLimits = forumSelect(autoPostRateLimits);
+
+  const activeCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
+  const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);
+
+  const activePostRateLimits = getActiveRateLimits(currentUserKarmaInfo, postRateLimits);
+  const previousPostRateLimits = getActiveRateLimits(previousUserKarmaInfo, postRateLimits);
+
+  const commentRateLimitComparison = areNewRateLimitsStricter(activeCommentRateLimits, previousCommentRateLimits);
+  const postRateLimitComparison = areNewRateLimitsStricter(activePostRateLimits, previousPostRateLimits);
+
+  return { commentRateLimitComparison, postRateLimitComparison };
+}
+
+function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: RecentVoteInfo, allVoteInfo: RecentVoteInfo[]) {
+  return (
+    mostRecentVoteInfo.userId === userId &&
+    allVoteInfo.filter(v => v.userId === userId && v.documentId === mostRecentVoteInfo.documentId).length === 1
+  );
+}
+
+export async function getVotesForComparison(userId: string, currentVotes: RecentVoteInfo[]) {
+  currentVotes = currentVotes.sort((a, b) => moment(b.votedAt).diff(a.votedAt));
+  const [mostRecentVoteInfo] = currentVotes;
+
+  const comparisonVotes = [...currentVotes];
+  comparisonVotes.shift();
+
+  if (documentOnlyHasSelfVote(userId, mostRecentVoteInfo, currentVotes)) {
+    // Check whether it was a self-vote on a post or comment
+    const { collectionName } = mostRecentVoteInfo;
+    // Fetch all the votes on the post or comment that would've been pushed out of the 20-item window by this one, and use those instead
+    const votesRepo = new VotesRepo();
+    const votesOnNextMostRecentDocument = await votesRepo.getVotesOnPastContent(userId, collectionName, mostRecentVoteInfo.postedAt);
+    comparisonVotes.push(...votesOnNextMostRecentDocument);
+  }
+
+  return comparisonVotes;
 }

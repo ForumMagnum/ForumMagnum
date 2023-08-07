@@ -9,7 +9,8 @@ import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
 import type { RateLimitInfo, RecentKarmaInfo, UserRateLimit } from "../lib/rateLimits/types"
-import { calculateRecentKarmaInfo, getAutoRateLimitInfo, getMaxAutoLimitHours, getModRateLimitInfo, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
+import { calculateRecentKarmaInfo, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, getVotesForComparison, shouldIgnorePostRateLimit, triggerReviewForStricterRateLimits } from "../lib/rateLimits/utils"
+import Users from "../lib/collections/users/collection"
 
 
 
@@ -228,4 +229,21 @@ export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaIn
   const votesRepo = new VotesRepo()
   const allVotes = await votesRepo.getVotesOnRecentContent(userId)
   return calculateRecentKarmaInfo(userId, allVotes)
+}
+
+export async function checkForStricterRateLimits(userIds: string[], context: ResolverContext) {
+  // We can't use a loader here because we need the user's karma which was just updated by this vote
+  const votedOnUsers = await Users.find({ _id: { $in: userIds } }).fetch();
+
+  const votesRepo = new VotesRepo();
+
+  void Promise.all(votedOnUsers.map(async (user) => {
+    const allVotes = await votesRepo.getVotesOnRecentContent(user._id);
+    const comparisonVotes = await getVotesForComparison(user._id, allVotes);
+
+    const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(user, allVotes, comparisonVotes);
+    const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
+
+    triggerReviewForStricterRateLimits(user._id, commentRateLimitComparison, postRateLimitComparison, context);
+  }));
 }

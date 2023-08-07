@@ -190,6 +190,18 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   private votesOnContentPostFields = `"Posts"."postedAt", "Posts"."baseScore" AS "totalDocumentKarma"`;
   private votesOnContentCommentFields = `"Comments"."postedAt", "Comments"."baseScore" AS "totalDocumentKarma"`;
 
+  private selectVotesOnPostsJoin = `
+    SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}
+    FROM "Votes"
+    JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+  `;
+
+  private selectVotesOnCommentsJoin = `
+    SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}
+    FROM "Votes"
+    JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+  `;
+
   // Get votes from recent content by a user,
   // to use to decide on their rate limit
   // (note: needs to get the user's own self-upvotes so that
@@ -197,9 +209,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   async getVotesOnRecentContent(userId: string): Promise<RecentVoteInfo[]> {
     const votes = await this.getRawDb().any(`
       (
-        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}
-        FROM "Votes"
-        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        ${this.selectVotesOnPostsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
@@ -216,9 +226,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
       UNION
       (
-        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}
-        FROM "Votes"
-        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        ${this.selectVotesOnCommentsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Comments" 
@@ -238,9 +246,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   async getVotesOnPastContent(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {
     if (collectionName === 'Posts') {
       return this.getRawDb().any(`
-        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}
-        FROM "Votes"
-        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        ${this.selectVotesOnPostsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
@@ -259,9 +265,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       `, [userId, before]);
     } else {
       return this.getRawDb().any(`
-        SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}
-        FROM "Votes"
-        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        ${this.selectVotesOnCommentsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Comments" 
