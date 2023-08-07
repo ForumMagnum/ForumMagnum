@@ -17,7 +17,6 @@ import { useCurrentUser } from '../common/withUser';
 export const descriptionStyles = (theme: JssStyles) => ({
   ...postBodyStyles(theme),
   ...(!isEAForum ? theme.typography.body2 : {}),
-  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",

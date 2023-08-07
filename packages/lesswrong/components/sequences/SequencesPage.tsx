@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
@@ -95,6 +95,8 @@ const SequencesPage = ({ documentId, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
+  const nextSuggestedNumberRef = useRef(1);
+
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
@@ -175,14 +177,14 @@ const SequencesPage = ({ documentId, classes }: {
         </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} />
+            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
           </AnalyticsContext>
           {canCreateChapter && <SectionFooter>
             <SectionButton>
               <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
             </SectionButton>
           </SectionFooter>}
-          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/>}
+          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
         </div>
       </div>
     </SingleColumnSection>
