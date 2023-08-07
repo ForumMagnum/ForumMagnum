@@ -106,7 +106,7 @@ export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
 
 export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
   name: "hide_ea_forum_survey_banner",
-  type: "functional",
+  type: "necessary",
   description: "Don't show the EA Forum survey banner",
 });
 
