@@ -321,7 +321,7 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-estimaker-slug'],
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -334,11 +334,12 @@ export const sanitize = function(s: string): string {
       'metaforecast.org',
       'app.thoughtsaver.com',
       'ourworldindata.org',
-      'strawpoll.com'
+      'strawpoll.com',
+      'estimaker.app',
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
       li: [ 'footnote-item' ],
