@@ -1469,6 +1469,16 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+  
+  hideHomepageRHS: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   frontpagePostCount: {

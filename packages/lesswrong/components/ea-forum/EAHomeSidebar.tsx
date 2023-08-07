@@ -25,18 +25,39 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
 import classNames from 'classnames';
 import { userHasEAHomePageRHS } from '../../lib/betas';
+import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     minHeight: 250,
     paddingLeft: 40,
-    paddingRight: 30,
+    paddingRight: 32,
     borderLeft: theme.palette.border.faint,
     marginTop: 30,
     marginLeft: 50,
     '@media(max-width: 1370px)': {
       display: 'none'
     }
+  },
+  sidebarToggle: {
+    position: 'absolute',
+    top: EA_FORUM_HEADER_HEIGHT + 30,
+    right: 0,
+    height: 36,
+    width: 30,
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[500],
+    padding: 9,
+    borderRadius: '18px 0 0 18px',
+    cursor: 'pointer',
+    transition: 'width 0.2s ease',
+    '&:hover': {
+      width: 34,
+      backgroundColor: theme.palette.grey[250],
+    }
+  },
+  sidebarToggleIcon: {
+    fontSize: 18
   },
   section: {
     maxWidth: 250,
@@ -330,6 +351,7 @@ export const EAHomeSidebar = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   const { timezone } = useTimezone()
 
@@ -370,10 +392,29 @@ export const EAHomeSidebar = ({classes}: {
     )
   )
   
+  const rhsHidden = currentUser?.hideHomepageRHS
+  const handleToggleSidebar = () => {
+    if (!currentUser) return
+    
+    if (rhsHidden) {
+      captureEvent("homepageRhsShown")
+      void updateCurrentUser({hideHomepageRHS: false})
+    } else {
+      captureEvent("homepageRhsHidden")
+      void updateCurrentUser({hideHomepageRHS: true})
+    }
+  }
+  
   // Currently, this is only visible to beta users.
   if (!userHasEAHomePageRHS(currentUser)) return null
-
-  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, ForumIcon } = Components
+  
+  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
+  
+  const sidebarToggleNode = <LWTooltip title={rhsHidden ? 'Show sidebar' : 'Hide sidebar'} className={classes.sidebarToggle}>
+    <ForumIcon icon={rhsHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} onClick={handleToggleSidebar} />
+  </LWTooltip>
+  
+  if (rhsHidden) return sidebarToggleNode
   
   // NoSSR sections that could affect the logged out user cache
   let digestAdNode = <DigestAd classes={classes} />
@@ -385,60 +426,35 @@ export const EAHomeSidebar = ({classes}: {
 
   const podcastPost = 'https://forum.effectivealtruism.org/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
-  return <div className={classes.root}>
-    {digestAdNode}
-    <div className={classes.section}>
-      <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      <div>
-        <Link to="/handbook" className={classes.resourceLink}>
-          <ForumIcon icon="BookOpen" className={classes.icon} />
-          The EA Handbook
-        </Link>
-      </div>
-      <div>
-        <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
-          <ForumIcon icon="ComputerDesktop" className={classes.icon} />
-          The Introductory EA Program
-        </Link>
-      </div>
-      <div>
-        <Link to="/groups" className={classes.resourceLink}>
-          <ForumIcon icon="Users" className={classes.icon} />
-          Discover EA groups
-        </Link>
-      </div>
-    </div>
-    
-    {!!opportunityPosts?.length && <div className={classes.section}>
-      <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
-        <div className={classes.postTitle}>
-          <PostsItemTooltipWrapper post={post} As="span">
-            <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
-              {post.title}
-            </Link>
-          </PostsItemTooltipWrapper>
+  return <>
+    {!!currentUser && sidebarToggleNode}
+    <div className={classes.root}>
+      {digestAdNode}
+      <div className={classes.section}>
+        <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
+        <div>
+          <Link to="/handbook" className={classes.resourceLink}>
+            <ForumIcon icon="BookOpen" className={classes.icon} />
+            The EA Handbook
+          </Link>
         </div>
-        <div className={classes.postMetadata}>
-          Posted <PostsItemDate post={post} includeAgo />
+        <div>
+          <Link to="https://www.effectivealtruism.org/virtual-programs/introductory-program" className={classes.resourceLink}>
+            <ForumIcon icon="ComputerDesktop" className={classes.icon} />
+            The Introductory EA Program
+          </Link>
         </div>
-      </div>)}
-      <div>
-        <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
+        <div>
+          <Link to="/groups" className={classes.resourceLink}>
+            <ForumIcon icon="Users" className={classes.icon} />
+            Discover EA groups
+          </Link>
+        </div>
       </div>
-    </div>}
-    
-    {upcomingEventsNode}
-    
-    {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
-      <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      {sortedSavedPosts.map(post => {
-        let postAuthor = '[anonymous]'
-        if (post.user && !post.hideAuthor) {
-          postAuthor = post.user.displayName
-        }
-        const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-        return <div key={post._id} className={classes.post}>
+      
+      {!!opportunityPosts?.length && <div className={classes.section}>
+        <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
+        {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={post} As="span">
               <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -447,56 +463,84 @@ export const EAHomeSidebar = ({classes}: {
             </PostsItemTooltipWrapper>
           </div>
           <div className={classes.postMetadata}>
-            {postAuthor}{readTime}
+            Posted <PostsItemDate post={post} includeAgo />
           </div>
+        </div>)}
+        <div>
+          <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
         </div>
-      })}
-      <div>
-        <Link to="/saved" className={classes.viewMore}>View more</Link>
-      </div>
-    </div>}
-    
-    <div className={classes.section}>
-      <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
-      <div className={classes.podcastApps}>
-        <a href="https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-          <div className={classes.podcastAppIcon}>{spotifyLogoIcon}</div>
-          <div>
-            <div className={classes.listenOn}>Listen on</div>
-            <div className={classes.podcastAppName}>Spotify</div>
+      </div>}
+      
+      {upcomingEventsNode}
+      
+      {sortedSavedPosts && sortedSavedPosts.length > 0 && <div className={classes.section}>
+        <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
+        {sortedSavedPosts.map(post => {
+          let postAuthor = '[anonymous]'
+          if (post.user && !post.hideAuthor) {
+            postAuthor = post.user.displayName
+          }
+          const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+          return <div key={post._id} className={classes.post}>
+            <div className={classes.postTitle}>
+              <PostsItemTooltipWrapper post={post} As="span">
+                <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
+                  {post.title}
+                </Link>
+              </PostsItemTooltipWrapper>
+            </div>
+            <div className={classes.postMetadata}>
+              {postAuthor}{readTime}
+            </div>
           </div>
-        </a>
-        <a href="https://podcasts.apple.com/us/podcast/1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-          <div className={classes.podcastAppIcon}>{applePodcastsLogoIcon}</div>
-          <div>
-            <div className={classes.listenOn}>Listen on</div>
-            <div className={classes.podcastAppName}>Apple Podcasts</div>
-          </div>
-        </a>
-        <a href="https://overcast.fm/itunes1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
-          <div className={classes.podcastAppIcon}>{overcastLogoIcon}</div>
-          <div>
-            <div className={classes.listenOn}>Listen on</div>
-            <div className={classes.podcastAppName}>Overcast</div>
-          </div>
-        </a>
-        <a
-          href="https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M"
-          target="_blank" rel="noopener noreferrer"
-          className={classes.podcastApp}
-        >
-          <div className={classes.podcastAppIcon}>{googlePodcastsLogoIcon}</div>
-          <div>
-            <div className={classes.listenOn}>Listen on</div>
-            <div className={classes.podcastAppName}>Google Podcasts</div>
-          </div>
-        </a>
-      </div>
-      <div>
-        <Link to={podcastPost} className={classes.viewMore}>View more</Link>
+        })}
+        <div>
+          <Link to="/saved" className={classes.viewMore}>View more</Link>
+        </div>
+      </div>}
+      
+      <div className={classes.section}>
+        <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
+        <div className={classes.podcastApps}>
+          <a href="https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
+            <div className={classes.podcastAppIcon}>{spotifyLogoIcon}</div>
+            <div>
+              <div className={classes.listenOn}>Listen on</div>
+              <div className={classes.podcastAppName}>Spotify</div>
+            </div>
+          </a>
+          <a href="https://podcasts.apple.com/us/podcast/1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
+            <div className={classes.podcastAppIcon}>{applePodcastsLogoIcon}</div>
+            <div>
+              <div className={classes.listenOn}>Listen on</div>
+              <div className={classes.podcastAppName}>Apple Podcasts</div>
+            </div>
+          </a>
+          <a href="https://overcast.fm/itunes1657526204" target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
+            <div className={classes.podcastAppIcon}>{overcastLogoIcon}</div>
+            <div>
+              <div className={classes.listenOn}>Listen on</div>
+              <div className={classes.podcastAppName}>Overcast</div>
+            </div>
+          </a>
+          <a
+            href="https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M"
+            target="_blank" rel="noopener noreferrer"
+            className={classes.podcastApp}
+          >
+            <div className={classes.podcastAppIcon}>{googlePodcastsLogoIcon}</div>
+            <div>
+              <div className={classes.listenOn}>Listen on</div>
+              <div className={classes.podcastAppName}>Google Podcasts</div>
+            </div>
+          </a>
+        </div>
+        <div>
+          <Link to={podcastPost} className={classes.viewMore}>View more</Link>
+        </div>
       </div>
     </div>
-  </div>
+  </>
 }
 
 const EAHomeSidebarComponent = registerComponent('EAHomeSidebar', EAHomeSidebar, {styles});
