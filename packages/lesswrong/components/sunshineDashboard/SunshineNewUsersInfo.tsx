@@ -6,6 +6,7 @@ import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';
+import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -91,13 +92,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
 
-  const { results: posts = [], loading: postsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersPosts", userId: user._id},
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-    fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
-  });
+  const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
 
   const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
