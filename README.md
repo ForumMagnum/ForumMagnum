@@ -59,12 +59,16 @@ Run a local postgres instance, version 15. For example, if you're on macos:
 ```bash
 brew install postgresql@15
 brew services start postgresql@15
+
+createdb forummagnum
 ```
+
+(DB name is an arbitrary choice.)
 
 Configure the schema:
 
 ```bash
-psql -f ./schema/accepted_schema.sql
+psql forummagnum -f ./schema/accepted_schema.sql
 ```
 
 TODOs:
