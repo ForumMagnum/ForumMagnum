@@ -21,32 +21,6 @@ import { isEAForum } from '../lib/instanceSettings';
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
 
-let dbConnected = false;
-async function ensureDbConnection() {
-  if (dbConnected || isEAForum)
-    return;
-
-  try {
-    const connectionString = process.env.MONGO_URL as string; //Provided by @shelf/jest-mongodb
-    const client = new MongoClient(connectionString, {
-      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
-      // for various options that could be tuned here
-
-      // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    const db = client.db();
-    setDatabaseConnection(client, db);
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to mongodb:", err);
-    return;
-  }
-
-  dbConnected = true;
-}
-
 let pgConnected = false;
 const ensurePgConnection = async () => {
   if (!pgConnected) {
@@ -76,10 +50,7 @@ async function oneTimeSetup() {
   setServerSettingsCache({});
   setPublicSettings({});
 
-  await Promise.all([
-    ensurePgConnection(),
-    ensureDbConnection(),
-  ]);
+  await ensurePgConnection();
 
   await runStartupFunctions();
 

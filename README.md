@@ -54,9 +54,28 @@ yarn install
 
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
-TODO: Postgres instructions (but basically: run a postgres db)
+Run a local postgres instance, version 15. For example, if you're on macos:
 
-(Then there's probably something about migrating, see Database Migrations)
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+
+createdb forummagnum
+```
+
+(DB name is an arbitrary choice.)
+
+Configure the schema:
+
+```bash
+psql forummagnum -f ./schema/accepted_schema.sql
+```
+
+TODOs:
+
+* You won't have any database settings yet. TODO: add instructions.
+* You won't be able to run migrations yet. TODO: fix migrations so they can be
+  run on a new db (NB: goal is still to have the db have the accepted_schema).
 
 ### Creating branch-specific development databases
 
