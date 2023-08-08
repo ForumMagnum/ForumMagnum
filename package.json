@@ -18,7 +18,7 @@
     "lw-start-local-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/local.json --settings settings.json",
     "shell": "./build.js --no-clear -run --settings settings.json --shell",
     "shell-dev-db": "./build.js --no-clear -run --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-devdb.json --shell",
-    "shell-prod-db": "./build.js --no-clear -run --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json --shell",
+    "shell-prod-db": "./build.js --no-clear -run --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json --shell",
     "start-af": "./build.js --no-clear -run --watch --settings settings-af.json",
     "start-af-dev-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-af-devdb.json",
     "start-af-prod-db": "./build.js --no-clear -run --watch --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-af-proddb.json",
