@@ -75,7 +75,7 @@ TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
 * You won't be able to run migrations yet. TODO: fix migrations so they can be
-  run from a fresh start.
+  run on a new db (NB: goal is still to have the db have the accepted_schema).
 
 ### Creating branch-specific development databases
 
