@@ -14,12 +14,19 @@ import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
-    padding: theme.spacing.unit * 6
+    padding: isEAForum ? 20 : theme.spacing.unit * 6,
+    [theme.breakpoints.down('md')]: {
+      padding: isEAForum ? '30px 20px' : undefined,
+    }
   },
   title: {
-    marginTop: 0
+    marginTop: 0,
+    [theme.breakpoints.down('md')]: {
+      fontSize: isEAForum ? 28 : undefined,
+    }
   },
   section: {
+    maxWidth: 600,
     marginTop: theme.spacing.unit * 6,
     "& .MuiTypography-body1": {
       color: theme.palette.text.normal,
@@ -28,6 +35,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[600],
     },
   },
+  sectionHeadingText: isEAForum ? {
+    fontWeight: 600,
+    fontSize: 24
+  } : {},
   sectionHelperText: {
     color: theme.palette.grey[600],
     fontSize: '1rem',
@@ -72,7 +83,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
     }
   `, {refetchQueries: ['getCurrentUser']})
   const {flash} = useMessages();
-  const {SingleColumnSection, Typography} = Components
+  const {SingleColumnSection, Typography, EAButton} = Components
 
   function validateUsername(username: string): void {
     if (username.length === 0) {
@@ -117,14 +128,16 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   
   return <SingleColumnSection>
     <div className={classes.root}>
-      <Typography variant='display3' gutterBottom className={classes.title}>
+      <Typography variant={isEAForum ? 'display2' : 'display3'} gutterBottom className={classes.title}>
         Thanks for registering for {siteNameWithArticleSetting.get()}
       </Typography>
       <Typography variant='body2'>
         Please take a second to complete your profile
       </Typography>
       <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Please choose a username</Typography>
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Please choose a username
+        </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           We encourage you to use your real name, as it will help other people
           in the community to identify you, but you can choose a pseudonym. If
@@ -146,7 +159,9 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       
       {/* Facebook user with no email fix (very small % of users) */}
       {!currentUser?.email && <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Please enter your email</Typography>
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Please enter your email
+        </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           {/* I'd rather be honest than concise here. */}
           To get here without an email you must have logged in with Facebook
@@ -161,7 +176,9 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       </div>}
 
       {isEAForum && <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Would you like to get digest emails?
+        </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
         </Typography>
@@ -183,14 +200,16 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
             under a <LicenseLink /> license.
           </Typography>
         }
-        <Button
+        {isEAForum ? <EAButton onClick={handleSave} disabled={!!validationError}>
+          Submit
+        </EAButton> : <Button
           onClick={handleSave}
           color='primary'
           variant='outlined'
           disabled={!!validationError}
         >
           Save
-        </Button>
+        </Button>}
       </div>
     </div>
   </SingleColumnSection>
