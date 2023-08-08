@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import classnames from "classnames";
 import { gql, useMutation } from "@apollo/client";
-import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
@@ -14,15 +13,15 @@ import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
-    padding: isEAForum ? 20 : theme.spacing.unit * 6,
-    [theme.breakpoints.down('md')]: {
-      padding: isEAForum ? '30px 20px' : undefined,
+    padding: '40px 50px',
+    [theme.breakpoints.down('xs')]: {
+      padding: '30px 20px',
     }
   },
   title: {
     marginTop: 0,
     [theme.breakpoints.down('md')]: {
-      fontSize: isEAForum ? 28 : undefined,
+      fontSize: 28,
     }
   },
   section: {
@@ -33,17 +32,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .MuiFormHelperText-root": {
       color: theme.palette.grey[600],
+      fontFamily: theme.palette.fonts.sansSerifStack,
     },
   },
-  sectionHeadingText: isEAForum ? {
+  sectionHeadingText: {
     fontWeight: 600,
-    fontSize: 24
-  } : {},
+    fontSize: 24,
+    [theme.breakpoints.down('md')]: {
+      fontSize: 20,
+    }
+  },
   sectionHelperText: {
     color: theme.palette.grey[600],
     fontSize: '1rem',
-    ...theme.typography.italic,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -91,7 +93,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       return
     }
     if (username.length > 70) {
-      setValidationError('username too long')
+      setValidationError('Username must be less than 70 characters')
       return
     }
     // TODO: Really want them to be able to tell live if their username is
@@ -128,11 +130,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   
   return <SingleColumnSection>
     <div className={classes.root}>
-      <Typography variant={isEAForum ? 'display2' : 'display3'} gutterBottom className={classes.title}>
+      <Typography variant="display2" gutterBottom className={classes.title}>
         Thanks for registering for {siteNameWithArticleSetting.get()}
       </Typography>
       <Typography variant='body2'>
-        Please take a second to complete your profile
+        Take a moment to complete your profile
       </Typography>
       <div className={classes.section}>
         <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
@@ -200,16 +202,9 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
             under a <LicenseLink /> license.
           </Typography>
         }
-        {isEAForum ? <EAButton onClick={handleSave} disabled={!!validationError}>
+        <EAButton onClick={handleSave} disabled={!!validationError}>
           Submit
-        </EAButton> : <Button
-          onClick={handleSave}
-          color='primary'
-          variant='outlined'
-          disabled={!!validationError}
-        >
-          Save
-        </Button>}
+        </EAButton>
       </div>
     </div>
   </SingleColumnSection>
