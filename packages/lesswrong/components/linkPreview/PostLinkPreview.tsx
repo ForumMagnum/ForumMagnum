@@ -814,8 +814,8 @@ const EstimakerPreview = ({classes, href, innerHTML, id}: {
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // test if fits https://estimaker.app/_/$user/$slug
-  const isEmbed = /^https:\/\/estimaker\.app\/_\/.+\/.+$/.test(href);
-
+  const isEmbed = /^https?:\/\/estimaker\.app\/_\/.+$/.test(href);
+  
   if (!isEmbed) {
     return (
       <a href={href}>

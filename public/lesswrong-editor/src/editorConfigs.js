@@ -90,9 +90,9 @@ const embedConfig = {
 		{
 			name: 'Estimaker',
 			url: /^estimaker\.app\/_\/([\w-]+).*/,
-			html: ([match, slug]) => {
+			html: ([match]) => {
 				return `
-					<div data-owid-slug="${slug}" class="estimaker-preview">
+					<div class="estimaker-preview">
 						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
 					</div>
 				`
