@@ -108,6 +108,7 @@ const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
 
 const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.estimaker-preview': {
+    display: 'flex',
     '& iframe': {
       width: '100%',
       height: 400,
