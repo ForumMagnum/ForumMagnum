@@ -53,7 +53,7 @@ export const useAdminToggle = (): {
     // If not a member of the realAdmins group, add that group
     // before giving up admin powers so that we'll be able to take
     // the admin powers back
-    let groups = currentUser.groups;
+    let groups = currentUser.groups || [];
     if (!groups.some(g => g === "realAdmins")) {
       groups = [...currentUser.groups, "realAdmins"]
       await updateCurrentUser({ groups })
