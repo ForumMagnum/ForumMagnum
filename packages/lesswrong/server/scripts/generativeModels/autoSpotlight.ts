@@ -33,7 +33,7 @@ async function createArtDescription(post: DbPost) {
   const queryImageRoot = `
     Describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be simple, such that key elements and themes are easily distinguishable when people see it.
 
-    After that, please write a one sentence prompt, ending with the phrase 'Minimalist watercolor painting on a white background, cartographic, diagrammtic --ar 2:1'. The entire prompty should be a single paragraph. It is very important that your answer ends with the prompt, with no additional commentary.
+    After that, please write a one sentence prompt, ending with the phrase 'Minimalist watercolor painting on a white background, diagrammtic --ar 2:1'. The entire prompty should be a single paragraph. It is very important that your answer ends with the prompt, with no additional commentary.
 
     Write your response as html with paragraph tags.
 
@@ -99,7 +99,7 @@ async function createSpotlights() {
 
     for (const [i, post] of Object.entries(spotlightPosts)) {
       // eslint-disable-next-line no-console
-      console.log(i, posts.length, post.title)
+      console.log(i, spotlightPosts.length, post.title)
       const summaries =  await Promise.all([...createSpotlightDescription(post), createArtDescription(post)])
       const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
             
