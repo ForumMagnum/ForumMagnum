@@ -54,6 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       width: 34,
       backgroundColor: theme.palette.grey[250],
+    },
+    '@media(max-width: 1370px)': {
+      display: 'none'
     }
   },
   sidebarToggleIcon: {
@@ -370,6 +373,8 @@ export const EAHomeRightHandSide = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   const { timezone } = useTimezone()
+  // logged in users can hide the RHS - this is tracked via state so that the UI is snappy
+  const [isHidden, setIsHidden] = useState(!!currentUser?.hideHomeRHS)
 
   const now = moment().tz(timezone)
   const dateCutoff = now.subtract(7, 'days').format("YYYY-MM-DD")
@@ -408,14 +413,15 @@ export const EAHomeRightHandSide = ({classes}: {
     )
   )
   
-  const rhsHidden = currentUser?.hideHomeRHS
   const handleToggleSidebar = () => {
     if (!currentUser) return
     
-    if (rhsHidden) {
+    if (isHidden) {
+      setIsHidden(false)
       captureEvent("homeRhsShown")
       void updateCurrentUser({hideHomeRHS: false})
     } else {
+      setIsHidden(true)
       captureEvent("homeRhsHidden")
       void updateCurrentUser({hideHomeRHS: true})
     }
@@ -426,11 +432,13 @@ export const EAHomeRightHandSide = ({classes}: {
   
   const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
   
-  const sidebarToggleNode = <LWTooltip title={rhsHidden ? 'Show sidebar' : 'Hide sidebar'} className={classes.sidebarToggle}>
-    <ForumIcon icon={rhsHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} onClick={handleToggleSidebar} />
-  </LWTooltip>
+  const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
+    <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
+      <ForumIcon icon={isHidden ? 'ThickChevronLeft' : 'ThickChevronRight'} className={classes.sidebarToggleIcon} />
+    </LWTooltip>
+  </div>
   
-  if (rhsHidden) return sidebarToggleNode
+  if (isHidden) return sidebarToggleNode
   
   // NoSSR sections that could affect the logged out user cache
   let digestAdNode = <DigestAd classes={classes} />

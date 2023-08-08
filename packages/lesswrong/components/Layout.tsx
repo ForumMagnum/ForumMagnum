@@ -136,10 +136,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       `,
       gridTemplateColumns: `
         min-content
-        minmax(0, 1fr)
+        1fr
         min-content
         minmax(50px, max-content)
-        minmax(0, 1fr)
+        1fr
       `,
     },
     [theme.breakpoints.down('md')]: {
