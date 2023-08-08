@@ -813,13 +813,10 @@ const EstimakerPreview = ({classes, href, innerHTML, id}: {
   const { AnalyticsTracker, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  // test if fits https://metaforecast.org/questions/embed/[...]
-  const isEmbed = /^https?:\/\/estimaker\.app\/_\/.+$/.test(href);
+  // test if fits https://estimaker.app/_/$user/$slug
+  const isEmbed = /^https:\/\/estimaker\.app\/_\/.+\/.+$/.test(href);
 
-  // test if it fits https://manifold.markets/questions/[...] instead
-  const [, questionId] = href.match(/^https?:\/\/metaforecast\.org\/questions\/([\w-]+)/) || [];
-
-  if (!isEmbed && !questionId) {
+  if (!isEmbed) {
     return (
       <a href={href}>
         <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
@@ -827,15 +824,12 @@ const EstimakerPreview = ({classes, href, innerHTML, id}: {
     );
   }
 
-  const url = isEmbed ? href : `https://metaforecast.org/questions/embed/${questionId}`;
-
   return (
     <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
       <span {...eventHandlers}>
         <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
-
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <iframe className={classes.iframeStyling} src={url} />
+          <iframe className={classes.iframeStyling} src={href} />
         </LWPopper>
       </span>
     </AnalyticsTracker>
