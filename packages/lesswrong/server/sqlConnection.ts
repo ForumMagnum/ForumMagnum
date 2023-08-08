@@ -120,35 +120,25 @@ const onConnectQueries: string[] = [
   // Calculate the similarity between the tags on two posts from 0 to 1, where 0 is
   // totally dissimilar and 1 is identical. The algorithm used here is a weighted
   // Jaccard index.
-  `DO $$
-  BEGIN
-    IF EXISTS (
-      SELECT 1
-      FROM information_schema.tables
-      WHERE table_name = 'Posts'
-    ) THEN
-    CREATE OR REPLACE FUNCTION fm_post_tag_similarity(
-      post_id_a TEXT,
-      post_id_b TEXT
-    )
-      RETURNS FLOAT LANGUAGE sql IMMUTABLE AS
-    'SELECT
-        COALESCE(SUM(LEAST(a, b))::FLOAT / SUM(GREATEST(a, b))::FLOAT, 0) AS similarity
+  `CREATE OR REPLACE FUNCTION fm_post_tag_similarity(
+    post_id_a TEXT,
+    post_id_b TEXT
+  )
+    RETURNS FLOAT LANGUAGE sql IMMUTABLE AS
+   'SELECT
+      COALESCE(SUM(LEAST(a, b))::FLOAT / SUM(GREATEST(a, b))::FLOAT, 0) AS similarity
+    FROM (
+      SELECT
+        GREATEST((a."tagRelevance"->"tagId")::INTEGER, 0) AS a,
+        GREATEST((b."tagRelevance"->"tagId")::INTEGER, 0) AS b
       FROM (
-        SELECT
-          GREATEST((a."tagRelevance"->"tagId")::INTEGER, 0) AS a,
-          GREATEST((b."tagRelevance"->"tagId")::INTEGER, 0) AS b
-        FROM (
-          SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
-          FROM "Posts"
-          WHERE "_id" IN (post_id_a, post_id_b)
-        ) "allTags"
-        JOIN "Posts" a ON a."_id" = post_id_a
-        JOIN "Posts" b ON b."_id" = post_id_b
-      ) "tagRelevance";';
-    END IF;
-  END;
-  $$;
+        SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+        FROM "Posts"
+        WHERE "_id" IN (post_id_a, post_id_b)
+      ) "allTags"
+      JOIN "Posts" a ON a."_id" = post_id_a
+      JOIN "Posts" b ON b."_id" = post_id_b
+    ) "tagRelevance";'
   `,
   // Check if candidate is a subset of target, where both are of the type Record<string, string>
   `CREATE OR REPLACE FUNCTION fm_jsonb_subset(target jsonb, candidate jsonb)
@@ -192,26 +182,16 @@ const onConnectQueries: string[] = [
   `,
   // Extract an array of strings containing all of the tag ids that are attached to a
   // post. Only tags with a relevance score >= 1 are included.
-  `DO $$
-  BEGIN
-    IF EXISTS (
-      SELECT 1
-      FROM information_schema.tables
-      WHERE table_name = 'Posts'
-    ) THEN
-    CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
-      RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
-    'SELECT ARRAY_AGG(tags."tagId")
-      FROM "Posts" p
-      JOIN (
-        SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
-        FROM "Posts"
-        WHERE "_id" = post_id
-      ) tags ON p."_id" = post_id
-      WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;';
-    END IF;
-  END;
-  $$;
+  `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
+    RETURNS TEXT[] LANGUAGE sql IMMUTABLE AS
+   'SELECT ARRAY_AGG(tags."tagId")
+    FROM "Posts" p
+    JOIN (
+      SELECT JSONB_OBJECT_KEYS("tagRelevance") AS "tagId"
+      FROM "Posts"
+      WHERE "_id" = post_id
+    ) tags ON p."_id" = post_id
+    WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
   `,
 ];
 
