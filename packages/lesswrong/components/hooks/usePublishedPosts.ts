@@ -34,10 +34,11 @@ export function usePublishedPosts(userId: string, contentLimit = 20) {
 
   const postsToDisplay = posts.filter((post) => !post.draft || everPublishedPostIds.has(post._id));
 
+  // lwEventsLoading will be true if we're skipping it, which leads to incorrectly showing the spinner
   const loading = postsLoading || (lwEventsLoading && !skipEvents);
 
   return {
     posts: loading ? undefined : postsToDisplay,
     loading
-  }
+  };
 }
