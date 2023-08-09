@@ -152,7 +152,7 @@ const AnonymousEmojiTooltipContent: FC<{
 
 const joinStringList = (items: string[]) =>
   items.length > 1
-    ? items.slice(0, -1).join(", ") + ", and " + items.at(-1)
+    ? items.slice(0, -1).join(", ") + ", and " + items[items.length - 1]
     : items[0];
 
 const EmojiTooltipContent: FC<{

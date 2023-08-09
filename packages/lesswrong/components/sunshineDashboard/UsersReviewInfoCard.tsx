@@ -9,6 +9,7 @@ import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { UserKarmaInfo } from '../../lib/rateLimits/types';
 import { truncate } from '../../lib/editor/ellipsize';
+import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 export const CONTENT_LIMIT = 20
 
@@ -190,13 +191,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
-  const { results: posts = [], loading: postsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersPosts", userId: user._id},
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-    fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
-  });
+  const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
