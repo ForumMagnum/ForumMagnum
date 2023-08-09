@@ -97,7 +97,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         ORDER BY "postId", "confidence" DESC
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
-      ORDER BY q."confidence" DESC
+      ORDER BY q."confidence" DESC, c."createdAt" ASC
       OFFSET $2
       LIMIT $3
     `, [minScore, offset, limit]);
