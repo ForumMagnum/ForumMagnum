@@ -31,6 +31,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   childrenOfGroup: {
     marginLeft: 12,
   },
+  groupedCommentChildrenIndicator: {
+    fontSize: 20,
+    position: "absolute",
+    color: theme.palette.greyAlpha(0.6),
+    top: 2,
+    left: -2,
+  },
   loadMoreReplies: {
     paddingLeft: 12,
     paddingBottom: 8,
@@ -292,6 +299,10 @@ const CommentsNode = ({
           [classes.childrenOfGroup]: !!groupedComments,
         }
       )}>
+        {groupedComments && <div className={classes.groupedCommentChildrenIndicator}>
+          {"›"}
+        </div>}
+
         <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>
         { showExtraChildrenButton }
         {childComments.map(child =>
