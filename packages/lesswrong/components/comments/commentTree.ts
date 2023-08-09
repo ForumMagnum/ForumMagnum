@@ -181,4 +181,12 @@ export interface CommentTreeOptions {
    * comment-bubble on the right side showing the descendent count.
    */
   singleLineCommentsShowDescendentCount?: boolean,
+  
+  /**
+   * Whether the comment-bubble icon shown on the right edge of single-line
+   * comments should be faint (so it blends with the no-unread-comments status
+   * of PostsItems, eg on the All Posts page), or dark so it's more readable
+   * (as in comment-pools).
+   */
+  hiddenCommentIconColor?: "faint"|"dark"
 }

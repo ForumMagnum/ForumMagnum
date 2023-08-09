@@ -39,6 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariantNumeric:"lining-nums",
     ...theme.typography.commentStyle
   },
+  neutralColor: {
+    color: theme.palette.icon.commentsBubble.neutral,
+  },
   noUnreadComments: {
     color: theme.palette.icon.commentsBubble.noUnread,
   },
@@ -58,17 +61,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({ commentCount, small, onClick, color, classes }: {
   commentCount: number,
   small: boolean,
   onClick?: ()=>void,
-  unreadComments: boolean,
-  newPromotedComments: boolean,
+  color: "newPromoted"|"unread"|"noUnread"|"neutral"
   classes: ClassesType,
 }) => {
-  let unreadCommentsClass =  classes.noUnreadComments
-  if (unreadComments) { unreadCommentsClass = classes.unreadComments }
-  if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
+  let unreadCommentsClass = classes.noUnreadComments
+  if (color==="unread") { unreadCommentsClass = classes.unreadComments }
+  if (color==="newPromoted") { unreadCommentsClass = classes.unreadComments }
+  if (color==="neutral") { unreadCommentsClass = classes.neutralColor }
 
   return (
     <div className={small ? classes.commentsIconSmall : classes.commentsIconLarge} onClick={onClick}>

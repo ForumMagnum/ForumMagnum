@@ -263,6 +263,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentsBubble: {
       commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),
+      neutral: shades.greyAlpha(.5),
       newPromoted: "rgb(160, 225, 165)",
     },
   },

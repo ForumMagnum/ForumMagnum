@@ -147,8 +147,7 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
           <PostsItemComments
             small={true}
             commentCount={hiddenCommentCount}
-            unreadComments={false}
-            newPromotedComments={false}
+            color="neutral"
           />
         </span> : undefined}
       </div>

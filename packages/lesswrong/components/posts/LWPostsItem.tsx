@@ -490,8 +490,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 small={false}
                 commentCount={commentCount}
                 onClick={toggleComments}
-                unreadComments={hasUnreadComments}
-                newPromotedComments={hasNewPromotedComments}
+                color={hasNewPromotedComments ? "newPromoted" : (hasUnreadComments ? "unread" : "noUnread")}
               />
             </div>}
 

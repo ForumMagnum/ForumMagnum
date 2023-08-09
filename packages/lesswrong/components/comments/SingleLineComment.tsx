@@ -211,8 +211,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {(showDescendentCount && showDescendentCount>0) ? <PostsItemComments
           small={true}
           commentCount={showDescendentCount}
-          unreadComments={false}
-          newPromotedComments={false}
+          color={treeOptions.hiddenCommentIconColor==="dark" ? "neutral" : "noUnread"}
         /> : undefined}
       </ContentStyles>
       <LWPopper

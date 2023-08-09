@@ -145,8 +145,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
         <PostsItemComments
           small={true}
           commentCount={commentCount}
-          unreadComments={false}
-          newPromotedComments={false}
+          color="noUnread"
         />
       </Link>}
     </div>

@@ -190,6 +190,7 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
   treeOptions = {
     ...treeOptions,
     singleLineCommentsShowDescendentCount: true,
+    hiddenCommentIconColor: "dark",
   };
 
   const showTopLevelLoadMore = !disableTopLevelLoadMore && (
@@ -335,8 +336,14 @@ function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
     commentId => -state.commentsById[commentId].comment.baseScore);
 
   const commentIdsToReveal = take(byDescendingKarma, n);
+  
   // TODO: Make a decision about the truncation-state of these
-  return revealComments(state, commentIdsToReveal);
+  const initialTruncation: Partial<Record<string,CommentExpansionState>> = toDictionary(
+    commentIdsToReveal, id=>id,
+    id=>'truncated'
+  );
+
+  return revealComments(state, commentIdsToReveal, initialTruncation);
 }
 
 /**
@@ -392,8 +399,6 @@ function revealAncestorChain(state: CommentPoolState, commentId: string): Commen
 }
 
 function changeExpansionState(state: CommentPoolState, commentId: string, oldExpansionState: CommentExpansionState, newExpansionState: CommentExpansionState) {
-  console.log(`Changing expansion state of ${commentId} from ${oldExpansionState} to ${newExpansionState}`);
-
   // Update the expansion-state
   state = {
     ...state,

@@ -432,7 +432,7 @@ function useExpansionState({comment, commentPoolContext, treeOptions, isNewComme
         setTruncated(false);
       }
     }
-  }, [commentId, commentPoolContext, expansionState, setSingleLine, setTruncated]);
+  }, [commentId, commentPoolContext, setSingleLine, setTruncated]);
 
   if (commentPoolContext) {
     const expansionState = commentPoolContext.getCommentState(commentId)?.expansion ?? "default";
