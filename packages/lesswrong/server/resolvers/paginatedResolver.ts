@@ -8,7 +8,12 @@ import {
  * Create a paginated resolver for use on the frontend with `usePaginatedResolver`.
  * This enables having custom SQL queries with a `useMulti`-like interface.
  */
-export const createPaginatedResolver = <T>({name, graphQLType, callback}: {
+export const createPaginatedResolver = <T>({
+  name,
+  graphQLType,
+  callback,
+  cacheMaxAgeMs = 0,
+}: {
   /**
    * The name of the resolver - this should match `resolverName` in the call to
    * `usePaginatedResolver`
@@ -24,15 +29,31 @@ export const createPaginatedResolver = <T>({name, graphQLType, callback}: {
    * repos are available in `context.repos`).
    */
   callback: (context: ResolverContext, limit: number) => Promise<T[]>,
+  /**
+   * Optional cache TTL in milliseconds - if undefined or 0 no cache is used
+   */
+  cacheMaxAgeMs?: number,
 }) => {
+  let cachedAt = Date.now();
+  let cached: T[] = [];
+
   addGraphQLResolvers({
     Query: {
       [name]: async (
         _: void,
         {limit}: {limit: number},
         context: ResolverContext,
-      ) => {
+      ): Promise<{results: T[]}> => {
+        if (
+          cacheMaxAgeMs > 0 &&
+          Date.now() - cachedAt < cacheMaxAgeMs &&
+          cached.length >= limit
+        ) {
+          return {results: cached.slice(0, limit)};
+        }
         const results = await callback(context, limit);
+        cachedAt = Date.now();
+        cached = results;
         return {results};
       },
     },

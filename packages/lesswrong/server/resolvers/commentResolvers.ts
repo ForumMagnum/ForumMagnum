@@ -84,4 +84,5 @@ createPaginatedResolver({
     context: ResolverContext,
     limit: number,
   ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
+  cacheMaxAgeMs: 300000, // 5 mins
 });
