@@ -107,12 +107,17 @@ const VirtualProgramCard = ({program, classes}: {
   const { captureEvent } = useTracking()
   
   // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
-  // (though it will sometimes move to the 5th Sunday - this is not accounted for in the code).
+  // (though it will sometimes move to the 3rd or 5th Sunday - this is not accounted for in the code).
   // This defaults to the Sunday in the week of the 28th day of this month.
-  let deadline = moment().date(28).day(0)
+  const now = moment()
+  let deadline = now.date(28).day(0)
+  // Aug 2023 has the deadline on the 3rd Sunday
+  if (now.month() === 7) {
+    deadline.subtract(1, 'week')
+  }
   // If that Sunday is in the past, use next month's 4th Sunday.
   if (deadline.isBefore(moment())) {
-    deadline = moment().add(1, 'months').date(28).day(0)
+    deadline = now.add(1, 'months').date(28).day(0)
   }
   
   // VP starts 15 days after the deadline, on a Monday

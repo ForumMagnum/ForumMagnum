@@ -165,17 +165,19 @@ const brigaderCheck = async (postId?: string, userId?: string) => {
     console.error(helpMessage);
     process.exit(1);
   }
-  const mongoPath = "../ForumCredentials/prod-db-conn.txt";
-  const mongoUrl = (await readFile(mongoPath)).toString().trim();
-  const client = new MongoClient(mongoUrl, {useUnifiedTopology: true});
-  await client.connect();
-  const db = client.db();
-  if (userId) {
-    await checkVotesForUser(db, postId, userId);
-  } else {
-    await checkVotes(db, postId);
-  }
-  await client.close();
+  // TODO: this is broken
+  throw new Error("Needs to use postgres")
+  // const mongoPath = "../ForumCredentials/prod-db-conn.txt";
+  // const mongoUrl = (await readFile(mongoPath)).toString().trim();
+  // const client = new MongoClient(mongoUrl, {useUnifiedTopology: true});
+  // await client.connect();
+  // const db = client.db();
+  // if (userId) {
+  //   await checkVotesForUser(db, postId, userId);
+  // } else {
+  //   await checkVotes(db, postId);
+  // }
+  // await client.close();
 }
 
 brigaderCheck(process.argv[2], process.argv[3]);
