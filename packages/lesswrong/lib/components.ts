@@ -945,6 +945,7 @@ importComponent("Book2018Landing", () => require('../components/books/Book2018La
 importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
 importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
+importComponent("Book2020Animation", () => require('../components/books/Book2020Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
 
