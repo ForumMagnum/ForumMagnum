@@ -192,7 +192,7 @@ const LWRecommendations = ({
   return render();
 }
 
-const LWRecommendationsComponent = registerComponent("RecommendationsAndCurated", LWRecommendations, {styles});
+const LWRecommendationsComponent = registerComponent("LWRecommendations", LWRecommendations, {styles});
 
 declare global {
   interface ComponentTypes {
