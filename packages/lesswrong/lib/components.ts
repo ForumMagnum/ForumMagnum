@@ -948,6 +948,7 @@ importComponent("Book2019Animation", () => require('../components/books/Book2019
 importComponent("Book2020Animation", () => require('../components/books/Book2020Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
+importComponent("Book2020FrontpageWidget", () => require('../components/books/Book2020FrontpageWidget'));
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));

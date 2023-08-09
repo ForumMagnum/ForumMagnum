@@ -211,7 +211,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const Book2019Animation = ({ classes, children, successContent }: {
+const Book2020Animation = ({ classes, children, successContent }: {
   classes: ClassesType,
   children: ReactNode,
   successContent?: any
@@ -258,7 +258,7 @@ const Book2019Animation = ({ classes, children, successContent }: {
 }
 
 
-const Book2019AnimationComponent = registerComponent('Book2019Animation', Book2019Animation, {
+const Book2020AnimationComponent = registerComponent('Book2020Animation', Book2020Animation, {
   styles,
   // This component tries to look like a printed book, which is white, so its colors
   // don't change in dark mode
@@ -267,6 +267,6 @@ const Book2019AnimationComponent = registerComponent('Book2019Animation', Book20
 
 declare global {
   interface ComponentTypes {
-    Book2019Animation: typeof Book2019AnimationComponent
+    Book2020Animation: typeof Book2020AnimationComponent
   }
 }

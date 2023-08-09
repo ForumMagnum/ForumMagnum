@@ -89,7 +89,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
-const RecommendationsAndCurated = ({
+const LWRecommendations = ({
   configName,
   classes,
 }: {
@@ -110,7 +110,7 @@ const RecommendationsAndCurated = ({
 
   const render = () => {
     const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList } = Components;
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -151,6 +151,7 @@ const RecommendationsAndCurated = ({
     );
 
     return <SingleColumnSection className={classes.section}>
+      <Book2020FrontpageWidget/>
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
         {showSettings &&
@@ -191,10 +192,10 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+const LWRecommendationsComponent = registerComponent("RecommendationsAndCurated", LWRecommendations, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
+    LWRecommendations: typeof LWRecommendationsComponent
   }
 }
