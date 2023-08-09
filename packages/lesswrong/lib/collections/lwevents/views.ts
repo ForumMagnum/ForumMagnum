@@ -7,6 +7,7 @@ declare global {
     name?: string,
     postId?: string,
     userId?: string,
+    postIds?: string[]
   }
 }
 
@@ -63,3 +64,12 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
 
 // Index used in manual user-by-IP queries, and in some moderator UI
 ensureIndex(LWEvents, {name:1, "properties.ip":1, createdAt:1, userId:1})
+
+LWEvents.addView("postEverPublished", (terms) => ({
+  selector: {
+    name: 'fieldChanges',
+    documentId: { $in: terms.postIds },
+    'properties.before.draft': false,
+    'properties.after.draft': true
+  }
+}));
