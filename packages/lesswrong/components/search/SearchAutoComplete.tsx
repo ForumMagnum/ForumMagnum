@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
+import { getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
@@ -35,7 +35,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   renderInputComponent?: any,
   filters?: string,
 }) => {
-  if (!isAlgoliaEnabled()) {
+  if (!isSearchEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
