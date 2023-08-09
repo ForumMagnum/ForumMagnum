@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import Spotlights from '../../lib/collections/spotlights/collection';
 import { useMulti } from '../../lib/crud/withMulti';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';

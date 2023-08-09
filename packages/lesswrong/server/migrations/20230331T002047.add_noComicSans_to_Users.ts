@@ -39,6 +39,7 @@ import { addRemovedField, dropRemovedField } from "./meta/utils"
 export const up = async ({db}: MigrationContext) => {
   if (!Users.isPostgres()) return
   
+  // TODO: This appears not to work
   await addRemovedField(db, Users, "noComicSans")
 }
 

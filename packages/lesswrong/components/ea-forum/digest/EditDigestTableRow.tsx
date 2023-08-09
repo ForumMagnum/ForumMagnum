@@ -280,7 +280,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
-      {post.commentCount && <a href={`${postGetPageUrl(post)}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
+      {post.commentCount > 0 && <a href={`${postGetPageUrl(post)}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
         <ForumIcon icon="Comment" className={classes.commentIcon} />
         {post.commentCount}
       </a>}

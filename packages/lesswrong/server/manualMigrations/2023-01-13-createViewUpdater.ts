@@ -3,6 +3,9 @@ import { registerMigration } from './migrationUtils';
 
 // Postgres tables have weird casing because of legacy requirements
 // This creates a set of views which are a case insensitive copy of the actual tables
+//
+// NOTE: This is not the most up to date version of this migration, a new version is in
+// packages/lesswrong/server/manualMigrations/2023-07-28-viewUpdaterErrorHandling.ts
 registerMigration({
   name: "createViewUpdater",
   dateWritten: "2023-01-13",

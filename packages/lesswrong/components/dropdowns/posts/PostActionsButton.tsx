@@ -23,11 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, includeBookmark=true, classes}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, classes}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
   autoPlace?: boolean,
+  flip?: boolean,
   includeBookmark?: boolean,
   classes: ClassesType,
 }) => {
@@ -72,6 +73,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, includeBookmar
       anchorEl={anchorEl.current}
       placement={popperPlacement}
       allowOverflow
+      flip={flip}
       style={gapStyle}
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}

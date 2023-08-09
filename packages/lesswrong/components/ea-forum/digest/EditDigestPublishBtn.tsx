@@ -1,20 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
-import Button from '@material-ui/core/Button';
 import { useDialog } from '../../common/withDialog';
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  btn: {
-    fontSize: 14,
-    textTransform: 'none',
-    boxShadow: 'none'
-  },
-  publishBtn: {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-  },
   questionMark: {
     alignSelf: 'center',
     color: theme.palette.grey[600]
@@ -61,17 +50,12 @@ const EditDigestPublishBtn = ({digest, classes} : {
     }
   }
   
-  const { LWTooltip, ForumIcon } = Components
+  const { EAButton, LWTooltip, ForumIcon } = Components
 
   return <>
-    <Button
-      variant={isPublished ? 'outlined' : 'contained'}
-      color="primary"
-      onClick={handleBtnClick}
-      className={classNames(classes.btn, {[classes.publishBtn]: !isPublished})}
-    >
+    <EAButton variant={isPublished ? 'outlined' : 'contained'} onClick={handleBtnClick}>
       {isPublished ? 'Unpublish' : 'Publish'}
-    </Button>
+    </EAButton>
 
     <LWTooltip
       title={<>

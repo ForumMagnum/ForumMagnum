@@ -59,6 +59,8 @@ const PostsEditForm = ({ documentId, classes }: {
     collectionName: "Users",
     fragmentName: "UsersCurrentPostRateLimit",
     skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
     

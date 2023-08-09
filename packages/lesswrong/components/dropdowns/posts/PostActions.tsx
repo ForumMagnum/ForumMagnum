@@ -12,6 +12,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     minWidth: isEAForum ? undefined : 300,
+    maxWidth: "calc(100vw - 100px)",
   },
 })
 

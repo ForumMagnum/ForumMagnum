@@ -5,7 +5,6 @@ import fs from 'fs';
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
-    mongoUrl: process.env.MONGO_URL || "",
     postgresUrl: process.env.PG_URL || "",
     postgresReadUrl: process.env.PG_READ_URL || "",
     settingsFileName: "settings.json",

@@ -587,6 +587,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
+  postCategory: "post" | "linkpost" | "question"
   title: string
   slug: string
   viewCount: number
@@ -985,6 +986,7 @@ interface DbTag extends DbObject {
   slug: string
   oldSlugs: Array<string>
   core: boolean
+  isPostType: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
   descriptionTruncationCount: number
