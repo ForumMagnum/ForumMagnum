@@ -27,11 +27,15 @@ const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+  },
+  wrap: {
+    flexWrap: "wrap",
+    rowGap: "6px",
   },
   postWrapper: {
     overflow: "hidden",
     textOverflow: "ellipsis",
+    marginRight: 8,
   },
   post: {
     color: theme.palette.grey[1000],
@@ -54,13 +58,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     whiteSpace: "nowrap",
     color: theme.palette.grey[1000],
+    marginRight: 10,
   },
   date: {
     color: theme.palette.grey[600],
-  },
-  vote: {
-    display: "flex",
-    alignItems: "center",
+    marginRight: 6,
   },
   body: {
     lineHeight: "160%",
@@ -137,10 +139,8 @@ const PopularComment = ({comment, classes}: {
           classes={classes}
         />
       }
-      <div className={classes.row}>
-        <InteractionWrapper>
-          <UsersName user={comment.user} className={classes.username} />
-        </InteractionWrapper>
+      <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
+        <UsersName user={comment.user} className={classes.username} />
         <div className={classes.date}>
           <LWTooltip
             placement="right"
@@ -150,15 +150,13 @@ const PopularComment = ({comment, classes}: {
           </LWTooltip>
         </div>
         {!comment.debateResponse && !comment.rejected &&
-          <InteractionWrapper className={classes.vote}>
-            <SmallSideVote
-              document={comment}
-              collection={Comments}
-              hideKarma={comment.post?.hideCommentKarma}
-            />
-          </InteractionWrapper>
+          <SmallSideVote
+            document={comment}
+            collection={Comments}
+            hideKarma={comment.post?.hideCommentKarma}
+          />
         }
-      </div>
+      </InteractionWrapper>
       {expanded
         ? (
           <CommentBody comment={comment} className={classes.body} />
