@@ -89,7 +89,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
-const RecommendationsAndCurated = ({
+const LWRecommendations = ({
   configName,
   classes,
 }: {
@@ -191,10 +191,10 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+const LWRecommendationsComponent = registerComponent("LWRecommendations", LWRecommendations, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
+    LWRecommendations: typeof LWRecommendationsComponent
   }
 }

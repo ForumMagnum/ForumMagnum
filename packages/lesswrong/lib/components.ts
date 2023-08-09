@@ -873,6 +873,7 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("LWRecommendations", () => require('../components/recommendations/LWRecommendations'));
 importComponent("RecommendationsSamplePage", () => require('../components/recommendations/RecommendationsSamplePage'));
 importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
