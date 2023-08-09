@@ -70,7 +70,7 @@ export const NewPostHowToGuides = ({classes}: {
       <div className={classes.root}>
         <div className={classes.title}>How-to guides</div>
         {guides.map(({icon, label, url}) =>
-          <Link to={url} className={classes.howToGuide}>
+          <Link to={url} className={classes.howToGuide} key={label}>
             <ForumIcon icon={icon} /> {label}
           </Link>
         )}
