@@ -20,6 +20,11 @@ export type UsePaginatedResolverResult<
   limit: number,
 }
 
+/**
+ * This hook provides a `useMulti`-like interface to use with custom paginated
+ * resolvers created on the server with `createPaginatedResolver`. Arguments
+ * match the semantics of `useMulti`.
+ */
 export const usePaginatedResolver = <
   FragmentName extends keyof FragmentTypes
 >({
