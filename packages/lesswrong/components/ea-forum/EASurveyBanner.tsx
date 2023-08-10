@@ -4,7 +4,6 @@ import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
-import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "../../lib/cookies/cookies";
 import NoSSR from "react-no-ssr";
 import moment from "moment";
 
@@ -65,9 +64,16 @@ const styles = (theme: ThemeType) => ({
  *   2) The banner currently obscures the autocomplete window that popups up
  *      when typing in the search box. We probably just need to add some kind
  *      of top margin or offset.
+ *   3) We also removed the old cookie, so a new cookie name needs to be added
+ *      below. We previously used:
+ *      export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
+ *        name: "hide_ea_forum_survey_banner",
+ *        type: "necessary",
+ *        description: "Don't show the EA Forum survey banner",
+ *      });
  */
 const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
-  const cookieName = HIDE_EA_FORUM_SURVEY_BANNER_COOKIE;
+  const cookieName = ""; // TODO: Insert new cookie name
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
