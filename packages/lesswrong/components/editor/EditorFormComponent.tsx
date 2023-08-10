@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
@@ -16,6 +16,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
+import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -61,9 +62,10 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  
+  const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
+
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
+    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
@@ -73,6 +75,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     value, document, fieldName, currentUser
   ));
   const [initialEditorType] = useState(contents.type);
+
+  const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
@@ -202,6 +206,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
+    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(change.contents);
+    }
     setContents(newContents);
     
     // Only save to localStorage if not using collaborative editing, since with
@@ -234,8 +241,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism, dynamicTableOfContents, editableFieldOptions.hasToc]);
   
+  const hasGeneratedFirstToC = useRef({generated: false});
+  useEffect(() => {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(contents);
+      hasGeneratedFirstToC.current.generated = true;
+    }
+  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
       if (hasUnsavedDataRef?.current?.hasUnsavedData) {

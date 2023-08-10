@@ -173,7 +173,7 @@ const PostsNewForm = ({classes}: {
   });
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning } = Components
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -248,44 +248,47 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <div className={classes.postForm}>
-      <RecaptchaWarning currentUser={currentUser}>
-        <Components.PostsAcceptTos currentUser={currentUser} />
-        {postWillBeHidden && <NewPostModerationWarning />}
-        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-        <NoSSR>
-          <WrappedSmartForm
-            collectionName="Posts"
-            mutationFragment={getFragment('PostsPage')}
-            prefilledProps={prefilledProps}
-            successCallback={(post: any, options: any) => {
-              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              if (options?.submitOptions?.redirectToEditor) {
-                history.push(postGetEditUrl(post._id));
-              } else {
-                // If they are publishing a non-draft post, show the share popup
-                const showSharePopup = isEAForum && !post.draft
-                const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                const url  = postGetPageUrl(post);
-                history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+    <DynamicTableOfContents title={"New Post"}>
+      <div className={classes.postForm}>
+        <RecaptchaWarning currentUser={currentUser}>
+          <Components.PostsAcceptTos currentUser={currentUser} />
+          {postWillBeHidden && <NewPostModerationWarning />}
+          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          <NoSSR>
+              <WrappedSmartForm
+                collectionName="Posts"
+                mutationFragment={getFragment('PostsPage')}
+                prefilledProps={prefilledProps}
+                successCallback={(post: any, options: any) => {
+                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+                  if (options?.submitOptions?.redirectToEditor) {
+                    history.push(postGetEditUrl(post._id));
+                  } else {
+                    // If they are publishing a non-draft post, show the share popup
+                    const showSharePopup = isEAForum && !post.draft
+                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                    const url  = postGetPageUrl(post);
+                    history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
 
-                const postDescription = post.draft ? "Draft" : "Post";
-                if (!showSharePopup) {
-                  flash({ messageString: `${postDescription} created`, type: 'success'});
-                }
-              }
-            }}
-            eventForm={eventForm}
-            debateForm={debateForm}
-            repeatErrors
-            noSubmitOnCmdEnter
-            formComponents={{
-              FormSubmit: NewPostsSubmit
-            }}
-          />
-        </NoSSR>
-      </RecaptchaWarning>
-    </div>
+                    const postDescription = post.draft ? "Draft" : "Post";
+                    if (!showSharePopup) {
+                      flash({ messageString: `${postDescription} created`, type: 'success'});
+                    }
+                  }
+                }}
+                eventForm={eventForm}
+                debateForm={debateForm}
+                repeatErrors
+                noSubmitOnCmdEnter
+                formComponents={{
+                  FormSubmit: NewPostsSubmit
+                }}
+              />
+          </NoSSR>
+        </RecaptchaWarning>
+      </div>
+    </DynamicTableOfContents>
+
   );
 }
 
