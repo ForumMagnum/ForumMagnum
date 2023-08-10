@@ -214,7 +214,15 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
             WHERE
-              "Posts"."userId" = $1
+              (
+                "Posts"."userId" = $1
+                OR
+                "Posts"._id IN (
+                  SELECT _id
+                  FROM "Posts", UNNESTED("coauthorStatuses") unnested
+                  WHERE UNNESTED ->> 'userId' = $1
+                )
+              )
               AND
               "Posts"."draft" IS NOT true
             ORDER BY "Posts"."postedAt" DESC
@@ -251,7 +259,15 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
             WHERE
+            (
               "Posts"."userId" = $1
+              OR
+              "Posts"._id IN (
+                SELECT _id
+                FROM "Posts", UNNESTED("coauthorStatuses") unnested
+                WHERE UNNESTED ->> 'userId' = $1
+              )
+            )
             AND
               "Posts"."draft" IS NOT true
             AND
