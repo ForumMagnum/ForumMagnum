@@ -299,7 +299,6 @@ export async function checkForStricterRateLimits(userId: string, context: Resolv
   const votesRepo = new VotesRepo();
 
   const allVotes = await votesRepo.getVotesOnRecentContent(votedOnUser._id);
-  console.log({ allVotes });
   const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes);
 
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
