@@ -52,6 +52,20 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+/**
+ * This banner is now disabled but the code is left here in case we want to
+ * do something similar again in the future. If so, there are a couple of bugs
+ * to fix:
+ *   1) We had some users complaining that the banner didn't get hidden properly
+ *      or that it would open again when revisiting the page. The most important
+ *      thing is that the cookie must be marked as "necessary" to ensure it works
+ *      for users who don't accept cookies. We still had some users who reported
+ *      it wasn't working properly though - maybe we should just disable the
+ *      banner entirely or users who don't accept cookies?
+ *   2) The banner currently obscures the autocomplete window that popups up
+ *      when typing in the search box. We probably just need to add some kind
+ *      of top margin or offset.
+ */
 const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
   const cookieName = HIDE_EA_FORUM_SURVEY_BANNER_COOKIE;
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
