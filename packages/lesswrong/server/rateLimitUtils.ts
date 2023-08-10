@@ -287,20 +287,23 @@ function triggerReviewForStricterRateLimits(
   }
 }
 
-export async function checkForStricterRateLimits(userIds: string[], context: ResolverContext) {
+export async function checkForStricterRateLimits(userId: string, context: ResolverContext) {
   // We can't use a loader here because we need the user's karma which was just updated by this vote
-  const votedOnUsers = await Users.find({ _id: { $in: userIds } }).fetch();
+  const votedOnUser = await Users.findOne({ _id: userId });
+  if (!votedOnUser) {
+    // eslint-disable-next-line no-console
+    console.error(`Couldn't find user with id ${userId} when checking for stricter rate limits after a vote`);
+    return;
+  }
 
   const votesRepo = new VotesRepo();
 
-  void Promise.all(votedOnUsers.map(async (user) => {
-    const allVotes = await votesRepo.getVotesOnRecentContent(user._id);
-    console.log({ allVotes });
-    const comparisonVotes = await getVotesForComparison(user._id, allVotes);
+  const allVotes = await votesRepo.getVotesOnRecentContent(votedOnUser._id);
+  console.log({ allVotes });
+  const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes);
 
-    const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(user, allVotes, comparisonVotes);
-    const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
+  const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
+  const { commentRateLimitComparison, postRateLimitComparison } = getRateLimitStrictnessComparisons(userKarmaInfoWindow);
 
-    triggerReviewForStricterRateLimits(user._id, commentRateLimitComparison, postRateLimitComparison, context);
-  }));
+  triggerReviewForStricterRateLimits(votedOnUser._id, commentRateLimitComparison, postRateLimitComparison, context);
 }

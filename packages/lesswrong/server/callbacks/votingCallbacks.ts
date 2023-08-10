@@ -23,7 +23,7 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
   }
 
   if (['Posts', 'Comments'].includes(vote.collectionName)) {
-    void checkForStricterRateLimits(vote.authorIds, context);
+    void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
 
