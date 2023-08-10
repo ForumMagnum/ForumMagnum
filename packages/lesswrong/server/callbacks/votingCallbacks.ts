@@ -1,5 +1,6 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
@@ -22,7 +23,7 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
     await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 
-  if (['Posts', 'Comments'].includes(vote.collectionName)) {
+  if (isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
