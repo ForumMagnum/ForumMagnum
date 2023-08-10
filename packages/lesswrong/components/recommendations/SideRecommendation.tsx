@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "160%",
     background: "transparent",
     borderRadius: theme.borderRadius.default,
-    padding: 8,
+    padding: "8px 8px 8px 0",
     marginBottom: 4,
     cursor: "pointer",
     "& a": {
@@ -32,6 +32,7 @@ const styles = (theme: ThemeType) => ({
     width: 50,
     minWidth: 50,
     display: "flex",
+    marginLeft: -6,
     flexDirection: "column",
     alignItems: "center",
     color: theme.palette.grey[600],

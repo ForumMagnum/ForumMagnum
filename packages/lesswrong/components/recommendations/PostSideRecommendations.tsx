@@ -29,7 +29,6 @@ const styles = (theme: ThemeType) => ({
   },
   list: {
     margin: "12px 0",
-    paddingLeft: "1em",
     "& li": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 13,
