@@ -287,8 +287,6 @@ function triggerReviewForStricterRateLimits(
   }
 }
 
-// function isNonEmptyArray()
-
 export async function checkForStricterRateLimits(userId: string, context: ResolverContext) {
   // We can't use a loader here because we need the user's karma which was just updated by this vote
   const votedOnUser = await Users.findOne({ _id: userId });
