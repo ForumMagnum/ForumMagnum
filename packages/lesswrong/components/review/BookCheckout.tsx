@@ -54,11 +54,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// deprecated
+// 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const amazonLink = "https://www.amazon.com/dp/1736128515"
 
 const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any)=>void,
@@ -80,7 +81,7 @@ const Message = ({ message, classes }: {message: string, classes: ClassesType}) 
     <p className={classes.messageParagraph}>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text}: {classes: ClassesType, ignoreMessages?: boolean, text?: string}) {
+export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -93,27 +94,8 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
   }, []);
   const handleClickAmazon = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
-    window.location.assign(amazonLink);
+    window.location.assign(link);
   }
-  // const handleClickStripe = async (event: Event) => {
-  //   captureEvent("preOrderButtonClicked")
-  //   const stripe = await stripePromise;
-  //   if (stripe) {
-  //     const response = await fetch("/create-session", {
-  //       method: "POST",
-  //     });
-  //     const session = await response.json();
-  //     // When the customer clicks on the button, redirect them to Checkout.
-  //     const result = await stripe.redirectToCheckout({
-  //       sessionId: session.id,
-  //     });
-  //     if (result.error) {
-  //       // If `redirectToCheckout` fails due to a browser or network
-  //       // error, display the localized error message to your customer
-  //       // using `result.error.message`.
-  //     }
-  //   }
-  // };
 
   return <div className={classes.root}>
     { (message && !ignoreMessages) ? (

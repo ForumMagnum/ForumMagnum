@@ -1711,6 +1711,17 @@ const schema: SchemaType<DbUser> = {
     label: "Hide the frontpage book ad"
   },
 
+  hideFrontpageBook2020Ad: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 47,
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
   sunshineNotes: {
     type: String,
     canRead: ['admins', 'sunshineRegiment'],

@@ -160,13 +160,13 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {/* <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
           <CurrentSpotlightItem />
-        </AnalyticsContext>
+        </AnalyticsContext> */}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
-            {renderRecommendations && (
+            {/* {renderRecommendations && (
               <AnalyticsContext
                 listContext="frontpageFromTheArchives"
                 pageSubSectionContext="frontpageFromTheArchives"
@@ -174,7 +174,7 @@ const LWRecommendations = ({
               >
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
-            )}
+            )} */}
             <div className={classes.curated}>
               <CuratedPostsList />
             </div>

@@ -11,8 +11,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 50,
     marginLeft: 'auto',
     marginRight: 'auto',
-    zIndex: theme.zIndexes.frontpageBooks,
     position: "relative",
+    left: -93,
+    zIndex: theme.zIndexes.frontpageBooks,
     '--book-animation-left-offset': '22.0px',
     '@media(max-width: 1375px)': {
       width: 'calc(100vw - 250px)',
@@ -85,7 +86,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       right: 0
     },
-    [theme.breakpoints.down('xs')]: {
+  [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
@@ -126,14 +127,14 @@ const Book2020FrontpageWidget = ({ classes }: {
   });
   const { openDialog } = useDialog();
 
-  if (currentUser?.hideFrontpageBook2019Ad) return null
+  if (currentUser?.hideFrontpageBook2020Ad) return null
 
   const hideClickHandler = async () => {
     if (currentUser) {
       await updateUser({
         selector: { _id: currentUser._id },
         data: {
-          hideFrontpageBook2019Ad: true
+          hideFrontpageBook2020Ad: true
         },
       })
     } else {
@@ -181,20 +182,20 @@ const Book2020FrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books/2019">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"} link={"https://www.amazon.com/Carving-Reality-Essays-LessWrong-Community/dp/B0C95MJJBK"}/>
           </>}
         />
       }>
         <BookMarketingText 
-          title={"The Engines of Cognition"} 
-          subtitle={"Newly Published Essays by the LessWrong Community"}
+          title={"The Carving of Reality"} 
+          subtitle={"Best of LessWrong, Volume III"}
           description={"In this new essay collection, LessWrong writers seek to understand key elements of the art of rationality. The collection features essays from Eliezer Yudkowsky, Scott Alexander, Zvi Mowshowitz, and over 30 more LessWrong writers. Starting with the simple epistemic question of when and how to trust different sources of information, the essays in the books move through understanding the lens of incentives, an exploration of when and why complex systems become modular, and finally into a discussions of failure, both personal and civilizational."}
           buttons={<>
             <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
             <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
               Learn More
             </Link>
-            <BookCheckout />
+            <BookCheckout link={"https://www.amazon.com/Carving-Reality-Essays-LessWrong-Community/dp/B0C95MJJBK"}/>
           </>}
         />
       </Book2020Animation>
