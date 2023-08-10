@@ -15,7 +15,6 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from '../../lib/cookies/cookies';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -128,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
     "& .headroom": {
-      top: 0,
+      top: "unset",
       left: 0,
       right: 0,
       zIndex: 1300,
@@ -157,11 +156,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "fixed !important",
     },
   },
-  headroomWithTopBanner: {
-    "& .headroom": {
-      top: "unset",
-    },
-  },
 });
 
 const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
@@ -182,12 +176,6 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
-  const [cookies] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
-
-  // Force the header to stay at the top on the EA forum when we show the
-  // survey banner
-  // TODO: Revert this when we remove the survey banner!
-  const hasTopBanner = isEAForum && cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] !== true;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -308,7 +296,6 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
           height={64}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
-            [classes.headroomWithTopBanner]: hasTopBanner,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
