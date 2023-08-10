@@ -22,7 +22,9 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
     await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 
-  void checkForStricterRateLimits(vote.authorIds, context);
+  if (['Posts', 'Comments'].includes(vote.collectionName)) {
+    void checkForStricterRateLimits(vote.authorIds, context);
+  }
 });
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
