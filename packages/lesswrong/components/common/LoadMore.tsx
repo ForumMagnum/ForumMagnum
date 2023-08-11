@@ -70,6 +70,7 @@ const LoadMore = ({
   sectionFooterStyles,
   afterPostsListMarginTop,
   message=preferredHeadingCase("Load More"),
+  stopEventPropagation,
 }: {
   // loadMore: Callback when clicked.
   loadMore: LoadMoreCallback,
@@ -90,6 +91,8 @@ const LoadMore = ({
   sectionFooterStyles?: boolean,
   afterPostsListMarginTop?: boolean,
   message?: string,
+  /** If set, the click event-handler also stops event propagation. */
+  stopEventPropagation?: boolean,
 }) => {
   const { captureEvent } = useTracking()
   const [loadMorePromisePending,setLoadMorePromisePending] = useState(false);
@@ -104,6 +107,9 @@ const LoadMore = ({
   const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    if (stopEventPropagation) {
+      event.stopPropagation();
+    }
     captureEvent("loadMoreClicked")
     const loadMoreResult = loadMore();
 

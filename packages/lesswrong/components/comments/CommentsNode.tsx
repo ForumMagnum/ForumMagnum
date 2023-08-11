@@ -339,6 +339,7 @@ const CommentsNode = ({
         && <div className={classes.loadMoreReplies}>
           <LoadMore
             message={loadMoreMessage}
+            stopEventPropagation={true}
             loadMore={async () => {
               await commentPoolContext.showMoreChildrenOf(comment._id);
             }}

@@ -378,7 +378,11 @@ function revealChildren(state: CommentPoolState, parentCommentId: string, n: num
 
   const commentIdsToReveal = take(byDescendingKarma, n);
   // TODO: Make a decision about the truncation-state of these
-  return revealComments(state, commentIdsToReveal);
+  const initialStates: Partial<Record<string,CommentExpansionState>> = toDictionary(
+    commentIdsToReveal,
+    id=>id, id=>'singleLine'
+  );
+  return revealComments(state, commentIdsToReveal, initialStates);
 }
 
 function revealParentOf(state: CommentPoolState, commentId: string): CommentPoolState {
@@ -462,7 +466,7 @@ function changeExpansionState(state: CommentPoolState, commentId: string, oldExp
  * the same way it would be if it was part of the initially loaded set and was
  * not in a CommentPool.
  */
-function revealComments(state: CommentPoolState, ids: string[], states?: Partial<Record<string,CommentExpansionState>>): CommentPoolState {
+function revealComments(state: CommentPoolState, ids: string[], states: Partial<Record<string,CommentExpansionState>>): CommentPoolState {
   if (!ids.length)
     return state;
 
