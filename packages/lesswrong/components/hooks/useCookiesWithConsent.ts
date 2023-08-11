@@ -7,6 +7,9 @@ import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from 
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { useCurrentUser } from "../common/withUser";
+import { ValueOf } from "type-fest";
+import { useUpdateCurrentUser } from "./useUpdateCurrentUser";
 
 const disableCookiePreferenceAutoUpdateSetting = new DatabasePublicSetting<boolean>('disableCookiePreferenceAutoUpdate', false)
 /** Global variable storing the last time the cookie preferences were updated automatically, to prevent several instances
@@ -83,6 +86,7 @@ export type Cookies = {
   [name: string]: AnyBecauseTodo;
 };
 
+/** TODO; doc */
 export function useCookiesWithConsent(dependencies?: string[]): [
   Cookies,
   (name: string, value: AnyBecauseTodo, options?: CookieSetOptions) => void,
@@ -107,4 +111,62 @@ export function useCookiesWithConsent(dependencies?: string[]): [
   );
 
   return [cookies, setCookie, removeCookieBase];
+}
+
+/**
+ * Hybrid between a setting on the db User object, and a cookie for logged out
+ * users
+ *
+ * To use this, you need to add `registerCookie` in cookies.ts, and add the
+ * setting to the user schema, CurrentUser fragment, and EditUserFragment
+ *
+ * TODO: Maybe we would prefer using localstorage TODO: I would like the type
+ * signature to be include: UnionToIntersection<keyof UsersCurrent, Cookies> but
+ * Cookies is currently too weakly typed.
+ */
+export function useUserPreference(setting: keyof UsersCurrent): [
+  /* settingValue */ ValueOf<UsersCurrent> | null,
+  /* setPreference */ (value: ValueOf<UsersCurrent>) => void,
+  /* removePreference */ () => void,
+] {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [cookies, setCookieBase, removeCookieBase] = useCookiesWithConsent([setting]);
+  const cookieOptions: CookieSetOptions = {
+    path: "/",
+    expires: moment().add(99, 'years').toDate()
+  };
+  
+  // -- Create set and remove callbacks --
+  const setUserPreference = useCallback((value: ValueOf<UsersCurrent>) => {
+    // (Should never happen)
+    if (!currentUser) return;
+    updateCurrentUser({ [setting]: value });
+  }, [currentUser, setting, updateCurrentUser]);
+  const removeUserPreference = useCallback(() => {
+    // (Should never happen)
+    if (!currentUser) return;
+    updateCurrentUser({ [setting]: 'unset' });
+  }, [currentUser, setting, updateCurrentUser]);
+  const setCookie = useCallback((value: ValueOf<UsersCurrent>) => {
+    setCookieBase(setting, value, cookieOptions);
+  }, [setCookieBase, setting]);
+  const removeCookie = useCallback(() => {
+    removeCookieBase(setting, cookieOptions);
+  }, [removeCookieBase, setting]);
+  
+  // -- Checking and returning --
+  if (currentUser?.[setting] !== undefined) {
+    return [currentUser[setting], setUserPreference, removeUserPreference]
+  }
+  if (cookies[setting]) {
+    if (currentUser) {
+      return [cookies[setting], setUserPreference, removeCookie];
+    }
+    return [cookies[setting], setCookie, removeCookie];
+  }
+  if (currentUser) {
+    return [null, setUserPreference, removeUserPreference];
+  }
+  return [null, setCookie, removeCookie];
 }
