@@ -143,7 +143,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
       </div>}
       {!!commentCount && commentCount>0 && <Link to={tagGetDiscussionUrl(tag)} className={classes.commentBubble}>
         <PostsItemComments
-          small={true}
+          size="small"
           commentCount={commentCount}
           color="noUnread"
         />

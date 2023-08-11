@@ -71,6 +71,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 5,
     fontWeight: 600,
   },
+  groupedCommentEntryHiddenCommentCount: {
+    display: "inline-block",
+    verticalAlign: "top",
+  },
   
   preview: {
     width: 400,
@@ -149,13 +153,13 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
             />
           </span>
         </span>
-        {(hiddenCommentCount>0) ? <span className={classes.commentCount}>
+        {/*(hiddenCommentCount>0) ? <span className={classes.commentCount}>
           <PostsItemComments
-            small={true}
+            size="small"
             commentCount={hiddenCommentCount}
             color="neutral"
           />
-        </span> : undefined}
+        </span> : undefined*/}
       </div>
     </div>
 
@@ -228,11 +232,13 @@ const GroupedCommentsEntry = ({comment, hiddenCommentCount, nestingLevel, treeOp
           simple
           className={classes.username}
         />
-        {/*hiddenCommentCount>0 && <PostsItemComments
-          small={true}
-          commentCount={hiddenCommentCount}
-          color="neutral"
-        />*/}
+        <div className={classes.groupedCommentEntryHiddenCommentCount}>
+          {hiddenCommentCount>0 && <PostsItemComments
+            size="extraSmall"
+            commentCount={hiddenCommentCount}
+            color="neutral"
+          />}
+        </div>
       </span>
     </ContentStyles>
   </LWTooltip>

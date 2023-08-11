@@ -487,7 +487,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
             {!resumeReading && <div className={classes.commentsIcon}>
               <PostsItemComments
-                small={false}
+                size="large"
                 commentCount={commentCount}
                 onClick={toggleComments}
                 color={hasNewPromotedComments ? "newPromoted" : (hasUnreadComments ? "unread" : "noUnread")}

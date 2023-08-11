@@ -240,7 +240,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
         </div>}
         <div className={classes.commentsCount}>
           <PostsItemComments
-            small={false}
+            size="large"
             commentCount={postGetCommentCount(post)}
             color={hasUnreadComments ? "unread" : "noUnread"}
           />

@@ -10,6 +10,7 @@ import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { CommentPoolContext, CommentPoolContextType, CommentExpansionState } from './CommentPool';
 import { useForceRerender } from '../hooks/useForceRerender';
 import classNames from 'classnames';
+import sumBy from 'lodash/sumBy';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -215,8 +216,12 @@ const CommentsNode = ({
   const loadMoreMessage = `View ${numHiddenReplies} ${numHiddenReplies === 1 ? "reply" : "replies"}`;
   
   const enableDescendentCount = loadChildrenSeparately || treeOptions.singleLineCommentsShowDescendentCount
-  const showDescendentCount = enableDescendentCount
+  /*const showDescendentCount = enableDescendentCount
     ? (comment.descendentCount - (childComments ? countCommentsInTree(childComments) : 0))
+    : undefined;*/
+  const showDescendentCount = enableDescendentCount
+    ? (comment.descendentCount
+        - (childComments ? sumBy(childComments, c=>(c.item?.descendentCount??0)+1) : 0))
     : undefined;
 
   // If rendered with children, the comment that is the parent of those children.
@@ -299,11 +304,11 @@ const CommentsNode = ({
           [classes.childrenOfGroup]: !!groupedComments,
         }
       )}>
-        {groupedComments && <div className={classes.groupedCommentChildrenIndicator}>
+        {/*groupedComments && <div className={classes.groupedCommentChildrenIndicator}>
           {"›"}
-        </div>}
+        </div>*/}
 
-        <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>
+        {!groupedComments && <div className={classes.parentScroll} onClick={() => scrollIntoView(false, "smooth")}/>}
         { showExtraChildrenButton }
         {childComments.map(child =>
           <Components.CommentNodeOrPlaceholder

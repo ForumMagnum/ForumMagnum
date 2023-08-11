@@ -209,7 +209,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           </>}
         </ContentStyles>
         {(showDescendentCount && showDescendentCount>0) ? <PostsItemComments
-          small={true}
+          size="small"
           commentCount={showDescendentCount}
           color={treeOptions.hiddenCommentIconColor==="dark" ? "neutral" : "noUnread"}
         /> : undefined}
