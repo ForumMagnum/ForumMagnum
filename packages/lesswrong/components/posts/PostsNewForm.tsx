@@ -248,7 +248,7 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <DynamicTableOfContents title={"New Post"}>
+    <DynamicTableOfContents>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <Components.PostsAcceptTos currentUser={currentUser} />

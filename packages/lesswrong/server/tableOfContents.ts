@@ -361,6 +361,10 @@ defineQuery({
   resultType: "JSON",
   argTypes: "(html: String!)",
   fn: (root: void, {html}:{html:string}, context: ResolverContext) => {
-    return extractTableOfContents(html)
+    if (html) {
+      return extractTableOfContents(html)
+    } else {
+      return {html: null, sections: [], headingsCount: 0}
+    }
   }
 })

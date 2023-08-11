@@ -69,7 +69,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [collectionName, document, name, fieldName]);
+  }, [document, name, editableFieldOptions.getLocalStorageId]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
