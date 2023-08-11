@@ -8,7 +8,6 @@ import TextField from '@material-ui/core/TextField';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentUser } from '../common/withUser';
@@ -19,13 +18,13 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import { HIDE_DIGEST_AD_COOKIE } from '../../lib/cookies/cookies';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -108,11 +107,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '19px',
     fontWeight: 500,
     color: theme.palette.grey[600],
-    marginBottom: 12
+    marginBottom: 15
   },
   digestForm: {
     display: 'flex',
-    flexWrap: 'wrap',
     alignItems: 'baseline',
     columnGap: 8,
     rowGap: '12px'
@@ -133,6 +131,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .MuiOutlinedInput-input': {
       padding: 11
     }
+  },
+  digestFormBtnWideScreen: {
+    '@media(max-width: 1450px)': {
+      display: 'none'
+    }
+  },
+  digestFormBtnNarrowScreen: {
+    display: 'none',
+    '@media(max-width: 1450px)': {
+      display: 'inline'
+    }
+  },
+  digestFormBtnArrow: {
+    transform: 'translateY(3px)',
+    fontSize: 16
+  },
+  digestSuccess: {
+    display: 'flex',
+    columnGap: 10,
+    fontSize: 13,
+    lineHeight: '19px',
+    color: theme.palette.grey[800],
+  },
+  digestSuccessCheckIcon: {
+    color: theme.palette.icon.greenCheckmark
+  },
+  digestSuccessLink: {
+    color: theme.palette.primary.main
   },
   sectionTitle: {
     fontSize: 12,
@@ -218,41 +244,47 @@ const styles = (theme: ThemeType): JssStyles => ({
 const DigestAd = ({classes}: {
   classes: ClassesType,
 }) => {
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_DIGEST_AD_COOKIE])
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const emailRef = useRef<HTMLInputElement|null>(null)
-  const [loading, setLoading] = useState(false)
-  const [formSubmitted, setFormSubmitted] = useState(false)
-  const { flash } = useMessages()
-  const { captureEvent } = useTracking()
-  
-  // if the user just submitted the form, make sure not to hide it, so that it properly finishes submitting
-  if (!formSubmitted && (
-    // user clicked the X in this ad, or previously submitted the form
-    cookies[HIDE_DIGEST_AD_COOKIE] ||
+  const ls = getBrowserLocalStorage()
+  const [isHidden, setIsHidden] = useState(
+    // logged out user clicked the X in this ad, or previously submitted the form
+    (!currentUser && ls?.getItem('hideHomeDigestAd')) ||
     // user is already subscribed
     currentUser?.subscribedToDigest ||
     // user is logged in and clicked the X in this ad, or "Don't ask again" in the ad in "Recent discussion"
     currentUser?.hideSubscribePoke
-  )) {
-    return null
-  }
+  )
+  const [loading, setLoading] = useState(false)
+  const [subscribeClicked, setSubscribeClicked] = useState(false)
+  const { flash } = useMessages()
+  const { captureEvent } = useTracking()
   
-  // If the user is logged in and has an email address, we just show the "Subscribe" button.
+  // This should never happen, but just exit if it does.
+  if (!currentUser && !ls) return null
+  
+  // If the user just submitted the form, make sure not to hide it, so that it properly finishes submitting.
+  // Alternatively, if the logged in user just clicked "Subscribe", show the success text rather than hiding this.
+  if (isHidden && !subscribeClicked) return null
+  
+  // If the user is logged in and has an email address, we show their email address and the "Subscribe" button.
   // Otherwise, we show the form with the email address input.
   const showForm = !currentUser || !userHasEmailAddress(currentUser)
   
   const handleClose = () => {
+    setIsHidden(true)
     captureEvent("digestAdClosed")
-    setCookie(HIDE_DIGEST_AD_COOKIE, "true")
     if (currentUser) {
       void updateCurrentUser({hideSubscribePoke: true})
+    } else {
+      ls.setItem('hideHomeDigestAd', true)
     }
   }
   
   const handleUserSubscribe = async () => {
     setLoading(true)
+    setSubscribeClicked(true)
     captureEvent("digestAdSubscribed")
     
     if (currentUser) {
@@ -261,15 +293,12 @@ const DigestAd = ({classes}: {
           subscribedToDigest: true,
           unsubscribeFromAll: false
         })
-        setCookie(HIDE_DIGEST_AD_COOKIE, "true")
-        flash('Thanks for subscribing!')
       } catch(e) {
         flash('There was a problem subscribing you to the digest. Please try again later.')
       }
     }
     if (showForm && emailRef.current?.value) {
-      setFormSubmitted(true)
-      setCookie(HIDE_DIGEST_AD_COOKIE, "true")
+      ls.setItem('hideHomeDigestAd', true)
     }
     
     setLoading(false)
@@ -278,7 +307,17 @@ const DigestAd = ({classes}: {
   const { ForumIcon, EAButton } = Components
   
   const buttonProps = loading ? {disabled: true} : {}
-  const formNode = showForm ? (
+  // button either says "Subscribe" or has a right arrow depending on the screen width
+  const buttonContents = <>
+    <span className={classes.digestFormBtnWideScreen}>Subscribe</span>
+    <span className={classes.digestFormBtnNarrowScreen}>
+      <ForumIcon icon="ArrowRight" className={classes.digestFormBtnArrow} />
+    </span>
+  </>
+  
+  // Show the form to submit to Mailchimp directly,
+  // or display the logged in user's email address and the Subscribe button
+  let formNode = showForm ? (
     <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
       <TextField
         inputRef={emailRef}
@@ -290,14 +329,36 @@ const DigestAd = ({classes}: {
         className={classes.digestFormInput}
       />
       <EAButton type="submit" onClick={handleUserSubscribe} {...buttonProps}>
-        Subscribe
+        {buttonContents}
       </EAButton>
     </form>
   ) : (
-    <EAButton onClick={handleUserSubscribe} {...buttonProps}>
-      Subscribe
-    </EAButton>
+    <div className={classes.digestForm}>
+      <TextField
+        variant="outlined"
+        label="Email address"
+        value={currentUser.email}
+        className={classes.digestFormInput}
+        disabled={true}
+      />
+      <EAButton onClick={handleUserSubscribe} {...buttonProps}>
+        {buttonContents}
+      </EAButton>
+    </div>
   )
+  
+  // If a logged in user with an email address subscribes, show the success message.
+  if (!showForm && subscribeClicked) {
+    formNode = <div className={classes.digestSuccess}>
+      <ForumIcon icon="CheckCircle" className={classes.digestSuccessCheckIcon} />
+      <div>
+        Thanks for subscribing! You can edit your subscription via
+        your <Link to={'/account?highlightField=subscribedToDigest'} className={classes.digestSuccessLink}>
+          account settings
+        </Link>.
+      </div>
+    </div>
+  }
   
   return <AnalyticsContext pageSubSectionContext="digestAd">
     <div className={classNames(classes.section, classes.digestAdSection)}>

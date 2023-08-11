@@ -43,6 +43,7 @@ import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCirc
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
+import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -148,6 +149,7 @@ export type ForumIconName =
   "Email" |
   "Puzzle" |
   "SoftUpArrow" |
+  "ArrowRight" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
@@ -209,6 +211,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -269,6 +272,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
