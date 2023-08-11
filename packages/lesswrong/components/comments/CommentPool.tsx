@@ -327,6 +327,8 @@ function hasHiddenTopLevelComments(state: CommentPoolState): boolean {
  * bottom of a comment pool.
  */
 function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
+  const tree = getLoadedCommentsTree(state);
+
   const hiddenTopLevelCommentIds: string[] = Object.keys(state.commentsById)
     .filter(commentId =>
       !state.commentsById[commentId].comment.parentCommentId
@@ -342,6 +344,21 @@ function revealTopLevel(state: CommentPoolState, n: number): CommentPoolState {
     commentIdsToReveal, id=>id,
     id=>'truncated'
   );
+  
+  // If a revealed comment has children, reveal the first 2 children as single-line
+  for (let commentId of [...commentIdsToReveal]) {
+    const node = findCommentInTree(tree, commentId);
+    if (node && node.children.length>0) {
+      const childrenByDescedingKarma = orderBy(node.children,
+        child => -state.commentsById[child._id].comment.baseScore
+      );
+      const topChildren = take(childrenByDescedingKarma, 2);
+      for (let revealedChild of topChildren) {
+        initialTruncation[revealedChild._id] = "singleLine";
+        commentIdsToReveal.push(revealedChild._id);
+      }
+    }
+  }
 
   return revealComments(state, commentIdsToReveal, initialTruncation);
 }
