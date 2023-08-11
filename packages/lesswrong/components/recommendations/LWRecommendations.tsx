@@ -6,6 +6,7 @@ import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import classNames from 'classnames';
 
 export const curatedUrl = "/recommendations"
 
@@ -102,6 +103,7 @@ const LWRecommendations = ({
   const [settingsState, setSettings] = useState<any>(null);
 
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
+  const {continueReading} = useContinueReading();
 
   const toggleSettings = useCallback(() => {
     captureEvent("toggleSettings", {action: !showSettings})
@@ -110,7 +112,7 @@ const LWRecommendations = ({
 
   const render = () => {
     const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList } = Components;
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -150,6 +152,20 @@ const LWRecommendations = ({
       </div>
     );
 
+    const continueReadingTooltip = <div>
+      <div>The next posts in sequences you've started reading, but not finished.</div>
+    </div>
+
+    const bookmarksTooltip = <div>
+      <div>Individual posts that you've bookmarked</div>
+      <div><em>(Click to see all)</em></div>
+    </div>
+
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
+
+    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+
     return <SingleColumnSection className={classes.section}>
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
@@ -179,6 +195,38 @@ const LWRecommendations = ({
             </div>
           </div>
         </div>
+
+        {renderContinueReading && (
+          <div className={currentUser ? classes.subsection : null}>
+            <AnalyticsContext pageSubSectionContext="continueReading">
+              <LWTooltip placement="top-start" title={continueReadingTooltip}>
+                <Link to={"/library"}>
+                  <SectionSubtitle className={classNames(classes.subtitle, classes.continueReading)}>
+                    Continue Reading
+                  </SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              <ContinueReadingList continueReading={continueReading} />
+            </AnalyticsContext>
+          </div>
+        )}
+
+        {renderBookmarks && (
+          <div className={classes.subsection}>
+            <AnalyticsContext
+              pageSubSectionContext="frontpageBookmarksList"
+              listContext={"frontpageBookmarksList"}
+              capturePostItemOnMount
+            >
+              <LWTooltip placement="top-start" title={bookmarksTooltip}>
+                <Link to="/bookmarks">
+                  <SectionSubtitle>Bookmarks</SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
+            </AnalyticsContext>
+          </div>
+        )}
 
         {/* disabled except during review */}
         {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
