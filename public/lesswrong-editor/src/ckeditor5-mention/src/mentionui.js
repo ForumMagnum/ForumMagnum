@@ -731,7 +731,7 @@ function getLastValidMarkerInText( feedsWithPattern, text ) {
 // @returns {RegExp}
 export function createRegExp( marker, minimumCharacters ) {
 	// End after 20 characters, since it's horribly annoying otherwise.
-  const numberOfCharacters = minimumCharacters == 0 ? '*' : `{${ minimumCharacters },20}`;
+  const numberOfCharacters = `{${ minimumCharacters },20}`;
 
   const openAfterCharacters = env.features.isRegExpUnicodePropertySupported ? '\\p{Ps}\\p{Pi}"\'' : '\\(\\[{"\'';
   const mentionCharacters = '.';
