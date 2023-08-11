@@ -273,5 +273,10 @@
     "acceptsSchemaHash": "e7d890dadc54453234507be13698b7b7",
     "acceptedByMigration": "20230727T122027.add_isPostType_field.ts",
     "timestamp": "2023-07-27T12:20:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d7266200db426f47cd1ba7abcc6a6db7",
+    "acceptedByMigration": "20230807T230123.add_hideHomeRHS_to_Users.ts",
+    "timestamp": "2023-08-07T23:01:23.000Z"
   }
 ]
