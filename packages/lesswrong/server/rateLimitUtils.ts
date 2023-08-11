@@ -13,8 +13,8 @@ import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo
 import Users from "../lib/collections/users/collection"
 import { triggerReview } from "./callbacks/sunshineCallbackUtils"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
-
-
+import { isNonEmpty } from "fp-ts/Array"
+import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
 
 async function getModRateLimitHours(userId: string): Promise<number> {
   const moderatorRateLimit = await getModeratorRateLimit(userId)
@@ -233,7 +233,7 @@ export async function getRecentKarmaInfo (userId: string): Promise<RecentKarmaIn
   return calculateRecentKarmaInfo(userId, allVotes)
 }
 
-async function getVotesForComparison(userId: string, currentVotes: RecentVoteInfo[]) {
+async function getVotesForComparison(userId: string, currentVotes: NonEmptyArray<RecentVoteInfo>) {
   currentVotes = currentVotes.sort((a, b) => moment(b.votedAt).diff(a.votedAt));
   const [mostRecentVoteInfo] = currentVotes;
 
@@ -299,6 +299,14 @@ export async function checkForStricterRateLimits(userId: string, context: Resolv
   const votesRepo = new VotesRepo();
 
   const allVotes = await votesRepo.getVotesOnRecentContent(votedOnUser._id);
+
+  // This might happen if a new user creates a draft post as their first thing
+  // That triggers a self-vote, but one that gets filtered out of getVotesOnRecentContent
+  // We check not-isNonEmpty rather than isEmpty because the type guard only works properly in that direction
+  if (!isNonEmpty(allVotes)) {
+    return;
+  }
+
   const comparisonVotes = await getVotesForComparison(votedOnUser._id, allVotes);
 
   const userKarmaInfoWindow = getCurrentAndPreviousUserKarmaInfo(votedOnUser, allVotes, comparisonVotes);
