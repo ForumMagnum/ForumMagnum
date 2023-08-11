@@ -11,6 +11,7 @@ import orderBy from 'lodash/orderBy';
 import take from 'lodash/take';
 import mapValues from 'lodash/mapValues';
 import { useApolloClient } from '@apollo/client/react/hooks';
+import sumBy from 'lodash/sumBy';
 
 export interface CommentPoolContextType {
   showMoreChildrenOf: (commentId: string)=>Promise<void>
@@ -51,7 +52,7 @@ interface CommentPoolState {
  * managing load-mores and truncation. The intention is that all of these
  * eventually route through CommentPool.
  */
-const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCount, loadMoreTopLevel, disableTopLevelLoadMore, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
+const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCount, totalCommentCount, loadMoreTopLevel, disableTopLevelLoadMore, treeOptions, startThreadTruncated=false, expandAllThreads=false, defaultNestingLevel=1, parentCommentId, parentAnswerId}: {
   /**
    * Initial set of comments to show. If this changes, will show at least the
    * union of every set of comments that has been passed as initialComments. May
@@ -68,6 +69,13 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
    * be a top-level Load More link. If not provided, there wont be one.
    */
   topLevelCommentCount?: number,
+  
+  /**
+   * The total number of comments, used to determine what text to show in a
+   * top-level
+   * Load More link.
+   */
+  totalCommentCount?: number,
   
   /**
    * A function which takes a `limit`, does a query, and returns more comments.
@@ -198,6 +206,11 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
     || hasHiddenTopLevelComments(stateRef.current)
   );
   
+  const numHiddenByTopLevelLoadMore: number|null = (totalCommentCount !== undefined)
+    ? totalCommentCount
+        - sumBy(tree, topLevelComment=>(topLevelComment.item?.descendentCount??0)+1)
+    : null;
+  
   return <CommentPoolContext.Provider value={context}>
     {tree.map(comment =>
       <CommentNodeOrPlaceholder
@@ -214,8 +227,7 @@ const CommentPool = ({initialComments, initialExpansionState, topLevelCommentCou
     )}
     {showTopLevelLoadMore && <LoadMore
       loadMore={wrappedLoadMoreTopLevel}
-      count={tree.length}
-      totalCount={topLevelCommentCount}
+      message={`Load More (${numHiddenByTopLevelLoadMore} comments)`}
     />}
   </CommentPoolContext.Provider>
 }

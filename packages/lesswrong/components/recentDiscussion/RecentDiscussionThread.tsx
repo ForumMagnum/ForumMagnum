@@ -300,6 +300,7 @@ const RecentDiscussionThread = ({
                   initialComments={comments ? [...comments, ...ancestorComments] : []}
                   initialExpansionState={initialExpansion}
                   topLevelCommentCount={post.topLevelCommentCount}
+                  totalCommentCount={post.commentCount}
                   treeOptions={treeOptions}
                   startThreadTruncated
                   expandAllThreads={initialExpandAllThreads || expandAllThreads}

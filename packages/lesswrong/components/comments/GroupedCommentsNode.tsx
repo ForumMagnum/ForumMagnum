@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexShrink: 1,
     overflowX: "hidden",
     overflowY: "hidden",
-    //textOverflow: "ellipsis",
+    textOverflow: "ellipsis",
   },
   lastGroupedComment: {
     flexShrink: 0,
