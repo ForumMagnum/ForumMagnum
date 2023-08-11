@@ -6,7 +6,6 @@ import { ToCData } from '../../../lib/tableOfContents';
 
 export interface DynamicTableOfContentsContextType {
   setToc: (document: EditorContents) => void;
-  htmlWithAnchors?: EditorContents;
 }
 
 export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfContentsContextType | null>(null);
@@ -42,7 +41,7 @@ export const DynamicTableOfContents = ({title, children}: {
     }
   }, [data, latestToc])
 
-  const context = useMemo(() => ({setToc: setToc, htmlWithAnchors: latestToc?.html}), [setToc, latestToc]);
+  const context = useMemo(() => ({setToc: setToc}), [setToc]);
 
   const sectionData = latestToc ?? {html:null, sections:[], headingsCount:0};
   const displayedTitle = title || (sectionData.headingsCount > 0 ? "Table of Contents" : "")
