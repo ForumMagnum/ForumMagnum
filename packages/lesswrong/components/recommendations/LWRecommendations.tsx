@@ -2,19 +2,16 @@ import React, { useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { isLW, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
-import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
+import classNames from 'classnames';
 
 export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  section: isEAForum ? {} : {
+  section: {
     marginTop: -12,
   },
   continueReadingList: {
@@ -81,60 +78,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     '@media (max-width: 350px)': {
       display: 'none'
-    },
-    ...(isEAForum && {
-      "&:hover": {
-        color: theme.palette.grey[1000],
-        opacity: 1,
-      },
-    }),
+    }
   },
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isEAForum) {
-    return {
-      method: haveCurrentUser ? 'sample' : 'top',
-      count: haveCurrentUser ? 3 : 5
-    }
-  }
-  if (isLW) {
-    return {
-      lwRationalityOnly: true,
-      method: 'sample',
-      count: haveCurrentUser ? 3 : 2
-    }
-  }
   return {
+    lwRationalityOnly: true,
     method: 'sample',
     count: haveCurrentUser ? 3 : 2
   }
 }
 
-// NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
-// more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
-// create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCurated = ({
+const LWRecommendations = ({
   configName,
   classes,
 }: {
   configName: string,
   classes: ClassesType,
 }) => {
-  const {expanded, toggleExpanded} = useExpandedFrontpageSection({
-    section: "recommendations",
-    onExpandEvent: "recommendationsSectionExpanded",
-    onCollapseEvent: "recommendationsSectionCollapsed",
-    defaultExpanded: isEAForum ? "loggedOut" : "all",
-    cookieName: SHOW_RECOMMENDATIONS_SECTION_COOKIE,
-  });
 
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
 
-  const {continueReading} = useContinueReading();
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
+  const {continueReading} = useContinueReading();
 
   const toggleSettings = useCallback(() => {
     captureEvent("toggleSettings", {action: !showSettings})
@@ -142,8 +111,8 @@ const RecommendationsAndCurated = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
-      RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
+    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -151,94 +120,64 @@ const RecommendationsAndCurated = ({
       ...getFrontPageOverwrites(!!currentUser)
     }
 
-    const continueReadingTooltip = <div>
-      <div>The next posts in sequences you've started reading, but not finished.</div>
-    </div>
-
-    const bookmarksTooltip = <div>
-      <div>Individual posts that you've {isEAForum ? 'saved' : 'bookmarked'}</div>
-      <div><em>(Click to see all)</em></div>
-    </div>
-
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        {isEAForum ?
-          'Assorted suggested reading, including some of the ' :
-          'Recently curated posts, as well as a random sampling of '}
-        top-rated posts of all time
+        Recently curated posts, as well as a random sampling of top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
-
-    const renderBookmarks = !isEAForum && ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
-    const renderContinueReading = !isEAForum && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
 
-    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
-
-    const titleText = isEAForum ? "Classic posts" : "Recommendations"
+    const titleText = "Recommendations"
     const titleNode = (
       <div className={classes.title}>
         <SectionTitle
           title={
             <>
-              {isEAForum ? (
-                <>{ titleText }</>
-              ) : (
-                <LWTooltip title={recommendationsTooltip} placement="left">
-                  <Link to={"/recommendations"}>{titleText}</Link>
-                </LWTooltip>
-              )}
-              {isEAForum && (
-                <LWTooltip title={expanded ? "Collapse" : "Expand"} hideOnTouchScreens>
-                  <ForumIcon
-                    icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-                    onClick={toggleExpanded}
-                    className={classes.expandIcon}
-                  />
-                </LWTooltip>
-              )}
+              <LWTooltip title={recommendationsTooltip} placement="left">
+                <Link to={"/recommendations"}>{titleText}</Link>
+              </LWTooltip>
             </>
           }
         >
-          {!isEAForum && currentUser && (
+          {currentUser && (
             <LWTooltip title="Customize your recommendations">
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
             </LWTooltip>
-          )}
-          {isEAForum && expanded && (
-            <Link to="/recommendations" className={classes.readMoreLink}>
-              View more
-            </Link>
           )}
         </SectionTitle>
       </div>
     );
 
-    const bodyNode = (
-      <>
-        {isLW && (
-          <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <CurrentSpotlightItem />
-          </AnalyticsContext>
-        )}
+    const continueReadingTooltip = <div>
+      <div>The next posts in sequences you've started reading, but not finished.</div>
+    </div>
 
-        {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && isLW && (
-          <div>
-            {/* <div className={classes.largeScreenLoggedOutSequences}>
-            <AnalyticsContext pageSectionContext="frontpageCuratedSequences">
-              <CuratedSequences />
-            </AnalyticsContext>
-          </div>
-          <div className={classes.smallScreenLoggedOutSequences}>
-            <ContinueReadingList continueReading={continueReading} />
-          </div> */}
-          </div>
-        )}
+    const bookmarksTooltip = <div>
+      <div>Individual posts that you've bookmarked</div>
+      <div><em>(Click to see all)</em></div>
+    </div>
+
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
+
+    const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+    const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+
+    return <SingleColumnSection className={classes.section}>
+      <AnalyticsContext pageSectionContext="recommendations">
+        {titleNode}
+        {showSettings &&
+          <RecommendationsAlgorithmPicker
+            configName={configName}
+            settings={frontpageRecommendationSettings}
+            onChange={(newSettings) => setSettings(newSettings)}
+          /> }
+        <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+          <CurrentSpotlightItem />
+        </AnalyticsContext>
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
@@ -251,11 +190,9 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {!isEAForum && (
-              <div className={classes.curated}>
-                <CuratedPostsList />
-              </div>
-            )}
+            <div className={classes.curated}>
+              <CuratedPostsList />
+            </div>
           </div>
         </div>
 
@@ -282,8 +219,8 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={isEAForum ? "/saved" : "/bookmarks"}>
-                  <SectionSubtitle>{isEAForum ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
+                <Link to="/bookmarks">
+                  <SectionSubtitle>Bookmarks</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
@@ -295,19 +232,6 @@ const RecommendationsAndCurated = ({
         {/* <AnalyticsContext pageSectionContext="LessWrong 2018 Review">
           <FrontpageVotingPhase settings={frontpageRecommendationSettings} />
         </AnalyticsContext> */}
-      </>
-    );
-
-    return <SingleColumnSection className={classes.section}>
-      <AnalyticsContext pageSectionContext="recommendations">
-        {titleNode}
-        {showSettings &&
-          <RecommendationsAlgorithmPicker
-            configName={configName}
-            settings={frontpageRecommendationSettings}
-            onChange={(newSettings) => setSettings(newSettings)}
-          /> }
-        {(expanded || !isEAForum) && bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }
@@ -315,10 +239,10 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-const RecommendationsAndCuratedComponent = registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+const LWRecommendationsComponent = registerComponent("LWRecommendations", LWRecommendations, {styles});
 
 declare global {
   interface ComponentTypes {
-    RecommendationsAndCurated: typeof RecommendationsAndCuratedComponent
+    LWRecommendations: typeof LWRecommendationsComponent
   }
 }
