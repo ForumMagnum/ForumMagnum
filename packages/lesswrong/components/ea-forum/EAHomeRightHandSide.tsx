@@ -68,6 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: 'column',
     rowGap: '9px',
     fontSize: 13,
+    fontWeight: 450,
     fontFamily: theme.typography.fontFamily,
     marginBottom: 30,
   },
@@ -157,13 +158,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postMetadata: {
     color: theme.palette.text.dim3,
-    '& .PostsItemDate-postedAt': {
-      fontWeight: 400
-    }
   },
   eventDate: {
     display: 'inline-block',
-    width: 64
+    width: 52
   },
   eventLocation: {
   },
@@ -188,7 +186,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   listenOn: {
     color: theme.palette.text.dim3,
     fontSize: 9,
-    fontWeight: 600,
+    fontWeight: 700,
     textTransform: 'uppercase',
     marginBottom: 2
   },
