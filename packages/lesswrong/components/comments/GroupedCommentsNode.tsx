@@ -98,7 +98,7 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
     - sumBy(childComments, c=>(c.item?.descendentCount??0)+1)
     + 1;
   
-  const onClickExpand = () => {
+  const onClickExpand = (ev: React.MouseEvent) => {
     if (commentPoolContext) {
       for (let comment of groupedComments) {
         const oldExpansionState = commentPoolContext.getCommentState(comment._id).expansion;
@@ -106,6 +106,7 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
           void commentPoolContext.setExpansion(comment._id, "singleLine");
         }
       }
+      ev.stopPropagation();
     }
   }
   
@@ -123,6 +124,7 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
               {i>0 && <GroupedCommentSeparator classes={classes}/>}
               <GroupedCommentsEntry
                 comment={groupedComment}
+                hiddenCommentCount={groupedComment.descendentCount - (groupedComments[i+1].descendentCount+1)}
                 nestingLevel={/*nestingLevel+i+1*/ nestingLevel+1}
                 treeOptions={treeOptions}
                 hideKarma={hideKarma}
@@ -136,6 +138,10 @@ const GroupedCommentsNode = ({groupedComments, childComments, treeOptions, nesti
             <GroupedCommentSeparator classes={classes}/>
             <GroupedCommentsEntry
               comment={lastGroupedComment}
+              hiddenCommentCount={
+                lastGroupedComment.descendentCount
+                - sumBy(childComments, child=>(child.item?.descendentCount??0)+1)
+              }
               nestingLevel={/*nestingLevel+groupedComments.length*/ nestingLevel+1}
               treeOptions={treeOptions}
               hideKarma={hideKarma}
@@ -174,14 +180,15 @@ const GroupedCommentSeparator = ({classes}: {
   </span>
 }
 
-const GroupedCommentsEntry = ({comment, nestingLevel, treeOptions, hideKarma, classes}: {
+const GroupedCommentsEntry = ({comment, hiddenCommentCount, nestingLevel, treeOptions, hideKarma, classes}: {
   comment: CommentsList,
+  hiddenCommentCount: number,
   nestingLevel: number,
   treeOptions: CommentTreeOptions,
   hideKarma: boolean,
   classes: ClassesType
 }) => {
-  const { CommentsNode, CommentUserName, ContentStyles, LWTooltip } = Components;
+  const { CommentsNode, CommentUserName, ContentStyles, PostsItemComments, LWTooltip } = Components;
 
   return <LWTooltip
     placement="bottom-end"
@@ -221,6 +228,11 @@ const GroupedCommentsEntry = ({comment, nestingLevel, treeOptions, hideKarma, cl
           simple
           className={classes.username}
         />
+        {/*hiddenCommentCount>0 && <PostsItemComments
+          small={true}
+          commentCount={hiddenCommentCount}
+          color="neutral"
+        />*/}
       </span>
     </ContentStyles>
   </LWTooltip>
