@@ -40,6 +40,7 @@ export interface MakeEditableOptions {
   pingbacks?: boolean,
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,
+  hasToc?: boolean,
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
