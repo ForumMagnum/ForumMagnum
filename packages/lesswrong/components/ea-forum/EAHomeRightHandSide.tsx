@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 18
   },
   section: {
-    maxWidth: 250,
+    maxWidth: 260,
     display: 'flex',
     flexDirection: 'column',
     rowGap: '9px',
@@ -74,6 +74,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   digestAdSection: {
     maxWidth: 334,
+  },
+  podcastsSection: {
+    rowGap: '6px',
   },
   digestAd: {
     backgroundColor: theme.palette.grey[200],
@@ -171,14 +174,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   podcastApps: {
     display: 'grid',
-    gridTemplateColumns: "122px 128px",
-    rowGap: '14px',
-    marginBottom: 3,
+    gridTemplateColumns: "117px 138px",
+    columnGap: 7,
+    rowGap: '3px',
+    marginLeft: -3,
+    marginBottom: 2,
   },
   podcastApp: {
     display: 'flex',
     columnGap: 8,
     alignItems: 'flex-end',
+    padding: 6,
+    borderRadius: theme.borderRadius.default,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+      opacity: 1
+    }
   },
   podcastAppIcon: {
     color: theme.palette.primary.main,
@@ -547,7 +558,7 @@ export const EAHomeRightHandSide = ({classes}: {
       </AnalyticsContext>}
       
       <AnalyticsContext pageSubSectionContext="podcasts">
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.podcastsSection)}>
           <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
           <div className={classes.podcastApps}>
             {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
