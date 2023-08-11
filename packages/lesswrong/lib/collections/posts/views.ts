@@ -1518,7 +1518,9 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
   
   return {
     selector: {
-      _id: {$in: bookmarkedPostIds}
+      _id: {$in: bookmarkedPostIds},
+      isEvent: viewFieldAllowAny,
+      groupId: null
     },
     options: {
       sort: {},
