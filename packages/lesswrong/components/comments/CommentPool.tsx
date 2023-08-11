@@ -428,20 +428,17 @@ function changeExpansionState(state: CommentPoolState, commentId: string, oldExp
     },
   };
   
-  // If we're expanding a single-line comment without any revealed children,
-  // reveal up to 5 children as single-line
-  if (oldExpansionState === "singleLine" && newExpansionState !== "singleLine") {
+  // If we're expanding a single-line comment, reveal up to 5 children as single-line
+  if ((oldExpansionState === "singleLine" || oldExpansionState === "singleLineGroupable") && newExpansionState !== "singleLine") {
+    console.log("Expanding a single-line comment");
     const tree = getLoadedCommentsTree(state);
     const commentNode = findCommentInTree(tree, commentId);
     if (commentNode) {
-      const alreadyRevealedChildCount = commentNode.children.filter(c => state.commentsById[c._id].visibility==="visible").length;
-      if (alreadyRevealedChildCount === 0) {
-        const childrenToReveal = take(orderBy(commentNode.children, c => -(c.item?.baseScore??0)), 5);
-        state = revealComments(state,
-          childrenToReveal.map(c=>c._id),
-          toDictionary(childrenToReveal, c=>c._id, _=>"singleLine")
-        );
-      }
+      const childrenToReveal = take(orderBy(commentNode.children, c => -(c.item?.baseScore??0)), 5);
+      state = revealComments(state,
+        childrenToReveal.map(c=>c._id),
+        toDictionary(childrenToReveal, c=>c._id, _=>"singleLine")
+      );
     }
   }
   
