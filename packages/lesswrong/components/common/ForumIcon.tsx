@@ -160,8 +160,8 @@ export type ForumIconName =
   "Menu" |
   "CloseMenu";
 
-const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
-  default: {
+const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
+  LWAF: {
     VolumeUp: MuiVolumeUpIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
@@ -222,7 +222,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
   },
-  EAForum: {
+  default: {
     VolumeUp: SpeakerWaveIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
