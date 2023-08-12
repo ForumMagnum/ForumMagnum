@@ -13,6 +13,8 @@ import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalized
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
+import { defineQuery } from './utils/serverGraphqlUtil';
+import GraphQLJSON from 'graphql-type-json';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -353,3 +355,16 @@ const getToCforTag = async ({document, version, context}: {
 
 Utils.getToCforPost = getToCforPost;
 Utils.getToCforTag = getToCforTag;
+
+defineQuery({
+  name: "generateTableOfContents",
+  resultType: "JSON",
+  argTypes: "(html: String!)",
+  fn: (root: void, {html}:{html:string}, context: ResolverContext) => {
+    if (html) {
+      return extractTableOfContents(html)
+    } else {
+      return {html: null, sections: [], headingsCount: 0}
+    }
+  }
+})
