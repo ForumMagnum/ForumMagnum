@@ -5,6 +5,23 @@ import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
+import { forumSelect } from '../lib/forumTypeUtils';
+
+/**
+ * Is this Forum a muted, dignified book-like experience, or a modern, friendly
+ * site with more rounded corners?
+ *
+ * There are some decisions like "what do you call bookmarked posts" that also
+ * hinge on this setting, making a bit like a, "which tribe are you" question,
+ * in addition to controlling the basic UI style.
+ */
+export const siteUIStyle = forumSelect({
+  LWAF: "book",
+  EAForum: "friendly",
+  default: "freindly",
+})
+export const isBookUI = siteUIStyle === "book";
+export const isFriendlyUI = siteUIStyle === "friendly";
 
 const themeCache = new Map<string,ThemeType>();
 
@@ -27,7 +44,11 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
   return themeCache.get(themeCacheKey)! as any;
 }
 
-const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification, forumType: ForumTypeString): ThemeType => {
+const buildTheme = (
+  userTheme: UserThemeSpecification,
+  siteTheme: SiteThemeSpecification,
+  forumType: ForumTypeString
+): ThemeType => {
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
