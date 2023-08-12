@@ -7,6 +7,7 @@ import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
@@ -40,6 +41,9 @@ import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocu
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
+import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
+import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
+import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -48,6 +52,7 @@ import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
+import MuiPeopleIcon from "@material-ui/icons/People";
 import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
@@ -96,6 +101,7 @@ import { BoldLinkIcon } from "../icons/boldLink";
  */
 export type ForumIconName =
   "VolumeUp" |
+  "BookOpen" |
   "Bookmark" |
   "BookmarkBorder" |
   "Bookmarks" |
@@ -103,6 +109,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "Users" |
   "Bell" |
   "BellBorder" |
   "AddEmoji" |
@@ -142,18 +149,21 @@ export type ForumIconName =
   "Email" |
   "Puzzle" |
   "SoftUpArrow" |
+  "ArrowRight" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
   "Search" |
+  "ComputerDesktop" |
   "Menu" |
   "CloseMenu";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
+    BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     Bookmarks: MuiBookmarksIcon,
@@ -161,6 +171,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    Users: MuiPeopleIcon,
     Bell: MuiNotificationsIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
@@ -200,17 +211,20 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     Search: MuiSearchIcon,
+    ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
+    BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     Bookmarks: BookmarkIcon,
@@ -218,6 +232,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    Users: UsersIcon,
     Bell: BellIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
@@ -257,12 +272,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
     Search: SearchIcon,
+    ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
   },

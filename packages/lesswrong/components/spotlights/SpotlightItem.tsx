@@ -293,7 +293,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           />
         </div>}
         {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this item for the next month" placement="right">
+          <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
               <CloseIcon className={classes.closeIcon} />
             </Button>

@@ -49,7 +49,7 @@ export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
 export const HIDE_HANDBOOK_COOKIE = registerCookie({
   name: "hide_home_handbook",
   type: "functional",
-  description: "Whether to hide the EA Handbook on the EA Home page",
+  description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
 export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "functional", description: 'Controls whether job ads are hidden'});
@@ -102,12 +102,6 @@ export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
   name: "hide_more_from_the_forum_recommendations",
   type: "functional",
   description: "Don't show the \"More from the forum\" recommendations section",
-});
-
-export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
-  name: "hide_ea_forum_survey_banner",
-  type: "necessary",
-  description: "Don't show the EA Forum survey banner",
 });
 
 // Third party cookies

@@ -37,7 +37,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'advice', 'advisorRequest', 'tagsSubforum', 'EAForumWrapped'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum', 'EAForumWrapped'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -128,8 +128,29 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
+  eaHomeGrid: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main rhs ..."
+      `,
+      gridTemplateColumns: `
+        min-content
+        1fr
+        min-content
+        minmax(50px, max-content)
+        1fr
+      `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
   navSidebar: {
     gridArea: 'navSidebar'
+  },
+  rhs: {
+    gridArea: 'rhs',
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -250,7 +271,8 @@ const Layout = ({currentUser, children, classes}: {
       HomepageCommunityMap,
       CookieBanner,
       AdminToggle,
-      EASurveyBanner,
+      SunshineSidebar,
+      EAHomeRightHandSide,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -271,6 +293,8 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
+    const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -315,8 +339,6 @@ const Layout = ({currentUser, children, classes}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {isEAForum && <EASurveyBanner />}
-
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
                 standaloneNavigationPresent={standaloneNavigation}
@@ -331,6 +353,7 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isEAForum && <AdminToggle />}
@@ -356,9 +379,12 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
+                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
+                  <EAHomeRightHandSide />
+                </div>}
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
-                    <Components.SunshineSidebar/>
+                    <SunshineSidebar/>
                   </NoSSR>
                 </div>}
               </div>
