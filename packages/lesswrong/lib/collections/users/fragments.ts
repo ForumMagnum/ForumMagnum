@@ -162,6 +162,7 @@ registerFragment(`
     whenConfirmationEmailSent
     hideSubscribePoke
     hideMeetupsPoke
+    hideHomeRHS
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments

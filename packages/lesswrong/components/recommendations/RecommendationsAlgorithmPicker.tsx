@@ -95,7 +95,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
     onChange(newSettings);
   }
   return <div className={classes.root}>
-    {/* {(configName === "frontpage") && <span className={classes.settingGroup}>
+    {(configName === "frontpage") && <span className={classes.settingGroup}>
       <span className={classes.setting}>
         <SectionFooterCheckbox
           value={!settings.hideContinueReading}
@@ -112,7 +112,7 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
           tooltip={`Posts that you have ${isEAForum ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
-    </span>} */}
+    </span>}
 
     {/* disabled except during review */}
     {/* {(configName === "frontpage") && <div>
