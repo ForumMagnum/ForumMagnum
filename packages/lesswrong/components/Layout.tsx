@@ -13,7 +13,7 @@ import { CommentBoxManager } from './common/withCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { isAF, isLW } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -23,7 +23,8 @@ import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
-import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
+import { HEADER_HEIGHT } from './common/Header';
+import { isFriendlyUI } from '../themes/forumTheme';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
+    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -293,17 +294,16 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
+    // The friendly home page has a unique grid layout, to account for the right hand side column.
+    const friendlyGridLayout = isFriendlyUI && currentRoute.name === 'home'
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
       const beforeTime = petrovBeforeTime.get()
       const afterTime = petrovAfterTime.get()
     
-      return currentRoute?.name === "home"
-        && ('LessWrong' === forumTypeSetting.get())
-        && beforeTime < currentTime 
+      return currentRoute?.name === "home" && isLW
+        && beforeTime < currentTime
         && currentTime < afterTime
     }
 
@@ -315,7 +315,10 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
+        <div className={classNames(
+          "wrapper",
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+        )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -353,10 +356,10 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
+                [classes.eaHomeGrid]: friendlyGridLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
-                {isEAForum && <AdminToggle />}
+                {isFriendlyUI && <AdminToggle />}
                 {standaloneNavigation && <NavigationStandalone
                   sidebarHidden={hideNavigationSidebar}
                   unspacedGridLayout={unspacedGridLayout}
@@ -379,7 +382,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
+                {!renderSunshineSidebar && friendlyGridLayout && <div className={classes.rhs}>
                   <EAHomeRightHandSide />
                 </div>}
                 {renderSunshineSidebar && <div className={classes.sunshine}>

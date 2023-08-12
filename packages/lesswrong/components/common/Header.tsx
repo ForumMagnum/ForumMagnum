@@ -14,11 +14,15 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { isBookUI } from '../../themes/forumTheme';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const EA_FORUM_HEADER_HEIGHT = 66
+
+/** Height of top header. On Book UI sites, this is for desktop only */
+export const HEADER_HEIGHT = isBookUI ? 64 : 66;
+/** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
+export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -45,9 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 64,
+    height: HEADER_HEIGHT,
     [theme.breakpoints.down('xs')]: {
-      height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 56,
+      height: MOBILE_HEADER_HEIGHT,
     },
     "@media print": {
       display: "none"

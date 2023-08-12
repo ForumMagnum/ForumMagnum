@@ -5,12 +5,11 @@ import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -23,7 +22,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: isEAForum ? (270 + EA_FORUM_HEADER_HEIGHT) : 380,
+    paddingTop: isEAForum ? (270 + HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -41,12 +40,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 60,
+    // TODO; another correct functional change for LWAF
+    top: HEADER_HEIGHT,
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
-    [legacyBreakpoints.maxTiny]: {
-      top: 40,
+    [theme.breakpoints.down('sm')]: {
+      top: MOBILE_HEADER_HEIGHT,
     },
     "& img": {
       width: "100vw",

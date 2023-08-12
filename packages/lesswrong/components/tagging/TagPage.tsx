@@ -18,7 +18,7 @@ import { useTagBySlug } from './useTag';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { EA_FORUM_HEADER_HEIGHT } from "../common/Header";
+import { HEADER_HEIGHT } from "../common/Header";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -51,7 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: '100%',
     },
     position: 'absolute',
-    top: EA_FORUM_HEADER_HEIGHT,
+    top: HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {

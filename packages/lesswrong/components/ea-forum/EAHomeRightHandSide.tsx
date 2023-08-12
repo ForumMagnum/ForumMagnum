@@ -18,7 +18,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { HEADER_HEIGHT } from '../common/Header';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarToggle: {
     position: 'absolute',
-    top: EA_FORUM_HEADER_HEIGHT + 30,
+    top: HEADER_HEIGHT + 30,
     right: 0,
     height: 36,
     width: 30,
