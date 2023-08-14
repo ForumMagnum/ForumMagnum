@@ -530,6 +530,9 @@ registerFragment(`
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
+    recentCommentsPlus(commentUserIds: $commentUserIds, commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsList
+    }
   }
 `);
 

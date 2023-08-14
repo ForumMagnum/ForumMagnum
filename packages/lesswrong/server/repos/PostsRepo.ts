@@ -4,6 +4,10 @@ import { logIfSlow } from "../../lib/sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
+import SelectQuery from "../../lib/sql/SelectQuery";
+import { Comments } from "../../lib/collections/comments";
+import CommentsRepo from "./CommentsRepo";
+import Table from "../../lib/sql/Table";
 
 export type MeanPostKarma = {
   _id: number,
@@ -213,5 +217,22 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
+  }
+
+  getRecentDiscussionThreads(selector: MongoSelector<DbComment>, commentOptions: MongoFindOptions<DbComment>) {
+    const innerQuery = new SelectQuery(Table.fromCollection(Comments), selector, { ...commentOptions, projection: { postId: 1, _id: 0 } });
+    const { sql, args } = innerQuery.compile();
+
+    console.log({ sql, args });
+    // const outQuery = new SelectQuery(this.getCollection().table, )
+    // return this.getCollection().executeReadQuery()
+    // const selectQueryAtoms = selectQuery.compileSelector(selector);
+    // const { sql: filterWhereClause, args: filterArgs } = selectQuery.compileAtoms(selectQueryAtoms, 2);
+
+    return logIfSlow(async () => await this.manyOrNone(`
+      SELECT *
+      FROM "Posts"
+      WHERE _id IN (${sql})
+    `, args), "getRecentDiscussionThreads");
   }
 }

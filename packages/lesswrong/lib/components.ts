@@ -525,6 +525,7 @@ importComponent("CommentPermalink", () => require('../components/comments/Commen
 importComponent("ReplyCommentDialog", () => require('../components/comments/ReplyCommentDialog'));
 importComponent("RecentDiscussionThread", () => require('../components/recentDiscussion/RecentDiscussionThread'));
 importComponent("RecentDiscussionThreadsList", () => require('../components/recentDiscussion/RecentDiscussionThreadsList'));
+importComponent("RecentDiscussionCommentThread", () => require('../components/recentDiscussion/RecentDiscussionCommentThread'));
 importComponent("RecentDiscussionFeed", () => require('../components/recentDiscussion/RecentDiscussionFeed'));
 importComponent("RecentDiscussionTagRevisionItem", () => require('../components/recentDiscussion/RecentDiscussionTagRevisionItem'))
 importComponent("RecentDiscussionSubforumThread", () => require('../components/recentDiscussion/RecentDiscussionSubforumThread'))

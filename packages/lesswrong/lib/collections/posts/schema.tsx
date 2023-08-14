@@ -2496,6 +2496,50 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     foreignKey: 'Comments',
   },
+
+  recentCommentsPlus: resolverOnlyField({
+    type: Array,
+    graphQLtype: "[Comment]",
+    canRead: ['guests'],
+    graphqlArguments: 'commentUserIds: [String!], commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    // commentsLimit for some reason can receive a null (which was happening in one case)
+    // we haven't figured out why yet
+    resolver: async (post: DbPost, args: {commentUserIds?: string[], commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
+      const { commentUserIds, commentsLimit, maxAgeHours=18, af=false } = args;
+      const { currentUser, Comments } = context;
+      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const loaderName = af?"recentCommentsAf" : "recentComments";
+      const filter: MongoSelector<DbComment> = {
+        ...getDefaultViewSelector("Comments"),
+        score: {$gt:0},
+        deletedPublic: false,
+        postedAt: {$gt: timeCutoff},
+        ...(af ? {af:true} : {}),
+      };
+
+      const userFilter = {
+        ...getDefaultViewSelector("Comments"),
+        score: {$gt:0},
+        deletedPublic: false,
+        userId: { $in: commentUserIds },
+        ...(af ? {af:true} : {}),
+      };
+
+      const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
+      });
+
+      const userComments = await getWithCustomLoader<DbComment[],string>(context, `${loaderName}FromUsers`, post._id, (postIds): Promise<DbComment[][]> => {
+        return context.repos.comments.getRecentCommentsOnPosts(postIds, 20, userFilter);
+      });
+
+      return await accessFilterMultiple(currentUser, Comments, [...userComments, ...comments.filter(c => !userComments.map(c => c._id).includes(c._id))], context);
+    }
+  }),
+  'recentCommentsPlus.$': {
+    type: Object,
+    foreignKey: 'Comments',
+  },
   
   criticismTipsDismissed: {
     type: Boolean,

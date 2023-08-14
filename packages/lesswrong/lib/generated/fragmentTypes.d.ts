@@ -1286,6 +1286,7 @@ interface PostsRevisionsList { // fragment on Posts
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
+  readonly recentCommentsPlus: Array<CommentsList>,
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
@@ -1491,6 +1492,11 @@ interface CommentsListWithParentMetadata extends CommentsList { // fragment on C
 
 interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // fragment on Posts
   readonly isRead: boolean,
+}
+
+interface CommentsListWithDiscussionThread extends CommentsList { // fragment on Comments
+  readonly post: PostsRecentDiscussion|null,
+  readonly tag: TagRecentDiscussion|null,
 }
 
 interface StickySubforumCommentFragment extends CommentWithRepliesFragment { // fragment on Comments
@@ -3214,6 +3220,7 @@ interface FragmentTypes {
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
+  CommentsListWithDiscussionThread: CommentsListWithDiscussionThread
   StickySubforumCommentFragment: StickySubforumCommentFragment
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
@@ -3414,6 +3421,7 @@ interface CollectionNamesByFragmentName {
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
   CommentsListWithParentMetadata: "Comments"
+  CommentsListWithDiscussionThread: "Comments"
   StickySubforumCommentFragment: "Comments"
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
