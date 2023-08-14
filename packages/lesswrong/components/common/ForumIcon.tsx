@@ -35,12 +35,14 @@ import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
+import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
@@ -138,6 +140,7 @@ export type ForumIconName =
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
+  "NarrowArrowDown" |
   "Plus" |
   "Check" |
   "CheckCircle" |
@@ -158,7 +161,8 @@ export type ForumIconName =
   "Search" |
   "ComputerDesktop" |
   "Menu" |
-  "CloseMenu";
+  "CloseMenu" |
+  "BarChart";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -200,6 +204,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -221,6 +226,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -261,6 +267,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -282,6 +289,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
 };
 
