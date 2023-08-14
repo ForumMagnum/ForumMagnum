@@ -41,43 +41,46 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: HEIGHT + (PADDING * 3.5),
     width: SECTION_WIDTH,
     padding: PADDING,
+    [theme.breakpoints.down('sm')]: {
+      height: (HEIGHT*.75) + (PADDING * 3.5),
+    },
     '& $one': {
       left: 0,
-      [theme.breakpoints.down('sm')]: {
-        left: 20,
-        top: 30,
+      [theme.breakpoints.down('lg')]: {
+        left: '0px !important',
+        top: '20px !important',
         transform: "rotate(-15deg)"
       }
     },
     '& $two': {
       left: WIDTH + PADDING,
-      [theme.breakpoints.down('sm')]: {
-        left: 20,
-        top: 40,
-        transform: "rotate(5deg)"
+      [theme.breakpoints.down('lg')]: {
+        left: '15px !important',
+        top: '35px !important',
+        transform: "rotate(-5deg)"
       }
     },
     '& $three': {
       left: (WIDTH + PADDING) * 2,
-      [theme.breakpoints.down('sm')]: {
-        left: 20,
-        top: 50,
+      [theme.breakpoints.down('lg')]: {
+        left: '30px !important',
+        top: '50px !important',
         transform: "rotate(5deg)"
       }
     },
     '& $four': {
       left: (WIDTH + PADDING) * 3,
-      [theme.breakpoints.down('sm')]: {
-        left: 20,
-        top: 60,
+      [theme.breakpoints.down('lg')]: {
+        left: '45px !important',
+        top: '65px !important',
         transform: "rotate(15deg)"
       }
     },
-    '&:hover': {
-      // [theme.breakpoints.up('md')]: {
+    // [theme.breakpoints.up('lg')]: {
+      '&:hover': {
         ...revealedContent(theme)
-      // },
-    }
+      },
+    // }
   },
   book: {
     width: WIDTH,
@@ -112,7 +115,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 0,
     opacity: 0,
     transition: 'opacity 0.5s ease',
-    width: 650,
+    width: "calc(100% - 300px)",
     [theme.breakpoints.down('md')]: {
       opacity: 1
     }

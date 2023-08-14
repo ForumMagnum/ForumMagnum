@@ -46,15 +46,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   bookExplanation: {
-    paddingRight: 100,
-    textAlign: 'right',
+    float: 'right',
+    textAlign: "right",
+    width: "calc(100% - 200px)",
     [theme.breakpoints.down('md')]: {
       paddingRight: 0
     },
     [theme.breakpoints.down('xs')]: {
-      paddingRight: 16,
-      width: '100%',
-      textAlign: 'left',
+      // paddingRight: 16,
+      // textAlign: 'right',
     }
   },
   learnMore: {
