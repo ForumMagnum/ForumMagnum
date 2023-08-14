@@ -12,7 +12,7 @@ export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfC
 
 export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   title?: string,
-  rightColumnChildren?: React.ReactNode[],
+  rightColumnChildren?: React.ReactNode,
   children: React.ReactNode
 }) => {
   const [latestHtml, setLatestHtml] = useState<string | null>(null);

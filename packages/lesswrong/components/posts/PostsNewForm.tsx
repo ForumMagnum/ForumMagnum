@@ -266,7 +266,7 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
-  const postEditorGuide = <div className={classes.editorGuide}>
+  const postEditorGuide = isLWorAF && <div className={classes.editorGuide}>
     <HelpOutlineIcon />
     <div className={classes.editorGuideLink}>
       <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
@@ -275,10 +275,8 @@ const PostsNewForm = ({classes}: {
     </div>
   </div>;
 
-  const rightColumnChildren = isLWorAF ? [postEditorGuide] : [];
-
   return (
-    <DynamicTableOfContents rightColumnChildren={rightColumnChildren}>
+    <DynamicTableOfContents rightColumnChildren={postEditorGuide}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <Components.PostsAcceptTos currentUser={currentUser} />

@@ -159,7 +159,7 @@ export const ToCColumn = ({
 }: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
-  rightColumnChildren?: React.ReactNode[],
+  rightColumnChildren?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -188,7 +188,7 @@ export const ToCColumn = ({
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents || !!rightColumnChildren?.length,
+        [classes.tocActivated]: !!tableOfContents || !!rightColumnChildren,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
@@ -222,9 +222,9 @@ export const ToCColumn = ({
         {children}
       </div>
       <div className={classes.gap2}/>
-      {rightColumnChildren?.length &&
+      {rightColumnChildren &&
         <div className={classes.rhs}>
-          {...rightColumnChildren}
+          {rightColumnChildren}
         </div>
       }
       <div className={classes.gap3}/>
