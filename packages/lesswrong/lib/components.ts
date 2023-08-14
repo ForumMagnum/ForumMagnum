@@ -317,7 +317,6 @@ importComponent("ResendVerificationEmailPage", () => require('../components/user
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
-importComponent("AuthorAnalyticsPage", () => require('../components/users/AuthorAnalyticsPage'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
