@@ -10,11 +10,11 @@ import { forumTypeSetting } from '../../lib/instanceSettings'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
-import { usePostAnalytics } from './usePostAnalytics'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
+import { usePostAnalytics } from '../hooks/usePostAnalytics';
 
 const isEAForum = forumTypeSetting.get()
 
@@ -116,7 +116,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
   if (error) {
     throw error
   }
-
+  
   const uniqueClientViewsSeries = postAnalytics?.uniqueClientViewsSeries.map(({ date, uniqueClientViews }) => ({
     date: moment(date).format('MMM-DD'),
     uniqueClientViews

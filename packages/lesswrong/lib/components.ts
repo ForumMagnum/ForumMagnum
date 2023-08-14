@@ -30,6 +30,11 @@ import '../components/vulcan-forms/components';
 
 importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 
+importComponent("AnalyticsGraph", () => require('../components/analytics/AnalyticsGraph'))
+importComponent("AuthorAnalyticsPage", () => require('../components/analytics/AuthorAnalyticsPage'))
+importComponent("PostsAnalyticsPage", () => require('../components/analytics/PostsAnalyticsPage'));
+importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
+
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
@@ -383,7 +388,6 @@ importComponent("PostsAcceptTos", () => require('../components/posts/PostsAccept
 importComponent("PostsEditBotTips", () => require('../components/posts/PostsEditBotTips'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
-importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));

@@ -1,17 +1,28 @@
-import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
+import { PostAnalyticsResult } from "../../components/hooks/usePostAnalytics";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/users/useAuthorAnalytics";
+import { AnalyticsSeriesValue, AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import chunk from "lodash/chunk";
-import { inspect } from "util";
 import { POST_VIEWS_IDENTIFIER } from "../analytics/postViewsHybridView";
 import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView";
+import moment from "moment";
+import groupBy from "lodash/groupBy";
+import { executeChunkedQueue } from "../../lib/utils/asyncUtils";
+import { CommentsRepo, VotesRepo } from "../repos";
+import { generateDateSeries } from "../../lib/helpers";
+
+// Queries are executed in batches of post ids. This is mainly to coerce postgres into using
+// the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
+// many ids at once it will try to filter by timestamp first and then sequentially scan to filter
+// by post_id, which is much (much!) slower.
+const MAX_CONCURRENT_QUERIES = 6;
+const LIVE_BATCH_SIZE = 5;
+const MATERIALIZED_BATCH_SIZE = 50;
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -65,7 +76,14 @@ function makePgAnalyticsQuerySeries({query, resultColumnRenaming, resultKey}: {q
  * This encourages postgres to use the index on `columnName` if one exists.
  */
 function generateOrConditionQuery(columnName: string, ids: string[]): string {
-  return ids.map((id, index) => `${columnName} = $${index + 1}`).join(' OR ');
+  // 8 appears to be about the cutoff where IN is faster than OR
+  if (ids.length < 8) {
+    return ids.map((id, index) => `${columnName} = $${index + 1}`).join(' OR ');
+  } else {
+    // IN
+    return `${columnName} IN (${ids.map((id, index) => `$${index + 1}`).join(', ')})`;
+  }
+  
 }
 
 type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>;
@@ -177,6 +195,7 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
+    // TODO make this handle posts as well
     async AuthorAnalytics(
       root: void,
       {
@@ -184,20 +203,15 @@ addGraphQLResolvers({
         sortBy,
         desc,
         limit,
-      }: { userId: string; sortBy: string | null; desc: boolean | null; limit: number | null },
+        cachedOnly,
+      }: { userId: string; sortBy: string | null; desc: boolean | null; limit: number | null, cachedOnly: boolean | null },
       context: ResolverContext
     ): Promise<AuthorAnalyticsResult> {
       // These are null (not undefined) if not provided, so we have to explicitly set them to the default
       sortBy = sortBy ?? "postedAt";
       desc = desc ?? true;
       limit = limit ?? 10;
-
-      // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
-      // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
-      // many ids at once it will try to filter by timestamp first and then sequentially scan to filter
-      // by post_id, which is much (much!) slower.
-      const MAX_CONCURRENT_QUERIES = 8;
-      const BATCH_SIZE = 5;
+      const batchSize = cachedOnly ? MATERIALIZED_BATCH_SIZE : LIVE_BATCH_SIZE;
       
       // Directly sortable fields can be sorted and filtered on before querying the analytics database,
       // so we can avoid querying for most of the post ids. Indirectly sortable fields are calculated
@@ -255,13 +269,11 @@ addGraphQLResolvers({
         postViewTimesView.virtualTable(),
       ]);
 
-      const postIdsBatches = chunk(postIds, BATCH_SIZE);
+      const cachedOnlyQuery = cachedOnly ? "AND source <> 'live'" : "";
 
-      let viewsResults: { _id: string; total_view_count: number }[] = [];
-      let readsResults: { _id: string; total_read_count: number }[] = [];
-
-      async function runViewsQuery(batch: string[]) {
-        const viewsResult = await analyticsDb.any<{ _id: string; total_view_count: number }>(
+      const [viewsResults, readsResults] = await Promise.all([
+        executeChunkedQueue(async (batch: string[]) => {
+          return analyticsDb.any<{ _id: string; total_view_count: number }>(
           `
           SELECT
             post_id AS _id,
@@ -269,18 +281,16 @@ addGraphQLResolvers({
           FROM
             (${viewsTable}) q
           WHERE
-            ${generateOrConditionQuery("post_id", batch)}
+            (${generateOrConditionQuery("post_id", batch)})
+            ${cachedOnlyQuery}
           GROUP BY
             post_id;
-        `,
-          batch
-        );
-
-        viewsResults.push(...viewsResult);
-      }
-
-      async function runReadsQuery(batch: string[]) {
-        const readsResult = await analyticsDb.any<{ _id: string; total_read_count: number }>(
+          `,
+            batch
+          );
+        }, postIds, batchSize, MAX_CONCURRENT_QUERIES),
+        executeChunkedQueue(async (batch: string[]) => {
+          return analyticsDb.any<{ _id: string; total_read_count: number }>(
           `
           SELECT
             post_id AS _id,
@@ -289,40 +299,15 @@ addGraphQLResolvers({
           FROM
             (${postViewTimesTable}) q
           WHERE
-            ${generateOrConditionQuery("post_id", batch)}
+            (${generateOrConditionQuery("post_id", batch)})
+            ${cachedOnlyQuery}
           GROUP BY
             post_id;
-        `,
-          batch
-        );
-
-        readsResults.push(...readsResult);
-      }
-
-      // Pair batches of ids with their corresponding query functions and then zip these pairs together
-      const zippedPairs = postIdsBatches.flatMap((batch) => [
-        { batch, func: runViewsQuery },
-        { batch, func: runReadsQuery },
+          `,
+            batch
+          );
+        }, postIds, batchSize, MAX_CONCURRENT_QUERIES)
       ]);
-
-      let queue: Promise<any>[] = [];
-
-      // Execute up to maxConcurrent queries at a time
-      for (const { batch, func } of zippedPairs) {
-        // Add the new promise to the queue
-        const promise = func(batch);
-        queue.push(promise);
-
-        // If the queue is full, wait for one promise to finish
-        if (queue.length >= MAX_CONCURRENT_QUERIES) {
-          await Promise.race(queue);
-          // Remove resolved promises from the queue
-          queue = queue.filter((p) => inspect(p).includes("pending"));
-        }
-      }
-
-      // Wait for all remaining promises to finish
-      await Promise.all(queue);
 
       // Flatten the results
       const viewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_view_count]));
@@ -357,6 +342,146 @@ addGraphQLResolvers({
         totalCount: await postCountPromise,
       };
     },
+    async AnalyticsSeries(
+      root: void,
+      {
+        userId,
+        postIds,
+        startDate,
+        endDate,
+        cachedOnly,
+      }: {
+        userId: string | null;
+        postIds: string[] | null;
+        startDate: Date | null;
+        endDate: Date | null;
+        cachedOnly: boolean | null;
+      },
+      context: ResolverContext
+    ): Promise<AnalyticsSeriesValue[]> {
+      const batchSize = cachedOnly ? MATERIALIZED_BATCH_SIZE : LIVE_BATCH_SIZE;
+
+      const { currentUser } = context;
+      const analyticsDb = getAnalyticsConnectionOrThrow();
+    
+      if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
+        throw new Error("Permission denied");
+      }
+      if (!userId && (!postIds || !postIds.length)) {
+        throw new Error("Must provide either userId or postIds");
+      }
+      if (!endDate) {
+        throw new Error("Must provide endDate");
+      }
+    
+      // Round start date down to nearest day in UTC
+      const adjustedStartDate = startDate ? moment(new Date(startDate)).utc().startOf("day") : undefined;
+      const adjustedEndDate = moment(new Date(endDate)).utc().add(1, "days").startOf("day");
+
+      let queryPostIds: string[] = postIds || [];
+      if (userId) {
+        const postSelector = {
+          $or: [{ userId: userId }, { "coauthorStatuses.userId": userId }],
+          rejected: { $ne: true },
+          draft: false,
+          isEvent: false
+        }
+        const userPosts = await Posts.find(postSelector, {
+          projection: {
+            _id: 1,
+          },
+        }).fetch();
+        queryPostIds = userPosts.map((post) => post._id);
+      }
+
+      const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
+      const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
+
+      if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
+
+      const [viewsTable, postViewTimesTable] = await Promise.all([
+        postViewsView.virtualTable(),
+        postViewTimesView.virtualTable(),
+      ]);
+
+      const cachedOnlyQuery = cachedOnly ? "AND source <> 'live'" : "";
+      const [viewRes, readRes, karmaRes, commentRes] = await Promise.all([
+        executeChunkedQueue(async (batch: string[]) => {
+          return analyticsDb.any<{ window_start_key: string; view_count: string }>(
+            `
+              SELECT
+                -- Format as YYYY-MM-DD to make grouping easier
+                to_char(window_start, 'YYYY-MM-DD') AS window_start_key,
+                sum(view_count) AS view_count
+              FROM
+                (${viewsTable}) q
+              WHERE
+                (${generateOrConditionQuery("post_id", batch)})
+                ${adjustedStartDate ? `AND window_start >= '${adjustedStartDate.toISOString()}'::timestamp` : ""}
+                AND window_end <= '${adjustedEndDate.toISOString()}'::timestamp
+                ${cachedOnlyQuery}
+              GROUP BY
+                window_start_key;
+          `, batch)
+        }, queryPostIds, batchSize, MAX_CONCURRENT_QUERIES),
+        executeChunkedQueue(async (batch: string[]) => {
+          return analyticsDb.any<{ window_start_key: string; read_count: string }>(
+            `
+              SELECT
+                -- Format as YYYY-MM-DD to make grouping easier
+                to_char(window_start, 'YYYY-MM-DD') AS window_start_key,
+                sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS read_count
+              FROM
+                (${postViewTimesTable}) q
+              WHERE
+                (${generateOrConditionQuery("post_id", batch)})
+                ${adjustedStartDate ? `AND window_start >= '${adjustedStartDate.toISOString()}'::timestamp` : ""}
+                AND window_end <= '${adjustedEndDate.toISOString()}'::timestamp
+                ${cachedOnlyQuery}
+              GROUP BY
+                window_start_key;
+            `, batch)
+        }, queryPostIds, batchSize, MAX_CONCURRENT_QUERIES),
+        (new VotesRepo().getPostKarmaChangePerDay({
+          postIds: queryPostIds,
+          startDate: adjustedStartDate?.toDate(),
+          endDate: adjustedEndDate.toDate(),
+        })),
+        (new CommentsRepo().getCommentsPerDay({
+          postIds: queryPostIds,
+          startDate: adjustedStartDate?.toDate(),
+          endDate: adjustedEndDate.toDate(),
+        })),
+      ])
+
+      const viewsByDate = groupBy(viewRes, "window_start_key");
+      const readsByDate = groupBy(readRes, "window_start_key");
+      const commentsByDate = groupBy(commentRes, "window_start_key");
+      const karmaByDate = groupBy(karmaRes, "window_start_key");
+
+      const lowestStartDate =
+        adjustedStartDate ??
+        moment.min(
+          moment.min(Object.keys(viewsByDate).map((date) => moment(date))),
+          moment.min(Object.keys(readsByDate).map((date) => moment(date))),
+          moment.min(Object.keys(commentsByDate).map((date) => moment(date))),
+          moment.min(Object.keys(karmaByDate).map((date) => moment(date)))
+        );
+      
+      const result = generateDateSeries(lowestStartDate, adjustedEndDate).map((date) => ({
+        date: new Date(date),
+        views: viewsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.view_count ?? 0), 0) ?? 0,
+        reads: readsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.read_count ?? 0), 0) ?? 0,
+        karma: karmaByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.karma_change ?? 0), 0) ?? 0,
+        comments: commentsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.comment_count ?? 0), 0) ?? 0
+      }));
+      // Remove leading values where all fields are 0
+      const truncatedResult = result.slice(result.findIndex((value) => (
+        value.views !== 0 || value.reads !== 0 || value.karma !== 0 || value.comments !== 0
+      )));
+      return truncatedResult;
+    },
+    
   },
 });
 
@@ -394,5 +519,16 @@ addGraphQLSchema(`
   }
 `);
 
+addGraphQLSchema(`
+  type AnalyticsSeriesValue {
+    date: Date
+    views: Int
+    reads: Int
+    karma: Int
+    comments: Int
+  }
+`);
+
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
-addGraphQLQuery("AuthorAnalytics(userId: String!, sortBy: String, desc: Boolean, limit: Int): AuthorAnalyticsResult!");
+addGraphQLQuery("AuthorAnalytics(userId: String!, sortBy: String, desc: Boolean, limit: Int, cachedOnly: Boolean): AuthorAnalyticsResult!");
+addGraphQLQuery("AnalyticsSeries(userId: String, postIds: [String], startDate: Date, endDate: Date, cachedOnly: Boolean): [AnalyticsSeriesValue]");
