@@ -535,9 +535,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
     : null;
 
-  const rightColumnChildren: JSX.Element[] = [];
-  if (welcomeBox) rightColumnChildren.push(welcomeBox);
-  if (showRecommendations && recommendationsPosition === "right") rightColumnChildren.push(<PostSideRecommendations post={post} />);
+  const rightColumnChildren = <>
+    {welcomeBox}
+    {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
+  </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
