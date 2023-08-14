@@ -42,27 +42,50 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: SECTION_WIDTH,
     padding: PADDING,
     '& $one': {
-      left: 0
+      left: 0,
+      [theme.breakpoints.down('sm')]: {
+        left: 20,
+        top: 30,
+        transform: "rotate(-15deg)"
+      }
     },
     '& $two': {
-      left: WIDTH + PADDING
+      left: WIDTH + PADDING,
+      [theme.breakpoints.down('sm')]: {
+        left: 20,
+        top: 40,
+        transform: "rotate(5deg)"
+      }
     },
     '& $three': {
-      left: (WIDTH + PADDING) * 2
+      left: (WIDTH + PADDING) * 2,
+      [theme.breakpoints.down('sm')]: {
+        left: 20,
+        top: 50,
+        transform: "rotate(5deg)"
+      }
     },
     '& $four': {
-      left: (WIDTH + PADDING) * 3
-    },
-    [theme.breakpoints.down('sm')]: {
-      ...revealedContent(theme)
+      left: (WIDTH + PADDING) * 3,
+      [theme.breakpoints.down('sm')]: {
+        left: 20,
+        top: 60,
+        transform: "rotate(15deg)"
+      }
     },
     '&:hover': {
-      ...revealedContent(theme)
-    },
+      // [theme.breakpoints.up('md')]: {
+        ...revealedContent(theme)
+      // },
+    }
   },
   book: {
     width: WIDTH,
     height: HEIGHT,
+    [theme.breakpoints.down('lg')]: {
+      width: WIDTH * 0.85,
+      height: HEIGHT * 0.85,
+    },
     [theme.breakpoints.down('sm')]: {
       width: WIDTH * 0.7,
       height: HEIGHT * 0.7,
@@ -78,9 +101,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   three: {},
   four: {},
   parent: {
-    position: "relative",
-    transform: "translateX(-50%)",
-    left: '50%',
+    [theme.breakpoints.up('lg')]: {
+      position: "relative",
+      transform: "translateX(-50%)",
+      left: '50%',
+    }
   },
   revealedContent: {
     position: 'absolute',

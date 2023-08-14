@@ -22,7 +22,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       width: '100%',
       maxWidth: 765,
-      overflow: 'unset'
+      overflow: 'unset',
+    },
+    [theme.breakpoints.down('lg')]: {
+      left: 0,
     }
   },
   mainHeading: {
@@ -189,7 +192,7 @@ const Book2020FrontpageWidget = ({ classes }: {
         <BookMarketingText 
           title={"The Carving of Reality"} 
           subtitle={"Best of LessWrong, Volume III"}
-          description={"In this new essay collection, LessWrong writers seek to understand key elements of the art of rationality. The collection features essays from Eliezer Yudkowsky, Scott Alexander, Zvi Mowshowitz, and over 30 more LessWrong writers. Starting with the simple epistemic question of when and how to trust different sources of information, the essays in the books move through understanding the lens of incentives, an exploration of when and why complex systems become modular, and finally into a discussions of failure, both personal and civilizational."}
+          description={"In this new essay collection, LessWrong writers seek to understand key elements of the art of rationality. The collection features essays from Scott Alexander, Zvi Mowshowitz, and over 30 more LessWrong writers. "}
           buttons={<>
             <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
             <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
