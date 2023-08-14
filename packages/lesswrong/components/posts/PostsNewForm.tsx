@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment, makeAbsolute } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
@@ -15,6 +15,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import { Link } from '../../lib/reactRouterWrapper';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -110,6 +112,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 20,
     paddingBottom: 20
   },
+  editorGuide: {
+    display: 'flex',
+    alignItems: 'center',
+    background: theme.palette.primaryAlpha(0.1),
+    color: theme.palette.primary.main,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: 10,
+    paddingTop: 100,
+    borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.up('lg')]: {
+      width: 'max-content',
+      paddingLeft: 20,
+      paddingRight: 20
+    },
+  },
+  editorGuideLink: {
+    paddingLeft: 5,
+  }
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -173,7 +193,7 @@ const PostsNewForm = ({classes}: {
   });
   
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents } = Components
+    Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents, LWTooltip } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -247,8 +267,17 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
+  const postEditorGuide = <div className={classes.editorGuide}>
+    <HelpOutlineIcon />
+    <div className={classes.editorGuideLink}>
+      <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
+        <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+      </LWTooltip>
+    </div>
+  </div>;
+
   return (
-    <DynamicTableOfContents>
+    <DynamicTableOfContents rightColumnChildren={[postEditorGuide]}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <Components.PostsAcceptTos currentUser={currentUser} />
