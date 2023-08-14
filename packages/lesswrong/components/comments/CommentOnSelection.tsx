@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
+import { hasCommentOnSelectionSetting } from '../../lib/publicSettings';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -23,7 +22,7 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: isEAForum ? "none" : "initial",
+      display: hasCommentOnSelectionSetting.get() ? "none" : "initial",
     },
   },
 });
@@ -189,7 +188,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
     }
   }, [onClickComment]);
   
-  if (!userHasCommentOnSelection(currentUser)) {
+  if (!hasCommentOnSelectionSetting.get()) {
     return <>{children}</>;
   }
   

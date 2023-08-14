@@ -15,6 +15,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: isEAForum ? 8 : 4,
+    marginTop: isFriendlyUI ? 8 : 4,
     fontStyle: "italic",
   }
 })
@@ -287,4 +288,3 @@ declare global {
     CommentsListSection: typeof CommentsListSectionComponent,
   }
 }
-

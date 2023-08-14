@@ -119,3 +119,9 @@ export const excludeFromFrontpagePopularSetting = new DatabasePublicSetting<stri
   "excludeFromFrontpagePopular",
   [],
 );
+
+/** TODO; doc */
+export const hasDigestSetting = new DatabasePublicSetting<boolean>("hasDigest", false);
+
+/** TODO; doc */
+export const hasCommentOnSelectionSetting = new DatabasePublicSetting<boolean>("hasCommentOnSelection", true);

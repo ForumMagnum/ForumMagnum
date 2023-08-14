@@ -1,6 +1,9 @@
 import { Cookies } from "react-cookie";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 import { getExplicitConsentRequiredAsync } from "../../components/common/CookieBanner/geolocation";
+import { DatabasePublicSetting } from "../publicSettings";
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const CookiesTable: Record<string, CookieSignature> = {};
 

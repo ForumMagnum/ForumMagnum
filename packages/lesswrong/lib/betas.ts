@@ -21,7 +21,6 @@ const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetti
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userHasCommentOnSelection = isEAForum ? disabled : shippedFeature;
 export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly

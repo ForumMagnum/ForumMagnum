@@ -13,7 +13,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -295,7 +295,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
 getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
   if (
     isAnyTest ||
-    forumTypeSetting.get() !== 'EAForum' ||
+    !hasDigestSetting.get() ||
     newUser.subscribedToDigest === oldUser.subscribedToDigest
   ) {
     return;
