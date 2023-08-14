@@ -15,10 +15,10 @@ import { forumSelect } from '../lib/forumTypeUtils';
  * hinge on this setting, making a bit like a, "which tribe are you" question,
  * in addition to controlling the basic UI style.
  */
-export const siteUIStyle = forumSelect({
+export const siteUIStyle = forumSelect<"book"|"friendly">({
   LWAF: "book",
   EAForum: "friendly",
-  default: "freindly",
+  default: "friendly",
 })
 export const isBookUI = siteUIStyle === "book";
 export const isFriendlyUI = siteUIStyle === "friendly";
