@@ -790,7 +790,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'home',
       path: '/',
-      componentName: 'Home2',
+      componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true
     },
@@ -1131,7 +1131,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'home',
       path:'/',
-      componentName: 'Home2',
+      componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
@@ -1435,13 +1435,6 @@ addRoute(
 );
 
 addRoute(
-  {
-    name: 'home2',
-    path: '/home2',
-    componentName: 'Home2',
-    enableResourcePrefetch: true,
-    title: "Home2 Beta",
-  },
   {
     name: 'allPosts',
     path: '/allPosts',

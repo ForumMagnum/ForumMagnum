@@ -70,8 +70,10 @@ import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
 import "./server/scripts/randomRecommendationSamples";
-import "./server/scripts/languageModels/generateTaggingPostSets";
-import "./server/scripts/languageModels/testModGPTOnComments";
+import "./server/scripts/generativeModels/generateTaggingPostSets";
+import "./server/scripts/generativeModels/testModGPTOnComments";
+// doesn't pass unit tests but works fine. Leaving commented out for now
+// import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
