@@ -176,6 +176,8 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
   );
 };
 
+const defaultSortBy = "postedAt";
+
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { params, query, location } = useLocation();
   const { history } = useNavigation();
@@ -191,8 +193,8 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   });
   const user = getUserFromResults(results);
 
-  const { sortBy, sortDesc: sortDescRaw } = query;
-  const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : undefined;
+  const { sortBy = defaultSortBy, sortDesc: sortDescRaw } = query;
+  const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : true;
 
   const onClickHeader = (headerField: string) => {
     let newSortBy: string | undefined = sortBy;
@@ -202,8 +204,9 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       if (sortDesc === true) {
         newSortDesc = false;
       } else if (sortDesc === false) {
-        newSortBy = undefined;
-        newSortDesc = undefined;
+        // Reset to default sort
+        newSortBy = "postedAt";
+        newSortDesc = true;
       }
     } else {
       newSortBy = headerField;
@@ -223,7 +226,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    history.replace({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const {

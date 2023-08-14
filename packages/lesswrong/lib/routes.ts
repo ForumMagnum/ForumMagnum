@@ -130,11 +130,6 @@ addRoute(
     componentName: "UsersSingle",
   },
   {
-    name: "userAnalytics",
-    path:'/users/:slug/stats',
-    componentName: "AuthorAnalyticsPage",
-  },
-  {
     name:'users.single.u',
     path:'/u/:slug',
     componentName: 'UsersSingle'
@@ -711,6 +706,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAGApplicationImportForm',
       title: 'Import Profile',
       background: 'white',
+    },
+    {
+      name: "userAnalytics",
+      path:'/users/:slug/stats',
+      componentName: "AuthorAnalyticsPage",
     },
     {
       name: 'EAGApplicationData',

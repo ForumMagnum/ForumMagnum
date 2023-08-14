@@ -197,3 +197,4 @@ import './server/search/elastic/elasticGraphQL';
 // Hybrid views
 import './server/analytics/postViewsHybridView';
 import './server/analytics/postViewTimesHybridView';
+import './server/analytics/hybridViews';
