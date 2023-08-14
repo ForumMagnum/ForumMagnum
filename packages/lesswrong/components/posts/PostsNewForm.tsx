@@ -1,4 +1,4 @@
-import { Components, registerComponent, getFragment, makeAbsolute } from '../../lib/vulcan-lib';
+import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { userCanPost } from '../../lib/collections/posts';
 import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
@@ -7,7 +7,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -115,7 +115,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   editorGuide: {
     display: 'flex',
     alignItems: 'center',
-    background: theme.palette.primaryAlpha(0.1),
     color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 10,
@@ -276,8 +275,10 @@ const PostsNewForm = ({classes}: {
     </div>
   </div>;
 
+  const rightColumnChildren = isLWorAF ? [postEditorGuide] : [];
+
   return (
-    <DynamicTableOfContents rightColumnChildren={[postEditorGuide]}>
+    <DynamicTableOfContents rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <Components.PostsAcceptTos currentUser={currentUser} />
