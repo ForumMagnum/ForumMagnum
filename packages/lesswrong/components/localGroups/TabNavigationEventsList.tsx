@@ -199,7 +199,7 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   </MenuItemLink>
 }
 
-function getCityName(event: PostsList): string|null {
+export function getCityName(event: PostsBase|PostsList): string|null {
   if (event.googleLocation) {
     const locationTypePreferenceOrdering = ["locality", "political", "country"];
     for (let locationType of locationTypePreferenceOrdering) {

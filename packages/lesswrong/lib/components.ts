@@ -36,6 +36,7 @@ importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EA
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+importComponent("EAHomeRightHandSide", () => require('../components/ea-forum/EAHomeRightHandSide'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
 importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurveyBanner'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
@@ -311,6 +312,7 @@ importComponent("ResendVerificationEmailPage", () => require('../components/user
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
+importComponent("AuthorAnalyticsPage", () => require('../components/users/AuthorAnalyticsPage'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
