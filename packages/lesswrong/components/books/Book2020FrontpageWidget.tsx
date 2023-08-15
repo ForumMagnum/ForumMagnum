@@ -28,7 +28,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   heading: {
     [theme.breakpoints.down('xs')]: {
-      fontSize: '1.5rem',
+      fontSize: '2.2rem !important',
+      marginTop: '70px !important'
     }
   },
   secondaryHeading: {
