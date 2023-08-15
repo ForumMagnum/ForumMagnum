@@ -223,7 +223,8 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontStyle: "unset",
           textTransform: "unset",
           color: palette.grey[800],
-          fontFamily: sansSerifStack
+          fontFamily: sansSerifStack,
+          fontWeight: 500,
         },
         largeChapterTitle: {
           fontSize: "2.2rem"
