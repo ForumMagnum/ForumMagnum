@@ -158,6 +158,12 @@ registerFragment(`
       text
       imageUrl
     }
+    contents {
+      plaintextDescription
+    }
+    customHighlight {
+      plaintextDescription
+    }
   }
 `)
 

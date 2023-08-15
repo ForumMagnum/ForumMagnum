@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
-import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import classNames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { siteImageSetting } from "../vulcan-core/App";
+import moment from "moment";
+import { InteractionWrapper } from "../common/useClickableCell";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
+import { post } from "request";
 
 // Slightly smaller than in the designs, but
 const MAX_WIDTH = 1400;
@@ -27,9 +31,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up("lg")]: {
       width: MAX_WIDTH,
     },
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       flexDirection: "column",
     },
+    [theme.breakpoints.down("xs")]: {
+      padding: "16px 12px",
+    }
   },
   column: {
     "& > *:not(:last-child)::after": {
@@ -42,18 +49,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   leftColumn: {
     flex: "17 1 0%",
+    minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
+  },
+  rightColumn: {
+    flex: "10 1 0%",
+    minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
   },
   divider: {
     // 1px in size whether horizontal or vertical
     flex: "0 0 1px",
     backgroundColor: "#BECBD7",
     margin: `0 ${DIVIDER_MARGIN}px`,
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("md")]: {
       margin: `${DIVIDER_MARGIN}px 0`,
     },
-  },
-  rightColumn: {
-    flex: "10 1 0%",
   },
   heading: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -69,41 +78,82 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
   },
-  // List item
+  xsHide: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  // Post list item
   postListItem: {
     display: "flex",
     width: "100%",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
-    padding: '16px 16px',
+    padding: "16px 16px",
     marginBottom: 16,
-    alignItems: "center",
   },
   postListItemTextSection: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
     display: "flex",
     flexDirection: "column",
+    fontWeight: 500,
     flex: 1,
     maxHeight: 160,
+    minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
+    marginRight: 8,
   },
   postListItemTitle: {
-    
+    fontSize: 18,
+    marginBottom: 8,
+    lineHeight: "25px",
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
   },
   postListItemMeta: {
-    
+    display: "flex",
+    marginBottom: 8,
+    fontSize: 14,
+    lineHeight: "20px",
+    color: theme.palette.grey[600],
+  },
+  commentCount: {
+    minWidth: 58,
+    marginLeft: 4,
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+    "& svg": {
+      height: 18,
+      marginRight: 1,
+    },
+    "&:hover": {
+      color: theme.palette.grey[800],
+      opacity: 1,
+    },
   },
   postListItemPreview: {
+    fontSize: 14,
+    lineHeight: "20px",
+    color: theme.palette.grey[600],
     position: "relative",
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 3,
+    marginTop: "auto",
+    marginBottom: "auto",
   },
   postListItemImage: {
-    width: 160,
     height: 140,
+    maxWidth: 150,
     objectFit: "cover",
     borderRadius: theme.borderRadius.default,
-  }
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
 });
 
 const featuredCollectionsSequenceIds = [
@@ -131,41 +181,79 @@ const introToCauseAreasSequenceIds = [
   "aH5to3as8yiQA6wGo", // Intro to moral philosophy
   "pFageBjmsLra3ucDC", // Intro to cause prioritization
 ];
+const popularThisMonthPostIds = [
+  "z8ZWwm4xeHBAiLZ6d", // Thoughts on far-UVC
+  "Doa69pezbZBqrcucs", // Shaping Humanity's Longterm Trajectory
+  "kHDjtqSiSohZAQyjG", // Some thoughts on quadratic funding
+  "8qXrou57tMGz8cWCL", // Are education interventions as cost effective as the top health interventions?
+];
+const featuredAudioPostIds = [
+  "jk7A3NMdbxp65kcJJ", // 500 million, but not a single one more
+  "rXYW9GPsmwZYu3doX", // What happens on the average day?
+  "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
+];
 
-const popularThisMonthPostIds = ["z8ZWwm4xeHBAiLZ6d", "Doa69pezbZBqrcucs", "kHDjtqSiSohZAQyjG", "8qXrou57tMGz8cWCL"];
-// TODO this one might be tricky
-const featuredAudioPostIds = ["jk7A3NMdbxp65kcJJ", "rXYW9GPsmwZYu3doX", "ffmbLCzJctLac3rDu"];
-
-const PostListItem = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
-  const { Loading, PostsItemMeta } = Components;
+const PostListItem = ({
+  documentId,
+  isNarrow = false,
+  classes,
+}: {
+  documentId: string;
+  isNarrow?: boolean;
+  classes: ClassesType;
+}) => {
+  const { Loading, TruncatedAuthorsList, ForumIcon } = Components;
+  const authorExpandContainer = useRef(null);
 
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
-    fragmentName: "PostsListBestOfPage",
+    fragmentName: "PostsPage",
   });
+
+  const postLink = document ? postGetPageUrl(document) : "";
 
   if (loading) return <Loading />;
 
   if (!document) return null;
-  
-  const highlight =  document.customHighlight?.html || document.contents?.htmlHighlight;
 
-  return <div className={classes.postListItem}>
-    {/* TODO make post item component which matches designs */}
-    <div className={classes.postListItemTextSection}>
-      <div className={classes.postListItemTitle}>
-        {document.title}
+  const timeFromNow = moment(new Date(document.postedAt)).fromNow();
+  const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
+
+  return (
+    <div className={classes.postListItem}>
+      <div className={classes.postListItemTextSection}>
+        <div className={classes.postListItemTitle}>
+          <Link to={postLink}>{document.title}</Link>
+        </div>
+        <div className={classes.postListItemMeta}>
+          <div ref={authorExpandContainer}>
+            <InteractionWrapper>
+              <TruncatedAuthorsList post={document} expandContainer={authorExpandContainer} />
+            </InteractionWrapper>
+          </div>
+          &nbsp;·&nbsp;
+          {timeFromNow}
+          {ago}
+          &nbsp;·&nbsp;
+          {document.readTimeMinutes}m read
+          <div>
+            {!isNarrow && (
+              <span className={classNames(classes.commentCount, classes.xsHide)}>
+                &nbsp;·&nbsp;
+                <Link to={`${postLink}#comments`} className={classes.commentCount}>
+                  <ForumIcon icon="Comment" />
+                  {document.commentCount}
+                </Link>
+              </span>
+            )}
+          </div>
+        </div>
+        <div className={classes.postListItemPreview}>{document.contents?.plaintextDescription}</div>
       </div>
-      <div className={classes.postListItemMeta}>
-        {/* <PostsItemMeta post={document} /> */}
-        TODO
-      </div>
-      <div className={classes.postListItemPreview} dangerouslySetInnerHTML={{ __html: highlight ?? ''}}>
-      </div>
+      <img className={classes.postListItemImage} src={document.socialPreviewData.imageUrl || siteImageSetting.get()} />
     </div>
-    <img className={classes.postListItemImage} src={document.socialPreviewData.imageUrl || siteImageSetting.get()} />
-  </div>
+  );
 };
 
 const CollectionCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
@@ -196,7 +284,7 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
   if (loading) return <Loading />;
 
   if (!document) return null;
-  
+
   return <>TODO</>;
 };
 
@@ -212,7 +300,7 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
   if (loading) return <Loading />;
 
   if (!document) return null;
-  
+
   return <>TODO</>;
 };
 
@@ -268,7 +356,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             <h2 className={classes.heading}>Popular This Month</h2>
             <div className={classes.listSection}>
               {popularThisMonthPostIds.map((documentId) => (
-                <PostListItem key={documentId} documentId={documentId} classes={classes} />
+                <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
               ))}
             </div>
           </div>

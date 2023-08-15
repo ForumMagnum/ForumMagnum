@@ -998,6 +998,16 @@ interface PostsListBestOfPage extends PostsList { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
   readonly socialPreviewData: any,
+  readonly contents: PostsListBestOfPage_contents|null,
+  readonly customHighlight: PostsListBestOfPage_customHighlight|null,
+}
+
+interface PostsListBestOfPage_contents { // fragment on Revisions
+  readonly plaintextDescription: string,
+}
+
+interface PostsListBestOfPage_customHighlight { // fragment on Revisions
+  readonly plaintextDescription: string,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
