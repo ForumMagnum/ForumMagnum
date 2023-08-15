@@ -40,11 +40,15 @@ const revealedContent = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   parent: {
-    [theme.breakpoints.up('lg')]: {
-      position: "relative",
-      left: -93,
-      transition: 'left 0.7s ease',
+    position: "relative",
+    left: -93,
+    transition: 'left 0.7s ease',
+    [theme.breakpoints.down('sm')]: {
+      left: -60,
     },
+    [theme.breakpoints.down('xs')]: {
+      left: -30,
+    }
   },
   revealedContent: {
     position: 'absolute',
@@ -54,11 +58,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "calc(100% - 250px)",
     [theme.breakpoints.down('lg')]: {
       opacity: 1
+    },
+    [theme.breakpoints.down('xs')]: {
+      width: "calc(100% - 200px)",
     }
   },
   root: {
     height: HEIGHT + (PADDING * 3.5),
-    width: SECTION_WIDTH,
+    width: SECTION_WIDTH + 100,
     paddingTop: PADDING,
     paddingBottom: PADDING,
     paddingRight: PADDING,
@@ -70,34 +77,37 @@ const styles = (theme: ThemeType): JssStyles => ({
         opacity: 1,
       }
     },
+    [theme.breakpoints.down('md')]: {
+      width: "100%",
+    },
     '& $one': {
       left: 0,
       [theme.breakpoints.down('lg')]: {
-        left: '0px !important',
-        top: '20px !important',
+        left: '60px !important',
+        top: '10px !important',
         transform: "rotate(-15deg)"
       }
     },
     '& $two': {
       left: WIDTH + PADDING,
       [theme.breakpoints.down('lg')]: {
-        left: '15px !important',
-        top: '35px !important',
+        left: '75px !important',
+        top: '25px !important',
         transform: "rotate(-5deg)"
       }
     },
     '& $three': {
       left: (WIDTH + PADDING) * 2,
       [theme.breakpoints.down('lg')]: {
-        left: '30px !important',
-        top: '50px !important',
+        left: '90px !important',
+        top: '40px !important',
         transform: "rotate(5deg)"
       }
     },
     '& $four': {
       left: (WIDTH + PADDING) * 3,
       [theme.breakpoints.down('lg')]: {
-        left: '45px !important',
+        left: '105px !important',
         top: '65px !important',
         transform: "rotate(15deg)"
       }
@@ -122,6 +132,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: WIDTH * 0.7,
       height: HEIGHT * 0.7,
     },
+    [theme.breakpoints.down('xs')]: {
+      width: WIDTH * 0.55,
+      height: HEIGHT * 0.55,
+    },
     borderRadius: '2px',
     position: "absolute",
     transition: `${transitionTime} ease`,
@@ -134,10 +148,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   four: {}
 })
 
-const Book2020Animation = ({ classes, children, successContent }: {
+const Book2020Animation = ({ classes, children }: {
   classes: ClassesType,
   children: ReactNode,
-  successContent?: any
 }) => {
   const { query } = useLocation();
   const success = !!query.success
@@ -150,7 +163,7 @@ const Book2020Animation = ({ classes, children, successContent }: {
         <img className={classNames(classes.book, classes.four)}src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691623651/reality-reason_llvcqx.png" />
       </div>
       <div className={classes.revealedContent}>
-        { success ? (successContent || children) : children}
+        { children}
       </div>
     </div>
   )
