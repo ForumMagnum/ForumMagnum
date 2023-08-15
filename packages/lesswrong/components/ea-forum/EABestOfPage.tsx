@@ -472,8 +472,6 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
 };
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
-  const currentUser = useCurrentUser();
-
   const { HeadTags } = Components;
 
   return (

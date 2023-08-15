@@ -150,24 +150,6 @@ registerFragment(`
 `)
 
 registerFragment(`
-  fragment PostsListBestOfPage on Post {
-    ...PostsList
-    currentUserVote
-    currentUserExtendedVote
-    socialPreviewData {
-      text
-      imageUrl
-    }
-    contents {
-      plaintextDescription
-    }
-    customHighlight {
-      plaintextDescription
-    }
-  }
-`)
-
-registerFragment(`
   fragment PostsListWithVotesAndSequence on Post {
     ...PostsListWithVotes
     canonicalSequence {

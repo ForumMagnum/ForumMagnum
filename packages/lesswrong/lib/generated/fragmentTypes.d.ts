@@ -994,22 +994,6 @@ interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserExtendedVote: any,
 }
 
-interface PostsListBestOfPage extends PostsList { // fragment on Posts
-  readonly currentUserVote: string,
-  readonly currentUserExtendedVote: any,
-  readonly socialPreviewData: any,
-  readonly contents: PostsListBestOfPage_contents|null,
-  readonly customHighlight: PostsListBestOfPage_customHighlight|null,
-}
-
-interface PostsListBestOfPage_contents { // fragment on Revisions
-  readonly plaintextDescription: string,
-}
-
-interface PostsListBestOfPage_customHighlight { // fragment on Revisions
-  readonly plaintextDescription: string,
-}
-
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
   readonly canonicalSequence: SequencesPageFragment|null,
 }
@@ -3195,7 +3179,6 @@ interface FragmentTypes {
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
-  PostsListBestOfPage: PostsListBestOfPage
   PostsListWithVotesAndSequence: PostsListWithVotesAndSequence
   PostsReviewVotingList: PostsReviewVotingList
   PostsAuthors: PostsAuthors
@@ -3396,7 +3379,6 @@ interface CollectionNamesByFragmentName {
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
-  PostsListBestOfPage: "Posts"
   PostsListWithVotesAndSequence: "Posts"
   PostsReviewVotingList: "Posts"
   PostsAuthors: "Posts"
