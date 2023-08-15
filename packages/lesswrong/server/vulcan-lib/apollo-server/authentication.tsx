@@ -86,6 +86,38 @@ function validatePassword(password:string): {validPassword: true} | {validPasswo
   return { validPassword: true }
 }
 
+function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
+  if (username.length < 2) {
+    return { validUsername: false, reason: "Your username must be at least 2 characters" };
+  }
+  if (username.trim() !== username) {
+    return { validUsername: false, reason: "Your username can't start or end with whitespace" };
+  }
+  for (let i=0; i<username.length-1; i++) {
+    if (username.substring(i, i+2).trim() === '') {
+      return { validUsername: false, reason: "Your username can't contain consecutive whitespace characters" };
+    }
+  }
+  for (let i=0; i<username.length; i++) {
+    const ch = username.charAt(i);
+    if (!isValidCharInUsername(ch)) {
+      return { validUsername: false, reason: `Your username can't contain a "${ch}"` };
+    }
+  }
+  
+  return {validUsername: true};
+}
+
+function isValidCharInUsername(ch: string): boolean {
+  const restrictedChars = [
+    '\u0000', // Null
+    '\uFEFF', // Byte order mark (BOM)
+    '\u202E', '\u202D', // RTL and LTR override
+    '\n', '\\', '/', '<', '>', '"',
+  ]
+  return !restrictedChars.includes(ch);
+}
+
 const loginData = `type LoginReturnData {
   token: String
 }`
@@ -225,10 +257,13 @@ const authenticationResolvers = {
     },
     async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
       const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
+      
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+      const validateUsernameResponse = validateUsername(username);
+      if (!validateUsernameResponse.validUsername) throw Error(validateUsernameResponse.reason)
       
       if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
