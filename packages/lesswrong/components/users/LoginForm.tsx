@@ -161,7 +161,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       if (errors) {
         showErrors(errors);
       }
-      if (data?.login?.token || data?.signup?.token) {
+      if (data?.login?.token) {
         location.reload()
       }
     } else if (currentAction === 'signup') {
@@ -175,6 +175,9 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       })
       if (errors) {
         showErrors(errors);
+      }
+      if (data?.signup?.token) {
+        location.reload()
       }
     } else if (currentAction === 'pwReset') {
       const { data, errors } = await pwResetMutation({
