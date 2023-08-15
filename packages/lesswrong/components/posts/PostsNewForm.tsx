@@ -17,6 +17,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Link } from '../../lib/reactRouterWrapper';
+import { QuestionIcon } from '../icons/questionIcon';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -112,23 +113,29 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 20,
     paddingBottom: 20
   },
+  editorGuideOffset: {
+    paddingTop: 100,
+  },
   editorGuide: {
     display: 'flex',
     alignItems: 'center',
-    color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 10,
-    paddingTop: 100,
     borderRadius: theme.borderRadius.default,
+    color: theme.palette.primary.main,
     [theme.breakpoints.up('lg')]: {
       width: 'max-content',
       paddingLeft: 20,
       paddingRight: 20
     },
   },
-  editorGuideLink: {
-    paddingLeft: 5,
-  }
+  editorGuideIcon: {
+    height: 40,
+    width: 40,
+    fill: theme.palette.primary.main,
+    marginRight: -4
+  },
+  editorGuideLink: {}
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -266,13 +273,15 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
-  const postEditorGuide = isLWorAF && <div className={classes.editorGuide}>
-    <HelpOutlineIcon />
-    <div className={classes.editorGuideLink}>
-      <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
-        <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
-      </LWTooltip>
-    </div>
+  const postEditorGuide = isLWorAF &&<div className={classes.editorGuideOffset}>
+    <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
+      <div className={classes.editorGuide}>
+        <QuestionIcon className={classes.editorGuideIcon} />
+        <div className={classes.editorGuideLink}>
+          <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+        </div>
+      </div>
+    </LWTooltip>
   </div>;
 
   return (
