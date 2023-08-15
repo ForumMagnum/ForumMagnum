@@ -1007,8 +1007,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'editor-guide',
-      path: '/editor-guide',
+      name: 'editor',
+      path: '/editor',
       redirect: () => '/tag/guide-to-the-lesswrong-editor',
     }
   ],

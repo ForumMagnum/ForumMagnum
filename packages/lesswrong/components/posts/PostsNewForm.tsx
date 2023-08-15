@@ -274,7 +274,7 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   const postEditorGuide = isLWorAF && <div className={classes.editorGuideOffset}>
-    <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
+    <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
       <div className={classes.editorGuide}>
         <QuestionIcon className={classes.editorGuideIcon} />
         <div className={classes.editorGuideLink}>
