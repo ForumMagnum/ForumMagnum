@@ -44,14 +44,11 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
-`Highlight text to format it. Type # to reference a post, @ to mention someone.` :  `Hello!`
+`Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
   
-  
-//   `Text goes here.
-//
-// See lesswrong.com/editor for info about everything the editor can do.
-//
-// lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
+  `Text goes here! See lesswrong.com/editor for info about everything the editor can do.
+
+lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
 
 
 export const debateEditorPlaceholder = 
