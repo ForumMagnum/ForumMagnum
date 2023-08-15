@@ -85,7 +85,23 @@ export type RecentKarmaInfo = {
   lastMonthDownvoterCount: number,
 }
 
-export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"> & {
+export interface UserKarmaInfoWindow {
+  currentUserKarmaInfo: DbUser & { recentKarmaInfo: RecentKarmaInfo };
+  previousUserKarmaInfo: DbUser & { recentKarmaInfo: RecentKarmaInfo };
+}
+
+export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"|"votedAt"> & {
+  collectionName: 'Posts' | 'Comments',
   postedAt: Date,
   totalDocumentKarma: number
 }
+
+export type RateLimitComparison<T extends AutoRateLimit> = {
+  isStricter: true;
+  strictestNewRateLimit: T;
+} | {
+  isStricter: false;
+  strictestNewRateLimit?: undefined;
+};
+
+

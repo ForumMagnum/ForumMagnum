@@ -15,6 +15,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
+import { DynamicTableOfContentsContext } from './TableOfContents/DynamicTableOfContents';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -41,7 +42,7 @@ const PostsEditForm = ({ documentId, classes }: {
   }, [isDraft]);
 
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
-    RateLimitWarning } = Components
+    RateLimitWarning, DynamicTableOfContents } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -111,6 +112,7 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   return (
+    <DynamicTableOfContents title={document.title}>
     <div className={classes.postForm}>
       <HeadTags title={document.title} />
       {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
@@ -162,15 +164,16 @@ const PostsEditForm = ({ documentId, classes }: {
           repeatErrors
           
           /*
-           * addFields includes tagRelevance because the field permissions on
-           * the schema say the user can't edit this field, but the widget
-           * "edits" the tag list via indirect operations (upvoting/downvoting
-           * relevance scores).
-           */
+          * addFields includes tagRelevance because the field permissions on
+          * the schema say the user can't edit this field, but the widget
+          * "edits" the tag list via indirect operations (upvoting/downvoting
+          * relevance scores).
+          */
           addFields={document.isEvent ? [] : ['tagRelevance']}
         />
       </NoSSR>
     </div>
+    </DynamicTableOfContents>
   );
 }
 
