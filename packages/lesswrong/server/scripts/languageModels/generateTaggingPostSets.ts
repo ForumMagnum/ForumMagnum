@@ -51,22 +51,23 @@ function weightedPartition<T>(list: T[], weights: number[]): T[][]
 }
 
 async function generateCandidateSetsForTagClassification(): Promise<void> {
-  const startDate = new Date("2021-01-01");
-  const endDate = new Date("2022-11-01");
+  const startDate = new Date("2022-01-01");
+  const endDate = new Date("2023-06-20");
   
   console.log(`Finding posts from ${startDate} to ${endDate}`); //eslint-disable-line no-console
   const posts = await Posts.find({
     draft: false, status: postStatuses.STATUS_APPROVED,
     isFuture: false, unlisted: false, shortform: false, authorIsUnreviewed: false,
-    question: false, isEvent: false,
-    baseScore: {$gte: 10},
-    tagRelevance: {$exists: true},
+    // question: false, 
+    isEvent: false,
+    baseScore: {$gte: 0},
+    // tagRelevance: {$exists: true},
     postedAt: {$gte: startDate, $lte: endDate},
   }).fetch();
   console.log(`Found ${posts.length} posts`); //eslint-disable-line no-console
   
   const postIds = posts.map(post => post._id);
-  const [trainSet,testSet] = weightedPartition(postIds, [2.0/3.0, 1.0/3.0]);
+  const [trainSet,testSet] = weightedPartition(postIds, [4.0/5.0, 1.0/5.0]);
   console.log(`Partitioned into ${trainSet.length} train and ${testSet.length} test`); //eslint-disable-line no-console
   
   const trainSetFilename = "ml/tagClassificationPostIds.train.json";
@@ -116,10 +117,45 @@ async function generateClassifierTuningFile({description, posts, postBodyCache, 
   fs.writeFileSync(outputFilename, result.join('\n'));
 }
 
+const frontpageAutotaggingPrompt = `Is this a timeless and apolitical post about ideas about how the world works or how to make the world better 
+or philosophy or practical advice that is NOT tied to specified people, organizations, communities, websites, products, opportunities, places, or events?`
+
+Globals.generateFrontpagePersonalClassifierData = async (args: {
+  trainingSetFilename?: string,
+  testSetFilename?: string,
+}) => {
+  const {trainingSetFilename="ml/tagClassificationPostIds.train.json", testSetFilename="ml/tagClassificationPostIds.test.json"} = args||{};
+  const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
+  const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
+  
+  const trainingSet: DbPost[] = await Posts.find({_id: {$in: trainingSetPostIds}}).fetch();
+  const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  
+  console.log(`Generating Frontpage/Personal training/test datasets`);
+  
+  await generateClassifierTuningFile({
+    description: `Train frontpage/personal: ${frontpageAutotaggingPrompt}`,
+    posts: trainingSet,
+    outputFilename: `ml/tagClassification.frontpage.train.jsonl`,
+    promptSuffix: frontpageAutotaggingPrompt,
+    classifyPost: (post: DbPost) => (!!post.frontpageDate )
+  });
+  
+  await generateClassifierTuningFile({
+    description: `Test frontpage/personal: ${frontpageAutotaggingPrompt}`,
+    posts: testSet,
+    outputFilename: `ml/tagClassification.frontpage.test.jsonl`,
+    promptSuffix: frontpageAutotaggingPrompt,
+    classifyPost: (post: DbPost) => (!!post.frontpageDate )
+  });
+  
+}
+
 Globals.generateTagClassifierData = async (args: {
   tagSlug?: string
   trainingSetFilename?: string,
   testSetFilename?: string,
+  classifyFrontpagePersonal?: boolean
 }) => {
   const {tagSlug, trainingSetFilename="ml/tagClassificationPostIds.train.json", testSetFilename="ml/tagClassificationPostIds.test.json"} = args||{};
   const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
