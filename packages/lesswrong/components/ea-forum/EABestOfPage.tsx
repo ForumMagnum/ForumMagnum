@@ -50,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       content: '""',
       display: "block",
       height: "1px",
-      backgroundColor: "#BECBD7",
+      backgroundColor: theme.palette.grey[400],
       margin: `${DIVIDER_MARGIN}px 0 ${DIVIDER_MARGIN}px 0`,
     },
   },
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   divider: {
     // 1px in size whether horizontal or vertical
     flex: "0 0 1px",
-    backgroundColor: "#BECBD7",
+    backgroundColor: theme.palette.grey[400],
     margin: `0 ${DIVIDER_MARGIN}px`,
     [theme.breakpoints.down("md")]: {
       margin: `${DIVIDER_MARGIN}px 0`,
@@ -175,11 +175,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 8, // Account for box shadow
     boxShadow:
       `/* The top layer shadow */
-      -1px 1px 10px rgba(0,0,0,.15),
+      -1px 1px 10px ${theme.palette.greyAlpha(0.15)},
       /* The second layer */
-      -8px 8px 0 0px #fff,
+      -8px 8px 0 0px ${theme.palette.panelBackground.default},
       /* The second layer shadow */
-      -10px 10px 10px -1px rgba(0,0,0,.15)`
+      -10px 10px 10px -1px ${theme.palette.greyAlpha(0.15)}`
   },
   sequenceCardImageWrapper: {
     position: 'relative',
