@@ -12,7 +12,6 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 
-// Slightly smaller than in the designs, but
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 const DIVIDER_MARGIN = 48;
@@ -29,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
-    padding: "32px 16px",
+    padding: "32px 32px",
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.up("md")]: {
