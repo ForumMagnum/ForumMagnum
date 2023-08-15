@@ -7,6 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit,
     marginBottom: `${theme.spacing.unit * 2}px !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "1.1rem",
   },
 })
 

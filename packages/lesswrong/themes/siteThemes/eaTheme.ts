@@ -10,6 +10,7 @@ const titleStack = [
 ].join(',')
 
 const serifStack = [
+  '"Source Serif 4"',
   'Merriweather',
   'Baskerville',
   'Libre Baskerville',
@@ -113,8 +114,8 @@ export const eaForumTheme: SiteThemeSpecification = {
     const basicText = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
-      lineHeight: '1.75em',
-      fontWeight: 450,
+      lineHeight: '1.9em',
+      fontWeight: 400,
       fontFamily: serifStack
     }
     return {
@@ -127,6 +128,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       },
       typography: {
         fontDownloads: [
+          "https://fonts.googleapis.com/css2?family=Source+Serif+4:200,300,400,500,600,700,800,900",
           "https://fonts.googleapis.com/css?family=Merriweather:300,400,500,600,700&subset=all",
           "https://fonts.googleapis.com/css?family=Inter:300,400,450,500,600,700",
           // TODO we need to find where this is used in material ui and remove
@@ -139,8 +141,9 @@ export const eaForumTheme: SiteThemeSpecification = {
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,
-          fontSize: "1.2rem",
+          fontSize: "1.4rem",
           fontFamily: serifStack,
+          fontWeight: 300,
         },
         body2: {
           fontSize: "1.1rem",
@@ -179,38 +182,38 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontFamily: titleStack
         },
         title: {
-          color: palette.grey[800],
+          color: palette.text.normal,
           fontFamily: titleStack,
           fontWeight: 500,
           marginBottom: 5,
         },
         // used by h3
         display0: {
-          color: palette.grey[800],
+          color: palette.text.normal,
           fontFamily: titleStack,
           fontWeight: 600,
-          fontSize: '1.6rem',
+          fontSize: '1.5rem',
           lineHeight: '1.25em',
         },
         // used by h2
         display1: {
-          color: palette.grey[800],
+          color: palette.text.normal,
           fontFamily: titleStack,
-          fontWeight: 650,
-          fontSize: '2rem',
+          fontWeight: 600,
+          fontSize: '1.9rem',
           lineHeight: '1.25em',
         },
         // used by h1
         display2: {
-          color: palette.grey[800],
+          color: palette.text.normal,
           fontFamily: titleStack,
           fontWeight: 600,
-          fontSize: '2.4rem',
+          fontSize: '2.2rem',
           lineHeight: '1.25em',
         },
         // used by page title
         display3: {
-          color: palette.grey[800],
+          color: palette.text.normal,
           fontFamily: titleStack,
           fontWeight: 500,
           lineHeight: '1.25em'
@@ -222,8 +225,8 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontSize: "1.25em",
           fontStyle: "unset",
           textTransform: "unset",
-          color: palette.grey[800],
-          lineHeight: "1.75em",
+          color: palette.text.normal,
+          lineHeight: "1.7em",
           fontFamily: serifStack
         },
         largeChapterTitle: {
@@ -361,11 +364,11 @@ export const eaForumTheme: SiteThemeSpecification = {
         },
         ContentType: {
           root: {
-            color: palette.grey[800],
+            color: palette.text.normal,
             fontWeight: 600
           },
           icon: {
-            color: palette.grey[800]
+            color: palette.text.normal
           }
         },
         MuiSnackbarContent: {
