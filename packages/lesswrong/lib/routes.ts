@@ -708,6 +708,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: 'white',
     },
     {
+      name: "userAnalytics",
+      path:'/users/:slug/stats',
+      componentName: "AuthorAnalyticsPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },

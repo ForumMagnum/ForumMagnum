@@ -18,6 +18,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   readCheckbox: {
     minWidth: 24,
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: -12,
+    },
   },
   expandedCommentsWrapper: {
     display: "flex",

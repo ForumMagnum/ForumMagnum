@@ -220,12 +220,11 @@ export const eaForumTheme: SiteThemeSpecification = {
           sansSerifStack
         },
         chapterTitle: {
-          fontSize: "1.25em",
           fontStyle: "unset",
           textTransform: "unset",
           color: palette.grey[800],
-          lineHeight: "1.75em",
-          fontFamily: serifStack
+          fontFamily: sansSerifStack,
+          fontWeight: 500,
         },
         largeChapterTitle: {
           fontSize: "2.2rem"

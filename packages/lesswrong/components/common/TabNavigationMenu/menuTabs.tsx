@@ -325,9 +325,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/quicktakes',
       subItem: true,
     }, {
-      id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
-    }, {
       id: 'about',
       title: 'How to use the Forum',
       link: '/about',
@@ -344,6 +341,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
       subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
     }
   ],
   default: [
