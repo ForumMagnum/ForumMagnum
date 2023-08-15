@@ -7,6 +7,8 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const curatedUrl = "/recommendations"
 
@@ -90,6 +92,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
+
 const LWRecommendations = ({
   configName,
   classes,
@@ -129,7 +133,7 @@ const LWRecommendations = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
     
-    const renderRecommendations = !settings.hideFrontpage
+    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
 
     const titleText = "Recommendations"
     const titleNode = (
@@ -176,13 +180,13 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {/* <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
           <CurrentSpotlightItem />
-        </AnalyticsContext> */}
+        </AnalyticsContext>}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>
-            {/* {renderRecommendations && (
+            {renderRecommendations && (
               <AnalyticsContext
                 listContext="frontpageFromTheArchives"
                 pageSubSectionContext="frontpageFromTheArchives"
@@ -190,7 +194,7 @@ const LWRecommendations = ({
               >
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
-            )} */}
+            )}
             <div className={classes.curated}>
               <CuratedPostsList />
             </div>

@@ -8,41 +8,67 @@ const WIDTH = 220
 const HEIGHT = 343
 const PADDING = 20
 
+const transitionTime = '.7s'
+
 const revealedContent = (theme: ThemeType) => ({
   '& $one': {
-    left: -20,
+    left: 5,
     top: -20,
     transform: "rotate(-15deg)"
   },
   '& $two': {
-    left: 0,
+    left: 25,
     top: -5,
     transform: "rotate(-5deg)"
   },
   '& $three': {
-    left: 20,
+    left: 45,
     top: 10,
     transform: "rotate(5deg)"
   },
   '& $four': {
-    left: 40,
+    left: 65,
     top: 25,
     transform: "rotate(15deg)"
   },
   '& $revealedContent': {
     opacity: 1,
-    transitionDelay: '0.7s',
-    transition: 'opacity 0.7s ease'
+    transitionDelay: '.5s',
+    transition: `opacity .5s ease`
   },
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
+  parent: {
+    [theme.breakpoints.up('lg')]: {
+      position: "relative",
+      left: -93,
+      transition: 'left 0.7s ease',
+    },
+  },
+  revealedContent: {
+    position: 'absolute',
+    right: 0,
+    opacity: 0,
+    transition: `opacity ${transitionTime} ease`,
+    width: "calc(100% - 250px)",
+    [theme.breakpoints.down('lg')]: {
+      opacity: 1
+    }
+  },
   root: {
     height: HEIGHT + (PADDING * 3.5),
     width: SECTION_WIDTH,
-    padding: PADDING,
+    paddingTop: PADDING,
+    paddingBottom: PADDING,
+    paddingRight: PADDING,
     [theme.breakpoints.down('sm')]: {
       height: (HEIGHT*.75) + (PADDING * 3.5),
+    },
+    [theme.breakpoints.down('lg')]: {
+      '& $revealedContent': {
+        opacity: 1,
+      }
     },
     '& $one': {
       left: 0,
@@ -76,11 +102,14 @@ const styles = (theme: ThemeType): JssStyles => ({
         transform: "rotate(15deg)"
       }
     },
-    // [theme.breakpoints.up('lg')]: {
-      '&:hover': {
-        ...revealedContent(theme)
-      },
-    // }
+    '&:hover': {
+      ...revealedContent(theme),
+      [theme.breakpoints.up('lg')]: {
+        '& $revealedContent': {
+          left: 0
+        }
+      }
+    },
   },
   book: {
     width: WIDTH,
@@ -95,31 +124,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     borderRadius: '2px',
     position: "absolute",
-    transition: '1s ease',
+    transition: `${transitionTime} ease`,
     boxShadow: "-2px 2px 6px rgba(0,0,0,0.1)",
     top: 0
   },
   one: {},
   two: {},
   three: {},
-  four: {},
-  parent: {
-    [theme.breakpoints.up('lg')]: {
-      position: "relative",
-      transform: "translateX(-50%)",
-      left: '50%',
-    }
-  },
-  revealedContent: {
-    position: 'absolute',
-    right: 0,
-    opacity: 0,
-    transition: 'opacity 0.5s ease',
-    width: "calc(100% - 300px)",
-    [theme.breakpoints.down('md')]: {
-      opacity: 1
-    }
-  }
+  four: {}
 })
 
 const Book2020Animation = ({ classes, children, successContent }: {

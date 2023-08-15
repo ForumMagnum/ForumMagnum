@@ -7,18 +7,12 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: 960,
     marginBottom: 50,
     marginLeft: 'auto',
     marginRight: 'auto',
     position: "relative",
-    left: -93,
+    width: "100%",
     zIndex: theme.zIndexes.frontpageBooks,
-    '--book-animation-left-offset': '22.0px',
-    '@media(max-width: 1375px)': {
-      width: 'calc(100vw - 250px)',
-      overflow: 'hidden'
-    },
     [theme.breakpoints.down('md')]: {
       width: '100%',
       maxWidth: 765,
@@ -48,7 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   bookExplanation: {
     float: 'right',
     textAlign: "right",
-    width: "calc(100% - 200px)",
     [theme.breakpoints.down('md')]: {
       paddingRight: 0
     },
@@ -109,13 +102,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "none",
     },
-  },
-  disclaimerRow: {
-    ...theme.typography.commentStyle,
-    fontSize: '0.65em',
-    color: theme.palette.text.dim40,
-    marginTop: 4,
-    lineHeight: '1.3'
   },
 })
 
@@ -192,14 +178,14 @@ const Book2020FrontpageWidget = ({ classes }: {
         <BookMarketingText 
           title={"The Carving of Reality"} 
           subtitle={"Best of LessWrong, Volume III"}
-          description={"In this new essay collection, LessWrong writers seek to understand key elements of the art of rationality. The collection features essays from Scott Alexander, Zvi Mowshowitz, and over 30 more LessWrong writers. "}
-          buttons={<>
+          description={<div><p>Each year, the LessWrong community votes on which posts were most valuable. We've compiled the winners of the third Annual Review into an anthology of four books. The essays explore questions like <em>"Why is civilization so dysfunctional?"</em>, <em>"When is AGI likely to transform the world?"</em>, and <em>"What are the limits of Bayesian reasoning?"</em></p></div>}
+          buttons={<div>
             <div className={classes.mobileCloseButton} onClick={hideClickHandler}>Hide</div>
-            <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
+            <Link className={classes.learnMore} to="/posts/Rck5CvmYkzWYxsF4D/book-launch-the-carving-of-reality-best-of-lesswrong-vol-iii">
               Learn More
             </Link>
             <BookCheckout link={"https://www.amazon.com/Carving-Reality-Essays-LessWrong-Community/dp/B0C95MJJBK"}/>
-          </>}
+          </div>}
         />
       </Book2020Animation>
     </div>
