@@ -8,7 +8,9 @@ import moment from "moment";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { post } from "request";
+import { isEAForum } from "../../lib/instanceSettings";
+import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
+import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 
 // Slightly smaller than in the designs, but
 const MAX_WIDTH = 1400;
@@ -35,8 +37,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       flexDirection: "column",
     },
     [theme.breakpoints.down("xs")]: {
-      padding: "16px 12px",
-    }
+      padding: "32px 4px",
+    },
   },
   column: {
     "& > *:not(:last-child)::after": {
@@ -72,7 +74,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   gridSection: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+    gridGap: '16px',
   },
   listSection: {
     display: "flex",
@@ -153,6 +156,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
+  },
+  // Sequence or collection card
+  sequenceCard: {
+    borderRadius: theme.borderRadius.default,
+    background: theme.palette.panelBackground.default,
+  },
+  sequenceCardImage: {
+    width: "100%",
+    height: 162,
+    objectFit: "cover",
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
+  },
+  sequenceCardText: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    padding: 16,
+  },
+  sequenceCardTitle: {
+    fontSize: 18,
+    lineHeight: "20px",
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    marginBottom: 6,
+  },
+  sequenceCardMeta: {
+    fontSize: 14,
+    lineHeight: "20px",
+    color: theme.palette.grey[600],
   },
 });
 
@@ -256,6 +290,45 @@ const PostListItem = ({
   );
 };
 
+const SequenceOrCollectionCard = ({
+  title,
+  author,
+  postCount,
+  readCount,
+  imageId,
+  href,
+  classes,
+}: {
+  title: string;
+  author: UsersMinimumInfo | null;
+  postCount: number;
+  readCount: number;
+  imageId: string;
+  href: string;
+  classes: ClassesType;
+}) => {
+  const { CloudinaryImage2, UsersNameDisplay } = Components;
+
+  const readProgress = `${readCount} / ${postCount}`
+
+  return <div className={classes.sequenceCard}>
+    <CloudinaryImage2
+      publicId={imageId}
+      className={classes.sequenceCardImage}
+    />
+    <div className={classes.sequenceCardText}>
+      <Link to={href} className={classes.sequenceCardTitle}>
+        {title}
+      </Link>
+      <div className={classes.sequenceCardMeta}>
+        <UsersNameDisplay user={author} />
+        {" · "}
+        {postCount} posts
+      </div>
+    </div>
+  </div>
+};
+
 const CollectionCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
   const { Loading } = Components;
 
@@ -269,7 +342,31 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
 
   if (!document) return null;
 
-  return <>TODO</>;
+  const title = document.title;
+  const author = document.user;
+
+  const books = document.books;
+  const chapters = books.flatMap((book) => book.sequences.flatMap((sequence) => sequence.chapters));
+  const posts = chapters.flatMap((chapter) => chapter.posts);
+  const postCount = posts.length;
+  const readCount = posts.filter((post) => post.isRead).length;
+
+  const imageId =
+    document.gridImageId ||
+    (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+  const href = collectionGetPageUrl(document);
+
+  return (
+    <SequenceOrCollectionCard
+      title={title}
+      author={author}
+      postCount={postCount}
+      readCount={readCount}
+      imageId={imageId}
+      href={href}
+      classes={classes}
+    />
+  );
 };
 
 const SequenceCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
@@ -278,14 +375,38 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
-    fragmentName: "SequencesPageFragment",
+    fragmentName: "SequencesPageWithChaptersFragment",
   });
 
   if (loading) return <Loading />;
 
   if (!document) return null;
 
-  return <>TODO</>;
+  const title = document.title;
+  const author = document.user;
+
+  const chapters = document.chapters;
+  const posts = chapters.flatMap((chapter) => chapter.posts);
+  const postCount = posts.length;
+  const readCount = posts.filter((post) => post.isRead).length;
+
+  const imageId =
+    document.gridImageId ||
+    document.bannerImageId ||
+    (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+  const href = sequenceGetPageUrl(document);
+
+  return (
+    <SequenceOrCollectionCard
+      title={title}
+      author={author}
+      postCount={postCount}
+      readCount={readCount}
+      imageId={imageId}
+      href={href}
+      classes={classes}
+    />
+  );
 };
 
 const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
@@ -318,7 +439,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             <h2 className={classes.heading}>Featured Collections</h2>
             <div className={classes.gridSection}>
               {featuredCollectionsSequenceIds.map((documentId) => (
-                <CollectionCard key={documentId} documentId={documentId} classes={classes} />
+                <SequenceCard key={documentId} documentId={documentId} classes={classes} />
               ))}
             </div>
           </div>
