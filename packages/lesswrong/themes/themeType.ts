@@ -400,6 +400,7 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      imageOverlayLight: ColorString,
     },
     header: {
       text: ColorString,

@@ -318,6 +318,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
+    imageOverlayLight: 'rgba(0,0,0,0.2)',
   },
   panelBackground: {
     default: shades.grey[0],

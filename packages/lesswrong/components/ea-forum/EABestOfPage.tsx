@@ -17,6 +17,11 @@ const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 const DIVIDER_MARGIN = 48;
 
+// For overlay on sequence and collection cards
+const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
+const Z_IMAGE = 1
+const Z_OVERLAY = 2
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
@@ -46,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block",
       height: "1px",
       backgroundColor: "#BECBD7",
-      margin: `${DIVIDER_MARGIN}px 0`,
+      margin: `${DIVIDER_MARGIN}px 0 ${DIVIDER_MARGIN}px 0`,
     },
   },
   leftColumn: {
@@ -71,13 +76,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "24px",
     fontWeight: 600,
     marginTop: 0,
+    marginBottom: 2
   },
   gridSection: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
     gridGap: '16px',
-    // grid layout needs an extra marginBottom because the gridGap only applies between items
-    marginBottom: 16,
+    // grid layout needs extra padding because the gridGap only applies between items
+    // , and it has to be padding not margin because margin overlap is allowed
+    paddingTop: 16,
   },
   listSection: {
     display: "flex",
@@ -95,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     padding: "16px 16px",
-    marginBottom: 16,
+    marginTop: 16,
   },
   postListItemTextSection: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -163,17 +170,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   sequenceCard: {
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    marginLeft: 8, // Account for box shadow
+    boxShadow:
+      `/* The top layer shadow */
+      -1px 1px 10px rgba(0,0,0,.15),
+      /* The second layer */
+      -8px 8px 0 0px #fff,
+      /* The second layer shadow */
+      -10px 10px 10px -1px rgba(0,0,0,.15)`
+  },
+  sequenceCardImageWrapper: {
+    position: 'relative',
   },
   sequenceCardImage: {
     width: "100%",
-    height: 162,
+    height: SEQUENCE_CARD_IMAGE_HEIGHT,
     objectFit: "cover",
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
+    zIndex: Z_IMAGE,
+  },
+  sequenceReadProgress: {
+    position: 'absolute',
+    zIndex: Z_OVERLAY,
+    fontSize: 12,
+    top: 8,
+    left: 8,
+    borderRadius: 14,
+    backgroundColor: theme.palette.panelBackground.translucent3,
+    padding: "6px 8px",
   },
   sequenceCardText: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 500,
     padding: 16,
   },
   sequenceCardTitle: {
@@ -192,7 +221,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   // Featured audio card
   audioCard: {
-    marginBottom: 16
+    marginTop: 16
   }
 });
 
@@ -315,13 +344,16 @@ const SequenceOrCollectionCard = ({
 }) => {
   const { CloudinaryImage2, UsersNameDisplay } = Components;
 
-  const readProgress = `${readCount} / ${postCount}`
+  const readProgress = `${readCount}/${postCount}`
 
   return <div className={classes.sequenceCard}>
-    <CloudinaryImage2
-      publicId={imageId}
-      className={classes.sequenceCardImage}
-    />
+    <div className={classes.sequenceCardImageWrapper}>
+      <CloudinaryImage2
+        publicId={imageId}
+        className={classes.sequenceCardImage}
+      />
+      <div className={classes.sequenceReadProgress}>{readProgress}</div>
+    </div>
     <div className={classes.sequenceCardText}>
       <Link to={href} className={classes.sequenceCardTitle}>
         {title}
