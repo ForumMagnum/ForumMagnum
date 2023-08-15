@@ -172,7 +172,7 @@ const PostsNewForm = ({classes}: {
     skip: !templateId,
   });
   
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
+  const { PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
     Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
@@ -222,7 +222,7 @@ const PostsNewForm = ({classes}: {
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
-    return (<WrappedLoginForm />);
+    return (<LoginForm />);
   }
 
   if (!userCanPost(currentUser)) {

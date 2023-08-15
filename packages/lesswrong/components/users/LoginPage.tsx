@@ -22,7 +22,7 @@ class LoginPage extends Component<LoginPageProps,{}> {
       // `componentWillMount`.
       return <div />
     } else {
-      return <Components.WrappedLoginForm />;
+      return <Components.LoginForm />;
     }
   }
 }

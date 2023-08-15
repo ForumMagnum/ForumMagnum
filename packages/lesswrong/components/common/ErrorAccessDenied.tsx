@@ -19,7 +19,7 @@ const ErrorAccessDenied = ({explanation}: {explanation?: string}) => {
       <Typography variant='body1'>
         Please log in to access this page.
       </Typography>
-      <Components.WrappedLoginForm startingState='login'/>
+      <Components.LoginForm startingState='login'/>
     </SingleColumnSection>
   }
 }

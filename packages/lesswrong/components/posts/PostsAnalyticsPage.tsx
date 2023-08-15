@@ -173,7 +173,7 @@ const PostsAnalyticsPage = ({ classes }: {
   const currentUser = useCurrentUser()
   const serverRequestStatus = useServerRequestStatus()
   const {
-    SingleColumnSection, WrappedLoginForm, HeadTags, Typography
+    SingleColumnSection, LoginForm, HeadTags, Typography
   } = Components
 
 
@@ -196,7 +196,7 @@ const PostsAnalyticsPage = ({ classes }: {
     if (serverRequestStatus) serverRequestStatus.status = 401
     return <SingleColumnSection>
       <p>You don't have permission to view this page. Would you like to log in?</p>
-      <WrappedLoginForm />
+      <LoginForm />
     </SingleColumnSection>
   }
 

@@ -126,7 +126,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const emailAddressInput = useRef<HTMLInputElement|null>(null);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
-  const {WrappedLoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
+  const {LoginForm, SignupSubscribeToCurated, Loading, AnalyticsInViewTracker } = Components;
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
   
@@ -275,7 +275,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
           Sign up
         </Button>
       </form> : <div className={classes.loginForm}>
-        <WrappedLoginForm startingState="signup" />
+        <LoginForm startingState="signup" />
       </div>}
       {adminUiMessage}
     </AnalyticsWrapper>

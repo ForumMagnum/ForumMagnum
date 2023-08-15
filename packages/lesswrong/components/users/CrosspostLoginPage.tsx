@@ -63,7 +63,7 @@ const CrosspostLoginPage = ({classes}: {
     }
   }
 
-  const {WrappedLoginForm, SiteLogo, Loading, Typography} = Components;
+  const {LoginForm, SiteLogo, Loading, Typography} = Components;
 
   return (
     <div className={classes.root}>
@@ -95,7 +95,7 @@ const CrosspostLoginPage = ({classes}: {
           </>
         )
         : (
-          <WrappedLoginForm immediateRedirect />
+          <LoginForm immediateRedirect />
         )
       }
     </div>

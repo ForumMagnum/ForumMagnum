@@ -94,20 +94,20 @@ const currentActionToButtonText : Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-type WrappedLoginFormProps = {
+type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   classes: ClassesType
 }
 
-const WrappedLoginForm = (props: WrappedLoginFormProps) => {
+const LoginForm = (props: LoginFormProps) => {
   if (forumTypeSetting.get() === 'EAForum') {
-    return <WrappedLoginFormEA {...props} />
+    return <LoginFormEA {...props} />
   }
-  return <WrappedLoginFormDefault {...props} />
+  return <LoginFormDefault {...props} />
 }
 
-const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
   const hasSubscribeToCuratedCheckbox = !['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get());
   const hasOauthSection = forumTypeSetting.get() !== 'EAForum';
 
@@ -226,7 +226,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   </Components.ContentStyles>;
 }
 
-const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: WrappedLoginFormProps) => {
+const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
@@ -251,10 +251,10 @@ const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: Wrapped
   </Components.ContentStyles>
 }
 
-const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });
+const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });
 
 declare global {
   interface ComponentTypes {
-    WrappedLoginForm: typeof WrappedLoginFormComponent
+    LoginForm: typeof LoginFormComponent
   }
 }

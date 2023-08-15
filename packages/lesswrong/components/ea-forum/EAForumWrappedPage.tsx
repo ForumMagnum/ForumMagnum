@@ -257,7 +257,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     skip: !currentUser
   })
   
-  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip, Loading } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, LoginForm, LWTooltip, Loading } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -268,7 +268,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             ✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨
           </Typography>
           <div className={classes.loggedOutSection}>
-            <WrappedLoginForm />
+            <LoginForm />
           </div>
         </div>
       </SingleColumnSection>
