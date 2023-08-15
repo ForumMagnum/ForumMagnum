@@ -13,7 +13,7 @@ import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 
 // Slightly smaller than in the designs, but
-const MAX_WIDTH = 1400;
+const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 const DIVIDER_MARGIN = 48;
 
@@ -76,6 +76,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
     gridGap: '16px',
+    // grid layout needs an extra marginBottom because the gridGap only applies between items
+    marginBottom: 16,
   },
   listSection: {
     display: "flex",
@@ -188,6 +190,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: "20px",
     color: theme.palette.grey[600],
   },
+  // Featured audio card
+  audioCard: {
+    marginBottom: 16
+  }
 });
 
 const featuredCollectionsSequenceIds = [
@@ -410,19 +416,27 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
 };
 
 const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
-  const { Loading } = Components;
+  const { Loading, PostsPodcastPlayer } = Components;
 
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
+    fragmentName: "PostsPage",
   });
 
   if (loading) return <Loading />;
 
   if (!document) return null;
 
-  return <>TODO</>;
+  return (
+    <>
+      {document.podcastEpisode && (
+        <div className={classes.audioCard}>
+          <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
+        </div>
+      )}
+    </>
+  );
 };
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
@@ -436,7 +450,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
       <div className={classes.root}>
         <div className={classNames(classes.column, classes.leftColumn)}>
           <div>
-            <h2 className={classes.heading}>Featured Collections</h2>
+            <h2 className={classes.heading}>Featured collections</h2>
             <div className={classes.gridSection}>
               {featuredCollectionsSequenceIds.map((documentId) => (
                 <SequenceCard key={documentId} documentId={documentId} classes={classes} />
@@ -444,7 +458,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </div>
           </div>
           <div>
-            <h2 className={classes.heading}>Best Posts This Year</h2>
+            <h2 className={classes.heading}>Best posts this year</h2>
             <div className={classes.listSection}>
               {bestOfYearPostIds.map((documentId) => (
                 <PostListItem key={documentId} documentId={documentId} classes={classes} />
@@ -463,7 +477,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </div>
           </div>
           <div>
-            <h2 className={classes.heading}>Intro to Cause Areas</h2>
+            <h2 className={classes.heading}>Intro to cause areas</h2>
             <div className={classes.gridSection}>
               {introToCauseAreasSequenceIds.map((documentId) => (
                 <SequenceCard key={documentId} documentId={documentId} classes={classes} />
@@ -474,7 +488,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
         <div className={classes.divider} />
         <div className={classNames(classes.column, classes.rightColumn)}>
           <div>
-            <h2 className={classes.heading}>Popular This Month</h2>
+            <h2 className={classes.heading}>Popular this month</h2>
             <div className={classes.listSection}>
               {popularThisMonthPostIds.map((documentId) => (
                 <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
@@ -482,7 +496,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </div>
           </div>
           <div>
-            <h2 className={classes.heading}>Featured Audio Versions</h2>
+            <h2 className={classes.heading}>Featured audio</h2>
             <div className={classes.listSection}>
               {featuredAudioPostIds.map((documentId) => (
                 <AudioPostCard key={documentId} documentId={documentId} classes={classes} />

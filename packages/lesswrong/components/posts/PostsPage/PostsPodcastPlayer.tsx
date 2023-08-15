@@ -20,9 +20,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
+const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
+  hideIconList?: boolean,
   classes: ClassesType
 }) => {
   const mouseOverDiv = useRef(false);
@@ -64,10 +65,10 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
       onMouseOver={() => setMouseOverDiv(true)}
       onMouseOut={() => setMouseOverDiv(false)}
     />
-    <ul className={classes.podcastIconList}>
+    {!hideIconList && <ul className={classes.podcastIconList}>
       {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.applePodcastLink}>{applePodcastIcon}</a></li>}
       {podcastEpisode.podcast.spotifyPodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.spotifyPodcastLink}>{spotifyPodcastIcon}</a></li>}
-    </ul>
+    </ul>}
   </>;
 };
 
