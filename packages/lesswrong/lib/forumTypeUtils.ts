@@ -14,7 +14,7 @@ export type ForumOptions<T> = Record<ForumTypeString, T> |
 export function forumSelect<T>(forumOptions: ForumOptions<T>, forumType?: ForumTypeString): NonUndefined<T> {
   forumType ??= forumTypeSetting.get();
   if (forumType in forumOptions) {
-    return forumOptions[forumType] as NonUndefined<T> // The default branch ensures T always exists
+    return (forumOptions as AnyBecauseTodo)[forumType] as NonUndefined<T> // The default branch ensures T always exists
   }
   if ((forumType === "LessWrong" || forumType === "AlignmentForum") && "LWAF" in forumOptions) {
     return forumOptions["LWAF"] as NonUndefined<T>

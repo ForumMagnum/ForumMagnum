@@ -4,10 +4,10 @@ import { eaForumTheme } from './eaTheme'
 import { lessWrongTheme } from './lesswrongTheme'
 
 export const getSiteTheme = (forumType: ForumTypeString): SiteThemeSpecification => {
-  switch (forumType) {
-    case 'AlignmentForum': return alignmentForumTheme;
-    case 'EAForum': return eaForumTheme;
-    case "LessWrong": return lessWrongTheme;
-    default: return lessWrongTheme;
+  const forumThemes: Record<ForumTypeString, SiteThemeSpecification> = {
+    AlignmentForum: alignmentForumTheme,
+    EAForum: eaForumTheme,
+    LessWrong: lessWrongTheme,
   }
+  return forumThemes[forumType];
 }
