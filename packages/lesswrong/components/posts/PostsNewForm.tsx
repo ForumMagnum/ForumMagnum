@@ -273,7 +273,7 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
-  const postEditorGuide = isLWorAF &&<div className={classes.editorGuideOffset}>
+  const postEditorGuide = isLWorAF && <div className={classes.editorGuideOffset}>
     <LWTooltip title='The LessWrong Editor Guide covers our two editor types, inserting custom elements into your posts and comments, sharing and co-authoring, and other notable features.'>
       <div className={classes.editorGuide}>
         <QuestionIcon className={classes.editorGuideIcon} />
