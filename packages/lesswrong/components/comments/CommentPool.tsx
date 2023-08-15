@@ -446,7 +446,6 @@ function changeExpansionState(state: CommentPoolState, commentId: string, oldExp
   
   // If we're expanding a single-line comment, reveal up to 5 children as single-line
   if ((oldExpansionState === "singleLine" || oldExpansionState === "singleLineGroupable") && newExpansionState !== "singleLine") {
-    console.log("Expanding a single-line comment");
     const tree = getLoadedCommentsTree(state);
     const commentNode = findCommentInTree(tree, commentId);
     if (commentNode) {

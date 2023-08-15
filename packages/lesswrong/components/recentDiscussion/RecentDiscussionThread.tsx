@@ -18,6 +18,7 @@ import { userHasCommentPoolInRecentDiscussion } from '../../lib/betas';
 import type { CommentExpansionState } from '../comments/CommentPool';
 import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
 import uniq from "lodash/uniq";
+import maxBy from 'lodash/maxBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -242,9 +243,18 @@ const RecentDiscussionThread = ({
         .flatMap(comment => comment.ancestorComments)
         .filter(comment => !comments.some(c => c._id===comment._id)))
     : [];
+  
+  // Start with the most recent comment truncated, the rest single line
   const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments
-    ? toDictionary(comments, c=>c._id, _=>"truncated")
+    ? toDictionary(comments, c=>c._id, _=>"singleLine")
     : {};
+  if (comments && comments.length>0) {
+    const mostRecentCommentId = maxBy(comments, c=>c.postedAt)?._id;
+    if (mostRecentCommentId) {
+      initialExpansion[mostRecentCommentId] = "truncated";
+    }
+  }
+
   for (let ancestorComment of ancestorComments) {
     initialExpansion[ancestorComment._id] = "singleLineGroupable";
   }
