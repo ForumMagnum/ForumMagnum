@@ -44,15 +44,15 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isEAForum ?
-`Highlight text to format it. Type # to reference a post, @ to mention someone.` :
-`Write here. Select text for formatting options.
-We support LaTeX: Cmd-4 for inline, Cmd-M for block-level (Ctrl on Windows).
-You can switch between rich text and markdown in your user settings.
+`Highlight text to format it. Type # to reference a post, @ to mention someone.` :  `Hello!`
+  
+  
+//   `Text goes here.
+//
+// See lesswrong.com/editor for info about everything the editor can do.
+//
+// lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
 
-See our editor guide (lesswrong.com/editor-guide) for more information about:
-- inserting custom elements into your posts and comments
-- sharing and co-authoring
-- other notable features`
 
 export const debateEditorPlaceholder = 
 `Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
