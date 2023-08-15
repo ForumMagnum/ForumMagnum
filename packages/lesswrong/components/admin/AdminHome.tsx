@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
 import { hasDigestSetting } from '../../lib/publicSettings';
 
 // Also used in ModerationLog
