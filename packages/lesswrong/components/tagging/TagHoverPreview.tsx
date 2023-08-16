@@ -1,8 +1,8 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, RouterLocation } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useTagBySlug } from './useTag';
+import { useTagPreview } from './useTag';
 import { linkStyle } from '../linkPreview/PostLinkPreview';
 import { removeUrlParameters } from '../../lib/routeUtil';
 
@@ -29,15 +29,17 @@ function normalizeTagLink(link: string) {
 
 const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6, noPrefetch}: {
   href: string,
-  targetLocation: any,
+  targetLocation: RouterLocation,
   innerHTML: string,
   classes: ClassesType,
   postCount?: number,
   noPrefetch?: boolean,
 }) => {
-  const { params: {slug} } = targetLocation;
+  const { params: {slug}, hash } = targetLocation;
   const { hover, anchorEl, eventHandlers, everHovered } = useHover();
-  const { tag, loading } = useTagBySlug(slug, "TagPreviewFragment", {skip: noPrefetch && !everHovered});
+  // Slice the hash to remove the leading # (which won't be a part of the element ID in the dom)
+  const hashId = hash.slice(1);
+  const { tag, loading } = useTagPreview(slug, hashId, {skip: noPrefetch && !everHovered})
   const { PopperCard, TagPreview } = Components;
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
@@ -48,7 +50,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6,
 
   return <span {...eventHandlers}>
     <PopperCard open={hover} anchorEl={anchorEl}>
-      <TagPreview tag={tag} postCount={postCount} loading={loading} />
+      <TagPreview tag={tag} postCount={postCount} loading={loading} hash={hashId}/>
     </PopperCard>
     <Link
       className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}

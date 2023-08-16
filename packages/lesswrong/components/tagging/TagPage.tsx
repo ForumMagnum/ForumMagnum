@@ -211,7 +211,7 @@ const TagPage = ({classes}: {
     TagTableOfContents, ContentStyles,
   } = Components;
   const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
+  const { query, params: { slug }, hash } = useLocation();
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
   const { version: queryVersion, revision: queryRevision } = query;
@@ -282,6 +282,18 @@ const TagPage = ({classes}: {
   const onHoverContributor = useCallback((userId: string) => {
     setHoveredContributorId(userId);
   }, []);
+
+  // If you navigate to a tag section header by clicking on a link from another page,
+  // it doesn't correctly scroll to the anchor element.  Not sure why, but do it manually.
+  // useEffect(() => {
+  //   if (hash) {
+  //     const element = document.getElementById(hash.slice(1));
+  //     if (element) {
+  //       setTimeout(() => element.scrollIntoView(), 0);
+  //     }
+  //   }
+  // }, [hash]);
+
   
   if (loadingTag)
     return <Loading/>
@@ -329,7 +341,7 @@ const TagPage = ({classes}: {
     allPages: "allPages",
     myPages: "userPages"
   }
-  
+
   return <AnalyticsContext
     pageContext='tagPage'
     tagName={tag.name}

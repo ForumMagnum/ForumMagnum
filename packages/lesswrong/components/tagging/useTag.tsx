@@ -33,3 +33,43 @@ export const useTagBySlug = <FragmentTypeName extends keyof FragmentTypes>(
     };
   }
 }
+
+type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment';
+
+export const useTagPreview = (
+  slug: string,
+  hash: string,
+  queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>
+): {
+  tag: FragmentTypes[TagPreviewFragmentName]|null,
+  loading: boolean,
+  error: any
+} => {
+  const fragmentName = hash ? 'TagSectionPreviewFragment' : 'TagPreviewFragment';
+
+  const { results, loading, error } = useMulti<TagPreviewFragmentName, "Tags">({
+    terms: {
+      view: "tagBySlug",
+      slug: slug
+    },
+    collectionName: "Tags",
+    fragmentName: fragmentName,
+    limit: 1,
+    extraVariables: { hash: "String" },
+    extraVariablesValues: { hash },
+    ...queryOptions
+  });
+  
+  if (results && results.length>0 && (results[0] as HasIdType)._id) {
+    return {
+      tag: results[0] as FragmentTypes[TagPreviewFragmentName]|null,
+      loading: false,
+      error: null,
+    };
+  } else {
+    return {
+      tag: null,
+      loading, error
+    };
+  }
+}
