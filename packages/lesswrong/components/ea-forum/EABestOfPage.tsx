@@ -261,6 +261,11 @@ const featuredAudioPostIds = [
   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
 ];
 
+// TODO remove this in final version, I just wasn't sure about changing the social preview image an author set
+const customPostImageUrls: Record<string, string> = {
+  "jgspXC8GKA7RtxMRE": "https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/SocialPreview/cmg4r5baxggel7baxiw6"
+}
+
 // TODO do useMulti's with these to speed things up
 const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
 
@@ -301,6 +306,8 @@ const PostListItem = ({
   const timeFromNow = moment(new Date(document.postedAt)).fromNow();
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
+  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls['fdsfs'] || siteImageSetting.get()
+
   return (
     <div {...eventHandlers} className={classes.postListItem}>
       <div className={classes.postListItemTextSection}>
@@ -332,7 +339,7 @@ const PostListItem = ({
         </div>
         <div className={classes.postListItemPreview}>{document.contents?.plaintextDescription}</div>
       </div>
-      <img className={classes.postListItemImage} src={document.socialPreviewData.imageUrl || siteImageSetting.get()} />
+      <img className={classes.postListItemImage} src={imageUrl} />
     </div>
   );
 };
