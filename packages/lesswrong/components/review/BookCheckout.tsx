@@ -94,7 +94,7 @@ export default function BookCheckout({classes, ignoreMessages = false, text, lin
   }, []);
   const handleClickAmazon = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
-    window.location.assign(link);
+    window.open(link, '_blank');
   }
 
   return <div className={classes.root}>
