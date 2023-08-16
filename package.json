@@ -355,6 +355,6 @@
     "ts-node": "^10.9.1"
   },
   "engines": {
-    "node": "18.x"
+    "node": "18.x" // this needs to be disabled while making changes to editor and rebuilding, but re-enabled before merging
   }
 }

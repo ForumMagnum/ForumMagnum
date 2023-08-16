@@ -63,8 +63,8 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 
-//
 import { SanitizeTags } from './clean-styles-plugin'
+import { HeaderAnchorTags } from './header-anchor-tags';
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 
@@ -74,6 +74,13 @@ export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must then run:
 // `yarn run rebuild-ckeditor`
+
+// because we're using an old version of CkEditor built against a different node version, this requires an annoying workaround where you first have to run:
+
+// nvm install v14 (if you don't already have it)
+// nvm use v14
+
+// then, temporarily remove '"node": "18.x"' from package.json 
 
 const sharedPlugins = [
 	Autosave,
@@ -114,6 +121,7 @@ const sharedPlugins = [
 	UploadAdapter,
 	Mathematics,
 	SanitizeTags,
+	HeaderAnchorTags,
 	Spoilers,
 	AutoLink,
 	Footnote,
