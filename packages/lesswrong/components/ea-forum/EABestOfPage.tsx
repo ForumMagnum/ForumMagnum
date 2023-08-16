@@ -306,7 +306,7 @@ const PostListItem = ({
   const timeFromNow = moment(new Date(document.postedAt)).fromNow();
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
-  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls['fdsfs'] || siteImageSetting.get()
+  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls[documentId] || siteImageSetting.get()
 
   return (
     <div {...eventHandlers} className={classes.postListItem}>
