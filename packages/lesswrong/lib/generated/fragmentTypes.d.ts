@@ -251,6 +251,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
   readonly needsReview: boolean,
@@ -2634,6 +2635,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly hideFrontpageBook2020Ad: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2902,7 +2904,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
 }
 

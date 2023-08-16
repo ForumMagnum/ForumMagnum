@@ -208,6 +208,7 @@ registerFragment(`
     interestedIn
     
     allowDatadogSessionReplay
+    hideFrontpageBook2020Ad
   }
 `);
 
@@ -475,7 +476,7 @@ registerFragment(`
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
-    hideFrontpageBook2019Ad
+    hideFrontpageBook2020Ad
 
     deleted
   }
