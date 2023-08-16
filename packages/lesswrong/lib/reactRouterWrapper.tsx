@@ -70,21 +70,6 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   }
 }
 
-// export const getLinkEvents = ({eventProps, ...props}: LinkProps): { onMouseDown?: (e: any) => void, onClick?: (e: React.MouseEvent<Element, MouseEvent>) => void } => {
-//   if (!isLinkValid(props)) return {};
-
-//   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
-//   const handleClick = (e: AnyBecauseTodo) => {
-//     captureEvent(undefined, {buttonPressed: e.button})
-//     props.onMouseDown && props.onMouseDown(e)
-//   }
-
-//   return {
-//     onMouseDown: handleClick,
-//     ...getHashLinkEvents(props)
-//   }
-// };
-
 export const QueryLink: any = (reactRouter.withRouter as any)(({query, location, staticContext, merge=false, history, match, ...rest}: AnyBecauseTodo) => {
   // Merge determines whether we do a shallow merge with the existing query parameters, or replace them completely
   const newSearchString = merge ? qs.stringify({...parseQuery(location), ...query}) : qs.stringify(query)
