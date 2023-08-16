@@ -62,11 +62,8 @@ const TagPreviewDescription = ({tag, hash, classes}: {
     highlight = CoreTagCustomDescriptions[tag.name];
   }
 
-  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
-
   // Otherwise (or if the custom description is missing), use the tag's description
   if (!highlight) {
-
     highlight = truncate(
       getTagDescriptionHtmlHighlight(tag),
       getTagParagraphTruncationCount(tag),
@@ -75,6 +72,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
     );
   }
 
+  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
 
   if (highlight) {
