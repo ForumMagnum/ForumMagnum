@@ -54,10 +54,10 @@ const TagPreviewDescription = ({tag, hash, classes}: {
 
   if (!tag) return null
   
-  const showCustomDescriptionHighlight = isLW && tag.core;
+  const showCustomDescriptionHighlight = isLW && tag.core && !hash;
 
   let highlight: string | undefined;
-  // If we're on LW and previewing a core tag, show the custom description
+  // If we're on LW and previewing a core tag (but not a section within it), show the custom description
   if (showCustomDescriptionHighlight) {
     highlight = CoreTagCustomDescriptions[tag.name];
   }
