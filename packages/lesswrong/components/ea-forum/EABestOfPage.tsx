@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
+import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useSingle } from "../../lib/crud/withSingle";
 import { siteImageSetting } from "../vulcan-core/App";
@@ -11,6 +10,8 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useHover } from "../common/withHover";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -261,6 +262,23 @@ const featuredAudioPostIds = [
   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
 ];
 
+// TODO do useMulti's with these to speed things up
+const allPostIds = [
+  ...bestOfYearPostIds,
+  ...popularThisMonthPostIds,
+  ...featuredAudioPostIds,
+];
+
+const allSequenceIds = [
+  ...featuredCollectionsSequenceIds,
+  ...learnAboutEASequenceIds,
+  ...introToCauseAreasSequenceIds,
+];
+
+const allCollectionIds = [
+  ...learnAboutEACollectionIds,
+];
+
 const PostListItem = ({
   documentId,
   isNarrow = false,
@@ -279,6 +297,8 @@ const PostListItem = ({
     fragmentName: "PostsPage",
   });
 
+  const {eventHandlers} = useHover({pageElementContext: "postListItem",  documentId: documentId, documentSlug: document?.slug})
+
   const postLink = document ? postGetPageUrl(document) : "";
 
   if (loading) return <Loading />;
@@ -289,7 +309,7 @@ const PostListItem = ({
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
   return (
-    <div className={classes.postListItem}>
+    <div {...eventHandlers} className={classes.postListItem}>
       <div className={classes.postListItemTextSection}>
         <div className={classes.postListItemTitle}>
           <Link to={postLink}>{document.title}</Link>
@@ -331,6 +351,7 @@ const SequenceOrCollectionCard = ({
   readCount,
   imageId,
   href,
+  eventHandlers,
   classes,
 }: {
   title: string;
@@ -339,13 +360,17 @@ const SequenceOrCollectionCard = ({
   readCount: number;
   imageId: string;
   href: string;
+  eventHandlers: {
+    onMouseOver: (event: AnyBecauseTodo) => void,
+    onMouseLeave: () => void,
+  };
   classes: ClassesType;
 }) => {
   const { CloudinaryImage2, UsersNameDisplay } = Components;
 
   const readProgress = `${readCount}/${postCount}`
 
-  return <div className={classes.sequenceCard}>
+  return <div {...eventHandlers} className={classes.sequenceCard}>
     <div className={classes.sequenceCardImageWrapper}>
       <CloudinaryImage2
         publicId={imageId}
@@ -375,6 +400,8 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
     fragmentName: "CollectionsPageFragment",
   });
 
+  const {eventHandlers} = useHover({pageElementContext: "collectionCard",  documentId: documentId, documentSlug: document?.slug})
+
   if (loading) return <Loading />;
 
   if (!document) return null;
@@ -401,6 +428,7 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
       readCount={readCount}
       imageId={imageId}
       href={href}
+      eventHandlers={eventHandlers}
       classes={classes}
     />
   );
@@ -413,6 +441,14 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
     documentId,
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
+  });
+
+  const { eventHandlers } = useHover({
+    pageElementContext: "sequenceCard",
+    documentId: documentId,
+    // Note: this is not a real slug, it's just so we can recognise the sequence in the analytics,
+    // without risking any weirdness due to titles having spaces in them
+    documentSlug: slugify(document?.title ?? ""),
   });
 
   if (loading) return <Loading />;
@@ -441,6 +477,7 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
       readCount={readCount}
       imageId={imageId}
       href={href}
+      eventHandlers={eventHandlers}
       classes={classes}
     />
   );
@@ -455,6 +492,8 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
     fragmentName: "PostsPage",
   });
 
+  const {eventHandlers} = useHover({pageElementContext: "audioCard",  documentId: documentId, documentSlug: document?.slug})
+
   if (loading) return <Loading />;
 
   if (!document) return null;
@@ -462,7 +501,7 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
   return (
     <>
       {document.podcastEpisode && (
-        <div className={classes.audioCard}>
+        <div {...eventHandlers} className={classes.audioCard}>
           <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
         </div>
       )}
@@ -476,16 +515,20 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   return (
     <>
       <HeadTags title="Best of the Forum" />
+      <AnalyticsContext pageContext="eaBestOfPage">
       <div className={classes.root}>
         <div className={classNames(classes.column, classes.leftColumn)}>
-          <div>
-            <h2 className={classes.heading}>Featured collections</h2>
-            <div className={classes.gridSection}>
-              {featuredCollectionsSequenceIds.map((documentId) => (
-                <SequenceCard key={documentId} documentId={documentId} classes={classes} />
-              ))}
+          <AnalyticsContext pageSectionContext="featuredCollections">
+            <div>
+              <h2 className={classes.heading}>Featured collections</h2>
+              <div className={classes.gridSection}>
+                {featuredCollectionsSequenceIds.map((documentId) => (
+                  <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                ))}
+              </div>
             </div>
-          </div>
+          </AnalyticsContext>
+          <AnalyticsContext pageSectionContext="bestPostsThisYear">
           <div>
             <h2 className={classes.heading}>Best posts this year</h2>
             <div className={classes.listSection}>
@@ -494,6 +537,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               ))}
             </div>
           </div>
+          </AnalyticsContext>
+          <AnalyticsContext pageSectionContext="learnAboutEffectiveAltruism">
           <div>
             <h2 className={classes.heading}>Learn about Effective Altruism</h2>
             <div className={classes.gridSection}>
@@ -505,35 +550,43 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               ))}
             </div>
           </div>
-          <div>
-            <h2 className={classes.heading}>Intro to cause areas</h2>
-            <div className={classes.gridSection}>
-              {introToCauseAreasSequenceIds.map((documentId) => (
-                <SequenceCard key={documentId} documentId={documentId} classes={classes} />
-              ))}
+          </AnalyticsContext>
+          <AnalyticsContext pageSectionContext="introToCauseAreas">
+            <div>
+              <h2 className={classes.heading}>Intro to cause areas</h2>
+              <div className={classes.gridSection}>
+                {introToCauseAreasSequenceIds.map((documentId) => (
+                  <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                ))}
+              </div>
             </div>
-          </div>
+          </AnalyticsContext>
         </div>
         <div className={classes.divider} />
         <div className={classNames(classes.column, classes.rightColumn)}>
-          <div>
-            <h2 className={classes.heading}>Popular this month</h2>
-            <div className={classes.listSection}>
-              {popularThisMonthPostIds.map((documentId) => (
-                <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
-              ))}
+          <AnalyticsContext pageSectionContext="popularThisMonth">
+            <div>
+              <h2 className={classes.heading}>Popular this month</h2>
+              <div className={classes.listSection}>
+                {popularThisMonthPostIds.map((documentId) => (
+                  <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <h2 className={classes.heading}>Featured audio</h2>
-            <div className={classes.listSection}>
-              {featuredAudioPostIds.map((documentId) => (
-                <AudioPostCard key={documentId} documentId={documentId} classes={classes} />
-              ))}
+          </AnalyticsContext>
+          <AnalyticsContext pageSectionContext="featuredAudio">
+            <div>
+              <h2 className={classes.heading}>Featured audio</h2>
+              <div className={classes.listSection}>
+                {featuredAudioPostIds.map((documentId) => (
+                  <AudioPostCard key={documentId} documentId={documentId} classes={classes} />
+                ))}
+              </div>
             </div>
-          </div>
+          </AnalyticsContext>
         </div>
       </div>
+      </AnalyticsContext>
     </>
   );
 };
