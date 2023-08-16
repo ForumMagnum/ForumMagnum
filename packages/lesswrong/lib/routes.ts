@@ -629,6 +629,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name: 'bestOf',
+      path: '/bestOf',
+      componentName: 'EABestOfPage',
+      title: 'Best of the Forum',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
