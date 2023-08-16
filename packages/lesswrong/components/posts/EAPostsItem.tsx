@@ -45,7 +45,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: "100%",
     display: "flex",
     alignItems: "center",
-    padding: `10px 12px 10px 0`,
+    padding: `8px 12px 8px 0`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 13,
