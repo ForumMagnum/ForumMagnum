@@ -19,8 +19,8 @@ const DIVIDER_MARGIN = 48;
 
 // For overlay on sequence and collection cards
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
-const Z_IMAGE = 1
-const Z_OVERLAY = 2
+const Z_IMAGE = 1;
+const Z_OVERLAY = 2;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -76,12 +76,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "24px",
     fontWeight: 600,
     marginTop: 0,
-    marginBottom: 2
+    marginBottom: 2,
   },
   gridSection: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-    gridGap: '16px',
+    gridGap: "16px",
     // grid layout needs extra padding because the gridGap only applies between items
     // , and it has to be padding not margin because margin overlap is allowed
     paddingTop: 16,
@@ -173,16 +173,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     marginLeft: 8, // Account for box shadow
-    boxShadow:
-      `/* The top layer shadow */
+    boxShadow: `/* The top layer shadow */
       -1px 1px 10px ${theme.palette.greyAlpha(0.15)},
       /* The second layer */
       -8px 8px 0 0px ${theme.palette.panelBackground.default},
       /* The second layer shadow */
-      -10px 10px 10px -1px ${theme.palette.greyAlpha(0.15)}`
+      -10px 10px 10px -1px ${theme.palette.greyAlpha(0.15)}`,
   },
   sequenceCardImageWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   sequenceCardImage: {
     width: "100%",
@@ -193,7 +192,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: Z_IMAGE,
   },
   sequenceReadProgress: {
-    position: 'absolute',
+    position: "absolute",
     zIndex: Z_OVERLAY,
     fontSize: 12,
     top: 8,
@@ -221,8 +220,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   // Featured audio card
   audioCard: {
-    marginTop: 16
-  }
+    marginTop: 16,
+  },
 });
 
 const featuredCollectionsSequenceIds = [
@@ -263,21 +262,11 @@ const featuredAudioPostIds = [
 ];
 
 // TODO do useMulti's with these to speed things up
-const allPostIds = [
-  ...bestOfYearPostIds,
-  ...popularThisMonthPostIds,
-  ...featuredAudioPostIds,
-];
+const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
 
-const allSequenceIds = [
-  ...featuredCollectionsSequenceIds,
-  ...learnAboutEASequenceIds,
-  ...introToCauseAreasSequenceIds,
-];
+const allSequenceIds = [...featuredCollectionsSequenceIds, ...learnAboutEASequenceIds, ...introToCauseAreasSequenceIds];
 
-const allCollectionIds = [
-  ...learnAboutEACollectionIds,
-];
+const allCollectionIds = [...learnAboutEACollectionIds];
 
 const PostListItem = ({
   documentId,
@@ -297,7 +286,11 @@ const PostListItem = ({
     fragmentName: "PostsPage",
   });
 
-  const {eventHandlers} = useHover({pageElementContext: "postListItem",  documentId: documentId, documentSlug: document?.slug})
+  const { eventHandlers } = useHover({
+    pageElementContext: "postListItem",
+    documentId: documentId,
+    documentSlug: document?.slug,
+  });
 
   const postLink = document ? postGetPageUrl(document) : "";
 
@@ -361,34 +354,33 @@ const SequenceOrCollectionCard = ({
   imageId: string;
   href: string;
   eventHandlers: {
-    onMouseOver: (event: AnyBecauseTodo) => void,
-    onMouseLeave: () => void,
+    onMouseOver: (event: AnyBecauseTodo) => void;
+    onMouseLeave: () => void;
   };
   classes: ClassesType;
 }) => {
   const { CloudinaryImage2, UsersNameDisplay } = Components;
 
-  const readProgress = `${readCount}/${postCount}`
+  const readProgress = `${readCount}/${postCount}`;
 
-  return <div {...eventHandlers} className={classes.sequenceCard}>
-    <div className={classes.sequenceCardImageWrapper}>
-      <CloudinaryImage2
-        publicId={imageId}
-        className={classes.sequenceCardImage}
-      />
-      <div className={classes.sequenceReadProgress}>{readProgress}</div>
-    </div>
-    <div className={classes.sequenceCardText}>
-      <Link to={href} className={classes.sequenceCardTitle}>
-        {title}
-      </Link>
-      <div className={classes.sequenceCardMeta}>
-        <UsersNameDisplay user={author} />
-        {" · "}
-        {postCount} posts
+  return (
+    <div {...eventHandlers} className={classes.sequenceCard}>
+      <div className={classes.sequenceCardImageWrapper}>
+        <CloudinaryImage2 publicId={imageId} className={classes.sequenceCardImage} />
+        <div className={classes.sequenceReadProgress}>{readProgress}</div>
+      </div>
+      <div className={classes.sequenceCardText}>
+        <Link to={href} className={classes.sequenceCardTitle}>
+          {title}
+        </Link>
+        <div className={classes.sequenceCardMeta}>
+          <UsersNameDisplay user={author} />
+          {" · "}
+          {postCount} posts
+        </div>
       </div>
     </div>
-  </div>
+  );
 };
 
 const CollectionCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
@@ -400,7 +392,11 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
     fragmentName: "CollectionsPageFragment",
   });
 
-  const {eventHandlers} = useHover({pageElementContext: "collectionCard",  documentId: documentId, documentSlug: document?.slug})
+  const { eventHandlers } = useHover({
+    pageElementContext: "collectionCard",
+    documentId: documentId,
+    documentSlug: document?.slug,
+  });
 
   if (loading) return <Loading />;
 
@@ -416,8 +412,8 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
   const readCount = posts.filter((post) => post.isRead).length;
 
   const imageId =
-    document.gridImageId ||
-    (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+    // TODO JP-look-here
+    document.gridImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
   const href = collectionGetPageUrl(document);
 
   return (
@@ -492,20 +488,20 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
     fragmentName: "PostsPage",
   });
 
-  const {eventHandlers} = useHover({pageElementContext: "audioCard",  documentId: documentId, documentSlug: document?.slug})
+  const { eventHandlers } = useHover({
+    pageElementContext: "audioCard",
+    documentId: documentId,
+    documentSlug: document?.slug,
+  });
 
   if (loading) return <Loading />;
 
-  if (!document) return null;
+  if (!document?.podcastEpisode) return null;
 
   return (
-    <>
-      {document.podcastEpisode && (
-        <div {...eventHandlers} className={classes.audioCard}>
-          <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
-        </div>
-      )}
-    </>
+    <div {...eventHandlers} className={classes.audioCard}>
+      <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
+    </div>
   );
 };
 
@@ -516,76 +512,76 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     <>
       <HeadTags title="Best of the Forum" />
       <AnalyticsContext pageContext="eaBestOfPage">
-      <div className={classes.root}>
-        <div className={classNames(classes.column, classes.leftColumn)}>
-          <AnalyticsContext pageSectionContext="featuredCollections">
-            <div>
-              <h2 className={classes.heading}>Featured collections</h2>
-              <div className={classes.gridSection}>
-                {featuredCollectionsSequenceIds.map((documentId) => (
-                  <SequenceCard key={documentId} documentId={documentId} classes={classes} />
-                ))}
+        <div className={classes.root}>
+          <div className={classNames(classes.column, classes.leftColumn)}>
+            <AnalyticsContext pageSectionContext="featuredCollections">
+              <div>
+                <h2 className={classes.heading}>Featured collections</h2>
+                <div className={classes.gridSection}>
+                  {featuredCollectionsSequenceIds.map((documentId) => (
+                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                </div>
               </div>
-            </div>
-          </AnalyticsContext>
-          <AnalyticsContext pageSectionContext="bestPostsThisYear">
-          <div>
-            <h2 className={classes.heading}>Best posts this year</h2>
-            <div className={classes.listSection}>
-              {bestOfYearPostIds.map((documentId) => (
-                <PostListItem key={documentId} documentId={documentId} classes={classes} />
-              ))}
-            </div>
+            </AnalyticsContext>
+            <AnalyticsContext pageSectionContext="bestPostsThisYear">
+              <div>
+                <h2 className={classes.heading}>Best posts this year</h2>
+                <div className={classes.listSection}>
+                  {bestOfYearPostIds.map((documentId) => (
+                    <PostListItem key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                </div>
+              </div>
+            </AnalyticsContext>
+            <AnalyticsContext pageSectionContext="learnAboutEffectiveAltruism">
+              <div>
+                <h2 className={classes.heading}>Learn about Effective Altruism</h2>
+                <div className={classes.gridSection}>
+                  {learnAboutEACollectionIds.map((documentId) => (
+                    <CollectionCard key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                  {learnAboutEASequenceIds.map((documentId) => (
+                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                </div>
+              </div>
+            </AnalyticsContext>
+            <AnalyticsContext pageSectionContext="introToCauseAreas">
+              <div>
+                <h2 className={classes.heading}>Intro to cause areas</h2>
+                <div className={classes.gridSection}>
+                  {introToCauseAreasSequenceIds.map((documentId) => (
+                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                </div>
+              </div>
+            </AnalyticsContext>
           </div>
-          </AnalyticsContext>
-          <AnalyticsContext pageSectionContext="learnAboutEffectiveAltruism">
-          <div>
-            <h2 className={classes.heading}>Learn about Effective Altruism</h2>
-            <div className={classes.gridSection}>
-              {learnAboutEACollectionIds.map((documentId) => (
-                <CollectionCard key={documentId} documentId={documentId} classes={classes} />
-              ))}
-              {learnAboutEASequenceIds.map((documentId) => (
-                <SequenceCard key={documentId} documentId={documentId} classes={classes} />
-              ))}
-            </div>
+          <div className={classes.divider} />
+          <div className={classNames(classes.column, classes.rightColumn)}>
+            <AnalyticsContext pageSectionContext="popularThisMonth">
+              <div>
+                <h2 className={classes.heading}>Popular this month</h2>
+                <div className={classes.listSection}>
+                  {popularThisMonthPostIds.map((documentId) => (
+                    <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
+                  ))}
+                </div>
+              </div>
+            </AnalyticsContext>
+            <AnalyticsContext pageSectionContext="featuredAudio">
+              <div>
+                <h2 className={classes.heading}>Featured audio</h2>
+                <div className={classes.listSection}>
+                  {featuredAudioPostIds.map((documentId) => (
+                    <AudioPostCard key={documentId} documentId={documentId} classes={classes} />
+                  ))}
+                </div>
+              </div>
+            </AnalyticsContext>
           </div>
-          </AnalyticsContext>
-          <AnalyticsContext pageSectionContext="introToCauseAreas">
-            <div>
-              <h2 className={classes.heading}>Intro to cause areas</h2>
-              <div className={classes.gridSection}>
-                {introToCauseAreasSequenceIds.map((documentId) => (
-                  <SequenceCard key={documentId} documentId={documentId} classes={classes} />
-                ))}
-              </div>
-            </div>
-          </AnalyticsContext>
         </div>
-        <div className={classes.divider} />
-        <div className={classNames(classes.column, classes.rightColumn)}>
-          <AnalyticsContext pageSectionContext="popularThisMonth">
-            <div>
-              <h2 className={classes.heading}>Popular this month</h2>
-              <div className={classes.listSection}>
-                {popularThisMonthPostIds.map((documentId) => (
-                  <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
-                ))}
-              </div>
-            </div>
-          </AnalyticsContext>
-          <AnalyticsContext pageSectionContext="featuredAudio">
-            <div>
-              <h2 className={classes.heading}>Featured audio</h2>
-              <div className={classes.listSection}>
-                {featuredAudioPostIds.map((documentId) => (
-                  <AudioPostCard key={documentId} documentId={documentId} classes={classes} />
-                ))}
-              </div>
-            </div>
-          </AnalyticsContext>
-        </div>
-      </div>
       </AnalyticsContext>
     </>
   );
