@@ -1012,6 +1012,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'editor',
+      path: '/editor',
+      redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    }
   ],
   AlignmentForum: [
     {

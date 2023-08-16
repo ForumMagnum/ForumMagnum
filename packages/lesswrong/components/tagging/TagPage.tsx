@@ -391,7 +391,6 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
-        welcomeBox={null}
       >
         {(tag.parentTag || tag.subTags.length) ?
         <div className={classNames(classes.subHeading,classes.centralColumn)}>

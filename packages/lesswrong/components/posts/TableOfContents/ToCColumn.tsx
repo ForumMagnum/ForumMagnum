@@ -112,11 +112,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   rhs: {
     gridArea: 'rhs',
   },
-  rhsHideMediumDown: {
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  },
   hideTocButton: {
     position: "fixed",
     top: 0,
@@ -158,15 +153,13 @@ const shouldHideToggleContentsButton = () => {
 export const ToCColumn = ({
   tableOfContents,
   header,
-  welcomeBox,
-  rhsRecommendations,
+  rightColumnChildren,
   children,
   classes,
 }: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
-  welcomeBox?: React.ReactNode,
-  rhsRecommendations?: React.ReactNode,
+  rightColumnChildren?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -195,9 +188,7 @@ export const ToCColumn = ({
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents ||
-          !!welcomeBox ||
-          !!rhsRecommendations,
+        [classes.tocActivated]: !!tableOfContents || !!rightColumnChildren,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
@@ -231,12 +222,9 @@ export const ToCColumn = ({
         {children}
       </div>
       <div className={classes.gap2}/>
-      {(welcomeBox || rhsRecommendations) &&
-        <div className={classNames(classes.rhs, {
-          [classes.rhsHideMediumDown]: welcomeBox,
-        })}>
-          {welcomeBox}
-          {rhsRecommendations}
+      {rightColumnChildren &&
+        <div className={classes.rhs}>
+          {rightColumnChildren}
         </div>
       }
       <div className={classes.gap3}/>
