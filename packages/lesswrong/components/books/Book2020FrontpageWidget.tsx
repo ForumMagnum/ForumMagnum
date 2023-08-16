@@ -57,6 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 16,
     marginRight: 16,
     whiteSpace: "nowrap",
+    marginTop: -7
   },
   buttonRow: {
     display: 'flex',
@@ -143,7 +144,7 @@ const Book2020FrontpageWidget = ({ classes }: {
         <BookMarketingText 
           title={"The Carving of Reality"} 
           subtitle={"Best of LessWrong, Volume III"}
-          description={<>Each year, the LessWrong community votes on which posts were most valuable. We've compiled the winners of the third Annual Review into an anthology of four books. <span className={classes.sectionTwo}>The essays explore questions like <em>"Why is civilization so dysfunctional?"</em>, <em>"When is AGI likely to transform the world?"</em>, and <em>"What are the limits of Bayesian reasoning?"</em></span></>}
+          description={<>Each year, the LessWrong community votes on which posts were most valuable. We've compiled the winners of the third Annual Review into an anthology of four books. <span className={classes.sectionTwo}>The essays explore questions like <em>"When is AGI likely to transform the world?"</em>, <em>"What are the limits of Bayesian reasoning?"</em>, and <em>"Why exactly is civilization so dysfunctional?"</em></span></>}
           buttons={<>
             <Link className={classes.learnMore} to="/posts/Rck5CvmYkzWYxsF4D/book-launch-the-carving-of-reality-best-of-lesswrong-vol-iii">
               Learn More
