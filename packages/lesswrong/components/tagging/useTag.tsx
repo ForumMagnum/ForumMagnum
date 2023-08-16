@@ -45,7 +45,13 @@ export const useTagPreview = (
   loading: boolean,
   error: any
 } => {
-  const fragmentName = hash ? 'TagSectionPreviewFragment' : 'TagPreviewFragment';
+  const fragmentName = hash
+    ? 'TagSectionPreviewFragment'
+    : 'TagPreviewFragment';
+
+  const hashVariables = hash
+    ? { extraVariables: { hash: "String" }, extraVariablesValues: { hash } }
+    : {};
 
   const { results, loading, error } = useMulti<TagPreviewFragmentName, "Tags">({
     terms: {
@@ -55,8 +61,7 @@ export const useTagPreview = (
     collectionName: "Tags",
     fragmentName: fragmentName,
     limit: 1,
-    extraVariables: { hash: "String" },
-    extraVariablesValues: { hash },
+    ...hashVariables,
     ...queryOptions
   });
   
