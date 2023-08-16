@@ -42,10 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     [theme.breakpoints.down('md')]: {
       paddingRight: 0
-    },
-    [theme.breakpoints.down('xs')]: {
-      // paddingRight: 16,
-      // textAlign: 'right',
     }
   },
   learnMore: {

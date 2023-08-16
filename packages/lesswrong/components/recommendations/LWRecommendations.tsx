@@ -171,7 +171,7 @@ const LWRecommendations = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      <Book2020FrontpageWidget/>
+      {bookDisplaySetting.get() && <Book2020FrontpageWidget/>}
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
         {showSettings &&

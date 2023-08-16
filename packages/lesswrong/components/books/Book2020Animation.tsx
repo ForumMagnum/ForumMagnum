@@ -158,12 +158,12 @@ const Book2020Animation = ({ classes, children }: {
     <div className={classNames(classes.root, {[classes.success]: success})}>
       <div className={classes.parent}>
         <img className={classNames(classes.book, classes.one)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622592/coordination-constraint_w5obih.png" />
-        <img className={classNames(classes.book, classes.two)}src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622593/alignment-agency-cover_nvzux7.png" />
+        <img className={classNames(classes.book, classes.two)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622593/alignment-agency-cover_nvzux7.png" />
         <img className={classNames(classes.book, classes.three)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622595/timelines-takeoff-cover_wnb0nc.png" />
-        <img className={classNames(classes.book, classes.four)}src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691623651/reality-reason_llvcqx.png" />
+        <img className={classNames(classes.book, classes.four)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691623651/reality-reason_llvcqx.png" />
       </div>
       <div className={classes.revealedContent}>
-        { children}
+        { children }
       </div>
     </div>
   )
