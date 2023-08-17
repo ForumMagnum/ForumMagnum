@@ -26,6 +26,7 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
+import { panic } from './utils/errorUtil';
 
 const numCPUs = cpus().length;
 
@@ -180,7 +181,7 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   initConsole();
   const args = commandLineArguments ?? getCommandLineArguments();
   if (!args.postgresUrl) {
-    throw new Error("Missing postgresUrl");
+    panic("Missing postgresUrl");
   }
   await initDatabases(args);
   await initSettings();
