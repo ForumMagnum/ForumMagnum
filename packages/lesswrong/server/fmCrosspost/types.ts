@@ -1,76 +1,264 @@
-import { MissingParametersError } from "./errors";
+import * as t from 'io-ts';
+import { denormalizedFieldKeys } from "./denormalizedFields";
+
+export const CrosspostTokenResponseValidator = t.strict({
+  token: t.string
+});
+
+export const ConnectCrossposterRequestValidator = t.strict({
+  token: t.string,
+  localUserId: t.string
+});
+
+export const ConnectCrossposterPayloadValidator = t.strict({
+  userId: t.string
+});
+
+export type ConnectCrossposterRequest = t.TypeOf<typeof ConnectCrossposterRequestValidator>;
+export type ConnectCrossposterPayload = t.TypeOf<typeof ConnectCrossposterPayloadValidator>;
+
+export const ConnectCrossposterResponseValidator = t.strict({
+  foreignUserId: t.string,
+  localUserId: t.string,
+  status: t.literal('connected')
+});
+
+export type ConnectCrossposterResponse = t.TypeOf<typeof ConnectCrossposterResponseValidator>;
 
 export type ConnectCrossposterArgs = {
   token: string,
 }
 
-export type ConnectCrossposterPayload = {
-  userId: string,
-}
+export const UnlinkCrossposterRequestValidator = t.strict({
+  token: t.string
+});
 
-const hasBooleanParam = (payload: unknown, param: string) =>
-  payload &&
-  typeof payload === "object" &&
-  param in payload &&
-  typeof payload[param] === "boolean";
 
-const hasStringParam = (payload: unknown, param: string) =>
-  payload &&
-  typeof payload === "object" &&
-  param in payload &&
-  typeof payload[param] === "string" &&
-  payload[param].length;
+export const UnlinkCrossposterPayloadValidator = t.strict({
+  userId: t.string
+}); 
 
-export const validateConnectCrossposterPayload = (payload: unknown): payload is ConnectCrossposterPayload => {
-  if (!hasStringParam(payload, "userId")) {
-    throw new MissingParametersError(["userId"], payload);
-  }
-  return true;
-}
+export type UnlinkCrossposterRequest = t.TypeOf<typeof UnlinkCrossposterRequestValidator>;
+export type UnlinkCrossposterPayload = t.TypeOf<typeof UnlinkCrossposterPayloadValidator>;
 
-export type UnlinkCrossposterPayload = {
-  userId: string,
-}
+export const UnlinkedCrossposterResponseValidator = t.strict({
+  status: t.literal('unlinked')
+});
 
-export const validateUnlinkCrossposterPayload = (payload: unknown): payload is UnlinkCrossposterPayload => {
-  if (!hasStringParam(payload, "userId")) {
-    throw new MissingParametersError(["userId"], payload);
-  }
-  return true;
-}
+export type UnlinkedCrossposterResponse = t.TypeOf<typeof UnlinkedCrossposterResponseValidator>;
 
-export type UpdateCrosspostPayload = {
-  postId: string,
-  draft: boolean,
-  deletedDraft: boolean,
-  title: string,
-}
+export const UpdateCrosspostRequestValidator = t.strict({
+  token: t.string
+});
 
-export const validateUpdateCrosspostPayload = (payload: unknown): payload is UpdateCrosspostPayload => {
-  if (
-    !hasStringParam(payload, "postId") ||
-    !hasBooleanParam(payload, "draft") ||
-    !hasBooleanParam(payload, "deletedDraft") ||
-    !hasStringParam(payload, "title")
-  ) {
-    throw new MissingParametersError(["postId", "draft", "draftDeleted", "title"], payload);
-  }
-  return true;
-}
+export type UpdateCrosspostRequest = t.TypeOf<typeof UpdateCrosspostRequestValidator>;
 
-export type CrosspostPayload = {
-  localUserId: string,
-  foreignUserId: string,
-}
+export const UpdateCrosspostResponseValidator = t.strict({
+  status: t.literal('updated')
+});
 
-export const validateCrosspostPayload = (payload: unknown): payload is CrosspostPayload => {
-  if (
-    !hasStringParam(payload, "localUserId") ||
-    !hasStringParam(payload, "foreignUserId")
-  ) {
-    throw new MissingParametersError(["localUserId", "foreignUserId"], payload);
-  }
-  return true;
-}
+const DenormalizedCrosspostValidator = t.strict({
+  draft: t.boolean,
+  deletedDraft: t.boolean,
+  title: t.string,
+  isEvent: t.boolean,
+  question: t.boolean,
+  url: t.string,
+});
 
-export type Crosspost = Pick<DbPost, "_id" | "title" | "userId" | "fmCrosspost" | "draft">;
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
+export const UpdateCrosspostPayloadValidator = t.intersection([
+  t.strict({
+    postId: t.string,
+  }),
+  DenormalizedCrosspostValidator
+]);
+
+export type UpdateCrosspostResponse = t.TypeOf<typeof UpdateCrosspostResponseValidator>;
+export type UpdateCrosspostPayload = t.TypeOf<typeof UpdateCrosspostPayloadValidator>;
+
+export const CrosspostRequestValidator = t.strict({
+  token: t.string
+});
+
+export type CrosspostRequest = t.TypeOf<typeof CrosspostRequestValidator>;
+
+export const CrosspostResponseValidator = t.strict({
+  postId: t.string,
+  status: t.literal('posted')
+});
+
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
+export const CrosspostPayloadValidator = t.intersection([
+  t.strict({
+    localUserId: t.string,
+    foreignUserId: t.string,
+    postId: t.string,
+  }),
+  DenormalizedCrosspostValidator
+]);
+
+export type CrosspostResponse = t.TypeOf<typeof CrosspostResponseValidator>;
+export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
+
+export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | typeof denormalizedFieldKeys[number]>;
+
+/**
+ * Intersesction creates an intersection of types (i.e. type A & type B)
+ */
+export const GetCrosspostRequestValidator = t.intersection([
+  t.strict({
+    documentId: t.string,
+    collectionName: t.literal('Posts'),
+    // This is a more performant way of representing a union of string literals
+    fragmentName: t.keyof({ 'PostsWithNavigation': null, 'PostsWithNavigationAndRevision': null, 'PostsList': null }),
+  }),
+  t.partial({
+    extraVariables: t.strict({
+      sequenceId: t.literal('String')
+    }),
+    extraVariablesValues: t.strict({
+      sequenceId: t.union([t.string, t.null])
+    }),
+  })
+]);
+
+export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
+
+/**
+ * Nearly all fields returned from the other forum's internal GraphQL request can be `null`
+ * That's different from them being missing in the response body
+ */
+// interface PartialWithNullC<P extends t.Props>
+//   extends t.PartialType<
+//     P,
+//     {
+//       [K in keyof P]?: t.TypeOf<P[K]> | null
+//     },
+//     {
+//       [K in keyof P]?: t.OutputOf<P[K]> | null
+//     },
+//     unknown
+//   > {}
+
+// const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
+//   return t.partial(Object.fromEntries(
+//     Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
+//       if ('props' in validator) {
+//         return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
+//       } else {
+//         return [key, t.union([t.null, validator])] as const;
+//       }
+//     })
+//   )) as unknown as PartialWithNullC<P>;
+// };
+
+/**
+ * Partial, in addition to treating all of the specified fields as optional, is permissive with respect to fields not specified
+ * This means that all of the other fields not included in this validator but part of the requested fragment will still come back
+ * i.e. tableOfContents, etc.  They simply won't be typed in the type extracted from the validator.
+ */
+// const CrosspostValidator = t.intersection([
+//   // _id, slug, and isEvent are specified separately because `postGetPageUrl` requires those 3 fields to not have `null` as a possible value
+//   t.strict({
+//     _id: t.string,
+//     slug: t.string,  
+//   }),
+//   t.partial({
+//     isEvent: t.boolean,
+//   }),
+//   partialWithNull({
+//     __typename: t.literal('Post'),
+//     version: t.string,
+//     contents: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       version: t.string,
+//       updateType: t.keyof({ patch: null, minor: null, major: null, initial: null }),
+//       editedAt: t.string,
+//       userId: t.string,
+//       html: t.string,
+//       wordCount: t.number,
+//       htmlHighlight: t.string,
+//       plaintextDescription: t.string
+//     }),
+//     myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
+//     noIndex: t.boolean,
+//     socialPreviewImageUrl: t.string,
+//     showModerationGuidelines: t.boolean,
+//     activateRSVPs: t.boolean,
+//     fmCrosspost: t.partial({
+//       isCrosspost: t.boolean,
+//       hostedHere: t.boolean,
+//       foreignPostId: t.string
+//     }),
+//     readTimeMinutes: t.number,
+//     moderationGuidelines: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       html: t.string
+//     }),
+//     customHighlight: t.partial({
+//       __typename: t.literal('Revision'),
+//       _id: t.string,
+//       html: t.string
+//     }),
+//     postedAt: t.string,
+//     sticky: t.boolean,
+//     metaSticky: t.boolean,
+//     stickyPriority: t.number,
+//     status: t.number,
+//     frontpageDate: t.string,
+//     meta: t.boolean,
+//     deletedDraft: t.boolean,
+//     hasCoauthorPermission: t.boolean,
+//     commentCount: t.number,
+//     voteCount: t.number,
+//     baseScore: t.number,
+//     unlisted: t.boolean,
+//     score: t.number,
+//     isFuture: t.boolean,
+//     isRead: t.boolean,
+//     lastCommentedAt: t.string,
+//     question: t.boolean,
+//     hiddenRelatedQuestion: t.boolean,
+//     userId: t.string,
+//     authorIsUnreviewed: t.boolean,
+//     afLastCommentedAt: t.string,
+//     afSticky: t.boolean,
+//     hideAuthor: t.boolean,
+//     submitToFrontpage: t.boolean,
+//     shortform: t.boolean,
+//     onlyVisibleToLoggedIn: t.boolean,
+//     user: t.partial({
+//       __typename: t.literal('User'),
+//       _id: t.string,
+//       slug: t.string,
+//       createdAt: t.string,
+//       username: t.string,
+//       displayName: t.string,
+//       isAdmin: t.boolean,
+//       htmlBio: t.string,
+//       postCount: t.number,
+//       afCommentCount: t.number,
+//       spamRiskScore: t.number,
+//     }),
+//     coauthors: t.array(t.string),
+//     title: t.string,
+//     draft: t.boolean,
+//     hideCommentKarma: t.boolean,
+//     af: t.boolean,
+//   })
+// ]);
+
+export const GetCrosspostResponseValidator = t.strict({
+  // document: CrosspostValidator,
+  document: t.UnknownRecord
+});
+
+
+export type GetCrosspostResponse = t.TypeOf<typeof GetCrosspostResponseValidator>;

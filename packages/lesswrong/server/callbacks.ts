@@ -300,6 +300,8 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     //   https://docs.mongodb.com/manual/core/retryable-writes/#retryable-update-upsert
     // In particular, this means the selector has to exactly match the unique
     // index's keys.
+    //
+    // EDIT 2022-09-16: This is still the case in postgres ^
     await ReadStatuses.rawUpdateOne({
       postId: event.documentId,
       userId: event.userId,

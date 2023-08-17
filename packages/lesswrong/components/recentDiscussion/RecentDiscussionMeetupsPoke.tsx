@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import Geosuggest from 'react-geosuggest';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -77,16 +77,16 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
     setHidden(true);
     void updateCurrentUser({hideMeetupsPoke: true});
   }
-  const onSetLocation = (location) => {
+  const onSetLocation = (location?: google.maps.GeocoderResult) => {
     setLocation(location);
     
     // Re-apply the two checkboxes
     onSetEnableNotificationsChecked(enableNotificationsChecked);
     onSetLocationOnPublicProfileChecked(locationOnPublicProfileChecked);
   }
-  const setPublicProfileLocation = (location) => {
+  const setPublicProfileLocation = (location?: google.maps.GeocoderResult) => {
     void updateCurrentUser({
-      location: location.formatted_address,
+      location: location?.formatted_address,
     });
   }
   const clearPublicProfileLocation = () => {

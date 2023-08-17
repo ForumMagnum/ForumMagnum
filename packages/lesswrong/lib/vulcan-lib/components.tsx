@@ -6,7 +6,7 @@ import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 type ComparisonFn = (prev: any, next: any)=>boolean
-type ComparePropsDict = { [propName: string]: "shallow"|"ignore"|"deep"|ComparisonFn }
+type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
@@ -320,7 +320,7 @@ export const instantiateComponent = (component: any, props: any) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
-    const Component: any = Components[component];
+    const Component: any = Components[component as keyof ComponentTypes];
     return <Component {...props} />;
   } else if (
     typeof component === 'function' &&
@@ -336,21 +336,23 @@ export const instantiateComponent = (component: any, props: any) => {
   }
 };
 
-// Given an optional set of override-components, return a Components object
-// which wraps the main Components table, preserving Components'
-// proxy/deferred-execution tricks.
-export const mergeWithComponents = (myComponents: any) => {
+/**
+ * Given an optional set of override-components, return a Components object
+ * which wraps the main Components table, preserving Components'
+ * proxy/deferred-execution tricks.
+ */
+export const mergeWithComponents = (myComponents: Partial<ComponentTypes>|null|undefined): ComponentTypes => {
   if (!myComponents) return Components;
   
-  if (myComponents.__isProxy)
-    return myComponents;
+  if ((myComponents as any).__isProxy)
+    return (myComponents as any);
   
   const mergedComponentsProxyHandler = {
     get: function(obj: any, prop: string) {
       if (prop === "__isProxy") {
         return true;
       } else if (prop in myComponents) {
-        return myComponents[prop];
+        return (myComponents as any)[prop];
       } else if (prop in PreparedComponents) {
         return PreparedComponents[prop];
       } else {

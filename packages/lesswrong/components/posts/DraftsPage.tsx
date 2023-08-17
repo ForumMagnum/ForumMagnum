@@ -20,7 +20,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const DraftsPage = ({classes}) => {
+const DraftsPage = ({classes}: {
+  classes: ClassesType;
+}) => {
   const {SingleColumnSection, DraftsList } = Components
   
   const currentUser = useCurrentUser()

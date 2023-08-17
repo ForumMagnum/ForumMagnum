@@ -1,50 +1,103 @@
-import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../algoliaUtil'
-import {promisify} from '../utils/asyncUtils'
-import {getSiteUrl} from '../vulcan-lib'
+import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../search/algoliaUtil'
+import {Components, getSiteUrl} from '../vulcan-lib'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import {userGetDisplayName} from '../collections/users/helpers'
+import {userMentionQueryString} from '../pingback'
+import type { Response } from 'algoliasearch'
 
-interface SearchHit {
+interface PostSearchHit {
   title: string,
   slug: string,
   _id: string
 }
 
-interface SearchResults {
-  hits: SearchHit[]
+interface UserSearchHit {
+  displayName: string
+  fullName?: string
+  slug: string
+  _id: string
+  username: string
+  groups?: string[]
+  karma?: number
+  createdAt: string
 }
 
-const postMarker = '#';
+const markers = {
+  post: '#',
+  user: '@',
+}
+
 const linkPrefix = getSiteUrl()
 
-const initSearchForIndex = (indexName: AlgoliaIndexCollectionName) => {
-  const searchClient = getSearchClient()
-  const index = searchClient.initIndex(getAlgoliaIndexName(indexName))
-  const search = (...args) => index.search(...args)
-  return promisify(search)
+function initSearchForIndex<T>(collectionName: AlgoliaIndexCollectionName) {
+  const indexName = getAlgoliaIndexName(collectionName);
+  const searchClient = getSearchClient();
+  return async (
+    query: string,
+    attributesToRetrieve: string[],
+  ): Promise<Response<T> | null> => {
+    const response = await searchClient.search<T>([{
+      indexName,
+      query,
+      params: {
+        query,
+        attributesToRetrieve,
+        hitsPerPage: 20,
+      },
+    }]);
+    return response?.results?.[0];
+  };
 }
 
-async function fetchSuggestions(searchString: string) {
-  const search = initSearchForIndex('Posts')
-  const searchResults = await search({
-    query: searchString,
-    attributesToRetrieve: ['title', 'slug', '_id'],
-    hitsPerPage: 20
-  }) as SearchResults
-  
-  return searchResults.hits.map(hit => {
-    return {
-      id: postMarker + hit.title, //what gets displayed in the dropdown results, must have postMarker 
-      link: linkPrefix + 'posts/' + hit._id + '/' + hit.slug,
-      text: hit.title,
-    }
+async function fetchPostSuggestions(searchString: string) {
+  const search = initSearchForIndex<PostSearchHit>('Posts')
+  const searchResults = await search(searchString, ['title', 'slug', '_id']);
+
+  return searchResults?.hits.map(hit => ({
+    id: markers.post + hit.title, //what gets displayed in the dropdown results, must have postMarker 
+    link: `${linkPrefix}posts/${hit._id}/${hit.slug}`,
+    text: hit.title,
+  }))
+}
+
+async function fetchUserSuggestions(searchString: string) {
+  const search = initSearchForIndex<UserSearchHit>('Users')
+  const searchResults = await search(searchString, ['displayName', 'slug', '_id', 'username', 'groups', 'karma', 'createdAt', 'fullName']);
+
+  return searchResults?.hits.map(hit => {
+    const displayName = markers.user + userGetDisplayName(hit)
+    return ({
+      id: displayName,
+      // Query string is intended for later use in detecting the ping
+      link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
+      text: displayName,
+      karma: hit.karma,
+      createdAt: new Date(hit.createdAt),
+    })
   })
 }
 
+const renderUserItem = (item: { text: string, karma?: number, createdAt: Date }) => {
+  const itemElement = document.createElement('button')
+
+  ReactDOM.render(<Components.UsersSearchAutocompleteHit {...item} name={item.text}/>, itemElement)
+
+  return itemElement
+}
+
 export const mentionPluginConfiguration = {
-    feeds: [
-      {
-        marker: postMarker,
-        feed: fetchSuggestions,
-        minimumCharacters: 1
-      }
-    ]
-  }
+  feeds: [
+    {
+      marker: markers.post,
+      feed: fetchPostSuggestions,
+      minimumCharacters: 1,
+    },
+    {
+      marker: markers.user,
+      feed: fetchUserSuggestions,
+      minimumCharacters: 1,
+      itemRenderer: renderUserItem,
+    },
+  ],
+}

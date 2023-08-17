@@ -1,4 +1,4 @@
-import NoSsr from '@material-ui/core/NoSsr'
+import NoSSR from 'react-no-ssr';
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -7,15 +7,14 @@ import classNames from 'classnames'
 import React from 'react'
 import { useSingle } from '../../lib/crud/withSingle'
 import { forumTypeSetting } from '../../lib/instanceSettings'
-import { Link } from '../../lib/reactRouterWrapper'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
-import { userOwns } from '../../lib/vulcan-users'
 import { useCurrentUser } from '../common/withUser'
 import { usePostAnalytics } from './usePostAnalytics'
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { useTheme } from '../themes/useTheme'
+import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
+import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
 
 const isEAForum = forumTypeSetting.get()
 
@@ -71,11 +70,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const lineStroke = requireCssVar("palette", "primary", "main");
+
 function PostsAnalyticsGraphs (
   { classes, uniqueClientViewsSeries }: { classes: ClassesType, uniqueClientViewsSeries: { date: string, uniqueClientViews: number }[] | undefined }
 ) {
   const { Typography } = Components
-  const theme = useTheme();
   
   if (!uniqueClientViewsSeries?.length || uniqueClientViewsSeries.length === 1) {
     return (<Typography variant="body1" className={classes.notEnoughDataMessage}>
@@ -93,7 +93,7 @@ function PostsAnalyticsGraphs (
       type="monotone"
       dataKey="uniqueClientViews"
       name="Views by unique devices"
-      stroke={theme.palette.primary.main}
+      stroke={lineStroke}
       dot={false}
       activeDot={{ r: 8 }}
     />
@@ -108,7 +108,7 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
   if (loading) {
     return <>
       <Typography variant="body1" className={classNames(classes.gutterBottom, classes.calculating)}>
-        <em>Calculating metrics. (This can take some time for popular posts.)</em>
+        <em>Calculating metrics. This might be slow for popular posts - if you get an error, try refreshing the page!</em>
       </Typography>
       <Loading />
     </>
@@ -160,7 +160,9 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
 
 }
 
-const PostsAnalyticsPage = ({ classes }) => {
+const PostsAnalyticsPage = ({ classes }: {
+  classes: ClassesType;
+}) => {
   const { query } = useLocation()
   // Cannot destructure and retain return type typing due to TS version
   const postReturn = useSingle({
@@ -199,8 +201,7 @@ const PostsAnalyticsPage = ({ classes }) => {
   }
 
   if (
-    !userOwns(currentUser, postReturn.document) &&
-    !currentUser.isAdmin &&
+    !canUserEditPostMetadata(currentUser, postReturn.document) &&
     !currentUser.groups?.includes('sunshineRegiment')
   ) {
     if (serverRequestStatus) serverRequestStatus.status = 403
@@ -232,9 +233,9 @@ const PostsAnalyticsPage = ({ classes }) => {
           Note 2: Data collection began on {dataCollectionFirstDay}.
         </em>
       </Typography>}
-      <NoSsr>
+      <NoSSR>
         <PostsAnalyticsInner post={post} classes={classes} />
-      </NoSsr>
+      </NoSSR>
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>

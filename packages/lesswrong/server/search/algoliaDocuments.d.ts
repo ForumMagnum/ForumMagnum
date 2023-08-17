@@ -12,6 +12,7 @@ interface AlgoliaComment {
   userIP: string,
   createdAt: Date,
   postedAt: Date,
+  publicDateMs: number, // the date (in ms) when this became "public" (ex. comment postedAt, or user createdAt)
   af: boolean,
   authorDisplayName?: string,
   authorUserName?: string,
@@ -19,13 +20,14 @@ interface AlgoliaComment {
   postId?: string,
   postTitle?: string,
   postSlug?: string,
-  postSequenceId?: string,
   postIsEvent?: boolean,
   postGroupId?: string,
+  tags: Array<string>, // an array of tag _ids that are associated with the comment, whether via tagId or via tagRels
   body: string,
   tagId?: string,
+  tagName?: string,
   tagSlug?: string,
-  tagCommentType?: string,
+  tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
 interface AlgoliaSequence {
@@ -34,11 +36,13 @@ interface AlgoliaSequence {
   title: string,
   userId: string,
   createdAt: Date,
+  publicDateMs: number,
   af: boolean,
   authorDisplayName?: string,
   authorUserName?: string,
   authorSlug?: string,
   plaintextDescription: string,
+  bannerImageId?: string,
 }
 
 interface AlgoliaUser {
@@ -47,12 +51,15 @@ interface AlgoliaUser {
   username: string,
   displayName: string,
   createdAt: Date,
+  publicDateMs: number,
   isAdmin: boolean,
   profileImageId?: string,
   bio: string,
   htmlBio: string,
   karma: number,
   slug: string,
+  jobTitle?: string,
+  organization?: string,
   website: string,
   groups: Array<string>,
   af: boolean,
@@ -60,7 +67,8 @@ interface AlgoliaUser {
     lat: number,
     lng: number
   },
-  mapLocationAddress?: string
+  mapLocationAddress?: string,
+  tags: Array<string>,
 }
 
 interface AlgoliaPost {
@@ -71,12 +79,15 @@ interface AlgoliaPost {
   slug: string,
   baseScore: number,
   status: number,
+  curated: boolean,
   legacy: boolean,
   commentCount: number,
   userIP: string,
   createdAt: Date,
   postedAt: Date,
+  publicDateMs: number,
   isFuture: boolean,
+  isEvent: boolean,
   viewCount: number,
   lastCommentedAt: Date,
   draft: boolean,
@@ -87,7 +98,8 @@ interface AlgoliaPost {
   authorFullName?: string,
   feedName?: string,
   feedLink?: string,
-  body: string
+  body: string,
+  order: number // we split posts into multiple records (based on body paragraph) - this tells us the order to reconstruct them
 }
 
 interface AlgoliaTag {
@@ -100,5 +112,8 @@ interface AlgoliaTag {
   suggestedAsFilter: boolean,
   postCount: number,
   wikiOnly: boolean,
+  isSubforum: boolean,
   description: string,
+  bannerImageId?: string,
+  parentTagId?: string,
 }

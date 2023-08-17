@@ -1,5 +1,5 @@
-const maxSmallish = "@media screen and (max-width: 715px)";
-const maxTiny = "@media screen and (max-width: 400px)";
+export const maxSmallish = "@media screen and (max-width: 715px)";
+export const maxTiny = "@media screen and (max-width: 400px)";
 
 export const commentsNodeRootMarginBottom = 17
 
@@ -36,7 +36,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   button: {
     border: "none",
     boxShadow: "none",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   
   figure: {

@@ -8,12 +8,14 @@ export const randInt = (max: number) => {
   return Math.floor(Math.random() * max);
 }
 
+export const ID_LENGTH = 17;
+
 // A random 17-digit string, using characters that are hard to confuse with each
 // other. If run on the server, cryptographically secure; if run on the client,
 // not.
 export const randomId = () => {
   if (bundleIsServer) {
-    const bytes = crypto.randomBytes(17);
+    const bytes = crypto.randomBytes(ID_LENGTH);
     const result: Array<string> = [];
     for (let byte of bytes) {
       // Discards part of each byte and has modulo bias. Doesn't matter in
@@ -23,7 +25,7 @@ export const randomId = () => {
     return result.join('');
   } else {
     const result: Array<string> = [];
-    for (let i=0; i<17; i++)
+    for (let i=0; i<ID_LENGTH; i++)
       result.push(unmistakableChars[randInt(unmistakableChars.length)]);
     return result.join('');
   }

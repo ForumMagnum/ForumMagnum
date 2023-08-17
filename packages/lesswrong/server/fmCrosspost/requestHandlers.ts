@@ -1,79 +1,61 @@
-import type { Request, Response } from "express";
-import { Utils } from "../../lib/vulcan-lib";
-import Users from "../../lib/collections/users/collection";
+import type { Request } from "express";
 import Posts from "../../lib/collections/posts/collection";
-import {
-  ApiError,
-  UnauthorizedError,
-  MissingParametersError,
-  InvalidUserError,
-} from "./errors";
-import {
-  ConnectCrossposterPayload,
-  validateConnectCrossposterPayload,
-  validateUnlinkCrossposterPayload,
-  validateUpdateCrosspostPayload,
-  validateCrosspostPayload,
-} from "./types";
+import Users from "../../lib/collections/users/collection";
+import { getGraphQLQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
+import { getCollection, Utils } from "../../lib/vulcan-lib";
+import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
+import { createAnonymousContext } from "../vulcan-lib/query";
+import { extractDenormalizedData } from "./denormalizedFields";
+import { InvalidUserError, UnauthorizedError } from "./errors";
+import { validateCrosspostingKarmaThreshold } from "./helpers";
+import type { GetRouteOf, PostRouteOf } from "./routes";
 import { signToken, verifyToken } from "./tokens";
+import {
+  ConnectCrossposterPayload, ConnectCrossposterPayloadValidator, CrosspostPayloadValidator, UnlinkCrossposterPayloadValidator, UpdateCrosspostPayloadValidator
+} from "./types";
 
-const withApiErrorHandlers = (callback: (req: Request, res: Response) => Promise<void>) =>
-  async (req: Request, res: Response) => {
-    try {
-      await callback(req, res);
-    } catch (e) {
-      res
-        .status(e instanceof ApiError ? e.code : 501)
-        .send({error: e.message ?? "An unknown error occurred"})
-    }
-  }
-
-const getPostParams = (req: Request, paramNames: string[]): string[] => {
-  const params = paramNames.map((name) => req.body[name]);
-  if (params.some((param) => !param)) {
-    throw new MissingParametersError(paramNames, req.body);
-  }
-  return params;
-}
-
-export const onCrosspostTokenRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
+export const onCrosspostTokenRequest: GetRouteOf<'crosspostToken'> = async (req: Request) => {
   const {user} = req;
   if (!user) {
     throw new UnauthorizedError();
   }
 
-  const token = await signToken<ConnectCrossposterPayload>({userId: user._id});
-  res.send({token});
-});
+  // Throws an error if user doesn't have enough karma on the source forum (which is the current execution environment)
+  validateCrosspostingKarmaThreshold(user);
 
-export const onConnectCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
-  const [token, localUserId] = getPostParams(req, ["token", "localUserId"]);
-  const payload = await verifyToken(token, validateConnectCrossposterPayload);
+  const token = await signToken<ConnectCrossposterPayload>({ userId: user._id });
+  return {token};
+};
+
+export const onConnectCrossposterRequest: PostRouteOf<'connectCrossposter'> = async (req) => {
+  const { token, localUserId } = req;
+  const payload = await verifyToken(token, ConnectCrossposterPayloadValidator.is);
   const {userId: foreignUserId} = payload;
   await Users.rawUpdateOne({_id: foreignUserId}, {
     $set: {fmCrosspostUserId: localUserId},
   });
-  res.send({
+  return {
     status: "connected",
     foreignUserId,
     localUserId,
-  });
-});
+  };
+};
 
-export const onUnlinkCrossposterRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
-  const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken(token, validateUnlinkCrossposterPayload);
+export const onUnlinkCrossposterRequest: PostRouteOf<'unlinkCrossposter'> = async (req) => {
+  const { token } = req;
+  const payload = await verifyToken(token, UnlinkCrossposterPayloadValidator.is);
   const {userId} = payload;
   await Users.rawUpdateOne({_id: userId}, {
     $unset: {fmCrosspostUserId: ""},
   });
-  res.send({status: "unlinked"});
-});
+  return { status: 'unlinked' };
+};
 
-export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
-  const [token, postId, postTitle] = getPostParams(req, ["token", "postId", "postTitle"]);
-  const payload = await verifyToken(token, validateCrosspostPayload);
-  const {localUserId, foreignUserId} = payload;
+export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
+  const { token } = req;
+  const payload = await verifyToken(token, CrosspostPayloadValidator.is);
+  const {localUserId, foreignUserId, postId, ...rest} = payload;
+  const denormalizedData = extractDenormalizedData(rest);
 
   const user = await Users.findOne({_id: foreignUserId});
   if (!user || user.fmCrosspostUserId !== localUserId) {
@@ -81,13 +63,13 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
   }
 
   const document: Partial<DbPost> = {
-    title: postTitle,
     userId: user._id,
     fmCrosspost: {
       isCrosspost: true,
       hostedHere: false,
       foreignPostId: postId,
     },
+    ...denormalizedData,
   };
 
   const {data: post} = await Utils.createMutator({
@@ -95,22 +77,52 @@ export const onCrosspostRequest = withApiErrorHandlers(async (req: Request, res:
     collection: Posts,
     validate: false,
     currentUser: user,
+    // This is a hack - we have only a fraction of the necessary information for
+    // a context. But it appears to be working.
     context: {
       currentUser: user,
+      isFMCrosspostRequest: true,
       Users,
+    } as Partial<ResolverContext> as  ResolverContext,
+  });
+
+  return {
+    status: "posted",
+    postId: post._id,
+  };
+};
+
+export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (req) => {
+  const { token } = req;
+  const {postId, ...rest} = await verifyToken(token, UpdateCrosspostPayloadValidator.is);
+  const denormalizedData: Partial<DbPost> = extractDenormalizedData(rest);
+  await Posts.rawUpdateOne({_id: postId}, {$set: denormalizedData});
+  return { status: 'updated' };
+};
+
+export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
+  const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
+  const apolloClient = await createClient(createAnonymousContext());
+  const collection = getCollection(collectionName);
+  const query = getGraphQLQueryFromOptions({
+    extraVariables,
+    collection,
+    fragmentName,
+    fragment: undefined,
+  });
+  const resolverName = getResolverNameFromOptions(collection);
+
+  const { data } = await apolloClient.query({
+    query,
+    variables: {
+      input: {
+        selector: { documentId }
+      },
+      ...extraVariablesValues
     },
   });
 
-  res.send({
-    status: "posted",
-    postId: post._id,
-  });
-});
+  const document = data?.[resolverName]?.result;
 
-export const onUpdateCrosspostRequest = withApiErrorHandlers(async (req: Request, res: Response) => {
-  const [token] = getPostParams(req, ["token"]);
-  const payload = await verifyToken(token, validateUpdateCrosspostPayload);
-  const {postId, draft, deletedDraft, title} = payload;
-  await Posts.rawUpdateOne({_id: postId}, {$set: {draft, deletedDraft, title}});
-  res.send({status: "updated"});
-});
+  return { document };
+};

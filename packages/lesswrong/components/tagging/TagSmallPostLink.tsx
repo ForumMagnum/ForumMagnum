@@ -4,6 +4,7 @@ import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,7 +29,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
   },
   title: {
-    position: "relative",
+    ...(isEAForum
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+        fontWeight: 600,
+      }
+      : {
+        position: "relative",
+      }),
     top: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -57,7 +65,9 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
   wrap?: boolean,
   widerSpacing?: boolean
 }) => {
-  const { LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, PostsItemKarma } = Components
+  const {
+    LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, KarmaDisplay,
+  } = Components;
   const { eventHandlers, hover, anchorEl } = useHover();
 
   return <span {...eventHandlers}>
@@ -72,7 +82,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
       </LWPopper>
       <div className={classes.post}>
         {!hideMeta && <MetaInfo className={classes.karma}>
-          <PostsItemKarma post={post} placement="right"/>
+          <KarmaDisplay document={post} placement="right" />
         </MetaInfo>}
         <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
           {post.title}

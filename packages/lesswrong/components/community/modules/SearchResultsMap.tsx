@@ -24,7 +24,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   popupTitle: {
     display: 'flex',
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    color: theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
@@ -36,7 +37,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontSize: 12,
-    fontStyle: 'italic',
     fontWeight: 'normal',
     marginTop: 2
   },
@@ -54,8 +54,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
+interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
-  center: {lat: number, lng: number},
+  center: LatLng,
   zoom: number,
   hits: Array<Hit<AlgoliaUser>>,
   className?: string,
@@ -80,7 +85,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   
   // to make sure that map markers with exactly the same lat/lng don't appear exactly on top of each other,
   // we slightly shift all markers by a random distance
-  const [markerLocations, setMarkerLocations] = useState({})
+  const [markerLocations, setMarkerLocations] = useState<Record<string, LatLng>>({})
   useEffect(() => {
     const locations = {...markerLocations}
     hits.forEach(hit => {

@@ -40,6 +40,10 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       light: "#7986cb",
       contrastText: shadePalette.grey[0],
     },
+    review: {
+      activeProgress: "rgba(63,81,181, .5)",
+      progressBar: "rgba(63,81,181, 1)"
+    },
     lwTertiary: {
       main:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
       dark:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",

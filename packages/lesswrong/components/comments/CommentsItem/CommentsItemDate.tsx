@@ -1,25 +1,31 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper';
-import LinkIcon from '@material-ui/icons/Link';
-import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
+import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
+import { isEAForum } from '../../../lib/instanceSettings';
 import classNames from 'classnames';
-import { useNavigation, useLocation } from '../../../lib/routeUtil';
-import { useTracking } from '../../../lib/analyticsEvents';
-import qs from 'qs'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...(isEAForum && {
+      marginLeft: 2,
+      marginRight: 7,
+    }),
+
     "& a:hover, & a:active": {
       "& $icon": {
         color: `${theme.palette.icon.dim5} !important`,
       },
     },
-    
+
     // Create a stacking context and set z-index to be higher than the vote
     // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
     position: "relative",
+
+    // Prevent permalink-icon and date from wrapping onto separate lines, in
+    // narrow/flexbox contexts
+    whiteSpace: "nowrap",
+
     zIndex: theme.zIndexes.commentPermalinkIcon,
   },
   answerDate: {},
@@ -33,50 +39,42 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     fontSize: "0.9rem",
-    transform: "rotate(-45deg)",
     verticalAlign: "middle",
     color: theme.palette.icon.dim,
     margin: "0 2px",
     position: "relative",
-    top: -2
+    top: -2,
   },
 });
 
-const CommentsItemDate = ({comment, post, tag, classes, scrollOnClick, scrollIntoView, permalink=true }: {
-  comment: CommentsList,
-  post?: PostsMinimumInfo|null,
-  tag?: TagBasicInfo,
-  classes: ClassesType,
-  scrollOnClick?: boolean,
-  scrollIntoView?: ()=>void,
-  permalink?: boolean,
-}) => {
-  const { history } = useNavigation();
-  const { location } = useLocation();
-  const { captureEvent } = useTracking();
+type CommentsItemDateProps = UseCommentLinkProps & {classes: ClassesType};
 
-  const handleLinkClick = (event: React.MouseEvent) => {
-    event.preventDefault()
-    history.replace({...location, search: qs.stringify({commentId: comment._id})})
-    if(scrollIntoView) scrollIntoView();
-    captureEvent("linkClicked", {buttonPressed: event.button, furtherContext: "dateIcon"})
-  };
-
-  const url = commentGetPageUrlFromIds({postId: post?._id, postSlug: post?.slug, tagSlug: tag?.slug, commentId: comment._id, permalink})
-
-  const date = <>
-    <Components.FormatDate date={comment.postedAt} format={comment.answer ? "MMM DD, YYYY" : undefined}/>
-    <LinkIcon className={classes.icon}/>
-  </>
-
+const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
+  const { FormatDate, ForumIcon } = Components
+  
+  const LinkWrapper = useCommentLink({comment, ...rest});
+  
+  let dateFormat: string | undefined;
+  if (comment.answer) {
+    dateFormat = "MMM DD, YYYY";
+  } else if (comment.debateResponse) {
+    dateFormat = "h:mm a";
+  } else {
+    dateFormat = undefined;
+  }
+  
   return (
     <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      {scrollOnClick ? <a rel="nofollow" href={url} onClick={handleLinkClick}>{ date } </a>
-        : <Link rel="nofollow" to={url}>{ date }</Link>
-      }
+      <LinkWrapper>
+        <FormatDate
+          date={comment.postedAt}
+          format={dateFormat}
+        />
+        {!isEAForum && <ForumIcon icon="Link" className={classes.icon} />}
+      </LinkWrapper>
     </span>
   );
 }

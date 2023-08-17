@@ -60,22 +60,22 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
-  if (notificationTypeRenderer.canCombineEmails) {
-    return [{
-      user,
-      from: notificationTypeRenderer.from,
-      subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
-      body: await notificationTypeRenderer.emailBody({ user, notifications }),
-    }];
-  } else {
-    return await Promise.all(notifications.map(async (notification: DbNotification) => ({
-      user,
-      to: getUserEmail(user),
-      from: notificationTypeRenderer.from,
-      subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
-      body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),
-    })));
-  }
+  // Each call to emailSubject or emailBody takes a list of notifications.
+  // If we can combine the emails this will be all the notifications in the batch, if we can't combine the emails, this will be a list containing a single notification.
+  const groupedNotifications = notificationTypeRenderer.canCombineEmails ? [notifications] : notifications.map((notification) => [notification])
+
+  const shouldSkip = await Promise.all(groupedNotifications.map(async notifications => notificationTypeRenderer.skip({ user, notifications })));
+  return await Promise.all(
+    groupedNotifications
+      .filter((_, idx) => !shouldSkip[idx])
+      .map(async (notifications: DbNotification[]) => ({
+        user,
+        to: getUserEmail(user),
+        from: notificationTypeRenderer.from,
+        subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
+        body: await notificationTypeRenderer.emailBody({ user, notifications }),
+      }))
+  );
 }
 
 

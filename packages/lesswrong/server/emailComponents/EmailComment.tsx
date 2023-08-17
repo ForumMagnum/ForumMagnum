@@ -7,39 +7,75 @@ import './EmailFormatDate';
 import './EmailPostAuthors';
 import './EmailContentItemBody';
 import filter from 'lodash/filter';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { TagCommentType } from '../../lib/collections/comments/types';
+import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import startCase from 'lodash/startCase';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  comment: {
+  headingLink: {
+    color: theme.palette.text.maxIntensity,
+    textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: "Arial, sans-serif"
+  },
+  commentHr: {
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 10
   },
 });
 
-const EmailCommentBatch = ({comments}:{comments: DbComment[]}) => {
-  const { EmailComment, EmailCommentsOnPostHeader } = Components;
+const EmailCommentBatch = ({comments, classes}:{comments: DbComment[], classes: ClassesType}) => {
+  const { EmailComment } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
-  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === TagCommentType.Discussion)
+  const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
   const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
+  const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "SUBFORUM")
+  const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment:DbComment)=>comment.tagId);
   
+  const commentsListComponent = (comments: DbComment[]) => {
+    return (
+      <>
+        {comments?.map((comment, idx) => (
+          <div key={comment._id}>
+            <EmailComment commentId={comment._id} />
+            {idx !== comments.length - 1 && <hr className={classes.commentHr} />}
+          </div>
+        ))}
+      </>
+    );
+  };
+
   return <div>
     {Object.keys(commentsByPostId).map(postId => <div key={postId}>
-      <EmailCommentsOnPostHeader postId={postId}/>
-      {commentsByPostId[postId]?.map(comment =>
-        <EmailComment key={comment._id} commentId={comment._id}/>)}
+      <EmailCommentsOnPostHeader postId={postId} classes={classes}/>
+      {commentsListComponent(commentsByPostId[postId])}
     </div>)}
     {Object.keys(commentsByTagId).map(tagId => <div key={tagId}>
-      <EmailCommentsOnTagHeader tagId={tagId}/>
-      {commentsByTagId[tagId]?.map(comment =>
-        <EmailComment key={comment._id} commentId={comment._id}/>)}
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={false}  classes={classes}/>
+      {commentsListComponent(commentsByTagId[tagId])}
+    </div>)}
+    {Object.keys(commentsBySubforumTagId).map(tagId => <div key={tagId}>
+      <EmailCommentsOnTagHeader tagId={tagId} isSubforum={true}  classes={classes}/>
+      {commentsListComponent(commentsBySubforumTagId[tagId])}
     </div>)}
   </div>;
 }
 
 const EmailCommentBatchComponent = registerComponent("EmailCommentBatch", EmailCommentBatch, {styles});
 
-const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
+const HeadingLink = ({ text, href, classes }: { text: string; href: string; classes: ClassesType }) => {
+  return (
+    <h1>
+      <a href={href} className={classes.headingLink}>
+        {text}
+      </a>
+    </h1>
+  );
+};
+
+const EmailCommentsOnPostHeader = ({postId, classes}: {postId: string, classes: ClassesType}) => {
   const { document: post } = useSingle({
     documentId: postId,
     collectionName: "Posts",
@@ -48,12 +84,10 @@ const EmailCommentsOnPostHeader = ({postId}: {postId: string}) => {
   if (!post)
     return null;
   
-  return <div>
-    New comments on <a href={postGetPageUrl(post, true)}>{post.title}</a>
-  </div>;
+  return <HeadingLink text={`New comments on ${post.title}`} href={postGetPageUrl(post, true)} classes={classes}/>
 }
 
-const EmailCommentsOnTagHeader = ({tagId}: {tagId: string}) => {
+const EmailCommentsOnTagHeader = ({tagId, isSubforum, classes}: {tagId: string, isSubforum: boolean, classes: ClassesType}) => {
   const { document: tag } = useSingle({
     documentId: tagId,
     collectionName: "Tags",
@@ -62,12 +96,11 @@ const EmailCommentsOnTagHeader = ({tagId}: {tagId: string}) => {
   if (!tag)
     return null;
   
-  return <div>
-    New comments on <a href={tagGetUrl(tag)}>{tag.name}</a>
-  </div>;
+  const props = isSubforum
+    ? { text: `New comments in the ${startCase(tag.name)} subforum`, href: tagGetSubforumUrl(tag, true) }
+    : { text: `New discussion comments on ${tag.name}`, href: tagGetDiscussionUrl(tag) };
+  return <HeadingLink {...props} classes={classes}/>
 }
-
-const EmailCommentsOnPostHeaderComponent = registerComponent("EmailCommentsOnPostHeader", EmailCommentsOnPostHeader);
 
 const EmailComment = ({commentId, classes}: {
   commentId: string,
@@ -89,11 +122,11 @@ const EmailComment = ({commentId, classes}: {
   
   return <div>
     <div className={classes.comment}>
-      <EmailUsername user={comment.user}/>
-      {" "}
       <a href={commentGetPageUrl(comment, true)}>
         <EmailFormatDate date={comment.postedAt}/>
       </a>
+      {" by "}
+      <EmailUsername user={comment.user}/>
       {" "}
       {comment.post && <a href={postGetPageUrl(comment.post, true)}>
         {comment.post.title}
@@ -108,7 +141,6 @@ const EmailCommentComponent = registerComponent("EmailComment", EmailComment, {s
 declare global {
   interface ComponentTypes {
     EmailCommentBatch: typeof EmailCommentBatchComponent,
-    EmailCommentsOnPostHeader: typeof EmailCommentsOnPostHeaderComponent,
     EmailComment: typeof EmailCommentComponent,
   }
 }

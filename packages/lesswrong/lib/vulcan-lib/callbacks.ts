@@ -2,11 +2,18 @@ import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
-import { isAnyQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
+import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
-// TODO: It would be nice if callbacks could be enabled or disabled by collection
-const logger = loggerConstructor(`callbacks`)
+export interface CallbackPropertiesBase<T extends DbObject> {
+  // TODO: Many of these are empirically optional, but setting them to optional
+  // causes a bajillion type errors, so we will not be fixing today
+  currentUser: DbUser|null
+  collection: CollectionBase<T>
+  context: ResolverContext
+  schema: SchemaType<T>
+}
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
   name: string
@@ -15,7 +22,9 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     this.name = name;
   }
   
-  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|Promise<void>|void) => {
+  add = (fn: (doc: IteratorType, ...args: ArgumentsType)=>
+    (Promise<IteratorType|Partial<IteratorType>> | IteratorType | undefined | void)
+  ) => {
     addCallback(this.name, fn);
   }
   
@@ -23,11 +32,23 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     removeCallback(this.name, fn);
   }
   
-  runCallbacks = ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
-    return runCallbacks({
+  runCallbacks = async ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
+    const start = Date.now();
+
+    const result = await runCallbacks({
       name: this.name,
       iterator, properties, ignoreExceptions
     });
+
+    const timeElapsed = Date.now() - start;
+    // Need to use this from Globals to avoid import cycles
+    // Temporarily disabled to investigate performance issues
+    // Globals.captureEvent('callbacksCompleted', {
+    //   callbackHookName: this.name,
+    //   timeElapsed
+    // }, true);
+
+    return result;
   }
 }
 
@@ -43,10 +64,20 @@ export class CallbackHook<ArgumentsType extends any[]> {
   }
   
   runCallbacksAsync = async (properties: ArgumentsType): Promise<void> => {
+    const start = Date.now();
+
     await runCallbacksAsync({
       name: this.name,
       properties
     });
+
+    const timeElapsed = Date.now() - start;
+    // Need to use this from Globals to avoid import cycles
+    // Temporarily disabled to investigate performance issues 
+    // Globals.captureEvent('callbacksCompleted', {
+    //   callbackHookName: this.name,
+    //   timeElapsed
+    // }, true);
   }
 }
 
@@ -66,7 +97,7 @@ const Callbacks: Record<string,any> = {};
  * @param {String} hook - The name of the hook
  * @param {Function} callback - The callback function
  */
-export const addCallback = function (hook: string, callback) {
+export const addCallback = function (hook: string, callback: AnyBecauseTodo) {
 
   const formattedHook = formatHookName(hook);
 
@@ -77,7 +108,7 @@ export const addCallback = function (hook: string, callback) {
 
   Callbacks[formattedHook].push(callback);
   
-  if (Callbacks[formattedHook].length > 15) {
+  if (Callbacks[formattedHook].length > 20) {
     // eslint-disable-next-line no-console
     console.log(`Warning: Excessively many callbacks (${Callbacks[formattedHook].length}) on hook ${formattedHook}.`);
   }
@@ -91,7 +122,7 @@ export const addCallback = function (hook: string, callback) {
  * @param {Function} callback - A reference to the function which was previously
  *   passed to addCallback.
  */
-const removeCallback = function (hookName: string, callback) {
+const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
   const formattedHook = formatHookName(hookName);
   Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
     c => c === callback
@@ -109,12 +140,14 @@ const removeCallback = function (hookName: string, callback) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks = function (this: any, options: {
+export const runCallbacks = function <T extends DbObject> (this: any, options: {
   name: string,
   iterator?: any,
-  properties?: any,
+  // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
+  properties: [CallbackPropertiesBase<T>]|any[],
   ignoreExceptions?: boolean,
 }) {
+  const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = options.name;
   const formattedHook = formatHookName(hook);
   const item = options.iterator;
@@ -133,8 +166,8 @@ export const runCallbacks = function (this: any, options: {
   
   if (typeof callbacks !== 'undefined' && !!callbacks.length) { // if the hook exists, and contains callbacks to run
 
-    const runCallback = (accumulator, callback) => {
-      logger(`\x1b[32m>> Running callback [${callback.name}] on hook [${formattedHook}]\x1b[0m`);
+    const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
+      logger(`\x1b[32m[${formattedHook}] [${callback.name || 'noname callback'}]\x1b[0m`);
       try {
         const result = callback.apply(this, [accumulator].concat(args));
 
@@ -159,15 +192,19 @@ export const runCallbacks = function (this: any, options: {
       }
     };
 
-    const result = callbacks.reduce(function (accumulator, callback, index) {
+    const result = callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
-          logger(`\x1b[32m>> Started async context in hook [${formattedHook}] by [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
+          logger(`\x1b[32m[${formattedHook}] Started async context for [${callbacks[index-1] && callbacks[index-1].name}]\x1b[0m`);
           asyncContext = true;
         }
         return new Promise((resolve, reject) => {
           accumulator
             .then(result => {
+              if (result === undefined) {
+                // eslint-disable-next-line no-console
+                console.error('Async before callbacks should not return undefined. Please return the document/data instead')
+              }
               try {
                 // run this callback once we have the previous value
                 resolve(runCallback(result, callback));
@@ -198,9 +235,10 @@ export const runCallbacks = function (this: any, options: {
 // refactor-able.
 export const runCallbacksList = function (this: any, options: {
   iterator?: any,
-  properties?: any,
+  properties?: any, // Properties here, from Forms, seems to be a mess
   callbacks: any,
 }) {
+  const logger = loggerConstructor(`callbacks-form`)
   const item = options.iterator;
   const args = options.properties;
   const ignoreExceptions = true;
@@ -211,7 +249,7 @@ export const runCallbacksList = function (this: any, options: {
   
   if (typeof callbacks !== 'undefined' && !!callbacks.length) {
 
-    const runCallback = (accumulator, callback) => {
+    const runCallback = (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo) => {
       logger(`running callback ${callback.name}`)
       try {
         const result = callback.apply(this, [accumulator].concat(args));
@@ -237,7 +275,7 @@ export const runCallbacksList = function (this: any, options: {
     };
 
     logger("Running callbacks list")
-    return callbacks.reduce(function (accumulator, callback, index) {
+    return callbacks.reduce(function (accumulator: AnyBecauseTodo, callback: AnyBecauseTodo, index: AnyBecauseTodo) {
       if (isPromise(accumulator)) {
         if (!asyncContext) {
           asyncContext = true;
@@ -270,7 +308,12 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync = function (options: {name: string, properties: Array<any>}) {
+export const runCallbacksAsync = function <T extends DbObject> (options: {
+  name: string,
+  // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
+  properties: [CallbackPropertiesBase<T>]|any[]
+}) {
+  const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = formatHookName(options.name);
   const args = options.properties;
 
@@ -282,8 +325,8 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
     // use defer to avoid holding up client
     setTimeout(function () {
       // run all post submit server callbacks on post object successively
-      callbacks.forEach(function (this: any, callback) {
-        logger(`\x1b[32m>> Running async callback [${callback.name}] on hook [${hook}]\x1b[0m`);
+      callbacks.forEach(function (this: any, callback: AnyBecauseTodo) {
+        logger(`\x1b[32m[${hook}]: [${callback.name || 'noname callback'}]\x1b[0m`);
         
         let pendingAsyncCallback = markCallbackStarted(hook);
         try {
@@ -315,30 +358,31 @@ export const runCallbacksAsync = function (options: {name: string, properties: A
   }
 };
 
-
-// For unit tests. Wait (in 20ms incremements) until there are no callbacks
-// in progress. Many database operations trigger asynchronous callbacks to do
-// things like generate notifications and add to search indexes; if you have a
-// unit test that depends on the results of these async callbacks, writing them
-// the naive way would create a race condition. But if you insert an
-// `await waitUntilCallbacksFinished()`, it will wait for all the background
-// processing to finish before proceeding with the rest of the test.
-//
-// This is NOT suitable for production (non-unit-test) use, because if other
-// threads/fibers are doing things which trigger callbacks, it could wait for
-// a long time. It DOES wait for callbacks that were triggered after
-// `waitUntilCallbacksFinished` was called, and that were triggered from
-// unrelated contexts.
-//
-// What this tracks specifically is that all callbacks which were registered
-// with `addCallback` and run with `runCallbacksAsync` have returned. Note that
-// it is possible for a callback to bypass this, by calling a function that
-// should have been await'ed without the await, effectively spawning a new
-// thread which isn't tracked.
+/**
+ * For unit tests. Wait (in 20ms incremements) until there are no callbacks
+ * in progress. Many database operations trigger asynchronous callbacks to do
+ * things like generate notifications and add to search indexes; if you have a
+ * unit test that depends on the results of these async callbacks, writing them
+ * the naive way would create a race condition. But if you insert an
+ * `await waitUntilCallbacksFinished()`, it will wait for all the background
+ * processing to finish before proceeding with the rest of the test.
+ *
+ * This is NOT suitable for production (non-unit-test) use, because if other
+ * threads/fibers are doing things which trigger callbacks, it could wait for
+ * a long time. It DOES wait for callbacks that were triggered after
+ * `waitUntilCallbacksFinished` was called, and that were triggered from
+ * unrelated contexts.
+ *
+ * What this tracks specifically is that all callbacks which were registered
+ * with `addCallback` and run with `runCallbacksAsync` have returned. Note that
+ * it is possible for a callback to bypass this, by calling a function that
+ * should have been await'ed without the await, effectively spawning a new
+ * thread which isn't tracked.
+ */
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyQueryPending()) {
+      if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();
@@ -351,7 +395,7 @@ export const waitUntilCallbacksFinished = () => {
 
 // Dictionary of all outstanding callbacks (key is an ID, value is `true`). If
 // there are no outstanding callbacks, this should be an empty dictionary.
-let pendingCallbackKeys = {};
+let pendingCallbackKeys: Partial<Record<string,true>> = {};
 
 let pendingCallbackDescriptions: Record<string,number> = {};
 
@@ -415,3 +459,5 @@ export function printInProgressCallbacks() {
   // eslint-disable-next-line no-console
   console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!=1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
+
+export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");

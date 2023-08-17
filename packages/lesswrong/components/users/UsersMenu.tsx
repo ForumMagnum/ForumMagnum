@@ -1,57 +1,63 @@
+import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
-import Divider from '@material-ui/core/Divider';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import SettingsButton from '@material-ui/icons/Settings';
-import EmailIcon from '@material-ui/icons/Email';
-import NotesIcon from '@material-ui/icons/Notes';
-import PersonIcon from '@material-ui/icons/Person';
-import BookmarksIcon from '@material-ui/icons/Bookmarks';
 import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
-import EditIcon from '@material-ui/icons/Edit'
-import ExtensionIcon from '@material-ui/icons/Extension';
+import EyeIconCrossed from '@material-ui/icons/VisibilityOff';
+import EyeIcon from '@material-ui/icons/Visibility';
 
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
+import postSchema from '../../lib/collections/posts/schema';
+import { DisableNoKibitzContext } from './UsersNameDisplay';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { useAdminToggle } from '../admin/useAdminToggle';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: 5,
+    marginTop: isEAForum ? undefined : 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingLeft: isEAForum ? 12 : theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
+    borderRadius: isEAForum ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: 400,
+    fontWeight: isEAForum ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
+  },
+  userImageButton: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 4
+  },
+  arrowIcon: {
+    color: theme.palette.grey[600],
+    fontSize: 18
   },
   notAMember: {
     marginLeft: 5,
     opacity: 0.9
   },
   icon: {
-    color: theme.palette.grey[500]
+    color: isEAForum ? undefined : theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -59,7 +65,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   deactivated: {
     color: theme.palette.grey[600],
     marginLeft: 20
-  }
+  },
+  adminToggleItem: isEAForum ? {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  } : {}
 })
 
 const UsersMenu = ({classes}: {
@@ -68,14 +80,15 @@ const UsersMenu = ({classes}: {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   const {openDialog} = useDialog();
-  const { LWPopper, LWTooltip, ThemePickerMenu } = Components
+  const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
+  const {toggleOn, toggleOff} = useAdminToggle();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          LOG OUT
+          {isEAForum ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
@@ -83,129 +96,219 @@ const UsersMenu = ({classes}: {
 
   const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
   
+  const {
+    LWPopper, LWTooltip, ThemePickerMenu, DropdownMenu, DropdownItem, DropdownDivider, UsersProfileImage, ForumIcon
+  } = Components
+  
+  // By default, we show the user's display name as the menu button.
+  let userButtonNode = <span className={classes.userButtonContents}>
+    {userGetDisplayName(currentUser)}
+    {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
+      <div>Your account has been deactivated:</div>
+      <ul>
+        <li>Your username appears as '[Anonymous]' on comments/posts</li>
+        <li>Your profile page is not accessible</li>
+      </ul>
+    </div>}>
+      <span className={classes.deactivated}>[Deactivated]</span>
+    </LWTooltip>}
+    {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+  </span>
+  // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
+  if (isEAForum && !currentUser.deleted) {
+    userButtonNode = <div className={classes.userImageButton}>
+      <UsersProfileImage user={currentUser} size={32} />
+      <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
+    </div>
+  }
+  
+  const buttonNode = <Button classes={{root: classes.userButtonRoot}}>
+    {userButtonNode}
+  </Button>
+  
+  const accountSettingsNode = <DropdownItem
+    title={preferredHeadingCase("Account Settings")}
+    to="/account"
+    icon="Settings"
+    iconClassName={classes.icon}
+  />
+  const messagesNode = <DropdownItem
+    title={preferredHeadingCase("Private Messages")}
+    to="/inbox"
+    icon="Email"
+    iconClassName={classes.icon}
+  />
+
   return (
-      <div className={classes.root} {...eventHandlers}>
-        <Link to={`/users/${currentUser.slug}`}>
-          <Button classes={{root: classes.userButtonRoot}}>
-            <span className={classes.userButtonContents}>
-              {userGetDisplayName(currentUser)}
-              {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
-                <div>Your account has been deactivated:</div>
-                <ul>
-                  <li>Your username appears as '[Anonymous]' on comments/posts</li>
-                  <li>Your profile page is not accessible</li>
-                </ul>
-              </div>}>
-                <span className={classes.deactivated}>[Deactivated]</span>
-              </LWTooltip>}
-              {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
-            </span>
-          </Button>
-        </Link>
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          placement="bottom-start"
-        >
-          <Paper>
+    <div className={classes.root} {...eventHandlers}>
+      {isEAForum ? buttonNode : <Link to={`/users/${currentUser.slug}`}>
+        {buttonNode}
+      </Link>}
+      <LWPopper
+        open={hover}
+        anchorEl={anchorEl}
+        placement="bottom-start"
+      >
+        <Paper>
+          <DropdownMenu>
             <div onClick={(ev) => {
               if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
                 ev.preventDefault()
               }
             }}>
-             {userCanPost(currentUser) && <MenuItem onClick={()=>openDialog({componentName:"NewQuestionDialog"})}>
-                New Question
-              </MenuItem>}
-              {userCanPost(currentUser) && <Link to={`/newPost`}>
-                <MenuItem>New Post</MenuItem>
-              </Link>}
+              {userCanPost(currentUser) &&
+                <DropdownItem
+                  title={preferredHeadingCase("New Question")}
+                  to="/newPost?question=true"
+                />
+              }
+              {userCanPost(currentUser) &&
+                <DropdownItem
+                  title={preferredHeadingCase("New Post")}
+                  to="/newPost"
+                />
+              }
+              {userCanPost(currentUser) &&
+                  !isEAForum &&
+                  userCanCreateField(currentUser, postSchema['debate']) &&
+                <DropdownItem
+                  title={preferredHeadingCase("New Dialogue")}
+                  to="/newpost?debate=true"
+                />
+              }
             </div>
-            {showNewButtons && !currentUser.allCommentingDisabled && <MenuItem onClick={()=>openDialog({componentName:"NewShortformDialog"})}>
-               New Shortform
-            </MenuItem> }
-            {showNewButtons && <Divider/>}
-            {showNewButtons && userCanPost(currentUser) && 
-              <Link to={`/newPost?eventForm=true`}>
-                <MenuItem>New Event</MenuItem>
-              </Link>
+            {/*
+              * This is currently disabled for unreviewed users on the EA forum
+              * as there's issues with the new quick takes entry for such users.
+              * Long-term, we should fix these issues and reenable this option.
+              */}
+            {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
+              <DropdownItem
+                title={isEAForum ? "New quick take" : "New Shortform"}
+                onClick={() => openDialog({componentName:"NewShortformDialog"})}
+              />
             }
-            {(showNewButtons && currentUser.karma >= 1000) &&
-              <Link to={`/sequencesnew`}>
-                <MenuItem>New Sequence</MenuItem>
-              </Link>
+            {showNewButtons && <DropdownDivider />}
+            {showNewButtons && userCanPost(currentUser) &&
+              <DropdownItem
+                title={preferredHeadingCase("New Event")}
+                to="/newPost?eventForm=true"
+              />
             }
-            <Divider/>
-            { forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <MenuItem onClick={() => openDialog({componentName: "AFApplicationForm"})}>
-              Apply for Membership
-            </MenuItem> }
-            {!isEAForum && <Link to={'/drafts'}>
-              <MenuItem>
-                <ListItemIcon>
-                  <EditIcon className={classes.icon}/>
-                </ListItemIcon>
-                My Drafts
-              </MenuItem>
-            </Link>}
-            {!currentUser.deleted && <Link to={`/users/${currentUser.slug}`}>
-              <MenuItem>
-                <ListItemIcon>
-                  <PersonIcon className={classes.icon}/>
-                </ListItemIcon>
-                User Profile
-              </MenuItem>
-            </Link>}
-            {userHasThemePicker(currentUser) && <ThemePickerMenu>
-              <MenuItem>
-                <ListItemIcon>
-                  <ExtensionIcon className={classes.icon}/>
-                </ListItemIcon>
-                  Theme
-              </MenuItem>
-            </ThemePickerMenu>}
-            <Link to={`/account`}>
-              <MenuItem>
-                <ListItemIcon>
-                  <SettingsButton className={classes.icon}/>
-                </ListItemIcon>
-                Account Settings
-              </MenuItem>
-            </Link>
-            <Link to={`/inbox`}>
-              <MenuItem>
-                <ListItemIcon>
-                  <EmailIcon className={classes.icon}/>
-                </ListItemIcon>
-                Private Messages
-              </MenuItem>
-            </Link>
-            {(currentUser.bookmarkedPostsMetadata?.length > 0) && <Link to={`/bookmarks`}>
-              <MenuItem>
-                <ListItemIcon>
-                  <BookmarksIcon className={classes.icon}/>
-                </ListItemIcon>
-                Bookmarks
-              </MenuItem>
-            </Link>}
+            {showNewButtons && currentUser.karma >= 1000 &&
+              <DropdownItem
+                title={preferredHeadingCase("New Sequence")}
+                to="/sequencesnew"
+              />
+            }
+
+            <DropdownDivider />
+
+            {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember &&
+              <DropdownItem
+                title={preferredHeadingCase("Apply for Membership")}
+                onClick={() => openDialog({componentName: "AFApplicationForm"})}
+              />
+            }
+            {currentUser.noKibitz &&
+              <DropdownItem
+                title={preferredHeadingCase(
+                  disableNoKibitz
+                    ? "Hide Names"
+                    : "Reveal Names"
+                )}
+                onClick={() => setDisableNoKibitz(!disableNoKibitz)}
+                icon={() => disableNoKibitz
+                  ? <EyeIcon className={classes.icon} />
+                  : <EyeIconCrossed className={classes.icon} />
+                }
+              />
+            }
+            {!isEAForum &&
+              <DropdownItem
+                title={preferredHeadingCase("My Drafts")}
+                to="/drafts"
+                icon="Edit"
+                iconClassName={classes.icon}
+              />
+            }
+            {!currentUser.deleted &&
+              <DropdownItem
+                title={preferredHeadingCase("User Profile")}
+                to={`/users/${currentUser.slug}`}
+                icon="User"
+                iconClassName={classes.icon}
+              />
+            }
+            {userHasThemePicker(currentUser) &&
+              <ThemePickerMenu>
+                <DropdownItem
+                  title="Theme"
+                  onClick={() => {}}
+                  icon="Puzzle"
+                  iconClassName={classes.icon}
+                />
+              </ThemePickerMenu>
+            }
+            {/* TODO un-admin gate when ready for production use */}
+            {isEAForum && userIsAdminOrMod(currentUser) && <DropdownItem
+              title={"Post stats"}
+              to={`/users/${currentUser.slug}/stats`}
+              icon="BarChart"
+              iconClassName={classes.icon}
+            />}
+            {!isEAForum && accountSettingsNode}
+            {!isEAForum && messagesNode}
+            <DropdownItem
+              title={isEAForum ? "Saved & read" : "Bookmarks"}
+              to={isEAForum ? "/saved" : "/bookmarks"}
+              icon="Bookmarks"
+              iconClassName={classes.icon}
+            />
             {currentUser.shortformFeedId &&
-              <Link to={postGetPageUrl({_id:currentUser.shortformFeedId, slug: "shortform"})}>
-                <MenuItem>
-                  <ListItemIcon>
-                    <NotesIcon className={classes.icon} />
-                  </ListItemIcon>
-                  Shortform Page
-                </MenuItem>
-              </Link>
+              <DropdownItem
+                title={isEAForum ? "Your quick takes" : "Shortform Page"}
+                to={postGetPageUrl({
+                  _id: currentUser.shortformFeedId,
+                  slug: "shortform",
+                })}
+                icon={isEAForum ? "CommentFilled" : "Shortform"}
+                iconClassName={classes.icon}
+              />
             }
-            <Divider/>
-            <MenuItem component="a" href="/logout">
-              Log Out
-            </MenuItem>
-          </Paper>
-        </LWPopper>
+            {isEAForum && messagesNode}
+            {isEAForum && accountSettingsNode}
+
+            {/*
+              If you're an admin, you can disable your admin + moderator
+              powers and take them back.
+            */}
+            {currentUser.isAdmin && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Disable Admin Powers")}
+                onClick={toggleOff}
+              />
+            </div>}
+            {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
+              <DropdownItem
+                title={preferredHeadingCase("Re-enable Admin Powers")}
+                onClick={toggleOn}
+              />
+            </div>}
+
+            <DropdownDivider />
+            
+            <DropdownItem
+              title={preferredHeadingCase("Log Out")}
+              to="/logout"
+              rawLink
+            />
+          </DropdownMenu>
+        </Paper>
+      </LWPopper>
     </div>
-  )
+  );
 }
 
 const UsersMenuComponent = registerComponent('UsersMenu', UsersMenu, {styles});

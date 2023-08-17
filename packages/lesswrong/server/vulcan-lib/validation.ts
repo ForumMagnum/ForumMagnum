@@ -4,6 +4,11 @@ import { userCanCreateField, userCanUpdateField } from '../../lib/vulcan-users/p
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
+interface SimpleSchemaValidationError {
+  type: string;
+  [key: string]: number | string;
+}
+
 export const dataToModifier = <T extends DbObject>(data: Partial<DbInsertion<T>>): MongoModifier<DbInsertion<T>> => ({ 
   $set: pickBy(data, f => f !== null), 
   $unset: mapValues(pickBy(data, f => f === null), () => true),
@@ -22,7 +27,7 @@ export const modifierToData = <T extends DbObject>(modifier: MongoModifier<T>): 
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = (document, collection, context: ResolverContext) => {
+export const validateDocument = <T extends DbObject>(document: Partial<DbInsertion<T>>, collection: CollectionBase<T>, context: ResolverContext) => {
   const { currentUser } = context;
   const schema = getSchema(collection);
 
@@ -47,7 +52,7 @@ export const validateDocument = (document, collection, context: ResolverContext)
 
   if (!validationContext.isValid()) {
     const errors = validationContext.validationErrors();
-    errors.forEach(error => {
+    errors.forEach((error: SimpleSchemaValidationError) => {
       // eslint-disable-next-line no-console
       // console.log(error);
       if (error.type.includes('intlError')) {
@@ -105,7 +110,7 @@ export const validateModifier = <T extends DbObject>(modifier: MongoModifier<DbI
 
   if (!validationContext.isValid()) {
     const errors = validationContext.validationErrors();
-    errors.forEach(error => {
+    errors.forEach((error: SimpleSchemaValidationError) => {
       // eslint-disable-next-line no-console
       // console.log(error);
       if (error.type.includes('intlError')) {

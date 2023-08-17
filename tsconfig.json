@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
     "lib": ["es2019", "dom"],
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
     "jsx": "react",
     "esModuleInterop": true,
     "rootDir": ".",
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "sourceMap": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "strictBindCallApply": true
+    "strictBindCallApply": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "packages/lesswrong",
@@ -24,5 +25,8 @@
   "exclude": [
     "node_modules",
     "build"
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }

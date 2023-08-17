@@ -1,39 +1,115 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
+import type {
+  CommentCancelCallback,
+  CommentSuccessCallback,
+} from '../comments/CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 12,
-    paddingRight: 12,
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
     borderRadius: 3,
     marginBottom: 32,
-  }
-})
+  },
+  close: {
+    position: "absolute",
+    right: 20,
+    cursor: "pointer",
+    "& svg": {
+      color: theme.palette.grey[600],
+      width: 20,
+    },
+  },
+  newQuickTake: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 700,
+    fontSize: 20,
+    color: theme.palette.grey[1000],
+    margin: 20,
+  },
+  quickTakesRoot: {
+    background: "transparent",
+    padding: 0,
+    border: "none",
+  },
+  quickTakesEditor: {
+    background: "transparent",
+    padding: "10px 20px",
+  },
+  quickTakesTags: {
+    padding: "0 20px",
+  },
+  quickTakesButton: {
+    marginTop: 20,
+    padding: 20,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
+  },
+});
 
 const forumHintText: ForumOptions<string> = {
-  LessWrong: "Write your thoughts here! What have you been thinking about\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
+  LessWrong: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
   AlignmentForum: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
-  EAForum: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform.",
+  EAForum: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome in quick takes.",
   default: "Write your brief or quickly written post here.\nExploratory, draft-stage, rough, and off-the-cuff thoughts are all welcome on Shortform."
 }
 
-const ShortformSubmitForm = ({ successCallback, classes }: {
-  successCallback?: any,
+const ShortformSubmitForm = ({
+  successCallback,
+  cancelCallback,
+  prefilledProps,
+  noDefaultStyles,
+  className,
+  classes,
+}: {
+  successCallback?: CommentSuccessCallback,
+  cancelCallback?: CommentCancelCallback,
+  prefilledProps?: any,
+  noDefaultStyles?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
-  const { CommentsNewForm } = Components;
+  const currentUser = useCurrentUser();
+  const {CommentsNewForm, QuickTakesEntry, ForumIcon} = Components;
+
+  if (isEAForum) {
+    return (
+      <div className={className}>
+        <div className={classes.close} onClick={cancelCallback}>
+          <ForumIcon icon="Close" />
+        </div>
+        <div className={classes.newQuickTake}>New Quick take</div>
+        <QuickTakesEntry
+          currentUser={currentUser}
+          className={classes.quickTakesRoot}
+          editorClassName={classes.quickTakesEditor}
+          tagsClassName={classes.quickTakesTags}
+          buttonClassName={classes.quickTakesButton}
+          successCallback={successCallback}
+          cancelCallback={cancelCallback}
+          defaultExpanded
+          defaultFocus
+          submitButtonAtBottom
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>
       <CommentsNewForm
         prefilledProps={{
-          shortform: true, 
+          ...prefilledProps,
+          shortform: true,
         }}
         successCallback={successCallback}
-        type="comment"
+        cancelCallback={cancelCallback}
+        // Put in "reply" to make the cancel button appear
+        type={cancelCallback ? "reply" : "comment"}
         formProps={{
           editorHintText: forumSelect(forumHintText)
         }}
@@ -49,4 +125,3 @@ declare global {
     ShortformSubmitForm: typeof ShortformSubmitFormComponent
   }
 }
-

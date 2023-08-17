@@ -15,7 +15,7 @@ export function createVoteableUnionType() {
 
 const resolverMap = {
   Voteable: {
-    __resolveType(obj, context, info){
+    __resolveType(obj: AnyBecauseTodo, context: AnyBecauseTodo, info: AnyBecauseTodo) {
       return obj.__typename;
     },
   },
@@ -49,6 +49,7 @@ const voteResolver = {
       const document = await performVoteServer({
         documentId, voteType: voteType||"neutral", collection, user: currentUser,
         toggleIfAlreadyVoted: true,
+        skipRateLimits: false,
       });
       return document;
     },
@@ -59,36 +60,67 @@ const voteResolver = {
 addGraphQLResolvers(voteResolver);
 
 function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
+  // Add two mutations for voting on a given collection. `setVotePost` returns
+  // a post with its scores/vote counts modified, and is provided for backwards
+  // compatibility. `performVotePost` returns an object that looks like
+  //   {
+  //     updatedDocument: Post
+  //     votingPatternsWarning: Bool!
+  //   }
   const typeName = collection.options.typeName;
-  const mutationName = `setVote${typeName}`;
+  const backCompatMutationName = `setVote${typeName}`;
+  const mutationName = `performVote${typeName}`;
   
-  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, extendedVote: JSON): ${typeName}`);
+  addGraphQLMutation(`${backCompatMutationName}(documentId: String, voteType: String, extendedVote: JSON): ${typeName}`);
+  addGraphQLMutation(`${mutationName}(documentId: String, voteType: String, extendedVote: JSON): VoteResult${typeName}`);
+  addGraphQLSchema(`
+    type VoteResult${typeName} {
+      document: ${typeName}!
+      showVotingPatternWarning: Boolean!
+      
+    }
+  `);
   
+  const performVoteMutation = async (args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+    const {documentId, voteType, extendedVote} = args;
+    const {currentUser} = context;
+    const document = await collection.findOne({_id: documentId});
+    
+    if (!currentUser) throw new Error("Error casting vote: Not logged in.");
+    if (!document) throw new Error("No such document ID");
+
+    const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
+    const permissionResult = userCanVoteOn &&
+      await userCanVoteOn(currentUser, document, voteType, extendedVote, context);
+    if (permissionResult && permissionResult.fail) {
+      throw new Error(permissionResult.reason);
+    }
+
+    if (!voteType && !extendedVote) {
+      const modifiedDocument = await clearVotesServer({document, user: currentUser, collection, context});
+      return { modifiedDocument, showVotingPatternWarning: false };
+    } else {
+      return await performVoteServer({
+        toggleIfAlreadyVoted: false,
+        document, voteType: voteType||"neutral", extendedVote, collection, user: currentUser,
+        skipRateLimits: false,
+        context,
+      });
+    }
+  }
   addGraphQLResolvers({
     Mutation: {
+      [backCompatMutationName]: async (root: void, args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
+        const {modifiedDocument, showVotingPatternWarning} = await performVoteMutation(args, context);
+        return modifiedDocument;
+      },
       [mutationName]: async (root: void, args: {documentId: string, voteType: string|null, extendedVote?: any}, context: ResolverContext) => {
-        const {documentId, voteType, extendedVote} = args;
-        const {currentUser} = context;
-        const document = await collection.findOne({_id: documentId});
-        
-        if (!currentUser) throw new Error("Error casting vote: Not logged in.");
-        if (!document) throw new Error("No such document ID");
-
-        const {userCanVoteOn} = VoteableCollectionOptions[collection.collectionName] ?? {};
-        if (userCanVoteOn && !(await userCanVoteOn(currentUser, document))) {
-          throw new Error("You do not have permission to vote on this");
+        const {modifiedDocument, showVotingPatternWarning} = await performVoteMutation(args, context);
+        return {
+          document: modifiedDocument,
+          showVotingPatternWarning,
         }
-
-        if (!voteType && !extendedVote) {
-          return await clearVotesServer({document, user: currentUser, collection, context});
-        } else {
-          return await performVoteServer({
-            toggleIfAlreadyVoted: false,
-            document, voteType: voteType||"neutral", extendedVote, collection, user: currentUser,
-            context,
-          });
-        }
-      }
+      },
     }
   });
 }

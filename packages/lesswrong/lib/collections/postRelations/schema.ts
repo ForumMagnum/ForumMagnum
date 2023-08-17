@@ -5,9 +5,9 @@ const schema: SchemaType<DbPostRelation> = {
     // "subQuestion"
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
   },
   sourcePostId: {
     ...foreignKeyField({
@@ -17,8 +17,8 @@ const schema: SchemaType<DbPostRelation> = {
       type: "Post",
       nullable: true
     }),
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
   },
   targetPostId: {
     ...foreignKeyField({
@@ -28,15 +28,15 @@ const schema: SchemaType<DbPostRelation> = {
       type: "Post",
       nullable: true
     }),
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
   },
   order: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   }
 };
 

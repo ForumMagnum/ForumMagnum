@@ -1,8 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery } from '../../lib/vulcan-lib/graphql';
-import fetch from 'node-fetch'
 import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
-import { mjPagePromise } from '../editor/make_editable_callbacks';
+import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/utils';
 
 const ArbitalPageData = `type ArbitalPageData {
@@ -37,7 +36,7 @@ const arbitalPageResolvers = {
     async ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext) {
       const rawRoomData:any = await getArbitalPageData(pageAlias)
       if (!rawRoomData) return null
-      let processedData;
+      let processedData: AnyBecauseTodo;
       try {
         processedData = JSON.parse(rawRoomData)
       } catch(e) {

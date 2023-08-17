@@ -22,15 +22,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
-  onSelect: Function,
+  onSelect: (newImageId: string) => void,
   onClose?: ()=>void,
   classes: ClassesType,
-  type?: string
+  type?: 'Event' | 'Profile'
 }) => {
 
-  const { LWDialog, CloudinaryImage } = Components
+  const { LWDialog, CloudinaryImage2 } = Components
   
-  const selectImg = (img) => {
+  const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)
       onClose();
@@ -128,10 +128,11 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
               }}
               tabIndex={0}
             >
-                <CloudinaryImage
+                <CloudinaryImage2
                   publicId={img}
                   width={240}
-                  height={135}
+                  height={125}
+                  imgProps={{q: '100'}}
                 />
             </div>
           })}

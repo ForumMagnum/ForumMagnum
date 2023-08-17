@@ -1,7 +1,7 @@
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import { Vulcan, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forEachDocumentBatchInCollection } from '../migrations/migrationUtils';
+import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import * as _ from 'underscore';
 
 // Check that the denormalized contents field of objects with make_editable match
@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 // some subset of content (eg particular types of important posts), they may
 // contain real unique content rather than just being denormalized copies.
 Vulcan.validateMakeEditableDenormalization = async () => {
-  function recordError(err) {
+  function recordError(err: string) {
     // eslint-disable-next-line no-console
     console.error("    "+err);
   }

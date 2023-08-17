@@ -1,10 +1,11 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import moment from "moment";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -19,6 +20,7 @@ declare global {
       afCommentCount?: number,
     },
     userId?: string,
+    userIds?: Array<string>,
     slug?: string,
     lng?: number
     lat?: number,
@@ -47,6 +49,9 @@ ensureIndex(Users, {isAdmin:1});
 ensureIndex(Users, {"services.github.id":1}, {unique:true,sparse:1});
 ensureIndex(Users, {createdAt:-1,_id:-1});
 
+// Used by UsersRepo.getUserByLoginToken
+ensureIndex(Users, {"services.resume.loginTokens": 1});
+
 // Case-insensitive email index
 ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
@@ -65,6 +70,12 @@ const termsToMongoSort = (terms: UsersViewTerms) => {
     v => isNumber(v) ? v : 1
   );
 }
+
+Users.addView('usersByUserIds', function(terms: UsersViewTerms) {
+  return {
+    selector: {_id: {$in:terms.userIds}}
+  }
+})
 
 Users.addView('usersProfile', function(terms: UsersViewTerms) {
   if (terms.userId) {
@@ -107,10 +118,13 @@ Users.addView('LWUsersAdmin', (terms: UsersViewTerms) => ({
 Users.addView("usersWithBannedUsers", function () {
   return {
     selector: {
-      bannedUserIds: {$exists: true}
+      $or: [{bannedPersonalUserIds: {$ne:null}}, {bannedUserIds: {$ne:null}}]
     },
   }
 })
+
+ensureIndex(Users, {bannedPersonalUserIds:1, createdAt:1});
+ensureIndex(Users, {bannedUserIds:1, createdAt:1});
 
 Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   return {
@@ -125,6 +139,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
         sunshineFlagged: -1,
         reviewedByUserId: 1,
         postCount: -1,
+        commentCount: -1,
         signUpReCaptchaRating: -1,
         createdAt: -1
       }
@@ -132,6 +147,23 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
   }
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
+
+Users.addView("recentlyActive", function (terms:UsersViewTerms) {
+  return {
+    selector: {
+      $or: [
+        {commentCount: {$gt: 0}},
+        {postCount: {$gt: 0}},
+      ]
+    },
+    options: {
+      sort: {
+        lastNotificationsCheck: -1,
+      }
+    }
+  }  
+})
+ensureIndex(Users, {banned: 1, postCount: 1, commentCount: -1, lastNotificationsCheck: -1})
 
 Users.addView("allUsers", function (terms: UsersViewTerms) {
   return {
@@ -166,6 +198,8 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
   return {
     selector: {
       profileTagIds: terms.profileTagId,
+      deleted: {$ne: true},
+      deleteContent: {$ne: true},
       ...bioSelector
     },
     options: {
@@ -175,7 +209,7 @@ Users.addView("tagCommunityMembers", function (terms: UsersViewTerms) {
     }
   }
 })
-ensureIndex(Users, {profileTagIds: 1})
+ensureIndex(Users, {profileTagIds: 1, deleted: 1, deleteContent: 1, karma: 1})
 
 Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
   return {
@@ -193,6 +227,8 @@ Users.addView("reviewAdminUsers", function (terms: UsersViewTerms) {
 Users.addView("usersWithPaymentInfo", function (terms: UsersViewTerms) {
   return {
     selector: {
+      banned: viewFieldNullOrMissing,
+      deleted: {$ne:true},
       $or: [{ paymentEmail: {$exists: true}}, {paymentInfo: {$exists: true}}],
     },
     options: {

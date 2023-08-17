@@ -2,18 +2,26 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
+import { isEAForum } from '../../lib/instanceSettings';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 
+const customStyles = (theme: ThemeType) => isEAForum
+  ? {}
+  : {
+    fontWeight: 300,
+    color: theme.palette.text.slightlyIntense2,
+  };
+
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
+    ...(isEAForum && {display: "flex"}),
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
+      ...customStyles(theme),
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -23,9 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&': {
       cursor: "pointer",
       width: START_TIME_WIDTH,
-      fontWeight: 300,
       fontSize: "1rem",
-      color: theme.palette.text.slightlyIntense2,
+      ...customStyles(theme),
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
@@ -33,14 +40,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipSmallText: {
     ...theme.typography.tinyText,
-    fontStyle: "italic"
-  }
+    ...theme.typography.italic,
+  },
+  xsHide: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
 });
 
-const PostsItemDate = ({post, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
   post: PostsBase,
+  noStyles?: boolean,
+  includeAgo?: boolean,
   classes: ClassesType,
 }) => {
+  if (noStyles) {
+    classes = {
+      tooltipSmallText: classes.tooltipSmallText,
+      xsHide: classes.xsHide,
+    };
+  }
+
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -71,6 +92,12 @@ const PostsItemDate = ({post, classes}: {
     </LWTooltip>
   }
 
+  const dateToDisplay = post.curatedDate || post.postedAt;
+  const timeFromNow = moment(new Date(dateToDisplay)).fromNow();
+  const ago = includeAgo && timeFromNow !== "now"
+    ? <span className={classes.xsHide}>&nbsp;ago</span>
+    : null;
+
   if (post.curatedDate) {
     return <LWTooltip
       placement="right"
@@ -80,7 +107,8 @@ const PostsItemDate = ({post, classes}: {
       </div>}
     >
       <PostsItem2MetaInfo className={classes.postedAt}>
-        {moment(new Date(post.curatedDate)).fromNow()}
+        {timeFromNow}
+        {ago}
       </PostsItem2MetaInfo>
     </LWTooltip>
   }
@@ -90,7 +118,8 @@ const PostsItemDate = ({post, classes}: {
     title={<ExpandedDate date={post.postedAt}/>}
   >
     <PostsItem2MetaInfo className={classes.postedAt}>
-      {moment(new Date(post.postedAt)).fromNow()}
+      {timeFromNow}
+      {ago}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }

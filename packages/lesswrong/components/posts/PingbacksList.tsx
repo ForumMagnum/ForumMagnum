@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,19 +17,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   loadMore: {
     ...theme.typography.commentStyle,
-    color: theme.palette.lwTertiary.main,
     display: "inline-block",
     lineHeight: "1rem",
-    marginBottom: -4
+    marginBottom: -4,
+    ...(isEAForum
+      ? {
+        fontWeight: 600,
+        marginTop: 12,
+        color: theme.palette.primary.main,
+        "&:hover": {
+          color: theme.palette.primary.dark,
+          opacity: 1,
+        },
+      }
+      : {
+        color: theme.palette.lwTertiary.main,
+      }),
   },
   list: {
     marginTop: theme.spacing.unit
   },
 });
 
-const PingbacksList = ({classes, postId}: {
+const PingbacksList = ({classes, postId, limit=5}: {
   classes: ClassesType,
   postId: string,
+  limit?: number
 }) => {
   const { results, loadMoreProps, loading } = useMulti({
     terms: {
@@ -37,12 +51,17 @@ const PingbacksList = ({classes, postId}: {
     },
     collectionName: "Posts",
     fragmentName: "PostsList",
-    limit: 5,
+    limit: limit,
     enableTotal: true,
   });
 
   const pingbackIds = (results||[]).map((pingback) => pingback._id)
-  useOnMountTracking({eventType: "pingbacksList", eventProps: {pingbackIds}, captureOnMount: eventProps => eventProps.pingbackIds.length, skip: !pingbackIds.length||loading})
+  useOnMountTracking({
+    eventType: "pingbacksList",
+    eventProps: {pingbackIds},
+    captureOnMount: (eventProps: { pingbackIds: string[] }) => eventProps.pingbackIds.length > 0,
+    skip: !pingbackIds.length||loading
+  })
 
   const { Pingback, LWTooltip, LoadMore, Loading } = Components
 
@@ -55,7 +74,7 @@ const PingbacksList = ({classes, postId}: {
           </LWTooltip>
         </div>
         <div className={classes.list}>
-          {results.map((post, i) =>
+          {results.map((post) =>
             <div key={post._id} >
               <Pingback post={post}/>
             </div>
@@ -76,4 +95,3 @@ declare global {
     PingbacksList: typeof PingbacksListComponent
   }
 }
-

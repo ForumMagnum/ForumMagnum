@@ -57,8 +57,8 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
       {showInitialSidebar && <div className={classes.background}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
-        <SunshineReportedContentList />
+        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
+        <SunshineReportedContentList currentUser={currentUser}/>
         <SunshineNewTagsList />
         
         {/* alignmentForumAdmins see AF content above the fold */}
@@ -105,7 +105,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} currentUser={currentUser} />
         </div>}
       </div>}
     </div>

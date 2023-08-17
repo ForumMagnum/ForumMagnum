@@ -15,17 +15,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     height:0
   },
   inline: {
-    display:"inline",
+    display: "inline",
+    cursor: "pointer",
   }
 })
 
-const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }, context) => {
+const FormComponentCheckbox = ({ classes, label, disabled=false, path, value }: FormComponentProps<boolean> & {
+  classes: ClassesType;
+}, context: FormComponentContext<boolean>) => {
   return <div className={classes.root}>
     <Checkbox
       className={classes.size}
       checked={value}
       onChange={(event, checked) => {
-        context.updateCurrentValues({
+        void context.updateCurrentValues({
           [path]: checked
         })
       }}

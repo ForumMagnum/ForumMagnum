@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
 
+type FromPartial<T> = T extends Partial<infer U> ? U : never;
+
+type CloseableComponents = {
+  [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['defaultProps']> extends { onClose: any } | undefined ? T : never
+}[keyof ComponentTypes];
+
 interface CommentBoxContextType {
-  openCommentBox: ({componentName, componentProps}: {componentName: string, componentProps: any})=>void,
+  openCommentBox: <T extends CloseableComponents>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>})=>void,
   close: ()=>void,
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
@@ -11,7 +17,7 @@ export const CommentBoxContext = React.createContext<CommentBoxContextType|null>
 export const CommentBoxManager = ({ children }: {
   children: React.ReactNode
 }) => {
-  const [ componentName, setComponentName] = useState<string|null>(null)
+  const [ componentName, setComponentName] = useState<CloseableComponents|null>(null)
   const [ componentProps, setComponentProps] = useState<Record<string,any>|null>(null)
 
   const CommentBoxComponent = componentName ? Components[componentName] : null;
@@ -30,9 +36,9 @@ export const CommentBoxManager = ({ children }: {
       close: close
     }}>
       {children}
-      {componentName &&
+      {CommentBoxComponent && componentName &&
         <CommentBoxComponent
-          {...componentProps}
+          {...componentProps as AnyBecauseHard}
           onClose={close}
         />
       }

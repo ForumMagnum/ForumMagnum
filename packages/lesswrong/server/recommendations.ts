@@ -2,22 +2,29 @@ import * as _ from 'underscore';
 import { Posts } from '../lib/collections/posts/collection';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { Collections } from '../lib/collections/collections/collection';
-import { ensureIndex } from '../lib/collectionUtils';
+import { ensureIndex } from '../lib/collectionIndexUtils';
 import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from './vulcan-lib';
 import { WeightedList } from './weightedList';
-import type { RecommendationsAlgorithm } from '../lib/collections/users/recommendationSettings';
-import { forumTypeSetting } from '../lib/instanceSettings';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+import {
+  DefaultRecommendationsAlgorithm,
+  RecommendationsAlgorithm,
+  recommendationsAlgorithmHasStrategy,
+} from '../lib/collections/users/recommendationSettings';
+import { isEAForum } from '../lib/instanceSettings';
+import SelectQuery from "../lib/sql/SelectQuery";
+import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
+import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
+import RecommendationService from './recommendations/RecommendationService';
 
 const MINIMUM_BASE_SCORE = 50
 
 // The set of fields on Posts which are used for deciding which posts to
 // recommend. Fields other than these will be projected out before downloading
 // from the database.
-const scoreRelevantFields = {baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
+const scoreRelevantFields = {_id:1, baseScore:1, curatedDate:1, frontpageDate:1, defaultRecommendation: 1};
 
 
 // Returns part of a mongodb aggregate pipeline, which will join against the
@@ -66,18 +73,19 @@ const pipelineFilterUnread = ({currentUser}: {
 // to define a table of possible exclusion criteria and you can
 // deterministically combine them without writing out each individual case
 // combinatorially. . ... Yeah .... Sometimes life is hard.
-const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
+const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   if (algorithm.coronavirus) {
     return {
       ["tagRelevance.tNsqhzTibgGJKPEWB"]: {$gte: 1},
       question: true
     }
   }
+  // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
     if (isEAForum) {
       return {
         postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: 1}, // EA-forum look here
+        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
       }
     }
     return {
@@ -85,7 +93,7 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
         $lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)
       },
-      positiveReviewVoteCount: {$gte: 1},
+      positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()},
     }
   }
   if (algorithm.lwRationalityOnly) {
@@ -128,11 +136,11 @@ const getInclusionSelector = (algorithm: RecommendationsAlgorithm) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
-  const recommendationFilter = {
+const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => {
+  let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...Posts.getParameters({}).selector,
+    ...getDefaultViewSelector("Posts"),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -144,7 +152,17 @@ const recommendablePostFilter = (algorithm: RecommendationsAlgorithm) => {
     // Enforce the disableRecommendation flag
     disableRecommendation: {$ne: true},
   }
-  
+
+  if (isEAForum) {
+    recommendationFilter = {$and: [
+      recommendationFilter,
+      {$or: [
+        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$exists: false}},
+        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$lt: 1}},
+      ]},
+    ]};
+  }
+
   if (algorithm.excludeDefaultRecommendations) {
     return recommendationFilter
   } else {
@@ -160,20 +178,40 @@ ensureIndex(Posts, {defaultRecommendation: 1})
 // already read are filtered out.
 const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  return await Posts.aggregate([
-    // Filter to recommendable posts
-    { $match: {
-      ...recommendablePostFilter(algorithm),
-    } },
+  if (Posts.isPostgres()) {
+    const joinHook = algorithm.onlyUnread && currentUser
+      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
+      : undefined;
+    const query = new SelectQuery(
+      new SelectQuery(
+        new SelectQuery(
+          Posts.getTable(),
+          {},
+          {},
+          {joinHook},
+        ),
+        recommendablePostFilter(algorithm),
+      ),
+      {},
+      {projection: scoreRelevantFields},
+    );
+    return Posts.executeReadQuery(query) as Promise<DbPost[]>;
+  } else {
+    return await Posts.aggregate([
+      // Filter to recommendable posts
+      { $match: {
+        ...recommendablePostFilter(algorithm),
+      } },
 
-    // If onlyUnread, filter to just unread posts
-    ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
+      // If onlyUnread, filter to just unread posts
+      ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
 
-    // Project out fields other than _id and scoreRelevantFields
-    { $project: {_id:1, ...scoreRelevantFields} },
-  ]).toArray();
+      // Project out fields other than _id and scoreRelevantFields
+      { $project: scoreRelevantFields },
+    ]).toArray();
+  }
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.
@@ -188,7 +226,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
   count: number,
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   scoreFn: (post: DbPost)=>number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
@@ -222,7 +260,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
 const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   count: number,
   currentUser: DbUser|null,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   sampleWeightFn: (post: DbPost)=>number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
@@ -251,7 +289,7 @@ const getModifierName = (post: DbPost) => {
 
 const getRecommendedPosts = async ({count, algorithm, currentUser}: {
   count: number,
-  algorithm: RecommendationsAlgorithm,
+  algorithm: DefaultRecommendationsAlgorithm,
   currentUser: DbUser|null
 }) => {
   const scoreFn = (post: DbPost) => {
@@ -343,7 +381,19 @@ addGraphQLResolvers({
     },
 
     async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
-      const { currentUser } = context;
+      const { currentUser, clientId } = context;
+
+      if (recommendationsAlgorithmHasStrategy(algorithm)) {
+        const service = new RecommendationService();
+        return service.recommend(
+          currentUser,
+          clientId,
+          count,
+          algorithm.strategy,
+          algorithm.disableFallbacks,
+        );
+      }
+
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
       const accessFilteredPosts = await accessFilterMultiple(currentUser, Posts, recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {

@@ -2,11 +2,42 @@
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
+import type { UnionOf } from '../lib/utils/typeGuardUtils';
+import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
   type ColorString = string;
-  
+
+  /**
+   * UserThemeName represents a concrete theme name that can be directly mapped
+   * to a stylesheet (eg; "default", "dark")
+   */
+  type UserThemeName = UnionOf<typeof userThemeNames>;
+
+  /**
+   * UserThemeSetting is a strict superset of UserThemeName which also includes
+   * "abstract" themes which require some logic to be mapped to a stylesheet
+   * (eg; "auto")
+   */
+  type UserThemeSetting = UnionOf<typeof userThemeSettings>;
+
+  /**
+   * MuiThemeName includes all theme names that can be directly passed to
+   * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
+   * UserThemeName.
+   */
+  type MuiThemeName = UnionOf<typeof muiThemeNames>;
+
+  /**
+   * Overridden forum type (for admins to quickly test AF and EA Forum themes).
+   * This is the form of a partial forum-type=>forum-type mapping, where keys
+   * are the actual forum you're visiting and values are the theme you want.
+   * (So if you override this on LW, then go to AF it isn't overridden there,
+   * and vise versa.)
+   */
+  type SiteThemeOverride = Partial<Record<ForumTypeString, ForumTypeString>>;
+
   type ThemeGreyscale = MuiColorShades & {
     0: ColorString,
     1000: ColorString,
@@ -15,7 +46,6 @@ declare global {
     20: ColorString,
     25: ColorString,
     30: ColorString,
-    40: ColorString,
     55: ColorString,
     60: ColorString,
     110: ColorString,
@@ -26,16 +56,19 @@ declare global {
     315: ColorString,
     320: ColorString,
     340: ColorString,
+    405: ColorString,
     410: ColorString,
     550: ColorString,
     620: ColorString,
     650: ColorString,
     680: ColorString,
+    710: ColorString,
   }
   type ThemeShadePalette = {
-    grey: MuiColorShades,
+    grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
+    primaryAlpha: (alpha: number) => ColorString,
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     
@@ -46,7 +79,7 @@ declare global {
     
     // Used by material-UI for picking some of its own colors, and also by site
     // themes
-    type: "light"|"dark",
+    type: MuiThemeName,
   }
   type ThemeComponentPalette = {
     primary: {
@@ -71,10 +104,12 @@ declare global {
       dark: ColorString
       contrastText: ColorString, //UNUSED
     },
+    warning: {
+      main: ColorString,
+    }
     text: {
       primary: ColorString,
       secondary: ColorString
-      
       normal: ColorString,
       maxIntensity: ColorString,
       slightlyIntense: ColorString,
@@ -96,6 +131,7 @@ declare global {
       notificationLabel: ColorString,
       eventType: ColorString,
       tooltipText: ColorString,
+      tooltipTextDim: ColorString,
       negativeKarmaRed: ColorString,
       moderationGuidelinesEasygoing: ColorString,
       moderationGuidelinesNormEnforcing: ColorString,
@@ -106,12 +142,16 @@ declare global {
       invertedBackgroundText2: ColorString,
       invertedBackgroundText3: ColorString,
       invertedBackgroundText4: ColorString,
+      primaryAlert: ColorString,
       error: ColorString,
       error2: ColorString,
+      warning: ColorString,
       red: ColorString,
       alwaysWhite: ColorString,
+      alwaysBlack: ColorString,
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
+      primaryDarkOnDim: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -134,6 +174,8 @@ declare global {
       grey800: ColorString,
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
+      primaryDim: ColorString,
+      visited: ColorString
     },
     icon: {
       normal: ColorString,
@@ -156,10 +198,13 @@ declare global {
       loadingDotsAlternate: ColorString,
       horizRuleDots: ColorString,
       greenCheckmark: ColorString,
+      filledGreenCheckmark: ColorString,
       onTooltip: ColorString,
       inverted: ColorString,
       topAuthor: ColorString,
       navigationSidebarIcon: ColorString,
+      sprout: ColorString,
+      yellow: ColorString,
       
       commentsBubble: {
         commentCount: ColorString,
@@ -194,6 +239,14 @@ declare global {
       primaryHighlight2: string,
       secondaryHighlight: string,
       secondaryHighlight2: string,
+      primaryTranslucent: string,
+      debateComment: string,
+      debateComment2: string,
+      debateComment3: string,
+      debateComment4: string,
+      debateComment5: string,
+      dashed500: string,
+      mentionsBaloon: string,
     },
     panelBackground: {
       default: ColorString,
@@ -231,6 +284,7 @@ declare global {
       notificationMenuTabBar: ColorString,
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
+      tooltipBackground2: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -244,7 +298,7 @@ declare global {
       singleLineCommentOddHovered: ColorString,
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
-      restoreSavedContentNotice: ColorString,
+      cookieBanner: ColorString,
     },
     boxShadow: {
       default: string,
@@ -264,11 +318,13 @@ declare global {
       sunshineSidebarHoverInfo: string,
       sunshineSendMessage: string,
       lwCard: string,
+      eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
+      alwaysPrimary: ColorString,
       startReadingButtonBackground: ColorString,
       recentDiscussionSubscribeButtonText: ColorString,
       featuredResourceCTAtext: ColorString,
@@ -290,16 +346,31 @@ declare global {
         background: ColorString,
         hoverBackground: ColorString,
       },
+      imageUpload2: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
       bookCheckoutButton: ColorString,
       eventCardTag: ColorString,
+      mentions: {
+        hover: ColorString,
+        selected: ColorString,
+        selectedHover: ColorString,
+      },
     },
     tag: {
-      background: ColorString,
-      border: string,
-      coreTagBorder: string,
       text: ColorString,
-      boxShadow: string,
+      background: ColorString,
+      backgroundHover?: ColorString,
+      border: string,
+      coreTagText: ColorString,
+      coreTagBackground: ColorString,
+      coreTagBackgroundHover?: ColorString,
+      coreTagBorder: string,
       hollowTagBackground: ColorString,
+      hollowTagBackgroundHover?: ColorString,
+      hollowTagBorder: string,
+      boxShadow: string,
       addTagButtonBackground: ColorString,
     },
     geosuggest: {
@@ -324,7 +395,11 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
-      primaryDim2: ColorString,
+      primaryTranslucent: ColorString,
+      primaryTranslucentHeavy: ColorString,
+      warningTranslucent: ColorString,
+      transparent: ColorString,
+      imageOverlay: ColorString,
     },
     header: {
       text: ColorString,
@@ -339,8 +414,25 @@ declare global {
       commentMarker: ColorString,
       commentMarkerActive: ColorString,
     },
+    blockquoteHighlight: {
+      commentHovered: ColorString,
+      individualQuoteHovered: ColorString,
+      
+      //CSS added to the <style> node of hovered blockquotes. Used for adding
+      //extra top/bottom padding to extend the highlighted region a few pixels,
+      //which is needed with EA Forum's font but not needed with LW's font.
+      addedBlockquoteHighlightStyles: string,
+    },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
+    },
+    embeddedPlayer: {
+      opacity: number,
+    },
+    dropdown: {
+      background: ColorString,
+      border: ColorString,
+      hoverBackground: ColorString,
     },
     group: ColorString,
     contrastText: ColorString,
@@ -357,6 +449,7 @@ declare global {
     forumType: ForumTypeString,
     
     breakpoints: {
+      /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
       down:  (breakpoint: BreakpointName|number)=>string,
       up: (breakpoint: BreakpointName|number)=>string,
       values: Record<BreakpointName,number>,
@@ -364,12 +457,21 @@ declare global {
     spacing: {
       unit: number,
       titleDividerSpacing: number,
+      mainLayoutPaddingTop: number,
+    },
+    borderRadius: {
+      default: number,
+      small: number,
     },
     palette: ThemePalette,
     typography: {
       fontFamily: string,
       fontDownloads: string[],
-      
+      cloudinaryFont: {
+        stack: string,
+        url: string,
+      },
+
       postStyle: JssStyles,
       commentStyle: JssStyles,
       commentStyles: JssStyles,
@@ -402,6 +504,8 @@ declare global {
       caption: JssStyles,
       blockquote: JssStyles,
       uiStyle: JssStyles,
+      italic: JssStyles,
+      smallCaps: JssStyles,
     },
     zIndexes: any,
     overrides: any,

@@ -25,24 +25,25 @@ import moment from 'moment';
 import fs from 'mz/fs';
 import Papa from 'papaparse';
 import path from 'path';
-import { Posts } from '../../lib/collections/posts';
+import { Posts } from '../../lib/collections/posts/collection';
+import { postStatuses } from '../../lib/collections/posts/constants';
 import Users from '../../lib/collections/users/collection';
 import Tags from '../../lib/collections/tags/collection';
 import { siteUrlSetting } from '../../lib/instanceSettings';
 import { Vulcan } from '../vulcan-lib';
 import { wrapVulcanAsyncScript } from './utils';
-import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../migrations/2020-05-13-noIndexLowKarma';
+import { makeLowKarmaSelector, LOW_KARMA_THRESHOLD } from '../manualMigrations/2020-05-13-noIndexLowKarma';
 
-function getPosts (selector: any) {
+function getPosts (selector: MongoSelector<DbPost>) {
   const defaultSelector = {
     baseScore: {$gte: 0},
     draft: {$ne: true},
-    status: { $in: [1, 2] },
+    status: { $in: [postStatuses.STATUS_PENDING, postStatuses.STATUS_APPROVED] },
     authorIsUnreviewed: false,
   }
 
-  const fields = {
-    id: 1,
+  const projection: MongoProjection<DbPost> = {
+    _id: 1,
     userId: 1,
     title: 1,
     slug: 1,
@@ -56,17 +57,19 @@ function getPosts (selector: any) {
     draft: 1,
     status: 1,
     tagRelevance: 1,
-  }
+  } as const;
 
   const finalSelector = Object.assign({}, defaultSelector, selector || {})
 
   return Posts
-    .find(finalSelector, {fields, sort: { createdAt: 1 }})
+    .find(finalSelector, {projection, sort: { createdAt: 1 }})
 }
 
 Vulcan.exportPostDetails = wrapVulcanAsyncScript(
   'exportPostDetails',
-  async ({selector, outputDir, outputFile = 'post_details.csv'}) => {
+  async ({selector, outputDir, outputFile = 'post_details.csv'}: {
+    selector: MongoSelector<DbPost>, outputDir: string, outputFile?: string
+  }) => {
     if (!outputDir) throw new Error('you must specify an output directory (hint: {outputDir})')
     const documents = getPosts(selector)
     let c = 0
@@ -81,7 +84,7 @@ Vulcan.exportPostDetails = wrapVulcanAsyncScript(
         const tagIds = (Object.entries(post.tagRelevance) as Array<[string, number]>)
           .filter(([_, relevanceScore]) => relevanceScore > 0)
           .map(([tagId]) => tagId)
-        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { fields: { name: 1 } }).fetch()
+        const tagsResult = await Tags.find({ _id: { $in: tagIds } }, { projection: { name: 1 } }).fetch()
         tags = tagsResult.map(({ name }) => name)
       }
       
@@ -122,7 +125,7 @@ Vulcan.exportLowKarma = (
   })
 }
 
-Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}) => {
+Vulcan.exportPostDetailsByMonth = ({month, outputDir, outputFile}: AnyBecauseTodo) => {
   const lastMonth = moment.utc(month, 'YYYY-MM').startOf('month')
   outputFile = outputFile || `post_details_${lastMonth.format('YYYY-MM')}`
   //eslint-disable-next-line no-console

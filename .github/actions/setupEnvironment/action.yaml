@@ -1,0 +1,53 @@
+name: 'Setup Environment'
+description: 'Setup the server environment for ForumMagnum'
+inputs:
+  node-version:
+    description: 'Which version of NodeJS to use'
+    required: false
+    default: 18
+  cypress-cache-folder:
+    description: 'The directory in which to cache the cypress binary'
+    required: false
+    default: .cypress/cache
+outputs:
+  cypress-cache-folder:
+    description: 'The directory in which the cypress binary will be cached'
+    value: ${{ steps.output-cypress-cache-folder.outputs.cypress-cache-folder }}
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js ${{ inputs.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Cache node modules
+      id: cache-node-modules
+      env:
+        CYPRESS_CACHE_FOLDER: ${{ inputs.cypress-cache-folder }}
+      uses: actions/cache@v3
+      with:
+        path: |
+          node_modules
+          ${{ inputs.cypress-cache-folder }}
+        key: forum-env-cache-${{ hashFiles('yarn.lock') }}
+
+    - name: Install dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        CYPRESS_CACHE_FOLDER: ${{ inputs.cypress-cache-folder }}
+      run: yarn install --frozen-lockfile
+
+    - name: Verify dependencies were installed
+      shell: bash
+      run: |
+        test -d node_modules
+        test -d ${{ inputs.cypress-cache-folder }}
+
+    - name: Output cypress cache folder
+      id: output-cypress-cache-folder
+      shell: bash
+      env:
+        CYPRESS_CACHE_FOLDER: ${{ inputs.cypress-cache-folder }}
+      run: echo "cypress-cache-folder=$(echo $CYPRESS_CACHE_FOLDER)" >> $GITHUB_OUTPUT

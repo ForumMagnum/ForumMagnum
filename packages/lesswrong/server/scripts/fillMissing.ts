@@ -1,6 +1,6 @@
 import { Vulcan, Collections } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
-import { migrateDocuments, registerMigration } from '../migrations/migrationUtils'
+import { migrateDocuments, registerMigration } from '../manualMigrations/migrationUtils'
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
 
@@ -65,7 +65,7 @@ Vulcan.checkForMissingValues = async () => {
   }
 }
 
-function countRowsNeedingAutofill(collection, fieldsWithAutofill: Array<string>)
+function countRowsNeedingAutofill<T extends DbObject>(collection: CollectionBase<T>, fieldsWithAutofill: Array<string>)
 {
   return collection.find({
     $or: _.map(fieldsWithAutofill, (fieldName: string) => ({[fieldName]: null}))

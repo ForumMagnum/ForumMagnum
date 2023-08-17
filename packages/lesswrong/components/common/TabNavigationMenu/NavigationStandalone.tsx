@@ -7,14 +7,14 @@ import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    width: TAB_NAVIGATION_MENU_WIDTH
-  },
   sidebar: {
-    paddingTop: 15,
+    width: TAB_NAVIGATION_MENU_WIDTH,
     [theme.breakpoints.down('md')]: {
       display: "none"
     },
+  },
+  navSidebarTransparent: {
+    zIndex: 10,
   },
   footerBar: {
     [theme.breakpoints.up('lg')]: {
@@ -35,14 +35,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NavigationStandalone = ({sidebarHidden, classes}) => {
+const NavigationStandalone = (
+  {sidebarHidden, unspacedGridLayout, className, classes}:
+  {sidebarHidden: boolean, unspacedGridLayout?: boolean, className: string, classes: ClassesType}
+) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
 
-  return <div className={classes.root}>
-    <div className={classNames(classes.sidebar, {[classes.background]: background})}>
+  return <>
+    <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
       <Slide
         direction='right'
         in={!sidebarHidden}
@@ -50,13 +53,14 @@ const NavigationStandalone = ({sidebarHidden, classes}) => {
         mountOnEnter
         unmountOnExit
       >
-        <TabNavigationMenu />
+        {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
+        <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
       </Slide>
     </div>
-    <div className={classes.footerBar}>
+    <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>
-  </div>
+  </>
 }
 
 const NavigationStandaloneComponent = registerComponent(

@@ -144,7 +144,12 @@ const Book2019FrontpageWidget = ({ classes }: {
     }
   }
 
-  const BookMarketingText = ({title, subtitle, description, buttons}) => {
+  const BookMarketingText = ({title, subtitle, description, buttons}: {
+    title: string;
+    subtitle: string;
+    description: string | JSX.Element;
+    buttons: JSX.Element;
+  }) => {
     return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
       <h1 className={classes.mainHeading}>
@@ -176,7 +181,7 @@ const Book2019FrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books/2019">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"} link={"https://www.amazon.com/Engines-Cognition-Essays-LessWrong-Community/dp/1736128515/"}/>
           </>}
         />
       }>
@@ -189,7 +194,7 @@ const Book2019FrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
               Learn More
             </Link>
-            <BookCheckout />
+            <BookCheckout link={"https://www.amazon.com/Engines-Cognition-Essays-LessWrong-Community/dp/1736128515/"}/>
           </>}
         />
       </Book2019Animation>

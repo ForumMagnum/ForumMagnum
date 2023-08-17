@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -7,16 +7,15 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import { Link } from '../../lib/reactRouterWrapper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Badge from '@material-ui/core/Badge';
-import StarIcon from '@material-ui/icons/Star';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
-import MenuItem from '@material-ui/core/MenuItem';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
-
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: theme.palette.header.text,
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
   },
   title: {
     display: 'block',
@@ -88,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const karmaNotificationTimingChoices = {
+export const karmaNotificationTimingChoices: AnyBecauseTodo = {
   disabled: {
     label: "Disabled",
     infoText: "Karma changes are disabled",
@@ -133,6 +132,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
   handleClose: (ev: React.MouseEvent)=>any,
 }) => {
   const { posts, comments, tagRevisions, updateFrequency } = karmaChanges
+  const { MenuItemLink, Typography } = Components;
   const currentUser = useCurrentUser();
   const noKarmaChanges = !(
     (posts && (posts.length > 0))
@@ -140,47 +140,48 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
     || (tagRevisions && (tagRevisions.length > 0))
   )
   
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
-  
   return (
-    <Components.Typography variant="body2">
+    <Typography variant="body2">
       {noKarmaChanges ?
         <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].emptyText }</span>
         :
         <div>
           <span className={classes.title}>{ karmaNotificationTimingChoices[updateFrequency].infoText }</span>
           <div className={classes.votedItems}>
-            {karmaChanges.posts && karmaChanges.posts.map(postChange => (
-              <MenuItemUntyped
+            {karmaChanges.posts && karmaChanges.posts.map((postChange: AnyBecauseTodo) => (
+              <MenuItemLink
                 className={classes.votedItemRow}
-                component={Link} to={postGetPageUrl(postChange)} key={postChange._id} >
+                to={postGetPageUrl(postChange)}
+                key={postChange._id}
+              >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
                 </div>
-                </MenuItemUntyped>
+              </MenuItemLink>
             ))}
-            {karmaChanges.comments && karmaChanges.comments.map(commentChange => (
-              <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} to={commentGetPageUrlFromIds({postId:commentChange.postId, postSlug:commentChange.postSlug, tagSlug:commentChange.tagSlug, commentId: commentChange._id})} key={commentChange._id}
-                >
+            {karmaChanges.comments && karmaChanges.comments.map((commentChange: AnyBecauseTodo) => (
+              <MenuItemLink
+                className={classes.votedItemRow}
+                // tagCommentType is given a String type in packages/lesswrong/lib/collections/users/karmaChangesGraphQL.ts because we couldn't get an inline union of literal types to work,
+                // but actually we know it will always be a TagCommentType because the db schema constrains it
+                to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
+              >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
-              </MenuItemUntyped>
+              </MenuItemLink>
             ))}
-            {karmaChanges.tagRevisions.map(tagChange => (
-              <MenuItemUntyped className={classes.votedItemRow}
-                component={Link} key={tagChange._id}
-                to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagChange.tagSlug}/history?user=${currentUser!.slug}`}
+            {karmaChanges.tagRevisions.map((tagChange: AnyBecauseTodo) => (
+              <MenuItemLink
+                className={classes.votedItemRow}
+                key={tagChange._id}
+                to={`${tagGetHistoryUrl({slug: tagChange.tagSlug})}?user=${currentUser!.slug}`}
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
@@ -188,26 +189,27 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 <div className={classes.votedItemDescription}>
                   {tagChange.tagName}
                 </div>
-              </MenuItemUntyped>
+              </MenuItemLink>
             ))}
           </div>
         </div>
         }
       <Link to={`/account`} onClick={handleClose}>
-        <span className={classes.settings}>Change Settings </span>
+        <span className={classes.settings}>{preferredHeadingCase("Change Settings")}</span>
       </Link>
-    </Components.Typography>
+    </Typography>
   );
 }
 
-const KarmaChangeNotifier = ({currentUser, classes}: {
+const KarmaChangeNotifier = ({currentUser, className, classes}: {
   currentUser: UsersCurrent, //component can only be used if logged in
+  className?: string,
   classes: ClassesType,
 }) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null)
+  const anchorEl = useRef<HTMLDivElement|null>(null)
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
   
@@ -219,18 +221,13 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
   
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
 
-  const handleOpen = (event) => {
+  const handleOpen = () => {
     setOpen(true);
-    setAnchorEl(event.currentTarget);
     setKarmaChangeLastOpened(new Date());
   }
 
-  const handleClose = (e) => {
-    if (e && anchorEl?.contains(e.target)) {
-      return;
-    }
+  const handleClose = () => {
     setOpen(false);
-    setAnchorEl(null);
     if (!currentUser) return;
     if (document?.karmaChanges) {
       void updateCurrentUser({
@@ -244,11 +241,11 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     }
   }
 
-  const handleToggle = (e) => {
+  const handleToggle = () => {
     if (open) {
-      handleClose(null) // When closing from toggle, force a close by not providing an event
+      handleClose()
     } else {
-      handleOpen(e)
+      handleOpen()
     }
     captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
   }
@@ -266,30 +263,32 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
     //Check if user opened the karmaChangeNotifications for the current interval
     const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
     const starIsHollow = ((comments.length===0 && posts.length===0 && tagRevisions.length===0) || cleared || !newKarmaChangesSinceLastVisit)
-    
-    const { LWPopper } = Components;
+
+    const { LWClickAwayListener, LWPopper, ForumIcon } = Components;
 
     return <AnalyticsContext pageSection="karmaChangeNotifer">
-      <div className={classes.root}>
-        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
-          {starIsHollow
-            ? <StarBorderIcon className={classes.starIcon}/>
-            : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
-                <StarIcon className={classes.starIcon}/>
-              </Badge>
-          }
-        </IconButton>
+      <div className={classNames(classes.root, className)}>
+        <div ref={anchorEl}>
+          <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
+            {starIsHollow
+              ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
+              : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
+                  <ForumIcon icon="Karma" className={classes.starIcon}/>
+                </Badge>
+            }
+          </IconButton>
+        </div>
         <LWPopper
           open={open}
-          anchorEl={anchorEl}
+          anchorEl={anchorEl.current}
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
         >
-          <ClickAwayListener onClickAway={handleClose}>
+          <LWClickAwayListener onClickAway={handleClose}>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
             </Paper>
-          </ClickAwayListener>
+          </LWClickAwayListener>
         </LWPopper>
       </div>
     </AnalyticsContext>
@@ -299,7 +298,7 @@ const KarmaChangeNotifier = ({currentUser, classes}: {
 }
 
 const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
-  styles, hocs: [withErrorBoundary]
+  styles, stylePriority: -1, hocs: [withErrorBoundary]
 });
 
 declare global {

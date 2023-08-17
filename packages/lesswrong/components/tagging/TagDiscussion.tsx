@@ -4,7 +4,7 @@ import { unflattenComments } from "../../lib/utils/unflatten";
 import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -55,13 +55,14 @@ const TagDiscussion = ({classes, tag}: {
       treeOptions={{
         tag: tag,
         postPage: true,
+        showCollapseButtons: true
       }}
       totalComments={totalCount}
       // Will be defined if results is defined, and we know results is truthy
       comments={nestedComments!}
     />}
     <Link
-      to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}
+      to={tagGetDiscussionUrl(tag)}
       className={classes.seeAll}
     >
       See all

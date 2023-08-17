@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { CSSProperties } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
+import { useThemeOptions } from '../themes/useTheme';
 
 const DEFAULT_HEADER_HEIGHT = 300;
 
@@ -16,7 +17,7 @@ export type CloudinaryPropsType = {
   f?: string    // format
 }
 
-function cloudinaryPropsToStr(props) {
+function cloudinaryPropsToStr(props: Record<string, string>) {
   let sb: string[] = [];
   for(let k in props)
     sb.push(`${k}_${props[k]}`);
@@ -28,17 +29,31 @@ export function makeCloudinaryImageUrl (publicId: string, cloudinaryProps: Cloud
 }
 
 // Cloudinary image without using cloudinary-react. Allows SSR.
-const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, fullWidthHeader, className}: {
+const CloudinaryImage2 = ({
+  width,
+  height,
+  objectFit,
+  darkPublicId,
+  publicId,
+  imgProps,
+  fullWidthHeader,
+  className,
+  wrapperClassName,
+}: {
   /** Overridden if fullWidthHeader is true */
   width?: number|string,
   height?: number,
   objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down',
   publicId: string,
+  darkPublicId?: string|null,
   imgProps?: CloudinaryPropsType,
   /** Overrides width */
   fullWidthHeader?: boolean,
   className?: string,
+  wrapperClassName?: string,
 }) => {
+  const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
+
   let cloudinaryProps: CloudinaryPropsType = {
     c: "fill",
     dpr: "auto",
@@ -70,31 +85,62 @@ const CloudinaryImage2 = ({width, height, objectFit, publicId, imgProps, fullWid
   
   cloudinaryProps = {...cloudinaryProps, ...imgProps}
 
-  const imageUrl = makeCloudinaryImageUrl(publicId, cloudinaryProps)
+  // Dark image should be used when:
+  //  - (darkPublicId is defined, obvs)
+  //  - And either:
+  //    - User is in dark mode
+  //    - Or, user is in auto mode, and their browser reports that they prefer
+  //      dark mode
+  // That last condition cannot be determined from the server, sadly. So we will
+  // have to rely on media queries
+  let shouldUseDarkImage: "yes"|"no"|"maybe" = "yes"
+  if (!darkPublicId || themeOptions.name === "default") {
+    shouldUseDarkImage = "no"
+  } else if (themeOptions.name === "auto") {
+    shouldUseDarkImage = "maybe"
+  } // themeOption.name must be dark, defaulting to yes
+  // Cast is safe because if shouldUseDarkImage is "yes" we know that darkPublicId is defined
+  const basicImageUrl = makeCloudinaryImageUrl(
+    shouldUseDarkImage === "yes" ? darkPublicId! : publicId,
+    cloudinaryProps
+  )
+  const darkImageUrl = darkPublicId && makeCloudinaryImageUrl(darkPublicId, cloudinaryProps)
 
   // fullWidthHeader images are big and so need srcsets
-  let srcSet = {}
+  let srcSetFunc: ((publicId: string) => string) | null = null
   if (fullWidthHeader) {
     // We always double the height, to account for high dpi screens. We can't
     // combine srcset width-checking with DPI-checking unfortunately.
     const srcSetHeight = ((height || DEFAULT_HEADER_HEIGHT)*2).toString()
     // NB: we lie about the final width here, we don't know it
-    srcSet = {
-      srcSet: `
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}})} 450w,
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}})} 900w,
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: '1500', h: srcSetHeight}})} 1500w,
-        ${makeCloudinaryImageUrl(publicId, {...cloudinaryProps, ...{w: 'iw', h: srcSetHeight}})} 3000w,
-      `
-    }
+    srcSetFunc = (imgId) => `
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}})} 450w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '900', h: srcSetHeight}})} 900w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '1500', h: srcSetHeight}})} 1500w,
+      ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: 'iw', h: srcSetHeight}})} 3000w,
+    `
   }
 
-  return <img
-    src={imageUrl}
-    {...srcSet}
-    style={imageStyle}
-    className={className}
-  />
+  return <picture className={wrapperClassName}>
+    {srcSetFunc && (shouldUseDarkImage === 'maybe' ? <source
+      // Cast is safe for similar reasons to above
+      srcSet={srcSetFunc(darkPublicId!)}
+      media="(min-width: 600px) and (prefers-color-scheme: dark)"
+    /> : <source
+      srcSet={srcSetFunc(shouldUseDarkImage === "yes" ? darkPublicId! : publicId)}
+      media="(min-width: 600px)"
+    />)}
+    {shouldUseDarkImage === 'maybe' && <source
+      // Cast is safe for similar reasons to above
+      srcSet={darkImageUrl!}
+      media="(prefers-color-scheme: dark)"
+    />}
+    <img
+      src={basicImageUrl}
+      style={imageStyle}
+      className={className}
+    />
+  </picture>
 };
 
 const CloudinaryImage2Component = registerComponent('CloudinaryImage2', CloudinaryImage2);

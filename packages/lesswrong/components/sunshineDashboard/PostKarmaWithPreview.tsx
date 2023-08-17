@@ -3,41 +3,67 @@ import React from 'react';
 import { useHover } from '../common/withHover';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginRight: 8,
-    wordBreak: "break-word"
+    whiteSpace: "nowrap"
   },
   draft: {
-    color: theme.palette.grey[400]
+    opacity: .6,
+    '&&': {
+      fontWeight: 400
+    }
   },
   default: {
     color: theme.palette.grey[900],
+  },
+  titleDisplay: {
+    display: "block"
+  },
+  scoreTitleFormat: {
+    width: 30,
+    marginRight: 8,
+    display: "inline-block",
+    textAlign: "center"
+  },
+  highlight: {
+    color: theme.palette.primary.main,
+    fontWeight: 600
   }
 })
 
 
-const PostKarmaWithPreview = ({ post, classes }: {
+const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
-  classes: ClassesType
+  classes: ClassesType,
+  displayTitle: boolean,
+  reviewedAt: Date
 }) => {
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, PostsPreviewTooltip } = Components
+  const { LWPopper, PostsPreviewTooltip, FormatDate } = Components
 
-  if (!post) return null 
-
-  return <span className={classes.root} {...eventHandlers}>
-    <Link className={post.draft ? classes.draft : classes.default} to={postGetPageUrl(post)}>{post.baseScore}</Link>
+  return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
+    <Link className={classNames({[classes.highlight]: post.postedAt > reviewedAt, [classes.draft]: post.draft, [classes.default]: !post.draft})}
+      to={postGetPageUrl(post)}>
+      {displayTitle && <span className={classes.scoreTitleFormat}>
+        <FormatDate date={post.postedAt} />
+      </span>}
+      <span className={displayTitle ? classes.scoreTitleFormat : null}>
+        {post.baseScore} 
+      </span>
+      {displayTitle && post.title}
+    </Link>
     <LWPopper
         open={hover}
         anchorEl={anchorEl}
-        placement="bottom-start"
+        placement={displayTitle ? "right-start" : "bottom-start"}
       >
-        <div>
-          <PostsPreviewTooltip post={post}/>
-        </div>
-      </LWPopper>
+      <div>
+        <PostsPreviewTooltip post={post}/>
+      </div>
+    </LWPopper>
   </span>
 }
 

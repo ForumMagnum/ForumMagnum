@@ -1,11 +1,13 @@
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { forumTypeSetting, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
-import { tagGetSubforumUrl } from '../tags/helpers';
+import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
@@ -14,21 +16,16 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
 };
 
 // Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, isAbsolute = false): Promise<string> {
+export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
   if (comment.postId) {
-    const post = await mongoFindOne("Posts", comment.postId);
+    const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
-    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-    const tag = await mongoFindOne("Tags", {_id:comment.tagId});
+    const tag = await context.loaders.Tags.load(comment.tagId);
     if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
 
-    if (comment.tagCommentType === TagCommentType.Discussion) {
-      return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion#${comment._id}`;
-    } else {
-      return `${prefix}${tagGetSubforumUrl(tag)}#${comment._id}`;
-    }
+    return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
     throw Error(`Unable to find document for comment: ${comment._id}`)
   }
@@ -38,17 +35,18 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
   if (comment.post) {
     return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tag) {
-    const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${comment.tag.slug}/discussion#${comment._id}`;
+    return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
     throw new Error(`Unable to find document for comment: ${comment._id}`);
   }
 }
 
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, permalink=true, isAbsolute=false}: {
+// TODO there are several functions which do this, some of them should be combined
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
   postId?: string,
   postSlug?: string,
   tagSlug?: string,
+  tagCommentType?: TagCommentType,
   commentId: string,
   permalink?: boolean, isAbsolute?: boolean,
 }): string {
@@ -61,7 +59,7 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, commentId, 
       return `${prefix}/posts/${postId}/${postSlug?postSlug:""}#${commentId}`;
     }
   } else if (tagSlug) {
-    return `${prefix}/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tagSlug}/discussion#${commentId}`;
+    return tagGetCommentLink({tagSlug, commentId, tagCommentType: tagCommentType ?? "DISCUSSION", isAbsolute});
   } else {
     //throw new Error("commentGetPageUrlFromIds needs a post or tag");
     return "/"
@@ -84,11 +82,27 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
 }
 
 export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
-  const fallback = forumTypeSetting.get() === 'AlignmentForum' ? "afPostCommentsTop" : "postCommentsTop"
+  const fallback = forumSelect({
+    AlignmentForum: "afPostCommentsTop",
+    EAForum: "postCommentsMagic",
+    default: "postCommentsTop",
+  });
   return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
   const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
+}
+
+export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+
+/**
+ * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.
+ */
+export const commentIsHidden = (comment: CommentsList|DbComment) => {
+  const hideSince = hideUnreviewedAuthorCommentsSettings.get()
+  const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
+  // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
+  return postedAfterGrandfatherDate && comment.authorIsUnreviewed
 }

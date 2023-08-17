@@ -1,55 +1,28 @@
-import { trimLatexAndAddCSS, preProcessLatex } from './utils';
-import { getCollectionHooks } from '../mutationCallbacks';
-import { sanitize } from '../vulcan-lib/utils';
-import { randomId } from '../../lib/random';
-import { convertFromRaw } from 'draft-js';
-import { draftToHTML } from '../draftConvert';
-import { Revisions, ChangeMetrics } from '../../lib/collections/revisions/collection'
-import { extractVersionsFromSemver } from '../../lib/editor/utils'
-import { ensureIndex } from '../../lib/collectionUtils'
-import { htmlToPingbacks } from '../pingbacks';
-import { captureException } from '@sentry/core';
-import { diff } from '../vendor/node-htmldiff/htmldiff';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions, sealEditableFields, MakeEditableOptions } from '../../lib/editor/make_editable';
-import { getCollection } from '../../lib/vulcan-lib/getCollection';
-import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
-import { createMutator } from '../vulcan-lib/mutators';
-import TurndownService from 'turndown';
-import {gfm} from 'turndown-plugin-gfm';
-import * as _ from 'underscore';
-import markdownIt from 'markdown-it'
-import markdownItMathjax from './markdown-mathjax'
-import cheerio from 'cheerio';
-import markdownItContainer from 'markdown-it-container'
-import markdownItFootnote from 'markdown-it-footnote'
-import markdownItSub from 'markdown-it-sub'
-import markdownItSup from 'markdown-it-sup'
-
-const turndownService = new TurndownService()
-turndownService.use(gfm); // Add support for strikethrough and tables
-turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
-turndownService.addRule('subscript', {
-  filter: ['sub'],
-  replacement: (content) => `~${content}~`
-})
-turndownService.addRule('supscript', {
-  filter: ['sup'],
-  replacement: (content) => `^${content}^`
-})
-turndownService.addRule('italic', {
-  filter: ['i'],
-  replacement: (content) => `*${content}*`
-})
-
-const mdi = markdownIt({linkify: true})
-mdi.use(markdownItMathjax())
-mdi.use(markdownItContainer, 'spoiler')
-mdi.use(markdownItFootnote)
-mdi.use(markdownItSub)
-mdi.use(markdownItSup)
-
-import { mjpage }  from 'mathjax-node-page'
-import { onStartup, isAnyTest } from '../../lib/executionEnvironment';
+import {getCollectionHooks} from '../mutationCallbacks'
+import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {extractVersionsFromSemver} from '../../lib/editor/utils'
+import {ensureIndex} from '../../lib/collectionIndexUtils'
+import {htmlToPingbacks} from '../pingbacks'
+import {diff} from '../vendor/node-htmldiff/htmldiff'
+import {
+  editableCollections,
+  editableCollectionsFieldOptions,
+  editableCollectionsFields,
+  MakeEditableOptions,
+  sealEditableFields,
+} from '../../lib/editor/make_editable'
+import {getCollection} from '../../lib/vulcan-lib/getCollection'
+import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
+import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
+import * as _ from 'underscore'
+import cheerio from 'cheerio'
+import {onStartup} from '../../lib/executionEnvironment'
+import {dataToHTML, dataToWordCount} from './conversionUtils'
+import {Globals} from '../../lib/vulcan-lib/config'
+import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
+import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import { Comments } from '../../lib/collections/comments'
+import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -58,253 +31,6 @@ interface AfterCreateRevisionCallbackContext {
   revisionID: string
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
-
-export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string)=>any): Promise<string> {
-  // Takes in HTML and replaces LaTeX with CommonHTML snippets
-  // https://github.com/pkra/mathjax-node-page
-  return new Promise((resolve, reject) => {
-    let finished = false;
-
-    if (!isAnyTest) {
-      setTimeout(() => {
-        if (!finished) {
-          const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-          captureException(new Error(errorMessage));
-          // eslint-disable-next-line no-console
-          console.error(errorMessage);
-          finished = true;
-          resolve(html);
-        }
-      }, 10000);
-    }
-
-    const errorHandler = (id, wrapperNode, sourceFormula, sourceFormat, errors) => {
-      // eslint-disable-next-line no-console
-      console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
-      reject(`Error in $${sourceFormula}$: ${errors}`)
-    }
-
-    const callbackAndMarkFinished = (dom: any, css: string) => {
-      finished = true;
-      return beforeSerializationCallback(dom, css);
-    };
-
-    mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', callbackAndMarkFinished);
-  })
-}
-
-// Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
-  if (toWrap.length < 1) {
-    return toWrap;
-  }
-
-  if (toWrap.length < 2 && ($ as any).wrap) { // wrap not defined in npm version,
-    return ($ as any).wrap(wrapper);      // and git version fails testing.
-  }
-
-  const section = $(wrapper);
-  let  marker = $('<div>');
-  marker = marker.insertBefore(toWrap.first()); // in jQuery marker would remain current
-  toWrap.each(function(k, v) {                  // in Cheerio, we update with the output.
-    $(v).remove();
-    section.append($(v));
-  });
-  section.insertBefore(marker);
-  marker.remove();
-  return section;                 // This is what jQuery would return, IIRC.
-}
-
-const spoilerClass = 'spoiler-v2' // this is the second iteration of a spoiler-tag that we've implemented. Changing the name for backwards-and-forwards compatibility
-
-/// Given HTML which possibly contains elements tagged with with a spoiler class
-/// (ie, hidden until mouseover), parse the HTML, and wrap consecutive elements
-/// that all have a spoiler tag in a shared spoiler element (so that the
-/// mouse-hover will reveal all of them together).
-function wrapSpoilerTags(html: string): string {
-  //@ts-ignore
-  const $ = cheerio.load(html, null, false)
-
-  // Iterate through spoiler elements, collecting them into groups. We do this
-  // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups: Array<cheerio.Element[]> = [];
-  let currentBlockGroup: cheerio.Element[] = [];
-  $(`.${spoilerClass}`).each(function(this: any) {
-    const element = this;
-    if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
-      if (currentBlockGroup.length > 0) {
-        spoilerBlockGroups.push(currentBlockGroup);
-        currentBlockGroup = [];
-      }
-    }
-    currentBlockGroup.push(element);
-  });
-  if (currentBlockGroup.length > 0) {
-    spoilerBlockGroups.push(currentBlockGroup);
-  }
-
-  // Having collected the elements into groups, wrap each group.
-  for (let spoilerBlockGroup of spoilerBlockGroups) {
-    cheerioWrapAll($(spoilerBlockGroup), '<div class="spoilers" />', $);
-  }
-
-  // Serialize back to HTML.
-  return $.html()
-}
-
-const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
-  //@ts-ignore
-  const $ = cheerio.load(`<div id="root">${html}</div>`, null, false)
-  const topLevelElements = $('#root').children().get()
-  // Iterate once forward until we find non-empty paragraph to trim leading empty paragraphs
-  removeLeadingEmptyParagraphsAndBreaks(topLevelElements, $)
-  // Then iterate backwards to trim trailing empty paragraphs
-  removeLeadingEmptyParagraphsAndBreaks(topLevelElements.reverse(), $)
-  return $("#root").html() || ""
-}
-
-const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: cheerio.Root) => {
-   for (const elem of elements) {
-    if (isEmptyParagraphOrBreak(elem)) {
-      $(elem).remove()
-    } else {
-      break
-    }
-  }
-}
-
-const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
-  if (elem.type === 'tag' && elem.name === "p") {
-    if (elem.children?.length === 0) return true
-    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data?.trim() === "") return true
-    return false
-  }
-  if (elem.type === 'tag' && elem.name === "br") return true
-  return false
-}
-
-
-export async function draftJSToHtmlWithLatex(draftJS) {
-  const draftJSWithLatex = await preProcessLatex(draftJS)
-  const html = draftToHTML(convertFromRaw(draftJSWithLatex))
-  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
-  return wrapSpoilerTags(trimmedHtml)
-}
-
-export function htmlToMarkdown(html: string): string {
-  return turndownService.turndown(html)
-}
-
-export function ckEditorMarkupToMarkdown(markup: string): string {
-  // Sanitized CKEditor markup is just html
-  return turndownService.turndown(sanitize(markup))
-}
-
-export function markdownToHtmlNoLaTeX(markdown: string): string {
-  const id = randomId()
-  const renderedMarkdown = mdi.render(markdown, {docId: id})
-  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
-}
-
-export async function markdownToHtml(markdown: string): Promise<string> {
-  const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, trimLatexAndAddCSS)
-}
-
-export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
-  // Sanitized CKEditor markup is just html
-  const html = sanitize(markup)
-  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
-  // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
-}
-
-export async function dataToHTML(data, type, sanitizeData = false) {
-  switch (type) {
-    case "html":
-      return sanitizeData ? sanitize(data) : await mjPagePromise(data, trimLatexAndAddCSS)
-    case "ckEditorMarkup":
-      return await ckEditorMarkupToHtml(data)
-    case "draftJS":
-      return await draftJSToHtmlWithLatex(data)
-    case "markdown":
-      return await markdownToHtml(data)
-    default: throw new Error(`Unrecognized format: ${type}`);
-  }
-}
-
-export function dataToMarkdown(data, type) {
-  if (!data) return ""
-  switch (type) {
-    case "markdown": {
-      return data
-    }
-    case "html": {
-      return htmlToMarkdown(data)
-    }
-    case "ckEditorMarkup": {
-      return ckEditorMarkupToMarkdown(data)
-    }
-    case "draftJS": {
-      try {
-        const contentState = convertFromRaw(data);
-        const html = draftToHTML(contentState)
-        return htmlToMarkdown(html)
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-      }
-      return ""
-    }
-    default: throw new Error(`Unrecognized format: ${type}`);
-  }
-}
-
-export async function dataToCkEditor(data, type) {
-  switch (type) {
-    case "html":
-      return sanitize(data);
-    case "ckEditorMarkup":
-      return data;
-    case "draftJS":
-      return await draftJSToHtmlWithLatex(data);
-    case "markdown":
-      return await markdownToHtml(data)
-    default: throw new Error(`Unrecognized format: ${type}`);
-  }
-}
-
-/**
- * When we calculate the word count we want to ignore footnotes. There's two syntaxes
- * for footnotes in markdown:
- *
- * 1.  ^**[^](#fnreflexzxp4wr9h)**^
- *
- *     The contents of my footnote
- *
- * and
- *
- * [^1]: The contents of my footnote.
- *
- * In both cases, the footnote must start at character 0 on the line. The strategy here
- * is just to find the first place where this occurs and then to ignore to the end of
- * the document.
- */
-export async function dataToWordCount(data, type) {
-  try {
-    const markdown = dataToMarkdown(data, type) ?? "";
-    const withoutFootnotes = markdown
-      .split(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m)[0]
-      .split(/^\[\^1\]:.*/m)[0];
-    const words = withoutFootnotes.match(/[^\s]+/g) ?? [];
-    return words.length;
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Error in dataToWordCount", data, type, err)
-    return 0
-  }
-}
 
 function getInitialVersion(document: DbPost|DbObject) {
   if ((document as DbPost).draft) {
@@ -372,7 +98,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
 // Given a revised document, check whether fieldName (a content-editor field) is
 // different from the previous revision (or there is no previous revision).
-export const revisionIsChange = async (doc, fieldName: string): Promise<boolean> => {
+export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): Promise<boolean> => {
   const id = doc._id;
   const previousVersion = await getLatestRev(id, fieldName);
 
@@ -402,7 +128,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc, { currentUser })
+    async function editorSerializationBeforeCreate (doc: AnyBecauseTodo, { currentUser, context }: AnyBecauseTodo)
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -414,9 +140,32 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const userId = currentUser._id
       const editedAt = new Date()
       const changeMetrics = htmlToChangeMetrics("", html);
-      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart"> = {
+      const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
+        ? (!!doc.debate && fieldName === 'contents')
+        : false;
+
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
+
+      if (isFirstDebatePostComment) {
+        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+          collection: Comments,
+          document: {
+            userId,
+            contents: doc[fieldName],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        };
+
+        // We need to validate that we'll be able to successfully create the comment in the updateFirstDebateCommentPostId callback
+        // If we can't, we'll be stuck with a malformed debate post with no comments
+        await validateCreateMutation(createFirstCommentParams);
+      }
+
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
-          originalContents: doc[fieldName].originalContents,
+          originalContents,
           currentUser,
         })),
         fieldName,
@@ -451,7 +200,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).updateBefore.add(
-    async function editorSerializationEdit (docData, { oldDocument: document, newDocument, currentUser })
+    async function editorSerializationEdit (docData: AnyBecauseTodo, { oldDocument: document, newDocument, currentUser }: AnyBecauseTodo)
   {
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -465,10 +214,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
-      const isBeingUndrafted = (document as DbPost).draft && !(newDocument as DbPost).draft
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
-      const updateType = (isBeingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
+      const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
+      const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
       const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
@@ -478,7 +227,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart"> = {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -528,7 +277,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: DbRevision)
+    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
   {
     // Update revision to point to the document that owns it.
     const revisionID = newDoc[`${fieldName}_latest`];
@@ -541,6 +290,63 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     }
     return newDoc;
   });
+
+
+  getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument)
+    }
+
+    return newDocument
+  })
+
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).createAfter.add(
+      async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
+    {
+      const isFirstDebatePostComment = 'debate' in newDoc
+          ? (!!newDoc.debate && fieldName === 'contents')
+          : false;
+      if (currentUser && isFirstDebatePostComment) {
+        await createMutator({
+          collection: Comments,
+          document: {
+            userId: currentUser._id,
+            postId: newDoc._id,
+            contents: newDoc[fieldName as keyof DbPost],
+            debateResponse: true,
+          },
+          context,
+          currentUser,
+        });
+      }
+      return newDoc;
+    });
+  }
+
+  getCollectionHooks(collectionName).updateAfter.add(async (newDocument, {oldDocument, currentUser}) => {
+    if (currentUser && pingbacks && 'pingbacks' in newDocument) {
+      await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument, oldDocument as PingbackDocumentPartial)
+    }
+
+    return newDocument
+  })
+
+  /**
+   * Reupload images to cloudinary. This is mainly for images pasted from google docs, because
+   * they have fairly strict rate limits that often result in them failing to load.
+   *
+   * NOTE: This is still necessary even if CkEditor is configured to reupload
+   * images, because images have URLs that come from Markdown or RSS sync.
+   * See: https://app.asana.com/0/628521446211730/1203311932993130/f
+   * It's fine to leave it here just in case though
+   */
+  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
+    await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
+  })
+  getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
+    await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
+  })
 }
 
 export function addAllEditableCallbacks() {
@@ -561,8 +367,7 @@ onStartup(addAllEditableCallbacks);
 /// a quick distinguisher between small and large changes, on revision history
 /// lists.
 const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  // @ts-ignore
-  const parsedHtml = cheerio.load(diffHtml, null, false);
+  const parsedHtml = cheerioParse(diffHtml);
 
   const insertedChars = countCharsInTag(parsedHtml, "ins");
   const removedChars = countCharsInTag(parsedHtml, "del");

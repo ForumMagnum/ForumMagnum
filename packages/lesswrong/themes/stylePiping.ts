@@ -1,3 +1,4 @@
+import { isEAForum } from "../lib/instanceSettings";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -67,6 +68,26 @@ const metaculusPreviewStyles = (theme: ThemeType): JssStyles => ({
 
 const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.manifold-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
+const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.strawpoll-embed": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
+const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.metaforecast-preview": {
     "& iframe": {
       width: "100%",
       height: 400,
@@ -241,12 +262,25 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
+  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+    color: theme.palette.link.visited,
+  } : {},
   '& table': {
     ...tableStyles(theme)
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    display: 'table'
+    width: 'fit-content !important',
+    height: 'fit-content !important',
+  },
+  // Many column tables should overflow instead of squishing
+  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
+  //    squishy tables (which is the default behavior above)
+  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
+    overflowX: 'auto',
+    '& table': {
+      width: 700,
+    },
   },
   '& td, & th': {
     ...tableCellStyles(theme)
@@ -255,6 +289,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -276,6 +311,8 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...strawpollPreviewStyles(theme),
+    ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
@@ -284,7 +321,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.palette.border.normal,
+      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -389,7 +426,7 @@ export const smallPostStyles = (theme: ThemeType) => {
       ...theme.typography.postStyle,
       fontSize: "1.28rem",
       lineHeight: "1.8rem",
-    },
+    }
   };
 }
 
@@ -460,6 +497,12 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& ol, & ul': {
           listStyleType: "revert !important",
+        },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
         },
       },
       '& .ck-placeholder:before': {

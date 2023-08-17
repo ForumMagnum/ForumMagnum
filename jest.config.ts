@@ -14,21 +14,26 @@ export default {
   // cacheDirectory: "/tmp/jest_rt",
 
   // Automatically clear mock calls and instances between every test
-  // clearMocks: false,
+  clearMocks: false,
 
   // Indicates whether the coverage information should be collected while executing the test
   // collectCoverage: false,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  // collectCoverageFrom: undefined,
+  collectCoverageFrom: [
+    "<rootDir>/packages/lesswrong/**/*.{js,jsx,ts,tsx}",
+  ],
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "coverage",
+  // coverageDirectory: "<rootDir>/unit-coverage/",
 
   // An array of regexp pattern strings used to skip coverage collection
-  // coveragePathIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/migrations/",
+    "/manualMigrations/",
+    "/vendor/",
+  ],
 
   // Indicates which provider should be used to instrument code for coverage
   // coverageProvider: "babel",
@@ -64,6 +69,7 @@ export default {
     bundleIsServer: true,
     bundleIsTest: true,
     bundleIsProduction: false,
+    bundleIsMigrations: false,
     defaultSiteAbsoluteUrl: "",
     serverPort: 3000,
   },
@@ -99,7 +105,7 @@ export default {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  "preset": "@shelf/jest-mongodb",
+  // preset: "",
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -123,9 +129,8 @@ export default {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  roots: [
-    "./packages/lesswrong"
-  ],
+  // roots: [
+  // ],
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
@@ -154,10 +159,8 @@ export default {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test|tests).[tj]s?(x)"
-  ],
+  // testMatch: [
+  // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   // testPathIgnorePatterns: [

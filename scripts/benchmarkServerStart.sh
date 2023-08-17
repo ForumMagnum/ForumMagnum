@@ -7,7 +7,7 @@
 mkdir -p tmp
 
 # Start the server, asynchronously
-yarn start &
+yarn start-local-db &
 # Repeatedly try to download localhost:3000, until successful. Output the time
 # spent retrying and downloading.
 time (
@@ -18,4 +18,3 @@ time (
 )
 
 # Server gets killed by SIGHUP when this script exits
-

@@ -144,6 +144,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     grey,
     greyAlpha,
     inverseGreyAlpha,
+    primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
     
@@ -182,6 +183,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     notificationLabel: shades.greyAlpha(.66),
     eventType: "#c0a688",
     tooltipText: "#fff",
+    tooltipTextDim: "#c2c2c2",
     negativeKarmaRed: "#ff8a80",
     moderationGuidelinesEasygoing: 'rgba(100, 169, 105, 0.9)',
     moderationGuidelinesNormEnforcing: '#2B6A99',
@@ -192,12 +194,16 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
     invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
     invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
+    primaryAlert: "#69886e",
     error: "#9b5e5e",
     error2: "#E04E4B",
+    warning: "#832013",
     red: "#ff0000",
     alwaysWhite: "#fff",
+    alwaysBlack: "#000",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
+    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
 
     eventMaybe: "#d59c00",
     
@@ -218,6 +224,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
+    primaryDim: "#5caab7",
+    // Currently unused on LW due to Forum-gate
+    visited: "#bb7c43",
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
@@ -243,10 +252,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     loadingDotsAlternate: shades.grey[0],
     horizRuleDots: shades.greyAlpha(.26),
     greenCheckmark: "#4caf50",
+    filledGreenCheckmark: "#5ECE79",
     onTooltip: "#fff",
     inverted: shades.grey[0],
     topAuthor: shades.grey[340],
     navigationSidebarIcon: shades.greyAlpha(1.0),
+    sprout: '#69886e',
+    yellow: '#ffc500',
     
     commentsBubble: {
       commentCount: "#fff",
@@ -281,6 +293,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryHighlight2: '#bae2e8',
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
+    primaryTranslucent: 'rgba(12,134,155,.7)',
+    debateComment: '#1c912766',
+    debateComment2: '#df1d4566',
+    debateComment3: '#2671ff66',
+    debateComment4: '#eb26ff66',
+    debateComment5: '#efdc0066',
+    dashed500: `dashed 1px ${shades.grey[500]}`,
+    mentionsBaloon: "#c4c4c4",
   },
   background: {
     default: shades.grey[60],
@@ -290,8 +310,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#d3edf2',
-    primaryDim2: '#e2f1f4',
+    primaryDim: '#e2f1f4',
+    primaryTranslucent: "rgba(95,155,101,0.1)",
+    primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
+    warningTranslucent: "rgba(255,152,0,0.1)",
+    // this is used to address a specific iOS Safari-related issue with linear-gradient:
+    // https://stackoverflow.com/questions/70446857/safari-linear-gradient
+    transparent: shades.inverseGreyAlpha(0),
+    imageOverlay: 'rgba(0,0,0,0.4)',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -319,7 +345,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
     commentNodeEven: shades.grey[120],
     commentNodeOdd: shades.grey[25],
-    commentModeratorHat: "#5f9b651c",
+    commentModeratorHat: "#ecf2ed",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
     metaculusBackground: "#2c3947",
@@ -329,6 +355,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     notificationMenuTabBar: shades.grey[100],
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
+    tooltipBackground2: "#373737",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
@@ -342,7 +369,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
-    restoreSavedContentNotice: "rgba(255,0,0,.1)",
+    cookieBanner: shades.grey[800],
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -362,12 +389,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sunshineSidebarHoverInfo: `-3px 0 5px 0px ${shades.boxShadowColor(.1)}`,
     sunshineSendMessage: `0 0 10px ${shades.boxShadowColor(.5)}`,
     lwCard: `0 0 10px ${shades.boxShadowColor(.2)}`,
+    eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
-    
+    alwaysPrimary: "#5f9b65",
     startReadingButtonBackground: shades.greyAlpha(0.05),
     recentDiscussionSubscribeButtonText: "#fff",
     featuredResourceCTAtext: "#fff",
@@ -390,16 +418,29 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.greyAlpha(.5),
       hoverBackground: shades.greyAlpha(.35),
     },
+    imageUpload2: {
+      // Because this displays over an image, make it the same in both light and dark mode
+      background: 'rgba(0,0,0,0.6)',
+      hoverBackground: 'rgba(0,0,0,0.8)',
+    },
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
+    mentions: {
+      hover: "#e6e6e6",
+      selected: "#198cf0",
+      selectedHover: "#0e7fe1",
+    },
   },
   tag: {
+    text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
-    coreTagBorder: shades.greyBorder("1px", .12),
-    text: shades.greyAlpha(.9),
-    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
+    coreTagText: shades.grey[600],
+    coreTagBackground: "transparent",
+    coreTagBorder: shades.greyBorder("1px", .15),
     hollowTagBackground: shades.grey[0],
+    hollowTagBorder: shades.greyBorder("1px", .15),
+    boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
   },
   geosuggest: {
@@ -428,7 +469,20 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     commentMarker: "#fef7a9",
     commentMarkerActive: "#fdf05d",
   },
-  
+  blockquoteHighlight: {
+    commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
+    addedBlockquoteHighlightStyles: "",
+  },
+  embeddedPlayer: {
+    opacity: 1,
+  },
+  dropdown: {
+    background: grey[0],
+    border: "transparent",
+    hoverBackground: grey[100],
+  },
+
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
@@ -459,4 +513,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     light: "#cb5e3c",
     contrastText: shades.grey[0],
   },
+  warning: {
+    main: "#ff9800",
+  }
 })

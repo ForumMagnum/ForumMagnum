@@ -1,5 +1,4 @@
 import React from 'react';
-import fetch from "node-fetch";
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
 import { userGetGroups } from '../../lib/vulcan-users/permissions';
@@ -13,7 +12,7 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
@@ -30,7 +29,7 @@ import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
-import {userFindOneByEmail} from "../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../commonQueries";
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -129,7 +128,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // For each post by this author which has the authorIsUnreviewed flag set,
     // clear the authorIsUnreviewed flag so it's visible, and update postedAt
     // to now so that it goes to the right place int he latest posts list.
-    const unreviewedPosts = await Posts.find({userId:newUser._id, authorIsUnreviewed:true}).fetch();
+    const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
       await updateMutator<DbPost>({
         collection: Posts,
@@ -142,16 +141,28 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
       });
     }
     
-    // Also clear the authorIsUnreviewed flag on comments. We don't want to
-    // reset the postedAt for comments, since those are by default visible
-    // almost everywhere. This can bypass the mutation system fine, because the
-    // flag doesn't control whether they're indexed in Algolia.
-    await Comments.rawUpdateMany({userId:newUser._id, authorIsUnreviewed:true}, {$set:{authorIsUnreviewed:false}}, {multi: true})
+    // For each comment by this author which has the authorIsUnreviewed flag set, clear the authorIsUnreviewed flag.
+    // This only matters if the hideUnreviewedAuthorComments setting is active -
+    // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
+    const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
+    for (let comment of unreviewedComments) {
+      await updateMutator<DbComment>({
+        collection: Comments,
+        documentId: comment._id,
+        set: {
+          authorIsUnreviewed: false,
+        },
+        validate: false
+      });
+    }
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document}: UpdateCallbackProperties<DbUser>) {
-  void triggerReviewIfNeeded(document._id)
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
+  const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
+  if (reviewTriggerFields.some(field => field in data)) {
+    void triggerReviewIfNeeded(document._id)
+  }
 })
 
 // When the very first user account is being created, add them to Sunshine
@@ -195,6 +206,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
 // client ID, so that their A/B test groups will persist from when they were
 // logged out.
 getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
+  // FIXME totally broken
   if (!user.abTestKey) {
     const abTestKey = user.profile?.clientId || randomId();
     await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
@@ -369,17 +381,16 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
   });
 });
 
-
-const welcomeMessageDelayer = new EventDebouncer<string,{}>({
+const welcomeMessageDelayer = new EventDebouncer({
   name: "welcomeMessageDelay",
   
-  // Delay 60 minutes between when you create an account, and when we send the
-  // welcome email. (You can still see the welcome post immediately, which on
-  // LW is the same thing, if you want). The theory is that users creating new
+  // Delay is by default 60 minutes between when you create an account, and when we send the
+  // welcome email. The theory is that users creating new
   // accounts are often doing so because they're about to write a comment or
   // something, and derailing them with a bunch of stuff to read at that
   // particular moment could be bad.
-  defaultTiming: {type: "delayed", delayMinutes: 60 },
+  // LW wants people to see site intro before posting
+  defaultTiming: isLW ? {type: "none" } : {type: "delayed", delayMinutes: 60 },
   
   callback: (userId: string) => {
     void sendWelcomeMessageTo(userId);
@@ -389,7 +400,6 @@ const welcomeMessageDelayer = new EventDebouncer<string,{}>({
 getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
-    data: {},
   });
 });
 

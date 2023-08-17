@@ -4,6 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
   <p>LW moderators will consider this post for frontpage</p>
@@ -40,7 +41,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",
@@ -49,12 +49,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   checkboxLabel: {
-    fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
-    color: theme.palette.text.dim40,
+    fontSize: 14,
+    color: theme.palette.grey[680],
     verticalAlign: 'middle',
-    lineHeight: '1.25em'
+    lineHeight: '1.25em',
+    marginTop: '3px',
+    cursor: 'pointer'
+  },
+  checkbox: {
+    padding: 6
   },
   tooltip: {
     '& ul': {
@@ -73,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
+export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,
   currentValues: any,
   document: any,
@@ -111,8 +115,10 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     return <div className={classes.submitToFrontpageWrapper}>
       <Tooltip title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
-          <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick}/>
-          <span className={classes.checkboxLabel}>{label}</span>
+          <InputLabel className={classes.checkboxLabel}>
+            <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
+            {label}
+          </InputLabel>
         </div>
       </Tooltip>
     </div>

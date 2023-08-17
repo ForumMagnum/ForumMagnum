@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { FC } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import { forumTitleSetting, isEAForum, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
+import classNames from 'classnames';
+import { getAllTagsPath } from '../../../lib/routes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -27,21 +30,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipTitle: {
     marginBottom: 8,
   },
+  sectionTitle: {
+    fontSize: 14,
+  },
 })
 
 const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki'
 const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki'
 
-export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags";
-
+export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
 interface ContentTypeSettings {
-  tooltipTitle: string,
-  tooltipBody: React.ReactNode,
+  tooltipTitle?: string,
+  tooltipBody?: React.ReactNode,
   linkTarget: string|null,
   Icon: any,
 }
+type ContentTypeRecord = {
+  frontpage: ContentTypeSettings,
+  personal: ContentTypeSettings,
+  curated: ContentTypeSettings,
+  shortform: ContentTypeSettings,
+  tags: ContentTypeSettings,
+  subforumDiscussion?: ContentTypeSettings,
+}
 
-export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSettings>> = {
+export const contentTypes: ForumOptions<ContentTypeRecord> = {
   LessWrong: {
     frontpage: {
       tooltipTitle: 'Frontpage Post',
@@ -99,7 +112,7 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   },
   AlignmentForum: {
@@ -157,7 +170,7 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
         a more durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   },
   EAForum: {
@@ -195,12 +208,12 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
       Icon: StarIcon,
     },
     shortform: {
-      tooltipTitle: 'Shortform',
+      tooltipTitle: 'Quick take',
       tooltipBody: <div>
         Writing that is brief, or written very quickly. Perfect for off-the-cuff
         thoughts, brainstorming, early stage drafts, etc.
       </div>,
-      linkTarget: "/shortform",
+      linkTarget: "/quicktakes",
       Icon: SubjectIcon
     },
     tags: {
@@ -210,8 +223,12 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
+    subforumDiscussion: {
+      Icon: QuestionAnswerIcon,
+      linkTarget: null,
+    }
   },
   default: {
     frontpage: {
@@ -270,30 +287,64 @@ export const contentTypes: ForumOptions<Record<ContentTypeString,ContentTypeSett
         durable format.
       </div>,
       Icon: TagIcon,
-      linkTarget: '/tags/all',
+      linkTarget: getAllTagsPath(),
     },
   }
 }
 
-const ContentType = ({classes, type, label}: {
+const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
+  classes,
+  className,
+  children,
+}) =>
+  isEAForum
+    ? <>{children}</>
+    : <Components.Typography
+      variant="body1"
+      component="span"
+      className={classNames(classes.root, className)}
+    >
+        {children}
+    </Components.Typography>;
+
+const ContentType = ({classes, className, type, label}: {
   classes: ClassesType,
+  className?: string,
   type: ContentTypeString,
   label?: string
 }) => {
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const { LWTooltip, Typography } = Components
+  const { LWTooltip, SectionTitle } = Components
 
   const contentData = forumSelect(contentTypes)[type]
-  return <Typography variant="body1" component="span" className={classes.root}>
-    <LWTooltip title={<React.Fragment>
-      <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
-      {contentData.tooltipBody}
-    </React.Fragment>}>
-      <span><contentData.Icon className={classes.icon} />{label ? " "+label : ""}</span>
-    </LWTooltip>
-  </Typography>
+  if (!contentData) {
+    throw new Error(`Content type ${type} invalid for this forum type`)
+  }
+
+  const innerComponent = isEAForum
+    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
+    : <span>
+      <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
+    </span>;
+
+  return (
+    <ContentTypeWrapper className={className} classes={classes}>
+      {contentData.tooltipTitle ? (
+        <LWTooltip
+          title={
+            <React.Fragment>
+              <div className={classes.tooltipTitle}>{contentData.tooltipTitle}</div>
+              {contentData.tooltipBody}
+            </React.Fragment>
+          }
+        >
+          {innerComponent}
+        </LWTooltip>
+      ) : innerComponent}
+    </ContentTypeWrapper>
+  );
 }
 
 const ContentTypeComponent = registerComponent('ContentType', ContentType, {styles});

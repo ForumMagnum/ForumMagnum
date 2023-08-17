@@ -5,14 +5,23 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import { isEAForum } from '../../lib/instanceSettings';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
-    paddingBottom: "2px",
     fontFamily: theme.typography.fontFamily,
-    fontSize: "16px",
     marginLeft: "5px",
+
+    ...(isEAForum
+      ? {
+        fontSize: 14,
+        fontWeight: 500,
+        textTransform: "none",
+      }
+      : {
+        paddingBottom: 2,
+        fontSize: 16,
+      }),
 
     "&:hover": {
       background: theme.palette.panelBackground.darken05,
@@ -23,9 +32,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim40,
   },
 
-  submitButton: {
-    color: theme.palette.secondary.main,
-  },
+  submitButton: isEAForum
+    ? {
+      background: theme.palette.primary.main,
+      color: "#fff", // Dark mode independent
+      "&:hover": {
+        background: theme.palette.primary.light,
+      },
+    }
+    : {
+      color: theme.palette.secondary.main,
+    },
 });
 
 const FormSubmit = ({
@@ -33,18 +50,26 @@ const FormSubmit = ({
   cancelLabel = "Cancel",
   cancelCallback,
   document,
-  deleteDocument,
   collectionName,
   classes,
-},
+}: FormButtonProps & {classes: ClassesType},
 {
   updateCurrentValues,
   addToDeletedValues
-}) => {
+}: FormComponentContext<any>) => {
   const currentUser = useCurrentUser();
-  
+
+  // NOTE: collectionName was previously annotated with type Lowercase<CollectionNameString>
+  // and was used in case-sensitive comparisons with collection names like "posts".
+  // Type-annotating more of the forms system said that what should be getting passed
+  // is actually a regular CollectionNameString. I'm not sure what's going on here; I
+  // suspect that the cases that were being handled by these were actually transferred to
+  // other components like PostSubmit at some point, and this is legacy.
+
+  const outlined = !isEAForum && collectionName.toLowerCase() === "users";
+
   return <div className="form-submit">
-    {collectionName === "posts" && <span className="post-submit-buttons">
+    {collectionName.toLowerCase() === "posts" && <span className="post-submit-buttons">
       { !document.isEvent &&
         !document.meta &&
         userCanDo(currentUser, 'posts.curate.all') && !document.question &&
@@ -52,7 +77,7 @@ const FormSubmit = ({
             type="submit"
             className={classNames(classes.formButton, classes.secondaryButton)}
             onClick={() => {
-              updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
+              void updateCurrentValues({frontpageDate: document.frontpageDate ? null : new Date(), draft: false});
               if (document.frontpageDate) {
                 addToDeletedValues('frontpageDate')
               }
@@ -76,7 +101,7 @@ const FormSubmit = ({
           type="submit"
           className={classNames(classes.formButton, classes.secondaryButton)}
           onClick={() => {
-            updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
+            void updateCurrentValues({curatedDate: document.curatedDate ? null : new Date()})
             if (document.curatedDate) {
               addToDeletedValues('curatedDate')
             }
@@ -103,9 +128,9 @@ const FormSubmit = ({
 
     <Button
       type="submit"
-      onClick={() => collectionName === "posts" && updateCurrentValues({draft: false})}
+      onClick={() => collectionName.toLowerCase() === "posts" && updateCurrentValues({draft: false})}
       className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-      variant={collectionName=="users" ? "outlined" : undefined}
+      variant={outlined ? "outlined" : undefined}
     >
       {submitLabel}
     </Button>

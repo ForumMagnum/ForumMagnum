@@ -1,24 +1,22 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import mapValues from 'lodash/mapValues';
 
-class FormComponentNumber extends PureComponent<any> {
-  render() {
-    return <Components.MuiTextField
-      type="number"
-      {...this.props as any}
-      updateCurrentValues={
-        // MuiTextField returns a string - convert it into a number to avoid database errors
-        (values) => {
-          for (const key in values) {
-            values[key] = parseInt(values[key]);
-          }
-          this.props.updateCurrentValues(values);
+const FormComponentNumber = (props: FormComponentProps<number>) => {
+  return <Components.MuiTextField
+    type="number"
+    {...props}
+    value={""+props.value}
+    updateCurrentValues={
+      // MuiTextField returns a string - convert it into a number to avoid database errors
+      (values: any, options?: any) => {
+        for (const key in values) {
+          values[key] = parseInt(values[key]);
         }
+        return props.updateCurrentValues(values, options);
       }
-    />
-  }
+    }
+  />
 }
 
 (FormComponentNumber as any).contextTypes = {

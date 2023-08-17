@@ -39,4 +39,44 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
     ? TypesEqual<ObjType[FieldName],FieldType,FieldName&string,never>
     : never;
 
+type FromPartial<T> = T extends Partial<infer U> ? U : never;
+
+/** Either T, or a function taking P and returning T. */
+export type MaybeFunction<T,P> = T|((props:P)=>T)
+
+/**
+ * Has Typescript type "any" because it's a JSON blob coming from a user input,
+ * wire protocol field, config file, or similar. This should probably be
+ * validated and converted to a more specific type before use.
+ */
+export type AnyBecauseIsInput = any
+
+/**
+ * Has Typescript type "any" because no one has gotten around to annotating
+ * this with a more specific type yet. This is intended for code written prior
+ * to when we switched from Javascript to Typescript and should mostly not be
+ * used in new code.
+ *
+ * If something is cast to this, eg `(x as AnyBecauseTodo)[s]`, this indicates
+ * that without the cast it would be an implicit-any type error. This can happen
+ * if an object is annotated with a more detailed type than the index accessor;
+ * eg `s` is type `string` but `x` contains only *specific* strings.
+ */
+export type AnyBecauseTodo = any
+
+/**
+ * Has Typescript type "any" because this is legacy code that someone has
+ * judged to not be worth ever adding type annotations to, eg old migration and
+ * import scripts that are kept around for recordkeeping purposes but aren't
+ * expected to actually be used again.
+ */
+export type AnyBecauseObsolete = any
+
+/**
+ * Has Typescript type "any" because the developer spent more than 5 minutes
+ * trying to type this and was very frustrated. The developer promises they
+ * were not just being lazy.
+ */
+export type AnyBecauseHard = any
+
 }

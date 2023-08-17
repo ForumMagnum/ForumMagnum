@@ -2,14 +2,15 @@ import { Components, registerComponent, getCollection } from '../../lib/vulcan-l
 import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
-import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
+import { userCanVote } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
+import type { VotingProps } from './votingProps';
+import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
-import type { VotingProps } from './withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -20,13 +21,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: 2,
+    borderRadius: isEAForum ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },
   vote: {
     fontSize: 25,
     lineHeight: 0.6,
+    whiteSpace: "nowrap",
     display: "inline-block"
   },
   voteScore: {
@@ -49,26 +51,50 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipHelp: {
     fontSize: '1rem',
     fontStyle: "italic"
-  }
+  },
+  tooltip: {
+    transform: isEAForum ? "translateY(-10px)" : undefined,
+  },
+  verticalArrows: {
+    "& .LWTooltip-root": {
+      transform: "translateY(1px)",
+    },
+    "& $voteScore": {
+      transform: "translateY(-2px)",
+      display: "block",
+    },
+  },
 })
 
-const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBox=false }: {
+const OverallVoteAxis = ({
+  document,
+  hideKarma=false,
+  voteProps,
+  classes,
+  showBox=false,
+  className,
+}: {
   document: VoteableTypeClient,
   hideKarma?: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   showBox?: boolean
+  className?: string,
 }) => {
   const currentUser = useCurrentUser();
-  const {eventHandlers, hover} = useHover();
-  
+
   if (!document) return null;
 
   const { OverallVoteButton, LWTooltip } = Components
 
   const collection = getCollection(voteProps.collectionName);
-  const voteCount = voteProps.voteCount;
+  const extendedScore = voteProps.document?.extendedScore
+  const voteCount = extendedScore && ("approvalVoteCount" in extendedScore)
+    ? extendedScore.approvalVoteCount
+    : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
 
   let moveToAlignnmentUserId = ""
   let documentTypeName = "comment";
@@ -86,20 +112,60 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
   const af = (document as any).af;
   const afDate = (document as any).afDate;
   const afBaseScore = (document as any).afBaseScore;
-  
+
   const moveToAfInfo = userIsAdmin(currentUser) && !!moveToAlignnmentUserId && (
     <div className={classes.tooltipHelp}>
-      {hover && <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>}
+      <span>Moved to AF by <Components.UsersName documentId={moveToAlignnmentUserId }/> on { afDate && moment(new Date(afDate)).format('YYYY-MM-DD') }</span>
     </div>
   )
 
-  return (
-    <span className={classes.vote} {...eventHandlers}>
+  const karmaTooltipTitle = hideKarma
+    ? 'This post has disabled karma visibility'
+    : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
+
+  const TooltipIfDisabled = (canVote
+    ? ({children}: {children: React.ReactNode}) => <>{children}</>
+    : ({children}: {children: React.ReactNode}) => <LWTooltip
+      placement="top"
+      popperClassName={classes.tooltip}
+      title={<>
+        <div>{whyYouCantVote}</div>
+        <div>{karmaTooltipTitle}</div>
+      </>}
+    >
+      {children}
+    </LWTooltip>
+  )
+  const TooltipIfEnabled = (canVote
+    ? ({children, ...props}: React.ComponentProps<typeof LWTooltip>) =>
+      <LWTooltip {...props} popperClassName={classes.tooltip}>
+        {children}
+      </LWTooltip>
+    : ({children}: {children: React.ReactNode}) => <>{children}</>
+  );
+
+  const tooltipPlacement = isEAForum ? "top" : "bottom";
+
+  const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
+  // TODO: In the fullness of time
+  const verticalArrows = false;
+  if (verticalArrows) {
+    buttonProps.solidArrow = true;
+  }
+
+  return <TooltipIfDisabled>
+    <span className={classes.vote}>
       {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
-        <LWTooltip placement="bottom" title={<div>
-            <p>AI Alignment Forum Karma</p>
-            { moveToAfInfo }
-        </div>}>
+        <LWTooltip
+          placement={tooltipPlacement}
+          popperClassName={classes.tooltip}
+          title={
+            <div>
+              <p>AI Alignment Forum Karma</p>
+              { moveToAfInfo }
+            </div>
+          }
+        >
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>Ω</span>
             <span className={classes.secondaryScoreNumber}>{afBaseScore || 0}</span>
@@ -107,7 +173,11 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
         </LWTooltip>
       }
       {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
-        <LWTooltip title="LessWrong Karma" placement="bottom">
+        <LWTooltip
+          title="LessWrong Karma"
+          placement={tooltipPlacement}
+          className={classes.tooltip}
+        >
           <span className={classes.secondaryScore}>
             <span className={classes.secondarySymbol}>LW</span>
             <span className={classes.secondaryScoreNumber}>{document.baseScore || 0}</span>
@@ -115,43 +185,48 @@ const OverallVoteAxis = ({ document, hideKarma=false, voteProps, classes, showBo
         </LWTooltip>
       }
       {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
-        <span className={classNames(classes.overallSection, {[classes.overallSectionBox]: showBox})}>
-          <LWTooltip
+        <span className={classNames(classes.overallSection, className, {
+          [classes.overallSectionBox]: showBox,
+          [classes.verticalArrows]: verticalArrows,
+        })}>
+          <TooltipIfEnabled
             title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement="bottom"
+            placement={tooltipPlacement}
           >
             <OverallVoteButton
-              orientation="left"
+              orientation={verticalArrows ? "down" : "left"}
               color="error"
               upOrDown="Downvote"
+              enabled={canVote}
               {...voteProps}
+              {...buttonProps}
             />
-          </LWTooltip>
-          {hideKarma ?
-            <LWTooltip title={'The author of this post has disabled karma visibility'}>
-              <span>{' '}</span>
-            </LWTooltip> :
-            <LWTooltip title={<div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>} placement="bottom">
-              <span className={classes.voteScore}>
-                {karma}
-              </span>
-            </LWTooltip>
-          }
-          <LWTooltip
+          </TooltipIfEnabled>
+          <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
+            {hideKarma
+              ? <span>{' '}</span>
+              : <span className={classes.voteScore}>
+                  {karma}
+                </span>
+            }
+          </TooltipIfEnabled>
+          <TooltipIfEnabled
             title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement="bottom"
+            placement={tooltipPlacement}
           >
             <OverallVoteButton
-              orientation="right"
+              orientation={verticalArrows ? "up" : "right"}
               color="secondary"
               upOrDown="Upvote"
+              enabled={canVote}
               {...voteProps}
+              {...buttonProps}
             />
-          </LWTooltip>
+          </TooltipIfEnabled>
         </span>
       }
     </span>
-  )
+  </TooltipIfDisabled>
 }
 
 const OverallVoteAxisComponent = registerComponent('OverallVoteAxis', OverallVoteAxis, {styles});
@@ -161,4 +236,3 @@ declare global {
     OverallVoteAxis: typeof OverallVoteAxisComponent
   }
 }
-

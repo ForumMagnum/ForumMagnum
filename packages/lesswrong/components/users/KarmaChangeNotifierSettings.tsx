@@ -5,9 +5,9 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
-import withTimezone from '../common/withTimezone';
+import { withTimezone } from '../common/withTimezone';
+import { isEAForum } from '../../lib/instanceSettings';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
@@ -18,6 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
+  },
+  heading: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
   radioGroup: {
     marginTop: 4,
@@ -33,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 4,
   },
   showNegative: {
-    paddingLeft: 2,
+    paddingLeft: 16,
   },
 });
 
@@ -75,7 +78,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingTimeOfDay = (timeOfDay: number, tz) => {
+  setBatchingTimeOfDay = (timeOfDay: number, tz: AnyBecauseTodo) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: timeOfDay,
@@ -89,7 +92,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     });
   }
   
-  setBatchingDayOfWeek = (dayOfWeek: string, tz) => {
+  setBatchingDayOfWeek = (dayOfWeek: string, tz: AnyBecauseTodo) => {
     const oldTimeLocalTZ = this.getBatchingTimeLocalTZ();
     const newTimeLocalTZ = {
       timeOfDay: oldTimeLocalTZ.timeOfDay,
@@ -112,7 +115,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
   
   render() {
     const { timezone, classes } = this.props;
-    const { Typography } = Components;
+    const { Typography, MenuItem } = Components;
     const settings = this.props.value || {}
 
     if (!settings.timeOfDayGMT || !settings.dayOfWeekGMT) {
@@ -155,7 +158,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     </span>
     
     return <div className={classes.root}>
-      <Typography variant="body1">
+      <Typography variant="body1" className={classes.heading}>
         Vote Notifications
       </Typography>
       <Typography variant="body2">
@@ -193,16 +196,20 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         doing something else.
       </span> }
       {
-        <div className={classes.showNegative}>
-          <Checkbox
+        <FormControlLabel
+          control={<Checkbox
+            id="showNegativeCheckbox"
             classes={{root: classes.checkbox}}
             checked={settings.showNegativeKarma}
             onChange={(event, checked) => this.modifyValue({showNegativeKarma: checked})}
-          />
-          <Typography variant="body2" className={classes.inline} component="label">
-            Show negative karma notifications
-          </Typography>
-        </div>
+          />}
+          label={
+            <Typography variant="body2" className={classes.inline}>
+              Show negative karma notifications
+            </Typography>
+          }
+          className={classes.showNegative}
+        />
       }
     </div>
   }

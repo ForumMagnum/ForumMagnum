@@ -77,6 +77,7 @@ defineFeedResolver<Date>({
           selector: {
             parentCommentId: null,
             tagId,
+            tagCommentType: "DISCUSSION",
           },
         }),
       ],

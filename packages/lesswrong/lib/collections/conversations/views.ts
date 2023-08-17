@@ -1,4 +1,4 @@
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting } from '../../instanceSettings';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import Conversations from "./collection";
@@ -25,13 +25,14 @@ Conversations.addDefaultView(function (terms: ConversationsViewTerms) {
 
 // notifications for the site moderation team
 Conversations.addView("moderatorConversations", function (terms: ConversationsViewTerms) {
+  const participantIds = terms.userId ? {participantIds: terms.userId} : {}
   const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
   return {
-    selector: {moderator: true, messageCount: {$gt: 0}, ...showArchivedFilter},
+    selector: {moderator: true, messageCount: {$gt: 0}, ...showArchivedFilter, ...participantIds},
     options: {sort: {latestActivity: -1}}
   };
 });
-ensureIndex(Conversations, { moderator: 1, messageCount: 1, latestActivity: -1 })
+ensureIndex(Conversations, { moderator: 1, messageCount: 1, latestActivity: -1, participantIds: 1 })
 
 // notifications for a specific user (what you see in the notifications menu)
 Conversations.addView("userConversations", function (terms: ConversationsViewTerms) {

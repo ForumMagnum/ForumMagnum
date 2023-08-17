@@ -1,27 +1,75 @@
-
 name: Run Unit Tests
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    branches-ignore:
+      - ea-deploy
+  workflow_dispatch:
+env:
+  BROWSERSLIST_IGNORE_OLD_DATA: 1
 jobs:
-  buildAndTest:
+  runLint:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [14.x]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - run: yarn run eslint
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+  runTypecheck:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - run: yarn run tsc
+
+  runUnitTests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - run: yarn run unit-ci
+    - uses: actions/upload-artifact@v1
+      if: failure()
       with:
-        node-version: ${{ matrix.node-version }}
+        name: Upload schema to accept
+        path: schema/schema_to_accept.sql
 
-    - name: yarn install
-      run: yarn install
-
-    - name: yarn run lint
-      run: yarn run lint
-
-    - name: yarn run test-ci
-      run: yarn run test-ci
+  runIntegrationTests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.5-alpine
+        env:
+          POSTGRES_DB: unittest_jest_template
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      mongodb:
+        image: mongo:4.4.17
+        ports:
+          - 27017:27017
+    env:
+      TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
+      PG_URL: postgres://postgres:postgres@localhost:5432/postgres
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup database schema
+      run: yarn create-integration-db-ci
+    - name: yarn run integration-ci
+      run: yarn run integration-ci

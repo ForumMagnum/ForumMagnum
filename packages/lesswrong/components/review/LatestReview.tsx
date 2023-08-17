@@ -22,14 +22,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   lastReview: {
     ...theme.typography.commentStyle,
-    color: theme.palette.grey[600]
+    color: theme.palette.grey[600],
+    position: "relative",
+    top: -2
   },
   title: {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    display: "block"
   }
 })
 
-const LatestReview = ({classes}) => {
+const LatestReview = ({classes}: { classes: ClassesType }) => {
   const { PostsPreviewTooltipSingleWithComment, LWPopper, ErrorBoundary } = Components
 
   const { results: commentResults } = useMulti({

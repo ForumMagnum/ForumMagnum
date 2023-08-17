@@ -24,7 +24,7 @@ interface AFApplicationFormState {
 class AFApplicationForm extends PureComponent<AFApplicationFormProps,AFApplicationFormState> {
   state: AFApplicationFormState = { applicationText: "" }
 
-  handleSubmission = (event) => {
+  handleSubmission = (event: React.MouseEvent<HTMLElement>) => {
     const { updateCurrentUser, flash, onClose } = this.props
     event.preventDefault();
     void updateCurrentUser({

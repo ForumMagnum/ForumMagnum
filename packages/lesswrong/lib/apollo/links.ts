@@ -3,6 +3,10 @@ import { SchemaLink } from '@apollo/client/link/schema';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
+import { DatabasePublicSetting } from "../publicSettings";
+import { Operation, selectURI } from "@apollo/client/core";
+
+const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
 export const crosspostUserAgent = "ForumMagnum/2.1";
 
@@ -19,33 +23,51 @@ export const crosspostUserAgent = "ForumMagnum/2.1";
  * Schema link is used for SSR
  */
 export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  new SchemaLink({ schema, context });
+  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
+  new SchemaLink({ schema, context: () => ({...context}) });
 
 /**
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl = '/') => {
-  // Type of window.fetch may differ slightly from type of the fetch used on server
-  let fetch: typeof window.fetch;
-  if (isServer) {
-    // We won't need to import fetch in node 18
-    const nodeFetch = require('node-fetch');
-    fetch = (url, options) => nodeFetch(url, {
+  const uri = baseUrl + 'graphql';
+
+  const batchKey = (operation: Operation) => {
+    // The default part is copied from https://github.com/apollographql/apollo-client/blob/main/src/link/batch-http/batchHttpLink.ts#L192-L206
+    const context = operation.getContext();
+
+    const contextConfig = {
+      http: context.http,
+      options: context.fetchOptions,
+      credentials: context.credentials,
+      headers: context.headers,
+    };
+
+    const defaultBatchKey = selectURI(operation, uri) + JSON.stringify(contextConfig);
+
+    // If the operation has a batchKey variable, add that to the batch key.
+    // This is to manually separate out very slow queries
+    const explicitBatchKey = operation.variables?.batchKey;
+
+    return explicitBatchKey && typeof explicitBatchKey === "string" ? defaultBatchKey : defaultBatchKey + explicitBatchKey;
+  };
+
+  const fetch: typeof globalThis.fetch = isServer
+    ? (url, options) => globalThis.fetch(url, {
       ...options,
       headers: {
         ...options?.headers,
         // user agent because LW bans bot agents
         'User-Agent': crosspostUserAgent,
       }
-    });
-  } else {
-    fetch = window.fetch;
-  }
+    })
+    : globalThis.fetch;
   return new BatchHttpLink({
-    uri: baseUrl + 'graphql',
+    uri,
     credentials: baseUrl === '/' ? 'same-origin' : 'omit',
-    batchMax: 50,
+    batchMax: graphqlBatchMaxSetting.get(),
     fetch,
+    batchKey,
   });
 }
 

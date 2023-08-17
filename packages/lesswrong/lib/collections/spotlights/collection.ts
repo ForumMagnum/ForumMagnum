@@ -2,10 +2,12 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const Spotlights: SpotlightsCollection = createCollection({
   collectionName: 'Spotlights',
   typeName: 'Spotlight',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Spotlights'),
   mutations: getDefaultMutations('Spotlights')
@@ -25,9 +27,9 @@ makeEditable({
       return {id: `spotlight:create`, verify:true}
     },
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['admins', 'sunshineRegiment'],
-      insertableBy: ['admins', 'sunshineRegiment']
+      canRead: ['guests'],
+      canUpdate: ['admins', 'sunshineRegiment'],
+      canCreate: ['admins', 'sunshineRegiment']
     },
     order: 100
   }

@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     margin: 8,
+    "& .MuiTypography-root": {
+      color: theme.palette.text.normal,
+    },
   },
   link: {
     color: theme.palette.primary.main,
@@ -62,18 +65,16 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
 
   const {Loading} = Components;
-  return document && !loading
-    ? (
-      <div className={classes.crosspostMessage}>
-        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
-        your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-          {document.username}
-        </a>
-      </div>
-    )
-    : (
-      <Loading />
-    );
+  
+  if (!document || loading) {
+    return <Loading/>
+  }
+  return <div className={classes.crosspostMessage}>
+    This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
+    your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
+      {document.username}
+    </a>
+  </div>
 }
 
 /**
@@ -154,9 +155,14 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
       if (!document?.fmCrosspostUserId) {
         try {
           const result = await fetch("/api/crosspostToken");
-          const {token} = await result.json();
-          setToken(token);
-          setError(null);
+          const {token, error} = await result.json();
+          if (token) {
+            setToken(token);
+          } else if (typeof error === 'string') {
+            setError(error);
+          } else {
+            setError("Couldn't create login token");
+          }
         } catch {
           setError("Couldn't create login token");
         }

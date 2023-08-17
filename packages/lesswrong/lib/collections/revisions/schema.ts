@@ -48,7 +48,7 @@ export const getOriginalContents = (currentUser: DbUser|null, document: DbObject
     currentUser,
     // We need `userIsPodcaster` here to make it possible for podcasters to open post edit forms to add/update podcast episode info
     // Without it, `originalContents` may resolve to undefined, which causes issues in revisionResolvers
-    { viewableBy: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
+    { canRead: [userOwns, canViewOriginalContents, userIsPodcaster, 'admins', 'sunshineRegiment'] },
     document
   )
 
@@ -58,21 +58,22 @@ export const getOriginalContents = (currentUser: DbUser|null, document: DbObject
 const schema: SchemaType<DbRevision> = {
   documentId: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   collectionName: {
     type: String,
-    viewableBy: ['guests'],
+    optional: true,
+    canRead: ['guests'],
     typescriptType: "CollectionNameString",
   },
   fieldName: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   editedAt: {
     type: Date,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   
   // autosaveTimeoutStart: If this revision was created by rate-limited
@@ -92,8 +93,8 @@ const schema: SchemaType<DbRevision> = {
   },
   
   updateType: {
-    viewableBy: ['guests'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
     type: String,
     allowedValues: ['initial', 'patch', 'minor', 'major'],
     optional: true
@@ -101,13 +102,13 @@ const schema: SchemaType<DbRevision> = {
   version: {
     type: String,
     optional: true,
-    viewableBy: ['guests']
+    canRead: ['guests']
   },
   commitMessage: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members']
+    canRead: ['guests'],
+    canUpdate: ['members']
   },
   userId: {
     ...foreignKeyField({
@@ -117,7 +118,7 @@ const schema: SchemaType<DbRevision> = {
       type: "User",
       nullable: true
     }),
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     optional: true,
   },
   
@@ -139,11 +140,11 @@ const schema: SchemaType<DbRevision> = {
     type: Boolean,
     hidden: true,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   originalContents: {
     type: ContentType,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolveAs: {
       type: 'ContentType',
       resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
@@ -163,58 +164,59 @@ const schema: SchemaType<DbRevision> = {
   html: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
   },
   markdown: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   draftJS: {
     type: Object,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   ckEditorMarkup: {
     type: String,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   wordCount: {
     type: Number,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
+    optional: true,
     // resolveAs defined in resolvers.js
   },
   htmlHighlight: {
     type: String, 
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   htmlHighlightStartingAtHash: {
     type: String, 
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   plaintextDescription: {
     type: String, 
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     // resolveAs defined in resolvers.js
   },
   plaintextMainText: {
     type: String,
-    viewableBy: ['guests']
+    canRead: ['guests']
     // resolveAs defined in resolvers.js
   },
   changeMetrics: {
     type: Object,
     blackbox: true,
-    viewableBy: ['guests']
+    canRead: ['guests']
   },
   
   tag: resolverOnlyField({
     type: "Tag",
     graphQLtype: "Tag",
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
@@ -226,7 +228,7 @@ const schema: SchemaType<DbRevision> = {
   post: resolverOnlyField({
     type: "Post",
     graphQLtype: "Post",
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")

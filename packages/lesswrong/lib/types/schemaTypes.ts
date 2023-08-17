@@ -1,22 +1,14 @@
 import type { GraphQLScalarType } from 'graphql';
 import type { SimpleSchema } from 'simpl-schema';
+import { formProperties } from '../vulcan-forms/schema_utils';
+import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
+import { permissionGroups } from "../permissions";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-// TODO: This should probably be defined in some central permissions file
-type PermissionGroups = 'guests' |
-  'members' |
-  'admins' |
-  'sunshineRegiment' |
-  'alignmentForumAdmins' |
-  'alignmentForum' |
-  'alignmentVoters' |
-  'podcasters' |
-  'canBypassPostRateLimit' |
-  'trustLevel1' |
-  'canModeratePersonal';
+type PermissionGroups = typeof permissionGroups[number];
 
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
@@ -24,13 +16,12 @@ type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|nul
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
-  viewableBy?: FieldPermissions,
-  insertableBy?: FieldCreatePermissions,
-  editableBy?: FieldPermissions,
   canRead?: FieldPermissions,
   canUpdate?: FieldPermissions,
   canCreate?: FieldCreatePermissions,
 }
+
+type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
@@ -65,11 +56,9 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: any,
-  allowedValues?: any,
+  options?: MaybeFunction<any,SmartFormProps>,
+  allowedValues?: string[],
   
-  form?: any,
-  input?: any,
   /**
    * Custom props that will be passed to the input component. Can pass in
    * values or functions. All functions will be called before being passed into
@@ -88,9 +77,9 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *   decorativeComponent: () => MyDecorativeComponent
    * }
    *
-   * NOTE: this is unused and untested as of 2022-05
+   * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  inputProperties?: any,
+  form?: MaybeFunction<any,SmartFormProps>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -99,21 +88,11 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   label?: string,
   tooltip?: string,
   // See: packages/lesswrong/components/vulcan-forms/FormComponent.tsx
-  control?: 'text' |
-    'number' |
-    'url' |
-    'email' |
-    'textarea' |
-    'checkbox' |
-    'checkboxgroup' |
-    'radiogroup' |
-    'select' |
-    'datetime' |
-    'date' |
-    keyof ComponentTypes,
+  input?: FormInputType,
+  control?: FormInputType,
   placeholder?: string,
-  hidden?: boolean|((formProps: any)=>boolean),
-  group?: FormGroup,
+  hidden?: MaybeFunction<boolean,SmartFormProps>,
+  group?: FormGroupType<T>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -126,14 +105,38 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //
+  /** DEPRECATED */
   onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
   onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
+  /** DEPRECATED */
   onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
   onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
   onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
 }
 
-type FormGroup = {
+/** Field specification for a Form field, created from the collection schema */
+type FormField<T extends DbObject> = Pick<
+  CollectionFieldSpecification<T>,
+  typeof formProperties[number]
+> & {
+  document: any
+  name: string
+  datatype: any
+  layout: string
+  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  label: string
+  help: string
+  path: string
+  parentFieldName?: string
+  disabled?: boolean
+  arrayField: any
+  arrayFieldSchema: any
+  nestedInput: any
+  nestedSchema: any
+  nestedFields: any
+}
+
+type FormGroupType<T extends DbObject = DbObject> = {
   name?: string,
   order: number,
   label?: string,
@@ -142,6 +145,8 @@ type FormGroup = {
   defaultStyle?: boolean,
   helpText?: string,
   flexStyle?: boolean,
+  flexAlignTopStyle?: boolean,
+  fields?: FormField<T>[]
 }
 
 type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>

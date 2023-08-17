@@ -1,48 +1,73 @@
-import { forumTypeSetting, ForumTypeString } from '../lib/instanceSettings';
+import { DeferredForumSelect, forumSelect } from '../lib/forumTypeUtils';
+import { forumTypeSetting } from '../lib/instanceSettings';
+import { TupleSet } from '../lib/utils/typeGuardUtils';
 
-export type UserThemeName = "default"|"dark"
+export const userThemeNames = new TupleSet(["default", "dark"] as const);
+export const userThemeSettings = new TupleSet([...userThemeNames, "auto"] as const);
+export const muiThemeNames = new TupleSet(["light", "dark"] as const);
 
 export type ThemeOptions = {
-  name: UserThemeName
-  
-  // Overridden forum type (for admins to quickly test AF and EA Forum themes).
-  // This is the form of a partial forum-type=>forum-type mapping, where keys
-  // are the actual forum you're visiting and values are the theme you want.
-  // (So if you override this on LW, then go to AF it isn't overridden there,
-  // and vise versa.)
-  siteThemeOverride: Partial<Record<ForumTypeString,ForumTypeString>>
+  name: UserThemeName,
+  siteThemeOverride?: SiteThemeOverride,
 }
+
+export type AbstractThemeOptions = {
+  name: UserThemeSetting,
+  siteThemeOverride?: SiteThemeOverride,
+}
+
+export const themeOptionsAreConcrete = (themeOptions: AbstractThemeOptions): themeOptions is ThemeOptions =>
+  userThemeNames.has(themeOptions.name);
 
 export type ThemeMetadata = {
   // Name to use for this theme internally, in config settings and stylesheet
   // names and whatnot. URL-safe characters only.
-  name: UserThemeName
-  
+  name: UserThemeSetting
+
   // Name to use for this theme when displaying it in menus. Title cased, with
   // spaces.
   label: string
 }
 
-export const themeMetadata: Array<ThemeMetadata> = [
-  {
-    name: "default",
-    label: "Default"
-  },
-  {
-    name: "dark",
-    label: "Dark Mode"
-  },
-]
+export const themeMetadata: Array<ThemeMetadata> = forumTypeSetting.get() === "EAForum"
+  ? [
+    {
+      name: "auto",
+      label: "Auto",
+    },
+    {
+      name: "default",
+      label: "Light",
+    },
+    {
+      name: "dark",
+      label: "Dark",
+    },
+  ]
+  : [
+    {
+      name: "default",
+      label: "Default",
+    },
+    {
+      name: "dark",
+      label: "Dark Mode",
+    },
+    {
+      name: "auto",
+      label: "Auto",
+    },
+  ];
 
-export function isValidSerializedThemeOptions(options: string|object): boolean {
+export function isValidSerializedThemeOptions(options: string|object): options is string | AbstractThemeOptions {
   try {
     if (typeof options==="object") {
       const optionsObj = (options as any)
-      if (isValidThemeName(optionsObj.name))
+      if (isValidUserThemeSetting(optionsObj.name))
         return true;
     } else {
       const deserialized = JSON.parse(options as string);
-      if (isValidThemeName(deserialized.name))
+      if (isValidUserThemeSetting(deserialized.name))
         return true;
     }
     return false;
@@ -52,25 +77,66 @@ export function isValidSerializedThemeOptions(options: string|object): boolean {
   }
 }
 
-export function isValidThemeName(name: string): name is UserThemeName {
-  for (let theme of themeMetadata) {
-    if (theme.name === name)
-      return true;
-  }
-  return false;
-}
+export const isValidUserThemeSetting = (name: string): name is UserThemeSetting =>
+  userThemeSettings.has(name);
 
-export function getForumType(themeOptions: ThemeOptions) {
+export const resolveThemeName = (
+  theme: UserThemeSetting,
+  prefersDarkMode: boolean,
+): UserThemeName =>  theme === "auto"
+  ? (prefersDarkMode ? "dark" : "default")
+  : theme;
+
+export const abstractThemeToConcrete = (
+  theme: AbstractThemeOptions,
+  prefersDarkMode: boolean,
+): ThemeOptions => themeOptionsAreConcrete(theme)
+  ? theme
+  : {...theme, name: prefersDarkMode ? "dark" : "default"};
+
+export function getForumType(themeOptions: AbstractThemeOptions) {
   const actualForumType = forumTypeSetting.get();
   return (themeOptions?.siteThemeOverride && themeOptions.siteThemeOverride[actualForumType]) || actualForumType;
 }
 
-export const defaultThemeOptions = {"name":"default"};
+export const defaultThemeOptions = new DeferredForumSelect({
+  EAForum: {name: "auto"},
+  default: {name: "default"},
+} as const);
 
-export function getThemeOptions(themeCookie: string | object, user: DbUser|UsersCurrent|null) {
-  const themeOptionsFromCookie = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : null;
-  const themeOptionsFromUser = (user?.theme && isValidSerializedThemeOptions(user.theme)) ? user.theme : null;
-  const serializedThemeOptions = themeOptionsFromCookie || themeOptionsFromUser || defaultThemeOptions;
-  const themeOptions: ThemeOptions = (typeof serializedThemeOptions==="string") ? JSON.parse(serializedThemeOptions) : serializedThemeOptions;
-  return themeOptions;
+export const getDefaultThemeOptions = (): AbstractThemeOptions =>
+  defaultThemeOptions.get();
+
+const deserializeThemeOptions = (themeOptions: object | string): AbstractThemeOptions => {
+  if (typeof themeOptions === "string") {
+    return isValidUserThemeSetting(themeOptions)
+      ? {name: themeOptions}
+      : JSON.parse(themeOptions);
+  } else {
+    return themeOptions as AbstractThemeOptions;
+  }
 }
+
+const getSerializedThemeOptions = (
+  themeCookie: string | object,
+  user: DbUser|UsersCurrent | null,
+): string|AbstractThemeOptions => {
+  // Try to read from the cookie
+  if (themeCookie && isValidSerializedThemeOptions(themeCookie)) {
+    return themeCookie;
+  }
+
+  // Check if the user setting is a serialized ThemeOptions object
+  if (user?.theme && isValidSerializedThemeOptions(user.theme)) {
+    return user.theme;
+  }
+
+  // If we still don't have anything, use the default
+  return getDefaultThemeOptions();
+}
+
+export const getThemeOptions = (
+  themeCookie: string | object,
+  user: DbUser|UsersCurrent | null,
+): AbstractThemeOptions =>
+  deserializeThemeOptions(getSerializedThemeOptions(themeCookie, user));

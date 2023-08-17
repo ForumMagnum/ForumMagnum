@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import React, { useCallback } from 'react';
-import { eligibleToNominate, REVIEW_NAME_IN_SITU } from '../../lib/reviewUtils';
+import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { overviewTooltip } from './FrontpageReviewWidget';
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:number)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:VoteIndex)=>void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
   
@@ -39,10 +39,10 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: {
     _id: string|null,
     postId: string,
-    score: number
+    score: VoteIndex
   }) => {
     if (setNewVote) setNewVote(score)
-    return await submitVote({variables: {postId, qualitativeScore: score, year: 2020+"", dummy: false}})
+    return await submitVote({variables: {postId, qualitativeScore: score, year: REVIEW_YEAR.toString(), dummy: false}})
   }, [submitVote, setNewVote]);
 
   if (!eligibleToNominate(currentUser)) return null

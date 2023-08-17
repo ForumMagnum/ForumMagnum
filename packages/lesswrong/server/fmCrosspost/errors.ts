@@ -27,3 +27,15 @@ export class InvalidUserError extends ApiError {
     super(400, "Invalid user");
   }
 }
+
+export class InvalidPayloadError extends ApiError {
+  constructor() {
+    super(400, "Invalid payload");
+  }
+}
+
+export class InsufficientKarmaError extends ApiError {
+  constructor(requiredKarma: number) {
+    super(403, `You must have at least ${requiredKarma} karma to do this.`);
+  }
+}

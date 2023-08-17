@@ -14,8 +14,11 @@ import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import TextField from '@material-ui/core/TextField';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
+// mailchimp link to sign up for the EA Forum's digest
+export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,21 +29,40 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     ...theme.typography.body2,
     boxShadow: theme.palette.boxShadow.default,
+    borderRadius: theme.borderRadius.default,
 
     marginLeft: "auto",
     marginRight: "auto",
     maxWidth: 500,
   },
   adminNotice: {
-    fontStyle: "italic",
     textAlign: "left",
     marginTop: 22,
     fontSize: 12,
     lineHeight: 1.3,
+    fontStyle: "italic",
   },
   loginForm: {
     margin: "0 auto -4px",
     maxWidth: 252,
+  },
+  digestForm: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+    columnGap: 30,
+    rowGap: '14px',
+    padding: '20px 50px 20px 20px',
+    [theme.breakpoints.down('xs')]: {
+      padding: 10
+    }
+  },
+  digestFormInput: {
+    flexGrow: 1
+  },
+  digestFormSubmitBtn: {
+    minHeight: 0,
+    boxShadow: 'none'
   },
   message: {
     display: "flex",
@@ -82,6 +104,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+/**
+ * This is the ad that appears in "Recent discussion".
+ * For LW it's for the Curated email, and for EA Forum it's for the Forum Digest.
+ *
+ * It has some overlap with the Forum Digest ad that appears on the EA Forum home rhs.
+ * In particular, both components use currentUser.hideSubscribePoke,
+ * so for logged in users, hiding one ad hides the other.
+ *
+ * See EAHomeRightHandSide.tsx for the other component.
+ */
 const RecentDiscussionSubscribeReminder = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -199,8 +231,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.messageDescription}>
         You'll get a weekly email with the best posts from the past week.
         The Forum team selects the posts to feature based on personal preference
-        and Forum popularity, and also adds some question posts that could use
-        more answers.
+        and Forum popularity, and also adds some announcements and a classic post.
       </div>
     </>
   );
@@ -212,7 +243,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     const confirmText = forumTypeSetting.get() === 'EAForum' ?
-      "You're subscribed to the EA Forum Digest!" :
+      "You're subscribed to the EA Forum Digest" :
       "You are subscribed to the best posts of LessWrong!"
     return <AnalyticsWrapper branch="already-subscribed">
       <div className={classes.message}>
@@ -238,9 +269,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      <div className={classes.loginForm}>
+      {forumTypeSetting.get() === 'EAForum' ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
+        <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
+        <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
+          Sign up
+        </Button>
+      </form> : <div className={classes.loginForm}>
         <WrappedLoginForm startingState="signup" />
-      </div>
+      </div>}
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {

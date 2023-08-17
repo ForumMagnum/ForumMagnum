@@ -9,20 +9,18 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Search from '@material-ui/icons/Search';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
+import { isEAForum } from '../../lib/instanceSettings';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -40,11 +38,17 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       flexDirection: 'column',
       marginTop: 30,
     },
+    [theme.breakpoints.up('sm')]: {
+      marginTop: isEAForum ? 20 : undefined,
+    },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0
+    margin: 0,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -149,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: 12
+    fontSize: isEAForum ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -181,7 +185,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: 13,
+    fontSize: isEAForum ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10
@@ -242,16 +246,20 @@ const Community = ({classes}: {
    * @param {Object} location.gmaps - The Google Maps location data.
    * @param {string} location.gmaps.formatted_address - The user-facing address (ex: Cambridge, MA, USA).
    */
-  const saveUserLocation = ({lat, lng, gmaps}) => {
+  const saveUserLocation = ({lat, lng, gmaps}: {
+    lat: number;
+    lng: number;
+    gmaps?: google.maps.GeocoderResult
+  }) => {
     // save it in the page state
-    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps.formatted_address})
+    userLocation.setLocationData({lat, lng, loading: false, known: true, label: gmaps?.formatted_address})
 
     if (currentUser) {
       // save it on the user document
       void updateUser({
         selector: {_id: currentUser._id},
         data: {
-          location: gmaps.formatted_address,
+          location: gmaps?.formatted_address,
           googleLocation: gmaps
         }
       })
@@ -259,7 +267,7 @@ const Community = ({classes}: {
       // save it in local storage
       const ls = getBrowserLocalStorage()
       try {
-        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps.formatted_address}))
+        ls?.setItem('userlocation', JSON.stringify({lat, lng, known: true, label: gmaps?.formatted_address}))
       } catch(e) {
         // eslint-disable-next-line no-console
         console.error(e);
@@ -271,7 +279,11 @@ const Community = ({classes}: {
   // save it accordingly
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const saveReverseGeocodedLocation = async ({lat, lng, known}) => {
+  const saveReverseGeocodedLocation = async ({lat, lng, known}: {
+    lat: number;
+    lng: number;
+    known: boolean;
+  }) => {
     if (
       mapsLoaded &&     // we need Google Maps to be loaded before we can call the Geocoder
       !geocodeError &&  // if we've ever gotten a geocoding error, don't try again
@@ -330,15 +342,16 @@ const Community = ({classes}: {
     });
   }
   
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink, DistanceUnitToggle } = Components
+  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
+          DistanceUnitToggle, ForumIcon } = Components
   
-  const handleChangeTab = (e, value) => {
+  const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
     history.replace({...location, hash: `#${value}`})
   }
   
-  const handleKeywordSearch = (e) => {
+  const handleKeywordSearch = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newKeyword = e.target.value
     setKeywordSearch(newKeyword)
     // log the event after typing has stopped for 1 second
@@ -358,17 +371,6 @@ const Community = ({classes}: {
 
   return (
     <AnalyticsContext pageContext="Community">
-      
-      <div className={classes.section}>
-        <div className={classes.sectionHeadingRow}>
-          <h1 className={classes.sectionHeading}>
-            Community
-          </h1>
-          <div className={classes.sectionDescription}>
-            Effective altruism is a global community with thousands of members. Reach out to learn how you can have the most impact.
-          </div>
-        </div>
-      </div>
         
       <CommunityBanner />
 
@@ -384,7 +386,7 @@ const Community = ({classes}: {
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
+                startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
                 placeholder="Search groups"
                 onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}
@@ -418,8 +420,8 @@ const Community = ({classes}: {
             <div className={classes.notifications}>
               <Button variant="text" color="primary" onClick={openEventNotificationsForm} className={classes.notificationsBtn}>
                 {currentUser?.nearbyEventsNotifications ?
-                  <NotificationsIcon className={classes.notificationsIcon} /> :
-                  <NotificationsNoneIcon className={classes.notificationsIcon} />
+                  <ForumIcon icon="Bell" className={classes.notificationsIcon} /> :
+                  <ForumIcon icon="BellBorder" className={classes.notificationsIcon} />
                 } Notify me
               </Button>
             </div>
@@ -462,7 +464,7 @@ const Community = ({classes}: {
             <div className={classes.keywordSearch}>
               <OutlinedInput
                 labelWidth={0}
-                startAdornment={<Search className={classes.searchIcon}/>}
+                startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
                 placeholder="Search groups"
                 onChange={handleKeywordSearch}
                 className={classes.keywordSearchInput}

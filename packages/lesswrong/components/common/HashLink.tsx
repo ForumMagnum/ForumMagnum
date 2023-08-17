@@ -60,7 +60,7 @@ function hashLinkScroll() {
 }
 
 export function genericHashLink(props: HashLinkProps) {
-  function handleClick(e) {
+  function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
     if (props.onClick) props.onClick(e);
     if (typeof props.to === 'string') {

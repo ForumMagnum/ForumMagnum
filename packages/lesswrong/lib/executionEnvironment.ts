@@ -4,16 +4,28 @@ declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
   let bundleIsProduction: boolean;
+  let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
   let serverPort: number;
+  let estrellaPid: number;
+  let ddEnv: string;
 }
 
 export const isClient = !bundleIsServer
 export const isServer = bundleIsServer
 export const isDevelopment = !bundleIsProduction
 export const isProduction = bundleIsProduction
+export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
+
+export interface CommandLineArguments {
+  postgresUrl: string
+  postgresReadUrl: string
+  settingsFileName: string
+  shellMode: boolean,
+  command?: string,
+}
 
 let alreadyRunStartupFuntions = false
 
@@ -41,11 +53,12 @@ export const runStartupFunctions = async () => {
 }
 
 let instanceSettings: any = null;
-export const getInstanceSettings = (): any => {
+export const getInstanceSettings = (args?: CommandLineArguments): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
+      // eslint-disable-next-line import/no-restricted-paths
       const { loadInstanceSettings } = require('../server/commandLine.ts');
-      instanceSettings = loadInstanceSettings();
+      instanceSettings = loadInstanceSettings(args);
     } else {
       instanceSettings = {
         public: window.publicInstanceSettings,
@@ -58,7 +71,7 @@ export const setInstanceSettings = (settings: any) => {
   instanceSettings = settings;
 }
 
-export const getAbsoluteUrl = (maybeRelativeUrl?: string): string => {
+export const getAbsoluteUrl = (): string => {
   if (defaultSiteAbsoluteUrl?.length>0) {
     return defaultSiteAbsoluteUrl;
   } else {

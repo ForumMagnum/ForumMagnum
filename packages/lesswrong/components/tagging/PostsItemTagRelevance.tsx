@@ -1,6 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
+import { useCurrentUser } from '../common/withUser';
+import { userCanVote } from '../../lib/collections/users/helpers';
+import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -18,13 +21,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vertLayoutVoteUp: {
     position: "absolute",
-    left: 8,
+    left: isEAForum ? 9 : 8,
     top: -15,
   },
   vertLayoutVoteDown: {
     position: "absolute",
-    left: 8,
-    top: 9,
+    left: isEAForum ? 9 : 8,
+    top: isEAForum ? 10 : 9,
   },
   score: {
     width: "100%",
@@ -34,16 +37,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,
-  post: PostsBase,
   classes: ClassesType,
 }) => {
   const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
+  const currentUser = useCurrentUser();
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = !fail;
   
   const tooltip = <div>
     <div>{tagRel.baseScore} Relevance</div>
     <div>({tagRel.voteCount} {tagRel.voteCount === 1 ? "vote" : "votes"})</div>
+    {!canVote && whyYouCantVote}
   </div>
+
+  const solidArrow = !isEAForum;
 
   return <PostsItem2MetaInfo className={classes.root}>
     <Tooltip title={tooltip} placement="left-end">
@@ -53,7 +61,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="down"
             color="error"
             upOrDown="Downvote"
-            solidArrow
+            solidArrow={solidArrow}
+            enabled={canVote}
             {...voteProps}
           />
         </div>
@@ -67,7 +76,8 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
             orientation="up"
             color="secondary"
             upOrDown="Upvote"
-            solidArrow
+            solidArrow={solidArrow}
+            enabled={canVote}
             {...voteProps}
           />
         </div>

@@ -10,7 +10,9 @@ import getSlug from 'speakingurl';
 import urlObject from 'url';
 import { siteUrlSetting } from '../instanceSettings';
 import { DatabasePublicSetting } from '../publicSettings';
-import type { ToCData } from '../../server/tableOfContents';
+import type { ToCData } from '../../lib/tableOfContents';
+import sanitizeHtml from 'sanitize-html';
+import { containsKana, fromKana } from "hepburn";
 
 export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl', null)
 
@@ -20,14 +22,6 @@ interface UtilsType {
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
-  // In client/vulcan-lib/apollo-client/updates.ts
-  mingoBelongsToSet: any
-  mingoIsInSet: any
-  mingoAddToSet: any
-  mingoUpdateInSet: any
-  mingoReorderSet: any
-  mingoRemoveFromSet: any
-  
   // In server/vulcan-lib/connectors.ts
   Connectors: any
   
@@ -36,9 +30,9 @@ interface UtilsType {
   getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
-  createMutator: any
-  updateMutator: any
-  deleteMutator: any
+  createMutator: CreateMutator
+  updateMutator: UpdateMutator
+  deleteMutator: DeleteMutator
   
   // In server/vulcan-lib/utils.ts
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
@@ -95,17 +89,58 @@ export const makeAbsolute = function (url: string): string {
     return baseUrl+url;
 }
 
+const tryToFixUrl = (oldUrl: string, newUrl: string) => {
+  try {
+    // Only return the edited version if this actually fixed the problem
+    new URL(newUrl);
+    return newUrl;
+  } catch (e) {
+    return oldUrl;
+  }
+}
+
+// NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
+// which can't be imported directly because it is part of the editor bundle
+const validateUrl = (url: string) => {
+  try {
+    // This will validate the URL - importantly, it will fail if the
+    // protocol is missing
+    new URL(url);
+  } catch (e) {
+    if (url.search(/[^@]+@[^.]+\.[^\n\r\f]+$/) === 0) {
+      // Add mailto: to email addresses
+      return tryToFixUrl(url, `mailto:${url}`);
+    } else if (url.search(/\/.*/) === 0) {
+      // This is probably _meant_ to be relative. We could prepend the
+      // siteUrl from instanceSettings, but this seems unnecessarily
+      // risky - let's just do nothing.
+    } else if (url.search(/(https?:)?\/\//) !== 0) {
+      // Add https:// to anything else
+      return tryToFixUrl(url, `https://${url}`);
+    }
+  }
+
+  return url;
+}
+
 /**
  * @summary The global namespace for Vulcan utils.
  * @param {String} url - the URL to redirect
  * @param {String} foreignId - the optional ID of the foreign crosspost where this link is defined
  */
 export const getOutgoingUrl = function (url: string, foreignId?: string): string {
-  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(url);
+  // If no protocol is specified, guess that it is https://
+  const cleanedUrl = validateUrl(url);
+
+  const result = getSiteUrl() + 'out?url=' + encodeURIComponent(cleanedUrl);
   return foreignId ? `${result}&foreignId=${encodeURIComponent(foreignId)}` : result;
 };
 
 export const slugify = function (s: string): string {
+  if (containsKana(s)) {
+    s = fromKana(s);
+  }
+
   var slug = getSlug(s, {
     truncate: 60
   });
@@ -163,7 +198,7 @@ export const getBasePath = (path: string) => {
 /////////////////////////////
 
 // http://stackoverflow.com/questions/2631001/javascript-test-for-existence-of-nested-object-key
-export const checkNested: any = function(obj /*, level1, level2, ... levelN*/) {
+export const checkNested: any = function(obj: AnyBecauseTodo /*, level1, level2, ... levelN*/) {
   var args = Array.prototype.slice.call(arguments);
   obj = args.shift();
 
@@ -192,9 +227,9 @@ export const getLogoUrl = (): string|undefined => {
   }
 };
 
-export const encodeIntlError = error => typeof error !== 'object' ? error : JSON.stringify(error);
+export const encodeIntlError = (error: AnyBecauseTodo) => typeof error !== 'object' ? error : JSON.stringify(error);
 
-export const decodeIntlError = (error, options = {stripped: false}) => {
+export const decodeIntlError = (error: AnyBecauseTodo, options = {stripped: false}) => {
   try {
     // do we get the error as a string or as an error object?
     let strippedError = typeof error === 'string' ? error : error.message;
@@ -241,4 +276,99 @@ export const removeProperty = (obj: any, propertyName: string): void => {
       removeProperty(obj[prop], propertyName);
     }
   }
+};
+
+/**
+ * Sanitizing html
+ */
+export const sanitizeAllowedTags = [
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul',
+  'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
+  'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
+  'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+]
+
+const cssSizeRegex = /^(?:\d|\.)+(?:px|em|%)$/;
+
+const allowedTableStyles = {
+  'background-color': [/^.*$/],
+  'border-bottom': [/^.*$/],
+  'border-left': [/^.*$/],
+  'border-right': [/^.*$/],
+  'border-top': [/^.*$/],
+  'border': [/^.*$/],
+  'border-color': [/^.*$/],
+  'border-style': [/^.*$/],
+  'width': [cssSizeRegex],
+  'height': [cssSizeRegex],
+  'text-align': [/^.*$/],
+  'vertical-align': [/^.*$/],
+  'padding': [/^.*$/],
+};
+
+export const sanitize = function(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: sanitizeAllowedTags,
+    allowedAttributes:  {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: [ 'src' , 'srcset', 'alt', 'style'],
+      figure: ['style', 'class'],
+      table: ['style'],
+      tbody: ['style'],
+      tr: ['style'],
+      td: ['rowspan', 'colspan', 'style'],
+      th: ['rowspan', 'colspan', 'style'],
+      ol: ['start', 'reversed', 'type', 'role'],
+      span: ['style', 'id', 'role'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      a: ['href', 'name', 'target', 'rel'],
+      iframe: ['src', 'allowfullscreen', 'allow'],
+      li: ['id', 'role'],
+    },
+    allowedIframeHostnames: [
+      'www.youtube.com', 'youtube.com',
+      'd3s0w6fek99l5b.cloudfront.net', // Metaculus CDN that provides the iframes
+      'metaculus.com',
+      'manifold.markets',
+      'metaforecast.org',
+      'app.thoughtsaver.com',
+      'ourworldindata.org',
+      'strawpoll.com'
+    ],
+    allowedClasses: {
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed' ],
+      iframe: [ 'thoughtSaverFrame' ],
+      ol: [ 'footnotes' ],
+      li: [ 'footnote-item' ],
+    },
+    allowedStyles: {
+      figure: {
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'padding': [/^.*$/],
+      },
+      img: {
+        'width': [cssSizeRegex],
+        'height': [cssSizeRegex],
+        'max-width': [cssSizeRegex],
+        'max-height': [cssSizeRegex],
+        'padding': [/^.*$/],
+      },
+      table: {
+        ...allowedTableStyles,
+      },
+      td: {
+        ...allowedTableStyles,
+      },
+      th: {
+        ...allowedTableStyles,
+      },
+      span: {
+        // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
+        color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
+      },
+    }
+  });
 };

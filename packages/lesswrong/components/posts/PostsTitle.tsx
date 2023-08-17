@@ -1,5 +1,5 @@
+import React, { FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -7,12 +7,16 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
+import { isEAForum } from '../../lib/instanceSettings';
+import { InteractionWrapper } from '../common/useClickableCell';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
-    lineHeight: "1.8rem",
+    lineHeight: "1.7rem",
+    fontWeight: isEAForum ? 600 : undefined,
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -26,23 +30,33 @@ const styles = (theme: ThemeType): JssStyles => ({
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
-    fontFamily: theme.typography.postStyle.fontFamily,
     marginRight: theme.spacing.unit,
   },
   wrap: {
     whiteSpace: "normal",
   },
   sticky: {
-    paddingRight: theme.spacing.unit,
+    paddingLeft: 2,
+    paddingRight: isEAForum ? 8 : 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon.maxIntensity,
+    color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
   },
+  stickyIcon: isEAForum
+    ? {
+      width: 16,
+      height: 16,
+      padding: 1.5,
+      color: theme.palette.primary.main,
+    }
+    : {
+      fontSize: "1.2rem",
+    },
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: "auto",
+    width: isEAForum ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -52,7 +66,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.normal,
     }
   },
-  hideSmDown: { // TODO FIX NAME
+  eaTitleDesktopEllipsis: isEAForum ? {
+    '&:hover': {
+      opacity: 0.5
+    },
+    '& a': {
+      opacity: 1
+    },
+    [theme.breakpoints.up("sm")]: {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+  } : {},
+  hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",
     }
@@ -66,19 +93,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   leftCurated: {
     position: "relative",
     top: -1,
-    marginRight: 6
+    marginRight: 4,
+  },
+  interactionWrapper: {
+    display: "inline-block",
   },
   strikethroughTitle: {
     textDecoration: "line-through"
-}
+  },
 })
-
-export const StickyIcon = ({className}: {className?: string}) => {
-  return <svg className={className ?? ''} fill="currentColor" height="15" viewBox="0 0 10 15" width="10" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 0h24v24H0z" fill="none"/>
-    <path d="M 0.62965 7.43734C 0.504915 7.43692 0.383097 7.40021 0.279548 7.33183C 0.175999 7.26345 0.0953529 7.16646 0.0477722 7.05309C 0.000191541 6.93972 -0.0121941 6.81504 0.0121763 6.69475C 0.0365467 6.57447 0.0965826 6.46397 0.184718 6.37719L 1.77312 4.81248L 1.77312 1.75013L 1.32819 1.75013C 1.20359 1.75073 1.08025 1.72558 0.966163 1.67633C 0.852072 1.62708 0.749771 1.55483 0.665885 1.46423C 0.581999 1.37364 0.518398 1.26674 0.479198 1.15045C 0.439999 1.03415 0.426075 0.91106 0.438329 0.789139C 0.466198 0.56792 0.576593 0.364748 0.748122 0.218993C 0.919651 0.0732386 1.1401 -0.00472087 1.36675 0.000221379L 8.00217 0.000221379C 8.12677 -0.000372526 8.25011 0.0247692 8.3642 0.0740189C 8.47829 0.123269 8.58059 0.195528 8.66448 0.286119C 8.74837 0.37671 8.81197 0.483614 8.85117 0.599907C 8.89037 0.716201 8.90429 0.839293 8.89204 0.961214C 8.86417 1.18243 8.75377 1.38561 8.58224 1.53136C 8.41071 1.67711 8.19026 1.75507 7.96361 1.75013L 7.55724 1.75013L 7.55724 4.81248L 9.14861 6.37719C 9.23675 6.46397 9.29679 6.57447 9.32116 6.69475C 9.34553 6.81504 9.33314 6.93972 9.28556 7.05309C 9.23798 7.16646 9.15733 7.26345 9.05378 7.33183C 8.95023 7.40021 8.82842 7.43692 8.70368 7.43734L 0.62965 7.43734ZM 4.16834 13.562C 4.18174 13.6824 4.23985 13.7937 4.33154 13.8745C 4.42323 13.9553 4.54204 14 4.66518 14C 4.78833 14 4.90713 13.9553 4.99882 13.8745C 5.09051 13.7937 5.14863 13.6824 5.16202 13.562L 5.73747 8.74977L 3.5929 8.74977L 4.16834 13.562Z"/>
-  </svg>
-}
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -87,7 +110,8 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   }
   const tagSettingIconKeys = Array.from(tagSettingIcons.keys())
   //Sometimes this function will be called with fragments that don't have the tag array, in that case assume that the tag array is empty
-  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : [] 
+  const postTags = post.hasOwnProperty('tags') ? (post as PostsListBase).tags : []
+  if (!postTags) return null
   const matchingTagSetting = tagSettingIconKeys.find(tagSetting => (postTags).find(tag => tag._id === tagSetting.get()));
   if (matchingTagSetting) {
     return tagSettingIcons.get(matchingTagSetting);
@@ -95,54 +119,57 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
+const DefaultWrapper: FC = ({children}) => <>{children}</>;
+
 const PostsTitle = ({
   post, 
   postLink, 
   classes, 
   sticky, 
   read, 
-  showQuestionTag=true, 
   showPersonalIcon=true, 
-  showLinkTag=true, 
   showDraftTag=true, 
   wrap=false, 
-  showIcons=true, 
+  showIcons=true,
   isLink=true, 
   curatedIconLeft=true, 
-  strikethroughTitle=false
+  strikethroughTitle=false,
+  Wrapper=DefaultWrapper,
+  className,
 }:{
   post: PostsBase|PostsListBase,
   postLink?: string,
   classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
-  showQuestionTag?: boolean,
   showPersonalIcon?: boolean
-  showLinkTag?: boolean,
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
+  Wrapper?: FC,
+  className?: string
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const { PostsItemIcons, CuratedIcon } = Components
+  const { PostsItemIcons, CuratedIcon, ForumIcon } = Components
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
-  // const shouldRenderQuestionTag = (pathname !== "/questions") && showQuestionTag
   const shouldRenderEventsTag = (pathname !== communityPath) && (pathname !== '/pastEvents') && (pathname !== '/upcomingEvents') &&
     !pathname.includes('/events') && !pathname.includes('/groups') && !pathname.includes('/community');
 
   const url = postLink || postGetPageUrl(post)
-  
+
   const Icon = postIcon(post);
 
   const title = <span>
+    {sticky && <span className={classes.sticky}>
+      <ForumIcon icon="Pin" className={classes.stickyIcon} />
+    </span>}
     {Icon && <Icon className={classes.primaryIcon}/>}
-    {sticky && <span className={classes.sticky}><StickyIcon /></span>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
@@ -150,21 +177,29 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span>{post.title}</span>
+    <span className={classNames({[classes.read]: read && isEAForum})}>
+      <Wrapper>{post.title}</Wrapper>
+    </span>
   </span>
 
   return (
     <span className={classNames(classes.root, {
-      [classes.read]: read,
+      [classes.read]: read && !isEAForum,
       [classes.wrap]: wrap,
       [classes.strikethroughTitle]: strikethroughTitle
-    })}>
+    }, className)}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
-        <CuratedIcon/>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <CuratedIcon hasColor />
+        </InteractionWrapper>
       </span>}
-      {isLink ? <Link to={url}>{title}</Link> : title }
-      {showIcons && <span className={classes.hideSmDown}>
-        <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+      <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
+        {isLink ? <Link to={url}>{title}</Link> : title }
+      </span>
+      {showIcons && <span className={classes.hideXsDown}>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+        </InteractionWrapper>
       </span>}
     </span>
   )

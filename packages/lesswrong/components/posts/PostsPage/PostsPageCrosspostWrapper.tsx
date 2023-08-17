@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
 import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
+import type { EagerPostComments } from "./PostsPage";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -31,8 +32,9 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
+const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
+  eagerPostComments?: EagerPostComments,
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
@@ -45,11 +47,13 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
   } = useForeignCrosspost(post, fetchProps);
 
   const { Error404, Loading, PostsPage } = Components;
-  if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
+  // If we get a error fetching the foreign xpost data, that should not stop us
+  // from rendering the post if we have it locally
+  if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!foreignPost && !post.draft) {
+  } else if (!post.fmCrosspost.hostedHere && !foreignPost && !post.draft) {
     return <Error404/>
   }
 
@@ -62,7 +66,7 @@ const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
 
   return (
     <crosspostContext.Provider value={contextValue}>
-      <PostsPage post={contextValue.combinedPost ?? post} refetch={refetch} />
+      <PostsPage post={contextValue.combinedPost ?? post} eagerPostComments={eagerPostComments} refetch={refetch} />
     </crosspostContext.Provider>
   );
 }

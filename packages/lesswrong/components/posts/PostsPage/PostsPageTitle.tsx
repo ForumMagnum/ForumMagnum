@@ -3,19 +3,29 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: 0,
+  marginTop: isEAForum ? 5 : 0,
   marginLeft: 0,
-  marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
+  marginBottom: isEAForum ? 12 : 0,
   color: theme.palette.text.primary,
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '2.5rem',
-  },
+  [theme.breakpoints.down('sm')]: isEAForum
+    ? {
+      fontSize: '2.3rem',
+      marginTop: 20,
+    }
+    : {
+      fontSize: '2.5rem',
+    },
+  ...(isEAForum
+    ? {
+      fontSize: '3rem',
+    }
+    : {}),
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,6 +43,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: "unset"
     }
+  },
+  linkIcon: {
+    color: theme.palette.grey[500],
+    marginLeft: 4,
+    fontSize: "0.8em",
   }
 })
 
@@ -41,7 +56,8 @@ const PostsPageTitle = ({classes, post}: {
   post: PostsDetails,
 }) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
-  const { Typography } = Components;
+  const { Typography, ForumIcon } = Components;
+  const showLinkIcon = post.url && isEAForum;
   
   return (
     <div>
@@ -57,7 +73,7 @@ const PostsPageTitle = ({classes, post}: {
       </Typography>}
       <Typography variant="display3" className={classes.root}>
         <Link to={postGetPageUrl(post)} className={classes.link}>{post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title}</Link>
+        {post.title} {showLinkIcon && <ForumIcon className={classes.linkIcon} icon="BoldLink" />}</Link>
       </Typography>
     </div>
   )

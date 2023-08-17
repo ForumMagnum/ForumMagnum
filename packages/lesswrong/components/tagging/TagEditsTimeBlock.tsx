@@ -3,15 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 
 const INITIAL_LIMIT = 5
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
+const styles = (_: ThemeType): JssStyles => ({
   subtitle: {
-    marginTop: 6,
+    marginTop: isEAForum ? -4 : 6,
     marginBottom: 6
   },
 });
@@ -69,7 +67,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   
   if (!data?.TagUpdatesInTimeBlock?.length)
     return null;
-  return <div className={classes.root}>
+  return <div>
     <div className={classes.subtitle}>
       <ContentType
         type="tags"

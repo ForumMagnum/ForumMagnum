@@ -13,7 +13,7 @@ describe('Comments', function() {
 
   it('can edit an existing comment', function() {
     cy.visit(`posts/${this.testPost._id}/${this.testPost.slug}`);
-    cy.contains('.CommentsItem-root', this.testComment.contents.html).find(".CommentsItem-menu").click();
+    cy.contains('.CommentsItem-root', this.testComment.contents.html).find(".CommentsItemMeta-menu").click();
     cy.get('ul[role="menu"]').contains('li', 'Edit').click();
     const newCommentText = 'Edited comment';
     cy.get('.comments-edit-form .ck-editor__editable').click().clear().type(newCommentText);

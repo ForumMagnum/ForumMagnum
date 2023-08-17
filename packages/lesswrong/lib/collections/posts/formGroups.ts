@@ -1,32 +1,60 @@
+import { preferredHeadingCase } from "../../forumTypeUtils";
+import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+const isEAForum = forumTypeSetting.get() === "EAForum";
+
+export const formGroups: Partial<Record<string,FormGroupType>> = {
   default: {
     name: "default",
     order: 0,
     paddingStyle: true,
+  },
+  category: {
+    name: "category",
+    order: -20,
+    paddingStyle: true,
+    defaultStyle: true,
   },
   title: {
     name: "title",
     order: -10,
     paddingStyle: true,
     defaultStyle: true,
-    flexStyle: true,
+    flexAlignTopStyle: true,
   },
-  adminOptions: {
-    name: "adminOptions",
-    order: 25,
-    label: "Admin Options",
-    startCollapsed: true,
+  coauthors: {
+    order: 21,
+    name: "coauthors",
+    label: "Coauthors"
   },
   event: {
     name: "event details",
     order: 21,
-    label: "Event Details"
+    label: preferredHeadingCase("Event Details")
+  },
+  // Tags go here on EA Forum
+  socialPreview: {
+    name: "socialPreview",
+    order: 23,
+    label: preferredHeadingCase("Edit Link Preview"),
+    startCollapsed: !isEAForum,
+  },
+  highlight: {
+    order: 24,
+    name: "highlight",
+    label: "Highlight",
+    startCollapsed: true,
+  },
+  adminOptions: {
+    name: "adminOptions",
+    order: 25,
+    label: preferredHeadingCase("Admin Options"),
+    startCollapsed: true,
   },
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: "Moderation Guidelines",
+    label: preferredHeadingCase("Moderation Guidelines"),
     helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
@@ -46,19 +74,19 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   canonicalSequence: {
     order:30,
     name: "canonicalSequence",
-    label: "Canonical Sequence",
+    label: preferredHeadingCase("Canonical Sequence"),
     startCollapsed: true,
+  },
+  reactExperiment: {
+    order: 35,
+    name: "reactExperiment",
+    label: "Reacts Experiment",
+    startCollapsed: false,
   },
   advancedOptions: {
     order:40,
     name: "advancedOptions",
     label: "Options",
-    startCollapsed: true,
-  },
-  highlight: {
-    order: 21,
-    name: "highlight",
-    label: "Highlight",
     startCollapsed: true,
   },
   audio: {
@@ -67,4 +95,10 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
     label: "Audio",
     startCollapsed: true
   },
+  tags: {
+    order: isEAForum ? 20 : 60,
+    name: "tags",
+    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
+    startCollapsed: false
+  }
 };

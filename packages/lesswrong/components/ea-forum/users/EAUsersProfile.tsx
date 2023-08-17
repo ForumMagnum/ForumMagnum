@@ -1,37 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { combineUrls, Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useCurrentUser } from '../../common/withUser';
 import { useLocation } from '../../../lib/routeUtil';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
-import { userGetEditUrl } from '../../../lib/vulcan-users/helpers';
-import { separatorBulletStyles } from '../../common/SectionFooter';
+import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/sortOrderOptions';
-import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
-import { socialMediaIconPaths } from '../../form-components/PrefixedInput';
+import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
+import { PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
 import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
 import { getUserFromResults } from '../../users/UsersProfile';
-import StarIcon from '@material-ui/icons/Star'
-import CalendarIcon from '@material-ui/icons/Today'
-import LocationIcon from '@material-ui/icons/LocationOn'
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
-import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
-
+import classNames from 'classnames';
+import { getUserStructuredData } from '../../users/UsersSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
+  },
+  mainSection: {
+    [theme.breakpoints.down('sm')]: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
   },
   sunshineSection: {
     marginBottom: 24
@@ -46,9 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 10,
     fontSize: 20,
     lineHeight: '30px',
-    fontWeight: '700',
+    fontWeight: '600',
     paddingBottom: 3,
     borderBottom: `3px solid ${theme.palette.primary.main}`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       columnGap: 8,
       fontSize: 18,
@@ -56,9 +57,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   sectionHeadingCount: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '450',
     color: theme.palette.grey[600],
+    fontSize: 13,
     [theme.breakpoints.down('xs')]: {
       fontSize: 12,
     }
@@ -71,7 +72,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sectionSubHeading: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   inactiveGroup: {
     color: theme.palette.grey[500],
@@ -80,75 +82,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   showSectionBtn: {
     marginBottom: 24,
   },
-  
-  profileImage: {
-    'box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
-    '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
-    borderRadius: '50%',
-    marginBottom: 14,
+  editProfile: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    paddingTop: "inherit",
+    paddingRight: "inherit",
+  },
+  editProfileButtonWrapper: {
+  },
+  editProfileButton: {
+    textTransform: "none",
+    fontSize: 14,
+    fontWeight: 500,
+    background: theme.palette.grey[200],
+    height: 40,
+    "&:hover": {
+      opacity: 1,
+      background: theme.palette.grey[300],
+    },
+    "& .MuiButton-label": {
+      maxHeight: "100%",
+    },
   },
   username: {
     fontSize: 32,
     lineHeight: '42px',
-    marginBottom: 16
+    marginBottom: 8,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+  },
+  deletedUsername: {
+    textDecoration: 'line-through'
+  },
+  accountDeletedText: {
+    display: 'inline-block',
+    fontSize: 16,
+    lineHeight: '22px',
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: '500',
+    marginLeft: 10
   },
   roleAndOrg: {
     fontSize: 16,
-  },
-  careerStage: {
-    display: "flex",
-    flexWrap: "wrap",
-    color: theme.palette.grey[600],
-    fontSize: 12,
-    marginTop: 8,
-    ...separatorBulletStyles(theme)
-  },
-  iconsRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: 24,
-    rowGap: '10px',
-    color: theme.palette.grey[600],
-    fontSize: 14,
-    lineHeight: '14px',
-    marginTop: 10,
-    '& a': {
-      color: theme.palette.grey[600],
-      '&:hover': {
-        color: theme.palette.grey[600],
-      }
-    }
-  },
-  userMetaInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 5,
-  },
-  userMetaInfoIcon: {
-    fontSize: 18,
-  },
-  socialMediaIcons: {
-    display: 'flex',
-    columnGap: 10,
-  },
-  socialMediaIcon: {
-    flex: 'none',
-    height: 20,
-    fill: theme.palette.grey[600],
-  },
-  website: {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    wordBreak: 'break-all',
-    lineHeight: '20px',
-  },
-  websiteIcon: {
-    flex: 'none',
-    height: 20,
-    fill: theme.palette.grey[600],
-    marginRight: 4
   },
   btns: {
     display: 'flex',
@@ -174,19 +150,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 4,
     padding: '8px 16px',
   },
-  links: {
-    display: "flex",
-    flexWrap: "wrap",
-    color: theme.palette.lwTertiary.main,
-    marginTop: 20,
-    ...separatorBulletStyles(theme)
-  },
-  registerRssLink: {
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
   privateSectionIcon: {
     fontSize: 20,
     color: theme.palette.grey[500],
@@ -199,25 +162,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-
-export const socialMediaIcon = (user: UsersProfile, field: string, className: string) => {
-  if (!user[field]) return null
-  return <a key={field}
-    href={`https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field],user[field])}`}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <svg viewBox="0 0 24 24" className={className}>{socialMediaIconPaths[field]}</svg>
-  </a>
-}
-
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  
   const {loading, results} = useMulti({
     terms,
     collectionName: "Users",
@@ -226,14 +176,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
     fetchPolicy: 'cache-and-network'
   });
   const user = getUserFromResults(results)
-  
+
   const { query } = useLocation()
   // track profile views in local storage
   useEffect(() => {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
@@ -241,7 +191,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         from = from || profiles[profileUserIndex].from
         profiles.splice(profileUserIndex, 1)
       }
-      
+
       profiles.push({userId: user._id, ...(from && {from})})
       // we only bother to save the last 10 profiles
       if (profiles.length > 10) profiles.shift()
@@ -249,7 +199,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       ls.setItem('lastViewedProfiles', JSON.stringify(profiles))
     }
   }, [currentUser, user, query.from])
-  
+
   // although both the owner and admins can see the drafts section,
   // admins need to click a button to view it (so it's not distracting)
   const [draftsSectionExpanded, setDraftsSectionExpanded] = useState(!user || (currentUser && user._id === currentUser._id))
@@ -258,10 +208,10 @@ const EAUsersProfile = ({terms, slug, classes}: {
       setDraftsSectionExpanded(currentUser && user._id === currentUser._id)
     }
   }, [currentUser, user])
-  
+
   // show/hide the "Posts" section sort/filter settings
-  const [showPostSettings, setShowPostSetttings] = useState(false)
-  
+  const [showPostSettings, setShowPostSettings] = useState(false)
+
   const { results: userOrganizesGroups, loadMoreProps: userOrganizesGroupsLoadMoreProps } = useMulti({
     terms: {view: 'userOrganizesGroups', userId: user?._id, limit: 300},
     collectionName: "Localgroups",
@@ -270,23 +220,40 @@ const EAUsersProfile = ({terms, slug, classes}: {
     skip: !user
   })
 
-  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip, EAUsersProfileTags,
-    SettingsButton, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+  // count posts here rather than using user.postCount,
+  // because the latter doesn't include posts where the user is a coauthor
+  const { totalCount: userPostsCount } = useMulti({
+    terms: {
+      view: 'userPosts',
+      userId: user?._id,
+      authorIsUnreviewed: currentUser?.isAdmin ? null : false,
+      limit: 0
+    },
+    collectionName: "Posts",
+    fragmentName: 'PostsMinimumInfo',
+    enableTotal: true,
+    skip: !user
+  })
+
+  const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
+    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, LoadMore,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-    Typography, ContentStyles, FormatDate, EAUsersProfileTabbedSection, PostsListSettings, LoadMore,
-    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList } = Components
+    Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
+    RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
+  } = Components
 
   if (loading) {
     return <Loading/>
   }
 
-  if (!user || !user._id || user.deleted) {
+  if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
     //eslint-disable-next-line no-console
     console.error(`// missing user (_id/slug: ${slug})`);
     return <Error404/>
   }
 
-  if (user.oldSlugs?.includes(slug)) {
+  if (user.oldSlugs?.includes(slug) && !user.deleted) {
     return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
   }
 
@@ -303,25 +270,25 @@ const EAUsersProfile = ({terms, slug, classes}: {
       return <Components.Error404/>
     }
   }
-  
+
   const scheduledPostsTerms: PostsViewTerms = {view: "scheduled", userId: user._id, limit: 20}
   const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
   const postTerms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null}
 
   // posts list sort settings
-  const currentSorting = query.sortedBy || query.view ||  "new"
+  const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
   const currentFilter = query.filter ||  "all"
   const ownPage = currentUser?._id === user._id
   const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
   const currentIncludeEvents = (query.includeEvents === 'true')
+  const currentHideCommunity = (query.hideCommunity === 'true')
   postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+  postTerms.hideCommunity = currentHideCommunity
 
   const username = userGetDisplayName(user)
   const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
-  
-  const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(field => user[field])
-  
+
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
     label: `${ownPage ? 'My' : `${username}'s`} Drafts`,
@@ -333,7 +300,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
         {ownPage && <Link to="/newPost">
           <SectionButton>
-            <DescriptionIcon /> New Post
+            <DescriptionIcon /> New post
           </SectionButton>
         </Link>}
       </div>
@@ -346,7 +313,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
-            <LibraryAddIcon /> New Sequence
+            <LibraryAddIcon /> New sequence
           </SectionButton>
         </Link>}
       </div>
@@ -376,7 +343,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </>
     })
   }
-  
+
   const bioSectionTabs: Array<UserProfileTabType> = []
   if (user.biography?.html || user.howOthersCanHelpMe?.html || user.howICanHelpOthers?.html) {
     bioSectionTabs.push({
@@ -437,7 +404,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       </>
     })
   }
-  
+
   const commentsSectionTabs: Array<UserProfileTabType> = []
   if (user.commentCount) {
     commentsSectionTabs.push({
@@ -463,58 +430,36 @@ const EAUsersProfile = ({terms, slug, classes}: {
     })
   }
 
-
   return <div>
     <HeadTags
       description={metaDescription}
-      noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+      noIndex={(!userPostsCount && !user.commentCount) || user.karma <= 0 || user.noindex}
       image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
+      structuredData={getUserStructuredData(user)}
+      useSmallImage
     />
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
-        <div className={classes.section}>
-          {user.profileImageId && <Components.CloudinaryImage2
-            height={96}
-            width={96}
-            imgProps={{q: '100'}}
-            publicId={user.profileImageId}
-            className={classes.profileImage}
-          />}
-          <Typography variant="headline" className={classes.username}>{username}</Typography>
+        <div className={classNames(classes.section, classes.mainSection)}>
+          {userCanEditUser(currentUser, user) &&
+            <div className={classes.editProfile}>
+              <Button
+                type="submit"
+                href={`/profile/${user.slug}/edit`}
+                className={classes.editProfileButton}
+              >
+                Edit profile
+              </Button>
+            </div>
+          }
+          <EAUsersProfileImage user={user} />
+          <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
+            {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+          </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}
-          {!!user.careerStage?.length && <ContentStyles contentType="comment" className={classes.careerStage}>
-            {user.careerStage.map(stage => {
-              return <div key={stage}>
-                {CAREER_STAGES.find(s => s.value === stage)?.label}
-              </div>
-            })}
-          </ContentStyles>}
-          <ContentStyles contentType="comment" className={classes.iconsRow}>
-            <Tooltip title={`${userKarma} karma`}>
-              <span className={classes.userMetaInfo}>
-                <StarIcon className={classes.userMetaInfoIcon} />
-                {userKarma}
-              </span>
-            </Tooltip>
-            {user.mapLocation && <Link to="/community#individuals" className={classes.userMetaInfo}>
-              <LocationIcon className={classes.userMetaInfoIcon} />
-              {user.mapLocation.formatted_address}
-            </Link>}
-            <span className={classes.userMetaInfo}>
-              <CalendarIcon className={classes.userMetaInfoIcon} />
-              <span>Joined <FormatDate date={user.createdAt} format={'MMM YYYY'} /></span>
-            </span>
-            {userHasSocialMedia && <div className={classes.socialMediaIcons}>
-              {Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).map(field => socialMediaIcon(user, field, classes.socialMediaIcon))}
-            </div>}
-            {user.website && <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>
-              <svg viewBox="0 0 24 24" className={classes.websiteIcon}>{socialMediaIconPaths.website}</svg>
-              {user.website}
-            </a>}
-          </ContentStyles>
-          {user.profileTagIds && <EAUsersProfileTags tags={user.profileTags} />}
+          <EAUsersMetaInfo user={user} />
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
@@ -532,37 +477,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
               asButton
             />
           </div>}
-          <Typography variant="body2" className={classes.links}>
-            {currentUser?.isAdmin &&
-              <div className={classes.registerRssLink}>
-                <DialogGroup
-                  actions={[]}
-                  trigger={<span>Register RSS</span>}
-                >
-                  { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                  <div><Components.newFeedButton user={user} /></div>
-                </DialogGroup>
-              </div>
-            }
-            {userCanEdit(currentUser, user) && <Link to={`/profile/${user.slug}/edit`}>
-              Edit Profile
-            </Link>}
-            {currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-              Manage Subscriptions
-            </Link>}
-            {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-              Account Settings
-            </Link>}
-            {currentUser && currentUser._id === user._id && <a href="/logout">
-              Log Out
-            </a>}
-          </Typography>
+          <EAUsersProfileLinks user={user} />
         </div>
-        
+
         {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
           <SunshineNewUsersProfileInfo userId={user._id} />
         </div>}
-        
+
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
           <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
           <Button color="primary"
@@ -572,15 +493,15 @@ const EAUsersProfile = ({terms, slug, classes}: {
             Click to view drafts
           </Button>
         )}
-        
+
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
-        
-        {!!user.postCount && <div className={classes.section}>
+
+        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
-              Posts <div className={classes.sectionHeadingCount}>{user.postCount}</div>
+              Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SettingsButton onClick={() => setShowPostSetttings(!showPostSettings)}
+            <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
               label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
           </div>
           {showPostSettings && <PostsListSettings
@@ -589,12 +510,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             currentIncludeEvents={currentIncludeEvents}
+            currentHideCommunity={currentHideCommunity}
           />}
           <AnalyticsContext listContext="userPagePosts">
-            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor />
+            <ProfileShortform user={user} />
+            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
           </AnalyticsContext>
         </div>}
-        
+
         {!!user.sequenceCount && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
@@ -603,7 +526,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </div>
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
         </div>}
-        
+
         <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
       </SingleColumnSection>
 

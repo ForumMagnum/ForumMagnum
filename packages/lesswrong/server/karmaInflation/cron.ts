@@ -1,46 +1,74 @@
 import { onStartup } from '../../lib/executionEnvironment';
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { Posts } from '../../lib/collections/posts';
-import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries, timeSeriesIndexExpr } from './cache';
+import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries, timeSeriesIndexExpr } from '../../lib/collections/posts/karmaInflation';
 import { addCronJob } from '../cronUtil';
 import { postStatuses } from '../../lib/collections/posts/constants';
+import { Vulcan } from '../vulcan-lib';
+import PostsRepo, { MeanPostKarma } from '../repos/PostsRepo';
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
+
+const KARMA_INFLATION_SELECTOR = {
+  status: postStatuses.STATUS_APPROVED,
+  draft: false,
+  isFuture: false,
+  unlisted: false,
+  shortform: false,
+  authorIsUnreviewed: false,
+  hiddenRelatedQuestion: false,
+  postedAt: { $exists: true },
+  isEvent: false
+};
+
+const getEarliestPostTime = async (postsRepo: PostsRepo): Promise<Date> => {
+  if (Posts.isPostgres()) {
+    return postsRepo.getEarliestPostTime();
+  } else {
+    const earliestPost = await Posts.aggregate([{
+      $match: KARMA_INFLATION_SELECTOR,
+    }, { $group: { _id: null, minPostedAt: { $min: "$postedAt" } } }]).toArray();
+    return earliestPost[0].minPostedAt;
+  }
+}
+
+const getMeanKarmaByInterval = (postsRepo: PostsRepo, startDate: Date): Promise<MeanPostKarma[]> => {
+  if (Posts.isPostgres()) {
+    return postsRepo.getMeanKarmaByInterval(startDate, AVERAGING_WINDOW_MS);
+  } else {
+    return Posts.aggregate([{
+      $match: KARMA_INFLATION_SELECTOR,
+    }, {
+      $group: { _id: timeSeriesIndexExpr("$postedAt", startDate.getTime(), AVERAGING_WINDOW_MS), meanKarma: { $avg: "$baseScore" } }
+    }, {
+      $sort: { _id: 1 }
+    }]).toArray();
+  }
+}
+
+const getMeanKarmaOverall = async (postRepo: PostsRepo): Promise<number> => {
+  if (Posts.isPostgres()) {
+    return postRepo.getMeanKarmaOverall();
+  } else {
+    const result = await Posts.aggregate([{
+      $match: KARMA_INFLATION_SELECTOR,
+    }, {
+      $group: { _id: null, meanKarma: { $avg: "$baseScore" } }
+    }]).toArray();
+    return result[0].meanKarma;
+  }
+}
 
 export async function refreshKarmaInflation() {
   // eslint-disable-next-line no-console
   console.log("Refreshing karma inflation");
 
+  const postsRepo = new PostsRepo();
+
   // use the postedAt of the earliest post as the start time for the series
-  const selector = {
-    status: postStatuses.STATUS_APPROVED,
-    draft: false,
-    isFuture: false,
-    unlisted: false,
-    shortform: false,
-    authorIsUnreviewed: false,
-    hiddenRelatedQuestion: false,
-    postedAt: { $exists: true },
-    isEvent: false
-  };
-  const earliestPost = await Posts.aggregate([{
-    $match: selector
-  }, { $group: { _id: null, minPostedAt: { $min: "$postedAt" } } }]).toArray();
-  const start = earliestPost[0].minPostedAt.getTime();
-
-  const meanKarmaByInterval = await Posts.aggregate([{
-    $match: selector
-  }, {
-    $group: { _id: timeSeriesIndexExpr("$postedAt", start, AVERAGING_WINDOW_MS), meanKarma: { $avg: "$baseScore" } }
-  }, {
-    $sort: { _id: 1 }
-  }]).toArray();
-
-  const meanKarmaOverall: number = (await Posts.aggregate([{
-    $match: selector
-  }, {
-    $group: { _id: null, meanKarma: { $avg: "$baseScore" } }
-  }]).toArray())[0].meanKarma;
+  const startDate = await getEarliestPostTime(postsRepo);
+  const meanKarmaByInterval = await getMeanKarmaByInterval(postsRepo, startDate);
+  const meanKarmaOverall = await getMeanKarmaOverall(postsRepo);
 
   const reciprocalOrOne = (x: number) => x === 0 ? 1 : 1 / x;
 
@@ -61,7 +89,7 @@ export async function refreshKarmaInflation() {
   }
 
   const karmaInflationSeries: TimeSeries = {
-    start,
+    start: startDate.getTime(),
     interval: AVERAGING_WINDOW_MS,
     values: values
   };
@@ -93,3 +121,5 @@ addCronJob({
     void refreshKarmaInflation();
   }
 });
+
+Vulcan.refreshKarmaInflation = refreshKarmaInflation;

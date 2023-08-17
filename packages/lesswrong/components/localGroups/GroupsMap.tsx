@@ -18,6 +18,7 @@ const GroupsMap = () => {
     groupTerms={{view: "all"}}
     zoom={parseInt(query?.zoom) || 1}
     initialOpenWindows={[]}
+    showGroupsByDefault
     hideLegend
     {...center}
   />

@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
@@ -15,10 +15,25 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { forumTypeSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { getTagStructuredData } from "./TagPageRouter";
+import { EA_FORUM_HEADER_HEIGHT } from "../common/Header";
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+export const tagPageHeaderStyles = (theme: ThemeType) => ({
+  postListMeta: {
+    display: "flex",
+    alignItems: "center",
+  },
+  relevance: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    textAlign: "right",
+    flexGrow: 1,
+    marginRight: 8,
+  },
+});
 
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -30,20 +45,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   imageContainer: {
     width: '100%',
-    '& > img': {
+    '& > picture > img': {
       height: 300,
       objectFit: 'cover',
       width: '100%',
     },
     position: 'absolute',
-    top: 90,
+    top: EA_FORUM_HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
-      '& > img': {
+      '& > picture > img': {
         height: 200,
         width: '100%',
       },
-      top: 77,
       left: -4,
       right: -4,
     },
@@ -59,6 +73,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 42,
     paddingRight: 42,
     background: theme.palette.panelBackground.default,
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
   },
   titleRow: {
     [theme.breakpoints.up('sm')]: {
@@ -67,11 +83,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography.display3,
-    ...theme.typography.commentStyle,
+    ...theme.typography[isEAForum ? "display2" : "display3"],
+    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: 600,
-    fontVariant: "small-caps"
+    fontWeight: isEAForum ? 700 : 600,
+    ...theme.typography.smallCaps,
   },
   notifyMeButton: {
     [theme.breakpoints.down('xs')]: {
@@ -102,6 +118,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
     paddingLeft: 42,
@@ -117,6 +135,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.extraFaint,
     borderBottom: theme.palette.border.extraFaint,
   },
+  relatedTag : {
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
   },
@@ -124,6 +149,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingBottom: 8,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
@@ -137,9 +163,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  ...tagPageHeaderStyles(theme),
 });
 
-export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
+export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
   return ({
     ...query,
@@ -149,14 +176,39 @@ export const tagPostTerms = (tag: TagBasicInfo | null, query: any) => {
   })
 }
 
+const PostsListHeading: FC<{
+  tag: TagPageFragment|TagPageWithRevisionFragment,
+  query: Record<string, string>,
+  classes: ClassesType,
+}> = ({tag, query, classes}) => {
+  const {SectionTitle, PostsListSortDropdown} = Components;
+  if (isEAForum) {
+    return (
+      <>
+        <SectionTitle title={`Posts tagged ${tag.name}`} />
+        <div className={classes.postListMeta}>
+          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
+          <div className={classes.relevance}>Relevance</div>
+        </div>
+      </>
+    );
+  }
+  return (
+    <div className={classes.tagHeader}>
+      <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
+      <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
+    </div>
+  );
+}
+
 const TagPage = ({classes}: {
   classes: ClassesType
 }) => {
   const {
-    PostsListSortDropdown, PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404,
-    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection, Typography,
+    PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
+    PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    SectionTitle, TagTableOfContents, ContentStyles
+    TagTableOfContents, ContentStyles,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -187,7 +239,7 @@ const TagPage = ({classes}: {
   const { captureEvent } =  useTracking()
   const client = useApolloClient()
 
-  const multiTerms = {
+  const multiTerms: AnyBecauseTodo = {
     allPages: {view: "allPagesByNewest"},
     myPages: {view: "userTags", userId: currentUser?._id},
     //tagFlagId handled as default case below
@@ -258,12 +310,13 @@ const TagPage = ({classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const readMoreHtml = "<span>...<p><a>(Read More)</a></p></span>"
-  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
+  const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
-    description = truncated ? truncateTagDescription(htmlWithAnchors) : htmlWithAnchors;
+  if (isEAForum) {
+    description = truncated
+      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
+      : htmlWithAnchors;
   } else {
     description = (truncated && !tag.wikiOnly)
     ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
@@ -272,7 +325,7 @@ const TagPage = ({classes}: {
 
   const headTagDescription = tag.description?.plaintextDescription || `All posts related to ${tag.name}, sorted by relevance`
   
-  const tagFlagItemType = {
+  const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",
     myPages: "userPages"
   }
@@ -286,6 +339,8 @@ const TagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
+      structuredData={getTagStructuredData(tag)}
+      noIndex={tag.noindex}
     />
     {hoveredContributorId && <style>
       {`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}
@@ -329,14 +384,13 @@ const TagPage = ({classes}: {
                 tag={tag}
                 className={classes.notifyMeButton}
                 subscribeMessage="Subscribe"
-                unsubscribeMessage="Unsubscribe"
+                unsubscribeMessage="Subscribed"
                 subscriptionType={subscriptionTypes.newTagPosts}
               />
             }
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
-        welcomeBox={null}
       >
         {(tag.parentTag || tag.subTags.length) ?
         <div className={classNames(classes.subHeading,classes.centralColumn)}>
@@ -349,7 +403,10 @@ const TagPage = ({classes}: {
              */}
             {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
                 tag.subTags.map((subTag, idx) => {
-                return <><Link key={idx} className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}</>
+                return <Fragment key={idx}>
+                  <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
+                  {idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
+                </Fragment>
               })}</span>
             </div> : <></>}
           </div>
@@ -385,15 +442,7 @@ const TagPage = ({classes}: {
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            {tag.sequence ?
-              <SectionTitle title={`Posts tagged ${tag.name}`}>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </SectionTitle> :
-              <div className={classes.tagHeader}>
-                <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
-                <PostsListSortDropdown value={query.sortedBy || "relevance"}/>
-              </div>
-            }
+            <PostsListHeading tag={tag} query={query} classes={classes} />
             <PostsList2
               terms={terms}
               enableTotal

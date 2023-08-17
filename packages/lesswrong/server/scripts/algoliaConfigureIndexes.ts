@@ -1,5 +1,5 @@
 import { getAlgoliaAdminClient, algoliaSetIndexSettingsAndWait } from '../search/utils';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { Vulcan } from '../../lib/vulcan-lib';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 
@@ -33,9 +33,11 @@ export const algoliaConfigureIndexes = async () => {
     attributesForFaceting: [
       'filterOnly(af)',
       'postedAt',
+      'publicDateMs',
+      'searchable(tags)',
     ],
     attributesToHighlight: ['authorDisplayName'],
-    attributesToSnippet: ['body:20'],
+    attributesToSnippet: isEAForum ? ['body:30'] : ['body:20'],
     unretrievableAttributes: ['authorUserName'],
     advancedSyntax: true
   });
@@ -53,8 +55,9 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(authorDisplayName)',
       'unordered(_id)',
     ],
-    ranking: ['typo','geo','words','filters','exact','proximity','attribute','custom'],
+    ranking: ['typo','geo','words','filters','proximity','attribute','exact','custom'],
     customRanking: [
+      'asc(order)',
       'desc(baseScore)',
       'desc(score)'
     ],
@@ -63,10 +66,13 @@ export const algoliaConfigureIndexes = async () => {
       'searchable(authorDisplayName)',
       'authorSlug',
       'postedAt',
-      'tags'
+      'publicDateMs',
+      'searchable(tags)',
+      'curated',
+      'isEvent'
     ],
     attributesToHighlight: ['title'],
-    attributesToSnippet: ['body:10'],
+    attributesToSnippet: isEAForum ? ['body:20'] : ['body:10'],
     unretrievableAttributes: [
       'authorUserName',
       'userIP',
@@ -97,13 +103,16 @@ export const algoliaConfigureIndexes = async () => {
       'unordered(_id)',
     ],
     ranking: isEAForum ? eaForumUsersRanking : [
-      'desc(karma)',
       'typo','geo','words','filters','proximity','attribute','exact',
+      'desc(karma)',
       'desc(createdAt)'
     ],
     attributesForFaceting: [
       'filterOnly(af)',
+      'searchable(tags)',
+      'publicDateMs',
     ],
+    attributesToSnippet: ['bio:20'],
     advancedSyntax: true
   });
   await algoliaSetIndexSettingsAndWait(sequencesIndex, {
@@ -115,9 +124,10 @@ export const algoliaConfigureIndexes = async () => {
     ],
     attributesForFaceting: [
       'filterOnly(af)',
+      'publicDateMs',
     ],
     advancedSyntax: true,
-    attributesToSnippet: ['description:10'],
+    attributesToSnippet: ['plaintextDescription:20'],
 
   });
   await algoliaSetIndexSettingsAndWait(tagsIndex, {
@@ -131,8 +141,13 @@ export const algoliaConfigureIndexes = async () => {
       'desc(core)',
       'desc(postCount)',
     ],
+    attributesForFaceting: [
+      'filterOnly(wikiOnly)',
+      'filterOnly(isSubforum)', // DEPRECATED: remove once isSubforum -> core filter change is deployed
+      'filterOnly(core)',
+    ],
     distinct: false,
-    attributesToSnippet: ['description:10'],
+    attributesToSnippet: isEAForum ? ['description:20'] : ['description:10'],
     advancedSyntax: true
   });
   

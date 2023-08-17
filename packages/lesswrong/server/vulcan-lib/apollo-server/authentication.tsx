@@ -16,12 +16,14 @@ import { EmailTokenType } from "../../emails/emailTokens";
 import { wrapAndSendEmail } from '../../emails/renderEmail';
 import SimpleSchema from 'simpl-schema';
 import { userEmailAddressIsVerified} from '../../../lib/collections/users/helpers';
-import { clearCookie } from '../../utils/httpUtil';
+import { getCookieFromReq, clearCookie } from '../../utils/httpUtil';
 import { DatabaseServerSetting } from "../../databaseSettings";
 import request from 'request';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { mongoFindOne } from '../../../lib/mongoQueries';
-import {userFindOneByEmail} from "../../../lib/collections/users/commonQueries";
+import {userFindOneByEmail} from "../../commonQueries";
+import { ClientIds } from "../../../lib/collections/clientIds/collection";
+import { UsersRepo } from '../../repos';
 
 // Meteor hashed its passwords twice, once on the client
 // and once again on the server. To preserve backwards compatibility
@@ -41,7 +43,10 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]});
+  const user = await (Users.isPostgres()
+    ? new UsersRepo().getUserByUsernameOrEmail(username)
+    : Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]}));
+
   if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
   // Load legacyData, if applicable. Needed because imported users had their
@@ -87,7 +92,10 @@ const loginData = `type LoginReturnData {
 
 addGraphQLSchema(loginData);
 
-function promisifiedAuthenticate(req, res, name, options, callback) {
+type PassportAuthenticateCallback = Exclude<Parameters<typeof passport.authenticate>[2], undefined>;
+// `options` should be `passport.AuthenticateOptions`, but those don't contain `username` and `password` in the type definition.
+// No idea where they're actually coming from, in that case
+function promisifiedAuthenticate(req: ResolverContext['req'], res: ResolverContext['res'], name: string, options: any, callback: PassportAuthenticateCallback) {
   return new Promise((resolve, reject) => {
     try {
       passport.authenticate(name, options, async (err, user, info) => {
@@ -104,7 +112,7 @@ function promisifiedAuthenticate(req, res, name, options, callback) {
   })
 }
 
-export async function createAndSetToken(req, res, user) {
+export async function createAndSetToken(req: AnyBecauseTodo, res: AnyBecauseTodo, user: DbUser) {
   const token = randomBytes(32).toString('hex');
   (res as any).setHeader("Set-Cookie", `loginToken=${token}; Max-Age=315360000; Path=/`);
 
@@ -120,15 +128,19 @@ const VerifyEmailToken = new EmailTokenType({
   name: "verifyEmail",
   onUseAction: async (user) => {
     if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'emails.0.verified': true,
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().verifyEmail(user._id);
+    } else {
+      await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'emails.0.verified': true,
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your email has been verified" };
   },
   resultComponentName: "EmailTokenResult"
@@ -161,16 +173,20 @@ const ResetPasswordToken = new EmailTokenType({
     const validatePasswordResponse = validatePassword(password)
     if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
-    await updateMutator({ 
-      collection: Users,
-      documentId: user._id,
-      set: {
-        'services.password.bcrypt': await createPasswordHash(password),
-        'services.resume.loginTokens': []
-      } as any,
-      unset: {},
-      validate: false,
-    });
+    if (Users.isPostgres()) {
+      await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
+    } else {
+      await updateMutator({ 
+        collection: Users,
+        documentId: user._id,
+        set: {
+          'services.password.bcrypt': await createPasswordHash(password),
+          'services.resume.loginTokens': []
+        } as any,
+        unset: {},
+        validate: false,
+      });  
+    }
     return {message: "Your new password has been set. Try logging in again." };
   },
   resultComponentName: "EmailTokenResult",
@@ -188,7 +204,7 @@ const authenticationResolvers = {
           if (!user) throw new AuthenticationError("Invalid username/password")
           if (userIsBanned(user)) throw new AuthenticationError("This user is banned")
 
-          req!.logIn(user, async err => {
+          req!.logIn(user, async (err: AnyBecauseTodo) => {
             if (err) throw new AuthenticationError(err)
             token = await createAndSetToken(req, res, user)
             resolve(token)
@@ -198,14 +214,16 @@ const authenticationResolvers = {
       return { token }
     },
     async logout(root: void, args: {}, { req, res }: ResolverContext) {
-      req!.logOut()
-      clearCookie(req, res, "loginToken");
-      clearCookie(req, res, "meteor_login_token");
+      if (req) {
+        req.logOut()
+        clearCookie(req, res, "loginToken");
+        clearCookie(req, res, "meteor_login_token");  
+      }
       return {
         token: null
       }
     },
-    async signup(root: void, args, context: ResolverContext) {
+    async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
       const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
@@ -220,13 +238,15 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      const reCaptchaData = JSON.parse(reCaptchaResponse)
       let recaptchaScore : number | undefined = undefined
-      if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
-        recaptchaScore = reCaptchaData.score
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("reCaptcha check failed:", reCaptchaData)
+      if (reCaptchaResponse) {
+        const reCaptchaData = JSON.parse(reCaptchaResponse)
+        if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+          recaptchaScore = reCaptchaData.score
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("reCaptcha check failed:", reCaptchaData)
+        }
       }
 
       const { req, res } = context
@@ -312,7 +332,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 };
 
 
-function registerLoginEvent(user, req) {
+function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
   const document = {
     name: 'login',
     important: false,
@@ -330,22 +350,43 @@ function registerLoginEvent(user, req) {
     currentUser: user,
     validate: false,
   })
+  
+  const clientId = getCookieFromReq(req, "clientId");
+  if (clientId) {
+    void recordAssociationBetweenUserAndClientID(clientId, user);
+  }
+}
+
+async function recordAssociationBetweenUserAndClientID(clientId: string, user: DbUser) {
+  const clientIdEntry = await ClientIds.findOne({clientId});
+  if (clientIdEntry) {
+    const userId = user._id;
+    if (!clientIdEntry.userIds?.includes(userId)) {
+      await ClientIds.rawUpdateOne({clientId}, {$set: {
+        userIds: [...(clientIdEntry.userIds??[]), userId],
+      }});
+    }
+  }
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
-export const getCaptchaRating = async (token: string): Promise<string> => {
+const getCaptchaRating = async (token: string): Promise<string|null> => {
   // Make an HTTP POST request to get reply text
   return new Promise((resolve, reject) => {
-    request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
-        form: {
-          secret: reCaptchaSecretSetting.get(),
-          response: token
+    if (reCaptchaSecretSetting.get()) {
+      request.post({url: 'https://www.google.com/recaptcha/api/siteverify',
+          form: {
+            secret: reCaptchaSecretSetting.get(),
+            response: token
+          }
+        },
+        function(err, httpResponse, body) {
+          if (err) reject(err);
+          return resolve(body);
         }
-      },
-      function(err, httpResponse, body) {
-        if (err) reject(err);
-        return resolve(body);
-      }
-    );
+      );
+    } else {
+      resolve(null);
+    }
   });
 }

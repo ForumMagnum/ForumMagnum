@@ -1,6 +1,6 @@
 
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+export const formGroups: Partial<Record<string,FormGroupType>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,
@@ -10,7 +10,13 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
   subforumWelcomeMessage: {
     name: "subforumWelcomeMessage",
     order: 30,
-    label: "Subforum Welcome Message",
+    label: "Sidebar Welcome Message",
+    startCollapsed: true,
+  },
+  subforumModerationGuidelines: {
+    name: "subforumModerationGuidelines",
+    order: 40,
+    label: "Subforum Comment Guidelines",
     startCollapsed: true,
   },
 };

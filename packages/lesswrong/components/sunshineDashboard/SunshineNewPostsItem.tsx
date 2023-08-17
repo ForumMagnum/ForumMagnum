@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useMutation, gql } from '@apollo/client';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -12,7 +11,11 @@ import Button from '@material-ui/core/Button';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { Posts } from '../../lib/collections/posts';
+import { useCreate } from '../../lib/crud/withCreate';
+import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -30,16 +33,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   moderation: {
     marginBottom: 12
   },
+  metaInfoRow: {
+    marginBottom: 8,
+    display: "flex",
+    alignItems: "center",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   vote: {
-    marginBottom: 8
+    marginRight: 8
   }
 })
 
-const SunshineNewPostsItem = ({post, classes}: {
+const SunshineNewPostsItem = ({post, refetch, classes}: {
   post: SunshinePostsList,
+  refetch: () => void,
   classes: ClassesType
 }) => {
-  const [selectedTags, setSelectedTags] = useState<Record<string,boolean>>({});
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   
@@ -47,28 +56,13 @@ const SunshineNewPostsItem = ({post, classes}: {
     collectionName: "Posts",
     fragmentName: 'PostsList',
   });
-  const [addTagsMutation] = useMutation(gql`
-    mutation addTagsMutation($postId: String, $tagIds: [String]) {
-      addTags(postId: $postId, tagIds: $tagIds)
-    }
-  `);
 
-  const applyTags = () => {
-    const tagsApplied: Array<string> = [];
-    for (let tagId of Object.keys(selectedTags)) {
-      if (selectedTags[tagId])
-        tagsApplied.push(tagId);
-    }
-    void addTagsMutation({
-      variables: {
-        postId: post._id,
-        tagIds: tagsApplied,
-      }
-    });
-  }
+  const { create: createModeratorAction } = useCreate({
+    collectionName: 'ModeratorActions',
+    fragmentName: 'ModeratorActionsDefaultFragment'
+  });
   
   const handlePersonal = () => {
-    applyTags();
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -80,8 +74,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   }
 
   const handlePromote = () => {
-    applyTags();
-    
     void updatePost({
       selector: { _id: post._id},
       data: {
@@ -94,7 +86,6 @@ const SunshineNewPostsItem = ({post, classes}: {
   
   const handleDelete = () => {
     if (confirm("Are you sure you want to move this post to the author's draft?")) {
-      applyTags();
       window.open(userGetProfileUrl(post.user), '_blank');
       void updatePost({
         selector: { _id: post._id},
@@ -105,7 +96,25 @@ const SunshineNewPostsItem = ({post, classes}: {
     }
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, CoreTagsChecklist, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const lastManualUserFlag = post.user?.moderatorActions.find(action => action.type === MANUAL_FLAG_ALERT);
+  const isUserAlreadyFlagged = post.user?.needsReview || lastManualUserFlag?.active;
+
+  const handleFlagUser = async () => {
+    if (isUserAlreadyFlagged) return;
+
+    await createModeratorAction({
+      data: {
+        type: MANUAL_FLAG_ALERT,
+        userId: post.userId,
+      }
+    });
+    
+    // We need to refetch to make sure the "Flag User" button gets disabled
+    // The backend state only gets changed in a moderator action callback, so apollo doesn't handle it for us by updating the cache
+    refetch();
+  }
+
+  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -115,46 +124,58 @@ const SunshineNewPostsItem = ({post, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <FooterTagList post={post} />
-          <CoreTagsChecklist post={post} onSetTagsSelected={(selectedTags) => {
-            setSelectedTags(selectedTags);
-          }}/>
+          <FooterTagList post={post} showCoreTags highlightAutoApplied />
           <div className={classes.buttonRow}>
-              <Button onClick={handlePersonal}>
-                <PersonIcon className={classes.icon} /> Personal
-              </Button>
-              {post.submitToFrontpage && <Button onClick={handlePromote}>
-                <HomeIcon className={classes.icon} /> Frontpage
-              </Button>}
-              <Button onClick={handleDelete}>
-                <ClearIcon className={classes.icon} /> Draft
-              </Button>
-            </div>
-            <Typography variant="title" className={classes.title}>
-              <Link to={postGetPageUrl(post)}>
-                { post.title }
+            <Button onClick={handlePersonal}>
+              <PersonIcon className={classes.icon} /> Personal
+            </Button>
+            {post.submitToFrontpage && <Button onClick={handlePromote}>
+              <HomeIcon className={classes.icon} /> Frontpage
+            </Button>}
+            <Button onClick={handleDelete}>
+              <ClearIcon className={classes.icon} /> Draft
+            </Button>
+            <Button onClick={handleFlagUser} disabled={isUserAlreadyFlagged}>
+              <VisibilityOutlinedIcon className={classes.icon} /> Flag User
+            </Button>
+          </div>
+          <Typography variant="title" className={classes.title}>
+            <Link to={postGetPageUrl(post)}>
+              { post.title }
+            </Link>
+          </Typography>
+          <div className={classes.metaInfoRow}>
+            <span className={classes.vote}>
+              <SmallSideVote document={post} collection={Posts}/>
+            </span>
+            <MetaInfo>
+              <FormatDate date={post.postedAt}/>
+            </MetaInfo>
+            {postGetCommentCount(post) && <MetaInfo>
+              <Link to={`${postGetPageUrl(post)}#comments`}>
+                {postGetCommentCountStr(post)}
               </Link>
-            </Typography>
-            <div className={classes.vote}><SmallSideVote document={post} collection={Posts}/></div>
-            {moderationSection && <div className={classes.moderation}>
-              {(post.moderationStyle || post.user?.moderationStyle) && <div>
-                <MetaInfo>
-                  <span>Mod Style: </span>
-                  { post.moderationStyle || post.user?.moderationStyle }
-                  {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
-                </MetaInfo>
-              </div>}
-              {(modGuidelinesHtml || userGuidelinesHtml) && <div>
-                <MetaInfo>
-                  <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
-                  {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
-                </MetaInfo>
-              </div>}
+            </MetaInfo>}
+          </div>
+          {moderationSection && <div className={classes.moderation}>
+            {(post.moderationStyle || post.user?.moderationStyle) && <div>
+              <MetaInfo>
+                <span>Mod Style: </span>
+                { post.moderationStyle || post.user?.moderationStyle }
+                {!post.moderationStyle && post.user?.moderationStyle && <span> (Default User Style)</span>}
+              </MetaInfo>
             </div>}
-            <ContentStyles contentType="postHighlight">
-              <LinkPostMessage post={post} />
-              <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
-            </ContentStyles>
+            {(modGuidelinesHtml || userGuidelinesHtml) && <div>
+              <MetaInfo>
+                <span dangerouslySetInnerHTML={{__html: modGuidelinesHtml || userGuidelinesHtml}}/>
+                {!modGuidelinesHtml && userGuidelinesHtml && <span> (Default User Guideline)</span>}
+              </MetaInfo>
+            </div>}
+          </div>}
+          <ContentStyles contentType="postHighlight">
+            <LinkPostMessage post={post} />
+            <ContentItemBody dangerouslySetInnerHTML={{__html: post.contents?.html || ""}} description={`post ${post._id}`}/>
+          </ContentStyles>
         </SidebarHoverOver>
         <Link to={postGetPageUrl(post)}>
           {post.title}

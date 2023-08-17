@@ -49,16 +49,16 @@ async function getAllCollectionPosts(id: string) {
   let allCollectionSequences: Array<any> = [];
   const collection = queryResult.data.collection.result
 
-  collection.books.forEach((book) => {
-    const bookPosts = book.posts.map((post) => {
+  collection.books.forEach((book: AnyBecauseTodo) => {
+    const bookPosts = book.posts.map((post: AnyBecauseTodo) => {
       post.canonicalBookId = book._id
       return post
     })
     allCollectionPosts = allCollectionPosts.concat(bookPosts);
     allCollectionSequences = allCollectionSequences.concat(book.sequences);
-    book.sequences.forEach((sequence) => {
-      sequence.chapters.forEach((chapter) => {
-        const newPosts = chapter.posts.map((post) => {
+    book.sequences.forEach((sequence: AnyBecauseTodo) => {
+      sequence.chapters.forEach((chapter: AnyBecauseTodo) => {
+        const newPosts = chapter.posts.map((post: AnyBecauseTodo) => {
           post.canonicalBookId = book._id
           post.canonicalSequenceId = sequence._id
           return post

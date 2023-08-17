@@ -9,25 +9,36 @@ import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { isEAForum } from '../../lib/instanceSettings';
+import { BtnProps } from '../comments/CommentsNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
-    maxWidth:650,
-    paddingBottom: theme.spacing.unit*4,
+    padding: '0 12px 44px',
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
     }
   },
-  formButton: {
+  formButton: isEAForum ? {
+    float: "right",
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    fontSize: 14,
+    textTransform: 'none',
+    padding: '6px 12px',
+    borderRadius: 6,
+    boxShadow: 'none',
+    marginLeft: 8,
+  } : {
+    color: theme.palette.secondary.main,
+    float: "right",
     paddingBottom: "2px",
     fontSize: "16px",
     marginLeft: "5px",
     "&:hover": {
       background: theme.palette.buttons.hoverGrayHighlight,
     },
-    color: theme.palette.secondary.main,
-    float: "right"
   },
 })
 
@@ -43,6 +54,7 @@ const NewAnswerForm = ({post, classes}: {
   });
   
   const SubmitComponent = ({submitLabel = "Submit"}) => {
+    const submitBtnProps: BtnProps = isEAForum ? {variant: 'contained', color: 'primary'} : {}
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -56,6 +68,7 @@ const NewAnswerForm = ({post, classes}: {
             ev.preventDefault();
           }
         }}
+        {...submitBtnProps}
       >
         {submitLabel}
       </Button>
@@ -69,14 +82,14 @@ const NewAnswerForm = ({post, classes}: {
   }
   const { FormWrapper } = Components
   
-  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user)) {
+  if (currentUser && !userIsAllowedToComment(currentUser, post, post.user, false)) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
   
   return (
     <div className={classes.answersForm}>
       <FormWrapper
-        collection={Comments}
+        collectionName="Comments"
         formComponents={{
           FormSubmit: SubmitComponent,
           FormGroupLayout: Components.DefaultStyleFormGroup
@@ -86,9 +99,13 @@ const NewAnswerForm = ({post, classes}: {
         alignmentForumPost={post.af}
         layout="elementOnly"
         addFields={currentUser?[]:["contents"]}
+        formProps={{
+          editorHintText: isEAForum ? 'Write a new answer...' : undefined
+        }}
         successCallback={(comment: CommentsList, { form }: { form: any }) => {
           afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment})
         }}
+        submitLabel={isEAForum ? 'Add answer' : 'Submit'}
       />
     </div>
   )

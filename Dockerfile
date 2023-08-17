@@ -1,4 +1,6 @@
-FROM node:15.5.0
+# Node 18.x is LTS
+FROM node:18.15.0
+ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils
 # Install transcrypt for EA Forum

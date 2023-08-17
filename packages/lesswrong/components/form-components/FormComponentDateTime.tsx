@@ -1,15 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DateTimePicker from 'react-datetime';
 import moment from '../../lib/moment-timezone';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import type { Moment } from 'moment';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
-    padding: '6px 0 7px 0'
+    padding: '6px 0 7px 0',
+    background: 'transparent',
   },
   label: {
     position:"relative",
@@ -18,6 +21,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   timezone: {
     marginLeft: 4
+  },
+
+  wrapperAbove: {
+    "& .rdtPicker": {
+      bottom: 30,
+    },
+  },
+  wrapperBelow: {
+    "& .rdtOpen .DatePicker-input": {
+      borderBottom: `solid 1px ${theme.palette.grey[550]}`,
+    },
   },
 
   // Styles from react-datetime (https://github.com/arqex/react-datetime)
@@ -38,7 +52,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.default,
       boxShadow: theme.palette.boxShadow.moreFocused,
       border: `1px solid ${theme.palette.grey[55]}`,
-      bottom: 30,
     },
     "& .rdtOpen .rdtPicker": {
       display: "block",
@@ -225,46 +238,84 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-
-const FormComponentDateTime = ({ path, value, name, label, classes, position }, context) => {
-  const updateDate = (date: Date | undefined) => {
-    if (date) context.updateCurrentValues({[path]: date})
-  }
-
-  const date = value ? (typeof value === 'string' ? new Date(value) : value) : null;
+/**
+ * A wrapper around the react-datetime library, making a UI element for picking
+ * a date/time. Needs the wrapping to get its styles. This is split from
+ * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
+ */
+const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
+  label?: string,
+  name?: string,
+  value?: Date,
+  below?: boolean,
+  onChange: (newValue: Date)=>void,
+  onClose?: (newValue: Date)=>void,
+  classes: ClassesType
+}) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
-  const tzDate = date ? moment(date) : moment();
+  const tzDate = value ? moment(value) : moment();
 
   return <FormControl>
     <InputLabel className={classes.label}>
       { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
     </InputLabel>
-    <div className={classes.wrapper}>
+    <div className={classNames(classes.wrapper, {
+      [classes.wrapperAbove]: !below,
+      [classes.wrapperBelow]: below,
+    })}>
       <DateTimePicker
-        value={date}
+        value={value}
         inputProps={{
           name:name,
           autoComplete:"off",
           className:classes.input
         }}
-        // newDate argument is a Moment object given by react-datetime
-        onChange={(newDate: any) => updateDate(newDate._d)}
+        onChange={(newDate: Moment) => {
+          // newDate argument is a Moment object given by react-datetime.
+          onChange(newDate.toDate())
+        }}
+        onBlur={(newDate: Moment) => {
+          // newDate argument is a Moment object given by react-datetime.
+          onClose?.(newDate.toDate())
+        }}
       />
     </div>
   </FormControl>
+}
+
+
+/**
+ * Date-picker UI element, wrapped for use in vulcan-forms.
+ * TODO: This may not work right in nested contexts.
+ */
+const FormComponentDateTime = ({ path, value, name, label }: FormComponentProps<string|Date>, context: FormComponentContext<string|Date>) => {
+  const updateDate = (date: Date | undefined) => {
+    if (date) {
+      void context.updateCurrentValues({[path]: date})
+    }
+  }
+
+  const date = value ? (typeof value === 'string' ? new Date(value) : value) : undefined;
+
+  return <Components.DatePicker
+    label={label}
+    name={name}
+    value={date}
+    onChange={updateDate}
+  />
 }
 
 (FormComponentDateTime as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
-// Replaces FormComponentDateTime from vulcan-ui-bootstrap.
-// TODO: This may not work right in nested contexts.
-const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime, {styles});
+const DatePickerComponent = registerComponent("DatePicker", DatePicker, {styles});
+const FormComponentDateTimeComponent = registerComponent("FormComponentDateTime", FormComponentDateTime);
 
 declare global {
   interface ComponentTypes {
+    DatePicker: typeof DatePickerComponent
     FormComponentDateTime: typeof FormComponentDateTimeComponent
   }
 }

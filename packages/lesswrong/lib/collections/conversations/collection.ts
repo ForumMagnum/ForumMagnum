@@ -3,6 +3,7 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { forumTypeSetting } from '../../instanceSettings';
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false
@@ -34,6 +35,7 @@ const options: MutationOptions<DbConversation> = {
 export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Conversations'),
   mutations: getDefaultMutations('Conversations', options)
@@ -42,7 +44,7 @@ export const Conversations: ConversationsCollection = createCollection({
 // Conversations,
 addUniversalFields({
   collection: Conversations,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 })
 
 export default Conversations;

@@ -10,7 +10,7 @@ const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
   return (
     <div className="chapters-new-form">
       <Components.WrappedSmartForm
-        collection={Books}
+        collectionName="Books"
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         prefilledProps={prefilledProps}

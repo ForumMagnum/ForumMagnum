@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles'
 import moment from '../../lib/moment-timezone';
@@ -54,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   tooltipLogisticsTitle: {
     ...theme.typography.tinyText,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     marginTop: theme.spacing.unit
   },
   highlight: {
@@ -139,12 +138,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();
-  const { TabNavigationSubItem } = Components
-  
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
+  const { TabNavigationSubItem, MenuItemLink } = Components
   
   const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
@@ -157,10 +151,10 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
     sameElse: ' ',
   }) : ' '
 
-  return <MenuItemUntyped
+  return <MenuItemLink
     onClick={onClick}
-    component={Link} to={postGetPageUrl(event)}
-    classes={{root: classes.eventWrapper}}
+    to={postGetPageUrl(event)}
+    rootClass={classes.eventWrapper}
   >
     <TabNavigationSubItem className={classes.event}>
       {(displayTime && displayTime !== " ") && <span className={classNames(
@@ -170,7 +164,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
       </span>}
       <span className={classes.title}>{event.title}</span>
     </TabNavigationSubItem>
-  </MenuItemUntyped>
+  </MenuItemLink>
 }
 
 const TabNavigationEventTwoLines = ({event, onClick, classes}: {
@@ -179,20 +173,17 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();
-  const MenuItemUntyped = MenuItem as any; //See comment in TabNavigationEventSingleLine 
-  const { TabNavigationSubItem } = Components
+  const { TabNavigationSubItem, MenuItemLink } = Components
   
   const cityName = event.onlineEvent ? "Online" : getCityName(event)
   const shortDate = event.startTime && moment(event.startTime)
     .tz(timezone)
     .format("ddd MMM D");
   
-  return <MenuItemUntyped
+  return <MenuItemLink
     onClick={onClick}
-    component={Link} to={postGetPageUrl(event)}
-    classes={{
-      root: classNames(classes.eventWrapper, classes.twoLine)
-    }}
+    to={postGetPageUrl(event)}
+    rootClass={classNames(classes.eventWrapper, classes.twoLine)}
   >
     <TabNavigationSubItem className={classNames(classes.event, classes.twoLineEvent)}>
       <span className={classes.title}>{event.title}</span>
@@ -205,10 +196,10 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
         </>}
       </span>
     </TabNavigationSubItem>
-  </MenuItemUntyped>
+  </MenuItemLink>
 }
 
-function getCityName(event: PostsList): string|null {
+export function getCityName(event: PostsBase|PostsList): string|null {
   if (event.googleLocation) {
     const locationTypePreferenceOrdering = ["locality", "political", "country"];
     for (let locationType of locationTypePreferenceOrdering) {

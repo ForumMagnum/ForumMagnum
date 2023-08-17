@@ -39,25 +39,27 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   }, []);
 
   const { ChaptersEditForm, ChapterTitle, SectionFooter,
-    SectionButton, ContentItemBody, ContentStyles, SequencesSmallPostLink } = Components
+    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
+
   if (edit) return (
     <ChaptersEditForm
       documentId={chapter._id}
+      postIds={chapter.postIds}
       successCallback={showChapter}
       cancelCallback={showChapter}
     />
   )
+
   const editButton = <SectionButton>
     <a onClick={showEdit}>Add/Remove Posts</a>
   </SectionButton>
 
   return (
-  <div>
-    <div className={classes.title}>
-      {chapter.title && <ChapterTitle title={chapter.title} large/>}
-      {canEdit && editButton}
-    </div>
+    <div>
+      <div className={classes.title}>
+        {chapter.title && <ChapterTitle title={chapter.title} large/>}
+      </div>
       {html && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: html}}
@@ -66,10 +68,14 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
       </ContentStyles>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
-          {chapter.posts.map(post => <SequencesSmallPostLink key={chapter._id + post._id} sequenceId={chapter.sequenceId} post={post} large placement="bottom-end"/>)}
+          {chapter.posts.map(post => {
+            return <div key={chapter._id + post._id}>
+              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+            </div>
+          })}
         </AnalyticsContext>
       </div>
-      {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
+      {canEdit && <SectionFooter>{editButton}</SectionFooter>}
     </div>
   )
 }

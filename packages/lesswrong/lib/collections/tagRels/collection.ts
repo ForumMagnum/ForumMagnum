@@ -3,8 +3,9 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDef
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
-import { userCanVoteOnTag } from '../../voting/tagRelVoteRules';
-import GraphQLJSON from 'graphql-type-json';
+import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
+import { isEAForum } from '../../instanceSettings';
+import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
@@ -31,8 +32,8 @@ const schema: SchemaType<DbTagRel> = {
   },
   deleted: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     hidden: true,
     optional: true,
     ...schemaDefaultValue(false),
@@ -46,36 +47,42 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
-    canRead: ['guests'],
+    // Hide who applied the tag on the EA Forum
+    canRead: isEAForum ? [userOwns, 'sunshineRegiment', 'admins'] : ['guests'],
     canCreate: ['members'],
-  },
-  afBaseScore: {
-    type: Number,
-    optional: true,
-    label: "Alignment Base Score",
-    viewableBy: ['guests'],
-  },
-
-  afExtendedScore: {
-    type: GraphQLJSON,
-    optional: true,
-    viewableBy: ['guests'],
   },
 
   currentUserCanVote: resolverOnlyField({
     type: Boolean,
     graphQLtype: 'Boolean',
-    viewableBy: ['guests'],
-    resolver: (document: DbTagRel, args: void, {currentUser}: ResolverContext) => {
+    canRead: ['guests'],
+    resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
-      return currentUser ? userCanVoteOnTag(currentUser, document.tagId) : true;
+      return context.currentUser
+        ? !(await canVoteOnTagAsync(context.currentUser, document.tagId, document.postId, context, 'smallUpvote')).fail
+        : true;
     },
   }),
+  autoApplied: {
+    type: Boolean,
+    canRead: ['guests'],
+    optional: true, hidden: true,
+    // Implementation in tagResolvers.ts
+  },
+  // Indicates that a tagRel was applied via the script backfillParentTags.ts
+  backfilled: {
+    type: Boolean,
+    canRead: ['guests'],
+    optional: true,
+    hidden: true,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {
@@ -103,7 +110,13 @@ TagRels.checkAccess = async (currentUser: DbUser|null, tagRel: DbTagRel, context
 addUniversalFields({collection: TagRels})
 makeVoteable(TagRels, {
   timeDecayScoresCronjob: true,
-  userCanVoteOn: (user: DbUser, document: DbTagRel) => userCanVoteOnTag(user, document.tagId),
+  userCanVoteOn: (
+    user: DbUser,
+    document: DbTagRel,
+    voteType: string|null,
+    _extendedVote: any,
+    context: ResolverContext,
+  ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
 });
 
 export default TagRels;

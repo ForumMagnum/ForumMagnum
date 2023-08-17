@@ -26,6 +26,7 @@ const options: MutationOptions<DbRSSFeed> = {
 export const RSSFeeds: RSSFeedsCollection = createCollection({
   collectionName: 'RSSFeeds',
   typeName: 'RSSFeed',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('RSSFeeds'),
   mutations: getDefaultMutations('RSSFeeds', options),

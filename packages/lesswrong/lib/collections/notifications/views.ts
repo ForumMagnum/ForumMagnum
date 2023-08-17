@@ -1,4 +1,4 @@
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import Notifications from './collection';
 
 declare global {
@@ -27,6 +27,9 @@ Notifications.addDefaultView(function (terms: NotificationsViewTerms) {
 
 // notifications for a specific user (what you see in the notifications menu)
 Notifications.addView("userNotifications", (terms: NotificationsViewTerms) => {
+  if (!terms.userId) {
+    throw new Error("userNotifications view called without a userId");
+  }
   return {
     selector: {
       userId: terms.userId,
@@ -53,6 +56,9 @@ ensureIndex(Notifications, {userId:1, type:1, createdAt:-1});
 // Index used in callbacks for finding notifications related to a document
 // that is being deleted
 ensureIndex(Notifications, {documentId:1});
+
+// Used by server-sent events
+ensureIndex(Notifications, {createdAt:1});
 
 Notifications.addView("adminAlertNotifications", (terms: NotificationsViewTerms) => {
   return {

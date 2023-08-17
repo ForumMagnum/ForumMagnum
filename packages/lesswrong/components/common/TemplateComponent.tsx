@@ -1,5 +1,7 @@
+// TODO: Import component in components.ts
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -10,6 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const TemplateComponent = ({classes}: {
   classes: ClassesType,
 }) => {
+  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   return <div className={classes.root}>
 
   </div>;
@@ -22,4 +25,3 @@ declare global {
     TemplateComponent: typeof TemplateComponentComponent
   }
 }
-

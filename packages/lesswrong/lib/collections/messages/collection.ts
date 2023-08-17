@@ -5,6 +5,7 @@ import Conversations from '../conversations/collection'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbMessage> = {
   newCheck: async (user: DbUser|null, document: DbMessage|null) => {
@@ -32,6 +33,7 @@ const options: MutationOptions<DbMessage> = {
 export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),
@@ -48,9 +50,9 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     permissions: {
-      viewableBy: ['members'],
-      insertableBy: ['members'],
-      editableBy: userOwns,
+      canRead: ['members'],
+      canCreate: ['members'],
+      canUpdate: userOwns,
     },
     order: 2,
   }
@@ -58,7 +60,7 @@ makeEditable({
 
 addUniversalFields({
   collection: Messages,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 });
 
 export default Messages;

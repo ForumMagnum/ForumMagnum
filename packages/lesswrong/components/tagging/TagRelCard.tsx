@@ -1,6 +1,8 @@
 import React from 'react';
+import { userCanVote } from '../../lib/collections/users/helpers';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,8 +40,23 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
   classes: ClassesType,
   relevance?: boolean
 }) => {
+  const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
+
+  // We check both whether the current user can vote at all, and whether they can specifically vote on this tagrel
+  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const canVote = tagRel.currentUserCanVote && !fail;
+  
+  const TooltipIfDisabled = (canVote
+    ? ({children}: {children: React.ReactNode}) => <>{children}</>
+    : ({children}: {children: React.ReactNode}) => <LWTooltip
+      placement="top"
+      title={whyYouCantVote}
+    >
+      {children}
+    </LWTooltip>
+  )
 
   const { TagPreview, OverallVoteButton, TagRelevanceButton, LWTooltip } = Components;
   
@@ -50,27 +67,31 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           Relevance
         </span>
       </LWTooltip>
-      <div className={classes.voteButton}>
-        <OverallVoteButton
-          orientation="left"
-          color="error"
-          upOrDown="Downvote"
-          enabled={tagRel.currentUserCanVote}
-          {...voteProps}
-        />
-      </div>
+      <TooltipIfDisabled>
+        <div className={classes.voteButton}>
+          <OverallVoteButton
+            orientation="left"
+            color="error"
+            upOrDown="Downvote"
+            enabled={canVote}
+            {...voteProps}
+          />
+        </div>
+      </TooltipIfDisabled>
       <span className={classes.score}>
         {voteProps.baseScore}
       </span>
-      <div className={classes.voteButton}>
-        <OverallVoteButton
-          orientation="right"
-          color="secondary"
-          upOrDown="Upvote"
-          enabled={tagRel.currentUserCanVote}
-          {...voteProps}
-        />
-      </div>
+      <TooltipIfDisabled>
+        <div className={classes.voteButton}>
+          <OverallVoteButton
+            orientation="right"
+            color="secondary"
+            upOrDown="Upvote"
+            enabled={canVote}
+            {...voteProps}
+          />
+        </div>
+      </TooltipIfDisabled>
       {newlyVoted && <span className={classes.removeButton}>
         <LWTooltip
           title={`Remove your relevance vote from this ${taggingNameSetting.get()}`}
@@ -86,7 +107,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
       </span>}
       {voteProps.baseScore <= 0 && <span className={classes.removed}>Removed (refresh page)</span>}
     </div>
-    {tagRel.tag && <TagPreview tag={tagRel.tag}/>}
+    {tagRel.tag && <TagPreview tag={tagRel.tag} autoApplied={tagRel.autoApplied}/>}
   </div>
 }
 

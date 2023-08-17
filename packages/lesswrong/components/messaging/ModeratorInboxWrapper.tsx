@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const ModeratorInboxWrapper = () => {
   const { ErrorAccessDenied } = Components
@@ -16,8 +17,8 @@ const ModeratorInboxWrapper = () => {
     return <ErrorAccessDenied/>
   }
   const showArchive = query.showArchive === "true"
-  const terms: ConversationsViewTerms = {view: 'moderatorConversations', showArchive};
-  return <Components.InboxNavigation terms={terms} currentUser={currentUser} title="Moderator Conversations"/>
+  const terms: ConversationsViewTerms = {view: 'moderatorConversations', showArchive, userId: query.userId};
+  return <Components.InboxNavigation terms={terms} currentUser={currentUser} title={<Link to="/moderatorInbox">Moderator Conversations</Link>}/>
 }
 
 const ModeratorInboxWrapperComponent = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);

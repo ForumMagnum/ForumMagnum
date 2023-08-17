@@ -7,6 +7,7 @@ import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/colle
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const refreshDisplayMode = ( editor, sidebarElement ) => {
+const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
   
@@ -56,12 +57,28 @@ const refreshDisplayMode = ( editor, sidebarElement ) => {
 }
 
 
-const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, documentId, userId, formType, onInit, classes, isCollaborative, accessLevel, placeholder }: {
+const CKPostEditor = ({
+  data,
+  collectionName,
+  fieldName,
+  onSave,
+  onChange,
+  onFocus,
+  documentId,
+  userId,
+  formType,
+  onInit,
+  isCollaborative,
+  accessLevel,
+  placeholder,
+  classes,
+}: {
   data?: any,
   collectionName: CollectionNameString,
   fieldName: string,
   onSave?: any,
   onChange?: any,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   documentId?: string,
   userId?: string,
   formType?: "new"|"edit",
@@ -87,6 +104,9 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+
+  // Get the linkSharingKey, if it exists
+  const { query : { key } } = useSubscribedLocation();
   
   // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -95,8 +115,8 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
   }, [])
 
   const editorRef = useRef<CKEditor>(null)
-  const sidebarRef = useRef(null)
-  const presenceListRef = useRef(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const presenceListRef = useRef<HTMLDivElement>(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -139,9 +159,10 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
     {layoutReady && <CKEditor
       ref={editorRef}
       onChange={onChange}
+      onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={editor => {
+      onInit={(editor: any) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -159,12 +180,12 @@ const CKPostEditor = ({ data, collectionName, fieldName, onSave, onChange, docum
       }}
       config={{
         autosave: {
-          save (editor) {
+          save (editor: any) {
             return onSave && onSave(editor.getData())
           }
         },
         cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType),
+          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),

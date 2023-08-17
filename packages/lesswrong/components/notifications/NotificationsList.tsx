@@ -3,6 +3,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -10,11 +12,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflowY: "auto",
     padding: 0,
   },
-  
+
   empty: {
+    ...(isEAForum ? theme.typography.body2 : {}),
     padding: 10
   },
-  
+
   loadMoreButton: {
     fontSize: "14px",
     padding: 0,
@@ -23,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     textAlign: "center",
     width: "100%",
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 
@@ -38,7 +42,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     limit: 20,
     enableTotal: false
   });
-  const [lastNotificationsCheck, setLastNotificationsCheck] = useState(
+  const [lastNotificationsCheck] = useState(
     ((currentUser?.lastNotificationsCheck) || ""),
   );
 
@@ -60,7 +64,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
-              Load More
+              {preferredHeadingCase("Load More")}
             </div>
           </ListItem>}
       </List>
@@ -74,7 +78,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       : (terms.type === 'newComment') ? (<b>new comment</b>)
       : (terms.type === 'newMessage') ? (<b>new message</b>)
       : "of these";
-    return <div className={classes.empty}> You don't have any {modifier} notifications yet!</div>
+    return <div className={classes.empty}> You don't have any {modifier} notifications yet</div>
   }
 }
 

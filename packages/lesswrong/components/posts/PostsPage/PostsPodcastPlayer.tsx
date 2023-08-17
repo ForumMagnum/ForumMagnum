@@ -1,22 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import NoSSR from '@material-ui/core/NoSsr';
+import React, { useEffect, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
-import { isClient } from '../../../lib/executionEnvironment';
-import { useCurrentUser } from '../../common/withUser';
-import { getThemeOptions } from '../../../themes/themeNames';
-import { useCookies } from 'react-cookie';
-import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
 
-const styles = (): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   embeddedPlayer: {
-    marginBottom: '2px'
-  },
-  playerDarkMode: {
-    opacity: 0.85
+    marginBottom: '2px',
+    opacity: theme.palette.embeddedPlayer.opacity,
   },
   podcastIconList: {
     paddingLeft: '0px',
@@ -28,39 +20,29 @@ const styles = (): JssStyles => ({
   }
 });
 
-const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
+const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
   podcastEpisode: PostsDetails_podcastEpisode,
   postId: string,
+  hideIconList?: boolean,
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser();
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
 
-  const [cookies] = useCookies();
-  const themeCookie = cookies['theme'];
-
-  const themeOptions = getThemeOptions(themeCookie, currentUser);
-  const isDarkMode = themeOptions.name === 'dark';
-
-  /**
-   * We need to embed a reference to the generated-per-episode buzzsprout script, which is responsible for hydrating the player div (with the id `buzzsprout-player-${externalEpisodeId}`).
-   */
-  const embedScriptFunction = (src: string, clientDocument: Document) => <>{
-    ((doc) => {
-      // First we check if such a script is already on the document.
-      // That happens when navigating between posts, since the client doesn't render an entirely new page
-      // In that case, we want to delete the previous one before adding the new one
-      const playerScript = doc.getElementById('buzzsproutPlayerScript');
-      if (playerScript) playerScript.parentNode?.removeChild(playerScript);
-      const newScript = doc.createElement('script');
-      newScript.async=true;
-      newScript.src=src;
-      newScript.id='buzzsproutPlayerScript';
-      doc.head.appendChild(newScript);
-    })(clientDocument)
-  }</>;
+  // Embed a reference to the generated-per-episode buzzsprout script, which is
+  // responsible for hydrating the player div (with the id
+  // `buzzsprout-player-${externalEpisodeId}`).
+  useEffect(() => {
+    const newScript = document.createElement('script');
+    newScript.async=true;
+    newScript.src=podcastEpisode.episodeLink;
+    document.head.appendChild(newScript);
+    
+    return () => {
+      newScript.parentNode?.removeChild(newScript);
+    }
+  }, [podcastEpisode.episodeLink]);
 
   const setMouseOverDiv = (isMouseOver: boolean) => {
     mouseOverDiv.current = isMouseOver;
@@ -78,18 +60,15 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, classes }: {
   return <>
     <div
       id={`buzzsprout-player-${podcastEpisode.externalEpisodeId}`}
-      className={classNames(classes.embeddedPlayer, { [classes.playerDarkMode]: isDarkMode })}
+      className={classes.embeddedPlayer}
       ref={divRef}
       onMouseOver={() => setMouseOverDiv(true)}
       onMouseOut={() => setMouseOverDiv(false)}
     />
-    {isClient && <NoSSR>
-      {embedScriptFunction(podcastEpisode.episodeLink, document)}
-    </NoSSR>}
-    <ul className={classes.podcastIconList}>
+    {!hideIconList && <ul className={classes.podcastIconList}>
       {podcastEpisode.podcast.applePodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.applePodcastLink}>{applePodcastIcon}</a></li>}
       {podcastEpisode.podcast.spotifyPodcastLink && <li className={classes.podcastIcon}><a href={podcastEpisode.podcast.spotifyPodcastLink}>{spotifyPodcastIcon}</a></li>}
-    </ul>
+    </ul>}
   </>;
 };
 

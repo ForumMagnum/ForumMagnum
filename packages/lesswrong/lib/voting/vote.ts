@@ -12,7 +12,7 @@ export const voteCallbacks = {
   cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.sync"),
   cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.async"),
   castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.sync"),
-  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.async"),
+  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser,ResolverContext]>("votes.castVote.async"),
 };
 
 
@@ -34,8 +34,20 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
     ...document,
     currentUserVote: voteType,
     currentUserExtendedVote: extendedVote,
-    extendedScore: votingSystem.addVoteClient(document.extendedScore, extendedVote, user),
-    afExtendedScore: isAfVote ? votingSystem.addVoteClient(document.afExtendedScore, extendedVote, user): document.afExtendedScore,
+    extendedScore: votingSystem.addVoteClient({
+      voteType: voteType,
+      document,
+      oldExtendedScore: document.extendedScore,
+      extendedVote: extendedVote,
+      currentUser: user
+    }),
+    afExtendedScore: isAfVote ? votingSystem.addVoteClient({
+      voteType: voteType,
+      document,
+      oldExtendedScore: document.afExtendedScore,
+      extendedVote: extendedVote,
+      currentUser: user
+    }): document.afExtendedScore,
     baseScore: (document.baseScore||0) + power,
     voteCount: (document.voteCount||0) + 1,
     afBaseScore: (document.afBaseScore||0) + afPower,
@@ -72,8 +84,20 @@ const cancelVoteClient = ({document, collection, user, votingSystem}: {
     ...document,
     currentUserVote: null,
     currentUserExtendedVote: null,
-    extendedScore: votingSystem.cancelVoteClient(document.extendedScore, document.currentUserExtendedVote, user),
-    afExtendedScore: isAfVote ? votingSystem.cancelVoteClient(document.afExtendedScore, document.currentUserExtendedVote, user) : document.afExtendedScore,
+    extendedScore: votingSystem.cancelVoteClient({
+      voteType: document.currentUserVote,
+      document,
+      oldExtendedScore: document.extendedScore,
+      cancelledExtendedVote: document.currentUserExtendedVote,
+      currentUser: user
+    }),
+    afExtendedScore: isAfVote ? votingSystem.cancelVoteClient({
+      voteType: document.currentUserVote,
+      document,
+      oldExtendedScore: document.afExtendedScore,
+      cancelledExtendedVote: document.currentUserExtendedVote,
+      currentUser: user
+    }) : document.afExtendedScore,
     baseScore: (document.baseScore||0) - power,
     afBaseScore: (document.afBaseScore||0) - afPower,
     voteCount: (document.voteCount||0)-1,

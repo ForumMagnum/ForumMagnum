@@ -1,31 +1,51 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import MenuItem from '@material-ui/core/MenuItem';
+import { isEAForum } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import { defaultNotificationTypeSettings } from '../../lib/collections/users/schema';
+import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
+import type { PickedTime } from '../common/BatchTimePicker';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 8,
   },
-  label: {},
+  label: {
+    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  },
   settings: {
     paddingLeft: 20,
   },
 })
 
-const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
-  const { BatchTimePicker, Typography } = Components;
+interface NotificationSettings extends PickedTime {
+  channel: string;
+  batchingFrequency: string;
+}
+
+const NotificationTypeSettings = ({ path, value, label, classes }: {
+  path: keyof DbUser;
+  value: PickedTime;
+  label: string;
+  classes: ClassesType;
+}, context: any) => {
+  const { BatchTimePicker, Typography, MenuItem } = Components;
   const currentValue = { ...defaultNotificationTypeSettings, ...value };
   const notificationType = getNotificationTypeByUserSetting(path);
   
-  const modifyValue = (changes) => {
+  const modifyValue = (changes: Partial<NotificationSettings>) => {
     context.updateCurrentValues({
       [path]: { ...currentValue, ...changes }
     });
+  }
+  
+  const channelOptions: Record<NotificationChannelOption, React.ReactChild> = {
+    none: <MenuItem value="none" key="none">Don't notify</MenuItem>,
+    onsite: <MenuItem value="onsite" key="onsite">Notify me on-site</MenuItem>,
+    email: <MenuItem value="email" key="email">Notify me by email</MenuItem>,
+    both: <MenuItem value="both" key="both">Notify me both on-site and by email</MenuItem>
   }
   
   return <div className={classes.root}>
@@ -36,10 +56,8 @@ const NotificationTypeSettings = ({ path, value, label, classes }, context) => {
         onChange={(event) =>
           modifyValue({ channel: event.target.value })}
       >
-        {!notificationType.mustBeEnabled && <MenuItem value="none">Don't notify</MenuItem>}
-        <MenuItem value="onsite">Notify me on-site</MenuItem>
-        <MenuItem value="email">Notify me by email</MenuItem>
-        <MenuItem value="both">Notify me both on-site and by email</MenuItem>
+        {notificationType.allowedChannels?.length ?
+          notificationType.allowedChannels.map(channel => channelOptions[channel]) : <></>}
       </Select>
       { currentValue.channel !== "none" && <React.Fragment>
         {" "}

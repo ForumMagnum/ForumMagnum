@@ -11,9 +11,9 @@ describe('Moderators', function() {
   it('can move posts to drafts, hiding them from public view', function() {
     cy.loginAs(this.testAdmin);
     cy.visit('/posts/test-seeded-post');
-    cy.get('.PostsPageActions-root').click();
+    cy.get('.PostActionsButton-root').click();
     cy.contains(this.testPost.title).should('exist');
-    cy.contains('li', 'Move to Draft').click();
+    cy.contains('.DropdownItem-title', 'Move to draft').click();
 
     /** this stops the test from auto-failing when the operation_not_allowed 
      * exception is thrown. */

@@ -5,6 +5,8 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { withLocation } from '../../lib/routeUtil';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -19,10 +21,16 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
+    fontWeight: isEAForum ? 600 : undefined,
   },
 });
 
-const FormGroupHeader = ({ toggle, collapsed, label, classes }) => (
+const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
+  toggle: ()=>void
+  collapsed: boolean
+  label?: string
+  classes: ClassesType
+}) => (
   <div className={classes.formSectionHeading} onClick={toggle}>
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
     <span className="form-section-heading-toggle">
@@ -34,21 +42,18 @@ const FormGroupHeader = ({ toggle, collapsed, label, classes }) => (
     </span>
   </div>
 );
-FormGroupHeader.propTypes = {
-  toggle: PropTypes.func.isRequired,
-  label: PropTypes.string.isRequired,
-  collapsed: PropTypes.bool
-};
+
 const FormGroupHeaderComponent = registerComponent('FormGroupHeader', FormGroupHeader, {
   styles: headerStyles
 });
 
-const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
+export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
-    border: theme.palette.border.grey400,
+    border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.background.pageActiveAreaBackground,
+    ...(isEAForum ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
@@ -58,10 +63,6 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   formSectionPadding: {
     paddingRight: theme.spacing.unit*2,
     paddingLeft: theme.spacing.unit*2,
-    [theme.breakpoints.down('md')]: {
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2,
-    },
   },
   formSectionCollapsed: {
     display: "none",
@@ -70,14 +71,32 @@ const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     flexWrap: "wrap"
+  },
+  flexAlignTop: {
+    display: "flex",
+    alignItems: "baseline",
+    flexWrap: "wrap"
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, classes }) => {
+const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
+  children: React.ReactNode
+  label?: string
+  heading: React.ReactNode
+  footer: React.ReactNode
+  collapsed: boolean
+  hasErrors: boolean
+  groupStyling: any
+  paddingStyling: any
+  flexStyle: any
+  flexAlignTopStyle: any
+  toggle: ()=>void
+  classes: ClassesType
+}) => {
   return <div className={classNames(
     { [classes.formSectionPadding]: paddingStyling,
       [classes.formSection]: groupStyling},
-    `form-section-${slugify(label)}`)}
+    `form-section-${slugify(label||"")}`)}
   >
     {heading}
     <div
@@ -86,6 +105,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
           [classes.formSectionCollapsed]: collapsed && !hasErrors,
           [classes.formSectionBody]: groupStyling,
           [classes.flex]: flexStyle,
+          [classes.flexAlignTop]: flexAlignTopStyle,
           [classes.formSectionPadding]: groupStyling,
         }
       )}
@@ -95,23 +115,44 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
     {footer}
   </div>
 };
-FormGroupLayout.propTypes = {
-  hasErrors: PropTypes.bool,
-  collapsed: PropTypes.bool,
-  heading: PropTypes.node,
-  footer: PropTypes.node,
-  children: PropTypes.node,
-};
+
 const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
 
-class FormGroup extends PureComponent<any,any> {
-  constructor(props) {
+interface FormGroupExternalProps extends FormGroupType {
+  errors: any[]
+  throwError: any
+  currentValues: any
+  updateCurrentValues: any
+  deletedValues: any
+  addToDeletedValues: any
+  clearFieldErrors: any
+  formType: "new"|"edit"
+  currentUser: UsersCurrent|null
+  formComponents: ComponentTypes
+  formProps: any
+  disabled: boolean
+  fields: FormField<any>[]
+}
+interface FormGroupProps extends FormGroupExternalProps, WithLocationProps {
+}
+interface FormGroupState {
+  collapsed: boolean
+  footerContent: React.ReactNode
+}
+
+class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
+  constructor(props: FormGroupProps) {
     super(props);
     this.toggle = this.toggle.bind(this);
     this.renderHeading = this.renderHeading.bind(this);
     this.setFooterContent = this.setFooterContent.bind(this);
+
+    const { query } = this.props.location;
+    const highlightInFields = query.highlightField && props.fields.map(f => f.name).includes(query.highlightField)
+    const collapsed = (props.startCollapsed && !highlightInFields) || false
+
     this.state = {
-      collapsed: props.startCollapsed || false,
+      collapsed,
       footerContent: null,
     };
   }
@@ -122,11 +163,11 @@ class FormGroup extends PureComponent<any,any> {
     });
   }
 
-  setFooterContent(footerContent) {
+  setFooterContent(footerContent: React.ReactNode) {
     this.setState({ footerContent });
   }
 
-  renderHeading(FormComponents) {
+  renderHeading(FormComponents: ComponentTypes) {
     const component = <FormComponents.FormGroupHeader
       toggle={this.toggle}
       label={this.props.label}
@@ -144,13 +185,13 @@ class FormGroup extends PureComponent<any,any> {
 
   // if at least one of the fields in the group has an error, the group as a whole has an error
   hasErrors = () =>
-    _.some(this.props.fields, (field: any) => {
+    _.some(this.props.fields, (field: FormField<any>) => {
       return !!this.props.errors.filter((error: any) => error.path === field.path)
         .length;
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle, paddingStyle, formProps } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
@@ -166,6 +207,7 @@ class FormGroup extends PureComponent<any,any> {
         paddingStyling={paddingStyle}
         hasErrors={this.hasErrors()}
         flexStyle={flexStyle}
+        flexAlignTopStyle={flexAlignTopStyle}
       >
         {fields.map(field => (
           <FormComponents.FormComponent
@@ -207,7 +249,7 @@ class FormGroup extends PureComponent<any,any> {
   currentUser: PropTypes.object,
 };
 
-const FormGroupComponent = registerComponent('FormGroup', FormGroup);
+const FormGroupComponent = registerComponent<FormGroupExternalProps>('FormGroup', FormGroup, {hocs: [withLocation]});
 
 const IconRight = ({ width = 24, height = 24 }) => (
   <svg

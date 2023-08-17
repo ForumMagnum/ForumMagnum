@@ -11,7 +11,7 @@ Vulcan.renameDuplicateUsernames = wrapVulcanAsyncScript('renameDuplicateUsername
     collection: Users,
     query: {username: /_duplicate/},
     queryOptions: {limit: 1},
-    updateFunction: document => {
+    updateFunction: (document: AnyBecauseObsolete) => {
       const newUsername = document.username.replace(/_duplicate.*/, '')
       return {
         $set: {
@@ -31,7 +31,7 @@ Vulcan.updateBaseScores = wrapVulcanAsyncScript('updateBaseScores', async () => 
   for (const collection of [Posts, Comments]) {
     await bulkUpdateWithJS({
       collection,
-      updateFunction: async (document) => {
+      updateFunction: async (document: AnyBecauseObsolete) => {
         const scoreFields = await recalculateDocumentScores(document, context)
         return {$set: {...scoreFields}}
       }

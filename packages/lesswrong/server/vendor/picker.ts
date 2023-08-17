@@ -25,39 +25,47 @@
 
 import pathToRegexp from 'path-to-regexp';
 import URL from 'url';
+import type { NextFunction, ParamsDictionary, Query, Response } from 'express-serve-static-core';
+import type { RequestHandler } from 'express';
+import type { IncomingMessage, ServerResponse } from 'http';
 const urlParse = URL.parse;
 
+type Req = Parameters<RequestHandler>[0];
+type Res = Response<any, Record<string, any>, number>;
+type FilterFunction = (req: Req, res: Res) => any;
+type RouteCallback = (props: any, req: IncomingMessage, res: ServerResponse, next: NextFunction) => void | Promise<void>;
+
 class PickerImp {
-  filterFunction: any
-  routes: any
-  subRouters: any
+  filterFunction: FilterFunction | null
+  routes: (pathToRegexp.PathRegExp & { callback: any })[]
+  subRouters: PickerImp[]
   middlewares: any
   
-  constructor(filterFunction) {
+  constructor(filterFunction: FilterFunction | null) {
     this.filterFunction = filterFunction;
     this.routes = [];
     this.subRouters = [];
     this.middlewares = [];
   }
 
-  middleware = (callback) => {
+  middleware = (callback: any) => {
     this.middlewares.push(callback);
   };
 
-  route = (path, callback) => {
-    var regExp: any = pathToRegexp(path);
-    regExp.callback = callback;
-    this.routes.push(regExp);
+  route = (path: pathToRegexp.Path, callback: RouteCallback) => {
+    var regExp = pathToRegexp(path);
+    const regExpWithCallback = Object.assign(regExp, { callback });
+    this.routes.push(regExpWithCallback);
     return this;
   };
   
-  filter = (callback) => {
+  filter = (callback: FilterFunction) => {
     var subRouter = new PickerImp(callback);
     this.subRouters.push(subRouter);
     return subRouter;
   };
   
-  _dispatch = (req, res, bypass) => {
+  _dispatch = (req: Req, res: Res, bypass: NextFunction) => {
     var self = this;
     var currentRoute = 0;
     var currentSubRouter = 0;
@@ -107,7 +115,7 @@ class PickerImp {
     }
   };
   
-  _buildParams = (keys, m) => {
+  _buildParams = (keys: pathToRegexp.Key[], m: RegExpMatchArray) => {
     var params: any = {};
     for(var lc=1; lc<m.length; lc++) {
       var key = keys[lc-1].name;
@@ -118,15 +126,15 @@ class PickerImp {
     return params;
   };
   
-  _processRoute = (callback, params, req, res, next) => {
+  _processRoute = (callback: RouteCallback, params: any, req: IncomingMessage, res: Res, next: NextFunction) => {
     doCall();
   
     function doCall () {
-      callback.call(null, params, req, res, next); 
+      void callback.call(null, params, req, res, next); 
     }
   };
   
-  _processMiddleware = (middleware, req, res, next) => {
+  _processMiddleware = (middleware: any, req: Req, res: Res, next: () => void) => {
     doCall();
   
     function doCall() {
@@ -136,6 +144,6 @@ class PickerImp {
 }
 
 export const Picker = new PickerImp(null);
-export const pickerMiddleware = function(req, res, next) {
+export const pickerMiddleware: RequestHandler<ParamsDictionary, any, any, Query, Record<string, any>> = function(req, res, next) {
   Picker._dispatch(req, res, next);
 }

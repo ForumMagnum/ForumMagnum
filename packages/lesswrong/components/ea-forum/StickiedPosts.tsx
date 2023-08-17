@@ -1,16 +1,19 @@
 import React from 'react';
+import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { sectionTitleStyle } from "../common/SectionTitle";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto",
-    [theme.breakpoints.down("sm")]: {
-      marginTop: theme.spacing.unit*3,
+  root: isEAForum
+    ? {
+      margin: "8px 0",
+    }
+    : {
+      marginBottom: 24,
+      [theme.breakpoints.down("md")]: {
+        marginTop: 12,
+        marginBottom: 8,
+      }
     },
-  },
 });
 
 const StickiedPosts = ({
@@ -18,21 +21,18 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, SectionTitle, LWTooltip } = Components;
+  const { SingleColumnSection, PostsList2, TargetedJobAd } = Components
 
-  return <SingleColumnSection>
-    <LWTooltip title="The Forum Team thinks these posts and threads should stay at the top of the Frontpage for a while" placement="left">
-      <SectionTitle title="Pinned Posts" noTopMargin className={classes.title} />
-    </LWTooltip>
+  return <SingleColumnSection className={classes.root}>
     <PostsList2
-      terms={{view:"stickied", limit:100}}
+      terms={{view:"stickied", limit:100, forum: true}}
       showNoResults={false}
       showLoadMore={false}
       hideLastUnread={false}
       boxShadow={false}
       curatedIconLeft={false}
     />
-  </SingleColumnSection>;
+  </SingleColumnSection>
 }
 
 const StickiedPostsComponent = registerComponent("StickiedPosts", StickiedPosts, {styles});

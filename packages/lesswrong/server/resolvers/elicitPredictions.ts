@@ -1,5 +1,4 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLQuery, addGraphQLMutation } from '../../lib/vulcan-lib/graphql';
-import fetch from 'node-fetch'
 import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';

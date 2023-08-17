@@ -1,13 +1,13 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import { getSearchClient } from '../../../lib/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/algoliaUtil';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   map: {
     height: '100vh',
-    marginTop: -50,
+    marginTop: -theme.spacing.mainLayoutPaddingTop,
     [theme.breakpoints.down('sm')]: {
       marginTop: 0,
     },

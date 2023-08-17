@@ -1,6 +1,6 @@
-import type { ApolloError } from "@apollo/client";
-import { useForeignApolloClient } from "./useForeignApolloClient";
-import { useSingle, UseSingleProps } from "../../lib/crud/withSingle";
+import { ApolloError, gql, useQuery } from "@apollo/client";
+import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+import { UseSingleProps } from "../../lib/crud/withSingle";
 
 export type PostWithForeignId = {
   fmCrosspost: {
@@ -17,10 +17,31 @@ export const isPostWithForeignId =
     typeof post.fmCrosspost.hostedHere === "boolean" &&
     !!post.fmCrosspost.foreignPostId;
 
+const hasTableOfContents =
+  <
+    Post extends PostWithForeignId,
+    WithContents extends Post & {tableOfContents: {sections: any[]}}
+  >(post: Post): post is WithContents =>
+    "tableOfContents" in post && Array.isArray((post as WithContents).tableOfContents?.sections);
+
+/**
+ * If this post was crossposted from elsewhere then we want to take some of the fields from
+ * our local copy (for correct links/ids/etc.), but we want to override many of the fields
+ * with foreign data, to keep the origin post as the source of truth, and get some metadata
+ * that isn't denormalized across sites.
+ */
+const overrideFields = [
+  "contents",
+  "tableOfContents",
+  "url",
+  "readTimeMinutes",
+] as const;
+
+type PostFragments = 'PostsWithNavigation' | 'PostsWithNavigationAndRevision' | 'PostsList';
 /**
  * Load foreign crosspost data from the foreign site
  */
-export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends keyof FragmentTypes>(
+export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends PostFragments>(
   localPost: Post,
   fetchProps: Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">,
 ): {
@@ -37,22 +58,39 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     throw new Error("Crosspost has not been created yet");
   }
 
-  const apolloClient = useForeignApolloClient();
-  const { document: foreignPost, loading, error } = useSingle<FragmentTypeName>({
+  const getCrosspostQuery = gql`
+    query GetCrosspostQuery($args: JSON) {
+      getCrosspost(args: $args)
+    }
+  `;
+
+  const args = {
     ...fetchProps,
-    documentId: localPost.fmCrosspost.foreignPostId,
-    apolloClient,
-  });
+    documentId: localPost.fmCrosspost.foreignPostId
+  };
+
+  // This query can be slow (and the timing is unpredictable), so use `batchKey: "crosspost"` to make sure it
+  // doesn't get batched together with other queries and block them
+  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args, batchKey: "crosspost" } });
+
+  const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
   if (!localPost.fmCrosspost.hostedHere) {
-    // If this post was crossposted from elsewhere then we want to take most of the fields from
-    // our local copy (for correct links/ids/etc.) but we need to override a few specific fields
-    // to actually get the correct content and some metadata that isn't denormalized across sites
-    const overrideFields = ["contents", "tableOfContents", "url", "readTimeMinutes"];
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
-      combinedPost[field] = foreignPost?.[field] ?? localPost[field];
+      Object.assign(combinedPost, { [field]: (foreignPost as AnyBecauseTodo)?.[field] ?? (localPost as AnyBecauseTodo)[field] });
+    }
+    // We just took the table of contents from the foreign version, but we want to use the local comment count
+    if (hasTableOfContents(combinedPost)) {
+      combinedPost.tableOfContents = {
+        ...combinedPost.tableOfContents,
+        sections: combinedPost.tableOfContents.sections.map((section: {anchor?: string}) =>
+          section.anchor === "comments"
+            ? {...section, title: postGetCommentCountStr(localPost as unknown as PostsBase)}
+            : section
+        ),
+      };
     }
   }
 

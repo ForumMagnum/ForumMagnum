@@ -4,6 +4,7 @@ import schema from './schema';
 import { makeEditable } from '../../editor/make_editable';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
+import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbSequence> = {
   newCheck: (user: DbUser|null, document: DbSequence|null) => {
@@ -34,6 +35,7 @@ interface ExtendedSequencesCollection extends SequencesCollection {
 export const Sequences: ExtendedSequencesCollection = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Sequences'),
   mutations: getDefaultMutations('Sequences', options),

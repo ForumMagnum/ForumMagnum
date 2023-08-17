@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
@@ -18,8 +18,13 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { taglineSetting } from '../common/HeadTags';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useMessages } from '../common/withMessages';
+import CopyIcon from '@material-ui/icons/FileCopy'
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { getUserStructuredData } from './UsersSingle';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -42,6 +47,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
+  },
+  deletedUserName: {
+    textDecoration: "line-through",
   },
   userInfo: {
     display: "flex",
@@ -70,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  title: {
+  postsTitle: {
     cursor: "pointer"
   },
   // Dark Magick
@@ -79,6 +87,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  copyIcon: {
+    fontSize: 14
+  }
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -94,6 +105,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const {loading, results} = useMulti({
     terms,
@@ -175,7 +187,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -183,13 +195,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    if (!user || !user._id || user.deleted) {
+    if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug)) {
+    if (user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
@@ -214,7 +226,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = query.sortedBy || query.view ||  "new"
+    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
@@ -234,21 +246,34 @@ const UsersProfileFn = ({terms, slug, classes}: {
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          structuredData={getUserStructuredData(user)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
+            <div className={classNames(classes.usernameTitle, {
+              [classes.deletedUserName]: user.deleted
+            })}>
               {username}
             </div>
+            {user.deleted && "(account deleted)"}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
+                  <LWTooltip title="Click to copy userId" placement="right">
+                    <CopyToClipboard text={user._id} onCopy={()=>flash({messageString:"userId copied!"})}>
+                      <CopyIcon className={classes.copyIcon} />
+                    </CopyToClipboard>
+                  </LWTooltip>
+                </div>
+              }
+              { currentUser?.isAdmin &&
+                <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<a>Register RSS</a>}
                   >
                     { /*eslint-disable-next-line react/jsx-pascal-case*/ }
                     <div><Components.newFeedButton user={user} /></div>
@@ -256,7 +281,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 </div>
               }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage Subscriptions
+                {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
@@ -266,8 +291,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account Settings
+              {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
+                {preferredHeadingCase("Account Settings")}
               </Link>}
             </Typography>
 
@@ -312,7 +337,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
+            <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
                 <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>

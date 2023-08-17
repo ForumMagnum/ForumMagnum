@@ -13,7 +13,7 @@ interface CKEditorProps {
   disabled?: any,
   onInit?: any,
   onChange?: any,
-  onFocus?: any,
+  onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   onBlur?: any,
   config?: any,
 }
@@ -36,7 +36,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
   }
   
   // This component should never be updated by React itself.
-  shouldComponentUpdate( nextProps ) {
+  shouldComponentUpdate( nextProps: CKEditorProps ) {
     if ( !this.editor ) {
       return false;
     }
@@ -73,10 +73,10 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
   }
     
   _initializeEditor() {
-    this.watchdog.setCreator((el, config) => {
+    this.watchdog.setCreator((el: any, config: any) => {
       return this.props.editor
         .create( el , config )
-        .then( editor => {
+        .then((editor: any) => {
           this.editor = editor;
           
           if ( 'disabled' in this.props ) {
@@ -90,21 +90,21 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
           const modelDocument = editor.model.document;
           const viewDocument = editor.editing.view.document;
           
-          modelDocument.on( 'change:data', event => {
+          modelDocument.on( 'change:data', (event: any) => {
             /* istanbul ignore else */
             if ( this.props.onChange ) {
               this.props.onChange( event, editor );
             }
           } );
           
-          viewDocument.on( 'focus', event => {
+          viewDocument.on( 'focus', (event: AnyBecauseTodo) => {
             /* istanbul ignore else */
             if ( this.props.onFocus ) {
               this.props.onFocus( event, editor );
             }
           } );
           
-          viewDocument.on( 'blur', event => {
+          viewDocument.on( 'blur', (event: any) => {
             /* istanbul ignore else */
             if ( this.props.onBlur ) {
               this.props.onBlur( event, editor );
@@ -112,12 +112,12 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
           } );
           return editor
         } )
-        .catch( error => {
+        .catch( (error: any) => {
           // eslint-disable-next-line no-console
           console.error( error );
         } );
     })
-    this.watchdog.setDestructor(editor => editor.destroy())
+    this.watchdog.setDestructor((editor: any) => editor.destroy())
     this.watchdog.create(this.domContainer.current, this.props.config)
     // eslint-disable-next-line no-console
     this.watchdog.on( 'error', () => { console.log( 'Editor crashed.' ) } );
@@ -136,7 +136,7 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     }
   }
     
-  _shouldUpdateContent( nextProps ) {
+  _shouldUpdateContent( nextProps: CKEditorProps ) {
     // Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
     // property as a static string and updated a state of component when the editor's content has been changed.
     // If we avoid checking those properties, the editor's content will back to the initial value because

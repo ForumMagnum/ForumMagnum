@@ -11,7 +11,7 @@
       "shortForumTitle": "EA Forum"
     },
     "siteNameWithArticle": "the EA Forum",
-    "siteUrl": "http://localhost:3000",
+    "siteUrl": "http://localhost:4000",
     
     "debug": false,
     
@@ -19,6 +19,12 @@
     "analytics": {
       "environment": "dev"
     },
-    "disallowCrawlers": true
+    "disallowCrawlers": true,
+    "disableEnsureIndex": true,
+    "disableElastic": true,
+    "fmCrosspost": {
+      "siteName": "LessWrong Dev",
+      "baseUrl": "http://localhost:3000/"
+    }
   }
 }

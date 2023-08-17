@@ -2,14 +2,15 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { getSearchClient } from '../../../lib/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/algoliaUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Search from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { truncate } from '../../../lib/editor/ellipsize';
+import { isEAForum } from '../../../lib/instanceSettings';
+import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -48,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: 13,
+    fontSize: isEAForum ? 14 : 13,
     margin: '0 5px'
   },
   noResults: {
@@ -109,7 +110,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   displayName: {
-    ...theme.typography.headline,
+    ...theme.typography.headerStyle,
     fontSize: 18,
     fontWeight: 'bold',
     display: '-webkit-box',
@@ -128,8 +129,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   location: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    fontSize: 12,
-    fontStyle: 'italic',
     marginTop: 4,
   },
   description: {
@@ -176,7 +175,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 
 const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locationFilterNode, classes}: {
-  currentUser,
+  currentUser: UsersCurrent | null,
   userLocation: {
     lat: number,
     lng: number,
@@ -190,13 +189,13 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const { captureEvent } = useTracking()
   const keywordSearchTimer = useRef<any>(null)
 
-  const { NewConversationButton, SearchResultsMap, ContentStyles } = Components
+  const { NewConversationButton, SearchResultsMap, ContentStyles, ForumIcon } = Components
   
-  const SearchBox = ({currentRefinement, refine}) => {
+  const SearchBox: React.FunctionComponent<SearchBoxProvided> = ({currentRefinement, refine}) => {
     return <div className={classes.keywordSearch}>
       <OutlinedInput
         labelWidth={0}
-        startAdornment={<Search className={classes.searchIcon}/>}
+        startAdornment={<ForumIcon icon="Search" className={classes.searchIcon}/>}
         placeholder="Search people"
         value={currentRefinement}
         onChange={e => {
@@ -215,7 +214,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   }
   const CustomSearchBox = connectSearchBox(SearchBox)
   
-  const StateResults = ({ searchResults }) => {
+  const StateResults: React.FunctionComponent<StateResultsProvided<BasicDoc>> = ({ searchResults }) => {
     return (!searchResults || !searchResults.nbHits) ? <div className={classes.noResults}>
       <div className={classes.noResultsText}>No public profiles matching your search</div>
     </div> : null

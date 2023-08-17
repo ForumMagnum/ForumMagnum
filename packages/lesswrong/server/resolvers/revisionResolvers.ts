@@ -1,101 +1,57 @@
-import Revisions from '../../lib/collections/revisions/collection'
-import { htmlToDraft } from '../draftConvert';
-import { convertToRaw } from 'draft-js';
-import { markdownToHtmlNoLaTeX, dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/make_editable_callbacks'
+import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENGTH } from '../../lib/collections/revisions/collection'
+import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
-import { JSDOM } from 'jsdom'
-import { sanitize, sanitizeAllowedTags } from '../vulcan-lib/utils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import htmlToText from 'html-to-text'
+import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
 import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
+import { dataToDraftJS } from './toDraft';
+import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
+import { htmlToTextDefault } from '../../lib/htmlToText';
 
-const PLAINTEXT_HTML_TRUNCATION_LENGTH = 4000
-const PLAINTEXT_DESCRIPTION_LENGTH = 2000
-
-function domBuilder(html: string) {
-  const jsdom = new JSDOM(html)
-  const document = jsdom.window.document;
-  const bodyEl = document.body; // implicitly created
-  return bodyEl
-}
-
-
-export function htmlToDraftServer(html: string): Draft.RawDraftContentState {
-  // We have to add this type definition to the global object to allow draft-convert to properly work on the server
-  const jsdom = new JSDOM();
-  const globalHTMLElement = jsdom.window.HTMLElement;
-  (global as any).HTMLElement = globalHTMLElement;
-  // And alas, it looks like we have to add this global. This seems quite bad, and I am not fully sure what to do about it.
-  (global as any).document = jsdom.window.document
-  
-  // On the server have to pass in a JS-DOM implementation to make htmlToDraft work
-  //
-  // The DefinitelyTyped annotation of htmlToDraft, which comes from convertFromHTML
-  // in the draft-convert library, is wrong. This actually takes optional second and
-  // third arguments, the second being options, and the third being a DOMBuilder
-  // (verified by quick source-dive into draft-convert).
-  // @ts-ignore
-  const result = htmlToDraft(html, {}, domBuilder)
-  
-  // We do however at least remove it right afterwards
-  delete (global as any).document
-  delete (global as any).HTMLElement
-  
-  // convertToRaw wants a Draft.ContentState, but htmlToDraft produced a
-  // Draft.Model.ImmutableData.ContentState. AFAICT this is the DefinitelyTyped
-  // people not being careful with the const plague, not a real issue.
-  // @ts-ignore
-  return convertToRaw(result)
-}
-
-export function dataToDraftJS(data: any, type: string) {
-  if (data===undefined || data===null) return null;
-
-  switch (type) {
-    case "draftJS": {
-      return data
-    }
-    case "html": {
-      return htmlToDraftServer(data)
-    }
-    case "ckEditorMarkup": {
-      // CK Editor markup is just html with extra tags, so we just remove them and then handle it as html
-      return htmlToDraftServer(sanitize(data))
-    }
-    case "markdown": {
-      const html = markdownToHtmlNoLaTeX(data)
-      return htmlToDraftServer(html)
-    }
-    default: {
-      throw new Error(`Unrecognized type: ${type}`);
-    }
-  }
-}
+// Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
+const htmlToTextPlaintextDescription = compileHtmlToText({
+  wordwrap: false,
+  selectors: [
+    { selector: "img", format: "skip" },
+    { selector: "a", options: { ignoreHref: true } },
+    { selector: "p", options: { leadingLineBreaks: 1 } },
+    { selector: "h1", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h2", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h3", options: { trailingLineBreaks: 1, uppercase: false } },
+  ]
+});
 
 augmentFieldsDict(Revisions, {
   markdown: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}}) => dataToMarkdown(data, type)
+      resolver: ({originalContents}) => originalContents
+        ? dataToMarkdown(originalContents.data, originalContents.type)
+        : null,
     }
   },
   draftJS: {
     type: Object,
     resolveAs: {
       type: 'JSON',
-      resolver: ({originalContents: {data, type}}) => dataToDraftJS(data, type)
+      resolver: ({originalContents}) => originalContents
+        ? dataToDraftJS(originalContents.data, originalContents.type)
+        : null,
     }
   },
   ckEditorMarkup: {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents: {data, type}, html}) => (type === 'ckEditorMarkup' ? data : html) // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+      resolver: ({originalContents, html}) => originalContents
+        // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+        ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
+        : null,
     }
   },
   htmlHighlight: {
@@ -132,9 +88,7 @@ augmentFieldsDict(Revisions, {
       resolver: ({html}) => {
         if (!html) return
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml, {ignoreHref: true, ignoreImage: true, wordwrap: false })
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
+        return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       }
     }
   },
@@ -155,8 +109,7 @@ augmentFieldsDict(Revisions, {
           }
         )
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToText
-          .fromString(truncatedHtml)
+        return htmlToTextDefault(truncatedHtml)
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }

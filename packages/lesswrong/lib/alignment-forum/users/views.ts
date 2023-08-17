@@ -1,5 +1,5 @@
 import Users from "../../collections/users/collection";
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 
 Users.addView("alignmentSuggestedUsers", function () {

@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltipInfo: {
     marginLeft: 2,
-    fontStyle: "italic",
+    ...theme.typography.italic,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
     display: "flex",
@@ -113,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const getPostCategory = (post: PostsBase) => {
   const categories: Array<string> = [];
 
-  if (post.isEvent) categories.push(`Event`)
+  if (post.isEvent) return null
   if (post.curatedDate) categories.push(`Curated Post`)
   if (post.af) categories.push(`AI Alignment Forum Post`);
   if (post.frontpageDate && !post.curatedDate && !post.af) categories.push(`Frontpage Post`)
@@ -135,7 +135,8 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   classes: ClassesType,
   comment?: any,
 }) => {
-  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, LWTooltip, FormatDate, Loading, ContentStyles } = Components
+  const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
+    Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
 
   const foreignApolloClient = useForeignApolloClient();
@@ -155,15 +156,21 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+  const highlight = post.debate
+    ? post.dialogTooltipPreview
+    : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
-  const renderWordCount = !comment && (wordCount > 0)
+  const renderWordCount = !comment && !post.isEvent && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   const renderedComment = comment || post.bestAnswer
 
   const tags = sortTags(post.tags, t=>t)
   
+  let eventLocation = post.onlineEvent ? <div>Online event</div> : null
+  if (post.isEvent && post.location) {
+    eventLocation = <div>{post.location}</div>
+  }
   const postCategory: string|null = getPostCategory(post);
 
   return <AnalyticsContext pageElementContext="hoverPreview">
@@ -174,23 +181,19 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
               <PostsTitle post={post} wrap showIcons={false} />
             </div>
             <ContentStyles contentType="comment" className={classes.tooltipInfo}>
-              { postsList && <span> 
+              { postsList && <span>
+                {post.startTime && <EventTime post={post} />}
+                {eventLocation}
                 {postCategory}
                 {postCategory && (tags?.length > 0) && " – "}
                 {tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
-                {post.user && <LWTooltip title="Author">
-                  <PostsUserAndCoauthors post={post} simple/>
-                </LWTooltip>}
+                {post.user && <PostsUserAndCoauthors post={post}/>}
                 <div className={classes.metadata}>
-                  <LWTooltip title={`${postGetKarma(post)} karma`}>
-                    <span className={classes.smallText}>{postGetKarma(post)} karma</span>
-                  </LWTooltip>
-                  <LWTooltip title={`${postGetCommentCountStr(post)}`}>
-                    <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
-                  </LWTooltip>
+                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
+                  <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>
                   </span>
@@ -208,11 +211,12 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
                 treeOptions={{
                   post,
                   hideReply: true,
+                  forceNotSingleLine: true,
                 }}
                 truncated
                 comment={renderedComment}
                 hoverPreview
-                forceNotSingleLine
+                forceUnCollapsed
               />
             </div>
           : loading

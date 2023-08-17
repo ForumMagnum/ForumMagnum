@@ -1,9 +1,26 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
-import { Tags } from '../../lib/collections/tags/collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID, Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
+import Comments from '../../lib/collections/comments/collection';
+import { viewFieldAllowAny } from '../vulcan-lib';
+
+const communityFilters = {
+  none: {$or: [
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+  ]},
+  lt10comments: {$or: [
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
+    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
+    {commentCount: {$lt: 10}},
+  ]},
+  all: {},
+} as const;
+
+type CommunityFilter = typeof communityFilters[keyof typeof communityFilters];
 
 defineFeedResolver<Date>({
   name: "RecentDiscussionFeed",
@@ -12,7 +29,7 @@ defineFeedResolver<Date>({
   resultTypesGraphQL: `
     postCommented: Post
     tagDiscussed: Tag
-    tagSubforumCommented: Tag
+    tagSubforumComments: Comment
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
@@ -30,6 +47,18 @@ defineFeedResolver<Date>({
     // TODO possibly include subforums for tags that a user is subscribed to as below
     // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
     
+    const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
+
+    // On the EA Forum, we default to hiding posts tagged with "Community" from
+    // Recent Discussion if they have at least 10 comments, or if the current user
+    // has set `hideCommunitySection` to true
+    let postCommentedExcludeCommunity: CommunityFilter = communityFilters.lt10comments;
+    if (currentUser?.showCommunityInRecentDiscussion) {
+      postCommentedExcludeCommunity = communityFilters.all;
+    } else if (currentUser?.hideCommunitySection) {
+      postCommentedExcludeCommunity = communityFilters.none;
+    }
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -42,11 +71,18 @@ defineFeedResolver<Date>({
           selector: {
             baseScore: {$gt:0},
             hideFrontpageComments: false,
-            $or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$nin:[0,null]}}],
-            hiddenRelatedQuestion: undefined,
-            shortform: undefined,
-            groupId: undefined,
+            lastCommentedAt: {$exists: true},
+            hideFromRecentDiscussions: {$ne: true},
+            hiddenRelatedQuestion: viewFieldAllowAny,
+            shortform: viewFieldAllowAny,
+            groupId: viewFieldAllowAny,
             ...(af ? {af: true} : undefined),
+            ...(isEAForum
+              ? {$and: [
+                postCommentedEventsCriteria,
+                postCommentedExcludeCommunity,
+              ]}
+              : postCommentedEventsCriteria),
           },
         }),
         // Tags with discussion comments
@@ -60,15 +96,16 @@ defineFeedResolver<Date>({
             ...(af ? {af: true} : undefined),
           },
         }),
-        // Tags with subforum comments
+        // Subforum comments
         viewBasedSubquery({
-          type: "tagSubforumCommented",
-          collection: Tags,
-          sortField: "lastSubforumCommentAt",
+          type: "tagSubforumComments",
+          collection: Comments,
+          sortField: "lastSubthreadActivity",
           context,
           selector: {
-            _id: {$in: subforumTagIds},
-            lastSubforumCommentAt: {$exists: true},
+            tagId: {$in: subforumTagIds},
+            tagCommentType: "SUBFORUM",
+            topLevelCommentId: {$exists: false},
             ...(af ? {af: true} : undefined),
           },
         }),
@@ -82,6 +119,7 @@ defineFeedResolver<Date>({
             collectionName: "Tags",
             fieldName: "description",
             "changeMetrics.added": {$gt: 100},
+            editedAt: {$exists: true},
           },
         }),
         // Suggestion to subscribe to curated

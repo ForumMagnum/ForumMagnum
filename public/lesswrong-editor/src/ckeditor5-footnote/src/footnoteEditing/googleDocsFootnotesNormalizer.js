@@ -114,7 +114,7 @@ export default class GoogleDocsFootnotesNormalizer {
 					// @ts-ignore: matcher above eliminates the null / undefined cases here.
 					const index = item.getAttribute('id').match(idPattern)[1];
 					if(backLinks.hasOwnProperty(index)) {
-						return {...acc, [index]: { item, id: backLinks[index] }};
+						return {...acc, [index]: { item, id: backLinks[index].id }};
 					}
 				}
 				return acc;

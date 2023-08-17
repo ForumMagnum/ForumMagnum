@@ -1,11 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import AllIcon from '@material-ui/icons/Notifications';
 import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
@@ -14,6 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import * as _ from 'underscore';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: 500,
+    fontWeight: isEAForum ? 450 : 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",
@@ -65,35 +64,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
-  classes: ClassesType,
+const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, classes }: {
+  unreadPrivateMessages: number,
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const [tab,setTab] = useState(0);
-  const { results } = useMulti({
-    terms: {
-      view: 'userNotifications',
-      userId: currentUser ? currentUser._id : "",
-      type: "newMessage"
-    },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false,
-  });
 
   const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
-  const newMessages = results && _.filter(results, (x) => x.createdAt > lastNotificationsCheck);
   if (!currentUser) {
     return null;
   }
   const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
-      icon: () => (<AllIcon classes={{root: classes.icon}}/>),
+      icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),
       terms: {view: "userNotifications"},
     },
     {
@@ -111,7 +99,7 @@ const NotificationsMenu = ({ classes, open, setIsOpen, hasOpened }: {
       icon: () => (
         <Badge
           classes={{ root: classes.badgeContainer, badge: classes.badge }}
-          badgeContent={(newMessages && newMessages.length) || ""}
+          badgeContent={unreadPrivateMessages>0 ? `${unreadPrivateMessages}` : ""}
         >
           <MailIcon classes={{root: classes.icon}} />
         </Badge>

@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { Component } from 'react';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
 import withDialog from '../common/withDialog'
+import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
 interface ExternalProps {
   documentId?: string,
@@ -24,12 +25,12 @@ class GroupFormLink extends Component<GroupFormLinkProps> {
     return (<React.Fragment>
       { documentId ?
         <SectionButton>
-          <span onClick={this.handleOpenGroupForm}>Edit Group</span>
+          <span onClick={this.handleOpenGroupForm}>{preferredHeadingCase('Edit Group')}</span>
         </SectionButton>
         :
         <SectionButton>
           <AddLocationIcon />
-          <span onClick={this.handleOpenGroupForm}>New Group</span>
+          <span onClick={this.handleOpenGroupForm}>{preferredHeadingCase('New Group')}</span>
         </SectionButton>
       }
     </React.Fragment>)

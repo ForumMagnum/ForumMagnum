@@ -32,6 +32,8 @@ Forum Magnum is built on top of a number major open-source libraries.
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
+    * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
+  * Curl, Perl are optional, but needed to run some scripts and tests
 
 ### Installation
 
@@ -52,18 +54,51 @@ yarn install
 
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
-Prerequisites:
-- Install MongoDB: https://docs.mongodb.com/manual/installation/
+Run a local postgres instance, version 15. For example, if you're on macos:
 
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+
+createdb forummagnum
 ```
-mkdir myLocalDatabase
-mongod --dbpath ./myLocalDatabase
+
+(DB name is an arbitrary choice.)
+
+Configure the schema:
+
+```bash
+psql forummagnum -f ./schema/accepted_schema.sql
 ```
+
+TODOs:
+
+* You won't have any database settings yet. TODO: add instructions.
+* You won't be able to run migrations yet. TODO: fix migrations so they can be
+  run on a new db (NB: goal is still to have the db have the accepted_schema).
+
+### Creating branch-specific development databases
+
+When developing features that require changing database schemas, it can be
+desirable to do this work without changing schemas in shared database instances
+that other developers are working on. To solve this problem, we have a script
+that can be used to create temporary clones of the dev database. The following
+commands are supported:
+ - `yarn branchdb create` clones a new dev database for the current git branch
+ - `yarn branchdb drop` drops the cloned database for the current git branch
+ - `yarn branchdb clean` drops all cloned dev databases created by this git clone
+ - `yarn branchdb list` lists all cloned dev databases created by this git clone
 
 ### Start the development server
 
 ```
-yarn [start|ea-start]
+yarn start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
+```
+
+Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
+
+```
+yarn ea-start
 ```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
@@ -152,9 +187,57 @@ used.
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
 * If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
 
+## Database Migrations
+
+All migrations should be designed to be idempotent and should represent a
+one-off operation (such as updating a table schema). Operations that need to be
+run multiple times should instead be implemented as a server script.
+
+* Run pending migrations with `yarn migrate up [dev|staging|prod]`
+* Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
+* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
+* View pending migrations with `yarn migrate pending [dev|staging|prod]`
+* View executed migrations with `yarn migrate executed [dev|staging|prod]`
+
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environement variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
+
+### Schema changing migrations
+
+Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
+scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
+For these the development process will be like this:
+
+* Make some changes which add or alter fields in one of the `schema.ts` files
+* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
+* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
+* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
+
+#### Migrations and git conflicts
+* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
+* To resolve it you basically need to re-run migration process:
+  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
+  * run `yarn makemigrations` again, to generate new hashes for the schema
+  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
+  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
+  * run `yarn acceptmigrations`
+  * finish merge/rebase
+
+### Migrating both Mongo and Postgres
+* Currently, you need to create a migration for both Mongo and Postgres separately. 
+* You do the Postgres migration via the `yarn makemigrations` process described above.
+* You make Mongo migration by imitating the previous examples in `packages/lesswrong/server/manualMigrations`
+* See https://github.com/ForumMagnum/ForumMagnum/pull/6458 for an example of a migration that does both.
+
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+
+### Jest
+
+* Run the unit test suite with `yarn unit`
+* Run the integration test suite with `yarn integration`
+
+Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
 ### Cypress
 
@@ -181,4 +264,3 @@ manual database work, there's no need for you to also do that manual work.
 
 The test user admin credentials are in 1password. You're also welcome to create
 your own admin user.
-

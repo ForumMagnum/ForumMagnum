@@ -1,6 +1,6 @@
 import { addStaticRoute } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts';
-import { ensureIndex } from '../../lib/collectionUtils';
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { getGraphQLQueryFromOptions } from '../../lib/crud/withSingle';
 import type { ServerResponse } from 'http';
@@ -29,7 +29,6 @@ addStaticRoute('/out', async ({ query }, _req, res, _next) => {
             fragmentName: "PostsBase",
             fragment: undefined,
             extraVariables: undefined,
-            extraQueries: undefined,
           }),
           variables: {
             input: {

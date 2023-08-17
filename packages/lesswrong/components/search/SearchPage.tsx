@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
@@ -129,7 +129,7 @@ const SearchPage = ({classes}:{
         {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
           * null is the only option that actually suppresses the extra X button.
          // @ts-ignore */}
-        <SearchBox defaultRefinement={query.terms} reset={null} focusShortcuts={[]} autoFocus={true} />
+        <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
       </div>
       <CurrentRefinements />
       <div className={classes.columns}>

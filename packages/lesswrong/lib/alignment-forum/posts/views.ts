@@ -1,5 +1,5 @@
 import { Posts } from '../../collections/posts';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { augmentForDefaultView } from '../../collections/posts/views';
 import {viewFieldNullOrMissing} from "../../vulcan-lib";
 

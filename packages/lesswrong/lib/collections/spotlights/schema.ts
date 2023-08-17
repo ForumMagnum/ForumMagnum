@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
-import { accessFilterSingle } from "../../utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
@@ -51,21 +51,27 @@ const schema: SchemaType<DbSpotlight> = {
       // TODO: try a graphql union type?
       type: 'Post!',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
-        const collectionName = getCollectionName(spotlight.documentType) as SpotlightDocumentType;
+        const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
         return accessFilterSingle(context.currentUser, collection, document, context);
       }
     },
   },
+  
+  /**
+   * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
+   * Note subtle distinction: those are type names, not collection names.
+   */
   documentType: {
-    type: SpotlightDocumentType.schema('documentType'),
+    type: String,
     typescriptType: 'SpotlightDocumentType',
     control: 'select',
     form: {
       options: () => DOCUMENT_TYPES.map(documentType => ({ label: documentType, value: documentType }))
     },
     ...schemaDefaultValue(DOCUMENT_TYPES[0]),
+    allowedValues: DOCUMENT_TYPES,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -126,7 +132,6 @@ const schema: SchemaType<DbSpotlight> = {
       }
     }
   },
-
   duration: {
     type: Number,
     canRead: ['guests'],
@@ -171,6 +176,16 @@ const schema: SchemaType<DbSpotlight> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  showAuthor: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 85,
+    ...schemaDefaultValue(false),
+   optional: true,
+   nullable: false,
+  },
   spotlightImageId: {
     type: String,
     canRead: ['guests'],
@@ -180,7 +195,41 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true,
     order: 90,
-  }
-};
+  },
+  spotlightDarkImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    control: "ImageUpload",
+    optional: true,
+    nullable: true,
+    order: 100,
+  },
   
+  sequenceChapters: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Chapter]',
+    canRead: ['guests'],
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
+      if (!spotlight.documentId || spotlight.documentType !== "Sequence") {
+        return null;
+      }
+      const chapters = await context.Chapters.find({
+        sequenceId: spotlight.documentId,
+      }, {
+        limit: 100,
+        sort: {number:1},
+      }).fetch();
+      
+      return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+    }
+  }),
+  "sequenceChapters.$": {
+    type: "Chapter",
+    foreignKey: "Chapters",
+    optional: true,
+  },
+};
+
 export default schema;

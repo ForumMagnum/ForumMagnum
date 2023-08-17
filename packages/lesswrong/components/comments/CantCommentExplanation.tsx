@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '../../lib/publicSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,6 +26,9 @@ const CantCommentExplanation = ({post, classes}: {
   const currentUser = useCurrentUser();
   const author = post.user;
   const email = moderationEmail.get()
+  if (isEAForum && post.shortform) {
+    return null;
+  }
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { userBlockedCommentingReason(currentUser, post, author)}{" "}

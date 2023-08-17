@@ -1,6 +1,7 @@
 import cheerio from 'cheerio';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
+import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
@@ -10,28 +11,10 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
-
-export interface ToCAnswer {
-  baseScore: number,
-  voteCount: number,
-  postedAt: Date | string, // Date on server, string on client
-  author: string,
-  highlight: string, 
-  shortHighlight: string,
-} 
-
-export interface ToCSection {
-  title?: string
-  answer?: ToCAnswer
-  anchor: string
-  level: number
-  divider?: boolean,
-}
-export interface ToCData {
-  html: string|null
-  sections: ToCSection[]
-  headingsCount: number
-}
+import { getDefaultViewSelector } from '../lib/utils/viewUtils';
+import type { ToCData, ToCSection } from '../lib/tableOfContents';
+import { defineQuery } from './utils/serverGraphqlUtil';
+import GraphQLJSON from 'graphql-type-json';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -73,8 +56,7 @@ const headingSelector = _.keys(headingTags).join(",");
 export function extractTableOfContents(postHTML: string)
 {
   if (!postHTML) return null;
-  // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-  const postBody = cheerio.load(postHTML, null, false);
+  const postBody = cheerioParse(postHTML);
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string,boolean> = {};
 
@@ -116,7 +98,7 @@ export function extractTableOfContents(postHTML: string)
 
   // Generate a mapping from raw heading levels to compressed heading levels
   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
-  let headingLevelMap = {};
+  let headingLevelMap: Record<string, number> = {};
   for(let i=0; i<headingLevelsUsed.length; i++)
     headingLevelMap[ headingLevelsUsed[i] ] = i;
 
@@ -137,7 +119,7 @@ export function extractTableOfContents(postHTML: string)
 function elementToToCText(cheerioTag: cheerio.Element) {
   const tagHtml = cheerio(cheerioTag).html();
   if (!tagHtml) return null;
-  const tagClone = cheerio.load(tagHtml);
+  const tagClone = cheerioParse(tagHtml);
   tagClone("style").remove();
   return tagClone.root().text();
 }
@@ -226,9 +208,11 @@ function tagToHeadingLevel(tagName: string): number
 {
   let lowerCaseTagName = tagName.toLowerCase();
   if (lowerCaseTagName in headingTags)
-    return headingTags[lowerCaseTagName];
+    return headingTags[lowerCaseTagName as keyof typeof headingTags];
   else if (lowerCaseTagName in headingIfWholeParagraph)
-    return headingIfWholeParagraph[lowerCaseTagName];
+    // TODO: this seems wrong??? It's returning a boolean when it should be returning a number
+    // @ts-ignore
+    return headingIfWholeParagraph[lowerCaseTagName as keyof typeof headingIfWholeParagraph];
   else
     return 0;
 }
@@ -248,7 +232,7 @@ async function getTocAnswers (document: DbPost) {
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText.fromString(answerTocExcerptFromHTML(html), {ignoreImage:true, ignoreHref:true})
+    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
     
     return {
       title: `${answer.baseScore} ${answer.author}`,
@@ -277,7 +261,7 @@ async function getTocAnswers (document: DbPost) {
 
 async function getTocComments (document: DbPost) {
   const commentSelector: any = {
-    ...Comments.defaultView({}).selector,
+    ...getDefaultViewSelector("Comments"),
     answer: false,
     parentAnswerId: null,
     postId: document._id
@@ -289,7 +273,7 @@ async function getTocComments (document: DbPost) {
   return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
 }
 
-const getToCforPost = async ({document, version, context}: {
+export const getToCforPost = async ({document, version, context}: {
   document: DbPost,
   version: string|null,
   context: ResolverContext,
@@ -371,3 +355,16 @@ const getToCforTag = async ({document, version, context}: {
 
 Utils.getToCforPost = getToCforPost;
 Utils.getToCforTag = getToCforTag;
+
+defineQuery({
+  name: "generateTableOfContents",
+  resultType: "JSON",
+  argTypes: "(html: String!)",
+  fn: (root: void, {html}:{html:string}, context: ResolverContext) => {
+    if (html) {
+      return extractTableOfContents(html)
+    } else {
+      return {html: null, sections: [], headingsCount: 0}
+    }
+  }
+})

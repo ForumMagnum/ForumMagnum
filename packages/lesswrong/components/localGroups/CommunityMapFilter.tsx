@@ -14,12 +14,12 @@ import RoomIcon from '@material-ui/icons/Room';
 import StarIcon from '@material-ui/icons/Star';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
 import Tooltip from '@material-ui/core/Tooltip';
-import withDialog from '../common/withDialog'
+import withDialog, { CloseableComponents, OpenDialogContextType } from '../common/withDialog'
 import withUser from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 
 const availableFilters = _.map(groupTypes, t => t.shortName);
@@ -65,7 +65,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '0.7em'
   },
   checkboxLabel: {
-    ...theme.typography.body2
+    ...theme.typography.body2,
+    fontWeight: isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,
@@ -178,7 +179,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const createFallBackDialogHandler = (openDialog, dialogName, currentUser) => {
+const createFallBackDialogHandler = (
+  openDialog: OpenDialogContextType['openDialog'],
+  dialogName: CloseableComponents,
+  currentUser: UsersCurrent | null
+) => {
   return () => openDialog({
     componentName: currentUser ? dialogName : "LoginPopup",
   });
@@ -214,7 +219,7 @@ class CommunityMapFilter extends Component<CommunityMapFilterProps,CommunityMapF
     }
   }
 
-  handleCheck = (filter) => {
+  handleCheck = (filter: string) => {
     const { location, history } = this.props
     let newFilters: Array<any> = [];
     if (Array.isArray(this.state.filters) && this.state.filters.includes(filter)) {

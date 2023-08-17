@@ -2,20 +2,28 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master, widerMobileMargins ]
+    branches: [ ea-deploy, master ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [15.x]
+        node-version: [18.x]
         environment: [EAForum-Staging-2]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: actions/setup-python@v2
       with:
         python-version: '>=3.5' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-    - run: pip3 install --upgrade pip awsebcli
+    - run: pip3 install "pyyaml<5.4" && pip3 install --upgrade pip awsebcli # pip3 install "pyyaml<5.4" is a temporary workaround for this bug: https://github.com/aws/aws-elastic-beanstalk-cli/issues/441
+    - name: Run Migrations
+      if: github.ref == 'refs/heads/master'
+      uses: ./.github/actions/runMigrations
+      with:
+        mode: staging
+        credentials-repo: ${{ secrets.CEA_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.CEA_CREDENTIALS_PAT }}
+        transcrypt-secret: ${{ secrets.CEA_TRANSCRYPT_SECRET }}
     - name: Run Deploy
       run: scripts/deploy.sh EAForum ${{ matrix.environment }}
       env:

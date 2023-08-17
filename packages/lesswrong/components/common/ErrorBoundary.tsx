@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ErrorInfo } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { configureScope, captureException }from '@sentry/core';
 
@@ -15,10 +15,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps,ErrorBoundaryStat
     this.state = { error: false };
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
     this.setState({ error: error.toString() });
     configureScope(scope => {
-      Object.keys(info).forEach(key => {
+      Object.keys(info).forEach((key: keyof ErrorInfo) => {
         scope.setExtra(key, info[key]);
       });
     });

@@ -3,9 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -37,12 +36,12 @@ const TagPageRevisionSelect = ({ classes }: {
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
     if (!tag) return;
-    history.push(`/compare/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}?before=${before.version}&after=${after.version}`);
+    history.push(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [history, tag]);
 
   if (!tag) return null
 
-  const getRevisionUrl = (rev: RevisionMetadata) => `${tagGetUrl(tag)}?revision=${rev.version}`
+  const getRevisionUrl = (rev: RevisionMetadata) => tagGetRevisionLink(tag, rev.version)
   return <SingleColumnSection>
     <h1><Link to={tagGetUrl(tag)}>{tag.name}</Link></h1>
     

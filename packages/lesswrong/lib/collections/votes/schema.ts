@@ -16,7 +16,7 @@ import GraphQLJSON from 'graphql-type-json';
 // that was reversed.
 //
 
-const docIsTagRel = (currentUser, document) => {
+const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) => {
   // TagRel votes are treated as public
   return document?.collectionName === "TagRels"
 }
@@ -119,7 +119,7 @@ const schema: SchemaType<DbVote> = {
     ...schemaDefaultValue(false),
   },
   
-  // Whether this is an unvote.
+  // Whether this is an unvote. This data is unreliable on the EA Forum for old votes (around 2019).
   isUnvote: {
     type: Boolean,
     canRead: ['guests'],
@@ -141,6 +141,32 @@ const schema: SchemaType<DbVote> = {
     resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
       if (vote.collectionName === "TagRels") {
         return await TagRels.findOne({_id: vote.documentId});
+      } else {
+        return null;
+      }
+    }
+  }),
+
+  comment: resolverOnlyField({
+    type: "Comment",
+    graphQLtype: 'Comment',
+    canRead: ['guests'],
+    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
+      if (vote.collectionName === "Comments") {
+        return await context.loaders.Comments.load(vote.documentId);
+      } else {
+        return null;
+      }
+    }
+  }),
+
+  post: resolverOnlyField({
+    type: "Post",
+    graphQLtype: 'Post',
+    canRead: ['guests'],
+    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
+      if (vote.collectionName === "Posts") {
+        return await context.loaders.Posts.load(vote.documentId);
       } else {
         return null;
       }

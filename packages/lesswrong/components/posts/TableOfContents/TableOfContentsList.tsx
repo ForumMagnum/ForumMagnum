@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation, useNavigation } from '../../../lib/routeUtil';
-import type { ToCData, ToCSection } from '../../../server/tableOfContents';
+import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
@@ -119,8 +119,8 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     return <div/>
 
   let filteredSections = (displayOptions?.maxHeadingDepth)
-    ? filter(sectionData?.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
-    : sectionData?.sections;
+    ? filter(sectionData.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : sectionData.sections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];

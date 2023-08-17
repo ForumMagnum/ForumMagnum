@@ -26,12 +26,12 @@ const isReady = () =>
   typeof window.grecaptcha !== 'undefined' &&
   typeof window.grecaptcha.execute !== 'undefined'
 
-let readyCheck
+let readyCheck: NodeJS.Timeout
 
 interface ReCaptchaProps {
   elementID?: string,
   verifyCallbackName?: string,
-  verifyCallback: (string)=>void,
+  verifyCallback: (token: string)=>void,
   sitekey?: string,
   action: string,
 }
@@ -59,7 +59,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
     }
   }
 
-  componentDidUpdate (_, prevState) {
+  componentDidUpdate (_: ReCaptchaProps, prevState: ReCaptchaState) {
     if (this.state.ready && !prevState.ready) {
       this.execute()
     }
@@ -78,7 +78,7 @@ class ReCaptcha extends Component<ReCaptchaProps,ReCaptchaState> {
 
     if (this.state.ready) {
       window.grecaptcha.execute(sitekey, { action })
-        .then(token => {
+        .then((token: string) => {
 
           if (typeof verifyCallback !== 'undefined') {
             verifyCallback(token)
