@@ -18,11 +18,12 @@ async function bestOfLessWrongTagUpdate () {
 
     // eslint-disable-next-line no-console
     console.log(posts.length)
+    
     posts.forEach((post, i) => {
       // eslint-disable-next-line no-console
       console.log(i, post.title, moment(post.postedAt).format("YYYY-MM-DD"))
     })
-    await Promise.all(posts.map((post) => addOrUpvoteTag({tagId: tag?._id, postId:post._id, currentUser: user, context})))
+    await Promise.all(posts.map((post) => addOrUpvoteTag({tagId: tag._id, postId:post._id, currentUser: user, context})))
   }
 }
 
