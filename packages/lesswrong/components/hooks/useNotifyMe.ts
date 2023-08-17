@@ -81,6 +81,8 @@ export const useNotifyMe = ({
     eventProps: {documentId: document._id, documentType: documentType},
   });
 
+  const skip = !currentUser;
+
   // Get existing subscription, if there is one
   const {results, loading, invalidateCache} = useMulti({
     terms: {
@@ -94,12 +96,14 @@ export const useNotifyMe = ({
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
     enableTotal: false,
-    skip: !currentUser
+    skip
   });
 
   if (loading) {
     return {
-      loading: true,
+      // Apollo returns `loading: true` when you skip the query.
+      // If we skipped fetching subscription state because there's no logged-in user, don't return loading: true.
+      loading: skip ? false : true,
     };
   };
 

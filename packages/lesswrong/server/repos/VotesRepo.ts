@@ -186,17 +186,30 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [oldUserId, newUserId]);
   }
 
+  private votesOnContentVoteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName", "Votes"."votedAt"`;
+  private votesOnContentPostFields = `"Posts"."postedAt", "Posts"."baseScore" AS "totalDocumentKarma"`;
+  private votesOnContentCommentFields = `"Comments"."postedAt", "Comments"."baseScore" AS "totalDocumentKarma"`;
+
+  private selectVotesOnPostsJoin = `
+    SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentPostFields}
+    FROM "Votes"
+    JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+  `;
+
+  private selectVotesOnCommentsJoin = `
+    SELECT ${this.votesOnContentVoteFields}, ${this.votesOnContentCommentFields}
+    FROM "Votes"
+    JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+  `;
+
   // Get votes from recent content by a user,
   // to use to decide on their rate limit
   // (note: needs to get the user's own self-upvotes so that
   // it doesn't skip posts with no other votes)
   async getVotesOnRecentContent(userId: string): Promise<RecentVoteInfo[]> {
-    const voteFields = `"Votes"._id, "Votes"."userId", "Votes"."power", "Votes"."documentId", "Votes"."collectionName"`
     const votes = await this.getRawDb().any(`
       (
-        SELECT ${voteFields}, "Posts"."postedAt", "Posts"."baseScore" AS "totalDocumentKarma"
-        FROM "Votes"
-        JOIN "Posts" on "Posts"._id = "Votes"."documentId"
+        ${this.selectVotesOnPostsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Posts" 
@@ -213,9 +226,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
       UNION
       (
-        SELECT ${voteFields}, "Comments"."postedAt", "Comments"."baseScore" AS "totalDocumentKarma"
-        FROM "Votes"
-        JOIN "Comments" on "Comments"._id = "Votes"."documentId"
+        ${this.selectVotesOnCommentsJoin}
         WHERE
           "Votes"."documentId" in (
             SELECT _id FROM "Comments" 
@@ -230,6 +241,46 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       )
     `, [userId])
     return votes
+  }
+
+  async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {
+    if (collectionName === 'Posts') {
+      return this.getRawDb().any(`
+        ${this.selectVotesOnPostsJoin}
+        WHERE
+          "Votes"."documentId" in (
+            SELECT _id FROM "Posts" 
+            WHERE
+              "Posts"."userId" = $1
+            AND
+              "Posts"."draft" IS NOT true
+            AND
+              "Posts"."postedAt" < $2
+            ORDER BY "Posts"."postedAt" DESC
+            LIMIT 1
+          )
+        AND 
+          "cancelled" IS NOT true
+        ORDER BY "Posts"."postedAt" DESC
+      `, [userId, before]);
+    } else {
+      return this.getRawDb().any(`
+        ${this.selectVotesOnCommentsJoin}
+        WHERE
+          "Votes"."documentId" in (
+            SELECT _id FROM "Comments" 
+            WHERE
+              "Comments"."userId" = $1
+            AND
+              "Comments"."postedAt" < $2
+            ORDER by "Comments"."postedAt" DESC
+            LIMIT 1
+          )
+        AND
+          "cancelled" IS NOT true
+        ORDER BY "Comments"."postedAt" DESC
+      `, [userId, before]);
+    }
   }
 
   async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {

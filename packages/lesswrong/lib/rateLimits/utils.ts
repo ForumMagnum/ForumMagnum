@@ -1,9 +1,11 @@
+import groupBy from "lodash/groupBy"
+import uniq from "lodash/uniq"
 import moment from "moment"
 import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
-import { AutoRateLimit, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, rateLimitThresholds } from "./types"
+import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
-import uniq from "lodash/uniq"
-import groupBy from "lodash/groupBy"
+import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
+import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -158,7 +160,7 @@ function getRateLimitName (rateLimit: AutoRateLimit) {
   return rateLimitName += ` (${thresholdInfo.join(", ")})`
 }
 
-function getActiveRateLimits (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
   return nonUniversalLimits.filter(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo))
 }
@@ -167,7 +169,7 @@ export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits:
   return getActiveRateLimits(user, autoRateLimits).map(rateLimit => getRateLimitName(rateLimit))
 }
 
-export function getStrictestActiveRateLimitNames (user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
+export function getStrictestActiveRateLimitNames (user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: AutoRateLimit[]) {
   const activeRateLimits = getActiveRateLimits(user, autoRateLimits)
   const rateLimitsByType = Object.values(
     groupBy(activeRateLimits, rateLimit => `${rateLimit.timeframeUnit}${rateLimit.actionType}`)
@@ -180,4 +182,85 @@ export function getStrictestActiveRateLimitNames (user: SunshineUsersList, autoR
     })[0]
   })
   return strictestRateLimits.map(rateLimit => getRateLimitName(rateLimit))
+}
+
+function sortRateLimitsByTimeframe<T extends AutoRateLimit>(rateLimits: T[]) {
+  const now = Date.now();
+
+  return [...rateLimits].sort((a, b) => (
+    moment(now)
+      .add(b.timeframeLength / b.itemsPerTimeframe, b.timeframeUnit)
+      .diff(
+        moment(now).add(a.timeframeLength / a.itemsPerTimeframe, a.timeframeUnit)
+      )
+  ));
+}
+
+function areNewRateLimitsStricter<T extends AutoRateLimit>(newRateLimits: T[], oldRateLimits: T[]): RateLimitComparison<T> {
+  if (newRateLimits.length === 0) {
+    return { isStricter: false };
+  }
+
+  const now = Date.now();
+
+  // Cast because we check that it's non-zero length above
+  const strictestNewRateLimit = sortRateLimitsByTimeframe(newRateLimits).shift() as T;
+  const strictestOldRateLimit = sortRateLimitsByTimeframe(oldRateLimits).shift();
+
+  if (!strictestOldRateLimit) {
+    return { isStricter: true, strictestNewRateLimit };
+  }
+
+  const { timeframeLength: newLength, timeframeUnit: newUnit, itemsPerTimeframe: newItemsPerTimeframe } = strictestNewRateLimit;
+  const { timeframeLength: oldLength, timeframeUnit: oldUnit, itemsPerTimeframe: oldItemsPerTimeframe } = strictestOldRateLimit;
+
+  const newRateLimitMoment = moment(now).add(newLength / newItemsPerTimeframe, newUnit);
+  const oldRateLimitMoment = moment(now).add(oldLength / oldItemsPerTimeframe, oldUnit);
+
+  const isStricter = newRateLimitMoment.isAfter(oldRateLimitMoment);
+  if (isStricter) {
+    return { isStricter, strictestNewRateLimit };
+  } else {
+    return { isStricter };
+  }
+}
+
+export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: RecentVoteInfo[], previousVotes: RecentVoteInfo[]): UserKarmaInfoWindow {
+  const currentKarmaInfo = calculateRecentKarmaInfo(user._id, currentVotes);
+  const previousKarmaInfo = calculateRecentKarmaInfo(user._id, previousVotes);
+
+  // Adjust the user's karma back to what it was before the most recent vote
+  // This doesn't always handle the case where the voter is modifying an existing vote's strength correctly, but we don't really care about those
+  const mostRecentVotePower = currentVotes[0].power;
+  const previousUserKarma = user.karma - mostRecentVotePower;
+
+  const currentUserKarmaInfo = { ...user, recentKarmaInfo: currentKarmaInfo };
+  const previousUserKarmaInfo = { ...user, recentKarmaInfo: previousKarmaInfo, karma: previousUserKarma };
+
+  return { currentUserKarmaInfo, previousUserKarmaInfo };
+}
+
+export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarmaInfoWindow) {
+  const { currentUserKarmaInfo, previousUserKarmaInfo } = userKarmaInfoWindow;
+
+  const commentRateLimits = forumSelect(autoCommentRateLimits);
+  const postRateLimits = forumSelect(autoPostRateLimits);
+
+  const activeCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
+  const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);
+
+  const activePostRateLimits = getActiveRateLimits(currentUserKarmaInfo, postRateLimits);
+  const previousPostRateLimits = getActiveRateLimits(previousUserKarmaInfo, postRateLimits);
+
+  const commentRateLimitComparison = areNewRateLimitsStricter(activeCommentRateLimits, previousCommentRateLimits);
+  const postRateLimitComparison = areNewRateLimitsStricter(activePostRateLimits, previousPostRateLimits);
+
+  return { commentRateLimitComparison, postRateLimitComparison };
+}
+
+export function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: RecentVoteInfo, allVoteInfo: RecentVoteInfo[]) {
+  return (
+    mostRecentVoteInfo.userId === userId &&
+    allVoteInfo.filter(v => v.userId === userId && v.documentId === mostRecentVoteInfo.documentId).length === 1
+  );
 }

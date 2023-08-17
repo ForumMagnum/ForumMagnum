@@ -508,6 +508,7 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
+      createdAt: {$gt: moment().subtract(5, 'days').toDate()},
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

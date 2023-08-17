@@ -2,10 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting } from '../../instanceSettings';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum';
-const isLW = forumTypeSetting.get() === 'LessWrong';
+import { isEAForum } from '../../instanceSettings';
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},
@@ -115,7 +112,7 @@ const schema: SchemaType<DbLocalgroup> = {
       label: "Group type / intended audience",
       options: GROUP_CATEGORIES
     },
-    hidden: isLW,
+    hidden: !isEAForum,
   },
   
   'categories.$': {

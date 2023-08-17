@@ -1,10 +1,11 @@
-import Users from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts/collection';
+import Users from '../../lib/collections/users/collection';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
+import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
-import { triggerAutomodIfNeeded, triggerCommentAutomodIfNeeded, triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 
 /**
  * @summary Update the karma of the item's owner
@@ -14,11 +15,16 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
  * @param {string} operation - The operation being performed
  */
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-voteCallbacks.castVoteAsync.add(function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser, context) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
+  // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
   if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
-    void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
+    await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
+  }
+
+  if (isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
+    void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
 
@@ -72,7 +78,7 @@ voteCallbacks.cancelAsync.add(async function cancelVoteCount ({newDocument, vote
   }
 });
 
-voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple) {
+voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}: VoteDocTuple, collection, user, context) {
   if (vote.collectionName === 'Comments') {
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
