@@ -169,6 +169,28 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
+const getPostEditorGuide = (classes: ClassesType) => {
+  const {LWTooltip, NewPostHowToGuides} = Components;
+  if (isLWorAF) {
+    return (
+      <div className={classes.editorGuideOffset}>
+        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+          <div className={classes.editorGuide}>
+            <QuestionIcon className={classes.editorGuideIcon} />
+            <div className={classes.editorGuideLink}>
+              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+            </div>
+          </div>
+        </LWTooltip>
+      </div>
+    );
+  }
+  if (isEAForum) {
+    return <NewPostHowToGuides />;
+  }
+  return undefined;
+}
+
 const PostsNewForm = ({classes}: {
     classes: ClassesType,
   }) => {
@@ -277,23 +299,11 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
-  const postEditorGuide = isLWorAF && <div className={classes.editorGuideOffset}>
-    <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-      <div className={classes.editorGuide}>
-        <QuestionIcon className={classes.editorGuideIcon} />
-        <div className={classes.editorGuideLink}>
-          <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
-        </div>
-      </div>
-    </LWTooltip>
-  </div>;
-
   return (
-    <DynamicTableOfContents rightColumnChildren={postEditorGuide}>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
-          {isEAForum && <NewPostHowToGuides />}
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>

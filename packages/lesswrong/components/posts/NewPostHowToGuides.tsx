@@ -6,14 +6,16 @@ import type { ForumIconName } from "../common/ForumIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position: "absolute",
-    right: 100, // TODO: Proper positioning
-    top: 150,
+    width: 300,
+    margin: "60px 20px 0 -80px",
     background: theme.palette.primaryAlpha(0.1),
     color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 20,
     borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
   },
   title: {
     fontWeight: 700,
