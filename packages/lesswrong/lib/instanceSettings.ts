@@ -150,7 +150,7 @@ export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
 // forums to use this setting.
 export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
 
-export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional'); //TODO: Add to LessWrong-Credentials before merge
+export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional');
 
 // Sentry settings
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
