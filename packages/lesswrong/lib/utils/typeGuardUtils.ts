@@ -35,7 +35,7 @@ type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends 
  * new TupleSet(['sunshineNewUsers', 'allUsers']); // missing `as const`
  * ```
  */
-export class TupleSet<const T extends ReadonlyArray<string|number>> extends Set<string|number> {
+export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string|number> {
   constructor(knownValues: Tuple<T>) {
     super(knownValues);
   }
