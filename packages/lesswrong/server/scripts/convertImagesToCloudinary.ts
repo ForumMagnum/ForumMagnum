@@ -17,8 +17,8 @@ import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { isAnyTest } from '../../lib/executionEnvironment';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
+export const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
+export const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If

@@ -5,6 +5,7 @@ import { createAdminContext } from '../vulcan-lib/query';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
+import { ChaptersEditEbookCallback } from '../ebooks/compileEbook';
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const context = await createAdminContext();
@@ -49,3 +50,6 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
 
 getCollectionHooks("Chapters").newAsync.add(ChaptersEditCanonizeCallback);
 getCollectionHooks("Chapters").editAsync.add(ChaptersEditCanonizeCallback);
+
+getCollectionHooks("Chapters").newAsync.add(ChaptersEditEbookCallback);
+getCollectionHooks("Chapters").editAsync.add(ChaptersEditEbookCallback);

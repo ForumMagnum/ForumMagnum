@@ -159,7 +159,13 @@ const schema: SchemaType<DbSequence> = {
     canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
-
+  epubUrl: {
+    type: String,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins']
+  },
   /* Alignment Forum fields */
 
   af: {
