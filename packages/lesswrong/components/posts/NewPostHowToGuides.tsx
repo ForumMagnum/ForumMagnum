@@ -47,19 +47,19 @@ type HowToGuide = {
 
 const guides: HowToGuide[] = [
   {
+    icon: "BookOpen",
+    label: "Forum user manual",
+    url: "/posts/Y8gkABpa9R6ktkhYt/forum-user-manual",
+  },
+  {
+    icon: "ChatBubbleLeftRight",
+    label: "Guide to norms on the forum",
+    url: "/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum",
+  },
+  {
     icon: "Document",
-    label: "Import Google Doc with footnotes",
-    url: "#",
-  },
-  {
-    icon: "Image",
-    label: "Add images, videos, graphs",
-    url: "#",
-  },
-  {
-    icon: "PencilSquare",
-    label: "Write productive criticism",
-    url: "#",
+    label: "How to import Google Docs",
+    url: "/posts/Y8gkABpa9R6ktkhYt/forum-user-manual#Two_different_editors__WYSIWYG_and_Markdown",
   },
 ];
 
@@ -70,7 +70,7 @@ export const NewPostHowToGuides = ({classes}: {
   return (
     <AnalyticsContext pageElementContext="newPostHowToGuides">
       <div className={classes.root}>
-        <div className={classes.title}>How-to guides</div>
+        <div className={classes.title}>Useful links</div>
         {guides.map(({icon, label, url}) =>
           <Link to={url} className={classes.howToGuide} key={label}>
             <ForumIcon icon={icon} /> {label}

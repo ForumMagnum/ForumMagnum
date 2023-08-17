@@ -24,6 +24,7 @@ import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
+import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -132,6 +133,7 @@ export type ForumIconName =
   "PencilSquare" |
   "Comment" |
   "CommentFilled" |
+  "ChatBubbleLeftRight" |
   "Shortform" |
   "Warning" |
   "Report" |
@@ -199,6 +201,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
     ListBullet: ListBulletIcon,
@@ -265,6 +268,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
     ListBullet: ListBulletIcon,
