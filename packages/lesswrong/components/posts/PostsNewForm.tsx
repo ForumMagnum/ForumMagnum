@@ -15,7 +15,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Link } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 
@@ -224,8 +223,7 @@ const PostsNewForm = ({classes}: {
     PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-    LWTooltip, NewPostHowToGuides,
-  } = Components
+  } = Components;
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
