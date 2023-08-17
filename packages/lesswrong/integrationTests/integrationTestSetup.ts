@@ -74,6 +74,8 @@ afterEach(async () => {
 
 afterAll(async () => {
   await waitUntilCallbacksFinished();
+  // eslint-disable-next-line no-console
+  console.log("Test teardown: closing database connections");
   await Promise.all([
     closeDatabaseConnection(),
     closeSqlClient(getSqlClientOrThrow()),
