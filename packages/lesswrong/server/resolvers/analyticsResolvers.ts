@@ -1,9 +1,17 @@
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { getAnalyticsConnection } from "../analytics/postgresConnection";
+import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
+import { AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/users/useAuthorAnalytics";
+import Posts from "../../lib/collections/posts/collection";
+import { getHybridView } from "../analytics/hybridViews";
+import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import chunk from "lodash/chunk";
+import { inspect } from "util";
+import { POST_VIEWS_IDENTIFIER } from "../analytics/postViewsHybridView";
+import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -50,6 +58,14 @@ function makePgAnalyticsQuerySeries({query, resultColumnRenaming, resultKey}: {q
     ))}
     return result
   }
+}
+
+/**
+ * Generates an OR condition that is essentially equivalent to `columnName IN (ids)`.
+ * This encourages postgres to use the index on `columnName` if one exists.
+ */
+function generateOrConditionQuery(columnName: string, ids: string[]): string {
+  return ids.map((id, index) => `${columnName} = $${index + 1}`).join(' OR ');
 }
 
 type QueryFunc = (post: DbPost) => Promise<Partial<PostAnalyticsResult>>;
@@ -161,6 +177,186 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
+    async AuthorAnalytics(
+      root: void,
+      {
+        userId,
+        sortBy,
+        desc,
+        limit,
+      }: { userId: string; sortBy: string | null; desc: boolean | null; limit: number | null },
+      context: ResolverContext
+    ): Promise<AuthorAnalyticsResult> {
+      // These are null (not undefined) if not provided, so we have to explicitly set them to the default
+      sortBy = sortBy ?? "postedAt";
+      desc = desc ?? true;
+      limit = limit ?? 10;
+
+      // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
+      // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
+      // many ids at once it will try to filter by timestamp first and then sequentially scan to filter
+      // by post_id, which is much (much!) slower.
+      const MAX_CONCURRENT_QUERIES = 8;
+      const BATCH_SIZE = 5;
+      
+      // Directly sortable fields can be sorted and filtered on before querying the analytics database,
+      // so we can avoid querying for most of the post ids. Indirectly sortable fields are calculated
+      // rely on the results from the analytics database, so we have to query for all the post ids and then
+      // sort and filter afterwards.
+      const DIRECTLY_SORTABLE_FIELDS = ["postedAt", "baseScore", "commentCount"];
+      const INDIRECTLY_SORTABLE_FIELDS = ["views", "reads"];
+
+      const { currentUser } = context;
+      const analyticsDb = getAnalyticsConnectionOrThrow();
+
+      if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
+        throw new Error("Permission denied");
+      }
+
+      const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
+
+      const postSelector = {
+        $or: [{ userId: userId }, { "coauthorStatuses.userId": userId }],
+        rejected: { $ne: true },
+        draft: false,
+        isEvent: false,
+      };
+      const postCountPromise = Posts.find(postSelector).count();
+      const userPosts = await Posts.find(postSelector, {
+        ...(directlySortable && { sort: { [sortBy]: desc ? -1 : 1 } }),
+        ...(directlySortable && { limit }),
+        projection: {
+          _id: 1,
+          title: 1,
+          slug: 1,
+          postedAt: 1,
+          baseScore: 1,
+          commentCount: 1,
+        },
+      }).fetch();
+
+      const postsById = Object.fromEntries(userPosts.map((post) => [post._id, post]));
+      const postIds = userPosts.map((post) => post._id);
+
+      if (!postIds.length) {
+        return {
+          posts: [],
+          totalCount: 0,
+        };
+      }
+
+      const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
+      const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
+
+      if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
+
+      const [viewsTable, postViewTimesTable] = await Promise.all([
+        postViewsView.virtualTable(),
+        postViewTimesView.virtualTable(),
+      ]);
+
+      const postIdsBatches = chunk(postIds, BATCH_SIZE);
+
+      let viewsResults: { _id: string; total_view_count: number }[] = [];
+      let readsResults: { _id: string; total_read_count: number }[] = [];
+
+      async function runViewsQuery(batch: string[]) {
+        const viewsResult = await analyticsDb.any<{ _id: string; total_view_count: number }>(
+          `
+          SELECT
+            post_id AS _id,
+            sum(view_count) AS total_view_count
+          FROM
+            (${viewsTable}) q
+          WHERE
+            ${generateOrConditionQuery("post_id", batch)}
+          GROUP BY
+            post_id;
+        `,
+          batch
+        );
+
+        viewsResults.push(...viewsResult);
+      }
+
+      async function runReadsQuery(batch: string[]) {
+        const readsResult = await analyticsDb.any<{ _id: string; total_read_count: number }>(
+          `
+          SELECT
+            post_id AS _id,
+            -- A "read" is anything with a reading_time over 30 seconds
+            sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
+          FROM
+            (${postViewTimesTable}) q
+          WHERE
+            ${generateOrConditionQuery("post_id", batch)}
+          GROUP BY
+            post_id;
+        `,
+          batch
+        );
+
+        readsResults.push(...readsResult);
+      }
+
+      // Pair batches of ids with their corresponding query functions and then zip these pairs together
+      const zippedPairs = postIdsBatches.flatMap((batch) => [
+        { batch, func: runViewsQuery },
+        { batch, func: runReadsQuery },
+      ]);
+
+      let queue: Promise<any>[] = [];
+
+      // Execute up to maxConcurrent queries at a time
+      for (const { batch, func } of zippedPairs) {
+        // Add the new promise to the queue
+        const promise = func(batch);
+        queue.push(promise);
+
+        // If the queue is full, wait for one promise to finish
+        if (queue.length >= MAX_CONCURRENT_QUERIES) {
+          await Promise.race(queue);
+          // Remove resolved promises from the queue
+          queue = queue.filter((p) => inspect(p).includes("pending"));
+        }
+      }
+
+      // Wait for all remaining promises to finish
+      await Promise.all(queue);
+
+      // Flatten the results
+      const viewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_view_count]));
+      const readsById = Object.fromEntries(readsResults.map((row) => [row._id, row.total_read_count]));
+
+      let sortedAndLimitedPostIds: string[] = postIds;
+      if (INDIRECTLY_SORTABLE_FIELDS.includes(sortBy)) {
+        const sortMap = sortBy === "views" ? viewsById : readsById;
+        sortedAndLimitedPostIds = postIds.sort((a, b) => {
+          const aVal = sortMap[a] ?? 0;
+          const bVal = sortMap[b] ?? 0;
+          return desc ? bVal - aVal : aVal - bVal;
+        });
+      }
+      sortedAndLimitedPostIds = sortedAndLimitedPostIds.slice(0, limit);
+
+      const posts: PostAnalytics2Result[] = sortedAndLimitedPostIds.map((_id, idx) => {
+        return {
+          _id,
+          title: postsById[_id].title,
+          slug: postsById[_id].slug,
+          postedAt: postsById[_id].postedAt,
+          views: viewsById[_id] ?? 0,
+          reads: readsById[_id] ?? 0,
+          karma: postsById[_id].baseScore,
+          comments: postsById[_id].commentCount ?? 0,
+        };
+      });
+
+      return {
+        posts: posts,
+        totalCount: await postCountPromise,
+      };
+    },
   },
 });
 
@@ -180,4 +376,23 @@ addGraphQLSchema(`
   }
 `);
 
+addGraphQLSchema(`
+  type PostAnalytics2Result {
+    _id: String
+    title: String
+    slug: String
+    postedAt: Date
+    views: Int
+    reads: Int
+    karma: Int
+    comments: Int
+  }
+
+  type AuthorAnalyticsResult {
+    posts: [PostAnalytics2Result]
+    totalCount: Int!
+  }
+`);
+
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
+addGraphQLQuery("AuthorAnalytics(userId: String!, sortBy: String, desc: Boolean, limit: Int): AuthorAnalyticsResult!");

@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    minWidth: 30,
     fontSize: 14,
     lineHeight: '20px',
     textTransform: 'none',

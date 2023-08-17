@@ -36,7 +36,7 @@ class SubscribeWidget extends Component<SubscribeWidgetProps,SubscribeWidgetStat
     return (
       <div>
         <a onClick={() => this.openDialog("rss")} className={this.props.classes.root}>
-          <TabNavigationSubItem>Subscribe (RSS{!isEAForum && '/Email'})</TabNavigationSubItem>
+          <TabNavigationSubItem>{isEAForum ? "RSS" : "Subscribe (RSS/Email)"}</TabNavigationSubItem>
         </a>
         { dialogOpen && <SubscribeDialog
           open={true}

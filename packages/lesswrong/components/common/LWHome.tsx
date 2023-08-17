@@ -3,14 +3,14 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
-const Home2 = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, RecommendationsAndCurated, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
+const LWHome = () => {
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          {!reviewIsActive() && <RecommendationsAndCurated configName="frontpage" />}
+          {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -37,10 +37,10 @@ const Home2 = () => {
   )
 }
 
-const Home2Component = registerComponent('Home2', Home2);
+const LWHomeComponent = registerComponent('LWHome', LWHome);
 
 declare global {
   interface ComponentTypes {
-    Home2: typeof Home2Component
+    LWHome: typeof LWHomeComponent
   }
 }
