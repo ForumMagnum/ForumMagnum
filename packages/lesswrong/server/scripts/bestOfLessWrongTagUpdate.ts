@@ -17,7 +17,7 @@ async function bestOfLessWrongTagUpdate () {
     }, {sort: {postedAt: -1}}).fetch();
 
     // eslint-disable-next-line no-console
-    console.log(posts.length)
+    console.log(`${posts.length} posts to add to Best of LessWrong tag`)
     
     posts.forEach((post, i) => {
       // eslint-disable-next-line no-console
