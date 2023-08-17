@@ -181,7 +181,7 @@ const Book2019FrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books/2019">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"} link={"https://www.amazon.com/Engines-Cognition-Essays-LessWrong-Community/dp/1736128515/"}/>
           </>}
         />
       }>
@@ -194,7 +194,7 @@ const Book2019FrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/posts/mvPfao35Moah8py46/the-engines-of-cognition-book-launch">
               Learn More
             </Link>
-            <BookCheckout />
+            <BookCheckout link={"https://www.amazon.com/Engines-Cognition-Essays-LessWrong-Community/dp/1736128515/"}/>
           </>}
         />
       </Book2019Animation>

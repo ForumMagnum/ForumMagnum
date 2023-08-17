@@ -7,6 +7,8 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const curatedUrl = "/recommendations"
 
@@ -90,6 +92,8 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
+
 const LWRecommendations = ({
   configName,
   classes,
@@ -112,7 +116,7 @@ const LWRecommendations = ({
 
   const render = () => {
     const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -129,7 +133,7 @@ const LWRecommendations = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
     
-    const renderRecommendations = !settings.hideFrontpage
+    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
 
     const titleText = "Recommendations"
     const titleNode = (
@@ -167,6 +171,7 @@ const LWRecommendations = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
+      {bookDisplaySetting.get() && <Book2020FrontpageWidget/>}
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
         {showSettings &&
@@ -175,9 +180,9 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
           <CurrentSpotlightItem />
-        </AnalyticsContext>
+        </AnalyticsContext>}
 
         <div className={classes.subsection}>
           <div className={classes.posts}>

@@ -249,6 +249,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
+  welcomeBox: {
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -524,7 +529,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
+  const welcomeBox = welcomeBoxProps
+    ? <div className={classes.welcomeBox}>
+        <WelcomeBox {...welcomeBoxProps} />
+      </div>
+    : null;
+
+  const rightColumnChildren = <>
+    {welcomeBox}
+    {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
+  </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
@@ -543,11 +557,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <ToCColumn
       tableOfContents={tableOfContents}
       header={header}
-      welcomeBox={welcomeBox}
-      rhsRecommendations={showRecommendations && recommendationsPosition === "right"
-        ? <PostSideRecommendations post={post} />
-        : undefined
-      }
+      rightColumnChildren={rightColumnChildren}
     >
       <div ref={postBodyRef} className={classes.centralColumn}>
         {/* Body */}
