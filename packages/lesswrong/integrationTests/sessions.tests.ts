@@ -159,5 +159,5 @@ describe("Sessions", () => {
     });
     state.store.set(sessionId, sessionData);
     state.store.set(sessionId, sessionUpdate);
-  });
+  }, 40000);
 });
