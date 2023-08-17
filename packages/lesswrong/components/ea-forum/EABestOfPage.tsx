@@ -263,8 +263,9 @@ const featuredAudioPostIds = [
 
 // TODO remove this in final version, I just wasn't sure about changing the social preview image an author set
 const customPostImageUrls: Record<string, string> = {
-  "jgspXC8GKA7RtxMRE": "https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/SocialPreview/cmg4r5baxggel7baxiw6"
-}
+  jgspXC8GKA7RtxMRE:
+    "https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/SocialPreview/cmg4r5baxggel7baxiw6",
+};
 
 // TODO do useMulti's with these to speed things up
 const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
@@ -306,41 +307,43 @@ const PostListItem = ({
   const timeFromNow = moment(new Date(document.postedAt)).fromNow();
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
-  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls[documentId] || siteImageSetting.get()
+  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls[documentId] || siteImageSetting.get();
 
   return (
-    <div {...eventHandlers} className={classes.postListItem}>
-      <div className={classes.postListItemTextSection}>
-        <div className={classes.postListItemTitle}>
-          <Link to={postLink}>{document.title}</Link>
-        </div>
-        <div className={classes.postListItemMeta}>
-          <div ref={authorExpandContainer}>
-            <InteractionWrapper>
-              <TruncatedAuthorsList post={document} expandContainer={authorExpandContainer} />
-            </InteractionWrapper>
+    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+      <div {...eventHandlers} className={classes.postListItem}>
+        <div className={classes.postListItemTextSection}>
+          <div className={classes.postListItemTitle}>
+            <Link to={postLink}>{document.title}</Link>
           </div>
-          &nbsp;·&nbsp;
-          {timeFromNow}
-          {ago}
-          &nbsp;·&nbsp;
-          {document.readTimeMinutes}m read
-          <div>
-            {!isNarrow && (
-              <span className={classNames(classes.commentCount, classes.xsHide)}>
-                &nbsp;·&nbsp;
-                <Link to={`${postLink}#comments`} className={classes.commentCount}>
-                  <ForumIcon icon="Comment" />
-                  {document.commentCount}
-                </Link>
-              </span>
-            )}
+          <div className={classes.postListItemMeta}>
+            <div ref={authorExpandContainer}>
+              <InteractionWrapper>
+                <TruncatedAuthorsList post={document} expandContainer={authorExpandContainer} />
+              </InteractionWrapper>
+            </div>
+            &nbsp;·&nbsp;
+            {timeFromNow}
+            {ago}
+            &nbsp;·&nbsp;
+            {document.readTimeMinutes}m read
+            <div>
+              {!isNarrow && (
+                <span className={classNames(classes.commentCount, classes.xsHide)}>
+                  &nbsp;·&nbsp;
+                  <Link to={`${postLink}#comments`} className={classes.commentCount}>
+                    <ForumIcon icon="Comment" />
+                    {document.commentCount}
+                  </Link>
+                </span>
+              )}
+            </div>
           </div>
+          <div className={classes.postListItemPreview}>{document.contents?.plaintextDescription}</div>
         </div>
-        <div className={classes.postListItemPreview}>{document.contents?.plaintextDescription}</div>
+        <img className={classes.postListItemImage} src={imageUrl} />
       </div>
-      <img className={classes.postListItemImage} src={imageUrl} />
-    </div>
+    </AnalyticsContext>
   );
 };
 
@@ -424,16 +427,18 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
   const href = collectionGetPageUrl(document);
 
   return (
-    <SequenceOrCollectionCard
-      title={title}
-      author={author}
-      postCount={postCount}
-      readCount={readCount}
-      imageId={imageId}
-      href={href}
-      eventHandlers={eventHandlers}
-      classes={classes}
-    />
+    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+      <SequenceOrCollectionCard
+        title={title}
+        author={author}
+        postCount={postCount}
+        readCount={readCount}
+        imageId={imageId}
+        href={href}
+        eventHandlers={eventHandlers}
+        classes={classes}
+      />
+    </AnalyticsContext>
   );
 };
 
@@ -445,13 +450,14 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
   });
+  // Note: this is not a real slug, it's just so we can recognise the sequence in the analytics,
+  // without risking any weirdness due to titles having spaces in them
+  const slug = slugify(document?.title ?? "unknown-slug");
 
   const { eventHandlers } = useHover({
     pageElementContext: "sequenceCard",
     documentId: documentId,
-    // Note: this is not a real slug, it's just so we can recognise the sequence in the analytics,
-    // without risking any weirdness due to titles having spaces in them
-    documentSlug: slugify(document?.title ?? ""),
+    documentSlug: slug,
   });
 
   if (loading) return <Loading />;
@@ -473,16 +479,18 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
   const href = sequenceGetPageUrl(document);
 
   return (
-    <SequenceOrCollectionCard
-      title={title}
-      author={author}
-      postCount={postCount}
-      readCount={readCount}
-      imageId={imageId}
-      href={href}
-      eventHandlers={eventHandlers}
-      classes={classes}
-    />
+    <AnalyticsContext documentSlug={slug}>
+      <SequenceOrCollectionCard
+        title={title}
+        author={author}
+        postCount={postCount}
+        readCount={readCount}
+        imageId={imageId}
+        href={href}
+        eventHandlers={eventHandlers}
+        classes={classes}
+      />
+    </AnalyticsContext>
   );
 };
 
@@ -506,9 +514,11 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
   if (!document?.podcastEpisode) return null;
 
   return (
-    <div {...eventHandlers} className={classes.audioCard}>
-      <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
-    </div>
+    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+      <div {...eventHandlers} className={classes.audioCard}>
+        <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
+      </div>
+    </AnalyticsContext>
   );
 };
 
