@@ -151,7 +151,7 @@ const CommentsListSection = ({
       <span>
         {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
       </span>
-    if (isEAForum) {
+    if (isFriendlyUI) {
       commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
     }
 
@@ -212,7 +212,7 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isEAForum && (newForm || !!totalComments) && !post?.shortform &&
+      {isFriendlyUI && (newForm || !!totalComments) && !post?.shortform &&
         <div className={classes.commentsHeadline}>
           Comments{commentCountNode}
         </div>
