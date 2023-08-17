@@ -11,6 +11,10 @@ export const tagMinimumKarmaPermissions = forumSelect({
     new: 10,
     edit: 10,
   },
+  LessWrong: {
+    new: 1,
+    edit: 1,
+  },
   // Default is to allow all users to create/edit tags
   default: {
     new: -1000,

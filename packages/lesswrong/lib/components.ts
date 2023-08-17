@@ -388,6 +388,7 @@ importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAn
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
+importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
