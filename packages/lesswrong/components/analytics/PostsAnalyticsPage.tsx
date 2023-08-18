@@ -15,25 +15,16 @@ import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
 import { usePostAnalytics } from '../hooks/usePostAnalytics';
-import { userIsAdminOrMod } from '../../lib/vulcan-users';
-import { AnalyticsGraph } from './AnalyticsGraph';
 
-const isEAForum = forumTypeSetting.get()
-
-// lw-look-here
-const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021"
-const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01"
-const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020"
-
-function caclulateBounceRate(totalViews?: number, viewsAfter10sec?: number) {
-  if (!totalViews || viewsAfter10sec === undefined || viewsAfter10sec === null) return null
-  return `${Math.round((1 - (viewsAfter10sec / totalViews)) * 100)} %`
+export function caclulateBounceRate(denominator?: number, numerator?: number) {
+  if (!denominator || numerator === undefined || numerator === null) return null
+  return `${((1 - (numerator / denominator)) * 100).toFixed(1)}%`
 }
 
-function readableReadingTime (seconds?: number) {
+export function readableReadingTime (seconds?: number) {
   if (!seconds) return null
   const minutes = Math.floor(seconds / 60)
-  const secondsRemainder = seconds % 60
+  const secondsRemainder = Math.round(seconds % 60)
   const secondsPart = `${secondsRemainder} s`
   if (minutes > 0) return `${minutes} m ${secondsRemainder ? secondsPart : ''}`
   return secondsPart
@@ -159,31 +150,43 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
     <Typography variant="display2" className={classes.title}>Daily Data</Typography>
     <PostsAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
   </>
+
 }
 
 const PostsAnalyticsPage = ({ classes }: {
   classes: ClassesType;
 }) => {
   const { query } = useLocation()
-
-  const {document: post, loading, error} = useSingle({
+  // Cannot destructure and retain return type typing due to TS version
+  const postReturn = useSingle({
     documentId: query.postId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
-    skip: !query.postId,
   })
   const currentUser = useCurrentUser()
-
+  const serverRequestStatus = useServerRequestStatus()
   const {
-    SingleColumnSection, WrappedLoginForm, HeadTags, Typography, AnalyticsGraph
+    SingleColumnSection, WrappedLoginForm, HeadTags, Typography, AnalyticsDisclaimers
   } = Components
 
 
-  if (loading || error || !query.postId) {
+  if (!query.postId) {
+    if (serverRequestStatus) serverRequestStatus.status = 400
+    return <SingleColumnSection>
+      Bad URL: Must specify a post ID
+    </SingleColumnSection>
+  }
+
+  if (postReturn.loading) {
     return null
   }
 
+  if (postReturn.error) {
+    throw postReturn.error;
+  }
+
   if (!currentUser) {
+    if (serverRequestStatus) serverRequestStatus.status = 401
     return <SingleColumnSection>
       <p>You don't have permission to view this page. Would you like to log in?</p>
       <WrappedLoginForm />
@@ -191,19 +194,18 @@ const PostsAnalyticsPage = ({ classes }: {
   }
 
   if (
-    !canUserEditPostMetadata(currentUser, post) &&
-    !userIsAdminOrMod(currentUser)
+    !canUserEditPostMetadata(currentUser, postReturn.document) &&
+    !currentUser.groups?.includes('sunshineRegiment')
   ) {
+    if (serverRequestStatus) serverRequestStatus.status = 403
     return <SingleColumnSection>
       You don't have permission to view this page.
     </SingleColumnSection>
   }
 
+  const post = postReturn.document
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   const title = `Analytics for "${post.title}"`
-
-  // TODO maybe make this an experimental feature
-  const useNewAnalytics = isEAForum;
 
   // Analytics query can still be very expensive despire indexes, and we don't
   // want 30 seconds before TTFB
@@ -213,23 +215,10 @@ const PostsAnalyticsPage = ({ classes }: {
       <Typography variant='display2' className={classes.title}>
         {title}
       </Typography>
-      {moment(post.postedAt) < moment(missingClientLastDay) && <Typography variant='body1' gutterBottom>
-        <em>
-          Note: For figures that rely on detecting unique clients, we were
-          mistakenly not collecting that data from {missingClientRangeText}.
-        </em>
-      </Typography>}
-      {moment(post.postedAt) < moment('2020-02-19') && <Typography variant='body1' gutterBottom>
-        <em>
-          Note 2: Data collection began on {dataCollectionFirstDay}.
-        </em>
-      </Typography>}
-      {!useNewAnalytics && <NoSSR>
+      <AnalyticsDisclaimers earliestDate={post.createdAt} />
+      <NoSSR>
         <PostsAnalyticsInner post={post} classes={classes} />
-      </NoSSR>}
-      {useNewAnalytics && <>
-        <AnalyticsGraph postIds={[post._id]} />
-      </>}
+      </NoSSR>
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>

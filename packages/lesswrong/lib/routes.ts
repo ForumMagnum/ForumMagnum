@@ -232,7 +232,7 @@ addRoute(
   {
     name: 'postAnalytics',
     path: '/postAnalytics',
-    componentName: 'PostsAnalyticsPage',
+    componentName: isEAForum ? 'PostsAnalyticsPage2' : 'PostsAnalyticsPage',
     background: "white"
   },
   {

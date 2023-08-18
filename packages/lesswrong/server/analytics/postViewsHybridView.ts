@@ -5,6 +5,7 @@ export const POST_VIEWS_IDENTIFIER = "post_views";
 const viewQuery = (crossoverTime: Date, materialized = false) => `
     SELECT
       count(*) AS view_count,
+      count(DISTINCT client_id) AS unique_view_count,
       post_id,
       (date_trunc('day', timestamp) + interval '1 second') AS window_start,
       (date_trunc('day', timestamp) + interval '1 day') AS window_end
@@ -22,7 +23,11 @@ const uniqueIndexGenerator = (viewName: string) => `
   CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_unique_index" ON "${viewName}" (post_id, window_end);
 `;
 
-const timeIndexGenerator = (viewName: string) => `
+const endTimeIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
+`;
+
+const startTimeIndexGenerator = (viewName: string) => `
   CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
 `;
 
@@ -33,5 +38,5 @@ const postIndexGenerator = (viewName: string) => `
 registerHybridAnalyticsView({
   identifier: POST_VIEWS_IDENTIFIER,
   queryGenerator: viewQuery,
-  indexQueryGenerators: [uniqueIndexGenerator, timeIndexGenerator, postIndexGenerator],
+  indexQueryGenerators: [uniqueIndexGenerator, startTimeIndexGenerator, endTimeIndexGenerator, postIndexGenerator],
 });

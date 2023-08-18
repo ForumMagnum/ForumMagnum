@@ -4,7 +4,7 @@ import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analyt
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { AnalyticsSeriesValue, AuthorAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
+import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
@@ -26,7 +26,7 @@ const MAX_CONCURRENT_QUERIES = 8;
 // in fact much slower. I'm trying ways to get around this, but for now I've just set the batch size to 1, which does
 // cause it to spam a lot of queries, but even so it's much faster than the alternative.
 const LIVE_BATCH_SIZE = 1;
-const MATERIALIZED_BATCH_SIZE = 50;
+const MATERIALIZED_BATCH_SIZE = 8;
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -199,18 +199,18 @@ addGraphQLResolvers({
       // keys, the partial is no longer partial
       return postAnalytics as PostAnalyticsResult;
     },
-    // TODO make this handle posts as well
-    async AuthorAnalytics(
+    async MultiPostAnalytics(
       root: void,
       {
         userId,
+        postIds: postIdsInput,
         sortBy,
         desc,
         limit,
         cachedOnly,
-      }: { userId: string; sortBy: string | null; desc: boolean | null; limit: number | null, cachedOnly: boolean | null },
+      }: { userId: string; postIds: string[] | null; sortBy: string | null; desc: boolean | null; limit: number | null, cachedOnly: boolean | null },
       context: ResolverContext
-    ): Promise<AuthorAnalyticsResult> {
+    ): Promise<MultiPostAnalyticsResult> {
       // These are null (not undefined) if not provided, so we have to explicitly set them to the default
       sortBy = sortBy ?? "postedAt";
       desc = desc ?? true;
@@ -234,7 +234,8 @@ addGraphQLResolvers({
       const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
       const postSelector = {
-        $or: [{ userId: userId }, { "coauthorStatuses.userId": userId }],
+        ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+        ...(postIdsInput && { _id: { $in: postIdsInput } }),
         rejected: { $ne: true },
         draft: false,
         isEvent: false,
@@ -277,11 +278,12 @@ addGraphQLResolvers({
 
       const [viewsResults, readsResults] = await Promise.all([
         executeChunkedQueue(async (batch: string[]) => {
-          return analyticsDb.any<{ _id: string; total_view_count: number }>(
+          return analyticsDb.any<{ _id: string; total_view_count: number, total_unique_view_count: number }>(
           `
           SELECT
             post_id AS _id,
-            sum(view_count) AS total_view_count
+            sum(view_count) AS total_view_count,
+            sum(unique_view_count) AS total_unique_view_count
           FROM
             (${viewsTable}) q
           WHERE
@@ -294,12 +296,13 @@ addGraphQLResolvers({
           );
         }, postIds, batchSize, MAX_CONCURRENT_QUERIES),
         executeChunkedQueue(async (batch: string[]) => {
-          return analyticsDb.any<{ _id: string; total_read_count: number }>(
+          return analyticsDb.any<{ _id: string; total_read_count: number, mean_reading_time: number }>(
           `
           SELECT
             post_id AS _id,
             -- A "read" is anything with a reading_time over 30 seconds
-            sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS total_read_count
+            sum(CASE WHEN reading_time >= 30 THEN 1 ELSE 0 END) AS total_read_count,
+            avg(reading_time) AS mean_reading_time
           FROM
             (${postViewTimesTable}) q
           WHERE
@@ -315,7 +318,9 @@ addGraphQLResolvers({
 
       // Flatten the results
       const viewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_view_count]));
+      const uniqueViewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_unique_view_count]));
       const readsById = Object.fromEntries(readsResults.map((row) => [row._id, row.total_read_count]));
+      const meanReadingTimeById = Object.fromEntries(readsResults.map((row) => [row._id, row.mean_reading_time]));
 
       let sortedAndLimitedPostIds: string[] = postIds;
       if (INDIRECTLY_SORTABLE_FIELDS.includes(sortBy)) {
@@ -335,7 +340,9 @@ addGraphQLResolvers({
           slug: postsById[_id].slug,
           postedAt: postsById[_id].postedAt,
           views: viewsById[_id] ?? 0,
+          uniqueViews: uniqueViewsById[_id] ?? 0,
           reads: readsById[_id] ?? 0,
+          meanReadingTime: meanReadingTimeById[_id] ?? 0,
           karma: postsById[_id].baseScore,
           comments: postsById[_id].commentCount ?? 0,
         };
@@ -434,7 +441,7 @@ addGraphQLResolvers({
               SELECT
                 -- Format as YYYY-MM-DD to make grouping easier
                 to_char(window_start, 'YYYY-MM-DD') AS window_start_key,
-                sum(CASE WHEN reading_time > 30 THEN 1 ELSE 0 END) AS read_count
+                sum(CASE WHEN reading_time >= 30 THEN 1 ELSE 0 END) AS read_count
               FROM
                 (${postViewTimesTable}) q
               WHERE
@@ -512,12 +519,14 @@ addGraphQLSchema(`
     slug: String
     postedAt: Date
     views: Int
+    uniqueViews: Int
     reads: Int
+    meanReadingTime: Float
     karma: Int
     comments: Int
   }
 
-  type AuthorAnalyticsResult {
+  type MultiPostAnalyticsResult {
     posts: [PostAnalytics2Result]
     totalCount: Int!
   }
@@ -534,5 +543,5 @@ addGraphQLSchema(`
 `);
 
 addGraphQLQuery("PostAnalytics(postId: String!): PostAnalyticsResult!");
-addGraphQLQuery("AuthorAnalytics(userId: String!, sortBy: String, desc: Boolean, limit: Int, cachedOnly: Boolean): AuthorAnalyticsResult!");
+addGraphQLQuery("MultiPostAnalytics(userId: String, postIds: [String], sortBy: String, desc: Boolean, limit: Int, cachedOnly: Boolean): MultiPostAnalyticsResult!");
 addGraphQLQuery("AnalyticsSeries(userId: String, postIds: [String], startDate: Date, endDate: Date, cachedOnly: Boolean): [AnalyticsSeriesValue]");
