@@ -9,6 +9,9 @@ export const up = async ({db}: MigrationContext) => {
       DROP FUNCTION IF EXISTS fm_dot_product
     `);
     await tx.none(`
+      CREATE EXTENSION IF NOT EXISTS "vector" CASCADE
+    `);
+    await tx.none(`
       ALTER TABLE "PostEmbeddings" ADD COLUMN "embeddings_tmp" VECTOR(${n})
     `);
     await tx.none(`
