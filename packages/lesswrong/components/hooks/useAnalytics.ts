@@ -197,17 +197,20 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
 } => {
   const { userId, postIds, startDate: propsStartDate, endDate: propsEndDate } = props;
   const cachedFirst = !!(userId || (postIds && postIds.length > 1));
+  // Convert to UTC to ensure args passed to useQuery are consistent between SSR and client
+  const utcPropsStartDate = propsStartDate ? moment(propsStartDate).utc().toDate() : null;
+  const utcPropsEndDate = moment(propsEndDate).utc().toDate();
 
-  const fetchDateRef = useRef({ startDate: propsStartDate, endDate: propsEndDate });
+  const fetchDateRef = useRef({ startDate: utcPropsStartDate, endDate: utcPropsEndDate });
   
   if (
-    (fetchDateRef.current.startDate ?? 0) > (propsStartDate ?? 0) ||
+    (fetchDateRef.current.startDate ?? 0) > (utcPropsStartDate ?? 0) ||
     // If we are changing from null to non-null or vice versa, we need to refetch
-    ([fetchDateRef.current.startDate, propsStartDate].includes(null) &&
-      fetchDateRef.current.startDate !== propsStartDate)
+    ([fetchDateRef.current.startDate, utcPropsStartDate].includes(null) &&
+      fetchDateRef.current.startDate !== utcPropsStartDate)
   )
-    fetchDateRef.current.startDate = propsStartDate;
-  if (fetchDateRef.current.endDate < propsEndDate) fetchDateRef.current.endDate = propsEndDate;
+    fetchDateRef.current.startDate = utcPropsStartDate;
+  if (fetchDateRef.current.endDate < utcPropsEndDate) fetchDateRef.current.endDate = utcPropsEndDate;
   
   const { startDate, endDate } = fetchDateRef.current;
 
@@ -226,9 +229,9 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
     // - the dates padded by 180 days on either side
     // - cachedOnly set to false to include the very latest data (see cachedOnly: !variablesAreActive above)
     if (data && !variablesAreActive) {
-      const endOfToday = moment().endOf("day").toDate();
-      const paddedStartDate = startDate ? moment(startDate).subtract(180, "days").startOf("day").toDate() : null;
-      const maxPaddedEndDate = moment(endDate).add(180, "days").endOf("day").toDate();
+      const endOfToday = moment().utc().endOf("day").toDate();
+      const paddedStartDate = startDate ? moment(startDate).utc().subtract(180, "days").startOf("day").toDate() : null;
+      const maxPaddedEndDate = moment(endDate).utc().add(180, "days").endOf("day").toDate();
       const paddedEndDate = maxPaddedEndDate > endOfToday ? endOfToday : maxPaddedEndDate;
       fetchDateRef.current = { startDate: paddedStartDate, endDate: paddedEndDate };
 
@@ -247,24 +250,24 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   truncatedSeriesRef.current = useMemo(() => {
     const truncated = fullSeries.filter((value) => {
       const date = new Date(value.date);
-      return (!propsStartDate || date >= propsStartDate) && date <= propsEndDate;
+      return (!utcPropsStartDate || date >= utcPropsStartDate) && date <= utcPropsEndDate;
     });
     
     // Now pad the series with 0 values for any missing dates
-    const truncatedStartDate = new Date(truncated[0]?.date ?? propsStartDate);
-    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? propsEndDate);
+    const truncatedStartDate = new Date(truncated[0]?.date ?? utcPropsStartDate);
+    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? utcPropsEndDate);
 
-    if (truncatedStartDate == propsStartDate && truncatedEndDate == propsEndDate) return truncated;
+    if (truncatedStartDate == utcPropsStartDate && truncatedEndDate == utcPropsEndDate) return truncated;
     
-    const startPaddingLength = Math.floor(moment.duration(moment(truncatedStartDate).diff(propsStartDate)).asDays());
-    const endPaddingLength = Math.floor(moment.duration(moment(propsEndDate).diff(truncatedEndDate)).asDays());
+    const startPaddingLength = Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(utcPropsStartDate)).asDays());
+    const endPaddingLength = Math.floor(moment.duration(moment(utcPropsEndDate).utc().diff(truncatedEndDate)).asDays());
     
-    const dateSeries = generateDateSeries(propsStartDate ?? truncatedStartDate, propsEndDate);
+    const dateSeries = generateDateSeries(utcPropsStartDate ?? truncatedStartDate, utcPropsEndDate);
     const startSeries = dateSeries.slice(0, startPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
     const endSeries = dateSeries.slice(dateSeries.length - endPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
 
     return [...startSeries, ...truncated, ...endSeries];
-  }, [fullSeries, propsEndDate, propsStartDate]);
+  }, [fullSeries, utcPropsEndDate, utcPropsStartDate]);
 
   return {
     analyticsSeries: truncatedSeriesRef.current,

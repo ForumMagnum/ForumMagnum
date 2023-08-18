@@ -23,20 +23,31 @@ const uniqueIndexGenerator = (viewName: string) => `
   CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_unique_index" ON "${viewName}" (post_id, window_end);
 `;
 
-const endTimeIndexGenerator = (viewName: string) => `
+const postIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_post_index" ON "${viewName}" (post_id);
+`;
+
+
+const windowEndIndexGenerator = (viewName: string) => `
   CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
 `;
 
-const startTimeIndexGenerator = (viewName: string) => `
-  CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_start);
+const windowStartIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_window_start_index" ON "${viewName}" (window_start);
 `;
 
-const postIndexGenerator = (viewName: string) => `
-  CREATE INDEX IF NOT EXISTS "${viewName}_post_index" ON "${viewName}" (post_id);
+const compositeIndexGenerator = (viewName: string) => `
+  CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_composite_index" ON "${viewName}" (post_id, window_end, window_start);
 `;
 
 registerHybridAnalyticsView({
   identifier: POST_VIEWS_IDENTIFIER,
   queryGenerator: viewQuery,
-  indexQueryGenerators: [uniqueIndexGenerator, startTimeIndexGenerator, endTimeIndexGenerator, postIndexGenerator],
+  indexQueryGenerators: [
+    uniqueIndexGenerator,
+    postIndexGenerator,
+    windowEndIndexGenerator,
+    windowStartIndexGenerator,
+    compositeIndexGenerator,
+  ],
 });

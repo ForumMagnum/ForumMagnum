@@ -25,16 +25,30 @@ const uniqueIndexGenerator = (viewName: string) => `
   CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_unique_index" ON "${viewName}" (client_id, post_id, window_end);
 `;
 
-const timeIndexGenerator = (viewName: string) => `
+const windowEndIndexGenerator = (viewName: string) => `
   CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
+`;
+
+const windowStartIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_window_start_index" ON "${viewName}" (window_start);
 `;
 
 const postIndexGenerator = (viewName: string) => `
   CREATE INDEX IF NOT EXISTS "${viewName}_post_index" ON "${viewName}" (post_id);
 `;
 
+const compositeIndexGenerator = (viewName: string) => `
+  CREATE INDEX IF NOT EXISTS "${viewName}_composite_index" ON "${viewName}" (post_id, window_end, window_start);
+`;
+
 registerHybridAnalyticsView({
   identifier: POST_VIEW_TIMES_IDENTIFIER,
   queryGenerator: viewQuery,
-  indexQueryGenerators: [uniqueIndexGenerator, timeIndexGenerator, postIndexGenerator],
+  indexQueryGenerators: [
+    uniqueIndexGenerator,
+    windowStartIndexGenerator,
+    windowEndIndexGenerator,
+    postIndexGenerator,
+    compositeIndexGenerator,
+  ],
 });
