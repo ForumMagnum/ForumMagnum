@@ -629,6 +629,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name: 'BestOf',
+      path: '/best-of',
+      componentName: 'EABestOfPage',
+      title: 'Best of the Forum',
+    },
+    {
+      name: 'BestOfCamelCase',
+      path: '/bestOf',
+      componentName: 'EABestOfPage',
+      redirect: () => '/best-of',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
@@ -1006,6 +1018,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'editor',
+      path: '/editor',
+      redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    }
   ],
   AlignmentForum: [
     {

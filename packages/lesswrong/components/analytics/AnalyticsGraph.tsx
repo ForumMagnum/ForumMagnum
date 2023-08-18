@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
@@ -127,9 +128,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LINE_COLORS: Record<AnalyticsField, string> = {
-  reads: requireCssVar("palette", "primary", "main"),
-  views: requireCssVar("palette", "primary", "light"),
-  karma: requireCssVar("palette", "graph", "analyticsKarma"),
+  reads: requireCssVar("palette", "graph", "analyticsReads"),
+  views: requireCssVar("palette", "primary", "main"),
+  karma: requireCssVar("palette", "primary", "light"),
   comments: requireCssVar("palette", "grey", 800),
 };
 
@@ -275,14 +276,14 @@ export const AnalyticsGraph = ({
     // only select the fields we want to display
     return {
       date: dataPoint.date,
-      ...displayFields.reduce((acc, field) => {
+      ...displayFields.reduce<Partial<Record<AnalyticsField, number>>>((acc, field) => {
         acc[field] = dataPoint[field] ?? 0;
         return acc;
-      }, {} as Partial<Record<AnalyticsField, number>>),
+      }, {}),
     };
   });
 
-  const getTooltipContent = useCallback(({ active, payload, label }: AnyBecauseHard) => {
+  const getTooltipContent = useCallback(({ active, payload, label }: TooltipProps<string, string>) => {
     if (!(active && payload && payload.length)) return null;
 
     const date = new Date(payload[0].payload["date"]);

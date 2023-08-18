@@ -31,6 +31,7 @@ import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
+import './server/scripts/bestOfLessWrongTagUpdate';
 import './server/scripts/convertImagesToCloudinary';
 import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';

@@ -15,6 +15,8 @@ import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
 import { usePostAnalytics } from '../hooks/usePostAnalytics';
+import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { AnalyticsGraph } from './AnalyticsGraph';
 
 const isEAForum = forumTypeSetting.get()
 
@@ -157,43 +159,31 @@ const PostsAnalyticsInner = ({ classes, post }: { classes: ClassesType, post: Po
     <Typography variant="display2" className={classes.title}>Daily Data</Typography>
     <PostsAnalyticsGraphs classes={classes} uniqueClientViewsSeries={uniqueClientViewsSeries} />
   </>
-
 }
 
 const PostsAnalyticsPage = ({ classes }: {
   classes: ClassesType;
 }) => {
   const { query } = useLocation()
-  // Cannot destructure and retain return type typing due to TS version
-  const postReturn = useSingle({
+
+  const {document: post, loading, error} = useSingle({
     documentId: query.postId,
     collectionName: "Posts",
     fragmentName: 'PostsPage',
+    skip: !query.postId,
   })
   const currentUser = useCurrentUser()
-  const serverRequestStatus = useServerRequestStatus()
+
   const {
-    SingleColumnSection, WrappedLoginForm, HeadTags, Typography
+    SingleColumnSection, WrappedLoginForm, HeadTags, Typography, AnalyticsGraph
   } = Components
 
 
-  if (!query.postId) {
-    if (serverRequestStatus) serverRequestStatus.status = 400
-    return <SingleColumnSection>
-      Bad URL: Must specify a post ID
-    </SingleColumnSection>
-  }
-
-  if (postReturn.loading) {
+  if (loading || error || !query.postId) {
     return null
   }
 
-  if (postReturn.error) {
-    throw postReturn.error;
-  }
-
   if (!currentUser) {
-    if (serverRequestStatus) serverRequestStatus.status = 401
     return <SingleColumnSection>
       <p>You don't have permission to view this page. Would you like to log in?</p>
       <WrappedLoginForm />
@@ -201,18 +191,19 @@ const PostsAnalyticsPage = ({ classes }: {
   }
 
   if (
-    !canUserEditPostMetadata(currentUser, postReturn.document) &&
-    !currentUser.groups?.includes('sunshineRegiment')
+    !canUserEditPostMetadata(currentUser, post) &&
+    !userIsAdminOrMod(currentUser)
   ) {
-    if (serverRequestStatus) serverRequestStatus.status = 403
     return <SingleColumnSection>
       You don't have permission to view this page.
     </SingleColumnSection>
   }
 
-  const post = postReturn.document
   const isEAForum = forumTypeSetting.get() === 'EAForum'
   const title = `Analytics for "${post.title}"`
+
+  // TODO maybe make this an experimental feature
+  const useNewAnalytics = isEAForum;
 
   // Analytics query can still be very expensive despire indexes, and we don't
   // want 30 seconds before TTFB
@@ -233,9 +224,12 @@ const PostsAnalyticsPage = ({ classes }: {
           Note 2: Data collection began on {dataCollectionFirstDay}.
         </em>
       </Typography>}
-      <NoSSR>
+      {!useNewAnalytics && <NoSSR>
         <PostsAnalyticsInner post={post} classes={classes} />
-      </NoSSR>
+      </NoSSR>}
+      {useNewAnalytics && <>
+        <AnalyticsGraph postIds={[post._id]} />
+      </>}
       <Typography variant="body1" className={classes.viewingNotice} component='div'>
         <p><em>Post statistics are only viewable by {isEAForum && "authors and"} admins</em></p>
       </Typography>

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,8 +13,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   }
 });
-
-const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const CoreTagCustomDescriptions: Record<string, string> = {
   'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and making decisions that result in attainment of your goals.",

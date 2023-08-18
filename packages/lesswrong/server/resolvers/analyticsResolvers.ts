@@ -13,7 +13,6 @@ import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView
 import moment from "moment";
 import groupBy from "lodash/groupBy";
 import { executeChunkedQueue } from "../../lib/utils/asyncUtils";
-import { CommentsRepo, VotesRepo } from "../repos";
 import { generateDateSeries } from "../../lib/helpers";
 
 // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
@@ -447,16 +446,16 @@ addGraphQLResolvers({
                 window_start_key;
             `, batch)
         }, queryPostIds, batchSize, MAX_CONCURRENT_QUERIES),
-        (new VotesRepo().getPostKarmaChangePerDay({
+        context.repos.votes.getPostKarmaChangePerDay({
           postIds: queryPostIds,
           startDate: adjustedStartDate?.toDate(),
           endDate: adjustedEndDate.toDate(),
-        })),
-        (new CommentsRepo().getCommentsPerDay({
+        }),
+        context.repos.comments.getCommentsPerDay({
           postIds: queryPostIds,
           startDate: adjustedStartDate?.toDate(),
           endDate: adjustedEndDate.toDate(),
-        })),
+        }),
       ])
 
       const viewsByDate = groupBy(viewRes, "window_start_key");
