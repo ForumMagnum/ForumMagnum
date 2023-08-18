@@ -14,6 +14,7 @@ import moment from "moment";
 import groupBy from "lodash/groupBy";
 import { executeChunkedQueue } from "../../lib/utils/asyncUtils";
 import { generateDateSeries } from "../../lib/helpers";
+import { DatabasePublicSetting } from "../../lib/publicSettings";
 
 // Queries are executed in batches of post ids. This is mainly to coerce postgres into using
 // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
@@ -25,8 +26,8 @@ const MAX_CONCURRENT_QUERIES = 8;
 // so it thinks it's faster to just use the filter on timestamp and then scan through to filter by post_id, this is
 // in fact much slower. I'm trying ways to get around this, but for now I've just set the batch size to 1, which does
 // cause it to spam a lot of queries, but even so it's much faster than the alternative.
-const LIVE_BATCH_SIZE = 1;
-const MATERIALIZED_BATCH_SIZE = 8;
+const liveBatchSizeSetting = new DatabasePublicSetting<number>("analytics.liveBatchSize", 1);
+const materializedBatchSizeSetting = new DatabasePublicSetting<number>("analytics.materializedBatchSize", 1);
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -215,7 +216,7 @@ addGraphQLResolvers({
       sortBy = sortBy ?? "postedAt";
       desc = desc ?? true;
       limit = limit ?? 10;
-      const batchSize = cachedOnly ? MATERIALIZED_BATCH_SIZE : LIVE_BATCH_SIZE;
+      const batchSize = cachedOnly ? materializedBatchSizeSetting.get() : liveBatchSizeSetting.get();
       
       // Directly sortable fields can be sorted and filtered on before querying the analytics database,
       // so we can avoid querying for most of the post ids. Indirectly sortable fields are calculated
@@ -370,7 +371,7 @@ addGraphQLResolvers({
       },
       context: ResolverContext
     ): Promise<AnalyticsSeriesValue[]> {
-      const batchSize = cachedOnly ? MATERIALIZED_BATCH_SIZE : LIVE_BATCH_SIZE;
+      const batchSize = cachedOnly ? materializedBatchSizeSetting.get() : liveBatchSizeSetting.get();
 
       const { currentUser } = context;
       const analyticsDb = getAnalyticsConnectionOrThrow();
