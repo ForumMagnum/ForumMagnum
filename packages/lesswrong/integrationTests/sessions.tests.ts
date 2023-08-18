@@ -157,6 +157,8 @@ describe("Sessions", () => {
         done();
       });
     });
+    // TODO: the problem here is that these can execute out of order because they wrap
+    // void-ed promises
     state.store.set(sessionId, sessionData);
     state.store.set(sessionId, sessionUpdate);
   }, 40000);
