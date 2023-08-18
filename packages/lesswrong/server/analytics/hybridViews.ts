@@ -140,7 +140,8 @@ export class HybridView {
 
   async ensureView() {
     if (await this.viewExists()) {
-      await this.dropOldVersions();
+      // TODO add something like this back in
+      // await this.dropOldVersions();
       return;
     }
 
@@ -156,7 +157,8 @@ export class HybridView {
       `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0), true)})`
     );
 
-    await this.dropOldVersions();
+    // TODO add something like this back in
+    // await this.dropOldVersions();
   }
 
   async ensureIndexes() {
