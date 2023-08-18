@@ -28,7 +28,7 @@ const endTimeIndexGenerator = (viewName: string) => `
 `;
 
 const startTimeIndexGenerator = (viewName: string) => `
-  CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
+  CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_start);
 `;
 
 const postIndexGenerator = (viewName: string) => `

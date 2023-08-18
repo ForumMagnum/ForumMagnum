@@ -96,7 +96,7 @@ export const useMultiPostAnalytics = ({
 }) => {
   const isStaleDataAllowed = !["views", "reads"].includes(sortBy ?? "") && !!(userId || (postIds && postIds.length > 1));
 
-  const [fetchingStaleData, setFetchStaleData] = useState(isStaleDataAllowed);
+  const [fetchingStaleData, setFetchingStaleData] = useState(isStaleDataAllowed);
   const nonStaleFetchCountRef = useRef(0);
   const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
 
@@ -118,7 +118,7 @@ export const useMultiPostAnalytics = ({
   useEffect(() => {
     // If we already have data, then set fetchStaleData to do a followup fetch for the latest data
     if ((fetchingStaleData && data) || isStaleDataAllowed) {
-      setFetchStaleData(false);
+      setFetchingStaleData(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, sortBy, fetchingStaleData]);
