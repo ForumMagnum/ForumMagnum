@@ -20,8 +20,13 @@ import { generateDateSeries } from "../../lib/helpers";
 // the index on post_id (via get_post_id_from_path(event ->> 'path'::text)). If you give it too
 // many ids at once it will try to filter by timestamp first and then sequentially scan to filter
 // by post_id, which is much (much!) slower.
-const MAX_CONCURRENT_QUERIES = 6;
-const LIVE_BATCH_SIZE = 5;
+const MAX_CONCURRENT_QUERIES = 8;
+// Note: there is currently a bug/behaviour where, just after the materialized view is refreshed, postgres
+// is even more averse to using the index on post_id. This is because the amount of live data to check is smaller
+// so it thinks it's faster to just use the filter on timestamp and then scan through to filter by post_id, this is
+// in fact much slower. I'm trying ways to get around this, but for now I've just set the batch size to 1, which does
+// cause it to spam a lot of queries, but even so it's much faster than the alternative.
+const LIVE_BATCH_SIZE = 1;
 const MATERIALIZED_BATCH_SIZE = 50;
 
 /**

@@ -182,7 +182,10 @@ export class HybridView {
     if (!(await this.viewExists())) {
       await this.ensureView();
       await this.ensureIndexes();
-    } else {
+      return;
+    }
+    
+    if (!(await this.refreshInProgress())) {
       await this.ensureIndexes();
       try {
         await this.viewSqlClient.none(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.matViewName}"`);
@@ -191,7 +194,11 @@ export class HybridView {
         console.error(`Failed to refresh materialized view "${this.matViewName}". This may be because there is no unique index, which is required to refresh "CONCURRENTLY" (i.e. without locking the view from reads)`);
         throw e;
       }
+      return;
     }
+
+    // eslint-disable-next-line no-console
+    console.log(`Materialized view ${this.matViewName} is already in the process of being refreshed.`);
   }
 
   async virtualTable() {
@@ -303,6 +310,16 @@ export function getHybridView(identifier: string): HybridView | undefined {
 
 export async function refreshHybridViews() {
   Object.values(hybridViews).map((hybridView) => void hybridView.refreshMaterializedView());
+
+  const analyticsDb = getAnalyticsConnection();
+
+  if (!analyticsDb) {
+    // eslint-disable-next-line no-console
+    console.log("No analytics DB configured, not performing VACUUM ANALYZE");
+    return;
+  }
+
+  void analyticsDb.none("VACUUM ANALYZE;");
 }
 
 addCronJob({
