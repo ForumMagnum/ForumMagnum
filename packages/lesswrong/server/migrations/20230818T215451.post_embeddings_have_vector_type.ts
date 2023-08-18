@@ -1,6 +1,6 @@
 import { EMBEDDINGS_VECTOR_SIZE } from "../../lib/collections/postEmbeddings/schema";
 
-export const acceptsSchemaHash = "92d86f7f1604cb3549a341bbb15a079e";
+export const acceptsSchemaHash = "87520014b627c9ee151523bd05e7bdae";
 
 export const up = async ({db}: MigrationContext) => {
   const n = EMBEDDINGS_VECTOR_SIZE;

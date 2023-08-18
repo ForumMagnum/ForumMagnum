@@ -556,11 +556,18 @@ export const getSignatureWithNote = (name: string, note: string) => {
   return `${getSignature(name)}: ${note}\n`;
 };
 
-export function getNewModActionNotes(responsibleAdminName: string, modActionType: DbModeratorAction["type"], sunshineNotes: string) {
-  const modActionDescription = MODERATOR_ACTION_TYPES[modActionType];
-  const newNote = getSignatureWithNote(responsibleAdminName, ` "${modActionDescription}"`);
-  const oldNotes = sunshineNotes ?? '';
-  return `${newNote}${oldNotes}`;
+export async function appendToSunshineNotes({moderatedUserId, adminName, text, context}: {
+  moderatedUserId: string,
+  adminName: string,
+  text: string,
+  context: ResolverContext,
+}): Promise<void> {
+  const moderatedUser = await context.Users.findOne({_id: moderatedUserId});
+  if (!moderatedUser) throw "Invalid userId in appendToSunshineNotes";
+  const newNote = getSignatureWithNote(adminName, text);
+  const oldNotes = moderatedUser.sunshineNotes ?? "";
+  const updatedNotes = `${newNote}${oldNotes}`;
+  await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
 export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {

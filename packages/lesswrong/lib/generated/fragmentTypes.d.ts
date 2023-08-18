@@ -231,6 +231,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly unsubscribeFromAll: boolean,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
+  readonly hideHomeRHS: boolean,
   readonly frontpagePostCount: number,
   readonly sequenceCount: number,
   readonly sequenceDraftCount: number,
@@ -250,6 +251,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
   readonly needsReview: boolean,
@@ -2287,6 +2289,7 @@ interface TagFullContributorsList { // fragment on Tags
 }
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
+  readonly isPostType: boolean,
   readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
@@ -2433,6 +2436,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly afCommentCount: number,
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
+  readonly reviewedByUserId: string,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
@@ -2550,6 +2554,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
+  readonly hideHomeRHS: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
@@ -2630,6 +2635,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly hideFrontpageBook2020Ad: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2898,7 +2904,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
 }
 

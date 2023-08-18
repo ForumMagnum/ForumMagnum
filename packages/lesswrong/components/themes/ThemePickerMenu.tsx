@@ -101,7 +101,7 @@ const ThemePickerMenu = ({children, classes}: {
                 </LWTooltip>
               </Typography>
             </div>
-            {allForumTypes.map((forumType: ForumTypeString) =>
+            {[...allForumTypes.keys()].map((forumType: ForumTypeString) =>
               <DropdownItem
                 key={forumType}
                 title={forumType}

@@ -1,3 +1,5 @@
+import sum from "lodash/sum";
+import groupBy from "lodash/groupBy";
 import range from "lodash/range";
 import moment from "moment";
 import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo } from "../lib/rateLimits/types";
@@ -8,9 +10,11 @@ function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInf
     _id: "vote1",
     documentId: "comment1",
     postedAt: new Date(),
+    votedAt: new Date(),
     power: 1,
     collectionName: "Comments",
-    userId: "user1"
+    userId: "user1",
+    totalDocumentKarma: 0 
   } as const
   return {...defaultVoteInfo, ...overrideVoteFields}
 } 
@@ -54,9 +58,17 @@ function createUserKarmaInfo(overrideFields?: Partial<UserKarmaInfo>): UserKarma
   return { ...defaultUserKarmaInfo, ...overrideFields}
 }
 
+function assignTotalDocumentKarma(votes: RecentVoteInfo[]) {
+  const documentKarmaTotals = groupBy(votes, vote => vote.documentId);
+  return votes.map(vote => ({
+    ...vote,
+    totalDocumentKarma: sum(documentKarmaTotals[vote.documentId].map(vote => vote.power))
+  }));
+}
+
 describe("calculateRecentKarmaInfo", function () {
 
-  const commentVotes: RecentVoteInfo[] = [
+  let commentVotes: RecentVoteInfo[] = [
     ...range(20).map(k =>  createCommentVote({
       documentId: `comment${k}`,
       power: 1,
@@ -66,17 +78,19 @@ describe("calculateRecentKarmaInfo", function () {
       documentId: `comment${k}`,
       power: -1,
       postedAt: moment().subtract(k, 'days').toDate(),
-      userId: `downvoter${k}`
+      userId: `downvoter${k}`,
     })),
     ...range(2).map(k =>  createCommentVote({
       documentId: `comment${k}`,
       power: -1,
       postedAt: moment().subtract(k, 'days').toDate(),
-      userId: `downvoterA`
+      userId: `downvoterA`,
     }))
-  ]
+  ];
+
+  commentVotes = assignTotalDocumentKarma(commentVotes);
   
-  const postVotes: RecentVoteInfo[] = [
+  let postVotes: RecentVoteInfo[] = [
     ...range(20).map(k =>  createPostVote({
       documentId: `post${k}`,
       power: 2, 
@@ -94,7 +108,9 @@ describe("calculateRecentKarmaInfo", function () {
       postedAt: moment().subtract(k+1, 'weeks').toDate(),
       userId: `postDownvoterB`
     }))
-  ]
+  ];
+
+  postVotes = assignTotalDocumentKarma(postVotes);
   
   const votes: RecentVoteInfo[] = [
     ...commentVotes,
@@ -162,7 +178,7 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user post karma is less than recentPostKarmaThreshold", () => {
     const recentKarmaInfoPostVotes = calculateRecentKarmaInfo("authorId", postDownVotes)
     const recentKarmaInfoCommentVotes = calculateRecentKarmaInfo("authorId", commentDownVotes)
-    const rateLimit = createCommentRateLimit({recentPostKarmaThreshold: -1})
+    const rateLimit = createCommentRateLimit({last20PostKarmaThreshold: -1})
     const user1 = createUserKarmaInfo()
     
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfoPostVotes)).toEqual(true)
@@ -171,7 +187,7 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user comment karma is less than recentCommentKarmaThreshold", () => {
     const recentKarmaInfoPostVotes = calculateRecentKarmaInfo("authorId", postDownVotes)
     const recentKarmaInfoCommentVotes = calculateRecentKarmaInfo("authorId", commentDownVotes)
-    const rateLimit = createCommentRateLimit({recentCommentKarmaThreshold: -1})
+    const rateLimit = createCommentRateLimit({last20CommentKarmaThreshold: -1})
     const user1 = createUserKarmaInfo()
     
     expect(shouldRateLimitApply(user1, rateLimit, recentKarmaInfoPostVotes)).toEqual(false)

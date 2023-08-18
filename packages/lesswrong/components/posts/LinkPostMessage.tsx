@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     wordBreak: 'break-word',
     width: '100%',
     padding: 16,
-    margin: "-14px 0 18px 0",
+    marginBottom: 18,
     backgroundColor: theme.palette.grey[100],
     color: theme.palette.grey[1000],
     boxSizing: 'border-box',
@@ -21,21 +21,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
   },
-  noMargin: {
-    marginBottom: 0
+  negativeTopMargin: {
+    marginTop: -14,
   }
 })
 
-const LinkPostMessage = ({post, classes, noMargin}: {
+const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   post: PostsBase,
   classes: ClassesType,
-  noMargin?: boolean
+  negativeTopMargin?: boolean
 }) => {
   if (!post.url)
     return null;
 
   return (
-    <div className={classNames(classes.root, {[classes.noMargin]:noMargin})}>
+    <div className={classNames(classes.root, {[classes.negativeTopMargin]: negativeTopMargin})}>
       This is a linkpost for <a href={postGetLink(post)} target={postGetLinkTarget(post)}>{post.url}</a>
     </div>
   );

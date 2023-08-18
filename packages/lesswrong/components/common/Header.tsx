@@ -12,8 +12,9 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -126,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
     "& .headroom": {
-      top: 0,
+      top: "unset",
       left: 0,
       right: 0,
       zIndex: 1300,
@@ -175,7 +176,6 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
-  
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -273,7 +273,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
     </React.Fragment>
   }
 
-  const hasLogo = forumTypeSetting.get() === 'EAForum'
+  const hasLogo = isEAForum;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -294,16 +294,15 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
           disableInlineStyles
           downTolerance={10} upTolerance={10}
           height={64}
-          className={classNames(
-            classes.headroom,
-            { [classes.headroomPinnedOpen]: searchOpen }
-          )}
+          className={classNames(classes.headroom, {
+            [classes.headroomPinnedOpen]: searchOpen,
+          })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
           <header className={classes.appBar}>
-            <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
+            <Toolbar disableGutters={isEAForum}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
