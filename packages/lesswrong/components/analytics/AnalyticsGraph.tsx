@@ -162,28 +162,28 @@ const startEndDateFromOption = (option: string) => {
   switch (option) {
     case dateOptions.last7Days.value:
       return {
-        startDate: moment(now).subtract(7, "days").startOf("day").toDate(),
-        endDate: moment(now).endOf("day").toDate(),
+        startDate: moment(now).utc().subtract(7, "days").startOf("day").toDate(),
+        endDate: moment(now).utc().endOf("day").toDate(),
       };
     case dateOptions.last30Days.value:
       return {
-        startDate: moment(now).subtract(30, "days").startOf("day").toDate(),
-        endDate: moment(now).endOf("day").toDate(),
+        startDate: moment(now).utc().subtract(30, "days").startOf("day").toDate(),
+        endDate: moment(now).utc().endOf("day").toDate(),
       };
     case dateOptions.last90Days.value:
       return {
-        startDate: moment(now).subtract(90, "days").startOf("day").toDate(),
-        endDate: moment(now).endOf("day").toDate(),
+        startDate: moment(now).utc().subtract(90, "days").startOf("day").toDate(),
+        endDate: moment(now).utc().endOf("day").toDate(),
       };
     case dateOptions.allTime.value:
       return {
         startDate: null,
-        endDate: moment(now).endOf("day").toDate(),
+        endDate: moment(now).utc().endOf("day").toDate(),
       };
     default:
       return {
-        startDate: moment(now).subtract(90, "days").startOf("day").toDate(),
-        endDate: moment(now).endOf("day").toDate(),
+        startDate: moment(now).utc().subtract(90, "days").startOf("day").toDate(),
+        endDate: moment(now).utc().endOf("day").toDate(),
       };
   }
 }
