@@ -21,6 +21,18 @@ type EmbeddingsResult = {
   model: string,
 }
 
+/**
+ * OpenAI models have a maximum number of "tokens" that the input can consist of.
+ * What a token is exactly is non-trivial and must be calculated using the
+ * tiktoken library, but a good general rule of thumb is that 1 token is approximately
+ * 4 characters.
+ *
+ * This function trims a given input to make sure it contains less than `maxTokens`
+ * tokens. It does this by iteratively reducing the length of the string using
+ * the "1 token ~= 4 chars" heuristic, and then checking the result against the
+ * actually encoding length. In the vast majority of cases, no more than 2
+ * iterations of the loop should be necessary.
+ */
 const trimText = (
   text: string,
   model: TiktokenModel,
@@ -33,7 +45,6 @@ const trimText = (
     encoded.length > maxTokens;
     encoded = encoding.encode(text)
   ) {
-    // 1 token is ~4 characters
     const charsToRemove = 1 + ((encoded.length - maxTokens) * 4);
     text = text.slice(0, text.length - charsToRemove);
   }
