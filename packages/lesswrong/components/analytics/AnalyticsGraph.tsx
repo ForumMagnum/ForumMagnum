@@ -161,7 +161,7 @@ const dateOptions = {
     label: "Custom",
     value: "custom",
   }
-}
+} as const;
 
 const startEndDateFromOption = (option: string) => {
   const now = new Date();

@@ -249,7 +249,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     desc: sortDesc,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, ForumDropdown } = Components;
+  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
   if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
@@ -306,7 +306,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
               </div>
             </div>
             {renderHeaderCell("views", "Views")}
-            {renderHeaderCell("reads", "Reads")}
+            <LWTooltip title="Unique views 30s or longer" placement="top">{renderHeaderCell("reads", "Reads")}</LWTooltip>
             {renderHeaderCell("baseScore", "Karma")}
             {renderHeaderCell("commentCount", "Comments")}
           </div>
