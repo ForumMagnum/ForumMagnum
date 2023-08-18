@@ -13367,6 +13367,11 @@ pgpass@1.x:
   dependencies:
     split2 "^3.1.1"
 
+pgvector@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/pgvector/-/pgvector-0.1.4.tgz#b7688e90ca1fc949ace7e52535f670e66b4a7658"
+  integrity sha512-RjtsAZJOqTme0tk5TRa0sgYnXoYHKf9hembmHjvGc8LmBLHQr3sFpoPEi4WpHONMxvlEv/K9bHC0fzlAEExj1w==
+
 picocolors@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
