@@ -5,6 +5,7 @@ import qs from "qs";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
+import stringify from "json-stringify-deterministic";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -36,6 +37,36 @@ type AnalyticsSeriesQueryResult = {
   AnalyticsSeries: AnalyticsSeriesValue[];
 };
 
+const AuthorAnalyticsQuery = gql`
+  query AuthorAnalyticsQuery($userId: String!, $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
+    AuthorAnalytics(userId: $userId, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
+      posts {
+        _id
+        title
+        slug
+        postedAt
+        views
+        reads
+        karma
+        comments
+      }
+      totalCount
+    }
+  }
+`;
+
+const AnalyticsSeriesQuery = gql`
+  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date, $cachedOnly: Boolean) {
+    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate, cachedOnly: $cachedOnly) {
+      date
+      views
+      reads
+      karma
+      comments
+    }
+  }
+`;
+
 /**
  * Fetches analytics for a given user, sorted by a given field. The reason for all the complexity here is that it
  * does one fetch for only materialized data and then a followup fetch for the latest data. This is because fetching the
@@ -57,27 +88,9 @@ export const useAuthorAnalytics = ({
   itemsPerPage?: number;
   queryLimitName?: string;
 }) => {
-  const AuthorAnalyticsQuery = gql`
-    query AuthorAnalyticsQuery($userId: String!, $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
-      AuthorAnalytics(userId: $userId, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
-        posts {
-          _id
-          title
-          slug
-          postedAt
-          views
-          reads
-          karma
-          comments
-        }
-        totalCount
-      }
-    }
-  `;
-
   const [staleDataAllowed, setStaleDataAllowed] = useState(!["views", "reads"].includes(sortBy ?? ""));
   const nonStaleFetchCountRef = useRef(0);
-  const refetchKeyRef = useRef(JSON.stringify({userId, sortBy, desc}))
+  const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
 
   const { query: locationQuery } = useLocation();
   const { history } = useNavigation();
@@ -101,17 +114,17 @@ export const useAuthorAnalytics = ({
   }, [data, sortBy, staleDataAllowed]);
   
   const dataRef = useRef(data?.AuthorAnalytics);
-  if ((data?.AuthorAnalytics && data?.AuthorAnalytics !== dataRef.current) || refetchKeyRef.current !== JSON.stringify({userId, sortBy, desc})) {
+  if ((data?.AuthorAnalytics && data?.AuthorAnalytics !== dataRef.current) || refetchKeyRef.current !== stringify({userId, sortBy, desc})) {
     if (!staleDataAllowed) {
       nonStaleFetchCountRef.current++;
     }
     dataRef.current = data?.AuthorAnalytics;
-    refetchKeyRef.current = JSON.stringify({userId, sortBy, desc});
+    refetchKeyRef.current = stringify({userId, sortBy, desc});
   }
 
   const currentData = dataRef.current;
-  const totalCount = (currentData?.totalCount ?? 0)
-  const count = (currentData?.posts?.length ?? 0)
+  const totalCount = currentData?.totalCount ?? 0
+  const count = currentData?.posts?.length ?? 0
   const showLoadMore = userId && (count < totalCount);
 
   const loadMore = async (limitOverride?: number) => {
@@ -172,24 +185,13 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   maybeStale: boolean;
   error?: ApolloError
 } => {
-  const AnalyticsSeriesQuery = gql`
-    query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date, $cachedOnly: Boolean) {
-      AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate, cachedOnly: $cachedOnly) {
-        date
-        views
-        reads
-        karma
-        comments
-      }
-    }
-  `;
   const { userId, postIds, startDate: propsStartDate, endDate: propsEndDate } = props;
 
   const fetchDateRef = useRef({ startDate: propsStartDate, endDate: propsEndDate });
   
   if (
     (fetchDateRef.current.startDate ?? 0) > (propsStartDate ?? 0) ||
-    // TODO make clearer
+    // If we are changing from null to non-null or vice versa, we need to refetch
     ([fetchDateRef.current.startDate, propsStartDate].includes(null) &&
       fetchDateRef.current.startDate !== propsStartDate)
   )
@@ -199,7 +201,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const { startDate, endDate } = fetchDateRef.current;
 
   const [activeVariables, setActiveVariables] = useState({});
-  const variablesAreActive = JSON.stringify(activeVariables) === JSON.stringify({ userId, postIds, startDate, endDate });
+  const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
   const cachedOnly = !variablesAreActive;
   const variables = { userId, postIds, startDate, endDate, cachedOnly };

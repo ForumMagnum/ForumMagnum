@@ -127,9 +127,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LINE_COLORS: Record<AnalyticsField, string> = {
-  reads: requireCssVar("palette", "primary", "main"),
-  views: requireCssVar("palette", "primary", "light"),
-  karma: requireCssVar("palette", "graph", "analyticsKarma"),
+  reads: requireCssVar("palette", "graph", "analyticsKarma"),
+  views: requireCssVar("palette", "primary", "main"),
+  karma: requireCssVar("palette", "primary", "light"),
   comments: requireCssVar("palette", "grey", 800),
 };
 
@@ -275,10 +275,10 @@ export const AnalyticsGraph = ({
     // only select the fields we want to display
     return {
       date: dataPoint.date,
-      ...displayFields.reduce((acc, field) => {
+      ...displayFields.reduce<Partial<Record<AnalyticsField, number>>>((acc, field) => {
         acc[field] = dataPoint[field] ?? 0;
         return acc;
-      }, {} as Partial<Record<AnalyticsField, number>>),
+      }, {}),
     };
   });
 
