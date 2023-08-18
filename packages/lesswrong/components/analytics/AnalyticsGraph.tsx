@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
 import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hooks/useAnalytics";
@@ -282,7 +283,7 @@ export const AnalyticsGraph = ({
     };
   });
 
-  const getTooltipContent = useCallback(({ active, payload, label }: AnyBecauseHard) => {
+  const getTooltipContent = useCallback(({ active, payload, label }: TooltipProps<string, string>) => {
     if (!(active && payload && payload.length)) return null;
 
     const date = new Date(payload[0].payload["date"]);
