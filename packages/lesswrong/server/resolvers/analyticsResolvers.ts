@@ -13,7 +13,6 @@ import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView
 import moment from "moment";
 import groupBy from "lodash/groupBy";
 import { executeChunkedQueue } from "../../lib/utils/asyncUtils";
-import { CommentsRepo, VotesRepo } from "../repos";
 import { generateDateSeries } from "../../lib/helpers";
 
 // Queries are executed in batches of post ids. This is mainly to coerce postgres into using

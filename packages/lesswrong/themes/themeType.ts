@@ -436,7 +436,7 @@ declare global {
       hoverBackground: ColorString,
     },
     graph: {
-      analyticsKarma: ColorString,
+      analyticsReads: ColorString,
     },
     group: ColorString,
     contrastText: ColorString,

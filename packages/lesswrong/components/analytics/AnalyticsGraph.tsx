@@ -127,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const LINE_COLORS: Record<AnalyticsField, string> = {
-  reads: requireCssVar("palette", "graph", "analyticsKarma"),
+  reads: requireCssVar("palette", "graph", "analyticsReads"),
   views: requireCssVar("palette", "primary", "main"),
   karma: requireCssVar("palette", "primary", "light"),
   comments: requireCssVar("palette", "grey", 800),

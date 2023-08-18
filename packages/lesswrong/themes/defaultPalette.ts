@@ -484,7 +484,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     hoverBackground: grey[100],
   },
   graph: {
-    analyticsKarma: "#008800"
+    analyticsReads: "#008800"
   },
 
   commentParentScrollerHover: shades.greyAlpha(.075),
