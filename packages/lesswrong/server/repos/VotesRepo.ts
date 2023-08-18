@@ -298,4 +298,23 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       GROUP BY p._id
     `, [postIds]), "getDigestPlannerVotesForPosts");
   }
+
+  async getPostKarmaChangePerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
+    return await this.getRawDb().any<{window_start_key: string, karma_change: string}>(`
+      SELECT
+        -- Format as YYYY-MM-DD to make grouping easier
+        to_char(v."createdAt", 'YYYY-MM-DD') AS window_start_key,
+        SUM(v."power") AS karma_change
+      FROM "Votes" v
+      WHERE
+        v."documentId" IN ($1:csv)
+        AND ($2 IS NULL OR v."createdAt" >= $2)
+        AND v."createdAt" <= $3
+        AND v."cancelled" IS NOT TRUE
+      GROUP BY
+        window_start_key
+      ORDER BY
+        window_start_key;
+    `, [postIds, startDate, endDate]);
+  }
 }

@@ -1,7 +1,6 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "../../lib/sql/SelectQuery";
-import PgCollection from "../../lib/sql/PgCollection";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -137,5 +136,24 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Comments"`);
     return count;
+  }
+
+  async getCommentsPerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; comment_count: string }[]> {
+    return await this.getRawDb().any<{window_start_key: string, comment_count: string}>(`
+      SELECT
+        -- Format as YYYY-MM-DD to make grouping easier
+        to_char(c."postedAt", 'YYYY-MM-DD') AS window_start_key,
+        COUNT(c."postedAt") AS comment_count
+      FROM "Comments" c
+      WHERE
+        c."postId" IN ($1:csv)
+        AND ($2 IS NULL OR c."postedAt" >= $2)
+        AND c."postedAt" <= $3
+        AND c."deleted" IS NOT TRUE
+      GROUP BY
+        window_start_key
+      ORDER BY
+        window_start_key;
+    `, [postIds, startDate, endDate]);
   }
 }
