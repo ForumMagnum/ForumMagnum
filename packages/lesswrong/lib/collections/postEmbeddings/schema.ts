@@ -1,5 +1,7 @@
 import { foreignKeyField } from "../../utils/schemaUtils"
 
+export const EMBEDDINGS_VECTOR_SIZE = 1536;
+
 const commonFields = (nullable = false) => ({
   canRead: ["admins" as const],
   canCreate: ["admins" as const],
@@ -35,6 +37,7 @@ const schema: SchemaType<DbPostEmbedding> = {
   embeddings: {
     ...commonFields(),
     type: Array,
+    vectorSize: EMBEDDINGS_VECTOR_SIZE,
   },
   "embeddings.$": {
     type: Number,

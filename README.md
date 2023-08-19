@@ -65,6 +65,8 @@ createdb forummagnum
 
 (DB name is an arbitrary choice.)
 
+You must also have the [pgvector](https://github.com/pgvector/pgvector) Postgres extension installed.
+
 Configure the schema:
 
 ```bash
