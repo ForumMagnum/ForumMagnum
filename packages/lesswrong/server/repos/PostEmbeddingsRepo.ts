@@ -29,6 +29,6 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
         "postHash" = $3,
         "lastGeneratedAt" = $4,
         "embeddings" = $5
-    `, [randomId(), postId, postHash, now, embeddings, model]);
+    `, [randomId(), postId, postHash, now, JSON.stringify(embeddings), model]);
   }
 }
