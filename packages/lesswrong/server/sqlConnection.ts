@@ -1,4 +1,5 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
+import type { IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
@@ -10,6 +11,20 @@ const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTim
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
+  connect: async ({client}) => {
+    const result: IResult<{oid: number}> = await client.query(
+      "SELECT oid FROM pg_type WHERE typname = 'vector'",
+    );
+    if (result.rowCount < 1) {
+      // eslint-disable-next-line no-console
+      console.warn("vector type not found in the database");
+      return;
+    }
+    const oid = result.rows[0].oid;
+    (client as AnyBecauseHard).setTypeParser(oid, "text", (value: string) => {
+      return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
+    });
+  },
   error: (err, ctx) => {
     // If it's a syntax error, print the bad query for debugging
     if (typeof err.code === "string" && err.code.startsWith("42")) {
