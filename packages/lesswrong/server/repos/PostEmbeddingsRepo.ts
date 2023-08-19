@@ -13,6 +13,9 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
     model: string,
     embeddings: number[],
   ): Promise<null> {
+    if (!Array.isArray(embeddings) || embeddings.length < 1) {
+      throw new Error("Cannot create post embeddings with empty array");
+    }
     const now = new Date();
     return this.none(`
       INSERT INTO "PostEmbeddings" (

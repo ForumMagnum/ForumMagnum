@@ -64,7 +64,8 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
-      newPost.status === postStatuses.STATUS_APPROVED
+      newPost.status === postStatuses.STATUS_APPROVED &&
+      !isAnyTest
     ) {
       try {
         await updatePostEmbeddings(newPost._id);
