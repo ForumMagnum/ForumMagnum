@@ -244,7 +244,8 @@ const onConnectQueries: string[] = [
       v."documentId" = c."_id" AND
       v."collectionName" = 'Comments' AND
       v."isUnvote" IS NOT TRUE AND
-      v."cancelled" IS NOT TRUE
+      v."cancelled" IS NOT TRUE AND
+      v."extendedVoteType" IS NULL
     WHERE c."_id" = comment_id;
   $$
   `,
