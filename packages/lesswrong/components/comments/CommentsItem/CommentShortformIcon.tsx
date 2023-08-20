@@ -2,10 +2,10 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  icon: isEAForum ? {
+  icon: isFriendlyUI ? {
     cursor: "pointer",
     color: theme.palette.grey[1000],
     height: 16,

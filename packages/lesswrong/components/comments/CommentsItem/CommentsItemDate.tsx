@@ -1,12 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
-import { isEAForum } from '../../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       marginLeft: 2,
       marginRight: 7,
     }),
@@ -73,7 +73,7 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
           date={comment.postedAt}
           format={dateFormat}
         />
-        {!isEAForum && <ForumIcon icon="Link" className={classes.icon} />}
+        {!isFriendlyUI && <ForumIcon icon="Link" className={classes.icon} />}
       </LinkWrapper>
     </span>
   );

@@ -10,6 +10,7 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -33,11 +34,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: isEAForum ? 40 : 20,
+    marginRight: isFriendlyUI ? 40 : 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -48,14 +49,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: isEAForum ? 6 : 5,
+    marginRight: isFriendlyUI ? 6 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
     paddingBottom: 4,
     display: "inline-block",
     verticalAlign: "middle",
-    transform: isEAForum ? "translateY(3px)" : undefined,
+    transform: isFriendlyUI ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
@@ -69,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(90deg)",
   },
   username: {
-    marginRight: isEAForum ? 0 : 6,
+    marginRight: isFriendlyUI ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -106,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   rightSection: {
     position: "absolute",
-    right: isEAForum ? -46 : -26,
+    right: isFriendlyUI ? -46 : -26,
     top: 12,
     display: "flex",
   },
@@ -118,7 +119,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1,
   },
-  menu: isEAForum
+  menu: isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
     }
@@ -240,7 +241,7 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isEAForum
+          {isFriendlyUI
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
                 classes.collapseChevron,
                 {[classes.collapseChevronOpen]: !collapsed},
@@ -301,7 +302,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={!isEAForum}
+            neverCoreStyling={!isFriendlyUI}
             smallText
           />
         )}
@@ -313,7 +314,7 @@ export const CommentsItemMeta = ({
       </span>}
 
       <span className={classes.rightSection}>
-        {isEAForum &&
+        {isFriendlyUI &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classes.linkIcon} />
           </CommentLinkWrapper>

@@ -11,7 +11,6 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
@@ -21,6 +20,7 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -62,9 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: isEAForum ? 600 : theme.typography.body1.fontWeight,
+    fontWeight: isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    fontSize: isEAForum ? "1.1rem" : undefined,
+    fontSize: isFriendlyUI ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
@@ -74,10 +74,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -theme.spacing.unit*1.5
   },
   bottom: {
-    paddingBottom: isEAForum ? 12 : 5,
-    paddingTop: isEAForum ? 4 : undefined,
+    paddingBottom: isFriendlyUI ? 12 : 5,
+    paddingTop: isFriendlyUI ? 4 : undefined,
     minHeight: 12,
-    ...(isEAForum ? {} : {fontSize: 12}),
+    ...(isFriendlyUI ? {} : {fontSize: 12}),
   },
   bottomWithReacts: {
     display: "flex",
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: isEAForum ? theme.borderRadius.small : 0,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
