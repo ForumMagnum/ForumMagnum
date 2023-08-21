@@ -428,6 +428,7 @@ importComponent("OverallVoteAxis", () => require('../components/votes/OverallVot
 importComponent("VoteOnComment", () => require('../components/votes/VoteOnComment'));
 importComponent("TwoAxisVoteOnComment", () => require('../components/votes/TwoAxisVoteOnComment'));
 importComponent("EAEmojisVoteOnComment", () => require('../components/votes/EAEmojisVoteOnComment'));
+importComponent("EAEmojisVoteOnPost", () => require('../components/votes/EAEmojisVoteOnPost'));
 importComponent("EAEmojiPalette", () => require('../components/votes/EAEmojiPalette'));
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
 importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));

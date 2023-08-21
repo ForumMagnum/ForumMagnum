@@ -23,8 +23,14 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
   voteProps: VotingProps<VoteableTypeClient>,
 }
 
+export type PostVotingComponentProps = {
+  document: PostsPage,
+  votingSystem: VotingSystem,
+}
+
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
+export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
@@ -32,6 +38,7 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
   getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getPostVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -263,6 +270,7 @@ registerVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
+  getPostVotingComponent: () => Components.EAEmojisVoteOnPost,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,
