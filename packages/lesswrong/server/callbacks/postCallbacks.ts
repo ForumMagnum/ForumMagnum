@@ -28,7 +28,7 @@ import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { updatePostEmbeddings } from '../embeddings';
+import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -56,13 +56,16 @@ if (isEAForum) {
   }
   getCollectionHooks("Posts").newSync.add(assertPostTitleHasNoEmojis);
   getCollectionHooks("Posts").updateBefore.add(assertPostTitleHasNoEmojis);
+}
 
+if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
     const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
-      newPost.status === postStatuses.STATUS_APPROVED
+      newPost.status === postStatuses.STATUS_APPROVED &&
+      !isAnyTest
     ) {
       try {
         await updatePostEmbeddings(newPost._id);

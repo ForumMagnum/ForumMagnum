@@ -155,6 +155,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
+  async getPostIdsWithoutEmbeddings(): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT p."_id"
+      FROM "Posts" p
+      LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
+      WHERE
+        pe."embeddings" IS NULL AND
+        COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
+    `);
+    return results.map(({_id}) => _id);
+  }
+
   private getSearchDocumentQuery(): string {
     return `
       SELECT

@@ -10,6 +10,7 @@ import {
   NotNullType,
   DefaultValueType,
   UnknownType,
+  VectorType,
 } from "../../lib/sql/Type";
 import { Posts } from "../../lib/collections/posts/collection";
 
@@ -114,6 +115,18 @@ describe("SQL Type", () => {
     });
     it("Is concrete", () => {
       const type = new ArrayType(new StringType());
+      expect(type.toConcrete()).toBe(type);
+    });
+  });
+  describe("VectorType", () => {
+    it("Is Postgres vector", () => {
+      expect(new VectorType(1234).toString()).toBe("VECTOR(1234)");
+    });
+    it("Is scalar", () => {
+      expect(new VectorType(1234).isArray()).toBe(false);
+    });
+    it("Is concrete", () => {
+      const type = new VectorType(1234);
       expect(type.toConcrete()).toBe(type);
     });
   });
