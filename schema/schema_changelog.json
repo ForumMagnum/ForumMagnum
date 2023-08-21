@@ -288,5 +288,10 @@
     "acceptsSchemaHash": "87520014b627c9ee151523bd05e7bdae",
     "acceptedByMigration": "20230818T215451.post_embeddings_have_vector_type.ts",
     "timestamp": "2023-08-18T21:54:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a368523cc273895e66ea4bcc3e70f9d9",
+    "acceptedByMigration": "20230821T180718.add_forceAllowType3Audio.ts",
+    "timestamp": "2023-08-21T18:07:18.000Z"
   }
 ]
