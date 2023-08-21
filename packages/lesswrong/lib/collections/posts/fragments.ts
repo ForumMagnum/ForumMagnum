@@ -124,6 +124,7 @@ registerFragment(`
     }
 
     podcastEpisodeId
+    forceAllowType3Audio
 
     # deprecated
     nominationCount2019

@@ -1132,6 +1132,18 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.audio,
     nullable: true
   },
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    hidden: false,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    order: 13,
+    group: formGroups.adminOptions,
+  },
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     type: Boolean,
