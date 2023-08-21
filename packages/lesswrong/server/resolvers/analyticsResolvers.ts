@@ -27,7 +27,7 @@ const MAX_CONCURRENT_QUERIES = 8;
 // in fact much slower. I'm trying ways to get around this, but for now I've just set the batch size to 1, which does
 // cause it to spam a lot of queries, but even so it's much faster than the alternative.
 const liveBatchSizeSetting = new DatabasePublicSetting<number>("analytics.liveBatchSize", 1);
-const materializedBatchSizeSetting = new DatabasePublicSetting<number>("analytics.materializedBatchSize", 1);
+const materializedBatchSizeSetting = new DatabasePublicSetting<number>("analytics.materializedBatchSize", 50);
 
 /**
  * Based on an analytics query, returns a function that runs that query
