@@ -9,16 +9,14 @@ import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
 import { isEAForum } from "../../lib/instanceSettings";
+import classNames from "classnames";
 
 const GRAPH_HEIGHT = 300;
 
-// lw-look-here
-// TODO Add these back in
-const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021";
-const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01";
-const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020";
-
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
   graphContainer: {
     marginTop: 12,
     "& .recharts-cartesian-axis-tick-value": {
@@ -37,6 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
     }
   },
+  graphHeaderSmallerTitle: {
+    [theme.breakpoints.down('xs')]: {
+      minHeight: 42,
+    }
+  },
   graphHeading: {
     fontSize: 32,
     fontWeight: "600",
@@ -45,6 +48,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       lineHeight: '1.2em',
     }
+  },
+  smallerTitle: {
+    fontSize: 20,
   },
   fetchingLatest: {
     fontSize: 14,
@@ -123,7 +129,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dateDropdown: {
     alignSelf: "flex-start",
-    margin: '4px 0'
+    margin: '4px 0',
   }
 });
 
@@ -155,7 +161,7 @@ const dateOptions = {
     label: "Custom",
     value: "custom",
   }
-} as const
+} as const;
 
 const startEndDateFromOption = (option: string) => {
   const now = new Date();
@@ -213,20 +219,20 @@ export const AnalyticsGraph = ({
   postIds,
   initialDisplayFields = ["views", "reads"],
   title,
+  smallerTitle = false,
   classes,
 }: {
   initialDisplayFields?: AnalyticsField[];
   userId?: string;
   postIds?: string[];
-  title: string;
+  title?: string;
+  smallerTitle?: boolean;
   classes: ClassesType;
 }) => {
   const { Typography, ForumDropdown } = Components;
 
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
-  
-  const now = new Date();
 
   const {startDate: fallbackStartDate, endDate: fallbackEndDate} = startEndDateFromOption(dateOption);
   const [displayStartDate, setDisplayStartDate] = useState<Date | null>(fallbackStartDate);
@@ -318,9 +324,9 @@ export const AnalyticsGraph = ({
   const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 3;
 
   return (
-    <div>
-      <div className={classes.graphHeader}>
-        <Typography variant="headline" className={classes.graphHeading}>
+    <div className={classes.root}>
+      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle})}>
+        <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
           {title}
         </Typography>
         {maybeStale && <span className={classes.fetchingLatest}>

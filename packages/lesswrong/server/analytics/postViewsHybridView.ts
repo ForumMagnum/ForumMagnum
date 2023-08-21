@@ -5,6 +5,7 @@ export const POST_VIEWS_IDENTIFIER = "post_views";
 const viewQuery = (crossoverTime: Date, materialized = false) => `
     SELECT
       count(*) AS view_count,
+      count(DISTINCT client_id) AS unique_view_count,
       post_id,
       (date_trunc('day', timestamp) + interval '1 second') AS window_start,
       (date_trunc('day', timestamp) + interval '1 day') AS window_end

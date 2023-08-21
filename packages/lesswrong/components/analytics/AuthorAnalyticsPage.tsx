@@ -5,14 +5,13 @@ import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
 import { getUserFromResults } from "../users/UsersProfile";
-import { PostAnalytics2Result, useAuthorAnalytics } from "../hooks/useAnalytics";
+import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import moment from "moment";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
-import { isEAForum } from "../../lib/instanceSettings";
 
 const mdTitleWidth = 60;
 const smTitleWidth = 50;
@@ -240,17 +239,17 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   };
 
   const {
-    authorAnalytics,
+    data,
     loading: analyticsLoading,
     maybeStale,
     loadMoreProps,
-  } = useAuthorAnalytics({
+  } = useMultiPostAnalytics({
     userId: user?._id,
     sortBy,
     desc: sortDesc,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph } = Components;
+  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
   if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
@@ -260,7 +259,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const title = `Stats for ${user.displayName}`;
 
-  const posts = authorAnalytics?.posts || [];
+  const posts = data?.posts || [];
 
   const renderHeaderCell = (headerField: string, label: string) => (
     <div onClick={() => onClickHeader(headerField)} className={classes.valueHeader}>
@@ -307,7 +306,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
               </div>
             </div>
             {renderHeaderCell("views", "Views")}
-            {renderHeaderCell("reads", "Reads")}
+            <LWTooltip title="Unique views 30s or longer" placement="top">{renderHeaderCell("reads", "Reads")}</LWTooltip>
             {renderHeaderCell("baseScore", "Karma")}
             {renderHeaderCell("commentCount", "Comments")}
           </div>

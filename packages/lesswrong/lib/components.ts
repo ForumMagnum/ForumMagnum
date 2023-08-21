@@ -33,6 +33,7 @@ importComponent("AlignmentForumHome", () => require('../components/alignment-for
 importComponent("AnalyticsGraph", () => require('../components/analytics/AnalyticsGraph'))
 importComponent("AuthorAnalyticsPage", () => require('../components/analytics/AuthorAnalyticsPage'))
 importComponent("PostsAnalyticsPage", () => require('../components/analytics/PostsAnalyticsPage'));
+importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
 importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
 
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
