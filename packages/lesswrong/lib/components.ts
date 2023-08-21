@@ -55,6 +55,7 @@ importComponent("EditDigestTableRow", () => require('../components/ea-forum/dige
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
+importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
