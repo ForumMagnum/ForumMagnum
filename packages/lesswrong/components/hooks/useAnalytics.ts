@@ -17,18 +17,20 @@ export type PostAnalytics2Result = {
   slug: string;
   postedAt: Date;
   views: number;
+  uniqueViews: number;
   reads: number;
+  meanReadingTime: number;
   karma: number;
   comments: number;
 };
 
-export type AuthorAnalyticsResult = {
+export type MultiPostAnalyticsResult = {
   posts: PostAnalytics2Result[];
   totalCount: number;
 };
 
-type AuthorAnalyticsQueryResult = {
-  AuthorAnalytics: AuthorAnalyticsResult;
+type MultiPostAnalyticsQueryResult = {
+  MultiPostAnalytics: MultiPostAnalyticsResult;
 };
 
 export type AnalyticsSeriesValue = ({[key in AnalyticsField]: number | null} & {date: Date});
@@ -37,16 +39,18 @@ type AnalyticsSeriesQueryResult = {
   AnalyticsSeries: AnalyticsSeriesValue[];
 };
 
-const AuthorAnalyticsQuery = gql`
-  query AuthorAnalyticsQuery($userId: String!, $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
-    AuthorAnalytics(userId: $userId, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
+const MultiPostAnalyticsQuery = gql`
+  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
+    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
       posts {
         _id
         title
         slug
         postedAt
         views
+        uniqueViews
         reads
+        meanReadingTime
         karma
         comments
       }
@@ -73,8 +77,9 @@ const AnalyticsSeriesQuery = gql`
  * latest data can be slow (usually it isn't, but I'm not 100% sure I've ironed out all the performance bugs) and so we
  * don't want to block the page loading on it
  */
-export const useAuthorAnalytics = ({
+export const useMultiPostAnalytics = ({
   userId,
+  postIds,
   sortBy,
   desc,
   initialLimit = 10,
@@ -82,13 +87,16 @@ export const useAuthorAnalytics = ({
   queryLimitName = "postsLimit",
 }: {
   userId?: string;
+  postIds?: string[];
   sortBy?: string;
   desc?: boolean;
   initialLimit?: number;
   itemsPerPage?: number;
   queryLimitName?: string;
 }) => {
-  const [staleDataAllowed, setStaleDataAllowed] = useState(!["views", "reads"].includes(sortBy ?? ""));
+  const isStaleDataAllowed = !["views", "reads"].includes(sortBy ?? "") && !!(userId || (postIds && postIds.length > 1));
+
+  const [fetchingStaleData, setFetchingStaleData] = useState(isStaleDataAllowed);
   const nonStaleFetchCountRef = useRef(0);
   const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
 
@@ -101,24 +109,26 @@ export const useAuthorAnalytics = ({
   const [effectiveLimit, setEffectiveLimit] = useState(defaultLimit.current);
   const [moreLoading, setMoreLoading] = useState(false);
 
-  const variables = { userId, sortBy, desc, limit: defaultLimit.current, cachedOnly: staleDataAllowed };
-  const { data, loading, error, fetchMore } = useQuery<AuthorAnalyticsQueryResult>(AuthorAnalyticsQuery, {
+  const variables = { userId, postIds, sortBy, desc, limit: defaultLimit.current, cachedOnly: fetchingStaleData };
+  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
     variables,
-    skip: !userId,
+    skip: !userId && (!postIds || postIds.length === 0),
   });
 
   useEffect(() => {
-    if ((staleDataAllowed && data) || ["views", "reads"].includes(sortBy ?? "")) {
-      setStaleDataAllowed(false);
+    // If we already have data, then set fetchStaleData to do a followup fetch for the latest data
+    if ((fetchingStaleData && data) || isStaleDataAllowed) {
+      setFetchingStaleData(false);
     }
-  }, [data, sortBy, staleDataAllowed]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, sortBy, fetchingStaleData]);
   
-  const dataRef = useRef(data?.AuthorAnalytics);
-  if ((data?.AuthorAnalytics && data?.AuthorAnalytics !== dataRef.current) || refetchKeyRef.current !== stringify({userId, sortBy, desc})) {
-    if (!staleDataAllowed) {
+  const dataRef = useRef(data?.MultiPostAnalytics);
+  if ((data?.MultiPostAnalytics && data?.MultiPostAnalytics !== dataRef.current) || refetchKeyRef.current !== stringify({userId, sortBy, desc})) {
+    if (!fetchingStaleData) {
       nonStaleFetchCountRef.current++;
     }
-    dataRef.current = data?.AuthorAnalytics;
+    dataRef.current = data?.MultiPostAnalytics;
     refetchKeyRef.current = stringify({userId, sortBy, desc});
   }
 
@@ -156,7 +166,7 @@ export const useAuthorAnalytics = ({
   };
 
   return {
-    authorAnalytics: dataRef.current,
+    data: dataRef.current,
     loading: loading && nonStaleFetchCountRef.current > 0,
     maybeStale: nonStaleFetchCountRef.current === 0,
     error,
@@ -186,6 +196,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   error?: ApolloError
 } => {
   const { userId, postIds, startDate: propsStartDate, endDate: propsEndDate } = props;
+  const cachedFirst = !!(userId || (postIds && postIds.length > 1));
   // Convert to UTC to ensure args passed to useQuery are consistent between SSR and client
   const utcPropsStartDate = propsStartDate ? moment(propsStartDate).utc().toDate() : null;
   const utcPropsEndDate = moment(propsEndDate).utc().toDate();
@@ -206,7 +217,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const [activeVariables, setActiveVariables] = useState({});
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
-  const cachedOnly = !variablesAreActive;
+  const cachedOnly = !variablesAreActive && cachedFirst;
   const variables = { userId, postIds, startDate, endDate, cachedOnly };
   const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
     variables,
@@ -226,7 +237,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
 
       setActiveVariables({ userId, postIds, startDate: paddedStartDate, endDate: paddedEndDate });
     }
-  }, [data, endDate, postIds, startDate, userId, variablesAreActive]);
+  }, [cachedFirst, data, endDate, postIds, startDate, userId, variablesAreActive]);
 
   const fullSeriesRef = useRef<AnalyticsSeriesValue[]>([]);
   const truncatedSeriesRef = useRef<AnalyticsSeriesValue[]>([]);
@@ -261,7 +272,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   return {
     analyticsSeries: truncatedSeriesRef.current,
     loading,
-    maybeStale: variablesAreActive && loading,
+    maybeStale: variablesAreActive && loading && cachedFirst,
     error,
   };
 };
