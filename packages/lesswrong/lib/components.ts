@@ -443,6 +443,7 @@ importComponent("InlineReactSelectionWrapper", () => require('../components/vote
 importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
+importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events

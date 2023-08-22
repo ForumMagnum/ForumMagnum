@@ -24,7 +24,7 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
 }
 
 export type PostVotingComponentProps = {
-  document: PostsPage,
+  document: PostsWithVotes,
   votingSystem: VotingSystem,
 }
 

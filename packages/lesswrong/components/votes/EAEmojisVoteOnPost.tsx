@@ -1,5 +1,6 @@
+import React from "react";
+import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
-import { registerComponent } from "../../lib/vulcan-lib";
 
 const styles = (_theme: ThemeType) => ({
 });
@@ -13,8 +14,15 @@ const EAEmojisVoteOnPost = ({
   votingSystem,
   classes,
 }: EAEmojisVoteOnPostProps) => {
+  const {PostsVoteDefault} = Components;
   return (
-    null
+    <div>
+      <PostsVoteDefault
+        post={document}
+        useHorizontalLayout
+      />
+      <div>Custom</div>
+    </div>
   );
 }
 
