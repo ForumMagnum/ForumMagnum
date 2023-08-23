@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const postSchema = z.object({
+const postFields = {
   _id: z.string(),
   title: z.string(),
   slug: z.string(),
@@ -14,6 +14,15 @@ export const postSchema = z.object({
     username: z.string(),
     slug: z.string(),
   }),
-});
+} as const;
+
+export const postSchema = z.object(postFields);
 
 export type Post = z.infer<typeof postSchema>;
+
+export const postWithContentSchema = z.object({
+  ...postFields,
+  htmlBody: z.string(),
+});
+
+export type PostWithContent = z.infer<typeof postWithContentSchema>;
