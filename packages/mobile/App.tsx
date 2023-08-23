@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useMulti } from "./hooks/useMulti";
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "./apollo";
+import Loader from "./components/Loader";
 
 const styles = StyleSheet.create({
   container: {
@@ -21,6 +22,7 @@ const Main: FC = () => {
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
       <StatusBar style="auto" />
+      <Loader />
     </View>
   );
 }
