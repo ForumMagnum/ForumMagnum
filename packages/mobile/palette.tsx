@@ -51,5 +51,8 @@ export const palette = {
       semiBold: "Inter_600SemiBold",
       bold: "Inter_700Bold",
     },
+    serif: {
+      regular: "Merriweather_400Regular",
+    },
   },
 } as const;

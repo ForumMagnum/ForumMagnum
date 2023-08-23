@@ -12,6 +12,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.1",
     "@expo-google-fonts/inter": "^0.2.3",
+    "@expo-google-fonts/merriweather": "^0.2.3",
     "@expo/webpack-config": "^18.1.2",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",

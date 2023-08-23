@@ -11,6 +11,9 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
+import {
+  Merriweather_400Regular,
+} from "@expo-google-fonts/merriweather";
 import type { RootStackParamList } from "./navigation";
 import Loader from "./components/Loader";
 import moment from "moment";
@@ -44,6 +47,7 @@ const App: FC = () => {
     Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
+    Merriweather_400Regular,
   });
 
   if (!fontsLoaded) {

@@ -1187,6 +1187,11 @@
   resolved "https://registry.yarnpkg.com/@expo-google-fonts/inter/-/inter-0.2.3.tgz#82bf7224bb76fc6614a00393a9e9ee4d6dd09dcb"
   integrity sha512-iHK9FI+dnE45X5c2Z5hSFwNH4zUWethizpbv3XUn0FIGw5jwvzriENz0a6wCdkI4/d+1QkurnHo5XHti7TbNJA==
 
+"@expo-google-fonts/merriweather@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@expo-google-fonts/merriweather/-/merriweather-0.2.3.tgz#b28dd46ca4424f74470b7f8c2c30928241c1c19d"
+  integrity sha512-N6E3O+qD58YDZPBXFd2YHb8Q2HHarQ69XJQOPjVo3wvNKoU6ni6G7onKi1n2Zl1jxjGcGsP49BslS0WLz8E8gg==
+
 "@expo/bunyan@4.0.0", "@expo/bunyan@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@expo/bunyan/-/bunyan-4.0.0.tgz#be0c1de943c7987a9fbd309ea0b1acd605890c7b"

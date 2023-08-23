@@ -1,20 +1,23 @@
 import React, { FC } from "react";
-import { View } from "react-native";
-import { useWindowDimensions } from "react-native";
-import RenderHtml from "react-native-render-html";
+import { StyleSheet, View } from "react-native";
 import type { PostWithContent } from "../types/PostTypes";
 import Type from "./Type";
+import HtmlContentBody from "./HtmlContentBody";
+
+const styles = StyleSheet.create({
+  root: {
+    width: "100%",
+    maxWidth: "100%",
+    padding: 10,
+  },
+});
 
 const PostDisplay: FC<{post: PostWithContent}> = ({post}) => {
-  const {width} = useWindowDimensions();
   return (
-    <View>
+    <View style={styles.root}>
       <Type>{post.title}</Type>
       <Type>{post.user.username}</Type>
-      <RenderHtml
-        contentWidth={width}
-        source={{html: post.htmlBody}}
-      />
+      <HtmlContentBody html={post.htmlBody} />
     </View>
   );
 }
