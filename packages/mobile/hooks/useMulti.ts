@@ -14,7 +14,6 @@ const query = gql`
         _id
         title
         slug
-        pageUrl
         postedAt
         curatedDate
         baseScore

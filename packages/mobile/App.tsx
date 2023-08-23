@@ -11,9 +11,11 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
+import type { RootStackParamList } from "./navigation";
 import Loader from "./components/Loader";
 import moment from "moment";
 import HomeScreen from "./screens/HomeScreen";
+import PostScreen from "./screens/PostScreen";
 import Header from "./components/Header";
 
 moment.updateLocale("en", {
@@ -35,7 +37,7 @@ moment.updateLocale("en", {
   },
 });
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: FC = () => {
   const [fontsLoaded] = useFonts({
@@ -70,6 +72,10 @@ const App: FC = () => {
             name="Home"
             component={HomeScreen}
             options={{title: "EA Forum"}}
+          />
+          <Stack.Screen
+            name="Post"
+            component={PostScreen}
           />
         </Stack.Navigator>
       </NavigationContainer>

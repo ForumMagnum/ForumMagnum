@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { StyleSheet, View } from "react-native";
 import { useMulti } from "../hooks/useMulti";
 import Loader from "./Loader";
-import PostItem from "../PostItem";
+import PostItem from "./PostItem";
 
 const styles = StyleSheet.create({
   container: {
