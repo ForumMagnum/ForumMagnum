@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   karma: {
-    width: 24,
+    width: 30,
+    alignItems: "center",
   },
   title: {
     fontFamily: palette.fonts.sans.semiBold,

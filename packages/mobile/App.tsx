@@ -14,6 +14,7 @@ import {
 import Loader from "./components/Loader";
 import moment from "moment";
 import HomeScreen from "./screens/HomeScreen";
+import Header from "./components/Header";
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -56,8 +57,20 @@ const App: FC = () => {
         backgroundColor={palette.primary}
       />
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="EA Forum" component={HomeScreen} />
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: palette.grey[0],
+            },
+            headerTitle: Header,
+          }}
+        >
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{title: "EA Forum"}}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>
