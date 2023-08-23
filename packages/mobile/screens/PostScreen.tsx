@@ -3,9 +3,19 @@ import { useSingle } from "../hooks/useSingle";
 import FullScreenScrollView from "../components/FullScreenScrollView";
 import Loader from "../components/Loader";
 import PostDisplay from "../components/PostDisplay";
+import { postSchema } from "../types/PostTypes";
+import { useRoute } from "@react-navigation/native";
+import type { RootStackParamList } from "../navigation";
 
 const PostScreen: FC = () => {
-  const {result, loading} = useSingle();
+  const route = useRoute();
+  const params = route.params as RootStackParamList["Post"];
+  const {result, loading} = useSingle({
+    selector: {
+      _id: params.postId,
+    },
+    schema: postSchema,
+  });
   return (
     <FullScreenScrollView>
       {loading ? <Loader /> : <PostDisplay post={result} />}

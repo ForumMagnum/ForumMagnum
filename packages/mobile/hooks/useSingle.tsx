@@ -1,32 +1,47 @@
-import { useQuery, gql, NetworkStatus } from "@apollo/client";
+import { useQuery, gql, NetworkStatus, ApolloError } from "@apollo/client";
+import { compileTerms, schemaToGraphql } from "../types/schemaToGraphql";
+import type { ZodObject, ZodRawShape, z } from "zod";
 
-const query = gql`
-  {
-    post(input: {
-      selector: {
-        _id: "sWMwGNgpzPn7X9oSk"
-      }
-    }) {
-      result {
-        _id
-        title
-        slug
-        postedAt
-        curatedDate
-        baseScore
-        commentCount
-        question
-        url
-        user {
-          username
-          slug
+const compileQuery = <T extends ZodRawShape>(
+  selector: Record<string, unknown>,
+  schema: ZodObject<T>,
+) => {
+  const compiledSelector = compileTerms(selector);
+  const compiledSchema = schemaToGraphql(schema);
+  return gql`
+    {
+      post(input: {
+        selector: {
+          ${compiledSelector}
+        }
+      }) {
+        result {
+          ${compiledSchema}
         }
       }
     }
-  }
-`;
+  `;
+}
 
-export const useSingle = () => {
+type UseSingleProps<T extends ZodRawShape> = {
+  selector: Record<string, unknown>,
+  schema: ZodObject<T>,
+}
+
+type UseSingleResult<T extends ZodRawShape> = {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  result: z.infer<ZodObject<T>>,
+  refetch: () => void,
+  error?: ApolloError,
+}
+
+export const useSingle = <T extends ZodRawShape>({
+  selector,
+  schema,
+}: UseSingleProps<T>): UseSingleResult<T> => {
+  const query = compileQuery(selector, schema);
   const {
     data,
     error,

@@ -1,17 +1,9 @@
 import { useQuery, gql, NetworkStatus, ApolloError } from "@apollo/client";
-import { schemaToGraphql } from "../types/schemaToGraphql";
+import { compileTerms, schemaToGraphql } from "../types/schemaToGraphql";
 import type { ZodObject, ZodRawShape, z } from "zod";
 
-type UseMultiTerms = Record<string, unknown>;
-
-const compileTerms = (terms: UseMultiTerms): string =>
-  Object
-    .keys(terms)
-    .map((key) => `${key}: ${JSON.stringify(terms[key])}`)
-    .join("\n") + "\n";
-
 const compileQuery = <T extends ZodRawShape>(
-  terms: UseMultiTerms,
+  terms: Record<string, unknown>,
   schema: ZodObject<T>,
 ) => {
   const compiledTerms = compileTerms(terms);

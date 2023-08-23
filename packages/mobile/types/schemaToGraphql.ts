@@ -52,3 +52,9 @@ const shapeToGraphql = <T extends ZodTypeDef>(shape: T) => {
 
 export const schemaToGraphql = <T extends ZodRawShape>(schema: ZodObject<T>) =>
   shapeToGraphql(schema._def.shape());
+
+export const compileTerms = (terms: Record<string, unknown>): string =>
+  Object
+    .keys(terms)
+    .map((key) => `${key}: ${JSON.stringify(terms[key])}`)
+    .join("\n") + "\n";
