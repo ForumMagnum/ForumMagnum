@@ -1,5 +1,5 @@
-import React, { FC, ReactNode } from "react";
-import { StyleProp, StyleSheet, Text, TextStyle } from "react-native";
+import React, { FC } from "react";
+import { StyleSheet, Text, TextProps } from "react-native";
 import { palette } from "../palette";
 
 const styles = StyleSheet.create({
@@ -8,12 +8,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const Type: FC<{
-  style?: StyleProp<TextStyle>,
-  children: ReactNode,
-}> = ({style = {}, children}) => {
+const Type: FC<TextProps> = ({style, children, ...props}) => {
   return (
-    <Text style={[styles.text, style]}>
+    <Text style={[styles.text, style]} {...props} >
       {children}
     </Text>
   );
