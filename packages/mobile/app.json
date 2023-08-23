@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ForumMagnum",
-    "slug": "ForumMagnum",
+    "name": "EA Forum",
+    "slug": "EAForum",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,8 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "**/*",
-      "../lesswrong/**/*"
+      "**/*"
     ],
     "ios": {
       "supportsTablet": true
