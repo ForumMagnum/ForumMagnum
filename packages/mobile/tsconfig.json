@@ -1,4 +1,32 @@
 {
   "extends": "expo/tsconfig.base",
-  "compilerOptions": {}
+  "compilerOptions": {
+    "strict": true,
+    "isolatedModules": true,
+    "lib": ["es2019"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "rootDir": "../..",
+    "module": "commonjs",
+    "target": "es6",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strictBindCallApply": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "../lesswrong/**/*.ts",
+    "../lesswrong/**/*.tsx",
+    "../lesswrong/**/*.d.ts"
+  ],
+  "exclude": [
+    "./node_modules",
+    "../../node_modules"
+  ]
 }

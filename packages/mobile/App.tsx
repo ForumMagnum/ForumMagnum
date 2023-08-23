@@ -1,14 +1,9 @@
+import React, { FC } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import { useMulti } from "./hooks/useMulti";
+import { ApolloProvider } from "@apollo/client";
+import { apolloClient } from "./apollo";
 
 const styles = StyleSheet.create({
   container: {
@@ -18,3 +13,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+const Main: FC = () => {
+  const {results, loading} = useMulti();
+  console.log(results, loading);
+  return (
+    <View style={styles.container}>
+      <Text>Open up App.tsx to start working on your app!</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const App: FC = () => {
+  return (
+    <ApolloProvider client={apolloClient}>
+      <Main />
+    </ApolloProvider>
+  );
+}
+
+export default App;

@@ -12,7 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "**/*"
+      "**/*",
+      "../lesswrong/**/*"
     ],
     "ios": {
       "supportsTablet": true
