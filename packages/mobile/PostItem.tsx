@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { palette } from "./palette";
 import Type from "./components/Type";
 import moment from "moment";
+import MobileIcon from "./components/MobileIcon";
 
 type Post = {
   _id: string,
@@ -35,6 +36,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    gap: 4,
   },
   column: {
     flexDirection: "column",
@@ -72,9 +74,16 @@ const PostItem: FC<{post: Post}> = ({post}) => {
               {moment(new Date(post.postedAt)).fromNow()}
             </Type>
           </View>
-          <Type style={styles.secondaryText}>
-            {post.commentCount ?? 0}
-          </Type>
+          <View style={styles.row}>
+            <MobileIcon
+              icon="Comment"
+              size={18}
+              color={palette.grey[600]}
+            />
+            <Type style={styles.secondaryText}>
+              {post.commentCount ?? 0}
+            </Type>
+          </View>
         </View>
       </View>
     </View>
