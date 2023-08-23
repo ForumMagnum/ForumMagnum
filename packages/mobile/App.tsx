@@ -1,18 +1,19 @@
 import React, { FC } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "./apollo";
+import { palette } from "./palette";
 import {
   useFonts,
   Inter_500Medium,
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
-import PostsList from "./components/PostsList";
 import Loader from "./components/Loader";
-import { palette } from "./palette";
 import moment from "moment";
+import HomeScreen from "./screens/HomeScreen";
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -33,18 +34,7 @@ moment.updateLocale("en", {
   },
 });
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: palette.grey[60],
-    alignItems: "center",
-    fontFamily: palette.fonts.sans.medium,
-  },
-  scrollView: {
-    width: "100%",
-    height: "100%",
-  },
-});
+const Stack = createNativeStackNavigator();
 
 const App: FC = () => {
   const [fontsLoaded] = useFonts({
@@ -65,11 +55,11 @@ const App: FC = () => {
         style="light"
         backgroundColor={palette.primary}
       />
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollView}>
-          <PostsList />
-        </ScrollView>
-      </SafeAreaView>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="EA Forum" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </ApolloProvider>
   );
 }
