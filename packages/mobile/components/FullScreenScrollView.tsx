@@ -13,12 +13,18 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  content: {
+    alignItems: "center",
+  },
 });
 
 const FullScreenScrollView: FC<{children: ReactNode}> = ({children}) => {
   return (
     <SafeAreaView style={styles.safeAreaRoot}>
-      <ScrollView style={styles.scrollRoot}>
+      <ScrollView
+        style={styles.scrollRoot}
+        contentContainerStyle={styles.content}
+      >
         {children}
       </ScrollView>
     </SafeAreaView>
