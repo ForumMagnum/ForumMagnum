@@ -4,6 +4,7 @@ import { palette } from "./palette";
 import Type from "./components/Type";
 import moment from "moment";
 import MobileIcon from "./components/MobileIcon";
+import { Path, Svg } from "react-native-svg";
 
 type Post = {
   _id: string,
@@ -52,7 +53,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   karma: {
-    width: 30,
+    flexDirection: "column",
+    gap: 4,
+    width: 26,
     alignItems: "center",
   },
   title: {
@@ -69,6 +72,9 @@ const PostItem: FC<{post: Post}> = ({post}) => {
   return (
     <View style={styles.root}>
       <View style={styles.karma}>
+        <Svg width="9" height="6" viewBox="0 0 9 6" fill={palette.grey[600]}>
+          <Path d="M4.11427 0.967669C4.31426 0.725192 4.68574 0.725192 4.88573 0.967669L8.15534 4.93186C8.42431 5.25798 8.19234 5.75 7.76961 5.75H1.23039C0.807659 5.75 0.575686 5.25798 0.844665 4.93186L4.11427 0.967669Z" />
+        </Svg>
         <Type style={styles.secondaryText}>
           {post.baseScore}
         </Type>
@@ -82,7 +88,7 @@ const PostItem: FC<{post: Post}> = ({post}) => {
             <Type style={styles.secondaryText}>
               {post.user.username}
             </Type>
-            <Type style={styles.secondaryText}> · </Type>
+            <Type style={styles.secondaryText}>·</Type>
             <Type style={[styles.secondaryText, styles.grow]}>
               {moment(new Date(post.postedAt)).fromNow()}
             </Type>
