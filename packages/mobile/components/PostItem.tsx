@@ -3,27 +3,11 @@ import { StyleSheet, View } from "react-native";
 import { useNavigation } from "../navigation";
 import { Path, Svg } from "react-native-svg";
 import { palette } from "../palette";
+import type { Post } from "../types/PostTypes";
 import Type from "./Type";
 import MobileIcon from "./MobileIcon";
 import Touchable from "./Touchable";
 import moment from "moment";
-
-type Post = {
-  _id: string,
-  title: string,
-  slug: string,
-  pageUrl: string,
-  postedAt: string,
-  curatedAt?: string,
-  baseScore: number,
-  commentCount?: number,
-  question: boolean,
-  url?: string,
-  user: {
-    username: string,
-    slug: string,
-  },
-}
 
 const styles = StyleSheet.create({
   root: {

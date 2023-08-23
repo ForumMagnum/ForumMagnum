@@ -1,0 +1,54 @@
+import {
+  ZodFirstPartyTypeKind,
+  ZodObject,
+  ZodObjectDef,
+  ZodOptionalDef,
+  ZodRawShape,
+  ZodTypeDef,
+} from "zod";
+
+type TypeDef = ZodTypeDef & {
+  typeName: ZodFirstPartyTypeKind,
+}
+
+const isZodSpecificType = (def: ZodTypeDef): def is TypeDef =>
+  "typeName" in def;
+
+const isOptionalType = (def: TypeDef): def is ZodOptionalDef =>
+  def.typeName === "ZodOptional";
+
+const isObjectType = (def: TypeDef): def is ZodObjectDef =>
+  def.typeName === "ZodObject";
+
+const simpleTypes = ["ZodNumber", "ZodString", "ZodBoolean"];
+
+const elementToGraphql = <T extends TypeDef>(name: string, def: T) => {
+  if (isOptionalType(def)) {
+    return elementToGraphql(name, def.innerType._def);
+  }
+  if (isObjectType(def)) {
+    return `${name} {\n ${shapeToGraphql(def.shape())} }`;
+  }
+  if (simpleTypes.includes(def.typeName)) {
+    return name;
+  }
+  console.warn("Invalid type", def.typeName, " for ", name);
+  return "";
+}
+
+const shapeToGraphql = <T extends ZodTypeDef>(shape: T) => {
+  const keys = Object.keys(shape);
+  let result = "";
+  for (const key of keys) {
+    const def = shape[key]._def;
+    if (isZodSpecificType(def)) {
+      result += elementToGraphql(key, def) + "\n";
+    } else {
+      result += key + "\n";
+    }
+  }
+  return result;
+}
+
+export const schemaToGraphql = <T extends ZodRawShape>(schema: ZodObject<T>) =>
+  shapeToGraphql(schema._def.shape());

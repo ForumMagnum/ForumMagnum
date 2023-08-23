@@ -1,35 +1,55 @@
-import { useQuery, gql, NetworkStatus } from "@apollo/client";
+import { useQuery, gql, NetworkStatus, ApolloError } from "@apollo/client";
+import { schemaToGraphql } from "../types/schemaToGraphql";
+import type { ZodObject, ZodRawShape, z } from "zod";
 
-const query = gql`
-  {
-    posts(input: {
-      terms: {
-        view: "magic"
-        limit: 20
-        meta: null
-        forum: true
-      }
-    }) {
-      results {
-        _id
-        title
-        slug
-        postedAt
-        curatedDate
-        baseScore
-        commentCount
-        question
-        url
-        user {
-          username
-          slug
+type UseMultiTerms = Record<string, unknown>;
+
+const compileTerms = (terms: UseMultiTerms): string =>
+  Object
+    .keys(terms)
+    .map((key) => `${key}: ${JSON.stringify(terms[key])}`)
+    .join("\n") + "\n";
+
+const compileQuery = <T extends ZodRawShape>(
+  terms: UseMultiTerms,
+  schema: ZodObject<T>,
+) => {
+  const compiledTerms = compileTerms(terms);
+  const compiledSchema = schemaToGraphql(schema);
+  return gql`
+    {
+      posts(input: {
+        terms: {
+          ${compiledTerms}
+        }
+      }) {
+        results {
+          ${compiledSchema}
         }
       }
     }
-  }
-`;
+  `;
+}
 
-export const useMulti = () => {
+type UseMultiProps<T extends ZodRawShape> = {
+  terms: Record<string, unknown>,
+  schema: ZodObject<T>,
+}
+
+type UseMultiResult<T extends ZodRawShape> = {
+  loading: boolean,
+  loadingInitial: boolean,
+  loadingMore: boolean,
+  results: z.infer<ZodObject<T>>[],
+  refetch: () => void,
+  error?: ApolloError,
+}
+
+export const useMulti = <T extends ZodRawShape>({
+  terms,
+  schema,
+}: UseMultiProps<T>): UseMultiResult<T> => {
+  const query = compileQuery(terms, schema);
   const {
     data,
     error,
