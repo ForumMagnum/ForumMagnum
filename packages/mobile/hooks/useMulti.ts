@@ -4,9 +4,10 @@ const query = gql`
   {
     posts(input: {
       terms: {
-        view: "top"
-        limit: 50
+        view: "magic"
+        limit: 10
         meta: null
+        forum: true
       }
     }) {
       results {
@@ -15,10 +16,9 @@ const query = gql`
         slug
         pageUrl
         postedAt
+        curatedDate
         baseScore
-        voteCount
         commentCount
-        meta
         question
         url
         user {
@@ -39,11 +39,12 @@ export const useMulti = () => {
     networkStatus,
   } = useQuery(query, {
   });
+  const results = data?.posts?.results;
   return {
     loading: loading || networkStatus === NetworkStatus.fetchMore,
     loadingInitial: networkStatus === NetworkStatus.loading,
     loadingMore: networkStatus === NetworkStatus.fetchMore,
-    results: data,
+    results,
     refetch,
     error,
   };
