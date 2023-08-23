@@ -73,8 +73,11 @@ const styles = StyleSheet.create({
 const PostItem: FC<{post: Post}> = ({post}) => {
   const navigation = useNavigation();
   const onPress = useCallback(() => {
-    navigation.navigate("Post", {postId: post._id});
-  }, []);
+    navigation.navigate("Post", {
+      postId: post._id,
+      title: post.title,
+    });
+  }, [navigation, post._id, post.title]);
   return (
     <Touchable
       onPress={onPress}

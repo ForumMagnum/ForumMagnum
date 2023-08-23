@@ -71,7 +71,6 @@ const App: FC = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{title: "EA Forum"}}
           />
           <Stack.Screen
             name="Post"
