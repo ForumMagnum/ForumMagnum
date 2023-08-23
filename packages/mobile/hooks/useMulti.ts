@@ -5,7 +5,7 @@ const query = gql`
     posts(input: {
       terms: {
         view: "magic"
-        limit: 10
+        limit: 20
         meta: null
         forum: true
       }

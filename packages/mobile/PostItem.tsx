@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
   },
   flex: {
     flex: 1,

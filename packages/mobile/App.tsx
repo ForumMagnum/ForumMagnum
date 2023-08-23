@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, SafeAreaView } from "react-native";
+import { StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "./apollo";
 import {
@@ -40,6 +40,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     fontFamily: palette.fonts.sans.medium,
   },
+  scrollView: {
+    width: "100%",
+    height: "100%",
+  },
 });
 
 const App: FC = () => {
@@ -57,9 +61,14 @@ const App: FC = () => {
 
   return (
     <ApolloProvider client={apolloClient}>
-      <StatusBar style="auto" />
+      <StatusBar
+        style="light"
+        backgroundColor={palette.primary}
+      />
       <SafeAreaView style={styles.container}>
-        <PostsList />
+        <ScrollView style={styles.scrollView}>
+          <PostsList />
+        </ScrollView>
       </SafeAreaView>
     </ApolloProvider>
   );
