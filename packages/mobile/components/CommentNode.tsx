@@ -15,6 +15,9 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     marginBottom: 8,
   },
+  rootOdd: {
+    backgroundColor: palette.grey[120],
+  },
   metaRow: {
     flexDirection: "row",
     alignItems: "baseline",
@@ -31,12 +34,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const CommentNode: FC<{comment: DisplayComment}> = ({
+const CommentNode: FC<{
+  comment: DisplayComment,
+  depth?: number,
+}> = ({
   comment: {comment, children},
+  depth = 0,
 }) => {
   const formattedDate = useFormattedDate(comment.postedAt, "fromNow");
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, depth & 1 ? styles.rootOdd : undefined]}>
       <View style={styles.metaRow}>
         <Type style={styles.author}>
           {comment.user?.username ?? "[deleted]"}
@@ -49,7 +56,11 @@ const CommentNode: FC<{comment: DisplayComment}> = ({
       {children.length > 0 &&
         <View>
           {children.map((child) =>
-            <CommentNode comment={child} key={child.comment._id} />
+            <CommentNode
+              comment={child}
+              depth={depth + 1}
+              key={child.comment._id}
+            />
           )}
         </View>
       }

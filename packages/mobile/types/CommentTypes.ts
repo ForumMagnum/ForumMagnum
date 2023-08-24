@@ -14,9 +14,9 @@ export const commentSchema = z.object({
   topLevelCommentId: z.optional(z.string()),
   descendentCount: z.optional(z.number()),
   title: z.optional(z.string()),
-  contents: z.object({
+  contents: z.optional(z.object({
     html: z.string(),
-  }),
+  })),
   postedAt: z.string(),
   repliesBlockedUntil: z.string(),
   deleted: z.optional(z.boolean()),
