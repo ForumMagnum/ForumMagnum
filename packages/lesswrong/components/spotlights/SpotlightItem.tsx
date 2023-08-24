@@ -276,8 +276,6 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     refetchAllSpotlights?.();
   };
   
-  console.log('spotlight', spotlight.description?.html)
-
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
