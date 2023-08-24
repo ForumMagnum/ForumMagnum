@@ -1,6 +1,8 @@
 export const palette = {
   borderRadius: 6,
   primary: "#0c869b",
+  primaryLight: "#00b2be",
+  primaryDark: "#085d6c",
   grey: {
     // Exactly matches @material-ui/core/colors/grey
     50: "#fafafa",
@@ -53,6 +55,7 @@ export const palette = {
     },
     serif: {
       regular: "Merriweather_400Regular",
+      bold: "Merriweather_700Bold",
     },
   },
 } as const;

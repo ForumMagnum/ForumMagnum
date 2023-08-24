@@ -23,6 +23,7 @@ export type Post = z.infer<typeof postSchema>;
 export const postWithContentSchema = z.object({
   ...postFields,
   htmlBody: z.string(),
+  readTimeMinutes: z.optional(z.number()),
 });
 
 export type PostWithContent = z.infer<typeof postWithContentSchema>;

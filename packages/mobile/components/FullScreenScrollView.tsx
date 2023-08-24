@@ -1,5 +1,5 @@
 import React, { FC, ReactNode } from "react";
-import { StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { StyleSheet, SafeAreaView, ScrollView, StyleProp, ViewStyle } from "react-native";
 import { palette } from "../palette";
 
 const styles = StyleSheet.create({
@@ -18,12 +18,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const FullScreenScrollView: FC<{children: ReactNode}> = ({children}) => {
+const FullScreenScrollView: FC<{
+  children: ReactNode,
+  style?: StyleProp<ViewStyle>,
+}> = ({children, style}) => {
   return (
     <SafeAreaView style={styles.safeAreaRoot}>
       <ScrollView
         style={styles.scrollRoot}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, style]}
       >
         {children}
       </ScrollView>

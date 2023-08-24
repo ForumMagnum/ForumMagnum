@@ -1,24 +1,52 @@
 import React, { FC } from "react";
 import { useWindowDimensions } from "react-native";
 import Constants from "expo-constants";
-import RenderHtml, { MixedStyleRecord } from "react-native-render-html";
+import RenderHtml, { MixedStyleDeclaration, MixedStyleRecord } from "react-native-render-html";
 import { palette } from "../palette";
 
+const sansText: MixedStyleDeclaration = {
+  fontFamily: palette.fonts.sans.medium,
+  fontSize: 15,
+  lineHeight: 22,
+};
+
+const serifText: MixedStyleDeclaration = {
+  fontFamily: palette.fonts.serif.regular,
+  fontSize: 15,
+  lineHeight: 22,
+};
+
 const tagStyles: MixedStyleRecord = {
-  p: {
-    fontFamily: palette.fonts.serif.regular,
+  h1: {
+    ...sansText,
+    fontSize: 30,
+    marginTop: 14,
+    marginBottom: 8,
   },
-  li: {
-    fontFamily: palette.fonts.serif.regular,
-  },
-  div: {
-    fontFamily: palette.fonts.serif.regular,
-  },
-  span: {
-    fontFamily: palette.fonts.serif.regular,
-  },
+  h2: sansText,
+  h3: sansText,
+  h4: sansText,
+  h5: sansText,
+  h6: sansText,
+  p: serifText,
+  span: serifText,
+  div: serifText,
+  i: serifText,
+  li: serifText,
   a: {
     color: palette.primary,
+  },
+  strong: {
+    fontFamily: palette.fonts.serif.bold,
+  },
+  img: {
+    maxWidth: 768,
+  },
+};
+
+const classStyles: MixedStyleRecord = {
+  "footnote-reference": {
+    fontSize: 5,
   },
 };
 
@@ -34,9 +62,14 @@ const HtmlContentBody: FC<{html: string}> = ({html}) => {
       contentWidth={width}
       source={{html}}
       tagsStyles={tagStyles}
+      classesStyles={classStyles}
       systemFonts={systemFonts}
       enableExperimentalMarginCollapsing
       enableExperimentalGhostLinesPrevention
+      defaultTextProps={{
+        selectable: true,
+        selectionColor: palette.primaryLight,
+      }}
     />
   );
 }
