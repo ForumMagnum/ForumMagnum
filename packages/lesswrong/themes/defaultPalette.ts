@@ -276,6 +276,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     intense: shades.greyBorder("2px", .5),
     faint: shades.greyBorder("1px", .1),
     extraFaint: shades.greyBorder("1px", .08),
+    grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),

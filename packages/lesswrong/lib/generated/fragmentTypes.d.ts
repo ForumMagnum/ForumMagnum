@@ -1620,6 +1620,7 @@ interface messageListFragment_user extends UsersMinimumInfo { // fragment on Use
 
 interface messageListFragment_contents { // fragment on Revisions
   readonly html: string,
+  readonly plaintextMainText: string,
 }
 
 interface conversationsListFragment { // fragment on Conversations
@@ -1629,6 +1630,7 @@ interface conversationsListFragment { // fragment on Conversations
   readonly latestActivity: Date,
   readonly participantIds: Array<string>,
   readonly participants: Array<UsersMinimumInfo>,
+  readonly latestMessage: messageListFragment|null,
   readonly archivedByIds: Array<string>,
   readonly messageCount: number,
   readonly moderator: boolean | null,

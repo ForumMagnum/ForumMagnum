@@ -10,6 +10,9 @@ registerFragment(`
     participants {
       ...UsersMinimumInfo
     }
+    latestMessage {
+      ...messageListFragment
+    }
     archivedByIds
     messageCount
     moderator

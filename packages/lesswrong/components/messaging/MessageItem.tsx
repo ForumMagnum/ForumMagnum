@@ -14,10 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     columnGap: 10,
     maxWidth: '95%',
-    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px 1fr`,
+    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
     gridTemplateAreas: '"image message"',
     [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px 1fr`,
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
     }
   },
   rootCurrentUserWithImages: {
@@ -32,6 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     wordWrap: "break-word",
+    overflowWrap: "break-word",
+    whiteSpace: "normal",
     flexGrow: 1,
     gridArea: 'message',
   },
@@ -48,7 +50,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   messageBody: {
     '& a': {
-      color: theme.palette.primary.light
+      color: theme.palette.primary.light,
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
     },
     '& img': {
       maxWidth: '100%',

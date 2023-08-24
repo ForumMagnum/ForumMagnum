@@ -71,6 +71,7 @@ importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/E
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
 
+// Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
@@ -83,6 +84,12 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
+// Redesigned messaging components
+importComponent("AllMessagesPage", () => require('../components/messaging/AllMessagesPage'));
+importComponent("InboxNavigation2", () => require('../components/messaging/InboxNavigation2'));
+importComponent("ConversationWidget", () => require('../components/messaging/ConversationWidget'));
+importComponent("ConversationItem2", () => require('../components/messaging/ConversationItem2'));
+
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));

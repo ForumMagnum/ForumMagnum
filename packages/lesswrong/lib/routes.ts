@@ -203,6 +203,13 @@ addRoute(
     title: "Inbox"
   },
   {
+    name: 'inbox2',
+    path: '/inbox2',
+    componentName: 'AllMessagesPage',
+    title: "Inbox",
+    fullscreen: true,
+  },
+  {
     name: 'moderatorInbox',
     path: '/moderatorInbox',
     componentName: 'ModeratorInboxWrapper',

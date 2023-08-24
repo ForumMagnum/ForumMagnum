@@ -1,6 +1,7 @@
-import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../instanceSettings';
+import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -95,6 +96,25 @@ const schema: SchemaType<DbConversation> = {
     foreignKey: "Users",
     optional: true,
   },
+  latestMessage: resolverOnlyField({
+    type: "Message",
+    graphQLtype: "Message",
+    canRead: ['members'],
+    resolver: async (conversation: DbConversation, args, context: ResolverContext) => {
+      const { tagId } = args;
+      const { currentUser } = context;
+      const message: DbMessage | null = await getWithCustomLoader<DbMessage | null, string>(
+        context,
+        "latestMessage",
+        conversation._id,
+        async (conversationIds: string[]): Promise<(DbMessage | null)[]> => {
+          return await context.repos.conversations.getLatestMessages(conversationIds);
+        }
+      );
+      const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
+      return filteredMessage;
+    }
+  }),
 };
 
 export default schema;
