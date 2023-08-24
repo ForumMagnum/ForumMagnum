@@ -16,7 +16,7 @@ import {
   Merriweather_400Regular,
   Merriweather_700Bold,
 } from "@expo-google-fonts/merriweather";
-import type { RootStackParamList } from "./navigation";
+import type { RootStackParamList } from "./hooks/useNavigation";
 import Loader from "./components/Loader";
 import moment from "moment";
 import HomeScreen from "./screens/HomeScreen";

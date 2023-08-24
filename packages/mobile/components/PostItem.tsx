@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
-import { useNavigation } from "../navigation";
+import { useNavigation } from "../hooks/useNavigation";
 import { useFormattedDate } from "../hooks/useFormattedDate";
 import { Path, Svg } from "react-native-svg";
 import { palette } from "../palette";
@@ -64,9 +64,7 @@ const PostItem: FC<{post: Post}> = ({post}) => {
     });
   }, [navigation, post._id, post.title]);
   return (
-    <Touchable
-      onPress={onPress}
-    >
+    <Touchable onPress={onPress}>
       <View style={styles.root}>
         <View style={styles.karma}>
           <Svg width="9" height="6" viewBox="0 0 9 6" fill={palette.grey[600]}>

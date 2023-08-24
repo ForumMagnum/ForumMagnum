@@ -5,7 +5,7 @@ import { useSingle } from "../hooks/useSingle";
 import { useMulti } from "../hooks/useMulti";
 import { postWithContentSchema } from "../types/PostTypes";
 import { commentSchema } from "../types/CommentTypes";
-import type { RootStackParamList } from "../navigation";
+import type { RootStackParamList } from "../hooks/useNavigation";
 import FullScreenScrollView from "../components/FullScreenScrollView";
 import Loader from "../components/Loader";
 import PostDisplay from "../components/PostDisplay";

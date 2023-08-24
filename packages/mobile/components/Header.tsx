@@ -1,7 +1,8 @@
-import React, { FC } from "react";
+import React, { FC, useCallback } from "react";
 import { StyleSheet, View, Image } from "react-native";
-// import { useRoute } from "@react-navigation/native";
+import { useNavigation } from "../hooks/useNavigation";
 import Type from "./Type";
+import Touchable from "./Touchable";
 
 const styles = StyleSheet.create({
   root: {
@@ -22,22 +23,22 @@ const styles = StyleSheet.create({
 });
 
 const Header: FC = () => {
-  // TODO: Should we have custom titles?
-  // const {params} = useRoute();
-  // const title = (params as any)?.title ?? "EA Forum";
-  const title = "EA Forum";
+  const navigation = useNavigation();
+  const onPress = useCallback(() => {
+    navigation.navigate("Home", {});
+  }, [navigation]);
   return (
-    <View style={styles.root}>
-      <Image
-        style={styles.logo}
-        source={require("../assets/ea_forum_logo.png")}
-      />
-      <Type style={styles.title} numberOfLines={1}>
-        {title}
-      </Type>
-      <View style={{alignSelf: "flex-end"}}>
+    <Touchable onPress={onPress}>
+      <View style={styles.root}>
+        <Image
+          style={styles.logo}
+          source={require("../assets/ea_forum_logo.png")}
+        />
+        <Type style={styles.title} numberOfLines={1}>
+          EA Forum
+        </Type>
       </View>
-    </View>
+    </Touchable>
   );
 }
 
