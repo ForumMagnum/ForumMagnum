@@ -1,8 +1,6 @@
 import React, { FC } from "react";
 import { StyleSheet, View } from "react-native";
-import { useMulti } from "../hooks/useMulti";
-import { postSchema } from "../types/PostTypes";
-import Loader from "./Loader";
+import type { Post } from "../types/PostTypes";
 import PostItem from "./PostItem";
 
 const styles = StyleSheet.create({
@@ -12,26 +10,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const PostsList: FC = () => {
-  const {results, loading} = useMulti({
-    terms: {
-      view: "magic",
-      limit: 20,
-      meta: null,
-      forum: true,
-    },
-    schema: postSchema,
-  });
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
+const PostsList: FC<{posts: Post[]}> = ({posts}) => {
   return (
     <View style={styles.container}>
-      {results?.map(((result) => {
-          return <PostItem key={result._id} post={result} />;
-      }))}
+      {posts.map(((post) =>
+        <PostItem key={post._id} post={post} />
+      ))}
     </View>
   );
 }
