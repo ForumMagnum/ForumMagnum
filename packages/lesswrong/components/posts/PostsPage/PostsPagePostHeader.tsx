@@ -7,7 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
@@ -148,6 +148,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       opacity: 0.5,
     },
+  },
+  nonhumanAudio: {
+    color: theme.palette.grey[500],
   }
 });
 
@@ -305,13 +308,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </CommentsLink>
     );
 
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
+
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
   const audioNode = toggleEmbeddedPlayer && (
-    cachedTooltipSeen
+    (cachedTooltipSeen || isLWorAF)
       ? audioIcon
       : (
         <NewFeaturePulse className={classes.audioNewFeaturePulse}>
@@ -327,7 +332,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={!isEAForum} />
+        <PostActionsButton post={post} includeBookmark={!isEAForum} flip={true}/>
       </AnalyticsContext>
     </span>
 
@@ -404,7 +409,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </div>}
     </div>
     {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore />
+      <FooterTagList post={post} hideScore allowTruncate />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

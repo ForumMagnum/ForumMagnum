@@ -10,19 +10,18 @@ import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
+import { htmlToTextDefault } from '../../lib/htmlToText';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
-const htmlToTextDefault = compileHtmlToText();
-
 const htmlToTextPlaintextDescription = compileHtmlToText({
   wordwrap: false,
   selectors: [
     { selector: "img", format: "skip" },
     { selector: "a", options: { ignoreHref: true } },
     { selector: "p", options: { leadingLineBreaks: 1 } },
-    { selector: "h1", options: { trailingLineBreaks: 1 } },
-    { selector: "h2", options: { trailingLineBreaks: 1 } },
-    { selector: "h3", options: { trailingLineBreaks: 1 } },
+    { selector: "h1", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h2", options: { trailingLineBreaks: 1, uppercase: false } },
+    { selector: "h3", options: { trailingLineBreaks: 1, uppercase: false } },
   ]
 });
 

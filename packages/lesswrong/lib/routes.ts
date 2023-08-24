@@ -356,7 +356,7 @@ addRoute(
   {
     name: 'search',
     path: '/search',
-    componentName: forumTypeSetting.get() === 'EAForum' ? 'SearchPageTabbed' : 'SearchPage',
+    componentName: 'SearchPageTabbed',
     title: 'Search',
     background: "white"
   },
@@ -629,6 +629,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name: 'BestOf',
+      path: '/best-of',
+      componentName: 'EABestOfPage',
+      title: 'Best of the Forum',
+    },
+    {
+      name: 'BestOfCamelCase',
+      path: '/bestOf',
+      componentName: 'EABestOfPage',
+      redirect: () => '/best-of',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
@@ -708,6 +720,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       background: 'white',
     },
     {
+      name: "userAnalytics",
+      path:'/users/:slug/stats',
+      componentName: "AuthorAnalyticsPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },
@@ -785,7 +802,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'home',
       path: '/',
-      componentName: 'Home2',
+      componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true
     },
@@ -1001,6 +1018,11 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
     },
+    {
+      name: 'editor',
+      path: '/editor',
+      redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    }
   ],
   AlignmentForum: [
     {
@@ -1126,7 +1148,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
     {
       name:'home',
       path:'/',
-      componentName: 'Home2',
+      componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true //TODO: remove this in production?
     },
@@ -1430,13 +1452,6 @@ addRoute(
 );
 
 addRoute(
-  {
-    name: 'home2',
-    path: '/home2',
-    componentName: 'Home2',
-    enableResourcePrefetch: true,
-    title: "Home2 Beta",
-  },
   {
     name: 'allPosts',
     path: '/allPosts',

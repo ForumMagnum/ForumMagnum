@@ -4,7 +4,7 @@ import { Comments } from '../../../lib/collections/comments';
 import { sanitizeAllowedTags } from '../../../lib/vulcan-lib/utils';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { Vulcan } from '../../vulcan-lib';
-import { wrapVulcanAsyncScript } from './../utils';
+import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';
 import { htmlToText } from 'html-to-text';
 import { modGPTPrompt } from '../../languageModels/modGPT';

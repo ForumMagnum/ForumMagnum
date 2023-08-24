@@ -17,7 +17,6 @@ import { useCurrentUser } from '../common/withUser';
 export const descriptionStyles = (theme: JssStyles) => ({
   ...postBodyStyles(theme),
   ...(!isEAForum ? theme.typography.body2 : {}),
-  textShadow: `0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 16px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 32px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}, 0 0 64px ${theme.palette.grey[0]}`,
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -294,7 +293,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           />
         </div>}
         {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this item for the next month" placement="right">
+          <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
               <CloseIcon className={classes.closeIcon} />
             </Button>

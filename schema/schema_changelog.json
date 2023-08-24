@@ -268,5 +268,25 @@
     "acceptsSchemaHash": "edd4ae60c5320ea4aa4d4e87bf92cafe",
     "acceptedByMigration": "20230724T113516.add_postCategory.ts",
     "timestamp": "2023-07-24T11:35:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e7d890dadc54453234507be13698b7b7",
+    "acceptedByMigration": "20230727T122027.add_isPostType_field.ts",
+    "timestamp": "2023-07-27T12:20:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d7266200db426f47cd1ba7abcc6a6db7",
+    "acceptedByMigration": "20230807T230123.add_hideHomeRHS_to_Users.ts",
+    "timestamp": "2023-08-07T23:01:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4aca6d1717b9bb1f98fa154bd99ea8a5",
+    "acceptedByMigration": "20230816T203807.add_hideFrontpageBook2020Ad_field.ts",
+    "timestamp": "2023-08-16T20:38:07.000Z"
+  },
+  {
+    "acceptsSchemaHash": "87520014b627c9ee151523bd05e7bdae",
+    "acceptedByMigration": "20230818T215451.post_embeddings_have_vector_type.ts",
+    "timestamp": "2023-08-18T21:54:51.000Z"
   }
 ]

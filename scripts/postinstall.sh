@@ -43,14 +43,13 @@ if [ "$NODE_ENV" == "production" ]; then
   exit 0
 fi
 
-echo -n "Checking for mongodb... "
-if which mongod >/dev/null; then
-  mongod --version |head -1
+echo -n "Checking for postgres... "
+if which psql >/dev/null; then
+  echo "yes"
 else
   echo "not found"
-  echo '`mongod` is not installed. You can run LessWrong by connecting to a remote'
+  echo '`psql` is not installed. You can run ForumMagnum by connecting to a remote'
   echo 'database, but you probably want a local server for testing.'
-  echo "See https://docs.mongodb.com/manual/installation/"
   echo
 fi
 
@@ -72,11 +71,6 @@ else
   echo "You do not have perl installed. The server will still run, you will not be able"
   echo "to run makemigrations"
   echo
-fi
-
-if [ ! -f settings.json ]; then
-  echo "Creating settings.json"
-  cp sample_settings.json settings.json
 fi
 
 if [ ! -f settings-dev.json ]; then

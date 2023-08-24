@@ -26,6 +26,7 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
+import { panic } from './utils/errorUtil';
 
 const numCPUs = cpus().length;
 
@@ -98,16 +99,12 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err.message);
-    // TODO: Remove forum gating here when we expand Postgres usage
-    if (forumTypeSetting.get() === "EAForum") {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
+const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    //connectToMongo(mongoUrl), // No longer needed as both EA Forum and LW have switched all collections
     connectToPostgres(postgresUrl),
     connectToPostgres(postgresReadUrl, "read"),
   ]);
@@ -140,6 +137,12 @@ const initPostgres = async () => {
     }
   }
   await Promise.all(polls);
+
+  // If we're migrating up, we might be migrating from the start on a fresh database, so skip the check
+  // for whether postgres views exist
+  const migrating = process.argv.some(arg => arg.indexOf('migrate') > -1)
+  const migratingUp = process.argv.some(arg => arg === 'up')
+  if (migrating && migratingUp) return;
 
   try {
     await ensurePostgresViewsExist(getSqlClientOrThrow());
@@ -177,6 +180,9 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
 export const initServer = async (commandLineArguments?: CommandLineArguments) => {
   initConsole();
   const args = commandLineArguments ?? getCommandLineArguments();
+  if (!args.postgresUrl) {
+    panic("Missing postgresUrl");
+  }
   await initDatabases(args);
   await initSettings();
   require('../server.ts');

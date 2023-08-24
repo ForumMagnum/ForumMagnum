@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { isLW } from '../../lib/instanceSettings';
+import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -74,7 +74,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             </div>
           </div>
           
-          {isLW && <span className={classes.rejectButton}>
+          {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
             {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
             <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
           </span>}
