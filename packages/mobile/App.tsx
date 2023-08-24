@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -43,6 +43,14 @@ moment.updateLocale("en", {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const Providers: FC<{children: ReactNode}> = ({children}) => {
+  return (
+    <ApolloProvider client={apolloClient}>
+      {children}
+    </ApolloProvider>
+  )
+}
+
 const App: FC = () => {
   const [fontsLoaded] = useFonts({
     Inter_500Medium,
@@ -59,7 +67,7 @@ const App: FC = () => {
   }
 
   return (
-    <ApolloProvider client={apolloClient}>
+    <Providers>
       <StatusBar
         style="light"
         backgroundColor={palette.primary}
@@ -84,7 +92,7 @@ const App: FC = () => {
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </ApolloProvider>
+    </Providers>
   );
 }
 

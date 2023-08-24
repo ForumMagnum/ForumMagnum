@@ -1,6 +1,5 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
-
-const GRAPHQL_API_URL = "https://forum.effectivealtruism.org/graphql";
+import { GRAPHQL_API_URL } from "./config";
 
 const httpLink = new HttpLink({
   uri: GRAPHQL_API_URL,
