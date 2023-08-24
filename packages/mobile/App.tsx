@@ -1,4 +1,5 @@
 import React, { FC, ReactNode } from "react";
+import { maybeCompleteAuthSession } from "expo-web-browser";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -21,6 +22,9 @@ import moment from "moment";
 import HomeScreen from "./screens/HomeScreen";
 import PostScreen from "./screens/PostScreen";
 import Header from "./components/Header";
+import UserHeaderInfo from "./components/UserHeaderInfo";
+
+maybeCompleteAuthSession();
 
 moment.updateLocale("en", {
   relativeTime: {
@@ -80,6 +84,7 @@ const App: FC = () => {
               backgroundColor: palette.grey[0],
             },
             headerTitle: Header,
+            headerRight: UserHeaderInfo,
           }}
         >
           <Stack.Screen
