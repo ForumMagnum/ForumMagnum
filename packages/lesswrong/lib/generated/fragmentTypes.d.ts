@@ -3027,6 +3027,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly showAuthor: boolean,
+  readonly imageFade: boolean,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
 }
@@ -3044,6 +3045,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly customSubtitle: string | null,
   readonly duration: number,
   readonly showAuthor: boolean,
+  readonly imageFade: boolean,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
