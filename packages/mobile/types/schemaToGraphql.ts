@@ -4,6 +4,7 @@ import {
   ZodObjectDef,
   ZodOptionalDef,
   ZodRawShape,
+  ZodType,
   ZodTypeDef,
 } from "zod";
 
@@ -20,9 +21,15 @@ const isOptionalType = (def: TypeDef): def is ZodOptionalDef =>
 const isObjectType = (def: TypeDef): def is ZodObjectDef =>
   def.typeName === "ZodObject";
 
-const simpleTypes = ["ZodNumber", "ZodString", "ZodBoolean"];
+const simpleTypes = [
+  "ZodNumber",
+  "ZodString",
+  "ZodBoolean",
+  "ZodAny",
+  "ZodArray",
+];
 
-const elementToGraphql = <T extends TypeDef>(name: string, def: T) => {
+const elementToGraphql = <T extends TypeDef>(name: string, def: T): string => {
   if (isOptionalType(def)) {
     return elementToGraphql(name, def.innerType._def);
   }
@@ -36,7 +43,7 @@ const elementToGraphql = <T extends TypeDef>(name: string, def: T) => {
   return "";
 }
 
-const shapeToGraphql = <T extends ZodTypeDef>(shape: T) => {
+const shapeToGraphql = (shape: Record<string, ZodType>) => {
   const keys = Object.keys(shape);
   let result = "";
   for (const key of keys) {

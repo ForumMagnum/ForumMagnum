@@ -16,7 +16,7 @@ const postFields = {
   }),
 } as const;
 
-export const postSchema = z.object(postFields);
+export const postSchema = z.object(postFields).describe("post");
 
 export type Post = z.infer<typeof postSchema>;
 
@@ -24,6 +24,6 @@ export const postWithContentSchema = z.object({
   ...postFields,
   htmlBody: z.string(),
   readTimeMinutes: z.optional(z.number()),
-});
+}).describe("post");
 
 export type PostWithContent = z.infer<typeof postWithContentSchema>;

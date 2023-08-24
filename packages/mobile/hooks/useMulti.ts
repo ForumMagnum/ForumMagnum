@@ -2,6 +2,9 @@ import { useQuery, gql, NetworkStatus, ApolloError } from "@apollo/client";
 import { compileTerms, schemaToGraphql } from "../types/schemaToGraphql";
 import type { ZodObject, ZodRawShape, z } from "zod";
 
+const getMultiResolverName = <T extends ZodRawShape>(schema: ZodObject<T>) =>
+  schema.description + "s" ?? "";
+
 const compileQuery = <T extends ZodRawShape>(
   terms: Record<string, unknown>,
   schema: ZodObject<T>,
@@ -10,7 +13,7 @@ const compileQuery = <T extends ZodRawShape>(
   const compiledSchema = schemaToGraphql(schema);
   return gql`
     {
-      posts(input: {
+      ${getMultiResolverName(schema)}(input: {
         terms: {
           ${compiledTerms}
         }
@@ -32,7 +35,7 @@ type UseMultiResult<T extends ZodRawShape> = {
   loading: boolean,
   loadingInitial: boolean,
   loadingMore: boolean,
-  results: z.infer<ZodObject<T>>[],
+  results?: z.infer<ZodObject<T>>[],
   refetch: () => void,
   error?: ApolloError,
 }
@@ -50,7 +53,7 @@ export const useMulti = <T extends ZodRawShape>({
     networkStatus,
   } = useQuery(query, {
   });
-  const results = data?.posts?.results;
+  const results = data?.[getMultiResolverName(schema)]?.results;
   return {
     loading: loading || networkStatus === NetworkStatus.fetchMore,
     loadingInitial: networkStatus === NetworkStatus.loading,

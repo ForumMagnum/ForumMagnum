@@ -9,7 +9,7 @@
     "strictNullChecks": true,
     "jsx": "react",
     "esModuleInterop": true,
-    "rootDir": "../..",
+    "rootDir": ".",
     "module": "commonjs",
     "target": "es6",
     "sourceMap": true,
@@ -20,13 +20,7 @@
     "strictBindCallApply": true,
     "allowImportingTsExtensions": true
   },
-  "include": [
-    "../lesswrong/**/*.ts",
-    "../lesswrong/**/*.tsx",
-    "../lesswrong/**/*.d.ts"
-  ],
   "exclude": [
-    "./node_modules",
-    "../../node_modules"
+    "./node_modules"
   ]
 }
