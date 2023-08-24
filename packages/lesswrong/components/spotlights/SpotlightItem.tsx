@@ -100,7 +100,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     [theme.breakpoints.down('xs')]: {
       display: "none"
-    }
+    },
+    ...(isEAForum ? {
+      fontSize: 13,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.grey[700],
+      marginTop: 8,
+    } : {}),
   },
   title: {
     ...theme.typography.headerStyle,
@@ -269,6 +275,8 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
     setEdit(false);
     refetchAllSpotlights?.();
   };
+  
+  console.log('spotlight', spotlight.description?.html)
 
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root} id={spotlight._id}>
@@ -287,7 +295,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           {spotlight.customSubtitle && <div className={classes.subtitle}>
             {spotlight.customSubtitle}
           </div>}
-          {spotlight.description?.html || isLWorAF && <div className={classes.description}>
+          {(spotlight.description?.html || isLWorAF) && <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
