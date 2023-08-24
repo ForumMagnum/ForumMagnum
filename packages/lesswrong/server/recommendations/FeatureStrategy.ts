@@ -32,6 +32,9 @@ class FeatureStrategy extends RecommendationStrategy {
     let args = {};
 
     for (const {feature: featureName, weight} of features) {
+      if (weight === 0) {
+        continue;
+      }
       const feature = new featureRegistry[featureName]();
       joins += ` ${feature.getJoin()}`;
       filters += ` ${feature.getFilter()}`;

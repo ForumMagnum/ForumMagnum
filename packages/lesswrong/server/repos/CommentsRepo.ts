@@ -1,7 +1,10 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "../../lib/sql/SelectQuery";
+<<<<<<< HEAD
 import { toDictionary } from "../../lib/utils/toDictionary";
+=======
+>>>>>>> 5a6025899f353d4f765b3af87a6fe8a8415d921a
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -161,5 +164,24 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [commentIds]);
     
     return toDictionary(idPairs, row=>row._id, row=>row.parentCommentId);
+  }
+
+  async getCommentsPerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; comment_count: string }[]> {
+    return await this.getRawDb().any<{window_start_key: string, comment_count: string}>(`
+      SELECT
+        -- Format as YYYY-MM-DD to make grouping easier
+        to_char(c."postedAt", 'YYYY-MM-DD') AS window_start_key,
+        COUNT(c."postedAt") AS comment_count
+      FROM "Comments" c
+      WHERE
+        c."postId" IN ($1:csv)
+        AND ($2 IS NULL OR c."postedAt" >= $2)
+        AND c."postedAt" <= $3
+        AND c."deleted" IS NOT TRUE
+      GROUP BY
+        window_start_key
+      ORDER BY
+        window_start_key;
+    `, [postIds, startDate, endDate]);
   }
 }
