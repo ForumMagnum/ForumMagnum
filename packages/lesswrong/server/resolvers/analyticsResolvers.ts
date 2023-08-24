@@ -228,10 +228,6 @@ addGraphQLResolvers({
       const { currentUser } = context;
       const analyticsDb = getAnalyticsConnectionOrThrow();
 
-      if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
-        throw new Error("Permission denied");
-      }
-
       const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
       const postSelector = {
@@ -242,21 +238,17 @@ addGraphQLResolvers({
         isEvent: false,
       };
       const postCountPromise = Posts.find(postSelector).count();
-      const userPosts = await Posts.find(postSelector, {
+      const rawPosts = await Posts.find(postSelector, {
         ...(directlySortable && { sort: { [sortBy]: desc ? -1 : 1 } }),
         ...(directlySortable && { limit }),
-        projection: {
-          _id: 1,
-          title: 1,
-          slug: 1,
-          postedAt: 1,
-          baseScore: 1,
-          commentCount: 1,
-        },
       }).fetch();
 
-      const postsById = Object.fromEntries(userPosts.map((post) => [post._id, post]));
-      const postIds = userPosts.map((post) => post._id);
+      const filteredPosts = rawPosts.filter((post) =>
+        userIsAdminOrMod(currentUser) || canUserEditPostMetadata(currentUser, post)
+      );
+
+      const postsById = Object.fromEntries(filteredPosts.map((post) => [post._id, post]));
+      const postIds = filteredPosts.map((post) => post._id);
 
       if (!postIds.length) {
         return {
@@ -375,10 +367,7 @@ addGraphQLResolvers({
 
       const { currentUser } = context;
       const analyticsDb = getAnalyticsConnectionOrThrow();
-    
-      if (currentUser?._id !== userId && !userIsAdminOrMod(currentUser)) {
-        throw new Error("Permission denied");
-      }
+
       if (!userId && (!postIds || !postIds.length)) {
         throw new Error("Must provide either userId or postIds");
       }
@@ -390,20 +379,21 @@ addGraphQLResolvers({
       const adjustedStartDate = startDate ? moment(new Date(startDate)).utc().startOf("day") : undefined;
       const adjustedEndDate = moment(new Date(endDate)).utc().add(1, "days").startOf("day");
 
-      let queryPostIds: string[] = postIds || [];
-      if (userId) {
-        const postSelector = {
-          $or: [{ userId: userId }, { "coauthorStatuses.userId": userId }],
-          rejected: { $ne: true },
-          draft: false,
-          isEvent: false
-        }
-        const userPosts = await Posts.find(postSelector, {
-          projection: {
-            _id: 1,
-          },
-        }).fetch();
-        queryPostIds = userPosts.map((post) => post._id);
+      const postSelector = {
+        ...(userId && {$or: [{ userId: userId }, { "coauthorStatuses.userId": userId }]}),
+        ...(postIds && { _id: { $in: postIds } }),
+        rejected: { $ne: true },
+        draft: false,
+        isEvent: false,
+      }
+      const rawPosts = await Posts.find(postSelector).fetch();
+      const filteredPosts = rawPosts.filter(
+        (post) => userIsAdminOrMod(currentUser) || canUserEditPostMetadata(currentUser, post)
+      );
+      const queryPostIds = filteredPosts.map((post) => post._id);
+
+      if (!queryPostIds.length) {
+        return [];
       }
 
       const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
