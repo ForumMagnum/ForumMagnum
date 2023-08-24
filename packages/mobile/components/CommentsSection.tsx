@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   headerText: {
     fontFamily: palette.fonts.sans.bold,

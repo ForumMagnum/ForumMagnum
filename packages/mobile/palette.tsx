@@ -1,8 +1,10 @@
 export const palette = {
   borderRadius: 6,
+  borderRadiusSmall: 4,
   primary: "#0c869b",
   primaryLight: "#00b2be",
   primaryDark: "#085d6c",
+  commentBorder: "rgba(72, 94, 144, 0.16)",
   grey: {
     // Exactly matches @material-ui/core/colors/grey
     50: "#fafafa",

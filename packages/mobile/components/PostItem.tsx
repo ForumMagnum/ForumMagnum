@@ -1,13 +1,13 @@
 import React, { FC, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useNavigation } from "../navigation";
+import { useFormattedDate } from "../hooks/useFormattedDate";
 import { Path, Svg } from "react-native-svg";
 import { palette } from "../palette";
 import type { Post } from "../types/PostTypes";
 import Type from "./Type";
 import MobileIcon from "./MobileIcon";
 import Touchable from "./Touchable";
-import moment from "moment";
 
 const styles = StyleSheet.create({
   root: {
@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
 });
 
 const PostItem: FC<{post: Post}> = ({post}) => {
+  const formattedDate = useFormattedDate(post.postedAt, "fromNow");
   const navigation = useNavigation();
   const onPress = useCallback(() => {
     navigation.navigate("Post", {
@@ -86,7 +87,7 @@ const PostItem: FC<{post: Post}> = ({post}) => {
               </Type>
               <Type style={styles.secondaryText}>·</Type>
               <Type style={[styles.secondaryText, styles.grow]}>
-                {moment(new Date(post.postedAt)).fromNow()}
+                {formattedDate}
               </Type>
             </View>
             <View style={styles.row}>

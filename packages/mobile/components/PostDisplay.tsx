@@ -4,8 +4,8 @@ import type { PostWithContent } from "../types/PostTypes";
 import { palette } from "../palette";
 import Type from "./Type";
 import HtmlContentBody from "./HtmlContentBody";
-import moment from "moment";
 import MobileIcon from "./MobileIcon";
+import { useFormattedDate } from "../hooks/useFormattedDate";
 
 const styles = StyleSheet.create({
   root: {
@@ -44,14 +44,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const formatDate = (date: string): string => {
-  const momentDate = moment(date);
-  const now = moment();
-  const format = now.isSame(momentDate, "year") ? "MMM D" : "MMM D YYYY";
-  return momentDate.format(format);
-}
-
 const PostDisplay: FC<{post: PostWithContent}> = ({post}) => {
+  const formattedDate = useFormattedDate(post.postedAt);
   return (
     <View style={styles.root}>
       <Type style={styles.title}>
@@ -62,7 +56,7 @@ const PostDisplay: FC<{post: PostWithContent}> = ({post}) => {
       </Type>
       <View style={styles.infoRow}>
         <Type style={styles.secondaryText}>
-          {formatDate(post.postedAt)}
+          {formattedDate}
         </Type>
         <Type style={styles.secondaryText}>
           {post.readTimeMinutes ?? 1} min read

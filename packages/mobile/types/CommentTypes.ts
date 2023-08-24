@@ -23,7 +23,7 @@ export const commentSchema = z.object({
   deletedPublic: z.optional(z.boolean()),
   hideAuthor: z.optional(z.boolean()),
   authorIsUnreviewed: z.optional(z.boolean()),
-  user: userSchema,
+  user: z.optional(userSchema),
   currentUserVote: z.optional(z.string()),
   currentUserExtendedVote: z.optional(z.any()),
   baseScore: z.number(),

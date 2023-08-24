@@ -1,7 +1,10 @@
 import React, { FC } from "react";
 import { useWindowDimensions } from "react-native";
 import Constants from "expo-constants";
-import RenderHtml, { MixedStyleDeclaration, MixedStyleRecord } from "react-native-render-html";
+import RenderHtml, {
+  MixedStyleDeclaration,
+  MixedStyleRecord,
+} from "react-native-render-html";
 import { palette } from "../palette";
 
 const sansText: MixedStyleDeclaration = {
@@ -44,6 +47,15 @@ const tagStyles: MixedStyleRecord = {
   },
 };
 
+const sansTagStyles: MixedStyleRecord = {
+  ...tagStyles,
+  p: sansText,
+  span: sansText,
+  div: sansText,
+  i: sansText,
+  li: sansText,
+};
+
 const classStyles: MixedStyleRecord = {
   "footnote-reference": {
     fontSize: 5,
@@ -52,16 +64,20 @@ const classStyles: MixedStyleRecord = {
 
 const systemFonts: string[] = [
   palette.fonts.serif.regular,
+  palette.fonts.sans.medium,
   ...Constants.systemFonts,
 ];
 
-const HtmlContentBody: FC<{html: string}> = ({html}) => {
+const HtmlContentBody: FC<{
+  html: string,
+  sans?: boolean,
+}> = ({html, sans}) => {
   const {width} = useWindowDimensions();
   return (
     <RenderHtml
       contentWidth={width}
       source={{html}}
-      tagsStyles={tagStyles}
+      tagsStyles={sans ? sansTagStyles : tagStyles}
       classesStyles={classStyles}
       systemFonts={systemFonts}
       enableExperimentalMarginCollapsing
