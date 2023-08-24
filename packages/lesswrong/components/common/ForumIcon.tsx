@@ -32,6 +32,7 @@ import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
@@ -126,6 +127,7 @@ export type ForumIconName =
   "School" |
   "MapPin" |
   "Pencil" |
+  "PencilSquare" |
   "Comment" |
   "CommentFilled" |
   "Shortform" |
@@ -190,6 +192,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     Shortform: MuiNotesIcon,
@@ -253,6 +256,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     Shortform: LightbulbIcon,

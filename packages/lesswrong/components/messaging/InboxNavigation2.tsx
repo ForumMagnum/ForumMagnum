@@ -2,11 +2,9 @@ import React from "react";
 import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useUpdate } from "../../lib/crud/withUpdate";
-import { useMulti } from "../../lib/crud/withMulti";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import { userCanDo } from "../../lib/vulcan-users";
 import { preferredHeadingCase } from "../../lib/forumTypeUtils";
-import { randomId } from "../../lib/random";
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -22,14 +20,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // The Navigation for the Inbox components
 const InboxNavigation2 = ({
-  terms,
+  conversationsResult,
   currentUser,
   title = preferredHeadingCase("All Messages"),
   selectedConversationId,
   setSelectedConversationId,
   classes,
 }: {
-  terms: ConversationsViewTerms;
+  conversationsResult: UseMultiResult<"conversationsListFragment">;
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
   selectedConversationId: string | undefined;
@@ -40,13 +38,7 @@ const InboxNavigation2 = ({
   const { currentRoute, query } = location;
   const { history } = useNavigation();
 
-  const { results, loading, loadMoreProps } = useMulti({
-    terms,
-    collectionName: "Conversations",
-    fragmentName: "conversationsListFragment",
-    fetchPolicy: "cache-and-network",
-    limit: 50,
-  });
+  const { results: conversations, loading, loadMoreProps } = conversationsResult;
 
   const { mutate: updateConversation } = useUpdate({
     collectionName: "Conversations",
@@ -54,7 +46,6 @@ const InboxNavigation2 = ({
   });
 
   const {
-    SectionTitle,
     ConversationItem2,
     Loading,
     SectionFooter,
@@ -65,12 +56,8 @@ const InboxNavigation2 = ({
   const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute.name !== "moderatorInbox";
 
   return <>
-      {/* <SectionTitle title={title} noTopMargin> */}
-        {/* TODO add mod inbox back in */}
-        {/* {showModeratorLink && <Link to={"/moderatorInbox"} className={classes.modInboxLink}>Mod Inbox</Link>} */}
-      {/* </SectionTitle> */}
-      {results?.length ? (
-        results.map((conversation, idx) => (
+      {conversations?.length ? (
+        conversations.map((conversation, idx) => (
           <ConversationItem2
             key={conversation._id + idx}
             conversation={conversation}

@@ -87,7 +87,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       embedConversation(conversationId, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      history.push({pathname: `/inbox/${conversationId}`, ...templateParams})
+      history.push({pathname: `/inbox2/${conversationId}`, ...templateParams})
     }
   }
 

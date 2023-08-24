@@ -155,9 +155,6 @@ const ConversationWidget = ({
           </Typography>
         )}
       </div>
-      <Typography variant="display2" className={classes.conversationTitle}>
-        {conversationGetTitle(conversation, currentUser)}
-      </Typography>
       <ConversationDetails conversation={conversation} />
       {renderMessages()}
       <div className={classes.editor}>

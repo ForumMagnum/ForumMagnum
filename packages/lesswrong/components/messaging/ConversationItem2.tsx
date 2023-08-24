@@ -4,6 +4,7 @@ import * as _ from "underscore";
 import { truncate } from "../../lib/editor/ellipsize";
 import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
+import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -12,9 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 16,
-    borderTop: theme.palette.border.grey200,
-    borderLeft: theme.palette.border.grey200,
-    borderRight: theme.palette.border.grey200,
+    borderBottom: theme.palette.border.grey200,
     cursor: "pointer",
     "&:hover": {
       background: theme.palette.grey[50],
@@ -34,6 +33,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
   },
   title: {
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 1,
     color: theme.palette.grey[1000],
     fontSize: 16,
     fontWeight: 700,
@@ -43,14 +46,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: '21px'
+    lineHeight: '21px',
+    marginRight: 4,
   },
   preview: {
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
-    // marginTop: 4,
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
@@ -76,7 +79,7 @@ const ConversationItem2 = ({
 }) => {
   const { UsersProfileImage, FormatDate, PostsItem2MetaInfo, UsersName } = Components;
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id);
-  const isSelected = selectedConversationId === conversation._id;
+  const isSelected = selectedConversationId?._id === conversation._id;
 
   const { onClick } = useClickableCell({ onClick: () => setSelectedConversationId(conversation._id) });
 
@@ -84,9 +87,7 @@ const ConversationItem2 = ({
 
   const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
   const firstParticipant = otherParticipants[0];
-  const title = `${firstParticipant.displayName}${
-    otherParticipants.length > 1 ? ` + ${otherParticipants.length - 1} more` : ""
-  }`;
+  const title = conversationGetTitle2(conversation, currentUser)
 
   const latestMessagePlaintext = conversation.latestMessage?.contents?.plaintextMainText ?? ""
   // This will be truncated further by webkit-line-clamp. This truncation is just to avoid padding
@@ -116,35 +117,6 @@ const ConversationItem2 = ({
       </div>
     </div>
   );
-  // return (
-  //   <div>
-  //     <div className={classNames(classes.root, classes.wrap, { [classes.archivedItem]: isArchived })}>
-  //       <div
-  //         className={classNames(classes.title, classes.titleLineHeight, classes.commentFont)}
-  //         onClick={() => setSelectedConversationId(conversation._id)}
-  //       >
-  //         {conversationGetTitle(conversation, currentUser)}
-  //       </div>
-  //       {conversation.participants
-  //         .filter((user) => user._id !== currentUser._id)
-  //         .map((user) => (
-  //           <span key={user._id} className={classes.leftMargin}>
-  //             <PostsItem2MetaInfo>
-  //               {" "}
-  //               <UsersName user={user} />{" "}
-  //             </PostsItem2MetaInfo>
-  //           </span>
-  //         ))}
-  //       {conversation.latestActivity && (
-  //         <span className={classes.leftMargin}>
-  //           <PostsItem2MetaInfo>
-  //             <FormatDate date={conversation.latestActivity} />
-  //           </PostsItem2MetaInfo>
-  //         </span>
-  //       )}
-  //     </div>
-  //   </div>
-  // );
 };
 
 const ConversationItem2Component = registerComponent("ConversationItem2", ConversationItem2, { styles });

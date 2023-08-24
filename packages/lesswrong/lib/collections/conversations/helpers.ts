@@ -13,6 +13,21 @@ export const conversationGetTitle = (conversation: conversationsListFragment, cu
   }
 }
 
+// TODO merge with previous
+export const conversationGetTitle2 = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
+  if (!!conversation.title) {
+    return conversation.title
+  } else if (conversation.participants) {
+    const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
+    const firstParticipant = otherParticipants[0];
+    return `${firstParticipant.displayName}${
+      otherParticipants.length > 1 ? ` + ${otherParticipants.length - 1} more` : ""
+    }`;
+  } else {
+    return "Conversation";
+  }
+}
+
 export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
