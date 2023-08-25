@@ -22,7 +22,7 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -206,8 +206,8 @@ const Layout = ({currentUser, children, classes}: {
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
   // enable during ACX Everywhere
-  // const [cookies] = useCookiesWithConsent()
-  // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  const [cookies] = useCookiesWithConsent()
+  const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -347,7 +347,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
               {/* enable during ACX Everywhere */}
-              {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {
