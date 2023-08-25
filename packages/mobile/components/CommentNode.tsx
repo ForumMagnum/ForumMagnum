@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     padding: 14,
     paddingBottom: 0,
     marginBottom: 8,
+    backgroundColor: palette.grey[0],
   },
   rootOdd: {
     backgroundColor: palette.grey[120],

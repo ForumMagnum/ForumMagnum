@@ -29,6 +29,7 @@ const compileQuery = <T extends ZodRawShape>(
 type UseSingleProps<T extends ZodRawShape> = {
   selector: Record<string, unknown>,
   schema: ZodObject<T>,
+  skip?: boolean,
 }
 
 type UseSingleResult<T extends ZodRawShape> = {
@@ -43,6 +44,7 @@ type UseSingleResult<T extends ZodRawShape> = {
 export const useSingle = <T extends ZodRawShape>({
   selector,
   schema,
+  skip,
 }: UseSingleProps<T>): UseSingleResult<T> => {
   const query = compileQuery(selector, schema);
   const {
@@ -52,6 +54,7 @@ export const useSingle = <T extends ZodRawShape>({
     refetch,
     networkStatus,
   } = useQuery(query, {
+    skip,
   });
   const result = data?.[getSingleResolverName(schema)]?.result;
   return {

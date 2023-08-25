@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Linking } from "react-native";
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { useAuthRequest, makeRedirectUri } from "expo-auth-session";
-import { AUTH0_CLIENT_ID, AUTH0_DOMAIN } from "../config";
+import { AUTH0_CLIENT_ID, AUTH0_DOMAIN, FM_TOKEN_URL } from "../config";
 import jwtDecode from "jwt-decode";
 
 const domain = "https://" + AUTH0_DOMAIN;
@@ -21,7 +21,6 @@ export type DecodedUserToken = {
   iss: string,
   name: string,
   nickname: string,
-  nonce?: string,
   picture: string,
   sid: string,
   sub: string,
@@ -43,12 +42,12 @@ export const useAuth = () => {
   } = useAsyncStorage("jwtToken");
 
   const [request, response, promptAsync] = useAuthRequest({
-    redirectUri,
+    redirectUri: FM_TOKEN_URL,
     clientId: AUTH0_CLIENT_ID,
     responseType: "id_token",
-    scopes: ["openid", "profile"],
+    scopes: ["profile", "email", "openid", "offline_access"],
     extraParams: {
-      nonce: "nonce",
+      returnTo: redirectUri,
     },
   }, {
     authorizationEndpoint,
@@ -92,7 +91,8 @@ export const useAuth = () => {
   }, [response]);
 
   const launchAuthPrompt = useCallback(() => {
-    void promptAsync();
+    Linking.openURL(`https://forum.effectivealtruism.org/auth/auth0?returnTo=${redirectUri}`);
+    // void promptAsync();
   }, [request]);
 
   return {

@@ -29,6 +29,7 @@ const compileQuery = <T extends ZodRawShape>(
 type UseMultiProps<T extends ZodRawShape> = {
   terms: Record<string, unknown>,
   schema: ZodObject<T>,
+  skip?: boolean,
 }
 
 type UseMultiResult<T extends ZodRawShape> = {
@@ -43,6 +44,7 @@ type UseMultiResult<T extends ZodRawShape> = {
 export const useMulti = <T extends ZodRawShape>({
   terms,
   schema,
+  skip,
 }: UseMultiProps<T>): UseMultiResult<T> => {
   const query = compileQuery(terms, schema);
   const {
@@ -52,6 +54,7 @@ export const useMulti = <T extends ZodRawShape>({
     refetch,
     networkStatus,
   } = useQuery(query, {
+    skip,
   });
   const results = data?.[getMultiResolverName(schema)]?.results;
   return {

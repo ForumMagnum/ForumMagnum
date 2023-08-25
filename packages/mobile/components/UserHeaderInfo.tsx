@@ -1,32 +1,37 @@
 import React, { FC } from "react";
 import { StyleSheet, Button, Text, View } from "react-native";
 import { palette } from "../palette";
-import { useAuth } from "../hooks/useAuth";
+import { useCurrentUser, useLaunchAuthPrompt } from "../hooks/useCurrentUser";
 
 const styles = StyleSheet.create({
   root: {
-    marginRight: 20,
+    marginRight: 14,
   },
 });
 
-const UserHeaderInfo: FC = () => {
-  const {launchAuthPrompt, user} = useAuth();
-
-  if (!user) {
-    return (
-      <View style={styles.root}>
-        <Button
-          color={palette.primary}
-          onPress={launchAuthPrompt}
-          title="Login"
-        />
-      </View>
-    );
-  }
-
+const LoginButton: FC = () => {
+  const launchAuthPrompt = useLaunchAuthPrompt();
   return (
     <View style={styles.root}>
-      <Text>{user.decoded.nickname}</Text>
+      <Button
+        color={palette.primary}
+        onPress={launchAuthPrompt}
+        title="Login"
+      />
+    </View>
+  );
+}
+
+const UserHeaderInfo: FC = () => {
+  const currentUser = useCurrentUser();
+  if (!currentUser) {
+    return (
+      <LoginButton />
+    );
+  }
+  return (
+    <View style={styles.root}>
+      <Text>{currentUser.displayName}</Text>
     </View>
   );
 }

@@ -3,6 +3,7 @@ import { maybeCompleteAuthSession } from "expo-web-browser";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { CurrentUserContextProvider } from "./hooks/useCurrentUser";
 import { ApolloProvider } from "@apollo/client";
 import { apolloClient } from "./apollo";
 import { palette } from "./palette";
@@ -50,9 +51,11 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Providers: FC<{children: ReactNode}> = ({children}) => {
   return (
     <ApolloProvider client={apolloClient}>
-      {children}
+      <CurrentUserContextProvider>
+        {children}
+      </CurrentUserContextProvider>
     </ApolloProvider>
-  )
+  );
 }
 
 const App: FC = () => {

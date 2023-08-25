@@ -79,6 +79,7 @@ function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFro
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
     try {
       const profileId = getIdFromProfile(profile)
+      console.log("profile", profile);
       // Probably impossible
       if (!profileId) {
         throw new Error('OAuth profile does not have a profile ID')
