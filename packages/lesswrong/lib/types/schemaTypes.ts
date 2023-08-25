@@ -58,6 +58,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   maxCount?: number,
   options?: MaybeFunction<any,SmartFormProps>,
   allowedValues?: string[],
+  vectorSize?: number,
   
   /**
    * Custom props that will be passed to the input component. Can pass in

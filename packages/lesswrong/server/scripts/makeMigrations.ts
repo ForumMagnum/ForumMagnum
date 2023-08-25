@@ -11,6 +11,8 @@ import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
+import { PostgresExtension, postgresExtensions } from '../sqlConnection';
+import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -139,8 +141,16 @@ export const makeMigrations = async ({
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
-  const currentHashes: Partial<Record<CollectionNameString, string>> = {};
+  const currentHashes: Partial<Record<CollectionNameString|PostgresExtension, string>> = {};
   let schemaFileContents = "";
+
+  for (const extensionName of postgresExtensions) {
+    const extensionHash = md5(extensionName);
+    currentHashes[extensionName] = extensionHash;
+    const query = new CreateExtensionQuery(extensionName);
+    schemaFileContents += `-- Extension "${extensionName}", hash: ${extensionHash}\n`;
+    schemaFileContents += query.compile().sql + ";\n\n";
+  }
 
   // Sort collections by name, so that the order of the output is deterministic
   const collectionNames = getAllCollections().map(c => c.collectionName).sort();

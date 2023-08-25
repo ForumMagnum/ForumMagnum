@@ -74,6 +74,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: '4px 0px',
     }
   },
+  menuNoQueryParam: {
+    // I have absolutely no idea what causes it but having queryParam undefined causes the
+    // menu to be positioned 18px too high
+    marginTop: 46
+  },
   menuItem: {
     ...(isEAForum && {
       color: theme.palette.grey[1000],
@@ -121,7 +126,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
       >
         {label} {dropdownIcon}
       </Button>
-      <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classes.menu}>
+      <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
           const menuItem = <MenuItem
             key={option}

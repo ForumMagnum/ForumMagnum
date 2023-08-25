@@ -81,15 +81,14 @@ class TextSimilarityFeature extends Feature {
       INNER JOIN "PostEmbeddings" pe ON
         pe."postId" = p."_id" AND
         pe."model" = $(embeddingsModel)
+      JOIN "PostEmbeddings" seed_embeddings ON
+        seed_embeddings."postId" = $(postId) AND
+        seed_embeddings."model" = $(embeddingsModel)
     `;
   }
 
   getScore() {
-    return `fm_dot_product(pe."embeddings", (
-      SELECT "embeddings"
-      FROM "PostEmbeddings"
-      WHERE "postId" = $(postId) AND "model" = $(embeddingsModel)
-    ))`;
+    return `(-1 * (pe."embeddings" <#> seed_embeddings."embeddings"))`;
   }
 
   getArgs() {

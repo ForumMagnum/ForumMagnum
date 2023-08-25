@@ -140,7 +140,8 @@ export class HybridView {
 
   async ensureView() {
     if (await this.viewExists()) {
-      await this.dropOldVersions();
+      // TODO add something like this back in
+      // await this.dropOldVersions();
       return;
     }
 
@@ -156,7 +157,8 @@ export class HybridView {
       `CREATE MATERIALIZED VIEW "${this.matViewName}" AS (${this.queryGenerator(new Date(0), true)})`
     );
 
-    await this.dropOldVersions();
+    // TODO add something like this back in
+    // await this.dropOldVersions();
   }
 
   async ensureIndexes() {
@@ -182,7 +184,10 @@ export class HybridView {
     if (!(await this.viewExists())) {
       await this.ensureView();
       await this.ensureIndexes();
-    } else {
+      return;
+    }
+    
+    if (!(await this.refreshInProgress())) {
       await this.ensureIndexes();
       try {
         await this.viewSqlClient.none(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.matViewName}"`);
@@ -191,7 +196,11 @@ export class HybridView {
         console.error(`Failed to refresh materialized view "${this.matViewName}". This may be because there is no unique index, which is required to refresh "CONCURRENTLY" (i.e. without locking the view from reads)`);
         throw e;
       }
+      return;
     }
+
+    // eslint-disable-next-line no-console
+    console.log(`Materialized view ${this.matViewName} is already in the process of being refreshed.`);
   }
 
   async virtualTable() {
@@ -303,6 +312,16 @@ export function getHybridView(identifier: string): HybridView | undefined {
 
 export async function refreshHybridViews() {
   Object.values(hybridViews).map((hybridView) => void hybridView.refreshMaterializedView());
+
+  const analyticsDb = getAnalyticsConnection();
+
+  if (!analyticsDb) {
+    // eslint-disable-next-line no-console
+    console.log("No analytics DB configured, not performing VACUUM ANALYZE");
+    return;
+  }
+
+  void analyticsDb.none("VACUUM ANALYZE;");
 }
 
 addCronJob({
