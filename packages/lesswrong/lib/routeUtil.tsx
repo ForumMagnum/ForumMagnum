@@ -5,6 +5,7 @@ import { LocationContext, NavigationContext, ServerRequestStatusContext, Subscri
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
+import type { History } from 'history';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -52,7 +53,7 @@ export const useSubscribedLocation = (): RouterLocation => {
 // field, `history`. See https://github.com/ReactTraining/history for
 // documentation on it.
 // Use of this hook will never trigger rerenders.
-export const useNavigation = (): any => {
+export const useNavigation = (): { history: History } => {
   return useContext(NavigationContext);
 }
 

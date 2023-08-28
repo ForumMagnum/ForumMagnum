@@ -32,13 +32,16 @@ export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get(
 export const tagCreateUrl = `/${tagUrlBase}/create`
 export const tagGradingSchemeUrl = `/${tagUrlBase}/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false) => {
+export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
   const urlSearchParams = urlOptions
   const search = qs.stringify(urlSearchParams)
 
+  const searchSuffix = search ? `?${search}` : ''
+  const hashSuffix = hash ? `#${hash}` : ''
+
   const url = `/${tagUrlBase}/${tag.slug}`
-  const urlWithSearch = `${url}${search ? `?${search}` : ''}`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSearch) : urlWithSearch
+  const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
+  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSuffixes) : urlWithSuffixes
 }
 
 export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBase}/${tag.slug}/history`
