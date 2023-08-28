@@ -48,7 +48,7 @@ if which psql >/dev/null; then
   echo "yes"
 else
   echo "not found"
-  echo '`psql` is not installed. You can run LessWrong by connecting to a remote'
+  echo '`psql` is not installed. You can run ForumMagnum by connecting to a remote'
   echo 'database, but you probably want a local server for testing.'
   echo
 fi

@@ -1,12 +1,11 @@
 import React from "react";
-import { isEAForum } from "../../lib/instanceSettings";
 import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
-import { getUserFromResults } from "./UsersProfile";
-import { PostAnalytics2Result, useAuthorAnalytics } from "./useAuthorAnalytics";
+import { getUserFromResults } from "../users/UsersProfile";
+import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import moment from "moment";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -23,14 +22,14 @@ const gridColumns = (titleWidth: number) =>
     titleWidth
   )}%`;
 
-// lw-look-here
-// TODO we need to handle these once the graph is added back in
-const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021";
-const missingClientLastDay = isEAForum ? "2021-06-14" : "2021-05-01";
-const dataCollectionFirstDay = isEAForum ? "Feb 19th, 2020" : "around the start of 2020";
-
 const styles = (theme: ThemeType): JssStyles => ({
-  postsListSection: {
+  root: {
+    [theme.breakpoints.down("sm")]: {
+      // Add the top padding back in for mobile
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
+    }
+  },
+  section: {
     background: theme.palette.grey[0],
     padding: "24px 24px",
     marginBottom: 24,
@@ -40,11 +39,24 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 16,
     },
   },
-  subheading: {
+  postsListHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  postsListHeaderText: {
     fontSize: 20,
     fontWeight: "600",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
+  },
+  fetchingLatest: {
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    // stick to bottom
+    alignSelf: "flex-end",
+    marginBottom: 4,
   },
   grid: {
     display: "grid",
@@ -96,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     [theme.breakpoints.down("xs")]: {
       marginLeft: 0,
-    }
+    },
   },
   valueCell: {
     textAlign: "center",
@@ -134,7 +146,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "scaleY(-1)",
     [theme.breakpoints.down("xs")]: {
       marginLeft: 0,
-    }
+    },
   },
   desc: {
     transform: "scaleY(1)",
@@ -145,7 +157,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down("xs")]: {
       // On mobile: accept some layout shift in return for having more space
       display: "none",
-    }
+    },
   },
 });
 
@@ -176,8 +188,6 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
   );
 };
 
-const defaultSortBy = "postedAt";
-
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { params, query, location } = useLocation();
   const { history } = useNavigation();
@@ -187,14 +197,14 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { loading: userLoading, results } = useMulti({
     terms: { view: "usersProfile", slug },
     collectionName: "Users",
-    fragmentName: "UsersProfile",
+    fragmentName: "UsersMinimumInfo",
     enableTotal: false,
     fetchPolicy: "cache-and-network",
   });
   const user = getUserFromResults(results);
 
-  const { sortBy = defaultSortBy, sortDesc: sortDescRaw } = query;
-  const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : true;
+  const { sortBy, sortDesc: sortDescRaw } = query;
+  const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : undefined;
 
   const onClickHeader = (headerField: string) => {
     let newSortBy: string | undefined = sortBy;
@@ -204,9 +214,8 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       if (sortDesc === true) {
         newSortDesc = false;
       } else if (sortDesc === false) {
-        // Reset to default sort
-        newSortBy = "postedAt";
-        newSortDesc = true;
+        newSortBy = undefined;
+        newSortDesc = undefined;
       }
     } else {
       newSortBy = headerField;
@@ -226,26 +235,23 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    history.replace({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const {
-    authorAnalytics,
+    data,
     loading: analyticsLoading,
+    maybeStale,
     loadMoreProps,
-  } = useAuthorAnalytics({
+  } = useMultiPostAnalytics({
     userId: user?._id,
     sortBy,
     desc: sortDesc,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon } = Components;
+  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
-  // TODO: This is admin/mod gated while in development. Uncomment below when it is ready for public use.
-  // if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
-  //   return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
-  // }
-  if (!userIsAdminOrMod(currentUser)) {
+  if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
   }
 
@@ -253,7 +259,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const title = `Stats for ${user.displayName}`;
 
-  const posts = authorAnalytics?.posts || [];
+  const posts = data?.posts || [];
 
   const renderHeaderCell = (headerField: string, label: string) => (
     <div onClick={() => onClickHeader(headerField)} className={classes.valueHeader}>
@@ -274,11 +280,18 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     <>
       <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
-        {/* TODO graph and page title */}
-        <div className={classes.postsListSection}>
-          <Typography variant="headline" className={classes.subheading}>
-            Posts
-          </Typography>
+        <div className={classes.section}>
+          <AnalyticsGraph userId={user._id} title="Stats on all posts" />
+        </div>
+        <div className={classes.section}>
+          <div className={classes.postsListHeader}>
+            <Typography variant="headline" className={classes.postsListHeaderText}>
+              Posts
+            </Typography>
+            {maybeStale && <span className={classes.fetchingLatest}>
+              checking latest data...
+            </span>}
+          </div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>
@@ -293,7 +306,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
               </div>
             </div>
             {renderHeaderCell("views", "Views")}
-            {renderHeaderCell("reads", "Reads")}
+            <LWTooltip title="Unique views 30s or longer" placement="top">{renderHeaderCell("reads", "Reads")}</LWTooltip>
             {renderHeaderCell("baseScore", "Karma")}
             {renderHeaderCell("commentCount", "Comments")}
           </div>

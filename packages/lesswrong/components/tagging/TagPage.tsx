@@ -208,7 +208,7 @@ const TagPage = ({classes}: {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles,
+    TagTableOfContents, TagVersionHistoryButton, ContentStyles,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -391,7 +391,6 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
-        welcomeBox={null}
       >
         {(tag.parentTag || tag.subTags.length) ?
         <div className={classNames(classes.subHeading,classes.centralColumn)}>
@@ -417,14 +416,17 @@ const TagPage = ({classes}: {
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
               You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
             </div>}
-            {editing ? <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            /> :
+            {editing ? <div>
+              <EditTagForm
+                tag={tag}
+                successCallback={ async () => {
+                  setEditing(false)
+                  await client.resetStore()
+                }}
+                cancelCallback={() => setEditing(false)}
+              />
+              <TagVersionHistoryButton tagId={tag._id} />
+            </div> :
             <div onClick={clickReadMore}>
               <ContentStyles contentType="tag">
                 <ContentItemBody

@@ -10,8 +10,9 @@ export interface DynamicTableOfContentsContextType {
 
 export const DynamicTableOfContentsContext = React.createContext<DynamicTableOfContentsContextType | null>(null);
 
-export const DynamicTableOfContents = ({title, children}: {
+export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   title?: string,
+  rightColumnChildren?: React.ReactNode,
   children: React.ReactNode
 }) => {
   const [latestHtml, setLatestHtml] = useState<string | null>(null);
@@ -53,6 +54,7 @@ export const DynamicTableOfContents = ({title, children}: {
           sectionData={sectionData}
           title={displayedTitle}
         />}
+        rightColumnChildren={rightColumnChildren}
       >
         {children}
       </ToCColumn>

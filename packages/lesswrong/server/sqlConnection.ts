@@ -1,14 +1,30 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
+import type { IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import type { DbTarget } from "../lib/sql/PgCollection";
+import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
+  connect: async ({client}) => {
+    const result: IResult<{oid: number}> = await client.query(
+      "SELECT oid FROM pg_type WHERE typname = 'vector'",
+    );
+    if (result.rowCount < 1) {
+      // eslint-disable-next-line no-console
+      console.warn("vector type not found in the database");
+      return;
+    }
+    const oid = result.rows[0].oid;
+    (client as AnyBecauseHard).setTypeParser(oid, "text", (value: string) => {
+      return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
+    });
+  },
   error: (err, ctx) => {
     // If it's a syntax error, print the bad query for debugging
     if (typeof err.code === "string" && err.code.startsWith("42")) {
@@ -49,6 +65,20 @@ declare global {
   };
 }
 
+export const postgresExtensions = [
+  // btree_gin allows us to use a lot of BTREE operators with GIN indexes that
+  // otherwise wouldn't work
+  "btree_gin",
+  // earthdistance is used for finding nearby events
+  "earthdistance",
+  // intarray is used for collab filtering recommendations
+  "intarray",
+  // vector is used for text embeddings
+  "vector",
+] as const;
+
+export type PostgresExtension = typeof postgresExtensions[number];
+
 /**
  * When a new database connection is created we run these queries to
  * ensure the environment is setup correctly. The order in which they
@@ -59,13 +89,6 @@ const onConnectQueries: string[] = [
   // uses slightly more disk space in exchange for _much_ faster compression and
   // decompression times
   `SET default_toast_compression = lz4`,
-  // Enable to btree_gin extension - this allows us to use a lot of BTREE operators
-  // with GIN indexes that otherwise wouldn't work
-  `CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE`,
-  // Enable the earthdistance extension - this is used for finding nearby events
-  `CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE`,
-  // Enable the intarray extension - this is used for collab filtering recommendations
-  `CREATE EXTENSION IF NOT EXISTS "intarray" CASCADE`,
   // Build a nested JSON object from a path and a value - this is a dependency of
   // fm_add_to_set below
   `CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
@@ -157,29 +180,6 @@ const onConnectQueries: string[] = [
   END;
   $$ LANGUAGE plpgsql;
   `,
-  // Calculate the dot product between two arrays of floats. The arrays should be
-  // of the same length. Note that the `pgvector` extension provides a much more
-  // efficient implementation of this that's written in C, but in order to use that
-  // on AWS RDS we need to upgrade to at least Postgres 15.2 - maybe something for
-  // the future?
-  `CREATE OR REPLACE FUNCTION fm_dot_product(
-    IN vector1 DOUBLE PRECISION[],
-    IN vector2 DOUBLE PRECISION[]
-  )
-    RETURNS DOUBLE PRECISION AS
-    $BODY$
-      BEGIN
-        RETURN(
-          SELECT SUM(mul)
-          FROM (
-            SELECT v1e * v2e AS mul
-            FROM UNNEST(vector1, vector2) AS t(v1e, v2e)
-          ) AS denominator
-        );
-      END;
-    $BODY$
-    LANGUAGE 'plpgsql'
-  `,
   // Extract an array of strings containing all of the tag ids that are attached to a
   // post. Only tags with a relevance score >= 1 are included.
   `CREATE OR REPLACE FUNCTION fm_post_tag_ids(post_id TEXT)
@@ -231,7 +231,11 @@ export const createSqlConnection = async (
 
   if (target === "write") {
     try {
-      await Promise.all(onConnectQueries.map((query) => queryWithLock(client, query)));
+      let queries = postgresExtensions.map(
+        (extension) => new CreateExtensionQuery(extension).compile().sql,
+      );
+      queries = queries.concat(onConnectQueries);
+      await Promise.all(queries.map((query) => queryWithLock(client, query)));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Failed to run Postgres onConnectQuery:", e);

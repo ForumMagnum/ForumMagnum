@@ -11,6 +11,8 @@ export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl',
 const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
 const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
+const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
 const HeadTags = ({
   ogUrl: ogUrlProp,
   canonicalUrl: canonicalUrlProp,
@@ -75,7 +77,7 @@ const HeadTags = ({
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
 
-          {(noIndex || currentRoute?.noIndex) && <meta name='robots' content='noindex' />}
+          {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
           <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
