@@ -9,7 +9,7 @@ import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { LocalEvent, localEvents } from './acxEvents';
+import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 
@@ -62,14 +62,6 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
   const { htmlHighlight = "" } = document.contents || {}
   const htmlBody = {__html: htmlHighlight};
 
-  // By hiding events that were more than three months ago (or, as a fallback, were created more than three months ago, if the event doesn't have an end or start time),
-  // we make it much more obvious during testing that we forgot to update the map pins.
-  const threeMonthsAgo = moment().subtract(3, 'months');
-  const eventReferenceDate = document.localEndTime ?? document.localStartTime ?? document.postedAt;
-  if (moment(eventReferenceDate).isBefore(threeMonthsAgo)) {
-    return null;
-  }
-
   return <StyledMapPopup
     lat={localEvent.lat}
     lng={localEvent.lng}
@@ -118,6 +110,13 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
       setOpenWindows(openWindows.filter(windowId => windowId !== id))
     }, [openWindows]
   )
+
+  // Sanity check that we updated the acxEvents.ts file with the new events.
+  // If we didn't, it's much more obvious during testing that we forgot to update the map pins (since they'll be missing)
+  const threeMonthsAgo = moment().subtract(3, 'months');
+  if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
+    return null;
+  }
   
   return <React.Fragment>
     {localEvents.map(localEvent => {
