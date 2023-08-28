@@ -463,7 +463,9 @@ export const localEvents = [
     "lng": -71.1231275
   },
   {
-    "_id": "oC4DJsGTcxMBRE8Ej"
+    "_id": "oC4DJsGTcxMBRE8Ej",
+    "lat": 40.0190763,
+    "lng": -105.1404855
   },
   {
     "_id": "nkjHrKLdMgvtmM9DL",
