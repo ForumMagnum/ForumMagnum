@@ -38,6 +38,7 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6,
   const { params: {slug}, hash } = targetLocation;
   const { hover, anchorEl, eventHandlers, everHovered } = useHover();
   // Slice the hash to remove the leading # (which won't be a part of the element ID in the dom)
+  // eg: "Further_reading"
   const hashId = hash.slice(1);
   const { tag, loading } = useTagPreview(slug, hashId, {skip: noPrefetch && !everHovered})
   const { PopperCard, TagPreview } = Components;
