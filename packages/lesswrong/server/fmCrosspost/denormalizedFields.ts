@@ -1,4 +1,8 @@
-import { hasStringParam, hasBooleanParam } from "./validationHelpers";
+import {
+  hasBooleanParam,
+  hasStringParam,
+  hasOptionalStringParam,
+} from "./validationHelpers";
 import pick from "lodash/pick";
 
 /**
@@ -28,7 +32,7 @@ export const isValidDenormalizedData = (payload: unknown): payload is Denormaliz
   hasStringParam(payload, "title") &&
   hasBooleanParam(payload, "isEvent") &&
   hasBooleanParam(payload, "question") &&
-  hasStringParam(payload, "url");
+  hasOptionalStringParam(payload, "url");
 
 export type DenormalizedCrosspostData = Pick<DbPost, typeof denormalizedFieldKeys[number]>;
 
