@@ -8,8 +8,6 @@ export type CloseableComponents = {
   [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
 }[keyof ComponentTypes];
 
-// const foo: CloseableComponents = 'TagVersionHistory'
-
 export interface OpenDialogContextType {
   openDialog: <T extends CloseableComponents>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
