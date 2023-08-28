@@ -32,8 +32,8 @@ export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbs
   const urlSearchParams = urlOptions
   const search = qs.stringify(urlSearchParams)
 
-  const searchSuffix = `${search ? `?${search}` : ''}`
-  const hashSuffix = `${hash ? `#${hash}` : ''}`
+  const searchSuffix = search ? `?${search}` : ''
+  const hashSuffix = hash ? `#${hash}` : ''
 
   const url = `/${tagUrlBase}/${tag.slug}`
   const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
