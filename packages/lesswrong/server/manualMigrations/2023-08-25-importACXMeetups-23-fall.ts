@@ -26,6 +26,8 @@ registerMigration({
   action: async () => {
     const eventCacheContents: { _id: string, lat: number, lng: number }[] = [];
 
+    const adminId = 'XtphY3uYHwruKqDyG'
+
     // eslint-disable-next-line no-console
     console.log("Begin importing ACX Meetups");
     for (const row of acxData) {
@@ -47,7 +49,7 @@ registerMigration({
               username,
               displayName: row["Name"],
               email: email,
-              reviewedByUserId: "XtphY3uYHwruKqDyG", //This looks like a hardcoded user who supposedly reviewed something. Who is that user?
+              reviewedByUserId: adminId,
               reviewedAt: new Date()
             },
             validate: false,
@@ -64,7 +66,7 @@ registerMigration({
               username: `${username}-acx-23`,
               displayName: row["Name"],
               email: email,
-              reviewedByUserId: "XtphY3uYHwruKqDyG", //This looks like a hardcoded user who supposedly reviewed something. Who is that user?
+              reviewedByUserId: adminId,
               reviewedAt: new Date()
             },
             validate: false,
@@ -110,6 +112,7 @@ registerMigration({
           activateRSVPs: true,
           draft: false,
           meta: false,
+          reviewedByUserId: 'XtphY3uYHwruKqDyG',
           isEvent: true,
           contactInfo: row["Email address"],
           location: `${row["City"]}`,
@@ -170,6 +173,12 @@ registerMigration({
     }
     // eslint-disable-next-line no-console
     console.log("End importing ACX meetups.");
+    // eslint-disable-next-line no-console
+    console.log("");
+    // eslint-disable-next-line no-console
+    console.log("IMPORTANT!!!!");
+    // eslint-disable-next-line no-console
+    console.log("Copy files from the eventCache.json into acxEvents.ts");
 
     await writeFile('eventCache.json', JSON.stringify(eventCacheContents, null, 2))
   }
