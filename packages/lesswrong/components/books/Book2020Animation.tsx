@@ -72,6 +72,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       height: (HEIGHT*.75) + (PADDING * 3.5),
     },
+    [theme.breakpoints.down('xs')]: {
+      height: (HEIGHT*.55) + (PADDING * 3.5),
+    },
     [theme.breakpoints.down('lg')]: {
       '& $revealedContent': {
         opacity: 1,
@@ -86,6 +89,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         left: '60px !important',
         top: '10px !important',
         transform: "rotate(-15deg)"
+      },
+      [theme.breakpoints.down('xs')]: {
+        top: '-10px !important',
+        left: '50px !important',
       }
     },
     '& $two': {
@@ -94,6 +101,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         left: '75px !important',
         top: '25px !important',
         transform: "rotate(-5deg)"
+      },
+      [theme.breakpoints.down('xs')]: {
+        top: '-10px !important',
+        left: '70px !important',
       }
     },
     '& $three': {
@@ -102,6 +113,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         left: '90px !important',
         top: '40px !important',
         transform: "rotate(5deg)"
+      },
+      [theme.breakpoints.down('xs')]: {
+        top: '-10px !important',
+        left: '90px !important',
       }
     },
     '& $four': {
@@ -110,6 +125,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         left: '105px !important',
         top: '65px !important',
         transform: "rotate(15deg)"
+      },
+      [theme.breakpoints.down('xs')]: {
+        top: '0px !important',
+        left: '120px !important',
       }
     },
     '&:hover': {
@@ -133,8 +152,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: HEIGHT * 0.7,
     },
     [theme.breakpoints.down('xs')]: {
-      width: WIDTH * 0.55,
-      height: HEIGHT * 0.55,
+      width: WIDTH * 0.4,
+      height: HEIGHT * 0.4,
     },
     borderRadius: '2px',
     position: "absolute",
@@ -157,10 +176,10 @@ const Book2020Animation = ({ classes, children }: {
   return (
     <div className={classNames(classes.root, {[classes.success]: success})}>
       <div className={classes.parent}>
-        <img className={classNames(classes.book, classes.one)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622592/coordination-constraint_w5obih.png" />
-        <img className={classNames(classes.book, classes.two)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622593/alignment-agency-cover_nvzux7.png" />
-        <img className={classNames(classes.book, classes.three)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691622595/timelines-takeoff-cover_wnb0nc.png" />
-        <img className={classNames(classes.book, classes.four)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1691623651/reality-reason_llvcqx.png" />
+        <img className={classNames(classes.book, classes.one)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320746/coordination-constraint_i8ievm.jpg" />
+        <img className={classNames(classes.book, classes.two)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320745/alignment-agency-cover_ddrtzy.jpg" />
+        <img className={classNames(classes.book, classes.three)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320746/timelines-takeoff-cover_yxfvtw.jpg" />
+        <img className={classNames(classes.book, classes.four)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1692320746/reality-reason_r9bpxq.jpg" />
       </div>
       <div className={classes.revealedContent}>
         { children }

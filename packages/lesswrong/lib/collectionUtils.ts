@@ -36,6 +36,10 @@ SimpleSchema.extendOptions([ 'foreignKey' ]);
 // should treat this field as nullable 
 SimpleSchema.extendOptions([ 'nullable' ]);
 
+// Define a static vector size for use in Postgres - this should only be
+// used on array fields
+SimpleSchema.extendOptions([ 'vectorSize' ]);
+
 declare module "simpl-schema" {
   interface SchemaDefinition {
     canAutofillDefault?: boolean
