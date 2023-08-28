@@ -7,6 +7,7 @@ import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
+import { useFilterSettings } from '../../lib/filterSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   readMoreLinkMobile: {
@@ -29,19 +30,26 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
   const { timezone } = useTimezone()
+  const {filterSettings: userFilterSettings} = useFilterSettings()
 
   const now = moment().tz(timezone)
   const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD")
 
   const recentPostsTerms = {
     view: "magic",
-    filterSettings: {tags: [{
-      tagId: EA_FORUM_COMMUNITY_TOPIC_ID,
-      filterMode: 'Required'
-    }]},
+    filterSettings: {
+      // Include the user's personal blog filter setting but override the tags filter
+      ...userFilterSettings,
+      tags: [
+        {
+          tagId: EA_FORUM_COMMUNITY_TOPIC_ID,
+          filterMode: "Required",
+        },
+      ],
+    },
     after: dateCutoff,
-    limit: 5
-  }
+    limit: 5,
+  };
 
   const {ExpandableSection, PostsList2, SectionFooter} = Components;
   return (
