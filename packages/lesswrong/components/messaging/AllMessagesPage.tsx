@@ -96,14 +96,19 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
   const selectedConversationRef = useRef<HTMLDivElement>(null);
 
   const selectConversationCallback = useCallback((conversationId: string | undefined) => {
-    console.log({location})
-    
     history.replace({...location, pathname: `/inbox2/${conversationId}`})
   }, [history, location])
 
+  const openNewConversationDialog = useCallback(() => {
+    openDialog({
+      componentName: "NewConversationDialog",
+      componentProps: {}
+    })
+  }, [openDialog])
+
   const { InboxNavigation2, ConversationWidget, ForumIcon } = Components;
 
-  const terms: ConversationsViewTerms = { view: "userConversations", userId: currentUser?._id, showArchive: true };
+  const terms: ConversationsViewTerms = { view: "userConversationsAll", userId: currentUser?._id, showArchive: true };
   const conversationsResult: UseMultiResult<"conversationsListFragment"> = useMulti({
     terms,
     collectionName: "Conversations",
@@ -136,7 +141,7 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       <div className={classNames(classes.column, classes.leftColumn)}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
           <div className={classes.classes.headerText}>All messages</div>
-          <ForumIcon icon="PencilSquare" className={classes.newMessageIcon} />
+          <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.newMessageIcon} />
         </div>
         <div className={classes.navigation}>
           <InboxNavigation2

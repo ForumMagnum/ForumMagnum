@@ -79,14 +79,15 @@ const ConversationItem2 = ({
 }) => {
   const { UsersProfileImage, FormatDate, PostsItem2MetaInfo, UsersName } = Components;
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id);
-  const isSelected = selectedConversationId?._id === conversation._id;
+  const isSelected = selectedConversationId === conversation._id;
 
   const { onClick } = useClickableCell({ onClick: () => setSelectedConversationId(conversation._id) });
 
   if (!conversation) return null;
 
   const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
-  const firstParticipant = otherParticipants[0];
+  // Handle case of conversation with yourself
+  const firstParticipant = otherParticipants[0] ?? conversation.participants[0];
   const title = conversationGetTitle2(conversation, currentUser)
 
   const latestMessagePlaintext = conversation.latestMessage?.contents?.plaintextMainText ?? ""

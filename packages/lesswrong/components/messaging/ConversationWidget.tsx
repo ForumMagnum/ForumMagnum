@@ -79,6 +79,8 @@ const ConversationWidget = ({
   });
   const loading = loadingMessages || loadingConversation;
 
+  console.log("ConversationWidget", { conversationId, conversation, results, loading })
+
   const { query } = useLocation();
   const { captureEvent } = useTracking();
 

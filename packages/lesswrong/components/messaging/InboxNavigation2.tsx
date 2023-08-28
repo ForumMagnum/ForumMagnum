@@ -39,6 +39,7 @@ const InboxNavigation2 = ({
   const { history } = useNavigation();
 
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
+  const nonEmptyConversations = conversations?.filter((c) => c.messageCount > 0);
 
   const { mutate: updateConversation } = useUpdate({
     collectionName: "Conversations",
@@ -56,8 +57,8 @@ const InboxNavigation2 = ({
   const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute.name !== "moderatorInbox";
 
   return <>
-      {conversations?.length ? (
-        conversations.map((conversation, idx) => (
+      {nonEmptyConversations?.length ? (
+        nonEmptyConversations.map((conversation, idx) => (
           <ConversationItem2
             key={conversation._id + idx}
             conversation={conversation}

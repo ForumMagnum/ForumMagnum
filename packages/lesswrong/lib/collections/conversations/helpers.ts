@@ -17,9 +17,12 @@ export const conversationGetTitle = (conversation: conversationsListFragment, cu
 export const conversationGetTitle2 = (conversation: conversationsListFragment, currentUser: UsersCurrent): string => {
   if (!!conversation.title) {
     return conversation.title
-  } else if (conversation.participants) {
-    const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
-    const firstParticipant = otherParticipants[0];
+  }
+
+  const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
+  const firstParticipant = otherParticipants[0] ?? conversation.participants[0];
+
+  if (firstParticipant) {
     return `${firstParticipant.displayName}${
       otherParticipants.length > 1 ? ` + ${otherParticipants.length - 1} more` : ""
     }`;

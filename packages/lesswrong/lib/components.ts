@@ -89,6 +89,7 @@ importComponent("AllMessagesPage", () => require('../components/messaging/AllMes
 importComponent("InboxNavigation2", () => require('../components/messaging/InboxNavigation2'));
 importComponent("ConversationWidget", () => require('../components/messaging/ConversationWidget'));
 importComponent("ConversationItem2", () => require('../components/messaging/ConversationItem2'));
+importComponent("NewConversationDialog", () => require('../components/messaging/NewConversationDialog'));
 
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
@@ -580,6 +581,7 @@ importComponent("ExpandedCommentsSearchHit", () => require('../components/search
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
 importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
+importComponent("ExpandedUsersConversationSearchHit", () => require('../components/search/ExpandedUsersConversationSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("ExpandedTagsSearchHit", () => require('../components/search/ExpandedTagsSearchHit'));
 importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
