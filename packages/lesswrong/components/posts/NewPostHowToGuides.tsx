@@ -9,12 +9,12 @@ import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 300,
-    margin: "60px 20px 0 -80px",
+    margin: "60px 20px 0 -48px",
     position: "relative",
-    background: theme.palette.primaryAlpha(0.1),
-    color: theme.palette.primary.main,
+    background: theme.palette.background.primaryTranslucent,
+    color: theme.palette.text.primaryAlert,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 20,
+    padding: 16,
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down("md")]: {
       display: "none",
@@ -45,8 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: "1.5em",
     },
     "&:hover": {
-      color: theme.palette.primary.light,
       opacity: 1,
+      textDecoration: 'underline',
     },
   },
 });
