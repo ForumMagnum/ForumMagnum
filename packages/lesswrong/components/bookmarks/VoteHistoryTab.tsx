@@ -54,7 +54,7 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
       return <CommentsNode
         key={item._id}
         comment={item}
-        treeOptions={{showPostTitle: true, forceNotSingleLine: true}}
+        treeOptions={{showPostTitle: true, forceNotSingleLine: true, post: item.post || undefined}}
         truncated
       />
     }

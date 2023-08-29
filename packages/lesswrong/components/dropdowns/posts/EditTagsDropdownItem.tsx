@@ -5,7 +5,7 @@ import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
 
 const EditTagsDropdownItem = ({post, closeMenu}: {
-  post: PostsBase,
+  post: PostsList | SunshinePostsList,
   closeMenu?: () => void,
 }) => {
   const {openDialog} = useDialog();

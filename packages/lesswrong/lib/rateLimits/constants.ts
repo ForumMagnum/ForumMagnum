@@ -120,7 +120,15 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 days'),
       last20KarmaThreshold: -5,
+      karmaThreshold: 1999, // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
       downvoterCountThreshold: 4,
+      appliesToOwnPosts: false,
+      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+    }, 
+    {
+      ...timeframe('1 Comments per 1 days'),
+      last20KarmaThreshold: -5,
+      downvoterCountThreshold: 7,
       appliesToOwnPosts: false,
       rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 

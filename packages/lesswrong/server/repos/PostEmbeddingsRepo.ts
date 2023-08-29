@@ -13,6 +13,9 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
     model: string,
     embeddings: number[],
   ): Promise<null> {
+    if (!Array.isArray(embeddings) || embeddings.length < 1) {
+      throw new Error("Cannot create post embeddings with empty array");
+    }
     const now = new Date();
     return this.none(`
       INSERT INTO "PostEmbeddings" (
@@ -29,6 +32,6 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
         "postHash" = $3,
         "lastGeneratedAt" = $4,
         "embeddings" = $5
-    `, [randomId(), postId, postHash, now, embeddings, model]);
+    `, [randomId(), postId, postHash, now, JSON.stringify(embeddings), model]);
   }
 }

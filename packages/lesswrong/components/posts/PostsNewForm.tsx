@@ -7,7 +7,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -15,6 +15,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { Link } from '../../lib/reactRouterWrapper';
+import { QuestionIcon } from '../icons/questionIcon';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -110,6 +112,29 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 20,
     paddingBottom: 20
   },
+  editorGuideOffset: {
+    paddingTop: 100,
+  },
+  editorGuide: {
+    display: 'flex',
+    alignItems: 'center',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: 10,
+    borderRadius: theme.borderRadius.default,
+    color: theme.palette.primary.main,
+    [theme.breakpoints.up('lg')]: {
+      width: 'max-content',
+      paddingLeft: 20,
+      paddingRight: 20
+    },
+  },
+  editorGuideIcon: {
+    height: 40,
+    width: 40,
+    fill: theme.palette.primary.main,
+    marginRight: -4
+  },
+  editorGuideLink: {}
 })
 
 const prefillFromTemplate = (template: PostsEdit) => {
@@ -143,6 +168,28 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
+const getPostEditorGuide = (classes: ClassesType) => {
+  const {LWTooltip, NewPostHowToGuides} = Components;
+  if (isLWorAF) {
+    return (
+      <div className={classes.editorGuideOffset}>
+        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+          <div className={classes.editorGuide}>
+            <QuestionIcon className={classes.editorGuideIcon} />
+            <div className={classes.editorGuideLink}>
+              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+            </div>
+          </div>
+        </LWTooltip>
+      </div>
+    );
+  }
+  if (isEAForum) {
+    return <NewPostHowToGuides />;
+  }
+  return undefined;
+}
+
 const PostsNewForm = ({classes}: {
     classes: ClassesType,
   }) => {
@@ -171,9 +218,13 @@ const PostsNewForm = ({classes}: {
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
-  
-  const { PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents } = Components
+
+  const {
+    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
+    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+  } = Components;
+
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
@@ -248,10 +299,10 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <DynamicTableOfContents>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
-          <Components.PostsAcceptTos currentUser={currentUser} />
+          <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>

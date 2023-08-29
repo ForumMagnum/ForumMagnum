@@ -24,57 +24,57 @@ export const THEME_COOKIE = registerCookie({ name: "theme", type: "necessary", d
 
 export const HIDE_FEATURED_RESOURCE_COOKIE = registerCookie({
   name: "hide_featured_resource",
-  type: "functional",
+  type: "necessary",
   description: "Controls whether the featured resource banner in the left sidebar is hidden",
 });
 
 export const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
   name: 'show_community_posts_section',
-  type: "functional",
+  type: "necessary",
   description: "Whether to show the community posts section on the EA Forum home page",
 })
 
 export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   name: 'show_quick_takes_section',
-  type: "functional",
+  type: "necessary",
   description: "Whether to show the Quick takes section on the EA Forum home page",
 })
 
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
   name: 'show_popular_comments_section',
-  type: "functional",
+  type: "necessary",
   description: "Whether to show the popular comments section on the EA Forum home page",
 })
 
 export const HIDE_HANDBOOK_COOKIE = registerCookie({
   name: "hide_home_handbook",
-  type: "functional",
+  type: "necessary",
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "functional", description: 'Controls whether job ads are hidden'});
+export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
 
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
-  type: "functional",
+  type: "necessary",
   description: "Whether to show the podcast player on a posts pages",
 });
 
-export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "functional", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
+export const PODCAST_TOOLTIP_SEEN_COOKIE = registerCookie({name: 'podcast_tooltip_seen', type: "necessary", description: "Stores whether the user has seen the podcast 'new feature' tooltip"})
 
 export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
   name: "hide_welcome_box",
-  type: "functional",
+  type: "necessary",
   description: "Controls whether the welcome box on a post page is hidden",
 });
 
-export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "functional", description: "Stores whether the user has hidden the map from the frontpage."});
+export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
 
 export const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 registerCookie({
   name: `${HIDE_COLLECTION_ITEM_PREFIX}[*]`,
   matches: (name: string) => name.startsWith(HIDE_COLLECTION_ITEM_PREFIX),
-  type: "functional",
+  type: "necessary",
   description: "Stores whether a collection item has been hidden (for a specific collection item id)",
 });
 
@@ -82,26 +82,32 @@ export const HIDE_SPOTLIGHT_ITEM_PREFIX = "hide_spotlight_item_";
 registerCookie({
   name: `${HIDE_SPOTLIGHT_ITEM_PREFIX}[*]`,
   matches: (name: string) => name.startsWith(HIDE_SPOTLIGHT_ITEM_PREFIX),
-  type: "functional",
+  type: "necessary",
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   name: "show_recommendations_section",
-  type: "functional",
+  type: "necessary",
   description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
 });
 
 export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
   name: "hide_import_eag_profile",
-  type: "functional",
+  type: "necessary",
   description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
 });
 
 export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
   name: "hide_more_from_the_forum_recommendations",
-  type: "functional",
+  type: "necessary",
   description: "Don't show the \"More from the forum\" recommendations section",
+});
+
+export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
+  name: "hide_new_post_how_to_guide",
+  type: "necessary",
+  description: "Don't show the how-to guide on the new post page",
 });
 
 // Third party cookies

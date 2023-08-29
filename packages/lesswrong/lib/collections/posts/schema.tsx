@@ -495,6 +495,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canCreate: ['members'],
+    canUpdate: ['members'],
     hidden: true,
   },
 
@@ -1738,6 +1739,20 @@ const schema: SchemaType<DbPost> = {
     label: "Include in default recommendations",
     control: "checkbox",
     order: 13,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromPopularComments: {
+    type: Boolean,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    label: "Hide comments on this post from Popular Comments",
+    hidden: !isEAForum,
+    control: "checkbox",
+    order: 14,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },

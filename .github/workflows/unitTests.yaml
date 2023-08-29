@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:14.5-alpine
+        image: ankane/pgvector
         env:
           POSTGRES_DB: unittest_jest_template
           POSTGRES_USER: postgres

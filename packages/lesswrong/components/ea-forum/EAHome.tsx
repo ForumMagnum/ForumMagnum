@@ -13,6 +13,7 @@ const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', f
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
+const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 /**
  * Build structured data to help with SEO.
@@ -49,7 +50,7 @@ const EAHome = () => {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection,
+    EAPopularCommentsSection, BotSiteBanner, CurrentSpotlightItem
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -60,6 +61,7 @@ const EAHome = () => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
+  const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
 
   return (
     <AnalyticsContext pageContext="homePage">
@@ -67,10 +69,7 @@ const EAHome = () => {
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-
-      {/* <SingleColumnSection>
-        <CurrentSpotlightItem />
-      </SingleColumnSection> */}
+      {shouldRenderBotSiteBanner && <BotSiteBanner />}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
@@ -78,6 +77,7 @@ const EAHome = () => {
 
       <EAHomeMainContent FrontpageNode={
         () => <>
+          <CurrentSpotlightItem />
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}

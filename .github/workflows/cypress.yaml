@@ -11,7 +11,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14.5-alpine
+        image: ankane/pgvector
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres

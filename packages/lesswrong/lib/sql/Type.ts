@@ -91,6 +91,12 @@ export abstract class Type {
         if (!indexSchema) {
           throw new Error("No schema type provided for array member");
         }
+        if (schema.vectorSize) {
+          if (indexSchema.type !== Number) {
+            throw new Error("Vector items must be of type `Number`");
+          }
+          return new VectorType(schema.vectorSize);
+        }
         return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema, undefined, forumType));
     }
 
@@ -164,6 +170,16 @@ export class ArrayType extends Type {
 
   isArray() {
     return true;
+  }
+}
+
+export class VectorType extends Type {
+  constructor(private size: number) {
+    super();
+  }
+
+  toString() {
+    return `VECTOR(${this.size})`;
   }
 }
 
