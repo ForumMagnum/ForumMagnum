@@ -1,13 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
-import { Localgroups } from '../../lib/collections/localgroups/collection';
 import { Link } from '../../lib/reactRouterWrapper';
-import { Posts } from '../../lib/collections/posts';
+import { userCanPost } from '../../lib/collections/posts';
 import { useCurrentUser } from '../common/withUser';
 import { createStyles } from '@material-ui/core/styles';
 import qs from 'qs'
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import Button from '@material-ui/core/Button';
@@ -377,6 +376,12 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
       </div>
     </> : null
   }
+  
+  const canCreateEvent = currentUser && userCanPost(currentUser);
+  const canEditGroup = (currentUser && group)
+    && group.organizerIds.includes(currentUser._id)
+      ? userCanDo(currentUser, 'localgroups.edit.own')
+      : userCanDo(currentUser, `localgroups.edit.all`)
 
   return (
     <div className={classes.root}>
@@ -412,13 +417,13 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
               />
             </SectionButton>}
             <SectionFooter className={classes.organizerActions}>
-              {Posts.options.mutations.new.check(currentUser) &&
+              {canCreateEvent &&
                 (!isEAForum || isAdmin || isGroupAdmin) && <SectionButton>
                   <Link to={{pathname:"/newPost", search: `?${qs.stringify({eventForm: true, groupId})}`}}>
                     New event
                   </Link>
                 </SectionButton>}
-              {Localgroups.options.mutations.edit.check(currentUser, group) &&
+              {canEditGroup &&
                 (!isEAForum || isAdmin || isGroupAdmin ) &&
                 <GroupFormLink documentId={groupId} />
               }
