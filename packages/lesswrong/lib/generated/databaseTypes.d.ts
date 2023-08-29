@@ -915,6 +915,7 @@ interface DbSpotlight extends DbObject {
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
+  imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
