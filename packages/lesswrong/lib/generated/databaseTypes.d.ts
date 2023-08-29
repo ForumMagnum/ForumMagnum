@@ -683,6 +683,7 @@ interface DbPost extends DbObject {
   unlisted: boolean
   disableRecommendation: boolean
   defaultRecommendation: boolean
+  hideFromPopularComments: boolean
   draft: boolean
   meta: boolean
   hideFrontpageComments: boolean

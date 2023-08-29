@@ -293,5 +293,10 @@
     "acceptsSchemaHash": "4acff74195e36da33248763ab681bfd7",
     "acceptedByMigration": "20230824T155436.add_imageFade.ts",
     "timestamp": "2023-08-24T15:54:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7d3553d2dcd4a5e47968398dfee076f2",
+    "acceptedByMigration": "20230829T170631.add_hideFromPopularComments_column.ts",
+    "timestamp": "2023-08-29T17:06:31.000Z"
   }
 ]
