@@ -4,9 +4,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import Spotlights from '../../lib/collections/spotlights/collection';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
@@ -74,6 +73,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 150,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
+    // Drop shadow that helps the text stand out from the background image
+    textShadow: `
+      0px 0px 10px ${theme.palette.background.default},
+      0px 0px 20px ${theme.palette.background.default}
+    `,
     [theme.breakpoints.up('sm')]: {
       minHeight: 100
     },
@@ -96,13 +100,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     [theme.breakpoints.down('xs')]: {
       display: "none"
-    }
+    },
+    ...(isEAForum ? {
+      fontSize: 13,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.grey[700],
+      marginTop: 8,
+    } : {}),
   },
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
     ...(isEAForum ?
-      {fontFamily: theme.typography.postStyle.fontFamily /* serifStack */} :
+      {fontWeight: 600} :
       {fontVariant: "small-caps"}
     ),
     lineHeight: "1.2em",
@@ -111,20 +121,42 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subtitle: {
     ...theme.typography.postStyle,
-    fontSize: 15,
     color: theme.palette.grey[700],
-    marginTop: -1,
     ...theme.typography.italic,
+    ...(isEAForum ? {
+      fontSize: 13,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      marginTop: 8,
+    } : {
+      fontSize: 15,
+      marginTop: -1,
+    }),
+  },
+  startOrContinue: {
+    marginTop: isEAForum ? 16 : 4,
+  },
+  imageWrapper: {
+    position: "absolute",
+    top : 0,
+    right: 0,
+    // Try to make this wrapper as tall and wide as the image
+    width: "fit-content",
+    height: "100%",
+    zIndex: 0,
+  },
+  imageFade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    height: "100%",
+    width: "100%",
+    backgroundImage: `linear-gradient(to right, ${theme.palette.grey[0]} 0%, ${theme.palette.inverseGreyAlpha(.5)} 70%, transparent 100%)`,
+    zIndex: 1,
   },
   image: {
-    '& img': {
-      position: "absolute",
-      top: 0,
-      right: 0,
-      height: "100%",
-      borderTopRightRadius: theme.borderRadius.default,
-      borderBottomRightRadius: theme.borderRadius.default,
-    }
+    height: "100%",
+    borderTopRightRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   author: {
     marginTop: 4,
@@ -237,14 +269,13 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
 
   const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
 
-
   const duration = spotlight.duration
 
   const onUpdate = () => {
     setEdit(false);
     refetchAllSpotlights?.();
   };
-
+  
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <div className={classes.root} id={spotlight._id}>
       <div className={classes.spotlightItem}>
@@ -262,7 +293,7 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
           {spotlight.customSubtitle && <div className={classes.subtitle}>
             {spotlight.customSubtitle}
           </div>}
-          <div className={classes.description}>
+          {(spotlight.description?.html || isLWorAF) && <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
@@ -280,16 +311,18 @@ export const SpotlightItem = ({classes, spotlight, showAdminInfo, hideBanner, re
                 description={`${spotlight.documentType} ${spotlight.document._id}`}
               />
             }
-          </div>
+          </div>}
           {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
             by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
           </Typography>}
-          <SpotlightStartOrContinueReading spotlight={spotlight} />
+          <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
-        {spotlight.spotlightImageId && <div className={classes.image}>
+        {spotlight.spotlightImageId && <div className={classes.imageWrapper}>
+          {spotlight.imageFade && <div className={classes.imageFade} />}
           <CloudinaryImage2
             publicId={spotlight.spotlightImageId}
             darkPublicId={spotlight.spotlightDarkImageId}
+            className={classes.image}
           />
         </div>}
         {hideBanner && <div className={classes.closeButtonWrapper}>

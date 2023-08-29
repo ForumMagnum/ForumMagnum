@@ -50,7 +50,7 @@ const EAHome = () => {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection, BotSiteBanner
+    EAPopularCommentsSection, BotSiteBanner, CurrentSpotlightItem
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -71,16 +71,13 @@ const EAHome = () => {
       {shouldRenderEventBanner && <EventBanner />}
       {shouldRenderBotSiteBanner && <BotSiteBanner />}
 
-      {/* <SingleColumnSection>
-        <CurrentSpotlightItem />
-      </SingleColumnSection> */}
-
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
       <EAHomeMainContent FrontpageNode={
         () => <>
+          <CurrentSpotlightItem />
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}

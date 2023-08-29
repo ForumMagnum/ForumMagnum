@@ -3,6 +3,7 @@ import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
+import { isEAForum } from "../../instanceSettings";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
 
@@ -185,6 +186,16 @@ const schema: SchemaType<DbSpotlight> = {
     ...schemaDefaultValue(false),
    optional: true,
    nullable: false,
+  },
+  imageFade: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 86,
+    ...schemaDefaultValue(isEAForum ? true : false),
+    optional: true,
+    nullable: false,
   },
   spotlightImageId: {
     type: String,
