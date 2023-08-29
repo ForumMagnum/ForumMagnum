@@ -1743,6 +1743,20 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
   },
 
+  hideFromPopularComments: {
+    type: Boolean,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    label: "Hide comments on this post from Popular Comments",
+    hidden: !isEAForum,
+    control: "checkbox",
+    order: 14,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
   // Drafts
   draft: {
     label: 'Save to Drafts',
