@@ -30,14 +30,14 @@ const DateRangeModal = ({
   classes,
 }: {
   onClose?: () => void;
-  startDate: Date;
+  startDate: Date | null;
   endDate: Date;
-  updateDisplayDates: (startDate: Date, endDate: Date) => void;
+  updateDisplayDates: (startDate: Date | null, endDate: Date) => void;
   classes: ClassesType;
 }) => {
   const { LWDialog, DatePicker, EAButton } = Components;
 
-  const [startDateInternal, setStartDateInternal] = useState<Date>(startDate);
+  const [startDateInternal, setStartDateInternal] = useState<Date | null>(startDate);
   const [endDateInternal, setEndDateInternal] = useState<Date>(endDate);
 
   const onConfirm = () => {
@@ -54,7 +54,7 @@ const DateRangeModal = ({
       }}
     >
       <div className={classes.datePickers}>
-        <DatePicker label="Start date" value={startDateInternal} onChange={setStartDateInternal} />
+        <DatePicker label="Start date" value={startDateInternal ?? undefined} onChange={setStartDateInternal} />
         <DatePicker label="End date" value={endDateInternal} onChange={setEndDateInternal} />
       </div>
       <div className={classes.buttons}>

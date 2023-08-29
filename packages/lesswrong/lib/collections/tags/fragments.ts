@@ -132,6 +132,23 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagSectionPreviewFragment on Tag {
+    ...TagBasicInfo
+    parentTag {
+      ...TagBasicInfo
+    }
+    subTags {
+      ...TagBasicInfo
+    }
+    description {
+      _id
+      htmlHighlightStartingAtHash(hash: $hash)
+    }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
