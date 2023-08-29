@@ -11,6 +11,7 @@ import { Components, registerComponent, Strings, userChangedCallback } from '../
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
+import type { History } from 'history';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -22,7 +23,7 @@ interface ExternalProps {
 interface AppProps extends ExternalProps {
   // From withRouter
   location: any
-  history: any
+  history: History
   
   // From withCurrentUser HoC
   currentUser: UsersCurrent
@@ -32,7 +33,7 @@ interface AppProps extends ExternalProps {
 class App extends PureComponent<AppProps,any> {
   locationContext: RouterLocation|null = null
   subscribeLocationContext: RouterLocation|null = null
-  navigationContext: any
+  navigationContext: { history: History }
   
   constructor(props: AppProps) {
     super(props);
