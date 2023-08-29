@@ -106,7 +106,7 @@ export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
 
 export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   name: "hide_new_post_how_to_guide",
-  type: "functional",
+  type: "necessary",
   description: "Don't show the how-to guide on the new post page",
 });
 
