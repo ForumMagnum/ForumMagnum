@@ -8,13 +8,13 @@ import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: 300,
-    margin: "60px 20px 0 -48px",
+    width: 280,
+    margin: "60px 20px 0 -60px",
     position: "relative",
     background: theme.palette.background.primaryTranslucent,
     color: theme.palette.text.primaryAlert,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 16,
+    padding: 20,
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down("md")]: {
       display: "none",
@@ -22,11 +22,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dismissButton: {
     position: "absolute",
-    right: 18,
-    top: 18,
+    right: 16,
+    top: 16,
     cursor: "pointer",
     "& svg": {
       width: "0.8em",
+    },
+    "&:hover": {
+      color: theme.palette.primary.dark,
     },
   },
   title: {
