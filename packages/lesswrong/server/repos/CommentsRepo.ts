@@ -97,6 +97,8 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         ORDER BY "postId", "confidence" DESC
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
+      JOIN "Posts" p ON c."postId" = p."_id"
+      WHERE p."hideFromPopularComments" IS NOT TRUE
       ORDER BY q."confidence" DESC, c."createdAt" ASC
       OFFSET $2
       LIMIT $3
