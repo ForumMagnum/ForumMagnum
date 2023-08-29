@@ -222,7 +222,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Too Combative?",
     searchTerms: ["swords", "combative", "fighting", "battle", "war", "tribalism"],
     svg: "/reactionImages/nounproject/swords.svg",
-    description: "This seems more combative than it needs to be to communicate it's point.",
+    description: "This seems more combative than it needs to be to communicate its point.",
     filter: {padding: 2, scale:1},
   },
   

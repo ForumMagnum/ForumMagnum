@@ -340,6 +340,14 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     if (!posts) return
     
     const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus))
+    // sort the "yes" posts to be listed before the "maybe" posts
+    digestPosts.sort((a, b) => {
+      const aYes = postStatuses[a._id].emailDigestStatus === 'yes'
+      const bYes = postStatuses[b._id].emailDigestStatus === 'yes'
+      if (aYes === bYes) return 0
+      if (aYes) return -1
+      return 1
+    })
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
