@@ -30,6 +30,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
     mouseOverDiv.current = isMouseOver;
   };
        
+  // (Note: this was copied from PostsPodcastPlayer)
   // Dumb hack to let us figure out when the iframe inside the div was clicked on, as a (fuzzy) proxy for people clicking the play button
   // Inspiration: https://gist.github.com/jaydson/1780598
   // This won't trigger more than once per page load, unless the user clicks outside the div element, which will reset it
