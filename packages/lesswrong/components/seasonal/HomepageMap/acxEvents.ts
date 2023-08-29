@@ -5,6 +5,9 @@ export type LocalEvent = {
   lng: number
 }
 
+// Update this when you update the map pins, or they won't show up!
+export const ACX_EVENTS_LAST_UPDATED = new Date('2023-08-28T23:09:49.077Z');
+
 // these need to be updated for each ACX meetup
 export const localEvents = [
   {

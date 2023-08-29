@@ -683,6 +683,7 @@ interface DbPost extends DbObject {
   unlisted: boolean
   disableRecommendation: boolean
   defaultRecommendation: boolean
+  hideFromPopularComments: boolean
   draft: boolean
   meta: boolean
   hideFrontpageComments: boolean
@@ -915,6 +916,7 @@ interface DbSpotlight extends DbObject {
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
+  imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
