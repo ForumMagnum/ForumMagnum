@@ -15,6 +15,12 @@ type SanitizedIndexName = {
   sorting?: string,
 }
 
+const extractNamedHighlight = (
+  highlight: ElasticSearchHit["highlight"],
+  name: string,
+): string | undefined =>
+  highlight?.[name]?.[0] ?? highlight?.[name + ".exact"]?.[0];
+
 class ElasticService {
   constructor(
     private client = new ElasticClient(),
@@ -194,15 +200,19 @@ class ElasticService {
       _id,
       _snippetResult: {
         [config.snippet]: {
-          value: highlight?.[config.snippet]?.[0],
-          matchLevel: highlight?.[config.snippet]?.[0] ? "full" : "none",
+          value: extractNamedHighlight(highlight, config.snippet),
+          matchLevel: extractNamedHighlight(highlight, config.snippet)
+            ? "full"
+            : "none",
         },
       },
       ...(config.highlight && {
         _highlightResult: {
           [config.highlight]: {
-            value: highlight?.[config.highlight]?.[0],
-            matchLevel: highlight?.[config.highlight]?.[0] ? "full" : "none",
+            value: extractNamedHighlight(highlight, config.highlight),
+            matchLevel: extractNamedHighlight(highlight, config.highlight)
+              ? "full"
+              : "none",
           },
         },
       }),
