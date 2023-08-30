@@ -244,7 +244,7 @@
     "md5": "^2.3.0",
     "mingo": "^2.2.11",
     "moment": "^2.29.4",
-    "mongodb": "^3.6.3",
+    "mongodb": "^3.6.10",
     "mz": "^2.7.0",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.6.1",
