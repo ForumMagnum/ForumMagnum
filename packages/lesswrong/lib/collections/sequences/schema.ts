@@ -160,6 +160,15 @@ const schema: SchemaType<DbSequence> = {
     ...schemaDefaultValue(false),
   },
 
+  noindex: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    ...schemaDefaultValue(false),
+  },
+
   /* Alignment Forum fields */
 
   af: {

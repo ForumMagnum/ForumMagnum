@@ -28,6 +28,7 @@ registerFragment(`
       ...BookPageFragment
     }
     hideStartReadingButton
+    noindex
   }
 `);
 

@@ -1,3 +1,4 @@
+import { schemaDefaultValue } from '../../collectionUtils';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbCollection> = {
@@ -77,6 +78,15 @@ const schema: SchemaType<DbCollection> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
+  },
+
+  noindex: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    ...schemaDefaultValue(false),
   },
 }
 

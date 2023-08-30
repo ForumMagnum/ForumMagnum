@@ -526,6 +526,7 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly gridImageId: string,
   readonly firstPageLink: string,
   readonly hideStartReadingButton: boolean,
+  readonly noindex: boolean,
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
@@ -540,6 +541,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
+  readonly noindex: boolean,
   readonly af: boolean,
 }
 
@@ -1965,6 +1967,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly isDeleted: boolean,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
+  readonly noindex: boolean,
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
@@ -2026,6 +2029,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
   readonly hideStartReadingButton: boolean,
+  readonly noindex: boolean,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections
