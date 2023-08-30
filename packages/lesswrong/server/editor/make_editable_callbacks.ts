@@ -53,9 +53,8 @@ export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null>
   );
 }
 
-export async function getNextVersion(documentId: string, updateType = 'minor', fieldName: string, isDraft: boolean) {
-  const lastRevision = await getLatestRev(documentId, fieldName);
-  const { major, minor, patch } = extractVersionsFromSemver(lastRevision?.version || "1.0.0")
+export function getNextVersion(previousRevision: DbRevision | null, updateType: DbRevision['updateType'] = 'minor', isDraft: boolean) {
+  const { major, minor, patch } = extractVersionsFromSemver(previousRevision?.version || "1.0.0")
   switch (updateType) {
     case "patch":
       return `${major}.${minor}.${patch + 1}`
@@ -218,13 +217,13 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
       const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
       const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
-      const version = await getNextVersion(document._id, updateType, fieldName, (newDocument as DbPost).draft)
       const userId = currentUser._id
       const editedAt = new Date()
+      const previousRev = await getLatestRev(newDocument._id, fieldName);
+      const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
 
       let newRevisionId;
       if (await revisionIsChange(newDocument, fieldName)) {
-        const previousRev = await getLatestRev(newDocument._id, fieldName);
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
         const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
@@ -250,7 +249,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
         });
         newRevisionId = newRevisionDoc.data._id;
       } else {
-        newRevisionId = (await getLatestRev(newDocument._id, fieldName))!._id;
+        newRevisionId = previousRev!._id;
       }
 
       if (newRevisionId) {
@@ -301,7 +300,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   })
 
   if (collectionName === 'Posts') {
-    getCollectionHooks(collectionName).createAfter.add(
+    getCollectionHooks('Posts').createAfter.add(
       async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
     {
       const isFirstDebatePostComment = 'debate' in newDoc

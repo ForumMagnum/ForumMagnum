@@ -250,7 +250,7 @@ interface ResolverContext extends CollectionsByName {
 
 type FragmentName = keyof FragmentTypes;
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions";
 interface EditableFieldContents {
   html: string
   wordCount: number
@@ -267,6 +267,12 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type EditableCollectionNames = {
+  [k in CollectionNameString]: EditableFieldsIn<ObjectsByCollectionName[k]> extends undefined ? never : k;
+}[CollectionNameString];
+
+type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 

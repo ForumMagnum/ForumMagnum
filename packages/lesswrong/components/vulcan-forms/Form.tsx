@@ -54,7 +54,7 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
   );
 };
 
-const getInitialStateFromProps = (nextProps: SmartFormProps): FormState => {
+const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
@@ -121,8 +121,8 @@ interface FormState {
  * This is not in the Components table and is not registered with
  * registerComponent because you aren't supposed to use it without FormWrapper.
  */
-export class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
-  constructor(props: SmartFormProps) {
+export class Form<T extends DbObject> extends Component<SmartFormProps<CollectionNameOfObject<T>>,FormState> {
+  constructor(props: SmartFormProps<CollectionNameOfObject<T>>) {
     super(props);
 
     this.formRef = React.createRef<HTMLFormElement>();
@@ -593,7 +593,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
 
   */
-  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps<CollectionNameOfObject<T>>) {
     for (const prop of RESET_PROPS) {
       const prev = this.props[prop];
       const next = nextProps[prop];
@@ -858,9 +858,10 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // call the clear form method (i.e. trigger setState) only if the form has not been unmounted
     // (we are in an async callback, everything can happen!)
+    // avoid doing this if we're autosaving a new post without reloading
     if (this.formRef.current) {
       this.clearForm({
-        document: mutationType === 'edit' ? document : undefined
+        document: mutationType === 'edit' || submitOptions.noReload ? document : undefined
       });
     }
 
@@ -977,7 +978,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   */
   deleteDocument = () => {
     const document = this.getDocument();
-    const documentId = this.props.document._id;
+    const documentId = this.props.document?._id;
     const documentTitle = document.title || document.name || '';
 
     const deleteDocumentConfirm = "Delete document?";

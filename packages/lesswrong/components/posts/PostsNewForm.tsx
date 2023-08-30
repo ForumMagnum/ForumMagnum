@@ -311,7 +311,9 @@ const PostsNewForm = ({classes}: {
                 prefilledProps={prefilledProps}
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.redirectToEditor) {
+                  if (options?.submitOptions?.noReload) {
+                    window.history.replaceState('', '', postGetEditUrl(post._id, true));
+                  } else if (options?.submitOptions?.redirectToEditor) {
                     history.push(postGetEditUrl(post._id));
                   } else {
                     // If they are publishing a non-draft post, show the share popup

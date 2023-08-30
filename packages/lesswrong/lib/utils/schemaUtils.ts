@@ -367,7 +367,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     canAutoDenormalize: true,
     
     getValue: async (document: SourceType, context: ResolverContext): Promise<number> => {
-      const foreignCollection = getCollection(foreignCollectionName) as CollectionBase<TargetType>;
+      const foreignCollection = getCollection(foreignCollectionName);
       const docsThatMayCount = await getWithLoader(
         context, foreignCollection,
         `denormalizedCount_${collectionName}.${fieldName}`,

@@ -12,9 +12,11 @@ import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { getLatestRev } from '../editor/make_editable_callbacks';
+import { afterCreateRevisionCallback, buildRevision, getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
-import { updateMutator } from '../vulcan-lib/mutators';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { EditorContents } from '../../components/editor/Editor';
+import { userOwns } from '../../lib/vulcan-users/permissions';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -187,5 +189,66 @@ defineMutation({
       },
       currentUser,
     });
+  }
+});
+
+defineMutation({
+  name: "autosaveRevision",
+  resultType: "Revision",
+  schema: `
+    input AutosaveContentType {
+      type: String
+      value: ContentTypeData
+    }
+  `,
+  argTypes: "(postId: String!, contents: AutosaveContentType!)",
+  fn: async (_, { postId, contents }: { postId: string, contents: EditorContents }, context): Promise<DbRevision> => {
+    const { currentUser, loaders } = context;
+    if (!currentUser) {
+      throw new Error('Cannot autosave revision while logged out');
+    }
+
+    const post = await loaders.Posts.load(postId);
+    if (!userOwns(currentUser, post)) {
+      throw new Error('Must be post author to autosave');
+    }
+
+    const postContentsFieldName = 'contents';
+    const updateSemverType = 'patch';
+
+    const [previousRev, html] = await Promise.all([
+      getLatestRev(postId, postContentsFieldName),
+      dataToHTML(contents.value, contents.type, !currentUser.isAdmin)
+    ]);
+
+    const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
+    const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
+
+    const newRevision: Partial<DbRevision> = {
+      ...await buildRevision({
+        originalContents: { type: contents.type, data: contents.value },
+        currentUser,
+      }),
+      documentId: postId,
+      fieldName: postContentsFieldName,
+      collectionName: 'Posts',
+      version: nextVersion,
+      draft: true,
+      updateType: updateSemverType,
+      changeMetrics,
+    };
+
+    const { data: createdRevision } = await createMutator({
+      collection: Revisions,
+      document: newRevision,
+      context,
+      currentUser,
+      validate: false
+    });
+
+    // TODO: not sure if we need these?  The aren't called by `saveDocumentRevision` in `ckEditorWebhook.ts` after creating a new revision from ckeditor's cloud autosave
+    await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: createdRevision._id }]);
+
+    return createdRevision;
   }
 });

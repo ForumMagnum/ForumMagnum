@@ -55,7 +55,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   if (revision.collectionName === "Posts") {
     const collabEditorAccess = await getCollaborativeEditorAccess({
       formType: "edit",
-      post: document,
+      post: document as DbPost,
       user: user,
       useAdminPowers: true,
       context
@@ -70,7 +70,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   }
   
   // Everyone who can see the post can get access to non-draft revisions
-  if (!await collection.checkAccess(user, document, context)) {
+  if (!await collection.checkAccess(user, document!, context)) {
     return false;
   }
   

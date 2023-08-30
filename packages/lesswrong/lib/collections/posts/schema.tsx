@@ -2017,7 +2017,7 @@ const schema: SchemaType<DbPost> = {
 
   endTime: {
     type: Date,
-    hidden: (props) => !props.eventForm || props.document.eventType === 'course',
+    hidden: (props) => !props.eventForm || props.document?.eventType === 'course',
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members'],

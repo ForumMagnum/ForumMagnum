@@ -195,7 +195,7 @@ export async function convertImagesInObject(
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
-    const collection = getCollection(collectionName);
+    const collection = getCollection<any>(collectionName);
     const obj = await collection.findOne({_id});
 
     if (!obj) {
@@ -213,7 +213,7 @@ export async function convertImagesInObject(
       return 0;
     }
     
-    const newVersion = await getNextVersion(_id, "patch", fieldName, false);
+    const newVersion = getNextVersion(latestRev, "patch", false);
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)

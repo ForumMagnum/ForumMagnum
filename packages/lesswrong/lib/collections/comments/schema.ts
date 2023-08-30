@@ -659,7 +659,7 @@ const schema: SchemaType<DbComment> = {
     hidden: (props) => {
       // Currently only allow titles for top level subforum comments
       const comment = props?.document
-      return !commentAllowTitle(comment)
+      return !!(comment && !commentAllowTitle(comment))
     }
   },
 
@@ -792,7 +792,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
+    hidden: (props: SmartFormProps<'Comments'>) => alignmentForum || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

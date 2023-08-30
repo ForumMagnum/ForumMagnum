@@ -4,9 +4,9 @@ export const Collections: Array<CollectionBase<any>> = [];
 const collectionsByName: Partial<Record<CollectionNameString,CollectionBase<any>>> = {};
 const collectionsByLowercaseName: Partial<Record<string,CollectionBase<any>>> = {};
 
-export const getCollection = (name: CollectionNameString): CollectionBase<any> => {
+export const getCollection = <T extends CollectionNameString>(name: T): CollectionBase<ObjectsByCollectionName[T]> => {
   if (name in collectionsByName)
-    return collectionsByName[name]!;
+    return collectionsByName[name]! as CollectionBase<ObjectsByCollectionName[T]>;
   
   // If the collection isn't in collectionsByName, recheck case-insensitive.
   // (This shouldn't ever come up, but it's hard to verify that it doesn't
@@ -22,7 +22,7 @@ export const getCollection = (name: CollectionNameString): CollectionBase<any> =
   if (!collection)
     throw new Error("Invalid collection name: "+name);
   
-  return collection;
+  return collection as CollectionBase<ObjectsByCollectionName[T]>;
 }
 
 export const getCollectionByTypeName = (typeName: string): CollectionBase<any> => {
@@ -50,7 +50,7 @@ export const isValidCollectionName = (name: string): name is CollectionNameStrin
 
 // Add a collection to Collections and collectionsByName. Should only be called
 // from createCollection.
-export const registerCollection = (collection: CollectionBase<any>): void => {
+export const registerCollection = <T extends DbObject>(collection: CollectionBase<T>): void => {
   Collections.push(collection);
   collectionsByName[collection.collectionName] = collection;
   (collectionsByLowercaseName as AnyBecauseTodo)[collection.collectionName.toLowerCase()] = collection;

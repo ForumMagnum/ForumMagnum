@@ -43,7 +43,8 @@ const pickCollectionType = (collectionType?: CollectionType) => {
 }
 
 export const createCollection = <
-  N extends CollectionNameString
+  N extends CollectionNameOfObject<T>,
+  T extends DbObject
 >(options: {
   typeName: string,
   collectionName: N,

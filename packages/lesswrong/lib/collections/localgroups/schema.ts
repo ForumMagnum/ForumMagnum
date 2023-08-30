@@ -156,7 +156,7 @@ const schema: SchemaType<DbLocalgroup> = {
     label: isEAForum ? "Group location" : "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
-    hidden: data => data.document.isOnline,
+    hidden: data => !!data.document?.isOnline,
     optional: true,
   },
 

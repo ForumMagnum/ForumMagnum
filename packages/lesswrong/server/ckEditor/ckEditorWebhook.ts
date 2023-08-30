@@ -174,7 +174,7 @@ async function saveDocumentRevision(userId: string, documentId: string, html: st
       documentId,
       fieldName,
       collectionName: "Posts",
-      version: await getNextVersion(documentId, "patch", fieldName, true),
+      version: getNextVersion(previousRev, "patch", true),
       draft: true,
       updateType: "patch",
       commitMessage: cloudEditorAutosaveCommitMessage,
