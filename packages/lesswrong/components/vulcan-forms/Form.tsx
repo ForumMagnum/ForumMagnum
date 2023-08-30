@@ -30,6 +30,10 @@ import { callbackProps, SmartFormProps } from './propTypes';
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
 
+const isFunction = <T extends any>(input: T): input is Extract<T, Function> => {
+  return typeof input === 'function';
+};
+
 // props that should trigger a form reset
 const RESET_PROPS = [
   'collection', 'collectionName', 'typeName', 'document', 'schema', 'currentUser',
@@ -353,7 +357,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps<Collectio
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
       (field as AnyBecauseTodo)[prop] =
-        typeof property === 'function'
+        isFunction(property)
           ? property.call(fieldSchema, this.props)
           : property;
     }

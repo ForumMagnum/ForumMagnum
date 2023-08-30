@@ -56,7 +56,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: MaybeFunction<any,SmartFormProps<CollectionNameOfObject<T>>>,
+  options?: (props: SmartFormProps<CollectionNameOfObject<T>>) => any,
   allowedValues?: string[],
   vectorSize?: number,
   
@@ -80,7 +80,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *
    * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  form?: MaybeFunction<any,SmartFormProps<CollectionNameOfObject<T>>>,
+  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<CollectionNameOfObject<T>>) => any) | undefined>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
