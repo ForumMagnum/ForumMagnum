@@ -193,6 +193,62 @@ const onConnectQueries: string[] = [
     ) tags ON p."_id" = post_id
     WHERE (p."tagRelevance"->tags."tagId")::INTEGER >= 1;'
   `,
+  // Compute a sortable score for a document based on the number of upvotes and
+  // downvotes, with an optional downvote-weighting parameter. This is done with
+  // a Wilson score interval:
+  // https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval#Wilson_score_interval
+  `CREATE OR REPLACE FUNCTION fm_confidence_sort(
+    ups INTEGER,
+    downs INTEGER,
+    downvote_multiplier FLOAT DEFAULT 1
+  ) RETURNS FLOAT LANGUAGE PLPGSQL IMMUTABLE AS $$
+  DECLARE
+    n INTEGER;
+    z FLOAT;
+    p FLOAT;
+    l FLOAT;
+    r float;
+    u FLOAT;
+  BEGIN
+    n := ups + (downs * downvote_multiplier);
+    IF n = 0 THEN
+      RETURN n;
+    END IF;
+    z := 1.281551565545;
+    p := ups::FLOAT / n::FLOAT;
+    l := p + 1 / (2 * n) * z * z;
+    r := z * SQRT(p * (1 - p) / n + z * z / (4 * n * n));
+    u := 1 + 1 / n * z * z;
+    RETURN (l - r) / u;
+  END $$
+  `,
+  // Calculate a confidence sorting score (see above) for a comment.
+  `CREATE OR REPLACE FUNCTION fm_comment_confidence(
+    comment_id TEXT,
+    downvote_multiplier FLOAT DEFAULT 1
+  ) RETURNS FLOAT LANGUAGE sql AS $$
+    SELECT
+      fm_confidence_sort(
+        COALESCE(
+          SUM(v."power") FILTER (WHERE v."voteType" IN ('bigUpvote', 'smallUpvote')),
+          0
+        )::INTEGER,
+        COALESCE(
+          -SUM(v."power") FILTER (WHERE v."voteType" IN ('bigDownvote', 'smallDownvote')),
+          0
+        )::INTEGER,
+        downvote_multiplier
+      )
+    FROM "Comments" c
+    JOIN "Votes" v ON
+      v."documentId" = c."_id" AND
+      v."collectionName" = 'Comments' AND
+      v."isUnvote" IS NOT TRUE AND
+      v."cancelled" IS NOT TRUE AND
+      v."extendedVoteType" IS NULL
+    WHERE c."_id" = comment_id;
+  $$
+  `,
 ];
 
 export const createSqlConnection = async (

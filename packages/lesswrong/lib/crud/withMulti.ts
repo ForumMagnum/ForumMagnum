@@ -250,9 +250,9 @@ export type LoadMoreCallback = (limitOverride?: number) => void|Promise<void>
 export type LoadMoreProps = {
   loadMore: LoadMoreCallback
   count: number,
-  totalCount: number,
+  totalCount?: number,
   loading: boolean,
-  hidden: boolean,
+  hidden?: boolean,
 }
 
 export type UseMultiResult<

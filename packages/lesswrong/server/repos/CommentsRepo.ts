@@ -1,10 +1,7 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
 import SelectQuery from "../../lib/sql/SelectQuery";
-<<<<<<< HEAD
 import { toDictionary } from "../../lib/utils/toDictionary";
-=======
->>>>>>> 5a6025899f353d4f765b3af87a6fe8a8415d921a
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -76,6 +73,37 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ON c._id = v."documentId"
       ORDER BY v.most_recent_react DESC;
     `, [limit]);
+  }
+
+  async getPopularComments({minScore = 15, offset = 0, limit = 3}: {
+    offset?: number,
+    limit?: number,
+    minScore?: number,
+  }): Promise<DbComment[]> {
+    return this.any(`
+      SELECT c.*
+      FROM (
+        SELECT DISTINCT ON ("postId")
+          "_id",
+          fm_comment_confidence("_id", 3) AS "confidence"
+        FROM "Comments"
+        WHERE
+          CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
+          "shortform" IS NOT TRUE AND
+          "baseScore" >= $1 AND
+          "retracted" IS NOT TRUE AND
+          "deleted" IS NOT TRUE AND
+          "deletedPublic" IS NOT TRUE AND
+          "needsReview" IS NOT TRUE
+        ORDER BY "postId", "confidence" DESC
+      ) q
+      JOIN "Comments" c ON c."_id" = q."_id"
+      JOIN "Posts" p ON c."postId" = p."_id"
+      WHERE p."hideFromPopularComments" IS NOT TRUE
+      ORDER BY q."confidence" DESC, c."createdAt" ASC
+      OFFSET $2
+      LIMIT $3
+    `, [minScore, offset, limit]);
   }
 
   private getSearchDocumentQuery(): string {

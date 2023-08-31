@@ -479,6 +479,7 @@ registerFragment(`
     readTimeMinutesOverride
     fmCrosspost
     hideFromRecentDiscussions
+    hideFromPopularComments
     moderationGuidelines {
       ...RevisionEdit
     }

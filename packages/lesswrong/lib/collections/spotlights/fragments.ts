@@ -14,6 +14,7 @@ registerFragment(`
     customSubtitle
     duration
     showAuthor
+    imageFade
   }
 `)
 

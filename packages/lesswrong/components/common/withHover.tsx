@@ -23,13 +23,16 @@ export const useHover = (eventProps?: Record<string,any>) => {
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const delayTimer = useRef<any>(null)
-  const mouseOverStart = useRef<Date>(null)
+  const mouseOverStart = useRef<Date|null>(null)
 
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
 
   const captureHoverEvent = useCallback(() => {
-    !isMobile() && captureEvent("hoverEventTriggered",
-      {timeToCapture: datesDifference(new Date(), mouseOverStart.current as Date)})
+    if (!isMobile()) {
+      captureEvent("hoverEventTriggered",
+        {timeToCapture: new Date()}
+      )
+    }
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
@@ -37,7 +40,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
     setHover(true)
     setEverHovered(true);
     setAnchorEl(event.currentTarget);
-    (mouseOverStart as any).current = new Date()
+    mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
   }, [captureHoverEvent])
@@ -46,12 +49,25 @@ export const useHover = (eventProps?: Record<string,any>) => {
     setHover(false)
     setAnchorEl(null)
     clearTimeout(delayTimer.current)
-    const hoverDuration = datesDifference(new Date(), mouseOverStart.current as Date)
-    if (hoverDuration > 2000) {
-      captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration});
+
+    if (mouseOverStart.current) {
+      const hoverDuration = datesDifference(new Date(), mouseOverStart.current)
+      if (hoverDuration > 2000) {
+        captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration});
+      }
+      mouseOverStart.current = null
     }
-    (mouseOverStart as any).current = undefined
   },[captureEvent])
+  
+  /**
+   * Simulate un-hovering, making this effectively not-hovered until the mouse
+   * moves away and reenters. Used to make hover-menus close.
+   */
+  const forceUnHover = useCallback(() => {
+    setHover(false)
+    setAnchorEl(null)
+    clearTimeout(delayTimer.current)
+  }, []);
   
   return {
     eventHandlers: {
@@ -61,6 +77,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
     hover,
     everHovered,
     anchorEl,
+    forceUnHover,
   }
 }
 

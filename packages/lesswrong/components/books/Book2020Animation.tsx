@@ -75,11 +75,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       height: (HEIGHT*.55) + (PADDING * 3.5),
     },
-    [theme.breakpoints.down('lg')]: {
-      '& $revealedContent': {
-        opacity: 1,
-      }
-    },
     [theme.breakpoints.down('md')]: {
       width: "100%",
     },
@@ -133,11 +128,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '&:hover': {
       ...revealedContent(theme),
-      [theme.breakpoints.up('lg')]: {
-        '& $revealedContent': {
-          left: 0
-        }
-      }
     },
   },
   book: {
