@@ -14,7 +14,7 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postRecsPositionABTest, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -41,6 +41,8 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /epistemic status/i,
   /acknowledgements/i
 ];
+
+const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {
@@ -437,7 +439,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.isEvent &&
     !sequenceId &&
     (post.contents?.wordCount ?? 0) >= 500;
-  const recommendationsPosition = useABTest(postRecsPositionABTest);
+  const recommendationsPosition = getRecommendationsPosition();
 
   const commentId = query.commentId || params.commentId
 
