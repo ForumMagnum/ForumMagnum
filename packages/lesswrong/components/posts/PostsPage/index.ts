@@ -5,6 +5,7 @@ importComponent("PostsPageDate", () => require('./PostsPageDate'));
 importComponent("PostsPagePostFooter", () => require('./PostsPagePostFooter'));
 importComponent("PostsPagePostHeader", () => require('./PostsPagePostHeader'));
 importComponent("PostsPodcastPlayer", () => require('./PostsPodcastPlayer'));
+importComponent("T3AudioPlayer", () => require('./T3AudioPlayer'));
 importComponent("PostCoauthorRequest", () => require('./PostCoauthorRequest'));
 importComponent("PostsPageWrapper", () => require('./PostsPageWrapper'));
 importComponent("PostsPageCrosspostWrapper", () => require('./PostsPageCrosspostWrapper'));

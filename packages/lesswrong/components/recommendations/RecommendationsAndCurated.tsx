@@ -142,7 +142,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
+    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
       RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
@@ -222,7 +222,7 @@ const RecommendationsAndCurated = ({
       <>
         {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <CurrentSpotlightItem />
+            <DismissibleSpotlightItem current />
           </AnalyticsContext>
         )}
 

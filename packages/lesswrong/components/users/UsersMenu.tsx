@@ -22,7 +22,7 @@ import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -209,7 +209,7 @@ const UsersMenu = ({classes}: {
                   to="/newPost?eventForm=true"
                 />
               }
-              {showNewButtons && currentUser.karma >= 1000 &&
+              {showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD &&
                 <DropdownItem
                   title={preferredHeadingCase("New Sequence")}
                   to="/sequencesnew"
