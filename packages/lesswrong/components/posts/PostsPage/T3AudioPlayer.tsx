@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
