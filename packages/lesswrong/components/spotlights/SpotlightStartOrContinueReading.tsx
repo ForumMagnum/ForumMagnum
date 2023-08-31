@@ -80,7 +80,7 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
 const SpotlightStartOrContinueReadingComponent = registerComponent(
   'SpotlightStartOrContinueReading',
   SpotlightStartOrContinueReading,
-  {styles, stylePriority: -1}
+  {styles, stylePriority: -2}
 );
 
 declare global {

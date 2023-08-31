@@ -891,7 +891,7 @@ importComponent("SpotlightItem", () => require('../components/spotlights/Spotlig
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
 importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
-importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
+importComponent("DismissibleSpotlightItem", () => require('../components/spotlights/DismissibleSpotlightItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));
