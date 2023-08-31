@@ -215,7 +215,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         });
       }
     }
-  }, [updatedFormType, contents, autosaveRevision, document._id, collectionName]);
+  }, [collectionName, contents, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
@@ -280,7 +280,19 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [
+    isCollabEditor,
+    updateCurrentValues,
+    fieldName,
+    throttledSetContentsValue,
+    throttledSaveBackup,
+    throttledSaveRemoteBackup,
+    contents,
+    throttledCheckIsCriticismLargeDiff,
+    throttledCheckIsCriticism,
+    dynamicTableOfContents,
+    editableFieldOptions.hasToc
+  ]);
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
