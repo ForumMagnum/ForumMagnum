@@ -37,14 +37,14 @@ import Users from "../../lib/collections/users/collection"
 import { addRemovedField, dropRemovedField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return
+  // if (!Users.isPostgres()) return
   
-  // TODO: This appears not to work
-  await addRemovedField(db, Users, "noComicSans")
+  // // TODO: This appears not to work
+  // await addRemovedField(db, Users, "noComicSans")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return
+  // if (!Users.isPostgres()) return
   
-  await dropRemovedField(db, Users, "noComicSans")
+  // await dropRemovedField(db, Users, "noComicSans")
 }

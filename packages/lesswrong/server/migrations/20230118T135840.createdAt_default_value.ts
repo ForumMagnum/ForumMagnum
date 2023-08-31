@@ -6,7 +6,7 @@ import { updateDefaultValue, dropDefaultValue } from "./meta/utils"
 export const up = async ({db}: MigrationContext) => {
   for (const collection of Collections) {
     if (collection.isPostgres()) {
-      await updateDefaultValue(db, collection, "createdAt");
+      // await updateDefaultValue(db, collection, "createdAt");
     }
   }
 }
@@ -14,7 +14,7 @@ export const up = async ({db}: MigrationContext) => {
 export const down = async ({db}: MigrationContext) => {
   for (const collection of Collections) {
     if (collection.isPostgres()) {
-      await dropDefaultValue(db, collection, "createdAt");
+      // await dropDefaultValue(db, collection, "createdAt");
     }
   }
 }
