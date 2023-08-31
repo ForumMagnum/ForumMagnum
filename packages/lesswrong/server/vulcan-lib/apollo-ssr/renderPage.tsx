@@ -159,7 +159,7 @@ function shouldRecordSsrAnalytics(userAgent?: string) {
     return true;
   }
 
-  return !userAgentExclusions.some(excludedAgent => userAgent.includes(excludedAgent));
+  return !userAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
 }
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
