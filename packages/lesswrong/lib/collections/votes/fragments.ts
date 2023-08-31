@@ -43,7 +43,7 @@ registerFragment(`
   fragment UserVotesWithDocument on Vote {
     ...UserVotes
     comment {
-      ...CommentsList
+      ...CommentsListWithParentMetadata
     }
     post {
       ...PostsListWithVotes
