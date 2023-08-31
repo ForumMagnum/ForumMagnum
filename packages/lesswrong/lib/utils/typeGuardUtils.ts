@@ -55,3 +55,7 @@ export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
 export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
   return arr.filter(x=>x!=null && x!==undefined) as T[];
 }
+
+export function isFunction<T extends any>(input: T): input is Extract<T, Function> {
+  return typeof input === 'function';
+};

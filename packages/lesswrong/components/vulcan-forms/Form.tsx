@@ -26,13 +26,10 @@ import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
+import { isFunction } from '../../lib/utils/typeGuardUtils';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
-
-const isFunction = <T extends any>(input: T): input is Extract<T, Function> => {
-  return typeof input === 'function';
-};
 
 // props that should trigger a form reset
 const RESET_PROPS = [

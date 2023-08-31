@@ -105,7 +105,7 @@ export interface WrappedSmartFormProps<T extends CollectionNameString> extends S
 }
 
 export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
-  collection: CollectionBase<any>
+  collection: CollectionBase<AnyBecauseHard>
   typeName: string
   document?: ObjectsByCollectionName[T]
   schema?: any

@@ -300,7 +300,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   })
 
   if (collectionName === 'Posts') {
-    getCollectionHooks('Posts').createAfter.add(
+    getCollectionHooks(collectionName).createAfter.add(
       async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
     {
       const isFirstDebatePostComment = 'debate' in newDoc

@@ -274,6 +274,10 @@ type EditableCollectionNames = {
 
 type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
+type CollectionBasesByName = {
+  [k in keyof CollectionsByName]: CollectionBase<ObjectsByCollectionName[k], CollectionsByName[k]['collectionName']>
+};
+
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 
 type SpotlightDocumentType = 'Post' | 'Sequence';

@@ -195,7 +195,7 @@ export async function convertImagesInObject(
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;
   try {
-    const collection = getCollection<any>(collectionName);
+    const collection = getCollection(collectionName);
     const obj = await collection.findOne({_id});
 
     if (!obj) {
@@ -217,7 +217,11 @@ export async function convertImagesInObject(
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
-    const oldHtml = obj?.[fieldName]?.html;
+    //
+    // We also manually downcast the document because it's otherwise a union type of all possible DbObjects, and we can't use a random string as an index accessor
+    // This is because `collection` is itself a union of all possible collections
+    // I tried to make a mutual constraint between `fieldName` and `collectionName` but it was a bit too finnicky to be worth it; this is mostly being (unsafely) called from Globals anyways
+    const oldHtml = (obj as any)?.[fieldName]?.html;
     if (!oldHtml) {
       return 0;
     }
@@ -244,7 +248,7 @@ export async function convertImagesInObject(
       $set: {
         [`${fieldName}_latest`]: insertedRevisionId,
         [fieldName]: {
-          ...obj[fieldName],
+          ...(obj as any)[fieldName],
           html: newHtml,
           version: newVersion,
           editedAt: now,

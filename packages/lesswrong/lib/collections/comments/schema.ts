@@ -9,7 +9,6 @@ import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
 export const moderationOptionsGroup: FormGroupType = {
@@ -792,7 +791,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps<'Comments'>) => alignmentForum || !props.alignmentForumPost
+    hidden: (props) => alignmentForum || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

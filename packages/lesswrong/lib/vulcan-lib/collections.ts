@@ -69,7 +69,7 @@ export const createCollection = <
   const Collection = pickCollectionType(collectionType);
 
   // initialize new Mongo collection
-  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N]>;
+  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N], N>;
 
   // decorate collection with options
   collection.options = options as any;
