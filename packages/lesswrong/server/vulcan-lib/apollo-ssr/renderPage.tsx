@@ -28,6 +28,7 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -87,14 +88,17 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: user?._id,
-      timings: rendered.timings,
-      cached: false,
-      abTestGroups: rendered.allAbTestGroups,
-      ip
-    });
+    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: user?._id,
+        timings: rendered.timings,
+        cached: false,
+        abTestGroups: rendered.allAbTestGroups,
+        ip
+      });
+    }
+
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
     
@@ -114,17 +118,19 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       // eslint-disable-next-line no-console
       console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
-    
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: null,
-      timings: {
-        totalTime: new Date().valueOf()-startTime.valueOf(),
-      },
-      abTestGroups: rendered.allAbTestGroups,
-      cached: rendered.cached,
-      ip
-    });
+
+    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: null,
+        timings: {
+          totalTime: new Date().valueOf()-startTime.valueOf(),
+        },
+        abTestGroups: rendered.allAbTestGroups,
+        cached: rendered.cached,
+        ip
+      });
+    }
     
     return {
       ...rendered,
@@ -136,6 +142,24 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
+}
+
+const userAgentExclusions = [
+  'health',
+  'bot',
+  'spider',
+  'crawler',
+  'curl',
+  'node',
+  'python'
+];
+
+function shouldRecordSsrAnalytics(userAgent?: string) {
+  if (!userAgent) {
+    return true;
+  }
+
+  return !userAgentExclusions.some(excludedAgent => userAgent.includes(excludedAgent));
 }
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
