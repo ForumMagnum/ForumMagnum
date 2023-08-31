@@ -62,9 +62,15 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Posts per 1 weeks'),
       last20PostKarmaThreshold: -15,
       downvoterCountThreshold: 4,
-      rateLimitMessage: `Users with -15 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with -15 or less karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
     }, 
-  // 1 post per 2+ weeks rate limits
+    {
+      ...timeframe('1 Posts per 1 weeks'),
+      last20KarmaThreshold: -30,
+      downvoterCountThreshold: 10,
+      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+    }, 
+    // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
       karmaThreshold: -1,
@@ -120,7 +126,15 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 days'),
       last20KarmaThreshold: -5,
+      karmaThreshold: 1999, // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
       downvoterCountThreshold: 4,
+      appliesToOwnPosts: false,
+      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+    }, 
+    {
+      ...timeframe('1 Comments per 1 days'),
+      last20KarmaThreshold: -5,
+      downvoterCountThreshold: 7,
       appliesToOwnPosts: false,
       rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 

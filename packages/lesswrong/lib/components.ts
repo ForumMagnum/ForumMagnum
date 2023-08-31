@@ -30,12 +30,20 @@ import '../components/vulcan-forms/components';
 
 importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 
+importComponent("AnalyticsGraph", () => require('../components/analytics/AnalyticsGraph'))
+importComponent("AuthorAnalyticsPage", () => require('../components/analytics/AuthorAnalyticsPage'))
+importComponent("PostsAnalyticsPage", () => require('../components/analytics/PostsAnalyticsPage'));
+importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
+importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
+
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
+importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
 importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHandbook'));
+importComponent("EAHomeRightHandSide", () => require('../components/ea-forum/EAHomeRightHandSide'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/EAForumWrappedPage'));
 importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurveyBanner'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
@@ -47,6 +55,7 @@ importComponent("EditDigestTableRow", () => require('../components/ea-forum/dige
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
+importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
@@ -179,7 +188,7 @@ importComponent("Header", () => require('../components/common/Header'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("CitationTags", () => require('../components/common/CitationTags'));
-importComponent("Home2", () => require('../components/common/Home2'));
+importComponent("LWHome", () => require('../components/common/LWHome'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent(["MenuItem","MenuItemLink"], () => require('../components/common/Menus'));
 importComponent("CommentsListCondensed", () => require('../components/common/CommentsListCondensed'));
@@ -378,13 +387,14 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
+importComponent("NewPostHowToGuides", () => require('../components/posts/NewPostHowToGuides'));
 importComponent("PostsEditBotTips", () => require('../components/posts/PostsEditBotTips'));
 importComponent("ForeignCrosspostEditForm", () => require('../components/posts/ForeignCrosspostEditForm'));
 importComponent("PostsEditPage", () => require('../components/posts/PostsEditPage'));
-importComponent("PostsAnalyticsPage", () => require('../components/posts/PostsAnalyticsPage'));
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
+importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
@@ -874,6 +884,7 @@ importComponent("RecommendationsPage", () => require('../components/recommendati
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
+importComponent("LWRecommendations", () => require('../components/recommendations/LWRecommendations'));
 importComponent("RecommendationsSamplePage", () => require('../components/recommendations/RecommendationsSamplePage'));
 importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
@@ -946,8 +957,10 @@ importComponent("Book2018Landing", () => require('../components/books/Book2018La
 importComponent("Book2019Landing", () => require('../components/books/Book2019Landing'));
 importComponent("BookAnimation", () => require('../components/books/BookAnimation'));
 importComponent("Book2019Animation", () => require('../components/books/Book2019Animation'));
+importComponent("Book2020Animation", () => require('../components/books/Book2020Animation'));
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
+importComponent("Book2020FrontpageWidget", () => require('../components/books/Book2020FrontpageWidget'));
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));

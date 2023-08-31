@@ -392,6 +392,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
+    graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
@@ -481,6 +482,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     background: grey[0],
     border: "transparent",
     hoverBackground: grey[100],
+  },
+  graph: {
+    analyticsReads: "#008800"
   },
 
   commentParentScrollerHover: shades.greyAlpha(.075),

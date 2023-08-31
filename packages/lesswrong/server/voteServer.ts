@@ -307,7 +307,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     })
     
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
-      [voteDocTuple, collection, user]
+      [voteDocTuple, collection, user, context]
     );
   }
 

@@ -65,6 +65,8 @@ createdb forummagnum
 
 (DB name is an arbitrary choice.)
 
+You must also have the [pgvector](https://github.com/pgvector/pgvector) Postgres extension installed.
+
 Configure the schema:
 
 ```bash
@@ -91,9 +93,23 @@ commands are supported:
 
 ### Start the development server
 
+Your postgres URL for the locally-running database will be
+postgres://localhost/forummagnum.
+
 ```
 yarn start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
 ```
+
+Next, select which website you are working on. If you're making a new site, open
+packages/lesswrong/lib/instanceSettings.ts, find the line that says
+
+```
+export const allForumTypes = ...
+```
+
+and add your forum type to the end. Then regardless of whether you're making a
+new site or editing an existing one, open settings-dev.json and change the line
+that says `"forumType": "LessWrong"` to the correct forum.
 
 Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
 

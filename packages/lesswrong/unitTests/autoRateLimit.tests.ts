@@ -10,6 +10,7 @@ function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInf
     _id: "vote1",
     documentId: "comment1",
     postedAt: new Date(),
+    votedAt: new Date(),
     power: 1,
     collectionName: "Comments",
     userId: "user1",

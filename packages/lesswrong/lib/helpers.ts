@@ -1,5 +1,5 @@
 import { Utils, getCollection } from './vulcan-lib';
-
+import moment from 'moment';
 
 // Get relative link to conversation (used only in session)
 export const conversationGetLink = (conversation: HasIdType): string => {
@@ -109,3 +109,13 @@ export async function timedFunc<O>(label: string, func: () => O) {
   }
   return result;
 }
+
+export const generateDateSeries = (startDate: moment.Moment | Date, endDate: moment.Moment | Date) => {
+  const dateSeries = [];
+  let currentDate = moment(startDate);
+  while (currentDate.isBefore(endDate)) {
+    dateSeries.push(currentDate.format("YYYY-MM-DD"));
+    currentDate = currentDate.add(1, "days");
+  }
+  return dateSeries;
+};

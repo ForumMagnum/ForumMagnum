@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
       border: `1px solid ${theme.palette.grey[120]}`,
       boxShadow: theme.palette.boxShadow.eaCard,
       padding: 12,
-      marginTop: 2,
+      top: 2,
     }
     : {},
 });

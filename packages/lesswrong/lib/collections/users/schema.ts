@@ -1469,6 +1469,17 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+  
+  // Used by the EA Forum to allow users to hide the right-hand side of the home page
+  hideHomeRHS: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   frontpagePostCount: {
@@ -1707,6 +1718,17 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 47,
     hidden: true,
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2020Ad: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 47,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },

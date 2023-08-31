@@ -292,7 +292,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     }, {
       id: 'takeAction',
       title: 'Take action',
-      link: `/${taggingNamePluralSetting.get()}/take-action`,
+      link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
       iconComponent: TakeActionIcon,
       selectedIconComponent: TakeActionSelectedIcon,
       tooltip: "Opportunities to get involved with impactful work",
@@ -320,23 +320,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'handbook',
-      title: 'The EA Handbook',
-      link: '/handbook',
-      tooltip: 'To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.',
-      subItem: true,
-    }, {
       id: 'shortform',
       title: 'Quick takes',
       link: '/quicktakes',
-      subItem: true,
-    }, {
-      id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
-    }, {
-      id: 'intro',
-      title: 'About EA',
-      link: 'https://www.effectivealtruism.org',
       subItem: true,
     }, {
       id: 'about',
@@ -355,6 +341,9 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
       subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
     }
   ],
   default: [

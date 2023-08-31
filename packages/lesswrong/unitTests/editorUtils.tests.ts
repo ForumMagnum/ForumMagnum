@@ -159,16 +159,25 @@ A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
     `, "markdown")).toBe(9);
   });
   it("excludes appendices", async () => {
-    expect(await dataToWordCount(`
-A sample piece of content that has one appendix.
-
-Section 1
-=========
-
-Appendix 1
-==========
-
-Lorem ipsum dolor sit amet.
-    `, "markdown")).toBe(11);
+    // Construct the same document with and without an appendix added, and enforce
+    // that their word counts are the same.
+    //
+    // (Note that word counting has a bunch of dumb subtleties, and in particular,
+    // the "=========" hr winds up getting counted. This is why we test this with a
+    // comparison, rather than an exact count.)
+    const nonAppendixMarkdown =
+      "A sample piece of content that has one appendix.\n"
+      +"\n"
+      +"Section 1\n"
+      +"=========\n"
+      +"\n";
+    const appendixMarkdown =
+      "Appendix 1\n"
+      +"==========\n"
+      +"\n"
+      +"Lorem ipsum dolor sit amet."
+    const wordCountWithoutAppendix = await dataToWordCount(nonAppendixMarkdown, "markdown");
+    const wordCountWithAppendix = await dataToWordCount(nonAppendixMarkdown+appendixMarkdown, "markdown");
+    expect(wordCountWithoutAppendix).toBe(wordCountWithAppendix);
   });
 });

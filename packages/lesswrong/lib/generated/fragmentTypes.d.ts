@@ -231,6 +231,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly unsubscribeFromAll: boolean,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
+  readonly hideHomeRHS: boolean,
   readonly frontpagePostCount: number,
   readonly sequenceCount: number,
   readonly sequenceDraftCount: number,
@@ -250,6 +251,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly sunshineNotes: string,
   readonly sunshineFlagged: boolean,
   readonly needsReview: boolean,
@@ -641,6 +643,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly unlisted: boolean,
   readonly disableRecommendation: boolean,
   readonly defaultRecommendation: boolean,
+  readonly hideFromPopularComments: boolean,
   readonly draft: boolean,
   readonly meta: boolean,
   readonly hideFrontpageComments: boolean,
@@ -1256,6 +1259,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
     foreignPostId: string | null,
   } | null,
   readonly hideFromRecentDiscussions: boolean | null,
+  readonly hideFromPopularComments: boolean,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
@@ -2211,6 +2215,18 @@ interface TagPreviewFragment_description { // fragment on Revisions
   readonly htmlHighlight: string,
 }
 
+interface TagSectionPreviewFragment extends TagBasicInfo { // fragment on Tags
+  readonly parentTag: TagBasicInfo|null,
+  readonly subTags: Array<TagBasicInfo>,
+  readonly description: TagSectionPreviewFragment_description|null,
+  readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
+}
+
+interface TagSectionPreviewFragment_description { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlightStartingAtHash: string,
+}
+
 interface TagSubforumFragment extends TagPreviewFragment { // fragment on Tags
   readonly subforumModeratorIds: Array<string>,
   readonly tableOfContents: any,
@@ -2552,6 +2568,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly whenConfirmationEmailSent: Date,
   readonly hideSubscribePoke: boolean,
   readonly hideMeetupsPoke: boolean,
+  readonly hideHomeRHS: boolean,
   readonly noCollapseCommentsFrontpage: boolean,
   readonly noCollapseCommentsPosts: boolean,
   readonly noSingleLineComments: boolean,
@@ -2632,6 +2649,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
+  readonly hideFrontpageBook2020Ad: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -2900,7 +2918,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
-  readonly hideFrontpageBook2019Ad: boolean,
+  readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
 }
 
@@ -3009,7 +3027,7 @@ interface UserVotes { // fragment on Votes
 }
 
 interface UserVotesWithDocument extends UserVotes { // fragment on Votes
-  readonly comment: CommentsList|null,
+  readonly comment: CommentsListWithParentMetadata|null,
   readonly post: PostsListWithVotes|null,
 }
 
@@ -3023,6 +3041,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly showAuthor: boolean,
+  readonly imageFade: boolean,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
 }
@@ -3040,6 +3059,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly customSubtitle: string | null,
   readonly duration: number,
   readonly showAuthor: boolean,
+  readonly imageFade: boolean,
 }
 
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -3277,6 +3297,7 @@ interface FragmentTypes {
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagRevisionFragment: TagRevisionFragment
   TagPreviewFragment: TagPreviewFragment
+  TagSectionPreviewFragment: TagSectionPreviewFragment
   TagSubforumFragment: TagSubforumFragment
   TagSubtagFragment: TagSubtagFragment
   TagSubforumSidebarFragment: TagSubforumSidebarFragment
@@ -3477,6 +3498,7 @@ interface CollectionNamesByFragmentName {
   TagCreationHistoryFragment: "Tags"
   TagRevisionFragment: "Tags"
   TagPreviewFragment: "Tags"
+  TagSectionPreviewFragment: "Tags"
   TagSubforumFragment: "Tags"
   TagSubtagFragment: "Tags"
   TagSubforumSidebarFragment: "Tags"

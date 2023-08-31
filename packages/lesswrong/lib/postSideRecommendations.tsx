@@ -46,7 +46,7 @@ const useMoreFromTheForumRecommendations: RecommendationsGenerator = (
   const usefulLinks = "/posts/BsnGqnLzrLdmsYTGt/new-start-here-useful-links-1";
   const podcast = "/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum";
   const digest = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
-  const jobs = "/topics/take-action";
+  const jobs = "/topics/opportunities-to-take-action";
   return {
     loading: false,
     title: "More from the Forum",

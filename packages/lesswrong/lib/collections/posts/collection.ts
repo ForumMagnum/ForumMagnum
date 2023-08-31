@@ -74,6 +74,7 @@ makeEditable({
       canUpdate: ['members', 'sunshineRegiment', 'admins'],
       canCreate: ['members']
     },
+    hasToc: true,
   }
 })
 
