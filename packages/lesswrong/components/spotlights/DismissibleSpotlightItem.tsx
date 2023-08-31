@@ -29,11 +29,9 @@ export const DismissibleSpotlightItem = ({
     },
     skip: !current,
   });
-  if (currentSpotlightResults && currentSpotlightResults.length > 0) {
-    spotlight = currentSpotlightResults[0];
-  }
+  const displaySpotlight = currentSpotlightResults?.[0] ?? spotlight;
 
-  const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlight?.document._id}`, [spotlight]); //hiding in one place, hides everywhere
+  const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${displaySpotlight?.document._id}`, [displaySpotlight]); //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   const isHidden = useMemo(() => !!cookies[cookieName], [cookies, cookieName]);
@@ -45,13 +43,13 @@ export const DismissibleSpotlightItem = ({
         expires: moment().add(30, 'days').toDate(), //TODO: Figure out actual correct hiding behavior
         path: "/"
       });
-    captureEvent("spotlightItemHideItemClicked", { document: spotlight?.document })
-  }, [setCookie, cookieName, spotlight, captureEvent]);
+    captureEvent("spotlightItemHideItemClicked", { document: displaySpotlight?.document })
+  }, [setCookie, cookieName, displaySpotlight, captureEvent]);
 
-  if (spotlight && !isHidden) {
+  if (displaySpotlight && !isHidden) {
     return <SpotlightItem
-      key={spotlight._id}
-      spotlight={spotlight}
+      key={displaySpotlight._id}
+      spotlight={displaySpotlight}
       hideBanner={hideBanner}
       className={className}
     />
