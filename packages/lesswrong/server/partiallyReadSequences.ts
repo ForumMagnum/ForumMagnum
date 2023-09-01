@@ -77,7 +77,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
       };
       
       // Generate a new partiallyReadSequences, filtering out the sequence that
-      // was just finished and any other entry for this same collection.
+      // was just finished and any other entry for this same collection.  
       //
       // Minor oddity: It's possible to end up with the partially-read
       // list containing both a sequence and the collection that contains it,
@@ -131,60 +131,27 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
   }
 });
 
-const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
-  if (Posts.isPostgres()) {
-    const result = await runSqlQuery(`
-      SELECT "Posts"."_id" FROM "Posts"
-      JOIN "ReadStatuses" ON
-        "Posts"."_id" = "ReadStatuses"."postId" AND
-        "ReadStatuses"."isRead" = TRUE AND
-        "ReadStatuses"."userId" = $1
-      WHERE "Posts"."_id" IN ( $2:csv )
-    `, [user._id, postIDs], "read");
-    return result.map(({_id}) => _id);
-  } else {
-    return Posts.aggregate([
-      { $match: {
-        _id: {$in: postIDs}
-      } },
-
-      { $lookup: {
-        from: "readstatuses",
-        let: { documentId: "$_id", },
-        pipeline: [
-          { $match: {
-            userId: user._id,
-          } },
-          { $match: { $expr: {
-            $and: [
-              {$eq: ["$postId", "$$documentId"]},
-            ]
-          } } },
-          { $limit: 1},
-        ],
-        as: "views",
-      } },
-
-      { $match: {
-        "views": {$size: 1}
-      } },
-
-      { $project: {
-        _id: 1
-      } }
-    ]).toArray();
-  };
+const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {
+  const result = await runSqlQuery(`
+    SELECT "Posts"."_id" FROM "Posts"
+    JOIN "ReadStatuses" ON
+      "Posts"."_id" = "ReadStatuses"."postId" AND
+      "ReadStatuses"."isRead" = TRUE AND
+      "ReadStatuses"."userId" = $1
+    WHERE "Posts"."_id" IN ( $2:csv )
+  `, [user._id, postIDs], "read");
+  return result.map(({_id}) => _id);
 }
 
 // Given a user and an array of post IDs, return a dictionary from
 // postID=>bool, true if the user has read the post and false otherwise.
-const postsToReadStatuses = async (user: DbUser, postIDs: Array<string>) => {
-  const readPosts = await getReadPosts(user, postIDs);
+const postsToReadStatuses = async (user: DbUser, postIds: Array<string>) => {
+  const readPostIds = await getReadPostIds(user, postIds);
   const resultDict: Partial<Record<string,boolean>> = {};
-  for (const postID of postIDs)
+  for (const postID of postIds)
     resultDict[postID] = false;
-  for (const readPost of readPosts)
-    resultDict[readPost._id] = true;
+  for (const readPostId of readPostIds)
+    resultDict[readPostId] = true;
   return resultDict;
 }
 
