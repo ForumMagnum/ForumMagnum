@@ -269,7 +269,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 

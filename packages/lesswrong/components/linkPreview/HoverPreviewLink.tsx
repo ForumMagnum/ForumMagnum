@@ -111,6 +111,9 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, 
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
         return <Components.ArbitalPreview href={href} innerHTML={innerHTML} id={id} />
       }
+      if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
+        return <Components.EstimakerPreview href={href} innerHTML={innerHTML} id={id} />
+      }
       return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} rel={rel} />
     }
     return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel} />
