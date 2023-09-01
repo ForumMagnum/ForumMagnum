@@ -84,8 +84,8 @@ const schema: SchemaType<DbCollection> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },
 }
