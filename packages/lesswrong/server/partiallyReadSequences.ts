@@ -77,7 +77,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
       };
       
       // Generate a new partiallyReadSequences, filtering out the sequence that
-      // was just finished and any other entry for this same collection.  
+      // was just finished and any other entry for this same collection.
       //
       // Minor oddity: It's possible to end up with the partially-read
       // list containing both a sequence and the collection that contains it,
