@@ -6,7 +6,7 @@ const pgPromiseLib = pgp();
 
 type Database = IDatabase<{}>;
 
-const modes = ["dev", "prod", "staging", "testing", "xpost-dev"] as const;
+const modes = ["dev", "prod", "staging", "testing", "xpost"] as const;
 
 type Mode = typeof modes[number];
 
@@ -24,7 +24,7 @@ const makeCredentialsPath = (fileName: string) =>
   join("..", "..", "ForumCredentials", fileName);
 
 const readSettingsFile = (mode: Mode): Settings => {
-  if (mode === "xpost-dev") {
+  if (mode === "xpost") {
     mode = "dev";
   }
   const path = makeCredentialsPath(`load${capitalize(mode)}DbSettings.js`);
