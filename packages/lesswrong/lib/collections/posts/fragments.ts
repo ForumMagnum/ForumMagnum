@@ -112,6 +112,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
+    onlyVisibleToEstablishedAccounts
 
     reviewCount
     reviewVoteCount
