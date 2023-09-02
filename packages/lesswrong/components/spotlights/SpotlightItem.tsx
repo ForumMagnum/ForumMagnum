@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     marginRight: 150,
     position: "relative",
-    zIndex: theme.zIndexes.spotlightItem,
+    zIndex: theme.zIndexes.spotlightItemContent,
     // Drop shadow that helps the text stand out from the background image
     textShadow: `
       0px 0px 10px ${theme.palette.background.default},
@@ -135,15 +135,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   startOrContinue: {
     marginTop: isEAForum ? 16 : 4,
   },
-  imageWrapper: {
-    position: "absolute",
-    top : 0,
-    right: 0,
-    // Try to make this wrapper as tall and wide as the image
-    width: "fit-content",
-    height: "100%",
-    zIndex: 0,
-  },
   imageFade: {
     position: "absolute",
     top: 0,
@@ -151,9 +142,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: "100%",
     width: "100%",
     backgroundImage: `linear-gradient(to right, ${theme.palette.grey[0]} 0%, ${theme.palette.inverseGreyAlpha(.5)} 70%, transparent 100%)`,
-    zIndex: 1,
+    zIndex: theme.zIndexes.spotlightItemImageFade,
+    borderRadius: theme.borderRadius.default,
   },
   image: {
+    position: "absolute",
+    top: 0,
+    right: 0,
     height: "100%",
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
@@ -325,14 +320,14 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
-        {spotlight.spotlightImageId && <div className={classes.imageWrapper}>
+        {spotlight.spotlightImageId && <>
           {spotlight.imageFade && <div className={classes.imageFade} />}
           <CloudinaryImage2
             publicId={spotlight.spotlightImageId}
             darkPublicId={spotlight.spotlightDarkImageId}
             className={classes.image}
           />
-        </div>}
+        </>}
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
