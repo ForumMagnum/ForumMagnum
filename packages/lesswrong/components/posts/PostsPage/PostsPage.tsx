@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { userHasSideComments } from '../../../lib/betas';
@@ -28,6 +28,7 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -193,7 +194,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: theme.spacing.unit *3
   },
   postContent: { //Used by a Cypress test
-    marginBottom: isEAForum ? 40 : undefined
+    marginBottom: isFriendlyUI ? 40 : undefined
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
@@ -208,7 +209,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: isEAForum ? 16 : undefined
+    paddingTop: isFriendlyUI ? 16 : undefined
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -306,7 +307,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const postBodyRef = useRef<HTMLDivElement|null>(null)
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
+    if (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
 
     updateReadingProgressBar()
     window.addEventListener('scroll', updateReadingProgressBar)
@@ -541,7 +542,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  const isAF = (forumTypeSetting.get() === 'AlignmentForum');
   if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>

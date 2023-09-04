@@ -3,8 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const iconWidth = 30
 
@@ -20,17 +20,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[isEAForum ? 1000 : 900],
+      color: theme.palette.grey[isFriendlyUI ? 1000 : 900],
       fontWeight: 600,
     },
   },
   navButton: {
     '&:hover': {
-      opacity: isEAForum ? 1 : 0.6,
-      color: isEAForum ? theme.palette.grey[800] : undefined,
+      opacity: isFriendlyUI ? 1 : 0.6,
+      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    color: theme.palette.grey[isEAForum ? 600 : 800],
+    color: theme.palette.grey[isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 0,
     '&:hover': {
       backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      opacity: isEAForum ? 1 : undefined,
+      opacity: isFriendlyUI ? 1 : undefined,
     }
   },
   icon: {
@@ -63,14 +63,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     display: "inline",
     "& svg": {
-      fill: isEAForum ? undefined : "currentColor",
-      color: isEAForum ? undefined : theme.palette.icon.navigationSidebarIcon,
+      fill: isFriendlyUI ? undefined : "currentColor",
+      color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
   },
   selectedIcon: {
     "& svg": {
-      color: isEAForum ? theme.palette.grey[1000] : undefined,
+      color: isFriendlyUI ? theme.palette.grey[1000] : undefined,
     },
   },
   navText: {
@@ -86,7 +86,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tooltip: {
-    maxWidth: isEAForum ? 190 : undefined,
+    maxWidth: isFriendlyUI ? 190 : undefined,
   },
 })
 

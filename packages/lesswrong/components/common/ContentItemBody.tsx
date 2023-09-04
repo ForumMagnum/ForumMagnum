@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
 import Mark from 'mark.js';
@@ -285,7 +285,7 @@ class ContentItemBody extends Component<ContentItemBodyProps,ContentItemBodyStat
 
   collapseFootnotes = () => {
     const body = this.bodyRef?.current;
-    if (!isEAForum || !body) {
+    if (isLWorAF || !body) {
       return;
     }
 

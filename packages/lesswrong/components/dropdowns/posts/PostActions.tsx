@@ -3,7 +3,8 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -11,7 +12,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    minWidth: isEAForum ? undefined : 300,
+    minWidth: isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
   },
 })
@@ -52,7 +53,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
-      {!isEAForum && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
+      {isLWorAF && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem

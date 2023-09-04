@@ -1,11 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { forumTitleSetting, isEAForum } from '../../../lib/instanceSettings';
+import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -63,17 +64,17 @@ const SharePostActions = ({post, onClick, classes}: {
       />
       <DropdownDivider/>
       <DropdownItem
-        title={isEAForum ? "Share on Twitter" : "Twitter"}
+        title={isFriendlyUI ? "Share on Twitter" : "Twitter"}
         icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
         onClick={shareToTwitter}
       />
       <DropdownItem
-        title={isEAForum ? "Share on Facebook" : "Facebook"}
+        title={isFriendlyUI ? "Share on Facebook" : "Facebook"}
         icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
         onClick={shareToFacebook}
       />
       <DropdownItem
-        title={isEAForum ? "Share on LinkedIn" : "LinkedIn"}
+        title={isFriendlyUI ? "Share on LinkedIn" : "LinkedIn"}
         icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
         onClick={shareToLinkedIn}
       />

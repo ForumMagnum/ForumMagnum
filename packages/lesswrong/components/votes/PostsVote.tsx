@@ -3,9 +3,10 @@ import React from 'react';
 import Tooltip, { TooltipProps } from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanVote } from '../../lib/collections/users/helpers';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteBlock: {
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '55%',
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: isEAForum ? 12 : 0
+    paddingTop: isFriendlyUI ? 12 : 0
   },
 })
 
@@ -73,7 +74,7 @@ const PostsVote = ({ post, useHorizontalLayout, classes }: {
   const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
   const canVote = !fail;
   
-  let tooltipPlacement: "left"|"right"|"top" = isEAForum ? "left" : "right"
+  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right"
   if (useHorizontalLayout) {
     tooltipPlacement = "top"
   }
@@ -107,7 +108,7 @@ const PostsVote = ({ post, useHorizontalLayout, classes }: {
             </div>
           </Tooltip>
 
-          {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
+          {!!post.af && !!post.afBaseScore && !isAF &&
             <Tooltip
               title="AI Alignment Forum karma"
               placement={tooltipPlacement}

@@ -4,14 +4,15 @@ import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum, taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: isEAForum ? 700 : 600,
+    fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
   },
   description: {

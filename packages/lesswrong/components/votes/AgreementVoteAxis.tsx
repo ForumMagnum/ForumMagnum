@@ -3,10 +3,10 @@ import { Components, registerComponent, getCollection } from '../../lib/vulcan-l
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { userCanVote } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 60,
     paddingTop: 2,
     outline: theme.palette.border.commentBorder,
-    borderRadius: isEAForum ? theme.borderRadius.small : 2,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
   },
   tooltip: {
-    transform: isEAForum ? "translateY(-10px)" : undefined,
+    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
   },
 });
 
@@ -86,7 +86,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
     : ({children}: {children: React.ReactNode}) => <>{children}</>
   );
 
-  const tooltipPlacement = isEAForum ? "top" : "bottom";
+  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
 
   return <TooltipIfDisabled>
     <span className={classes.agreementSection}>

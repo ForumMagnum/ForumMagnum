@@ -3,8 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from "../common/Header";
-import { forumTypeSetting } from "../../lib/instanceSettings";
 import { gql, useMutation } from "@apollo/client";
+import { hasLogoSetting } from "../../lib/publicSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,7 +44,6 @@ const CrosspostLoginPage = ({classes}: {
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
   const token = new URLSearchParams(location.search).get("token");
-  const hasLogo = forumTypeSetting.get() === "EAForum";
 
   const onConfirm = async () => {
     if (!currentUser) {
@@ -68,7 +67,7 @@ const CrosspostLoginPage = ({classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.heading}>
-        {hasLogo && <SiteLogo />}
+        {hasLogoSetting.get() && <SiteLogo />}
         <Typography variant="title" className={classes.headingText}>
           {forumHeaderTitleSetting.get()}
         </Typography>

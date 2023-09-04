@@ -5,9 +5,10 @@ import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Paper from '@material-ui/core/Paper';
 import { Link } from '../../lib/reactRouterWrapper';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -130,7 +131,7 @@ const WriteNewButton = ({
                 setOpen(false);
               }}
             >
-              New {isEAForum ? "quick take" : "shortform"}
+              New {isFriendlyUI ? "quick take" : "shortform"}
             </MenuItem>
             <Link to={`/newPost?question=true&subforumTagId=${tag._id}`} eventProps={{writeNewMenuItem: "newQuestion"}}>
               <MenuItem className={classes.menuItem}>New question</MenuItem>

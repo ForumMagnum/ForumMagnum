@@ -8,7 +8,7 @@ import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     position: "sticky",
     zIndex: 1,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontWeight: 600,
@@ -48,9 +48,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 6,
   },
   noPosts: {
-    marginLeft: isEAForum ? 0 : 23,
+    marginLeft: isFriendlyUI ? 0 : 23,
     color: theme.palette.text.dim,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         marginTop: 18,
         fontFamily: theme.palette.fonts.sansSerifStack,
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: isEAForum ? -4 : 6,
+    marginTop: isFriendlyUI ? -4 : 6,
     marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
@@ -95,7 +95,7 @@ const getTitle = (
     return startDate.format('MMMM YYYY');
   }
 
-  if (isEAForum) {
+  if (isFriendlyUI) {
     const result = size === 'smUp'
       ? startDate.format('ddd, D MMM YYYY')
       : startDate.format('dddd, D MMMM YYYY');

@@ -13,10 +13,9 @@ import MailOutline from '@material-ui/icons/MailOutline'
 import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
 import TextField from '@material-ui/core/TextField';
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
@@ -147,7 +146,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }, [adminBranch, currentUser?.isAdmin]);
 
   // disable on AlignmentForum
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return null;
   }
 
@@ -156,8 +155,10 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     return <div/>
 
   // adjust functionality based on forum type
-  let currentUserSubscribed = currentUser?.emailSubscribedToCurated;
-  if (forumTypeSetting.get() === 'EAForum') {
+  let currentUserSubscribed
+  if (isLW) {
+    currentUserSubscribed = currentUser?.emailSubscribedToCurated;
+  } else {
     currentUserSubscribed = currentUser?.subscribedToDigest;
   }
 
@@ -191,13 +192,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
-      {subscribedToDigest: true} : {emailSubscribedToCurated: true};
+    const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isLW ?
+    {emailSubscribedToCurated: true} : {subscribedToDigest: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
     // EA Forum does not care about email verification
-    if (forumTypeSetting.get() !== 'EAForum' && !userEmailAddressIsVerified(currentUser)) {
+    if (!isEAForum && !userEmailAddressIsVerified(currentUser)) {
       userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
 
@@ -242,9 +243,12 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </div>
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
-    const confirmText = forumTypeSetting.get() === 'EAForum' ?
-      "You're subscribed to the EA Forum Digest" :
-      "You are subscribed to the best posts of LessWrong!"
+    let confirmText;
+    if (isLW) {
+      confirmText = "You are subscribed to the best posts of LessWrong!";
+    } else {
+      confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;
+    }
     return <AnalyticsWrapper branch="already-subscribed">
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />
@@ -262,14 +266,14 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     </AnalyticsWrapper>
   } else if (!currentUser || adminBranch===0) {
     // Not logged in. Show a create-account form and a brief pitch.
-    const subscribeTextNode = forumTypeSetting.get() === 'EAForum' ? eaForumSubscribePrompt : (
+    const subscribeTextNode = isEAForum ? eaForumSubscribePrompt : (
       <div className={classes.message}>
         To get the best posts emailed to you, create an account! {subscriptionDescription}
       </div>
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      {forumTypeSetting.get() === 'EAForum' ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
+      {isEAForum ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
         <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
         <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
           Sign up
@@ -280,7 +284,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
-    const emailType = forumTypeSetting.get() === 'EAForum' ? 'our weekly digest email' : 'curated posts';
+    const emailType = isEAForum ? 'our weekly digest email' : 'curated posts';
     // Logged in, but no email address associated. Probably a legacy account.
     // Show a text box for an email address, with a submit button and a subscribe
     // checkbox.
@@ -299,13 +303,13 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = forumTypeSetting.get() === 'EAForum' ?
+              const userSubscriptionData: Partial<MakeFieldsNullable<DbUser>> = isEAForum ?
                 {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
               await updateCurrentUser(userSubscriptionData);
 
-              if (forumTypeSetting.get() !== 'EAForum') {
+              if (isEAForum) {
                 // Confirmation-email mutation is separate from the send-verification-email
                 // mutation because otherwise it goes to the old email address (aka null)
                 await updateCurrentUser({

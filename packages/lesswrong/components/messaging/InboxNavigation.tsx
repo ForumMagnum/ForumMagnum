@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
@@ -66,7 +66,7 @@ const InboxNavigation = ({
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} expanded={expanded}/>
           ) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{forumTypeSetting.get() !== "EAForum" && " Go and be free."}</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF && " Go and be free."}</Typography>
         }
         <SectionFooter>
           <LoadMore {...loadMoreProps} sectionFooterStyles/>

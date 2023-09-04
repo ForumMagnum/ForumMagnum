@@ -14,8 +14,8 @@ import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
   title: {
     display: 'block',

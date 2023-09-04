@@ -9,8 +9,8 @@ import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { isEAForum } from '../../../lib/instanceSettings';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   filters: {
@@ -49,7 +49,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: isEAForum ? 14 : 13,
+    fontSize: isFriendlyUI ? 14 : 13,
     margin: '0 5px'
   },
   noResults: {

@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
 import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 
 const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,
@@ -28,7 +28,7 @@ const PostsPageHeaderTitle = ({isSubtitle, siteName, classes}: {
       <meta property='og:title' content={titleString}/>
     </Helmet>
   
-  if (forumTypeSetting.get() !== 'AlignmentForum' && post.af) {
+  if (!isAF && post.af) {
     // TODO: A (broken) bit of an earlier iteration of the header subtitle
     // tried to made AF posts have a subtitle which said "AGI Alignment" and
     // linked to /alignment. But that bit of code was broken, and also that URL

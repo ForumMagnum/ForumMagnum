@@ -7,7 +7,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -18,6 +18,7 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Link } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -91,7 +92,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
-      ...(isEAForum && {width: "100%"})
+      ...(isFriendlyUI && {width: "100%"})
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -201,7 +202,6 @@ const PostsNewForm = ({classes}: {
   const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
     Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents, LWTooltip } = Components
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
-  const af = forumTypeSetting.get() === 'AlignmentForum'
   const debateForm = !!(query && query.debate);
 
   const questionInQuery = query && !!query.question
@@ -219,7 +219,7 @@ const PostsNewForm = ({classes}: {
     globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: af || (query && !!query.af),
+    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,

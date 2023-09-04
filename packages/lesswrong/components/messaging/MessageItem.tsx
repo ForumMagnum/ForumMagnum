@@ -3,8 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -75,15 +75,14 @@ const MessageItem = ({message, classes}: {
   const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
   const htmlBody = {__html: html};
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   let profilePhoto: React.ReactNode|null = null;
-  if (!isCurrentUser && isEAForum) {
+  if (!isCurrentUser && isFriendlyUI) {
     profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
-    <div className={classNames(classes.root, {[classes.rootWithImages]: isEAForum, [classes.rootCurrentUserWithImages]: isEAForum && isCurrentUser})}>
+    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI, [classes.rootCurrentUserWithImages]: isFriendlyUI && isCurrentUser})}>
       {profilePhoto}
       <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>

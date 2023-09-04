@@ -4,7 +4,7 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   title: {
     fontSize: 16,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         lineHeight: 1.25,
         maxHeight: 42,
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
         fontFamily: theme.palette.fonts.sansSerifStack,
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
-    borderRadius: isEAForum
+    borderRadius: isFriendlyUI
       ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
       : undefined,
     [legacyBreakpoints.maxSmall]: {
@@ -109,7 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& img": {
       width: "100%",
       height: 95,
-      borderRadius: isEAForum
+      borderRadius: isFriendlyUI
         ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
         : undefined,
       [legacyBreakpoints.maxSmall]: {

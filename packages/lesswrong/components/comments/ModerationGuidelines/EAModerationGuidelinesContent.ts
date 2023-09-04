@@ -1,3 +1,5 @@
+// Note: this file is not currently (August 2023) in use, because guidelines are disabled for EAF via showGuidelines set to false in CommentsNewForm
+
 const generalGuidelines = `
   <p>Commenting guidelines:</p>
   <ul>

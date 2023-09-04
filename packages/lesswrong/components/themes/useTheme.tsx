@@ -4,7 +4,7 @@ import { AbstractThemeOptions, ThemeOptions, abstractThemeToConcrete } from '../
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { usePrefersDarkMode } from './usePrefersDarkMode';
 import moment from 'moment';
-import {forumTypeSetting} from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
@@ -99,7 +99,7 @@ export const ThemeContextProvider = ({options, children}: {
   useEffect(() => {
     if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
-      if (forumTypeSetting.get() === "EAForum") {
+      if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
       } else {
         setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {

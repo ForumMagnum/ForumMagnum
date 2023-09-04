@@ -4,7 +4,7 @@ import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -26,7 +26,7 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
     });
   }
 
-  const contentType = isEAForum ? "Quick takes" : "Shortform";
+  const contentType = isFriendlyUI ? "Quick takes" : "Shortform";
 
   const {DropdownItem} = Components;
   return (

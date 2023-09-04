@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMorePadding: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCurrent | null) => {
-  if (forumTypeSetting.get() === "EAForum") {
+  if (isEAForum) {
     return !belowFold && currentUser?.isAdmin;
   } else {
     const twoAndAHalfDaysAgo = new Date(new Date().getTime()-(2.5*24*60*60*1000));

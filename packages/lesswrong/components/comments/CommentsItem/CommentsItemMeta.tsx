@@ -10,7 +10,7 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
-import { isFriendlyUI } from "../../../themes/forumTheme";
+import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -302,7 +302,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={!isFriendlyUI}
+            neverCoreStyling={isBookUI}
             smallText
           />
         )}

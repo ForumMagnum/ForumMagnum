@@ -14,7 +14,8 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { isBookUI } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { hasLogoSetting } from '../../lib/publicSettings';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       padding: '1px 20px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
@@ -77,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: isEAForum ? 400 : undefined,
+    fontWeight: isFriendlyUI ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -121,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-    alignItems: isEAForum ? 'center' : undefined,
+    alignItems: isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -272,19 +273,17 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
-
-  const hasLogo = isEAForum;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
   } = Components;
   
-  const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
@@ -306,13 +305,13 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
           disable={stayAtTop}
         >
           <header className={classes.appBar}>
-            <Toolbar disableGutters={isEAForum}>
+            <Toolbar disableGutters={isFriendlyUI}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -320,7 +319,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>
@@ -329,19 +328,19 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {!isEAForum && usersMenuNode}
+                {!isFriendlyUI && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
                   currentUser={currentUser}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+                  className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
                 />}
                 {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+                  className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
                 />}
-                {isEAForum && usersMenuNode}
+                {isFriendlyUI && usersMenuNode}
               </div>
             </Toolbar>
           </header>

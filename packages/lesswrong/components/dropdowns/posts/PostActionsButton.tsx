@@ -4,9 +4,9 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     verticalAlign: 'middle',
-    color: isEAForum ? theme.palette.grey[400] : undefined,
+    color: isFriendlyUI ? theme.palette.grey[400] : undefined,
     cursor: "pointer",
   },
   popper: {

@@ -16,15 +16,15 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
@@ -87,10 +87,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
-    paddingTop: isEAForum ? 12 : 18,
+    paddingTop: isFriendlyUI ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: theme.borderRadius[isEAForum ? "default" : "small"],
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
     marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
@@ -110,7 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     display: "block",
     fontSize: "1.75rem",
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       fontSize: 22,
       fontWeight: 600,
       lineHeight: 1.25,

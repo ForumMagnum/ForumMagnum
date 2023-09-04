@@ -2,12 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 
-const customStyles = (theme: ThemeType) => isEAForum
+const customStyles = (theme: ThemeType) => isFriendlyUI
   ? {}
   : {
     fontWeight: 300,
@@ -16,7 +16,7 @@ const customStyles = (theme: ThemeType) => isEAForum
 
 const styles = (theme: ThemeType): JssStyles => ({
   postedAt: {
-    ...(isEAForum && {display: "flex"}),
+    ...(isFriendlyUI && {display: "flex"}),
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,

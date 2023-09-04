@@ -5,14 +5,14 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { isEAForum } from '../../lib/instanceSettings';
 import { PostCategory } from '../../lib/collections/posts/helpers';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontWeight: 700,
       fontSize: 32,
       marginBottom: 12,
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: !isEAForum && theme.palette.border.normal,
+    borderBottom: isBookUI && theme.palette.border.normal,
     "& textarea": {
       overflowY: "hidden",
     },
@@ -57,7 +57,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question, postCategory } = document;
 
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
-  const displayPlaceholder = isEAForum ? placeholders[effectiveCategory] : placeholder;
+  const displayPlaceholder = isFriendlyUI ? placeholders[effectiveCategory] : placeholder;
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
@@ -70,7 +70,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
-    className={classNames(classes.root, {[classes.question]: question && !isEAForum})}
+    className={classNames(classes.root, {[classes.question]: question && isBookUI})}
     placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {

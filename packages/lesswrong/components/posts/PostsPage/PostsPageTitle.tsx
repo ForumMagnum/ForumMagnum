@@ -3,17 +3,17 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: isEAForum ? 5 : 0,
+  marginTop: isFriendlyUI ? 5 : 0,
   marginLeft: 0,
-  marginBottom: isEAForum ? 12 : 0,
+  marginBottom: isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
-  [theme.breakpoints.down('sm')]: isEAForum
+  [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
       fontSize: '2.3rem',
       marginTop: 20,
@@ -21,7 +21,7 @@ export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
     : {
       fontSize: '2.5rem',
     },
-  ...(isEAForum
+  ...(isFriendlyUI
     ? {
       fontSize: '3rem',
     }
@@ -57,7 +57,7 @@ const PostsPageTitle = ({classes, post}: {
 }) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
   const { Typography, ForumIcon } = Components;
-  const showLinkIcon = post.url && isEAForum;
+  const showLinkIcon = post.url && isFriendlyUI;
   
   return (
     <div>

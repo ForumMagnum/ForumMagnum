@@ -4,7 +4,7 @@ import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   empty: {
-    ...(isEAForum ? theme.typography.body2 : {}),
+    ...(isFriendlyUI ? theme.typography.body2 : {}),
     padding: 10
   },
 
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     textAlign: "center",
     width: "100%",
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

@@ -8,13 +8,13 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },

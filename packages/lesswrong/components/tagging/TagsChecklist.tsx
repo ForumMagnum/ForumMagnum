@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
-import { isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     },
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         ...coreTagStyle(theme),
         opacity: 0.6,
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
-    ...(isEAForum ? coreTagStyle(theme) : {}),
+    ...(isFriendlyUI ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
   smallTag: {

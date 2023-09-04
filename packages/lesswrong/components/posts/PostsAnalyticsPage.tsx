@@ -6,7 +6,7 @@ import TableRow from '@material-ui/core/TableRow'
 import classNames from 'classnames'
 import React from 'react'
 import { useSingle } from '../../lib/crud/withSingle'
-import { forumTypeSetting } from '../../lib/instanceSettings'
+import { isEAForum } from '../../lib/instanceSettings'
 import { useLocation, useServerRequestStatus } from '../../lib/routeUtil'
 import { Components, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -15,8 +15,6 @@ import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } f
 import { requireCssVar } from '../../themes/cssVars';
 import moment from 'moment'
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers'
-
-const isEAForum = forumTypeSetting.get()
 
 // lw-look-here
 const missingClientRangeText = isEAForum ? "Jan 11th - Jun 14th of 2021" : "late 2020 - early 2021"
@@ -211,7 +209,6 @@ const PostsAnalyticsPage = ({ classes }: {
   }
 
   const post = postReturn.document
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
   const title = `Analytics for "${post.title}"`
 
   // Analytics query can still be very expensive despire indexes, and we don't

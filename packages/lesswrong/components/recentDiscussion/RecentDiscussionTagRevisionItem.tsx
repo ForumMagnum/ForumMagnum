@@ -1,8 +1,7 @@
 import React from 'react';
-import { forumTypeSetting } from "../../lib/instanceSettings"
+import { isEAForum } from "../../lib/instanceSettings"
 import { Components, registerComponent } from "../../lib/vulcan-lib"
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 // Pablo, Leo, Lizka
 const megaTagUsers = ['BkbwT5TzSj4aRxJMN', 'pkJTc4xXhsCbNqkZM', 'SuPnfB9qqKWsucNzm']
 const onlyStyleEditors = ['pkJTc4xXhsCbNqkZM']

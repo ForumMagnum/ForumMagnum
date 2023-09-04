@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
@@ -94,7 +94,7 @@ const UsersEditForm = ({terms, classes}: {
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}
-      {isCurrentUser && forumTypeSetting.get() !== 'EAForum' && <Button
+      {isCurrentUser && !isEAForum && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}

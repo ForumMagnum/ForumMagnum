@@ -3,7 +3,7 @@ import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
 import { userCanVote } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
@@ -11,6 +11,7 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: isEAForum ? theme.borderRadius.small : 2,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },
@@ -53,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontStyle: "italic"
   },
   tooltip: {
-    transform: isEAForum ? "translateY(-10px)" : undefined,
+    transform: isFriendlyUI ? "translateY(-10px)" : undefined,
   },
   verticalArrows: {
     "& .LWTooltip-root": {
@@ -144,7 +145,7 @@ const OverallVoteAxis = ({
     : ({children}: {children: React.ReactNode}) => <>{children}</>
   );
 
-  const tooltipPlacement = isEAForum ? "top" : "bottom";
+  const tooltipPlacement = isFriendlyUI ? "top" : "bottom";
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
   // TODO: In the fullness of time
@@ -155,7 +156,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && forumTypeSetting.get() !== 'AlignmentForum' &&
+      {!!af && !isAF &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -172,7 +173,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {!af && (forumTypeSetting.get() === 'AlignmentForum') &&
+      {!af && isAF &&
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
@@ -184,7 +185,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {(forumTypeSetting.get() !== 'AlignmentForum' || !!af) &&
+      {(!isAF || !!af) &&
         <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,

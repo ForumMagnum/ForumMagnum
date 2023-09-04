@@ -5,15 +5,16 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
+import {forumTitleSetting, isEAForum } from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isEAForum ? 14 : 16,
+    fontSize: isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -24,7 +25,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     })
   },
   secondaryButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
@@ -35,7 +36,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
@@ -51,8 +52,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedback: {
   }
 });
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 export type PostSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
@@ -127,7 +126,7 @@ const PostSubmit = ({
           type="submit"
           onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isEAForum ? {
+          {...(isFriendlyUI ? {
             variant: "contained",
             color: "primary",
           } : {})}

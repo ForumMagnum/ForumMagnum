@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity:1,
       color: theme.palette.link.tocLinkHighlighted,
     },
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       lineHeight: "1.1rem",
       fontSize: "1rem",
     }),
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 3,
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: theme.palette.border.faint,
-    fontSize: isEAForum ? "1em" : undefined,
+    fontSize: isFriendlyUI ? "1em" : undefined,
   },
   level0: {
     display:"inline-block",

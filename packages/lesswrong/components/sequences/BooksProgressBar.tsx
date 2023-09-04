@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   read: {
     ...(
-      forumTypeSetting.get() === "EAForum"
+      isFriendlyUI
         ? {
           backgroundColor: theme.palette.primary.main,
           border: theme.palette.primary.dark,

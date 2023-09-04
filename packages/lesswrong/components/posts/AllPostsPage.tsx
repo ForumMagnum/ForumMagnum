@@ -9,11 +9,12 @@ import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSetting
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import Tooltip from '@material-ui/core/Tooltip';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": isEAForum
+    "& .SectionTitle-title": isFriendlyUI
       ? {
         color: theme.palette.grey[1000],
         textTransform: "none",
@@ -42,7 +43,7 @@ const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtere
 
 const formatSort = (sorting: PostSortingMode) => {
   const sort = SORT_ORDER_OPTIONS[sorting].label
-  return isEAForum ? sort : `Sorted by ${sort}`;
+  return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
 const AllPostsPage = ({classes}: {classes: ClassesType}) => {
@@ -98,7 +99,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               </SectionTitle>
             </div>
           </Tooltip>
-          {isEAForum && !showSettings && <hr className={classes.divider} />}
+          {isFriendlyUI && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}

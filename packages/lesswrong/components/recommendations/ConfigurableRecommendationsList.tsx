@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import { getRecommendationSettings, archiveRecommendationsName } from './RecommendationsAlgorithmPicker'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 
 const ConfigurableRecommendationsList = ({configName}: {
   configName: string
@@ -34,8 +34,8 @@ const ConfigurableRecommendationsList = ({configName}: {
           {archiveRecommendationsName}
         </Link>
       </LWTooltip>}
-    >
-      {!isEAForum && <SettingsButton onClick={toggleSettings}/>}
+    >zzz
+      {isLW && <SettingsButton onClick={toggleSettings}/>}
     </SectionTitle>
     { settingsVisible &&
       <RecommendationsAlgorithmPicker

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const separatorBulletStyles = (theme: ThemeType) => ({
   '& > *': {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     flexWrap: "wrap",
     ...separatorBulletStyles(theme),
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontSize: 14,
         fontWeight: 600,

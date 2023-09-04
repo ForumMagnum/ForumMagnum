@@ -1,7 +1,8 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isNewUser } from "../../lib/collections/users/helpers";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconWrapper: {
@@ -35,7 +36,7 @@ const UserCommentMarkers = ({
     return null;
   }
 
-  const showAuthorIcon = isEAForum && isPostAuthor;
+  const showAuthorIcon = isFriendlyUI && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
 
   if (!showAuthorIcon && !showNewUserIcon) {

@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const responseToText = {
   yes: "Going",
@@ -18,7 +18,7 @@ export const responseToText = {
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
-  emailMessage: isEAForum
+  emailMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }

@@ -1,9 +1,9 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
-import { isEAForum } from "../../../lib/instanceSettings";
 import { userCanMakeAlignmentPost } from "../../../lib/alignment-forum/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { useSetAlignmentPost } from "../../alignment-forum/withSetAlignmentPost";
+import { isLWorAF } from "../../../lib/instanceSettings";
 
 const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -24,7 +24,7 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   if (
-    isEAForum ||
+    !isLWorAF ||
     !userCanMakeAlignmentPost(currentUser, post)
   ) {
     return null;

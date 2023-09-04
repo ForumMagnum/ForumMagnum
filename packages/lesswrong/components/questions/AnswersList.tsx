@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -73,7 +73,7 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
           date={comment.postedAt}
           format={dateFormat}
         />
-        {!isFriendlyUI && <ForumIcon icon="Link" className={classes.icon} />}
+        {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
       </LinkWrapper>
     </span>
   );

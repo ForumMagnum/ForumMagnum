@@ -7,6 +7,8 @@ import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { showThemePickerSetting } from '../../lib/publicSettings';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   check: {
@@ -22,7 +24,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: isEAForum ? 6 : 0,
+    marginLeft: isFriendlyUI ? 6 : 0,
   },
 })
 
@@ -38,7 +40,7 @@ const ThemePickerMenu = ({children, classes}: {
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
-    if (forumTypeSetting.get() === "EAForum" && currentUser) {
+    if (isEAForum && currentUser) {
       void updateCurrentUser({
         theme: newThemeOptions as DbUser['theme'],
       });
@@ -69,7 +71,7 @@ const ThemePickerMenu = ({children, classes}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {forumTypeSetting.get() !== "EAForum" &&
+        {showThemePickerSetting.get() &&
           <>
             {themeMetadata.map((themeMetadata: ThemeMetadata) =>
               <DropdownItem

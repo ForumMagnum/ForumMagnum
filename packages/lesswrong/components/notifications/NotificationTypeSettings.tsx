@@ -1,19 +1,19 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { isEAForum } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import { defaultNotificationTypeSettings, NotificationChannelOption } from '../../lib/collections/users/schema';
 import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
 import type { PickedTime } from '../common/BatchTimePicker';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 8,
   },
   label: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   settings: {
     paddingLeft: 20,

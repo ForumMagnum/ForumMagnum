@@ -6,17 +6,17 @@ import classNames from 'classnames';
 import React, { useState } from 'react';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
 
 export const descriptionStyles = (theme: JssStyles) => ({
   ...postBodyStyles(theme),
-  ...(!isEAForum ? theme.typography.body2 : {}),
+  ...(isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -101,7 +101,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
-    ...(isEAForum ?
+    ...(isFriendlyUI ?
       {fontFamily: theme.typography.postStyle.fontFamily /* serifStack */} :
       {fontVariant: "small-caps"}
     ),

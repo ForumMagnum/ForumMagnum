@@ -2,7 +2,7 @@ import React, { ComponentType } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
@@ -11,7 +11,7 @@ export type RecommendationsListItem = ComponentType<{
 
 const styles = (theme: ThemeType) => ({
   noMoreMessage: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

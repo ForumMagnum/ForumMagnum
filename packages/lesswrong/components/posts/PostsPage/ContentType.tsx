@@ -6,11 +6,12 @@ import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import { forumTitleSetting, isEAForum, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -297,7 +298,7 @@ const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
   className,
   children,
 }) =>
-  isEAForum
+  isFriendlyUI
     ? <>{children}</>
     : <Components.Typography
       variant="body1"
@@ -323,7 +324,7 @@ const ContentType = ({classes, className, type, label}: {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = isEAForum
+  const innerComponent = isFriendlyUI
     ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}

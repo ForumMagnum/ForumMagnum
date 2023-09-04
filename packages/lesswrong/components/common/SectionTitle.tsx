@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const sectionTitleStyle = isEAForum
+export const sectionTitleStyle = isFriendlyUI
   ? (theme: ThemeType): JssStyles => ({
     margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,

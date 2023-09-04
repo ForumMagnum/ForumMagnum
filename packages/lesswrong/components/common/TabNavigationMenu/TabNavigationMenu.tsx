@@ -8,7 +8,7 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => {
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      paddingLeft: isEAForum ? 6 : undefined,
+      paddingLeft: isFriendlyUI ? 6 : undefined,
     },
     navSidebarTransparent: {
       zIndex: 10,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => {
       width: 50,
       borderBottom: theme.palette.border.normal,
       marginBottom: theme.spacing.unit * 2.5,
-      ...(isEAForum
+      ...(isFriendlyUI
         ? {
           marginLeft: theme.spacing.unit * 2.5,
           marginTop: theme.spacing.unit * 2.5,

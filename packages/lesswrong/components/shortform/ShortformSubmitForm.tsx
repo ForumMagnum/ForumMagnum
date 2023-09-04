@@ -2,12 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import type {
   CommentCancelCallback,
   CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -76,7 +76,7 @@ const ShortformSubmitForm = ({
   const currentUser = useCurrentUser();
   const {CommentsNewForm, QuickTakesEntry, ForumIcon} = Components;
 
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return (
       <div className={className}>
         <div className={classes.close} onClick={cancelCallback}>

@@ -2,11 +2,9 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -58,7 +56,7 @@ const RecentDiscussionFeed = ({
       refetchRef.current();
   }, [refetchRef]);
 
-  const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
+  const showShortformButton = isLWorAF && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
@@ -140,7 +138,7 @@ const RecentDiscussionFeed = ({
               },
               meetupsPoke: {
                 fragmentName: null,
-                render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
+                render: () => isLWorAF ? <RecentDiscussionMeetupsPoke/> : null
               },
             }}
           />

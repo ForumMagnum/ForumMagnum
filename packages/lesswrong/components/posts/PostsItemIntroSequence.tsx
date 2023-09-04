@@ -7,7 +7,7 @@ import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { KARMA_WIDTH } from './LWPostsItem';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -15,7 +15,7 @@ const IMAGE_HEIGHT = 96;
 export const styles = (theme: ThemeType): JssStyles=> ({
   root: {
     position: "relative",
-    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },

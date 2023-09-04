@@ -5,8 +5,8 @@ import { pluck } from "underscore";
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from "@apollo/client";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
 import type { ForumIconName } from "../common/ForumIcon";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 export type BookmarkPost = {
   icon: ForumIconName,
@@ -16,14 +16,14 @@ export type BookmarkPost = {
 }
 
 const getLabelText = (bookmarked: boolean) => {
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return bookmarked ? "Saved" : "Save";
   }
   return bookmarked ? "Un-bookmark" : "Bookmark";
 }
 
 const getHoverText = (bookmarked: boolean) => {
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return bookmarked ? "Remove from saved posts" : "Save post for later";
   }
   return bookmarked ? "Un-bookmark" : "Bookmark";

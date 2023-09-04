@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import { userCanStartConversations } from '../../lib/collections/conversations/collection';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
@@ -61,7 +61,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   }
 
   const newConversation = async (initiatingUser: UsersCurrent): Promise<string|null> => {
-    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+    const alignmentFields = isAF ? {af: true} : {}
     const moderatorField = includeModerators ? { moderator: true } : {}
 
     const data = {

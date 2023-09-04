@@ -6,8 +6,8 @@ import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUt
 import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
     ...theme.typography.postStyle,
     color: theme.palette.primary.main,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }

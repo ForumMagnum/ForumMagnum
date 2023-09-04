@@ -6,8 +6,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -91,7 +91,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       whiteSpace: 'normal'
     }
   },
-  onlineGroupName: isEAForum ? {
+  onlineGroupName: isFriendlyUI ? {
       ...theme.typography.headerStyle,
       fontWeight: 700,
       fontSize: 18,
@@ -133,7 +133,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
-    fontSize: isEAForum ? 14 : theme.typography.commentStyle.fontSize,
+    fontSize: isFriendlyUI ? 14 : theme.typography.commentStyle.fontSize,
   },
   postGroupsCTA: {
     textAlign: 'center',

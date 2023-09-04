@@ -3,13 +3,14 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useQuery, gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { isEAForum, taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const INITIAL_LIMIT = 5
 
 const styles = (_: ThemeType): JssStyles => ({
   subtitle: {
-    marginTop: isEAForum ? -4 : 6,
+    marginTop: isFriendlyUI ? -4 : 6,
     marginBottom: 6
   },
 });

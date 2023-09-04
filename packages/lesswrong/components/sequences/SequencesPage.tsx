@@ -10,6 +10,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -22,7 +23,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: isEAForum ? (270 + HEADER_HEIGHT) : 380,
+    paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -75,8 +76,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: isEAForum ? undefined : theme.spacing.unit,
-      padding: isEAForum ? 16 : theme.spacing.unit
+      marginTop: isFriendlyUI ? undefined : theme.spacing.unit,
+      padding: isFriendlyUI ? 16 : theme.spacing.unit
     },
   },
   leftAction: {

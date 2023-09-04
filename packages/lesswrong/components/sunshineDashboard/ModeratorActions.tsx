@@ -17,7 +17,7 @@ import { getCurrentContentCount, UserContentCountPartial } from '../../lib/colle
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -345,7 +345,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         Posts
       </div>
     </LWTooltip>
-    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own ${isEAForum ? "quick takes" : "shortform"})`}>
+    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own ${isFriendlyUI ? "quick takes" : "shortform"})`}>
       <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
         All Comments
       </div>

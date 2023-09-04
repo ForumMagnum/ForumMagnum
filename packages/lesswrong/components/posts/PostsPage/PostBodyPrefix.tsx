@@ -1,13 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const shortformDraftMessage = isEAForum
+const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your Quick takes. Because it's marked as a draft, your Quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
@@ -25,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -90,7 +91,7 @@ const PostBodyPrefix = ({post, query, classes}: {
       {shortformDraftMessage}
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
-      {isEAForum
+      {isFriendlyUI
         ? <>
           This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
         </>

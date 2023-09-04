@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
@@ -69,7 +69,7 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isEAForum ? "New Quick Take" : "New Shortform Post"}
+            {isFriendlyUI ? "New Quick Take" : "New Shortform Post"}
           </SectionButton>
         </div>}
       </SectionTitle>

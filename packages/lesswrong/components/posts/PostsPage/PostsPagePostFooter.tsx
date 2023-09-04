@@ -4,7 +4,8 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -14,10 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 20,
     alignItems: 'center',
     fontSize: '1.4em',
-    paddingTop: isEAForum ? 30 : undefined,
-    borderTop: isEAForum ? theme.palette.border.grey300 : undefined,
-    marginTop: isEAForum ? 40 : undefined,
-    marginBottom: isEAForum ? 40 : undefined
+    paddingTop: isFriendlyUI ? 30 : undefined,
+    borderTop: isFriendlyUI ? theme.palette.border.grey300 : undefined,
+    marginTop: isFriendlyUI ? 40 : undefined,
+    marginBottom: isFriendlyUI ? 40 : undefined
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -36,14 +37,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   voteBottom: {
-    flexGrow: isEAForum ? 1 : undefined,
+    flexGrow: isFriendlyUI ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: isEAForum ? undefined : 'auto',
-    marginRight: isEAForum ? undefined : 'auto',
-    marginBottom: isEAForum ? undefined : 40,
+    marginLeft: isFriendlyUI ? undefined : 'auto',
+    marginRight: isFriendlyUI ? undefined : 'auto',
+    marginBottom: isFriendlyUI ? undefined : 40,
     "@media print": { display: "none" },
   },
   secondaryInfoRight: {
@@ -76,7 +77,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const wordCount = post.contents?.wordCount || 0
   
   return <>
-    {!isEAForum && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+    {isLWorAF && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <AnalyticsContext pageSectionContext="tagFooter">
         <div className={classes.footerTagList}>
           <FooterTagList post={post}/>
@@ -87,15 +88,15 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} useHorizontalLayout={isEAForum} />
+            <PostsVote post={post} useHorizontalLayout={isFriendlyUI} />
           </AnalyticsContext>
         </div>
-        {isEAForum && <div className={classes.secondaryInfoRight}>
+        {isFriendlyUI && <div className={classes.secondaryInfoRight}>
           <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
           <SharePostButton post={post} />
           <span className={classes.actions}>
             <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton post={post} includeBookmark={!isEAForum} />
+              <PostActionsButton post={post} />
             </AnalyticsContext>
           </span>
         </div>}

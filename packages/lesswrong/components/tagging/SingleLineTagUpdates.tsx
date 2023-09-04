@@ -6,13 +6,13 @@ import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/coll
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         background: theme.palette.grey[0],
         border: `1px solid ${theme.palette.grey[100]}`,
@@ -43,10 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: isEAForum ? 14 : 17,
-    fontWeight: isEAForum ? 600 : undefined,
+    fontSize: isFriendlyUI ? 14 : 17,
+    fontWeight: isFriendlyUI ? 600 : undefined,
     ...theme.typography.smallCaps,
-    marginLeft: isEAForum ? 2 : undefined,
+    marginLeft: isFriendlyUI ? 2 : undefined,
   },
   expandedBody: {
     marginTop: 8,
@@ -60,11 +60,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   commentBubble: {
-    margin: `-5px ${isEAForum ? 6 : 0}px 0 11px`,
+    margin: `-5px ${isFriendlyUI ? 6 : 0}px 0 11px`,
   },
   changeMetrics: {
     cursor: "pointer",
-    margin: isEAForum ? "0 4px -2px 2px" : undefined,
+    margin: isFriendlyUI ? "0 4px -2px 2px" : undefined,
   },
   postedAt: {
     '&&': {
@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: `${isEAForum ? -4 : -8}px 0 8px 8px`,
+    margin: `${isFriendlyUI ? -4 : -8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,

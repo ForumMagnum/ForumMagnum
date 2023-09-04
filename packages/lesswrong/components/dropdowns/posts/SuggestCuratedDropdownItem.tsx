@@ -4,7 +4,7 @@ import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
@@ -44,7 +44,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
     && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
     return null;
   }
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return null;
   }
 

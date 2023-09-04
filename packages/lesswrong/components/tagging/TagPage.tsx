@@ -15,10 +15,11 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -83,10 +84,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
-    ...theme.typography[isEAForum ? "display2" : "display3"],
-    ...theme.typography[isEAForum ? "headerStyle" : "commentStyle"],
+    ...theme.typography[isFriendlyUI ? "display2" : "display3"],
+    ...theme.typography[isFriendlyUI ? "headerStyle" : "commentStyle"],
     marginTop: 0,
-    fontWeight: isEAForum ? 700 : 600,
+    fontWeight: isFriendlyUI ? 700 : 600,
     ...theme.typography.smallCaps,
   },
   notifyMeButton: {
@@ -140,7 +141,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -182,7 +183,7 @@ const PostsListHeading: FC<{
   classes: ClassesType,
 }> = ({tag, query, classes}) => {
   const {SectionTitle, PostsListSortDropdown} = Components;
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return (
       <>
         <SectionTitle title={`Posts tagged ${tag.name}`} />
@@ -313,7 +314,7 @@ const TagPage = ({classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isEAForum) {
+  if (isFriendlyUI) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
       : htmlWithAnchors;

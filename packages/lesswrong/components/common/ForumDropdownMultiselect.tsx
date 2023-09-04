@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
 import Button from '@material-ui/core/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     textAlign: "center",
-    ...(!isEAForum && {
+    ...(!isFriendlyUI && {
       "& button:hover": {
         backgroundColor: "transparent",
       },
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 12,
     paddingRight: 6,
     backgroundColor: "transparent",
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       color: "inherit",
       "&:hover": {
         backgroundColor: theme.palette.grey[250],
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }),
   },
   openButton: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       backgroundColor: theme.palette.grey[250],
       color: theme.palette.grey[1000],
     }),
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isEAForum && { width: 16, height: 16, marginLeft: 4, padding: 1}),
+    ...(isFriendlyUI && { width: 16, height: 16, marginLeft: 4, padding: 1}),
   },
   padding: {
     width: 10,
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     marginTop: 28,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       "& a:hover": {
         opacity: "inherit",
       },
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   menuItem: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       color: theme.palette.grey[1000],
       borderRadius: theme.borderRadius.small,
       padding: "6px 8px",
@@ -109,7 +109,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
   }, '')
   const { MenuItem, ForumIcon } = Components;
 
-  const dropdownIcon = isEAForum ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
+  const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
       <Button
@@ -133,7 +133,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
             className={classes.menuItem}
           >
             {options[option].label}
-            {values.includes(option) && isEAForum && (
+            {values.includes(option) && isFriendlyUI && (
               <>
                 <div className={classes.padding}></div>
                 <ForumIcon icon="Check" className={classes.selectedIcon} />

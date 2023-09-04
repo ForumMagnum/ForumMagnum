@@ -7,11 +7,13 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
-import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
+import { isEAForum, isLW } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
 import { communityPath } from '../../../lib/routes';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { communityNameSetting } from '../../../lib/publicSettings';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -76,7 +78,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     marginTop: 8,
     marginBottom: 0,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -176,7 +178,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   })
   
   // on the EA Forum, insert card(s) advertising Virtual Programs
-  if (forumTypeSetting.get() === 'EAForum' && !hideSpecialCards) {
+  if (isEAForum && !hideSpecialCards) {
     // NOTE: splice() will just insert the card at the end of the list if the first param > length
     if (currentUser) {
       // for logged in users, just display the In-Depth / Precipice VP card
@@ -191,17 +193,11 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   
   if (!eventCards.length) {
     // link to the Community page when there are no events to show
-    let communityName = 'Community'
-    if (forumTypeSetting.get() === 'EAForum') {
-      communityName = 'EA Community'
-    } else if (forumTypeSetting.get() === 'LessWrong') {
-      communityName = 'LessWrong Community'
-    }
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
         <Link to={communityPath} className={classes.communityLink}>
-          Explore the {communityName}
+          Explore the {communityNameSetting.get()}
         </Link>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
+import { showCuratedSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   curated: {
@@ -22,12 +23,11 @@ const RecommendationsPageCuratedList = ({classes}: {
   const { PostsList2, SingleColumnSection, SectionTitle, SunshineCuratedSuggestionsList } = Components;
 
   const currentUser = useCurrentUser()
-  const showCurated = ['LessWrong', 'EAForum'].includes(forumTypeSetting.get());
 
   return (
     <div>
       <AnalyticsContext pageContext={"curatedPage"}>
-        {showCurated && <SingleColumnSection>
+        {showCuratedSetting.get() && <SingleColumnSection>
           <AnalyticsContext pageSectionContext={"curatedPosts"} capturePostItemOnMount>
             <SectionTitle title="Curated Posts"/>
             <PostsList2
@@ -38,7 +38,7 @@ const RecommendationsPageCuratedList = ({classes}: {
             />
           </AnalyticsContext>
         </SingleColumnSection>}
-        {showCurated && currentUser?.isAdmin && <div className={classes.curated}>
+        {showCuratedSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
           <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
         </div>}
       </AnalyticsContext>

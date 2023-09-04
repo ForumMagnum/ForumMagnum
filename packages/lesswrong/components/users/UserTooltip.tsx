@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
-  tooltip: isEAForum
+  tooltip: isFriendlyUI
     ? {
       background: theme.palette.grey[0],
       borderRadius: theme.borderRadius.default,
@@ -24,7 +24,7 @@ const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
   classes: ClassesType,
 }) => {
   const {LWTooltip, EAUserTooltipContent, LWUserTooltipContent} = Components;
-  const Main = isEAForum ? EAUserTooltipContent : LWUserTooltipContent;
+  const Main = isFriendlyUI ? EAUserTooltipContent : LWUserTooltipContent;
 
   return (
     <LWTooltip

@@ -10,14 +10,14 @@ import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
-import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
     marginBottom: 12
   },
   rsvpItem: {
-    width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
+    width:  isFriendlyUI ? "33%" : "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -95,7 +95,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block"
     },
   },
-  rsvpMessage: isEAForum
+  rsvpMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }

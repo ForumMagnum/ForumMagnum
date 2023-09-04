@@ -10,7 +10,7 @@ import {
   collectionIsAlgoliaIndexed,
 } from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -29,6 +29,7 @@ import {
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 import { communityPath } from '../../lib/routes';
+import { showCommunityMapSetting } from '../../lib/publicSettings';
 
 const hitsPerPage = 10
 
@@ -431,7 +432,7 @@ const SearchPageTabbed = ({classes}:{
         />}
         <ClearRefinements />
 
-        {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
+        {tab === 'Users' && showCommunityMapSetting.get() && <div className={classes.mapLink}>
           <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
 

@@ -18,12 +18,10 @@ import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
-
-const isEAForum = forumTypeSetting.get() === "EAForum";
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {

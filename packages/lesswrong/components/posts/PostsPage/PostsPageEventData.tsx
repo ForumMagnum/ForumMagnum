@@ -14,7 +14,7 @@ import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     [theme.breakpoints.down('xs')]: {
@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: isEAForum ? 3 : 2
+    paddingTop: isFriendlyUI ? 3 : 2
   },
   icon: {
     fontSize: 16,

@@ -125,3 +125,18 @@ export const hasDigestSetting = new DatabasePublicSetting<boolean>("hasDigest", 
 
 /** TODO; doc */
 export const hasCommentOnSelectionSetting = new DatabasePublicSetting<boolean>("hasCommentOnSelection", true);
+
+/** TODO; doc */
+export const hasLogoSetting = new DatabasePublicSetting<boolean>("hasLogo", false);
+
+/** TODO; doc */
+export const communityNameSetting = new DatabasePublicSetting<String>("communityName", 'Community');
+
+/** TODO; doc */
+export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurated", false);
+
+/** TODO; doc */
+export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showCommunityMap", false);
+
+/** TODO; doc */
+export const showThemePickerSetting = new DatabasePublicSetting<boolean>("showThemePicker", false);

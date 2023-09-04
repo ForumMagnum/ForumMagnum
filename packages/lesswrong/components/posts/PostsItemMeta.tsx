@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -37,8 +37,8 @@ const PostsItemMeta = ({post, read, classes}: {
   read?: boolean,
   classes: ClassesType,
 }) => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
-  const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const afBaseScore = !isAF && post.af ? post.afBaseScore : null
   const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 

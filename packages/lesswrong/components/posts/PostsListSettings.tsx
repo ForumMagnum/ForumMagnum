@@ -13,6 +13,7 @@ import { timeframes as defaultTimeframes } from './AllPostsPage'
 import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
@@ -98,11 +99,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: isEAForum ? 10 : undefined,
+    marginTop: isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: isEAForum ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -115,7 +116,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     padding: "1px 12px 0 0",
-    paddingRight: isEAForum ? 6 : undefined,
+    paddingRight: isFriendlyUI ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",

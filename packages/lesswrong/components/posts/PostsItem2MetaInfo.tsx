@@ -1,12 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metaInfo: {
     color: theme.palette.text.dim3,
-    fontSize: isEAForum ? "13px" : "1.1rem",
+    fontSize: isFriendlyUI ? "13px" : "1.1rem",
     textAlign: "center",
     flexShrink: 0,
     flexGrow: 0,

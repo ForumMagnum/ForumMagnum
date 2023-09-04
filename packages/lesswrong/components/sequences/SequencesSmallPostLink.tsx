@@ -5,7 +5,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 
