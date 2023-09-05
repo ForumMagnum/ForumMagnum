@@ -28,6 +28,7 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
+import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -370,7 +371,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.question,
   });
 
-  const { results: debateResponses } = useMulti({
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
       postId: post._id,
@@ -379,6 +380,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     fragmentName: 'CommentsList',
     skip: !post.debate,
     limit: 1000
+  });
+  
+  useOnNotificationsChanged(currentUser, (timestamp) => {
+    console.log("Got notifications-changed event");
+    if (currentUser && isDialogueParticipant(currentUser, post)) {
+      console.log("Refetching debate responses");
+      refetchDebateResponses();
+    }
   });
 
   const defaultView = commentGetDefaultView(post, currentUser)
@@ -625,6 +634,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
+}
+
+function isDialogueParticipant(user: UsersCurrent, post: PostsDetails) {
+  return post.debate && (
+    post.userId === user._id
+    || post.coauthors.find(coauthor => coauthor._id === user._id)
+  );
 }
 
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
