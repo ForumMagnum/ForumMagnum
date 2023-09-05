@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
 import { useVote } from "./withVote";
+import { isEAReactableDocument } from "./EAReactsSection";
 
 const styles = (_theme: ThemeType): JssStyles => ({
   overallAxis: {
@@ -44,10 +45,12 @@ const EAEmojisVoteOnComment = ({
         className={classes.overallAxis}
         showBox
       />
-      <EAReactsSection
-        document={document}
-        voteProps={voteProps}
-      />
+      {isEAReactableDocument(collection, document) &&
+        <EAReactsSection
+          document={document}
+          voteProps={voteProps}
+        />
+      }
     </>
   );
 }

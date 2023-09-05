@@ -353,11 +353,9 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
       return post.votingSystem;
     }
   }
-  return "default";
+  return (document as DbPost)?.votingSystem ?? "default";
 }
 
 export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
   return getVotingSystemByName(await getVotingSystemNameForDocument(document, context));
 }
-
-

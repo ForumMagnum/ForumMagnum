@@ -1,6 +1,9 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { CommentVotingComponentProps } from "../../lib/voting/votingSystems";
+import type {
+  CommentVotingComponentProps,
+  PostVotingComponentProps,
+} from "../../lib/voting/votingSystems";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
@@ -9,9 +12,11 @@ import {
   eaEmojiPalette,
   EmojiOption,
 } from "../../lib/voting/eaEmojiPalette";
-import { VotingProps } from "./votingProps";
+import type { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
+import { Posts } from "../../lib/collections/posts";
+import { Comments } from "../../lib/collections/comments";
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -175,8 +180,17 @@ const EmojiTooltipContent: FC<{
   );
 }
 
+export type EAReactableDocument = CommentsList | PostsWithVotes;
+
+export const isEAReactableDocument = (
+  collection: AnyBecauseHard,
+  _document: CommentVotingComponentProps["document"] | PostVotingComponentProps["document"],
+): _document is EAReactableDocument => {
+  return collection === Posts || collection === Comments;
+}
+
 const EAReactsSection: FC<{
-  document: Pick<CommentVotingComponentProps, "document">["document"],
+  document: EAReactableDocument,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
 }> = ({document, voteProps, classes}) => {
@@ -186,7 +200,7 @@ const EAReactsSection: FC<{
   const [everOpened, setEverOpened] = useState(false);
   const {captureEvent} = useTracking({
     eventType: "emojiMenuClicked",
-    eventProps: {documentId: document._id, itemType: "comment"},
+    eventProps: {documentId: document._id, itemType: voteProps.collectionName},
   });
 
   const onOpenMenu = useCallback((event: MouseEvent) => {
@@ -244,7 +258,7 @@ const EAReactsSection: FC<{
                     currentUser={currentUser}
                     emojiOption={emojiOption}
                     isSelected={isSelected}
-                    reactors={(document as AnyBecauseHard).emojiReactors}
+                    reactors={document.emojiReactors}
                     classes={classes}
                   />
                 )

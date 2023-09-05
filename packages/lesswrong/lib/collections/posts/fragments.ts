@@ -47,6 +47,7 @@ registerFragment(`
     voteCount
     baseScore
     extendedScore
+    emojiReactors
     unlisted
     score
     lastVisitedAt
@@ -138,6 +139,7 @@ registerFragment(`
     ...PostsBase
     currentUserVote
     currentUserExtendedVote
+    emojiReactors
   }
 `);
 
@@ -314,6 +316,7 @@ registerFragment(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    emojiReactors
     
     # RSS metadata
     feedLink

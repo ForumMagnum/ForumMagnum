@@ -916,6 +916,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly voteCount: number,
   readonly baseScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly emojiReactors: any,
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,
@@ -989,6 +990,7 @@ interface PostsBase_group { // fragment on Localgroups
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly emojiReactors: any,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
@@ -1097,6 +1099,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly moderationStyle: string,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+  readonly emojiReactors: any,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
@@ -2308,6 +2311,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
+  readonly introSequenceId: string,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
   readonly description: RevisionEdit|null,
