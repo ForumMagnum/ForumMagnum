@@ -96,6 +96,7 @@ interface DbCollection extends DbObject {
   gridImageId: string
   firstPageLink: string
   hideStartReadingButton: boolean
+  noindex: boolean
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -885,6 +886,7 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  noindex: boolean
   af: boolean
   contents: EditableFieldContents
   contents_latest: string

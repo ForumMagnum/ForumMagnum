@@ -794,6 +794,51 @@ const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPrevi
   styles: arbitalStyles
 })
 
+const estimakerStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const EstimakerPreview = ({classes, href, innerHTML, id}: {
+  classes: ClassesType;
+  href: string;
+  innerHTML: string;
+  id?: string;
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://estimaker.app/_/$user/$slug
+  const isEmbed = /^https?:\/\/estimaker\.app\/_\/.+$/.test(href);
+  
+  if (!isEmbed) {
+    return (
+      <a href={href}>
+        <span dangerouslySetInnerHTML={{ __html: innerHTML }} />
+      </a>
+    );
+  }
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{ __html: innerHTML }} />
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={href} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview, { styles: estimakerStyles })
+
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -813,6 +858,7 @@ declare global {
     OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
-    SequencePreview: typeof SequencePreviewComponent
+    SequencePreview: typeof SequencePreviewComponent,
+    EstimakerPreview: typeof EstimakerPreviewComponent,
   }
 }

@@ -7,7 +7,7 @@ import TableIndex from "./TableIndex";
  */
 class DropIndexQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table<T>, index: string | TableIndex<T>) {
-    super(table, [`DROP INDEX "${typeof index === "string" ? index : index.getName()}"`]);
+    super(table, [`DROP INDEX IF EXISTS "${typeof index === "string" ? index : index.getName()}"`]);
   }
 }
 

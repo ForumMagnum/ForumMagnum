@@ -294,6 +294,7 @@ registerFragment(`
     subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    introSequenceId
     
     autoTagModel
     autoTagPrompt

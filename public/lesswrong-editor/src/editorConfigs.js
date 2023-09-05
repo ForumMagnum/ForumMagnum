@@ -87,6 +87,17 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Estimaker',
+			url: /^estimaker\.app\/_\/([\w-]+).*/,
+			html: ([match]) => {
+				return `
+					<div class="estimaker-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
 	]
 }
 

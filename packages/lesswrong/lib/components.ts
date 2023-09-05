@@ -269,7 +269,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -879,6 +879,7 @@ importComponent("RecommendationsList", () => require('../components/recommendati
 importComponent("PostsPageRecommendationsList", () => require('../components/recommendations/PostsPageRecommendationsList'));
 importComponent("PostsPageRecommendationItem", () => require('../components/recommendations/PostsPageRecommendationItem'));
 importComponent("PostSideRecommendations", () => require('../components/recommendations/PostSideRecommendations'));
+importComponent("SideRecommendation", () => require('../components/recommendations/SideRecommendation'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
@@ -890,7 +891,7 @@ importComponent("SpotlightItem", () => require('../components/spotlights/Spotlig
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
 importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
-importComponent("CurrentSpotlightItem", () => require('../components/spotlights/CurrentSpotlightItem'));
+importComponent("DismissibleSpotlightItem", () => require('../components/spotlights/DismissibleSpotlightItem'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

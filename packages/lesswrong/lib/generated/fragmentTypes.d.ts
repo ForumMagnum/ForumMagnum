@@ -526,6 +526,7 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly gridImageId: string,
   readonly firstPageLink: string,
   readonly hideStartReadingButton: boolean,
+  readonly noindex: boolean,
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
@@ -540,6 +541,7 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
+  readonly noindex: boolean,
   readonly af: boolean,
 }
 
@@ -970,6 +972,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly submitToFrontpage: boolean,
   readonly shortform: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
+  readonly onlyVisibleToEstablishedAccounts: boolean,
   readonly reviewCount: number,
   readonly reviewVoteCount: number,
   readonly positiveReviewVoteCount: number,
@@ -1965,6 +1968,7 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly isDeleted: boolean,
   readonly hidden: boolean,
   readonly hideFromAuthorPage: boolean,
+  readonly noindex: boolean,
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
@@ -2026,6 +2030,7 @@ interface CollectionsPageFragment { // fragment on Collections
   readonly gridImageId: string,
   readonly books: Array<BookPageFragment>,
   readonly hideStartReadingButton: boolean,
+  readonly noindex: boolean,
 }
 
 interface CollectionsEditFragment extends CollectionsPageFragment { // fragment on Collections
@@ -2308,6 +2313,7 @@ interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
   readonly postsDefaultSortOrder: string,
+  readonly introSequenceId: string,
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
   readonly description: RevisionEdit|null,
