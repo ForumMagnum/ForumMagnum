@@ -111,10 +111,6 @@ const VirtualProgramCard = ({program, classes}: {
   // This defaults to the Sunday in the week of the 28th day of this month.
   const now = moment()
   let deadline = now.date(28).day(0)
-  // Aug 2023 has the deadline on the 3rd Sunday
-  if (now.month() === 7) {
-    deadline.subtract(1, 'week')
-  }
   // If that Sunday is in the past, use next month's 4th Sunday.
   if (deadline.isBefore(moment())) {
     deadline = now.add(1, 'months').date(28).day(0)
