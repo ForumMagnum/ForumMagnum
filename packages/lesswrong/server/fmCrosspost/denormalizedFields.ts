@@ -1,4 +1,4 @@
-import { hasStringParam, hasBooleanParam } from "./validationHelpers";
+import * as t from 'io-ts';
 import pick from "lodash/pick";
 
 /**
@@ -9,26 +9,40 @@ import pick from "lodash/pick";
  * Some fields have to be denormalized across sites and these are defined here. In
  * general, a field needs to be denormalized if it's used by PostsList2 or
  * in database selectors (but these rules aren't strict).
- *
- * When adding a new field here, make sure to also update isValidDenormalizedData
- * and DenormalizedCrosspostValidator.
  */
-export const denormalizedFieldKeys = [
-  "draft",
-  "deletedDraft",
-  "title",
-  "isEvent",
-  "question",
-] as const;
+const requiredDenormalizedFields = {
+  draft: t.boolean,
+  deletedDraft: t.boolean,
+  title: t.string,
+  isEvent: t.boolean,
+  question: t.boolean,
+} as const;
 
-export const isValidDenormalizedData = (payload: unknown): payload is DenormalizedCrosspostData =>
-  hasBooleanParam(payload, "draft") &&
-  hasBooleanParam(payload, "deletedDraft") &&
-  hasStringParam(payload, "title") &&
-  hasBooleanParam(payload, "isEvent") &&
-  hasBooleanParam(payload, "question");
+const optionalDenormalizedFields = {
+  url: t.string,
+} as const;
 
-export type DenormalizedCrosspostData = Pick<DbPost, typeof denormalizedFieldKeys[number]>;
+type RequiredKey = keyof typeof requiredDenormalizedFields;
+type OptionalKey = keyof typeof optionalDenormalizedFields;
+type FieldKey = RequiredKey | OptionalKey;
 
-export const extractDenormalizedData = <T extends DenormalizedCrosspostData>(data: T) =>
+export const denormalizedFieldKeys: FieldKey[] = [
+  ...Object.keys(requiredDenormalizedFields) as RequiredKey[],
+  ...Object.keys(optionalDenormalizedFields) as OptionalKey[],
+];
+
+export const DenormalizedCrosspostValidator = t.intersection([
+  t.strict(requiredDenormalizedFields),
+  t.partial(optionalDenormalizedFields),
+]);
+
+export type ReadonlyDenormalizedCrosspostData = t.TypeOf<typeof DenormalizedCrosspostValidator>;
+
+type Writeable<T> = {
+  -readonly [P in keyof T]: Writeable<T[P]>;
+};
+
+export type DenormalizedCrosspostData = Writeable<ReadonlyDenormalizedCrosspostData>;
+
+export const extractDenormalizedData = <T extends DenormalizedCrosspostData>(data: T): DenormalizedCrosspostData =>
   pick(data, ...denormalizedFieldKeys);

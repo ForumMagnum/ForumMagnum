@@ -1,5 +1,5 @@
 import { Vulcan } from "../vulcan-lib";
-import { createTestingSqlClient, killAllConnections } from "../../lib/sql/tests/testingSqlClient";
+import { createTestingSqlClient, killAllConnections } from "../testingSqlClient";
 import { closeSqlClient } from "../../lib/sql/sqlClient";
 
 Vulcan.dropAndSeedJestPg = async () => {

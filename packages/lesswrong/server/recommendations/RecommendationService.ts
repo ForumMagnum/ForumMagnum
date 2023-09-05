@@ -11,6 +11,7 @@ import RecommendationStrategy, { RecommendationResult } from "./RecommendationSt
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
 import FeatureStrategy from "./FeatureStrategy";
+import NewAndUpvotedInTagStrategy from "./NewAndUpvotedInTagStrategy";
 
 type ConstructableStrategy = {
   new(): RecommendationStrategy,
@@ -29,6 +30,7 @@ class RecommendationService {
   ) {}
 
   private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
+    newAndUpvotedInTag: NewAndUpvotedInTagStrategy,
     moreFromTag: MoreFromTagStrategy,
     moreFromAuthor: MoreFromAuthorStrategy,
     bestOf: BestOfStrategy,
@@ -42,12 +44,13 @@ class RecommendationService {
     clientId: string|null,
     count: number,
     strategy: StrategySpecification,
+    disableFallbacks = false,
   ): Promise<DbPost[]> {
     if (strategy.forceLoggedOutView) {
       currentUser = null;
     }
 
-    const strategies = this.getStrategyStack(strategy.name);
+    const strategies = this.getStrategyStack(strategy.name, disableFallbacks);
     let posts: DbPost[] = [];
 
     while (count > 0 && strategies.length) {
@@ -69,7 +72,7 @@ class RecommendationService {
         currentUser,
         clientId,
         strategies[0],
-        result.settings,
+        {...result.settings, context: strategy.context},
         newPosts,
       );
 
@@ -84,7 +87,11 @@ class RecommendationService {
 
   private getStrategyStack(
     primaryStrategy: RecommendationStrategyName,
+    disableFallbacks = false,
   ): RecommendationStrategyName[] {
+    if (disableFallbacks) {
+      return [primaryStrategy];
+    }
     const strategies = Object.keys(this.strategies) as RecommendationStrategyName[];
     return [
       primaryStrategy,

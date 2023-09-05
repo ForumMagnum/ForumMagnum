@@ -1,6 +1,7 @@
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../server/draftConvert'
 import { htmlToDraftServer } from '../server/resolvers/toDraft'
+import { dataToWordCount } from "../server/editor/conversionUtils";
 
 describe("draftToHtml", () => {
   it('correctly translates bold and italic and bold-italic', () => {
@@ -104,5 +105,79 @@ describe("htmlToDraft", () => {
     expect(draft1.blocks).toHaveLength(2);
     expect(typeof draft1.blocks[0].key).toBe("string");
     expect(draft1.blocks[0].key).not.toBe(draft2.blocks[1].key);
+  });
+});
+
+describe("dataToWordCount", () => {
+  it("counts words in HTML content", async () => {
+    expect(await dataToWordCount("<div><p>A sample piece of content</p></div>", "html")).toBe(5);
+  });
+  it("counts words in CKEditor content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "ckEditorMarkup")).toBe(5);
+  });
+  it("counts words in DraftJS content", async () => {
+    expect(await dataToWordCount({
+      blocks: [
+        {
+          key: "abcde",
+          text: "A sample piece of content",
+          type: "unstyled",
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        },
+      ],
+      entityMap: {},
+    }, "draftJS")).toBe(5);
+  });
+  it("counts words in MD content", async () => {
+    expect(await dataToWordCount("A sample piece of content", "markdown")).toBe(5);
+  });
+  it("excludes simple footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^1] that has simple footnotes[^2]
+
+[^1]: First footnote
+
+[^2]:
+
+  Second footnote
+    `, "markdown")).toBe(9);
+  });
+  it("excludes complex footnotes", async () => {
+    expect(await dataToWordCount(`
+A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
+
+1.  ^**[^](#footnote1)**^
+
+  First footnote
+
+2.  ^**[^](#footnote2)**^
+
+  Second footnote
+    `, "markdown")).toBe(9);
+  });
+  it("excludes appendices", async () => {
+    // Construct the same document with and without an appendix added, and enforce
+    // that their word counts are the same.
+    //
+    // (Note that word counting has a bunch of dumb subtleties, and in particular,
+    // the "=========" hr winds up getting counted. This is why we test this with a
+    // comparison, rather than an exact count.)
+    const nonAppendixMarkdown =
+      "A sample piece of content that has one appendix.\n"
+      +"\n"
+      +"Section 1\n"
+      +"=========\n"
+      +"\n";
+    const appendixMarkdown =
+      "Appendix 1\n"
+      +"==========\n"
+      +"\n"
+      +"Lorem ipsum dolor sit amet."
+    const wordCountWithoutAppendix = await dataToWordCount(nonAppendixMarkdown, "markdown");
+    const wordCountWithAppendix = await dataToWordCount(nonAppendixMarkdown+appendixMarkdown, "markdown");
+    expect(wordCountWithoutAppendix).toBe(wordCountWithAppendix);
   });
 });

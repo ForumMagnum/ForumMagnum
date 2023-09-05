@@ -1,3 +1,4 @@
+import { forumSelect } from '../../forumTypeUtils';
 import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
@@ -19,6 +20,7 @@ export const FLAGGED_FOR_N_DMS = 'flaggedForNDMs';
 export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 export const REJECTED_POST = 'rejectedPost';
 export const REJECTED_COMMENT = 'rejectedComment';
+export const POTENTIAL_TARGETED_DOWNVOTING = 'potentialTargetedDownvoting';
 
 export const postRateLimits = [] as const
 
@@ -60,13 +62,14 @@ export const MODERATOR_ACTION_TYPES = {
   [FLAGGED_FOR_N_DMS]: 'Auto-flagged for sending suspiciously many DMs',
   [AUTO_BLOCKED_FROM_SENDING_DMS]: 'Auto-blocked from sending DMs for trying to send suspiciously many DMs',
   [REJECTED_POST]: 'Rejected Post',
-  [REJECTED_COMMENT]: 'Rejected Comment'
+  [REJECTED_COMMENT]: 'Rejected Comment',
+  [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user'
 };
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */
 export const MAX_ALLOWED_CONTACTS_BEFORE_FLAG = 2;
 /** The max # of users an unapproved account is allowed to DM */
-export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = 9;
+export const MAX_ALLOWED_CONTACTS_BEFORE_BLOCK = forumSelect({EAForum: 4, default: 9});
 
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.

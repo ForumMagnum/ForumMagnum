@@ -3,7 +3,7 @@ import moment from 'moment';
 import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, canUserEditPostMetadata } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -17,7 +17,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -26,6 +26,7 @@ import { crosspostKarmaThreshold } from '../../publicSettings';
 import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
+import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
@@ -44,7 +45,7 @@ const STICKY_PRIORITIES = {
 
 function getDefaultVotingSystem() {
   return forumSelect({
-    EAForum: "twoAxis",
+    EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
     default: "default",
@@ -86,7 +87,15 @@ const rsvpType = new SimpleSchema({
   },
 })
 
-const MINIMUM_COAUTHOR_KARMA = 10;
+addGraphQLSchema(`
+  type SocialPreviewType {
+    imageId: String
+    imageUrl: String
+    text: String
+  }
+`)
+
+const MINIMUM_COAUTHOR_KARMA = 1;
 
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
@@ -194,7 +203,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: 'EditUrl',
+    control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
     order: 12,
     form: {
       labels: {
@@ -205,6 +214,20 @@ const schema: SchemaType<DbPost> = {
     },
     group: formGroups.options,
     hidden: (props) => props.eventForm || props.debateForm,
+  },
+  // Category (post, linkpost, or question)
+  postCategory: {
+    type: String,
+    allowedValues: [...postCategories],
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    order: 9,
+    group: formGroups.category,
+    control: 'EditPostCategory',
+    hidden: (props) => !isEAForum || props.eventForm || props.debateForm,
+    ...schemaDefaultValue(postDefaultCategory),
   },
   // Title
   title: {
@@ -264,6 +287,12 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     hidden: true,
+    onUpdate: ({data, document, oldDocument, currentUser}) => {
+      if (!currentUser?.isAdmin && oldDocument.deletedDraft && !document.deletedDraft) {
+        throw new Error("You cannot un-delete posts");
+      }
+      return data.deletedDraft;
+    },
   },
 
   // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
@@ -458,7 +487,8 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
   }),
-  
+
+  // DEPRECATED: use socialPreview.imageUrl instead
   socialPreviewImageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
@@ -471,6 +501,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canCreate: ['members'],
+    canUpdate: ['members'],
     hidden: true,
   },
 
@@ -956,8 +987,8 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
@@ -1073,7 +1104,7 @@ const schema: SchemaType<DbPost> = {
     // Trying to use schemaDefaultValue here with a branch by forum type broke
     // schema generation/migrations.
     defaultValue: "twoAxis",
-    onCreate: () => getDefaultVotingSystem(),
+    onCreate: ({document}) => document.votingSystem ?? getDefaultVotingSystem(),
     canAutofillDefault: true,
   },
   myEditorAccess: resolverOnlyField({
@@ -1310,8 +1341,8 @@ const schema: SchemaType<DbPost> = {
       addOriginalField: true,
     },
     canRead: [documentIsNotDeleted],
-    canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
-    canCreate: ['sunshineRegiment', 'admins', userOverNKarmaFunc(MINIMUM_COAUTHOR_KARMA)],
+    canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
+    canCreate: ['sunshineRegiment', 'admins', userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
     nullable: true,
     label: "Co-Authors",
@@ -1338,16 +1369,16 @@ const schema: SchemaType<DbPost> = {
   },
 
   // Cloudinary image id for an image that will be used as the OpenGraph image
+  // DEPRECATED: use socialPreview.imageId instead
   socialPreviewImageId: {
     type: String,
     optional: true,
+    hidden: true,
     label: "Social Preview Image",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-    control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
-    hidden: (props) => props.eventForm || props.prefilledProps?.question,
     order: 4,
   },
   
@@ -1361,6 +1392,43 @@ const schema: SchemaType<DbPost> = {
     // TODO: should this be more restrictive?
     canUpdate: ['members'],
     canCreate: ['members'],
+  },
+
+  socialPreview: {
+    type: new SimpleSchema({
+      imageId: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+      text: {
+        type: String,
+        optional: true,
+        nullable: true
+      },
+    }),
+    resolveAs: {
+      type: "SocialPreviewType",
+      fieldName: "socialPreviewData",
+      addOriginalField: true,
+      resolver: async (post: DbPost, args, context: ResolverContext) => {
+        const { imageId, text } = post.socialPreview || {};
+        const imageUrl = getSocialPreviewImage(post);
+        return {
+          imageId,
+          imageUrl,
+          text,
+        }
+      }
+    },
+    optional: true,
+    label: "Social Preview Image",
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    control: "SocialPreviewUpload",
+    group: formGroups.socialPreview,
+    order: 4,
   },
 
   fmCrosspost: {
@@ -1677,6 +1745,20 @@ const schema: SchemaType<DbPost> = {
     label: "Include in default recommendations",
     control: "checkbox",
     order: 13,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromPopularComments: {
+    type: Boolean,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    label: "Hide comments on this post from Popular Comments",
+    hidden: !isEAForum,
+    control: "checkbox",
+    order: 14,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
@@ -2168,7 +2250,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.options,
+    group: isEAForum ? formGroups.title : formGroups.options,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2389,6 +2471,22 @@ const schema: SchemaType<DbPost> = {
     }),
     canRead: ['guests'],
   },
+
+  topLevelCommentCount: {
+    type: Number,
+    optional: true,
+    defaultValue: 0,
+    
+    ...denormalizedCountOfReferences({
+      fieldName: "topLevelCommentCount",
+      collectionName: "Posts",
+      foreignCollectionName: "Comments",
+      foreignTypeName: "comment",
+      foreignFieldName: "postId",
+      filterFn: comment => !comment.deleted && !comment.parentCommentId
+    }),
+    canRead: ['guests'],
+  },
   
   recentComments: resolverOnlyField({
     type: Array,
@@ -2485,11 +2583,11 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (post.votingSystem !== "threeAxisEmojis") {
+    resolver: (post, _, context) => {
+      if (post.votingSystem !== "eaEmojis") {
         return null;
       }
-      return context.repos.posts.getEmojiReactors(post._id);
+      return context.repos.posts.getEmojiReactorsWithCache(post._id);
     },
   }),
 

@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import { useFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
@@ -16,9 +16,8 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { useABTest } from '../../lib/abTestImpl';
-import { slowerFrontpageABTest } from '../../lib/abTests';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 
 const isEAForum = forumTypeSetting.get() === 'EAForum';
 
@@ -81,12 +80,28 @@ const advancedSortingText = isEAForum
 
 const defaultLimit = isEAForum ? 11 : 13;
 
+const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
+  if (!isEAForum) {
+    return filterSettings;
+  }
+  const tags = filterSettings.tags.filter(
+    ({tagId}) => tagId !== EA_FORUM_TRANSLATION_TOPIC_ID,
+  );
+  tags.push({
+    tagId: EA_FORUM_TRANSLATION_TOPIC_ID,
+    tagName: "Translation",
+    filterMode: "Hidden",
+  });
+  return {
+    ...filterSettings,
+    tags,
+  };
+}
+
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
-  // required for side-effect of including this in analytics events
-  const abTestGroup = useABTest(slowerFrontpageABTest);
 
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
@@ -107,7 +122,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const recentPostsTerms = {
     ...query,
-    filterSettings: filterSettings,
+    filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
     forum: true,

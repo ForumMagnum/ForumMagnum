@@ -6,18 +6,19 @@ import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
 import { useCurrentUser } from '../common/withUser';
 import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
+export const EA_FORUM_HEADER_HEIGHT = 66
 
 const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -31,13 +32,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
+    ...(isEAForum ? {
+      padding: '1px 20px',
+      [theme.breakpoints.down('sm')]: {
+        padding: '1px 11px',
+      },
+      [theme.breakpoints.down('xs')]: {
+        padding: '9px 11px',
+      },
+    } : {})
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: 64,
+    height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 64,
     [theme.breakpoints.down('xs')]: {
-      height: 56,
+      height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 56,
     },
     "@media print": {
       display: "none"
@@ -69,7 +79,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  siteLogo: {
+  siteLogo: isEAForum ? {
+    marginLeft:  -7,
+    marginRight: 6,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -12,
+      marginRight: 3
+    },
+  } : {
     marginLeft: -theme.spacing.unit * 1.5,
   },
   hideLgUp: {
@@ -87,6 +104,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  hideXsDown: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
       display: "none",
@@ -95,6 +117,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
+    alignItems: isEAForum ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -104,7 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
     "& .headroom": {
-      top: 0,
+      top: "unset",
       left: 0,
       right: 0,
       zIndex: 1300,
@@ -135,8 +158,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
   standaloneNavigationPresent: boolean,
+  sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
@@ -152,7 +176,6 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
-  
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -207,7 +230,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <MenuIcon />
+                <ForumIcon icon="Menu" />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -233,7 +256,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <MenuIcon/>
+            <ForumIcon icon="Menu" />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -245,17 +268,24 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        <MenuIcon />
+        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
 
-  const hasLogo = forumTypeSetting.get() === 'EAForum'
+  const hasLogo = isEAForum;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
   } = Components;
+  
+  const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+    <AnalyticsContext pageSectionContext="usersMenu">
+      <UsersMenu />
+    </AnalyticsContext>
+  </div>
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -264,16 +294,15 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
           disableInlineStyles
           downTolerance={10} upTolerance={10}
           height={64}
-          className={classNames(
-            classes.headroom,
-            { [classes.headroomPinnedOpen]: searchOpen }
-          )}
+          className={classNames(classes.headroom, {
+            [classes.headroomPinnedOpen]: searchOpen,
+          })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
           <header className={classes.appBar}>
-            <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
+            <Toolbar disableGutters={isEAForum}>
               {renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
@@ -296,18 +325,19 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, stayAt
                 <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
                 </NoSSR>
-                {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
-                    <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu />
-                    </AnalyticsContext>
-                  </div>}
+                {!isEAForum && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && <KarmaChangeNotifier currentUser={currentUser} />}
-                {currentUser && <NotificationsMenuButton
+                {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+                  currentUser={currentUser}
+                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+                />}
+                {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
                   open={notificationOpen}
+                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
                 />}
+                {isEAForum && usersMenuNode}
               </div>
             </Toolbar>
           </header>

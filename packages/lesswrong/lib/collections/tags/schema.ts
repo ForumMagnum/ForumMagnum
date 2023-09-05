@@ -7,7 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
-import { forumTypeSetting, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
@@ -105,6 +105,17 @@ const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
+    ...schemaDefaultValue(false),
+  },
+  isPostType: {
+    label: "Is post type",
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.advancedOptions,
+    optional: true,
+    hidden: !isEAForum,
     ...schemaDefaultValue(false),
   },
   suggestedAsFilter: {
@@ -635,7 +646,7 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,

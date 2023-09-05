@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useLocation } from "../../../lib/routeUtil";
+import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
+import { InteractionWrapper } from "../../common/useClickableCell";
 import Collapse from "@material-ui/core/Collapse";
 import classNames from "classnames";
-import { useOnSearchHotkey } from "../../common/withGlobalKeydown";
 
 export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
@@ -109,12 +110,14 @@ const CollapsedFootnotes = ({
         />
       </Collapse>
       <Collapse in={collapsed} className={classes.buttonWrapper}>
-        <span
-          className={classes.button}
-          onClick={() => setCollapsed(false)}
-        >
-          Show all footnotes
-        </span>
+        <InteractionWrapper>
+          <span
+            className={classes.button}
+            onClick={() => setCollapsed(false)}
+          >
+            Show all footnotes
+          </span>
+        </InteractionWrapper>
       </Collapse>
     </div>
   );

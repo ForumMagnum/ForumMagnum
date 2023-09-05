@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import CheckIcon from '@material-ui/icons/Check';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMessages } from '../../common/withMessages';
 import { StatusField, getEmailDigestPostData, getPostAuthors } from '../../../lib/collections/digests/helpers';
-import { DigestPost } from './EditDigest';
+import type { DigestPost, PostWithRating } from './EditDigest';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { isPostWithForeignId } from '../../hooks/useForeignCrosspost';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -71,6 +72,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontWeight: '600'
   },
+  isRead: {
+    color: theme.palette.link.visited,
+  },
   author: {
     color: theme.palette.grey[900],
     fontSize: 13,
@@ -81,6 +85,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 12,
     color: theme.palette.grey[600],
     fontSize: 12,
+    '& .PostsItem2MetaInfo-metaInfo': {
+      fontSize: 12,
+      fontWeight: 400
+    }
   },
   karma: {
     width: 62
@@ -117,6 +125,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   suggestedCurationCol: {
     fontSize: 12,
   },
+  voteCol: {
+    textAlign: 'center',
+    fontSize: 30
+  },
   ratingCol: {
     textAlign: 'center',
     color: theme.palette.text.charsAdded
@@ -129,16 +141,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, classes} : {
-  post: PostsListBase & {rating: number},
+/**
+ * Given a post with a currentUserVote, return the icon representing that vote.
+ */
+const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
+  const { OverallVoteButton } = Components
+  switch (post.currentUserVote) {
+    case 'smallUpvote':
+    case 'bigUpvote':
+      return <OverallVoteButton enabled={false} upOrDown='Upvote' orientation='up' color='secondary' document={post} collectionName='Posts' />
+    case 'smallDownvote':
+    case 'bigDownvote':
+      return <OverallVoteButton enabled={false} upOrDown='Downvote' orientation='down' color='error' document={post} collectionName='Posts' />
+    default:
+      return null
+  }
+}
+
+
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes} : {
+  post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
   handleClickStatusIcon: (postId: string, statusField: StatusField) => void,
   visibleTagIds: string[],
   setTagFilter: (tagId: string) => void,
+  votesVisible: boolean,
   classes: ClassesType
 }) => {
   const {flash} = useMessages()
+  
+  const voteIcon = useMemo(() => voteToIcon(post), [post])
 
   /**
    * Build the cell with the given status icon
@@ -182,18 +215,22 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
    * Writes the post data to the clipboard, in the format that
    * we expect to see in the email digest
    */
-  const copyPostToClipboard = async (post: PostsListBase) => {
+  const copyPostToClipboard = async (post: PostsListWithVotes) => {
     await navigator.clipboard.write(
       [new ClipboardItem({
-        'text/html': new Blob([getEmailDigestPostData(post)], {type: 'text/html'})
+        'text/html': new Blob(
+          [getEmailDigestPostData(post)],
+          {type: 'text/html'}
+        )
       })]
     )
-    flash({messageString: "Email digest post list copied"})
+    flash({messageString: "Post copied"})
   }
   
-  const { ForumIcon, LWTooltip } = Components
+  const { ForumIcon, LWTooltip, PostsItemDate } = Components
   
-  const readingTime = post.url ? 'link-post' : `${post.readTimeMinutes} min`
+  const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
+  const linkpostText = post.url ? ', link-post' : ''
   const visibleTags = post.tags.filter(tag => visibleTagIds.includes(tag._id))
   
   return <tr className={classes.row}>
@@ -206,12 +243,18 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
       </LWTooltip>
       <div>
         <div>
-          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(classes.title, classes.link)}>
+          <a href={postGetPageUrl(post)} target="_blank" rel="noreferrer" className={classNames(
+            classes.title,
+            classes.link,
+            {[classes.isRead]: post.isRead},
+          )}>
             {post.title}
-          </a> <span className={classes.author}>({getPostAuthors(post)}, {readingTime})</span>
+          </a> <span className={classes.author}>({getPostAuthors(post)}{readTime}{linkpostText})</span>
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
+          {/* @ts-ignore I just want to clear out the curatedDate :( */}
+          <PostsItemDate post={{...post, curatedDate: null}} noStyles includeAgo />
           <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.hiddenIcon]: !post.url})} />
           <div className={classNames(classes.questionIcon, {[classes.hiddenIcon]: !post.question})}>Q</div>
           <ForumIcon icon="Star" className={classNames(classes.curatedIcon, {[classes.hiddenIcon]: !post.curatedDate})} />
@@ -232,9 +275,12 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
     <td className={classes.suggestedCurationCol}>
       {post.suggestForCuratedUsernames}
     </td>
+    <td className={classes.voteCol}>
+      {votesVisible && voteIcon}
+    </td>
     {/* <td className={classes.ratingCol}>{post.rating}</td> */}
     <td className={classes.commentsCol}>
-      {post.commentCount && <a href={`${postGetPageUrl(post)}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
+      {post.commentCount > 0 && <a href={`${postGetPageUrl(post)}#comments`} target="_blank" rel="noreferrer" className={classes.link}>
         <ForumIcon icon="Comment" className={classes.commentIcon} />
         {post.commentCount}
       </a>}

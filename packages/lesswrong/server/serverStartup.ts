@@ -1,23 +1,20 @@
 /* eslint-disable no-console */
 import './datadog/tracer';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
-import { getSqlClientOrThrow, setSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
-import { runStartupFunctions, isAnyTest, isMigrations } from '../lib/executionEnvironment';
+import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
 import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
-import { getCommandLineArguments, CommandLineArguments } from './commandLine';
+import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
 import { initGraphQL } from './vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from './votingGraphQL';
 import { Globals, Vulcan } from '../lib/vulcan-lib/config';
 import { getBranchDbName } from "./branchDb";
-import { replaceDbNameInPgConnectionString } from "../lib/sql/tests/testingSqlClient";
-import { dropAndCreatePg } from './createTestingPgDb';
+import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -27,6 +24,7 @@ import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFil
 import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
+import { panic } from './utils/errorUtil';
 
 const numCPUs = cpus().length;
 
@@ -59,30 +57,6 @@ const initConsole = () => {
   });
 }
 
-const connectToMongo = async (connectionString: string) => {
-  if (isEAForum) {
-    return;
-  }
-  try {
-    // eslint-disable-next-line no-console
-    console.log("Connecting to mongodb");
-    const client = new MongoClient(connectionString, {
-      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
-      // for various options that could be tuned here
-
-      // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    const db = client.db();
-    setDatabaseConnection(client, db);
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to mongodb: ", err);
-    process.exit(1);
-  }
-}
-
 const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
@@ -99,16 +73,12 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Failed to connect to postgres: ", err.message);
-    // TODO: Remove forum gating here when we expand Postgres usage
-    if (forumTypeSetting.get() === "EAForum") {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 }
 
-const initDatabases = ({mongoUrl, postgresUrl, postgresReadUrl}: CommandLineArguments) =>
+const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   Promise.all([
-    connectToMongo(mongoUrl),
     connectToPostgres(postgresUrl),
     connectToPostgres(postgresReadUrl, "read"),
   ]);
@@ -141,6 +111,12 @@ const initPostgres = async () => {
     }
   }
   await Promise.all(polls);
+
+  // If we're migrating up, we might be migrating from the start on a fresh database, so skip the check
+  // for whether postgres views exist
+  const migrating = process.argv.some(arg => arg.indexOf('migrate') > -1)
+  const migratingUp = process.argv.some(arg => arg === 'up')
+  if (migrating && migratingUp) return;
 
   try {
     await ensurePostgresViewsExist(getSqlClientOrThrow());
@@ -178,6 +154,9 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
 export const initServer = async (commandLineArguments?: CommandLineArguments) => {
   initConsole();
   const args = commandLineArguments ?? getCommandLineArguments();
+  if (!args.postgresUrl) {
+    panic("Missing postgresUrl");
+  }
   await initDatabases(args);
   await initSettings();
   require('../server.ts');

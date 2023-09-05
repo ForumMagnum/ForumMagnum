@@ -7,7 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 
@@ -99,6 +99,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
+  audioNewFeaturePulse: {
+    top: PODCAST_ICON_PADDING * 1.5,
+  },
   audioIconOn: {
     background: theme.palette.grey[200],
     borderRadius: theme.borderRadius.small
@@ -122,6 +125,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: theme.typography.body1.fontSize,
   },
   feedName: {
+    fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
@@ -144,6 +148,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       opacity: 0.5,
     },
+  },
+  nonhumanAudio: {
+    color: theme.palette.grey[500],
   }
 });
 
@@ -301,13 +308,21 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </CommentsLink>
     );
 
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
+  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
+
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
   const audioNode = toggleEmbeddedPlayer && (
-    cachedTooltipSeen ? audioIcon : <NewFeaturePulse dx={-10} dy={4}>{audioIcon}</NewFeaturePulse>
+    (cachedTooltipSeen || isLWorAF)
+      ? audioIcon
+      : (
+        <NewFeaturePulse className={classes.audioNewFeaturePulse}>
+          {audioIcon}
+        </NewFeaturePulse>
+      )
   )
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
@@ -317,7 +332,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={!isEAForum} />
+        <PostActionsButton post={post} includeBookmark={!isEAForum} flip={true}/>
       </AnalyticsContext>
     </span>
 
@@ -394,7 +409,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </div>}
     </div>
     {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore />
+      <FooterTagList post={post} hideScore allowTruncate />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

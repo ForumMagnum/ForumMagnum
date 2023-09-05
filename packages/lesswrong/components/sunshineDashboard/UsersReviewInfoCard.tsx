@@ -8,6 +8,8 @@ import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { UserKarmaInfo } from '../../lib/rateLimits/types';
+import { truncate } from '../../lib/editor/ellipsize';
+import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 export const CONTENT_LIMIT = 20
 
@@ -84,6 +86,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12
   },
   bio: {
+    wordBreak: "break-word",
     '& a': {
       color: theme.palette.primary.main,
     },
@@ -153,6 +156,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+export const DEFAULT_BIO_WORDCOUNT = 250
+export const MAX_BIO_WORDCOUNT = 10000
+
 export function getDownvoteRatio(user: UserKarmaInfo): number {
   // First check if the sum of the individual vote count fields
   // add up to something close (with 5%) to the voteReceivedCount field.
@@ -183,14 +189,9 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   } = Components
 
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
+  const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
-  const { results: posts = [], loading: postsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersPosts", userId: user._id},
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-    fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
-  });
+  const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
   
   const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
@@ -200,8 +201,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
     limit: CONTENT_LIMIT
   });
 
-  const reviewTrigger = getReasonForReview(user)
-  const showReviewTrigger = reviewTrigger !== 'noReview' && reviewTrigger !== 'alreadyApproved';
+  const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
   
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
@@ -246,6 +246,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   </div>
 
   const renderExpand = !!(posts?.length || comments?.length)
+  const truncatedHtml = truncate(user.htmlBio, bioWordcount, "words")
   
   return (
     <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
@@ -257,7 +258,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
           </div>
         </div>
         <div className={classes.contentColumn}>
-          <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+          <div dangerouslySetInnerHTML={{__html: truncatedHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
           {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />

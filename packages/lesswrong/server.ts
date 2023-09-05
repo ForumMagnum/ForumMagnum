@@ -1,6 +1,7 @@
 import './server/databaseSettings'
 
 import './server/vulcan-lib/index';
+import './server/apolloServer';
 import './lib/index';
 
 import './server/cronUtil';
@@ -30,12 +31,14 @@ import './server/scripts/algoliaExport';
 import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
+import './server/scripts/bestOfLessWrongTagUpdate';
 import './server/scripts/convertImagesToCloudinary';
 import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';
 import './server/scripts/generateUserActivityReport';
+import './server/scripts/generateInflationAdjustedKarmaReport';
 import './server/scripts/voteMigration';
 import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
@@ -50,12 +53,13 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/removeRsvp';
+import './server/scripts/regenerateUnicodeSlugs';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
 import './server/scripts/legacyKarma_aggregate2';
-import './server/scripts/removeObsoleteIndexes';
 import './server/scripts/fillMissing';
 import './server/scripts/recomputeDenormalized';
 import './server/scripts/recomputeReceivedVoteCounts';
@@ -67,8 +71,10 @@ import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
 import "./server/scripts/randomRecommendationSamples";
-import "./server/scripts/languageModels/generateTaggingPostSets";
-import "./server/scripts/languageModels/testModGPTOnComments";
+import "./server/scripts/generativeModels/generateTaggingPostSets";
+import "./server/scripts/generativeModels/testModGPTOnComments";
+// doesn't pass unit tests but works fine. Leaving commented out for now
+// import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -190,3 +196,8 @@ import './server/search/algoliaCron';
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
+
+// Hybrid views
+import './server/analytics/postViewsHybridView';
+import './server/analytics/postViewTimesHybridView';
+import './server/analytics/hybridViews';

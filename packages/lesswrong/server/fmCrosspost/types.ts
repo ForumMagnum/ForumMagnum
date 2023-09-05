@@ -1,5 +1,5 @@
 import * as t from 'io-ts';
-import { denormalizedFieldKeys } from "./denormalizedFields";
+import { DenormalizedCrosspostData, DenormalizedCrosspostValidator } from './denormalizedFields';
 
 export const CrosspostTokenResponseValidator = t.strict({
   token: t.string
@@ -57,13 +57,6 @@ export const UpdateCrosspostResponseValidator = t.strict({
   status: t.literal('updated')
 });
 
-const DenormalizedCrosspostValidator = t.strict({
-  draft: t.boolean,
-  deletedDraft: t.boolean,
-  title: t.string,
-  isEvent: t.boolean,
-  question: t.boolean,
-});
 
 /**
  * Intersesction creates an intersection of types (i.e. type A & type B)
@@ -104,7 +97,7 @@ export const CrosspostPayloadValidator = t.intersection([
 export type CrosspostResponse = t.TypeOf<typeof CrosspostResponseValidator>;
 export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 
-export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | typeof denormalizedFieldKeys[number]>;
+export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost"> & DenormalizedCrosspostData;
 
 /**
  * Intersesction creates an intersection of types (i.e. type A & type B)

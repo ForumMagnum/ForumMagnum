@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getKarmaInflationSeries, timeSeriesIndexExpr } from '../../../server/karmaInflation/cache';
+import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import { combineIndexWithDefaultViewIndex, ensureIndex, ensureCustomPgIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
@@ -13,7 +13,6 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
-import { getABTestsMetadata, getUserABTestGroup } from '../../abTestImpl';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -294,7 +293,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
   }
 }
 
-function buildInflationAdjustedField(): any {
+export function buildInflationAdjustedField(): any {
   const karmaInflationSeries = getKarmaInflationSeries();
   return {
     karmaInflationAdjustedScore: {
@@ -352,9 +351,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = context.currentUser && isEAForum ?
-    getUserABTestGroup(context.currentUser, context.clientId || '', getABTestsMetadata()['slowerFrontpage']) === 'treatment'
-    : false
+  const useSlowerFrontpage = !!context.currentUser && isEAForum
 
   const syntheticFields = {
     score: {$divide:[
@@ -1521,7 +1518,9 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
   
   return {
     selector: {
-      _id: {$in: bookmarkedPostIds}
+      _id: {$in: bookmarkedPostIds},
+      isEvent: viewFieldAllowAny,
+      groupId: null
     },
     options: {
       sort: {},

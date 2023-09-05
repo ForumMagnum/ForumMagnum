@@ -25,6 +25,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   rejectionNotice: {
     ...theme.typography.contentNotice,
@@ -117,7 +120,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} />
+    <LinkPostMessage post={post} negativeTopMargin />
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

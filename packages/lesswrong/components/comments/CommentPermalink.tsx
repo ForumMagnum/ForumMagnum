@@ -75,7 +75,7 @@ const CommentPermalink = ({ documentId, post, classes }: {
   const ogUrl = post ? postGetPageUrl(post, true) : undefined // open graph
   const canonicalUrl = post ? post.canonicalSource || ogUrl : undefined
   // For imageless posts this will be an empty string
-  const socialPreviewImageUrl = post ? post.socialPreviewImageUrl : undefined
+  const socialPreviewImageUrl = post ? post.socialPreviewData?.imageUrl : undefined
 
   const commentNodeProps = {
     treeOptions: {

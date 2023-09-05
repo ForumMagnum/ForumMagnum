@@ -18,7 +18,9 @@ export const useItemsRead = (): ItemsReadContextType => {
 }
 export const withItemsRead = hookToHoc(useItemsRead);
 
-export const useRecordPostView = (post: PostsBase): {recordPostView: any, isRead: boolean} => {
+type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title">;
+
+export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isRead: boolean} => {
   const [increasePostViewCount] = useMutation(gql`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)

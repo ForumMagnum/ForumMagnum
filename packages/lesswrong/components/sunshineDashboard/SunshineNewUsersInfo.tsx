@@ -1,10 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
 import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users';
-import { CONTENT_LIMIT } from './UsersReviewInfoCard';
+import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
+import { truncate } from '../../lib/editor/ellipsize';
+import { usePublishedPosts } from '../hooks/usePublishedPosts';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -66,6 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderBottom: theme.palette.border.sunshineNewUsersInfoHR,
   },
   bio: {
+    wordBreak: "break-word",
     '& a': {
       color: theme.palette.primary.main,
     },
@@ -87,13 +90,9 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   currentUser: UsersCurrent
 }) => {
 
-  const { results: posts = [], loading: postsLoading } = useMulti({
-    terms:{view:"sunshineNewUsersPosts", userId: user._id},
-    collectionName: "Posts",
-    fragmentName: 'SunshinePostsList',
-    fetchPolicy: 'cache-and-network',
-    limit: CONTENT_LIMIT
-  });
+  const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
+
+  const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
 
   const { results: comments = [], loading: commentsLoading } = useMulti({
     terms:{view:"sunshineNewUsersComments", userId: user._id},
@@ -109,6 +108,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   } = Components
 
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
+  const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
   
   // All elements in this component should also appar in UsersReviewInfoCard
   return (
@@ -125,7 +125,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                   <SunshineSendMessageWithDefaults user={user}/>
                 </div>
               </div>              
-              <div dangerouslySetInnerHTML={{__html: user.htmlBio}} className={classes.bio}/>
+              <div dangerouslySetInnerHTML={{__html: bioHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
             <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>

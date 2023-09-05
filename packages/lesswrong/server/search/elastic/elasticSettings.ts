@@ -31,4 +31,5 @@ const disableElastic = new PublicInstanceSetting<boolean>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && !disableElastic.get() && isEAForum;
+export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+export const isAlgoliaEnabled = !isAnyTest && !isEAForum;

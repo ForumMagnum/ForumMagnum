@@ -111,6 +111,9 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
+// NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
+// more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
+// create an EARecommendations component, or we can just delete it.
 const RecommendationsAndCurated = ({
   configName,
   classes,
@@ -139,7 +142,7 @@ const RecommendationsAndCurated = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
+    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton, ContinueReadingList,
       RecommendationsList, SectionTitle, SectionSubtitle, BookmarksList, LWTooltip, CuratedPostsList, ForumIcon } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
@@ -219,7 +222,7 @@ const RecommendationsAndCurated = ({
       <>
         {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-            <CurrentSpotlightItem />
+            <DismissibleSpotlightItem current />
           </AnalyticsContext>
         )}
 

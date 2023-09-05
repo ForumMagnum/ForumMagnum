@@ -62,21 +62,19 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
   } else {
     dateFormat = undefined;
   }
-
-  const dateNode = <FormatDate
-    date={comment.postedAt}
-    format={dateFormat}
-  />
   
   return (
     <span className={classNames(classes.root, {
       [classes.date]: !comment.answer,
       [classes.answerDate]: comment.answer,
     })}>
-      {isEAForum ? dateNode : <LinkWrapper>
-        {dateNode}
-        <ForumIcon icon="Link" className={classes.icon} />
-      </LinkWrapper>}
+      <LinkWrapper>
+        <FormatDate
+          date={comment.postedAt}
+          format={dateFormat}
+        />
+        {!isEAForum && <ForumIcon icon="Link" className={classes.icon} />}
+      </LinkWrapper>
     </span>
   );
 }

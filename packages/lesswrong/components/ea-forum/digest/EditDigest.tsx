@@ -8,7 +8,7 @@ import { useMessages } from '../../common/withMessages';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useLocation } from '../../../lib/routeUtil';
-import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getDigestName, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
+import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
@@ -123,15 +123,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   totalHigh: {
     color: theme.palette.text.red
+  },
+  toggleLink: {
+    color: theme.palette.grey[600],
+    fontSize: 12,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800]
+    }
   }
 })
 
 type DigestPlannerPostData = {
-  post: PostsListBase,
+  post: PostsListWithVotes,
   digestPost: DigestPost
   rating: number
 }
-type PostWithRating = PostsListBase & {rating:number}
+export type PostWithRating = PostsListWithVotes & {rating:number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -168,7 +176,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {
-          ...PostsListBase
+          ...PostsListWithVotes
         }
         digestPost {
           _id
@@ -178,7 +186,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         rating
       }
     }
-    ${fragmentTextForQuery("PostsListBase")}
+    ${fragmentTextForQuery("PostsListWithVotes")}
     `, {
       ssr: true,
       skip: !digest,
@@ -193,10 +201,13 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const [postStatuses, setPostStatuses] = useState<Record<string, DigestPost>>({})
   // disable all status icons while processing the previous click
   const [statusIconsDisabled, setStatusIconsDisabled] = useState<boolean>(false)
+  // by default, the current user's votes are hidden, but they can click the column header to reveal them
+  const [votesVisible, setVotesVisible] = useState<boolean>(false)
   
   useEffect(() => {
-    // this is just to initialize the list of posts and statuses
-    if (!eligiblePosts || posts) return
+    // This is just to initialize the list of posts and statuses.
+    // It should only happen again if the digest dates change and we refetch the posts.
+    if (!eligiblePosts) return
     
     const newPosts: Array<PostWithRating> = []
     const newPostStatuses: Record<string,DigestPost> = {}
@@ -220,7 +231,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
     })
     setPosts(newPosts)
     setPostStatuses(newPostStatuses)
-  }, [eligiblePosts]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eligiblePosts])
   
   // the digest status of each post is saved on a DigestPost record
   const { create: createDigestPost } = useCreate({
@@ -328,7 +339,15 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   const copyDigestToClipboard = async () => {
     if (!posts) return
     
-    const digestPosts = posts.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')
+    const digestPosts = posts.filter(p => ['yes','maybe'].includes(postStatuses[p._id].emailDigestStatus))
+    // sort the "yes" posts to be listed before the "maybe" posts
+    digestPosts.sort((a, b) => {
+      const aYes = postStatuses[a._id].emailDigestStatus === 'yes'
+      const bYes = postStatuses[b._id].emailDigestStatus === 'yes'
+      if (aYes === bYes) return 0
+      if (aYes) return -1
+      return 1
+    })
     await navigator.clipboard.write(
       [new ClipboardItem({
         'text/html': new Blob([getEmailDigestPostListData(digestPosts)], {type: 'text/html'})
@@ -338,7 +357,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
 
 
-  const { Loading, SectionTitle, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
+  const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
     EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
@@ -435,10 +454,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
   }
   
   // if we have no posts to display, just show the page heading
-  const pageHeadingNode = <SectionTitle
-    title={getDigestName({digest})}
-    noTopMargin
-  />
+  const pageHeadingNode = <EditDigestHeader digest={digest} />
   if (!posts.length) {
     return <div className={classes.root}>
       {pageHeadingNode}
@@ -515,6 +531,10 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
+            <th className={classes.centeredColHeader}>
+              Your vote
+              <div className={classes.toggleLink} onClick={() => setVotesVisible(!votesVisible)}>(Click here to show/hide)</div>
+            </th>
             {/* <th className={classes.centeredColHeader}>Rating</th> */}
             <th className={classes.centeredColHeader}>Comments</th>
           </tr>
@@ -529,6 +549,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               handleClickStatusIcon={handleClickStatusIcon}
               visibleTagIds={coreAndPopularTagIds}
               setTagFilter={setTagFilter}
+              votesVisible={votesVisible}
             />
           })}
         </tbody>

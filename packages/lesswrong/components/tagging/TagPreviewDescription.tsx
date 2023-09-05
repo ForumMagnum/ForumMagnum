@@ -3,7 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { getHashLinkOnClick } from '../common/HashLink';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,8 +14,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   }
 });
-
-const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const CoreTagCustomDescriptions: Record<string, string> = {
   'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and making decisions that result in attainment of your goals.",
@@ -26,9 +25,26 @@ const CoreTagCustomDescriptions: Record<string, string> = {
   'Community': 'The <strong>Community</strong> tag is for LessWrong/Rationality community events, analysis of community health, norms and directions of the community, and posts about understanding communities in general.' 
 };
 
+const getTagDescriptionHtmlHighlight = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
+  if (!tag.description) {
+    return undefined;
+  } else if ('htmlHighlight' in tag.description) {
+    return tag.description.htmlHighlight;
+  } else {
+    return tag.description.htmlHighlightStartingAtHash;
+  }
+}
 
-const TagPreviewDescription = ({tag, classes}: {
-  tag: TagPreviewFragment,
+const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPreviewFragment) => {
+  if (!tag.description || 'htmlHighlight' in tag.description) return 1;
+
+  // Show two paragraphs for links to tag section headers
+  return 2;
+}
+
+const TagPreviewDescription = ({tag, hash, classes}: {
+  tag: TagPreviewFragment | TagSectionPreviewFragment,
+  hash?: string,
   classes: ClassesType
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
@@ -36,25 +52,34 @@ const TagPreviewDescription = ({tag, classes}: {
 
   if (!tag) return null
   
-  const showCustomDescriptionHighlight = isLW && tag.core;
+  const showCustomDescriptionHighlight = isLW && tag.core && !hash;
 
   let highlight: string | undefined;
-  // If we're on LW and previewing a core tag, show the custom description
+  // If we're on LW and previewing a core tag (but not a section within it), show the custom description
   if (showCustomDescriptionHighlight) {
     highlight = CoreTagCustomDescriptions[tag.name];
   }
 
   // Otherwise (or if the custom description is missing), use the tag's description
   if (!highlight) {
-    highlight = truncate(tag.description?.htmlHighlight, 1, "paragraphs",
-    '.. <a class="read-more-button" href="#">(read more)</a>');
+    highlight = truncate(
+      getTagDescriptionHtmlHighlight(tag),
+      getTagParagraphTruncationCount(tag),
+      "paragraphs",
+      '.. <a class="read-more-button" href="#">(read more)</a>'
+    );
   }
+
+  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
+  const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
 
   if (highlight) {
     return <div
-      onClick={(ev: React.SyntheticEvent) => {
+      onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
-          history.push(tagGetUrl(tag));
+          ev.preventDefault();
+          history.push(tagUrl);
+          hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
         }
       }}
     >

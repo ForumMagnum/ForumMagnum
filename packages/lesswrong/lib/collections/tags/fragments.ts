@@ -132,6 +132,23 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment TagSectionPreviewFragment on Tag {
+    ...TagBasicInfo
+    parentTag {
+      ...TagBasicInfo
+    }
+    subTags {
+      ...TagBasicInfo
+    }
+    description {
+      _id
+      htmlHighlightStartingAtHash(hash: $hash)
+    }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
     subforumModeratorIds
@@ -270,12 +287,14 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
+    isPostType
     parentTag {
       ...TagBasicInfo
     }
     subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    introSequenceId
     
     autoTagModel
     autoTagPrompt

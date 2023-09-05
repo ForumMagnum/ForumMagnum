@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -15,6 +15,8 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
+import { PostCategory } from '../../lib/collections/posts/helpers';
+import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 
 const autosaveInterval = 3000; //milliseconds
 
@@ -26,6 +28,16 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   return false;
+}
+
+const getPostPlaceholder = (post: PostsBase) => {
+  const { question, postCategory } = post;
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+
+  if (post.debate) return debateEditorPlaceholder;
+  if (effectiveCategory === "question") return questionEditorPlaceholder;
+  if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
+  return defaultEditorPlaceholder;
 }
 
 export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
@@ -50,22 +62,30 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
-  
+  const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
+
   const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
-    const getLocalStorageId = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].getLocalStorageId;
+    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
     return getLSHandlers(getLocalStorageId, document, name,
       getLSKeyPrefix(editorType)
     );
-  }, [collectionName, document, name, fieldName]);
+  }, [document, name, editableFieldOptions.getLocalStorageId]);
   
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
   ));
   const [initialEditorType] = useState(contents.type);
+
+  const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
   
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
-  const showEditorWarning = (formType !== "new") && (initialEditorType !== currentEditorType) && (currentEditorType !== 'ckEditorMarkup')
+
+  // We used to show this warning to a variety of editor types, but now we only want
+  // to show it to people using the html editor. Converting from markdown to ckEditor
+  // is error prone and we don't want to encourage it. We no longer support draftJS
+  // but some old posts still are using it so we show the warning for them too.
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
@@ -186,6 +206,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
+    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(change.contents);
+    }
     setContents(newContents);
     
     // Only save to localStorage if not using collaborative editing, since with
@@ -218,8 +241,16 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism]);
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism, dynamicTableOfContents, editableFieldOptions.hasToc]);
   
+  const hasGeneratedFirstToC = useRef({generated: false});
+  useEffect(() => {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(contents);
+      hasGeneratedFirstToC.current.generated = true;
+    }
+  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
       if (hasUnsavedDataRef?.current?.hasUnsavedData) {
@@ -273,25 +304,37 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || formType==="edit");
-  
-  const actualPlaceholder = (editorHintText || hintText || placeholder);
-  
+
+  const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
+
+  // The logic here is to make sure that the placeholder is updated when it changes in the props.
+  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
+  // to force it to unmount and remount the whole component. Only do this where there are no contents,
+  // as this is the only time the placeholder is visible.
+  const placeholderKey = useRef(actualPlaceholder);
+  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
+    placeholderKey.current = actualPlaceholder;
+  }
+
+  // document isn't necessarily defined. TODO: clean up rest of file
+  // to not rely on document
   if (!document) return null;
-  
+    
   return <div className={classes.root}>
     {showEditorWarning &&
-    <Components.LastEditedInWarning
-      initialType={initialEditorType}
-      currentType={contents.type}
-      defaultType={defaultEditorType}
-      value={contents} setValue={wrappedSetContents}
-    />
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
     }
     {!isCollabEditor &&<Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
     />}
     <Components.Editor
+      key={placeholderKey.current}
       ref={editorRef}
       _classes={classes}
       currentUser={currentUser}

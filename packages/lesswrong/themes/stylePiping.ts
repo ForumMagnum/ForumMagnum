@@ -106,6 +106,17 @@ const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.estimaker-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -314,6 +325,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
+    ...estimakerPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -321,7 +333,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.palette.border.normal,
+      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },

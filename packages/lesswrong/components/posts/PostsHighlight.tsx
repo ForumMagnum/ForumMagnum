@@ -15,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
     fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    '&& a, && a:hover': {
+      color: theme.palette.primary.main,
+    },
   },
   smallerFonts: {
     fontSize: '1.1rem',
@@ -76,10 +79,10 @@ const HighlightBody = ({
       expanded={expanded}
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
         {(forceSeeMore || wordsLeft < 1000)
-          ? <Link to={postGetPageUrl(post)} onClick={clickExpand}>
+          ? <Link to={postGetPageUrl(post)} onClick={clickExpand} eventProps={{intent: 'expandPost'}}>
               ({preferredHeadingCase("See More")} – {wordsLeft} more words)
             </Link>
-          : <Link to={postGetPageUrl(post)}>
+          : <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
               ({preferredHeadingCase("Continue Reading")}  – {wordsLeft} more words)
             </Link>
         }

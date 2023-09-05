@@ -8,6 +8,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
   "moreFromTag",
+  "newAndUpvotedInTag",
   "bestOf",
   "tagWeightedCollabFilter",
   "collabFilter",
@@ -40,9 +41,19 @@ export type WeightedFeature = {
 }
 
 export interface StrategySettings {
+  /** The post to generate recommendations for. */
   postId: string,
+  /** Various strategy use a bias parameter in different ways for tuning - this
+   *  is now mostly deprecated in favour of using features. */
   bias?: number,
+  /** Weighted scoring factors for defining a recommendation algorithm. */
   features?: WeightedFeature[],
+  /** The tag to generate recommendations (only used by some some strategies). */
+  tagId?: string,
+  /** Optional context string - this is not used to generate recommendations,
+   *  but is stored along with the recommendation data in the database for
+   *  analytics purposes. */
+  context?: string,
 }
 
 export interface StrategySpecification extends StrategySettings {
@@ -51,8 +62,14 @@ export interface StrategySpecification extends StrategySettings {
 }
 
 export interface RecommendationsAlgorithmWithStrategy {
+  /** The strategy to use */
   strategy: StrategySpecification,
+  /** The maximum number of results to return */
   count?: number,
+  /** If the selected strategy fails to generate `count` results then, by
+   * default, we automatically switch to using a different strategy as a
+   * fallback. Set `disableFallbacks` to true to prevent this. */
+  disableFallbacks?: boolean,
 }
 
 export interface DefaultRecommendationsAlgorithm {

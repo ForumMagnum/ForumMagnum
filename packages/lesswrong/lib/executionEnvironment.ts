@@ -1,5 +1,4 @@
 import * as _ from 'underscore';
-import type { CommandLineArguments } from '../server/commandLine';
 
 declare global {
   let bundleIsServer: boolean;
@@ -19,6 +18,14 @@ export const isProduction = bundleIsProduction
 export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
+
+export interface CommandLineArguments {
+  postgresUrl: string
+  postgresReadUrl: string
+  settingsFileName: string
+  shellMode: boolean,
+  command?: string,
+}
 
 let alreadyRunStartupFuntions = false
 
@@ -49,6 +56,7 @@ let instanceSettings: any = null;
 export const getInstanceSettings = (args?: CommandLineArguments): any => {
   if (!instanceSettings) {
     if (bundleIsServer) {
+      // eslint-disable-next-line import/no-restricted-paths
       const { loadInstanceSettings } = require('../server/commandLine.ts');
       instanceSettings = loadInstanceSettings(args);
     } else {

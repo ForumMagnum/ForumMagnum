@@ -54,13 +54,30 @@ yarn install
 
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
-Prerequisites:
-- Install MongoDB: https://docs.mongodb.com/manual/installation/
+Run a local postgres instance, version 15. For example, if you're on macos:
 
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+
+createdb forummagnum
 ```
-mkdir myLocalDatabase
-mongod --dbpath ./myLocalDatabase
+
+(DB name is an arbitrary choice.)
+
+You must also have the [pgvector](https://github.com/pgvector/pgvector) Postgres extension installed.
+
+Configure the schema:
+
+```bash
+psql forummagnum -f ./schema/accepted_schema.sql
 ```
+
+TODOs:
+
+* You won't have any database settings yet. TODO: add instructions.
+* You won't be able to run migrations yet. TODO: fix migrations so they can be
+  run on a new db (NB: goal is still to have the db have the accepted_schema).
 
 ### Creating branch-specific development databases
 
@@ -76,9 +93,23 @@ commands are supported:
 
 ### Start the development server
 
+Your postgres URL for the locally-running database will be
+postgres://localhost/forummagnum.
+
 ```
-yarn start-local-db
+yarn start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
 ```
+
+Next, select which website you are working on. If you're making a new site, open
+packages/lesswrong/lib/instanceSettings.ts, find the line that says
+
+```
+export const allForumTypes = ...
+```
+
+and add your forum type to the end. Then regardless of whether you're making a
+new site or editing an existing one, open settings-dev.json and change the line
+that says `"forumType": "LessWrong"` to the correct forum.
 
 Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
 

@@ -17,7 +17,8 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { getSignatureWithNote } from '../../lib/collections/users/helpers';
+import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
+import { createAdminContext } from "../vulcan-lib/query";
 
 
 export const modGPTPrompt = `
@@ -207,14 +208,13 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       })
       
       // also add a note for mods
-      await updateMutator({
-        collection: Users,
-        documentId: comment.userId,
-        set: {
-          sunshineNotes: getSignatureWithNote('ModGPT', `Intervened on comment ID=${comment._id}`) + user.sunshineNotes
-        },
-        validate: false
-      })
+      const context = createAdminContext();
+      await appendToSunshineNotes({
+        moderatedUserId: comment.userId,
+        adminName: "ModGPT",
+        text: `Intervened on comment ID=${comment._id}`,
+        context,
+      });
     }
   }
 }

@@ -24,9 +24,15 @@ import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
+import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { tagGetUrl } from '../../../lib/collections/tags/helpers';
+import isEmpty from 'lodash/isEmpty';
+import qs from 'qs';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+
+export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 
 const MAX_ANSWERS_QUERIED = 100
 
@@ -36,23 +42,36 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
+const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
+
 /** Get a og:description-appropriate description for a post */
-export const getPostDescription = (post: {contents?: {plaintextDescription: string | null} | null, shortform: boolean, user: {displayName: string} | null}) => {
-  if (post.contents?.plaintextDescription) {
+export const getPostDescription = (post: {
+  contents?: { plaintextDescription: string | null } | null;
+  customHighlight?: { plaintextDescription: string | null } | null;
+  socialPreviewData?: { text: string | null } | null;
+  shortform: boolean;
+  user: { displayName: string } | null;
+}) => {
+  if (post.socialPreviewData?.text) {
+    return post.socialPreviewData.text;
+  }
+
+  const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
+  if (longDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
-    const plaintextPars = post.contents.plaintextDescription
+    const plaintextPars = longDescription
       // paragraphs in the plaintext description are separated by double-newlines
       .split(/\n\n/)
       // get rid of bullshit opening text ('epistemic status' or 'crossposted from' etc)
-      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)))
-      
-    if (!plaintextPars.length) return ''
-    
+      .filter((par) => !POST_DESCRIPTION_EXCLUSIONS.some((re) => re.test(par)));
+
+    if (!plaintextPars.length) return "";
+
     // concatenate paragraphs together with a delimiter, until they reach an
     // acceptable length (target is 100-200 characters)
     // this will return a longer description if one of the first couple of
     // paragraphs is longer than 200
-    let firstFewPars = plaintextPars[0]
+    let firstFewPars = plaintextPars[0];
     for (const par of plaintextPars.slice(1)) {
       const concat = `${firstFewPars} • ${par}`;
       // If we're really short, we need more
@@ -69,8 +88,8 @@ export const getPostDescription = (post: {contents?: {plaintextDescription: stri
       // paragraph, so we should stop
       break;
     }
-    if (firstFewPars.length > 198) {
-      return firstFewPars.slice(0, 199).trim() + "…";
+    if (firstFewPars.length > 148) {
+      return firstFewPars.slice(0, 149).trim() + "…";
     }
     return firstFewPars + " …";
   }
@@ -80,6 +99,73 @@ export const getPostDescription = (post: {contents?: {plaintextDescription: stri
     }`;
   return null;
 };
+
+/**
+ * Build structured data for a post to help with SEO.
+ */
+const getStructuredData = ({
+  post,
+  description,
+}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision;
+  description: string | null;
+}) => {
+  const hasUser = !!post.user;
+  const hasCoauthors = !!post.coauthors && post.coauthors.length > 0;
+
+  return {
+    "@context": "http://schema.org",
+    "@type": "DiscussionForumPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postGetPageUrl(post, true),
+    },
+    headline: post.title,
+    ...(description && { description: description }),
+    datePublished: new Date(post.postedAt).toISOString(),
+    about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
+      "@type": "Thing",
+      name: tag.name,
+      url: tagGetUrl(tag, undefined, true),
+      description: tag.description?.htmlHighlight,
+    })),
+    ...(hasUser && {
+      author: [
+        {
+          "@type": "Person",
+          name: post.user.displayName,
+          url: userGetProfileUrl(post.user, true),
+        },
+        ...(hasCoauthors
+          ? post.coauthors
+              .filter(({ _id }) => !postCoauthorIsPending(post, _id))
+              .map(coauthor => ({
+                "@type": "Person",
+                "name": coauthor.displayName,
+                url: userGetProfileUrl(post.user, true),
+              }))
+          : []),
+      ],
+    }),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/CommentAction",
+        },
+        userInteractionCount: post.commentCount,
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: {
+          "@type": "http://schema.org/LikeAction",
+        },
+        userInteractionCount: post.baseScore,
+      },
+    ],
+  };
+};
+
 
 // Also used in PostsCompareRevisions
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -108,7 +194,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
     marginBottom: theme.spacing.unit *3
   },
-  postContent: {}, //Used by a Cypress test
+  postContent: { //Used by a Cypress test
+    marginBottom: isEAForum ? 40 : undefined
+  },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
@@ -163,6 +251,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
   hideEmbeddedPlayer: {
     display: "none"
   },
+  welcomeBox: {
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -184,7 +277,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const location = useSubscribedLocation();
   const { history } = useNavigation();
   const currentUser = useCurrentUser();
-  const { openDialog, closeDialog } = useDialog();
+  const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
 
   const { captureEvent } = useTracking();
@@ -209,7 +302,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   } : undefined;
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-  
+
   // On the EA Forum, show a reading progress bar to indicate how far in the post you are.
   // Your progress is hard to tell via the scroll bar because it includes the comments section.
   const postBodyRef = useRef<HTMLDivElement|null>(null)
@@ -219,7 +312,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     updateReadingProgressBar()
     window.addEventListener('scroll', updateReadingProgressBar)
-    
+
     return () => {
       window.removeEventListener('scroll', updateReadingProgressBar)
     };
@@ -235,13 +328,32 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
-  
+
   const getSequenceId = () => {
     const { params } = location;
     return params.sequenceId || post?.canonicalSequenceId;
   }
 
   const { query, params } = location;
+
+  useEffect(() => {
+    if (!query[SHARE_POPUP_QUERY_PARAM]) return;
+
+    openDialog({
+      componentName: "SharePostPopup",
+      componentProps: {
+        post,
+      },
+      noClickawayCancel: true,
+      closeOnNavigate: true,
+    });
+
+    // Remove "sharePopup" from query once the popup is open, to prevent accidentally
+    // sharing links with the popup open
+    const currentQuery = isEmpty(query) ? {} : query
+    const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [history, location.location, openDialog, post, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({
@@ -289,7 +401,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList,
+    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer
   } = Components
 
   useEffect(() => {
@@ -302,7 +414,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = query?.revision && post.contents;
+  const isOldVersion = query.revision && post.contents;
   
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")
@@ -325,7 +437,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.question &&
     !post.debate &&
     !post.isEvent &&
-    !sequenceId;
+    !sequenceId &&
+    (post.contents?.wordCount ?? 0) >= 500;
+  const recommendationsPosition = getRecommendationsPosition();
 
   const commentId = query.commentId || params.commentId
 
@@ -333,7 +447,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const ogUrl = postGetPageUrl(post, true) // open graph
   const canonicalUrl = post.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
-  let socialPreviewImageUrl = post.socialPreviewImageUrl
+  let socialPreviewImageUrl = post.socialPreviewData?.imageUrl ?? "";
   if (post.isEvent && post.eventImageId) {
     socialPreviewImageUrl = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,g_auto,ar_191:100/${post.eventImageId}`
   }
@@ -380,6 +494,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title} description={description} noIndex={noIndex}
+        structuredData={getStructuredData({post, description})}
       />
       <CitationTags
         title={post.title}
@@ -416,7 +531,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
   const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps ? <WelcomeBox {...welcomeBoxProps} /> : null;
+  const welcomeBox = welcomeBoxProps
+    ? <div className={classes.welcomeBox}>
+        <WelcomeBox {...welcomeBoxProps} />
+      </div>
+    : null;
+
+  const rightColumnChildren = <>
+    {welcomeBox}
+    {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
+  </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
@@ -426,16 +550,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <Helmet>
-      {allowTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
-    </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     <ToCColumn
       tableOfContents={tableOfContents}
       header={header}
-      welcomeBox={welcomeBox}
+      rightColumnChildren={rightColumnChildren}
     >
       <div ref={postBodyRef} className={classes.centralColumn}>
         {/* Body */}
@@ -443,19 +564,19 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
-        {/* The embedded player for posts with audio auto generated by Type 3. Note: Type 3 apply some
-            custom styling on prod so this may look different locally */}
-        {/* @ts-ignore */}
-        {allowTypeIIIPlayer && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} ><type-3-player analytics="custom"></type-3-player></div>}
+        {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
           <AnalyticsContext pageSectionContext="postBody">
             <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors && <PostBody
-                post={post} html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-              />}
+              {htmlWithAnchors &&
+                <PostBody
+                  post={post}
+                  html={htmlWithAnchors}
+                  sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                />
+              }
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>}
@@ -469,12 +590,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
-      {showRecommendations &&
-        <div className={classes.recommendations}>
-          <PostsPageRecommendationsList
-            strategy="tagWeightedCollabFilter"
-          />
-        </div>
+      {showRecommendations && recommendationsPosition === "underPost" &&
+        <AnalyticsContext pageSectionContext="postBottomRecommendations">
+          <div className={classes.recommendations}>
+            <PostsPageRecommendationsList
+              strategy="tagWeightedCollabFilter"
+            />
+          </div>
+        </AnalyticsContext>
       }
 
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >

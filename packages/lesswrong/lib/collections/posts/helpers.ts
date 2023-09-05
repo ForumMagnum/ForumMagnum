@@ -8,6 +8,12 @@ import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicS
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+
+export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
+export type PostCategory = UnionOf<typeof postCategories>;
+export const postDefaultCategory = 'post';
+export const isPostCategory = (tab: string): tab is PostCategory => postCategories.has(tab)
 
 //////////////////
 // Link Helpers //
@@ -85,7 +91,9 @@ ${postGetLink(post, true, false)}
 // cloudinary image if available, or the auto-set from the post contents. If
 // neither of those are available, it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
-  const manualId = post.socialPreviewImageId
+  // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
+  // edit this to support the old field "socialPreviewImageId", which still has the old data
+  const manualId = post.socialPreview?.imageId
   if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
@@ -355,6 +363,8 @@ export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = fal
 const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
 const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
 const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
+/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
+const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity)
 
 /**
  * Whether the post is allowed AI generated audio
@@ -367,7 +377,9 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
 
     return (
-      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF || TYPE_III_ALLOWED_POST_IDS.includes(post._id)) &&
+      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
+        TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
+        post.baseScore > type3KarmaCutoffSetting.get()) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&

@@ -11,33 +11,24 @@ const execAsync = promisify(exec);
  * straightforward database connection string. Takes parsed command-line options
  * formatted as Estrella's CLI-parser would parse them, ie, a dictionary where
  * arguments of the form "--opt <string>" turn into {opt: "<string>"}. If
- * connection-string arguments aren't provided, uses the environment variables
- * MONGO_URL and PG_URL as a fallback.
+ * connection-string arguments aren't provided, uses the environment variable
+ * PG_URL as a fallback.
  *
  * Because this is used by build.js which is itself responsible for invoking the
  * Typescript compiler, it isn't in typescript. The type of this function is:
  *
- *   getDatabaseConfig: (opts: {
- *     db?: string
- *     mongoUrl?: string
- *     mongoUrlFile?: string
- *     postgresUrl?: string
+ *   getDatabaseConfig: (opts: { db?: string postgresUrl?: string
  *     postgresUrlFile?: string
  *   }) => {
- *     mongoUrl: string
  *     postgresUrl: string
  *     sshTunnelCommand: string[]|null
  *   }
  *
- * (Currently, LW connects to both a mongodb database and a postgres database.
- * However the mongodb database (and associated options) is deprecated.)
- *
- * If mongoUrlFile or postgresUrlFile is provided, it's the path to a text file
- * containing the value of mongoUrl or postgresUrl. If "db" is provided, it's
- * the path to a JSON file containing a JSON object of type:
+ * If postgresUrlFile is provided, it's the path to a text file containing the
+ * value of postgresUrl. If "db" is provided, it's the path to a JSON file
+ * containing a JSON object of type:
  *   {
  *     postgresUrl: string
- *     mongoUrl: string
  *     sshTunnel?: {
  *       host: string
  *       key: string
@@ -64,12 +55,6 @@ function getDatabaseConfig(opts) {
     }
   }
   
-  if (opts.mongoUrlFile) {
-    if (opts.mongoUrl) {
-      die("More than one mongodb URL given");
-    }
-    opts.mongoUrl = readFileOrDie(opts.mongoUrlFile);
-  }
   if (opts.postgresUrlFile) {
     opts.postgresUrl = readFileOrDie(opts.postgresUrlFile);
   }
@@ -106,8 +91,7 @@ function getDatabaseConfig(opts) {
   }
 
   return {
-    mongoUrl: opts.mongoUrl || dbConfig?.mongoUrl || process.env.MONGO_URL || null,
-    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || null,
+    postgresUrl: opts.postgresUrl || tunneledPgConnectionString || dbConfig?.postgresUrl || process.env.PG_URL || '',
     sshTunnelCommand,
   };
 }

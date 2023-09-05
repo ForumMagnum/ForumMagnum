@@ -15,6 +15,22 @@ type SanitizedIndexName = {
   sorting?: string,
 }
 
+type NamedHighlight = {
+  value?: string,
+  matchLevel: "full" | "none",
+}
+
+const extractNamedHighlight = (
+  highlight: ElasticSearchHit["highlight"],
+  name: string,
+): NamedHighlight => {
+  const value = highlight?.[name]?.[0] ?? highlight?.[name + ".exact"]?.[0];
+  return {
+    value,
+    matchLevel: value ? "full" : "none",
+  };
+}
+
 class ElasticService {
   constructor(
     private client = new ElasticClient(),
@@ -29,7 +45,7 @@ class ElasticService {
     const result = await this.client.search({
       index,
       sorting,
-      search: params.query,
+      search: params.query ?? "",
       offset: page * hitsPerPage,
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
@@ -61,7 +77,7 @@ class ElasticService {
         nbHits: true,
         typo: true,
       },
-      query: params.query,
+      query: params.query ?? "",
       params: this.urlEncode(params),
       index: indexName,
       processingTimeMS: timeMS,
@@ -193,17 +209,11 @@ class ElasticService {
       ..._source,
       _id,
       _snippetResult: {
-        [config.snippet]: {
-          value: highlight?.[config.snippet]?.[0],
-          matchLevel: highlight?.[config.snippet]?.[0] ? "full" : "none",
-        },
+        [config.snippet]: extractNamedHighlight(highlight, config.snippet),
       },
       ...(config.highlight && {
         _highlightResult: {
-          [config.highlight]: {
-            value: highlight?.[config.highlight]?.[0],
-            matchLevel: highlight?.[config.highlight]?.[0] ? "full" : "none",
-          },
+          [config.highlight]: extractNamedHighlight(highlight, config.highlight),
         },
       }),
     }));

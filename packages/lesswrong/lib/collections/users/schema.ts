@@ -166,6 +166,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
 const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTypeSettings>) => ({
@@ -332,7 +333,7 @@ const schema: SchemaType<DbUser> = {
     input: 'checkbox',
     optional: true,
     canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
   },
@@ -473,7 +474,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     order: 48,
     group: formGroups.adminOptions,
     label: "No Index",
@@ -488,7 +489,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     control: 'checkboxgroup',
     canCreate: ['admins'],
-    canUpdate: ['alignmentForumAdmins', 'admins'],
+    canUpdate: ['alignmentForumAdmins', 'admins', 'realAdmins'],
     canRead: ['guests'],
     group: adminGroup,
     form: {
@@ -648,6 +649,7 @@ const schema: SchemaType<DbUser> = {
     allowedValues: ['listView', 'gridView'],
     ...schemaDefaultValue('listView'),
     defaultValue: "listView",
+    hidden: isEAForum,
     control: "select",
     form: {
       options: function () { // options for the select form control
@@ -1467,6 +1469,17 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     ...schemaDefaultValue(false),
   },
+  
+  // Used by the EA Forum to allow users to hide the right-hand side of the home page
+  hideHomeRHS: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 
   // frontpagePostCount: count of how many posts of yours were posted on the frontpage
   frontpagePostCount: {
@@ -1705,6 +1718,17 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 47,
     hidden: true,
+    group: formGroups.siteCustomizations,
+    label: "Hide the frontpage book ad"
+  },
+
+  hideFrontpageBook2020Ad: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    order: 47,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
   },

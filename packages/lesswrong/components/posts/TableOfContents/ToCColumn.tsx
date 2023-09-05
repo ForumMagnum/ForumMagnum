@@ -1,7 +1,10 @@
-import React, {useContext} from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
+import { useTracking } from '../../../lib/analyticsEvents';
+import { isEAForum } from '../../../lib/instanceSettings';
+import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 
 const DEFAULT_TOC_MARGIN = 100
@@ -33,8 +36,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
         1.5fr
       `,
       gridTemplateAreas: `
-        "... ... .... title   .... ....... .... ..."
-        "... toc gap1 content gap2 welcome gap3 ..."
+        "... ... .... title   .... ... .... ..."
+        "... toc gap1 content gap2 rhs gap3 ..."
       `,
     },
     [theme.breakpoints.down('sm')]: {
@@ -67,11 +70,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "left",
     height: "80vh",
     overflowY: "auto",
-    
+
     // Moves the scrollbar to the left side. Cancelled out by a matching
     // direction:ltr on the next div in.
     direction: "rtl",
-    
+
     // Nonstandard WebKit-specific scrollbar styling.
     "&::-webkit-scrollbar": {
       width: 1,
@@ -88,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         background: theme.palette.grey[700],
       },
     },
-    
+
     // Pre-standard Firefox-specific scrollbar styling. See
     // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scrollbars.
     scrollbarWidth: "thin",
@@ -105,50 +108,125 @@ export const styles = (theme: ThemeType): JssStyles => ({
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
-  welcomeBox: {
-    gridArea: 'welcome',
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    }
+  gap3: { gridArea: 'gap3' },
+  rhs: {
+    gridArea: 'rhs',
   },
-  gap3: { gridArea: 'gap3' }
+  hideTocButton: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[600],
+    margin: 18,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    userSelect: "none",
+    cursor: "pointer",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  hideTocButtonHidden: {
+    display: "none",
+  },
 });
 
-export const ToCColumn = ({tableOfContents, header, welcomeBox, children, classes}: {
+const shouldHideToggleContentsButton = () => {
+  if (!isClient) {
+    return false;
+  }
+
+  const {scrollY, innerHeight} = window;
+  const scrollEnd = document.body.scrollHeight - innerHeight;
+  // We hide the button when:
+  //  - scrolled to 0 to prevent showing the button above the page header when
+  //    scrolling up quickly
+  //  - scrolled all the way to the end of the page to prevent the button
+  //    colliding with the table of contents
+  return scrollY > 0 && scrollY < scrollEnd * 0.99;
+}
+
+export const ToCColumn = ({
+  tableOfContents,
+  header,
+  rightColumnChildren,
+  children,
+  classes,
+}: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
+  rightColumnChildren?: React.ReactNode,
   children: React.ReactNode,
   classes: ClassesType,
-  welcomeBox?: React.ReactNode,
 }) => {
+  const {captureEvent} = useTracking();
   const {sideCommentsActive} = useContext(SidebarsContext)!;
-  
+  const [hideTocButtonHidden, setHideTocButtonHidden] = useState(
+    shouldHideToggleContentsButton,
+  );
+  const [hidden, setHidden] = useState(false);
+  const hideable = isEAForum && !!tableOfContents;
+
+  useEffect(() => {
+    const handler = () => setHideTocButtonHidden(
+      shouldHideToggleContentsButton(),
+    );
+    window.addEventListener("scroll", handler);
+    () => window.removeEventListener("scroll", handler);
+  });
+
+  const toggleHideContents = useCallback(() => {
+    setHidden(!hidden);
+    captureEvent("toggleHideContents", {hidden: !hidden});
+  }, [hidden, captureEvent]);
+
   return (
     <div className={classNames(
       classes.root,
       {
-        [classes.tocActivated]: !!tableOfContents || !!welcomeBox,
+        [classes.tocActivated]: !!tableOfContents || !!rightColumnChildren,
         [classes.sideCommentsActive]: sideCommentsActive,
       }
     )}>
+      {hideable &&
+        <div
+          onClick={toggleHideContents}
+          className={classNames(classes.hideTocButton, {
+            [classes.hideTocButtonHidden]: !hideTocButtonHidden,
+          })}
+        >
+          <Components.ForumIcon icon="ListBullet" />
+          {hidden ? "Show" : "Hide"} table of contents
+        </div>
+      }
       <div className={classes.header}>
         {header}
       </div>
-      {tableOfContents && <div className={classes.toc}>
-        <div className={classes.stickyBlockScroller}>
-          <div className={classes.stickyBlock}>
-            {tableOfContents}
-          </div>
-        </div>
-      </div>}
-      <div className={classes.gap1}/>
+      {!hidden &&
+        <>
+          {tableOfContents && <div className={classes.toc}>
+            <div className={classes.stickyBlockScroller}>
+              <div className={classes.stickyBlock}>
+                {tableOfContents}
+              </div>
+            </div>
+          </div>}
+          <div className={classes.gap1}/>
+        </>
+      }
       <div className={classes.content}>
         {children}
       </div>
       <div className={classes.gap2}/>
-      {welcomeBox && <div className={classes.welcomeBox}>
-        {welcomeBox}
-      </div>}
+      {rightColumnChildren &&
+        <div className={classes.rhs}>
+          {rightColumnChildren}
+        </div>
+      }
       <div className={classes.gap3}/>
     </div>
   );

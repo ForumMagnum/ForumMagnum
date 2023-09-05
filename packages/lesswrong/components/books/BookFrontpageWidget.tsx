@@ -186,7 +186,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"} link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
         />
       }>
@@ -199,7 +199,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout />
+            <BookCheckout link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
         />
       </BookAnimation>

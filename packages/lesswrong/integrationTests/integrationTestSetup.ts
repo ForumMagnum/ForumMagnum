@@ -2,8 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
+import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
@@ -13,39 +12,12 @@ import {
   preparePgTables,
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
-} from '../lib/sql/tests/testingSqlClient';
-import { isEAForum } from '../lib/instanceSettings';
+} from '../server/testingSqlClient';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
-
-let dbConnected = false;
-async function ensureDbConnection() {
-  if (dbConnected || isEAForum)
-    return;
-
-  try {
-    const connectionString = process.env.MONGO_URL as string; //Provided by @shelf/jest-mongodb
-    const client = new MongoClient(connectionString, {
-      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
-      // for various options that could be tuned here
-
-      // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    const db = client.db();
-    setDatabaseConnection(client, db);
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to mongodb:", err);
-    return;
-  }
-
-  dbConnected = true;
-}
 
 let pgConnected = false;
 const ensurePgConnection = async () => {
@@ -76,10 +48,7 @@ async function oneTimeSetup() {
   setServerSettingsCache({});
   setPublicSettings({});
 
-  await Promise.all([
-    ensurePgConnection(),
-    ensureDbConnection(),
-  ]);
+  await ensurePgConnection();
 
   await runStartupFunctions();
 

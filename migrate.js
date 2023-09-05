@@ -1,14 +1,11 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [lw]
+ * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [forumType]
  *
- * If no environment is specified, you can use the environment variables PG_URL,
- * MONGO_URL and SETTINGS_FILE
- * 
- * Runs for the EA Forum by default.  Add `lw` as the last argument to run for LW.  Requires that you provide an environment explicitly.
+ * If no environment is specified, you can use the environment variables PG_URL
+ * and SETTINGS_FILE
  */
 require("ts-node/register");
 const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
-const { readFile } = require("fs").promises;
 
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
@@ -31,37 +28,58 @@ const fetchImports = (args, isProd) => {
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
 
-const credentialsPath = (forum) => {
-  const base = process.env.GITHUB_WORKSPACE ?? "..";
-  const repoName = forum === 'lw' ? 'LessWrong-Credentials' : 'ForumCredentials';
+const credentialsPath = (forumType) => {
+  const memorizedBases = {
+    lw: "..",
+    ea: "..",
+  };
+  const base = process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType] ?? ".";
+  const memorizedRepoNames = {
+    lw: 'LessWrong-Credentials',
+    ea: 'ForumCredentials',
+  };
+  const repoName = memorizedRepoNames[forumType];
+  if (!repoName) {
+    return base;
+  }
   return `${base}/${repoName}`;
 }
 
-const credentialsFile = (fileName, forum) => {
-  return `${credentialsPath(forum)}/${fileName}`;
+const settingsFilePath = (fileName, forumType) => {
+  return `${credentialsPath(forumType)}/${fileName}`;
 }
 
-const settingsFilePath = (fileName, forum) => {
-  const base = process.env.GITHUB_WORKSPACE ?? "..";
-  const repoName = forum === 'lw' ? 'LessWrong-Credentials' : 'ForumCredentials';
-  return `${base}/${repoName}/${fileName}`;
-}
+const databaseConfig = (mode, forumType) => {
+  if (!mode) {
+    return {};
+  }
+  const memorizedConfigPaths = {
+    lw: {
+      db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
+    },
+    ea: {
+      postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
+    },
+  };
+  const configPath = memorizedConfigPaths[forumType] || {
+    postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
+  };
+  return getDatabaseConfig(configPath);
+};
 
-const databaseConfig = (mode, forum) => getDatabaseConfig((forum === 'lw') ? {
-  db: `${credentialsPath(forum)}/connectionConfigs/${mode}.json`,
-} : {
-  mongoUrlFile: `${credentialsPath(forum)}/${mode}-db-conn.txt`,
-  postgresUrlFile: `${credentialsPath(forum)}/${mode}-pg-conn.txt`,
-});
-
-const settingsFileName = (mode, forum) => {
-  if (forum === 'lw') {
+const settingsFileName = (mode, forumType) => {
+  if (!mode) {
+    // With the state of the code when this comment was written, this indicates
+    // an error condition, but it will be handled later, around L60
+    return '';
+  }
+  if (forumType === 'lw') {
     if (mode === 'prod') {
       return 'settings-production-lesswrong.json';
     }
     return 'settings-local-dev-devdb.json'
   }
-  return `settings-${mode}.json`;  
+  return `settings-${mode}.json`;
 };
 
 (async () => {
@@ -77,36 +95,37 @@ const settingsFileName = (mode, forum) => {
     mode = "dev";
   } else if (mode === "production") {
     mode = "prod";
-  } else if (!isRunCommand) {
+  } else if (!["up", "down", "pending", "executed"].includes(command)) {
     mode = "dev";
   }
 
-  const forum = process.argv[4];
-  const isLW = forum === 'lw';
+  const forumType = process.argv[4];
+  const forumTypeIsSpecified = ['lw', 'ea'].includes(forumType)
 
+  const dbConf = databaseConfig(mode, forumType);
+  if (dbConf.postgresUrl) {
+    process.env.PG_URL = dbConf.postgresUrl;
+  }
   const args = {
-    mongoUrl:  databaseConfig(mode, forum).mongoUrl,
-    postgresUrl: databaseConfig(mode, forum).postgresUrl,
-    settingsFileName: process.env.SETTINGS_FILE,
+    postgresUrl: process.env.PG_URL,
+    settingsFileName: process.env.SETTINGS_FILE || settingsFileName(mode, forumType),
     shellMode: false,
   };
-  process.env.MONGO_URL = args.mongoUrl;
-  process.env.PG_URL = args.postgresUrl;
   
-  await startSshTunnel(databaseConfig(mode, forum).sshTunnelCommand);
+  await startSshTunnel(databaseConfig(mode, forumType).sshTunnelCommand);
 
-  if (["dev", "staging", "prod"].includes(mode)) {
+  if (["dev", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running migrations in mode', mode);
-    args.settingsFileName = settingsFilePath(settingsFileName(mode, forum), forum);
+    args.settingsFileName = settingsFilePath(settingsFileName(mode, forumType), forumType);
     if (command !== "create") {
-      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(isLW ? 5 : 4));
-    } else if (isLW) {
+      process.argv = process.argv.slice(0, 3).concat(process.argv.slice(forumTypeIsSpecified ? 5 : 4));
+    } else if (forumTypeIsSpecified) {
       process.argv.pop();
     }
-  } else if (args.postgresUrl && args.mongoUrl && args.settingsFileName) {
-    console.log('Using PG_URL, MONGO_URL and SETTINGS_FILE from environment');
+  } else if (args.postgresUrl && args.settingsFileName) {
+    console.log('Using PG_URL and SETTINGS_FILE from environment');
   } else {
-    throw new Error('Unable to run migration without a mode or environment (PG_URL, MONGO_URL and SETTINGS_FILE)');
+    throw new Error('Unable to run migration without a mode or environment (PG_URL and SETTINGS_FILE)');
   }
 
   const { getSqlClientOrThrow, setSqlClient, createSqlConnection } = fetchImports(args, mode === "prod");

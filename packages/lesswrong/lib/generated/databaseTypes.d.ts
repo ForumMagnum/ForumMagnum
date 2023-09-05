@@ -96,6 +96,7 @@ interface DbCollection extends DbObject {
   gridImageId: string
   firstPageLink: string
   hideStartReadingButton: boolean
+  noindex: boolean
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -442,7 +443,7 @@ interface ModeratorActionsCollection extends CollectionBase<DbModeratorAction, "
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -587,6 +588,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
+  postCategory: "post" | "linkpost" | "question"
   title: string
   slug: string
   viewCount: number
@@ -665,6 +667,10 @@ interface DbPost extends DbObject {
   hasCoauthorPermission: boolean
   socialPreviewImageId: string
   socialPreviewImageAutoUrl: string
+  socialPreview: {
+    imageId: string | null,
+    text: string | null,
+  }
   fmCrosspost: {
     isCrosspost: boolean,
     hostedHere: boolean | null,
@@ -678,6 +684,7 @@ interface DbPost extends DbObject {
   unlisted: boolean
   disableRecommendation: boolean
   defaultRecommendation: boolean
+  hideFromPopularComments: boolean
   draft: boolean
   meta: boolean
   hideFrontpageComments: boolean
@@ -727,6 +734,7 @@ interface DbPost extends DbObject {
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
   commentCount: number
+  topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
   rejected: boolean
@@ -878,6 +886,7 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  noindex: boolean
   af: boolean
   contents: EditableFieldContents
   contents_latest: string
@@ -909,6 +918,7 @@ interface DbSpotlight extends DbObject {
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
+  imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
@@ -980,6 +990,7 @@ interface DbTag extends DbObject {
   slug: string
   oldSlugs: Array<string>
   core: boolean
+  isPostType: boolean
   suggestedAsFilter: boolean
   defaultOrder: number
   descriptionTruncationCount: number
@@ -1006,7 +1017,7 @@ interface DbTag extends DbObject {
   contributionStats: any /*{"definitions":[{"blackbox":true}]}*/
   introSequenceId: string
   postsDefaultSortOrder: string
-  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters">
+  canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">
   isSubforum: boolean
   subforumModeratorIds: Array<string>
   subforumIntroPostId: string
@@ -1123,6 +1134,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
@@ -1288,6 +1300,7 @@ interface DbUser extends DbObject {
   unsubscribeFromAll: boolean
   hideSubscribePoke: boolean
   hideMeetupsPoke: boolean
+  hideHomeRHS: boolean
   frontpagePostCount: number
   sequenceCount: number
   sequenceDraftCount: number
@@ -1307,6 +1320,7 @@ interface DbUser extends DbObject {
   hideTaggingProgressBar: boolean
   hideFrontpageBookAd: boolean
   hideFrontpageBook2019Ad: boolean
+  hideFrontpageBook2020Ad: boolean
   sunshineNotes: string
   sunshineFlagged: boolean
   needsReview: boolean

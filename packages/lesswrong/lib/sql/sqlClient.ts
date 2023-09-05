@@ -78,3 +78,12 @@ export async function logIfSlow<T>(execute: ()=>Promise<T>, describe: string|(()
 
   return result;
 }
+
+export const replaceDbNameInPgConnectionString = (connectionString: string, dbName: string): string => {
+  if (!/^postgres:\/\/.*\/[^/]+$/.test(connectionString)) {
+    throw `Incorrectly formatted connection string or unrecognized connection string format: ${connectionString}`;
+  }
+  const lastSlash = connectionString.lastIndexOf('/');
+  const withoutDbName = connectionString.slice(0, lastSlash);
+  return `${withoutDbName}/${dbName}`;
+}

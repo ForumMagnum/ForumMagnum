@@ -17,6 +17,8 @@ import { EditTagForm } from './EditTagPage';
 import { useTagBySlug } from './useTag';
 import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
+import { getTagStructuredData } from "./TagPageRouter";
+import { EA_FORUM_HEADER_HEIGHT } from "../common/Header";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -49,14 +51,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
       width: '100%',
     },
     position: 'absolute',
-    top: 90,
+    top: EA_FORUM_HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
         height: 200,
         width: '100%',
       },
-      top: 77,
       left: -4,
       right: -4,
     },
@@ -207,7 +208,7 @@ const TagPage = ({classes}: {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, ContentStyles,
+    TagTableOfContents, TagVersionHistoryButton, ContentStyles,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -338,6 +339,7 @@ const TagPage = ({classes}: {
   >
     <HeadTags
       description={headTagDescription}
+      structuredData={getTagStructuredData(tag)}
       noIndex={tag.noindex}
     />
     {hoveredContributorId && <style>
@@ -389,7 +391,6 @@ const TagPage = ({classes}: {
           </div>
           <TagPageButtonRow tag={tag} editing={editing} setEditing={setEditing} className={classNames(classes.editMenu, classes.nonMobileButtonRow)} />
         </div>}
-        welcomeBox={null}
       >
         {(tag.parentTag || tag.subTags.length) ?
         <div className={classNames(classes.subHeading,classes.centralColumn)}>
@@ -415,14 +416,17 @@ const TagPage = ({classes}: {
             { revision && tag.description && (tag.description as TagRevisionFragment_description).user && <div className={classes.pastRevisionNotice}>
               You are viewing revision {tag.description.version}, last edited by <UsersNameDisplay user={(tag.description as TagRevisionFragment_description).user}/>
             </div>}
-            {editing ? <EditTagForm
-              tag={tag}
-              successCallback={ async () => {
-                setEditing(false)
-                await client.resetStore()
-              }}
-              cancelCallback={() => setEditing(false)}
-            /> :
+            {editing ? <div>
+              <EditTagForm
+                tag={tag}
+                successCallback={ async () => {
+                  setEditing(false)
+                  await client.resetStore()
+                }}
+                cancelCallback={() => setEditing(false)}
+              />
+              <TagVersionHistoryButton tagId={tag._id} />
+            </div> :
             <div onClick={clickReadMore}>
               <ContentStyles contentType="tag">
                 <ContentItemBody

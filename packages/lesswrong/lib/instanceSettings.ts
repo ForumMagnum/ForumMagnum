@@ -2,6 +2,7 @@ import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -110,13 +111,14 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
-export const allForumTypes: Array<ForumTypeString> = ["LessWrong","AlignmentForum","EAForum"];
+export const allForumTypes = new TupleSet(["LessWrong","AlignmentForum","EAForum"] as const);
+export type ForumTypeString = UnionOf<typeof allForumTypes>;
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
 
 export const isLW = forumTypeSetting.get() === "LessWrong"
 export const isEAForum = forumTypeSetting.get() === "EAForum"
 export const isAF = forumTypeSetting.get() === "AlignmentForum"
+export const isLWorAF = isLW || isAF
 
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
@@ -147,6 +149,8 @@ export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
 // time before it falls out of date. Nevertheless, I expect any newly-created
 // forums to use this setting.
 export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
+
+export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional');
 
 // Sentry settings
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL

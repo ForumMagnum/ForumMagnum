@@ -3,6 +3,7 @@ import Badge from '@material-ui/core/Badge';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import IconButton from '@material-ui/core/IconButton';
 import { isEAForum } from '../../lib/instanceSettings';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -12,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: theme.palette.header.text,
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
     fontWeight: 500,
     right: "1px",
     top: "1px",
@@ -28,18 +29,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: theme.palette.buttons.notificationsBellOpen.icon,
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
     backgroundColor: "transparent",
-    color: theme.palette.header.text,
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
   },
 });
 
-const NotificationsMenuButton = ({ unreadNotifications, open, toggle, classes }: {
+const NotificationsMenuButton = ({ unreadNotifications, open, toggle, className, classes }: {
   unreadNotifications: number,
   open: boolean,
   toggle: ()=>void,
+  className?: string,
   classes: ClassesType,
 }) => {
   const { ForumIcon } = Components
@@ -47,7 +49,7 @@ const NotificationsMenuButton = ({ unreadNotifications, open, toggle, classes }:
 
   return (
     <Badge
-      classes={{ root: classes.badgeContainer, badge: classes.badge }}
+      classes={{ root: classNames(classes.badgeContainer, className), badge: classes.badge }}
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton

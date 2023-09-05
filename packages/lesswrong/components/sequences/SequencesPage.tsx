@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
@@ -10,6 +10,8 @@ import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
+import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -22,7 +24,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 380,
+    paddingTop: isEAForum ? (270 + EA_FORUM_HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -30,9 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
     marginTop: 0,
-    ...(isEAForum
-      ? {textTransform: "uppercase"}
-      : theme.typography.smallCaps),
+    ...theme.typography.smallCaps,
   },
   description: {
     marginTop: theme.spacing.unit * 2,
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: 60,
+    top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 60,
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
@@ -76,8 +76,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing.unit,
-      padding: theme.spacing.unit
+      marginTop: isEAForum ? undefined : theme.spacing.unit,
+      padding: isEAForum ? 16 : theme.spacing.unit
     },
   },
   leftAction: {
@@ -96,6 +96,8 @@ const SequencesPage = ({ documentId, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
+  const nextSuggestedNumberRef = useRef(1);
+
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
@@ -136,17 +138,33 @@ const SequencesPage = ({ documentId, classes }: {
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
+
+  const socialImageId = document.gridImageId || document.bannerImageId;
+  const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
+    c: "fill",
+    dpr: "auto",
+    q: "auto",
+    f: "auto",
+    g: "auto:faces",
+  }) : undefined;
     
   return <div className={classes.root}>
-    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title} description={plaintextDescription || undefined}/>
+    <HeadTags
+      canonicalUrl={sequenceGetPageUrl(document, true)}
+      title={document.title}
+      description={plaintextDescription || undefined}
+      image={socialImageUrl}
+      noIndex={document.noindex}
+    />
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>
           <div>
             <CloudinaryImage
-              publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+              publicId={document.bannerImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg")}
               width="auto"
               height="380"
+              imgProps={{quality: '100'}}
             />
             <div className={classes.imageScrim}/>
           </div>
@@ -175,14 +193,14 @@ const SequencesPage = ({ documentId, classes }: {
         </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} />
+            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
           </AnalyticsContext>
           {canCreateChapter && <SectionFooter>
             <SectionButton>
               <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
             </SectionButton>
           </SectionFooter>}
-          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/>}
+          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
         </div>
       </div>
     </SingleColumnSection>

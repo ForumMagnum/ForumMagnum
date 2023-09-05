@@ -7,6 +7,7 @@ import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
@@ -15,6 +16,7 @@ import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -22,20 +24,32 @@ import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
+import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
+import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
+import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
+import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
+import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
+import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
+import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
+import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
+import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -44,6 +58,7 @@ import MuiBellBorderIcon from "@material-ui/icons/NotificationsNone";
 import MuiStarIcon from "@material-ui/icons/Star";
 import MuiStarBorderIcon from "@material-ui/icons/StarBorder";
 import MuiPersonIcon from "@material-ui/icons/Person";
+import MuiPeopleIcon from "@material-ui/icons/People";
 import MuiNotificationsIcon from '@material-ui/icons/Notifications';
 import MuiLinkIcon from "@material-ui/icons/Link";
 import MuiTagIcon from "@material-ui/icons/LocalOfferOutlined";
@@ -61,6 +76,8 @@ import MuiPuzzleIcon from "@material-ui/icons/Extension";
 import MuiCheckIcon from "@material-ui/icons/Check";
 import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
+import MuiSearchIcon from '@material-ui/icons/Search';
+import MuiMenuIcon from "@material-ui/icons/Menu";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -78,6 +95,9 @@ import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
+import { MenuIcon } from "../icons/menuIcon";
+import { CloseMenuIcon } from "../icons/closeMenuIcon";
+import { BoldLinkIcon } from "../icons/boldLink";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -87,6 +107,7 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
  */
 export type ForumIconName =
   "VolumeUp" |
+  "BookOpen" |
   "Bookmark" |
   "BookmarkBorder" |
   "Bookmarks" |
@@ -94,10 +115,12 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "Users" |
   "Bell" |
   "BellBorder" |
   "AddEmoji" |
   "Link" |
+  "BoldLink" |
   "Pin" |
   "Author" |
   "Sprout" |
@@ -107,11 +130,14 @@ export type ForumIconName =
   "School" |
   "MapPin" |
   "Pencil" |
+  "PencilSquare" |
   "Comment" |
   "CommentFilled" |
+  "ChatBubbleLeftRight" |
   "Shortform" |
   "Warning" |
   "Report" |
+  "ListBullet" |
   "Eye" |
   "EyeOutline" |
   "Tag" |
@@ -120,8 +146,10 @@ export type ForumIconName =
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
+  "NarrowArrowDown" |
   "Plus" |
   "Check" |
+  "CheckCircle" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -129,15 +157,25 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Puzzle" |
+  "Image" |
+  "Document" |
   "SoftUpArrow" |
+  "ArrowRight" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
-  "ClipboardDocument";
+  "ClipboardDocument" |
+  "QuestionMarkCircle" |
+  "Search" |
+  "ComputerDesktop" |
+  "Menu" |
+  "CloseMenu" |
+  "BarChart";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
     VolumeUp: MuiVolumeUpIcon,
+    BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     Bookmarks: MuiBookmarksIcon,
@@ -145,10 +183,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    Users: MuiPeopleIcon,
     Bell: MuiNotificationsIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
@@ -158,10 +198,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
     Eye: MuiVisibility,
@@ -171,23 +214,35 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
+    Image: PhotoIcon,
+    Document: DocumentTextIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: MuiSearchIcon,
+    ComputerDesktop: ComputerDesktopIcon,
+    Menu: MuiMenuIcon,
+    CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
+    BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     Bookmarks: BookmarkIcon,
@@ -195,10 +250,12 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    Users: UsersIcon,
     Bell: BellIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
+    BoldLink: BoldLinkIcon,
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
@@ -208,10 +265,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
     Eye: EyeIcon,
@@ -221,20 +281,31 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
+    Image: PhotoIcon,
+    Document: DocumentTextIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
+    CheckCircle: CheckCircleIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
+    ArrowRight: ArrowRightIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
+    QuestionMarkCircle: QuestionMarkCircleIcon,
+    Search: SearchIcon,
+    ComputerDesktop: ComputerDesktopIcon,
+    Menu: MenuIcon,
+    CloseMenu: CloseMenuIcon,
+    BarChart: ChartBarIcon,
   },
 };
 

@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:14.5-alpine
+        image: ankane/pgvector
         env:
           POSTGRES_DB: unittest_jest_template
           POSTGRES_USER: postgres
@@ -56,12 +56,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
-      mongodb:
-        image: mongo:4.4.17
-        ports:
-          - 27017:27017
     env:
-      TESTING_DB_URL: mongodb://127.0.0.1:27017/test?retryWrites=true
       PG_URL: postgres://postgres:postgres@localhost:5432/postgres
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
