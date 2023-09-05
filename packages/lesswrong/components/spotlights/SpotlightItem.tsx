@@ -154,6 +154,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: 1,
   },
   image: {
+    // TODO: Temp
+    position: "absolute",
+    top: 0,
+    right: 0,
+    // /Temp
     height: "100%",
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
@@ -325,14 +330,15 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
-        {spotlight.spotlightImageId && <div className={classes.imageWrapper}>
-          {spotlight.imageFade && <div className={classes.imageFade} />}
+        {/* TODO: I'll be right back */}
+        {spotlight.spotlightImageId && </* div className={classes.imageWrapper} */>
+          {/* {spotlight.imageFade && <div className={classes.imageFade} />} */}
           <CloudinaryImage2
             publicId={spotlight.spotlightImageId}
             darkPublicId={spotlight.spotlightDarkImageId}
             className={classes.image}
           />
-        </div>}
+        </>} {/* </div> */}
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
