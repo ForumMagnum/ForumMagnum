@@ -383,9 +383,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   });
   
   useOnNotificationsChanged(currentUser, (timestamp) => {
-    console.log("Got notifications-changed event");
     if (currentUser && isDialogueParticipant(currentUser, post)) {
-      console.log("Refetching debate responses");
       refetchDebateResponses();
     }
   });
