@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'end',
   },
   username: {
-    marginRight: 10,
+    marginRight: 6,
     fontSize: '1.35rem'
   },
   replyLink: {
@@ -144,6 +144,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
 
       const header = showHeader && <>
         <CommentUserName comment={comment} className={classes.username} />
+        <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
         <CommentsItemDate comment={comment} post={post} />
       </>;
 
