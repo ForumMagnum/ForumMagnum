@@ -114,7 +114,7 @@ const settingsFileName = (mode, forumType) => {
   
   await startSshTunnel(databaseConfig(mode, forumType).sshTunnelCommand);
 
-  if (["dev", "staging", "prod"].includes(mode)) {
+  if (["dev", "staging", "prod", "xpost"].includes(mode)) {
     console.log('Running migrations in mode', mode);
     args.settingsFileName = settingsFilePath(settingsFileName(mode, forumType), forumType);
     if (command !== "create") {

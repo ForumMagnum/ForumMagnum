@@ -46,6 +46,9 @@ export type Fuzziness = "AUTO" | number;
 
 type CompiledQuery = {
   searchQuery: QueryDslQueryContainer,
+  snippetName: string,
+  snippetQuery?: QueryDslQueryContainer,
+  highlightName?: string,
   highlightQuery?: QueryDslQueryContainer,
 }
 
@@ -57,14 +60,6 @@ class ElasticQuery {
     private fuzziness: Fuzziness = 1,
   ) {
     this.config = indexNameToConfig(queryData.index);
-  }
-
-  private getHighlightTags() {
-    const {preTag, postTag} = this.queryData;
-    return {
-      pre_tags: [preTag ?? "<em>"],
-      post_tags: [postTag ?? "</em>"],
-    };
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -141,7 +136,7 @@ class ElasticQuery {
   }
 
   private compileSimpleQuery(): CompiledQuery {
-    const {fields} = this.config;
+    const {fields, snippet, highlight} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     return {
@@ -176,6 +171,8 @@ class ElasticQuery {
           ],
         },
       },
+      snippetName: snippet,
+      highlightName: highlight,
     };
   }
 
@@ -190,8 +187,32 @@ class ElasticQuery {
       : exactField;
   }
 
+  private getAdvancedHighlightQuery(
+    mustToken: string,
+  ): Omit<CompiledQuery, "searchQuery"> {
+    const {snippet, highlight} = this.config;
+    const snippetName = `${snippet}.exact`;
+    const highlightName = `${highlight}.exact`;
+    const buildQuery = (fieldName: string) => ({
+      match_phrase: {
+        [fieldName]: {
+          query: mustToken,
+          analyzer: "simple",
+        },
+      },
+    });
+    return {
+      snippetName,
+      snippetQuery: buildQuery(snippetName),
+      ...(highlight && {
+        highlightName,
+        highlightQuery: buildQuery(highlightName),
+      }),
+    };
+  }
+
   private compileAdvancedQuery(tokens: QueryToken[]): CompiledQuery {
-    const {fields} = this.config;
+    const {fields, snippet, highlight} = this.config;
 
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
@@ -222,22 +243,33 @@ class ElasticQuery {
       }
     }
 
-    // Using nested `bool` queries breaks highlighting, so we add in a simple
-    // generic query to highlight the results in a separate pass
-    const highlightQuery = this.getDefaultQuery(
-      this.queryData.search,
-      this.config.fields,
-    );
+    const searchQuery: QueryDslQueryContainer = {
+      bool: {
+        must,
+        must_not,
+        should,
+      },
+    };
+
+    if (must.length) {
+      return {
+        searchQuery,
+        ...this.getAdvancedHighlightQuery(must[0].multi_match!.query),
+      };
+    }
 
     return {
-      searchQuery: {
-        bool: {
-          must,
-          must_not,
-          should,
-        },
-      },
-      highlightQuery,
+      searchQuery,
+      snippetName: snippet,
+      snippetQuery: this.getDefaultQuery(
+        this.queryData.search,
+        this.config.fields,
+      ),
+      highlightName: highlight,
+      highlightQuery: this.getDefaultQuery(
+        this.queryData.search,
+        this.config.fields,
+      ),
     };
   }
 
@@ -246,6 +278,7 @@ class ElasticQuery {
       searchQuery: {
         match_all: {},
       },
+      snippetName: "",
     };
   }
 
@@ -288,16 +321,25 @@ class ElasticQuery {
 
   compile(): SearchRequestInfo | SearchRequestBody {
     const {
+      preTag,
+      postTag,
       index,
       sorting,
       offset = 0,
       limit = 10,
     } = this.queryData;
-    const {snippet, highlight, privateFields} = this.config;
-    const {searchQuery, highlightQuery} = this.compileQuery();
-    const highlightConfig = {
-      ...this.getHighlightTags(),
-      highlight_query: highlightQuery,
+    const {privateFields} = this.config;
+    const {
+      searchQuery,
+      snippetName,
+      snippetQuery,
+      highlightName,
+      highlightQuery,
+    } = this.compileQuery();
+    const highlightConfig =  {
+      type: "plain",
+      pre_tags: [preTag ?? "<em>"],
+      post_tags: [postTag ?? "</em>"],
     };
     return {
       index,
@@ -308,9 +350,18 @@ class ElasticQuery {
         track_total_hits: true,
         highlight: {
           fields: {
-            [snippet]: highlightConfig,
-            ...(highlight && {[highlight]: highlightConfig}),
+            [snippetName]: {
+              ...highlightConfig,
+              highlight_query: snippetQuery,
+            },
+            ...(highlightName && {
+              [highlightName]: {
+                ...highlightConfig,
+                highlight_query: highlightQuery,
+              },
+            }),
           },
+          number_of_fragments: 1,
           fragment_size: 140,
           no_match_size: 140,
         },

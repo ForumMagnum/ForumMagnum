@@ -6,7 +6,8 @@ export type PingbackDocument = {
 };
 
 export type RouterLocation = {
-  currentRoute: Route,
+  // Null in 404
+  currentRoute: Route|null,
   RouteComponent: any,
   location: any,
   pathname: string,
