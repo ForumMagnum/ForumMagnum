@@ -767,6 +767,21 @@ interface DbPost extends DbObject {
   afVoteCount: number
 }
 
+interface QueuedCurationsCollection extends CollectionBase<DbQueuedCuration, "QueuedCurations"> {
+}
+
+interface DbQueuedCuration extends DbObject {
+  __collectionName?: "QueuedCurations"
+  userId: string
+  postId: string
+  publishedCurationCommentId: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents
+  contents_latest: string
+}
+
 interface RSSFeedsCollection extends CollectionBase<DbRSSFeed, "RSSFeeds"> {
 }
 
@@ -1504,6 +1519,7 @@ interface CollectionsByName {
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
   Posts: PostsCollection
+  QueuedCurations: QueuedCurationsCollection
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
   Reports: ReportsCollection
@@ -1559,6 +1575,7 @@ interface ObjectsByCollectionName {
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
   Posts: DbPost
+  QueuedCurations: DbQueuedCuration
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
   Reports: DbReport

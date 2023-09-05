@@ -234,6 +234,9 @@ import './collections/postRelations';
 // PostRecommendations
 import './collections/postRecommendations/collection';
 
+// QueuedCurations
+import './collections/queuedCurations/collection';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';

@@ -32,6 +32,7 @@ type PostEmbeddingsViewName = never
 type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
 type PostsViewName = "userPosts"|"magic"|"top"|"new"|"recentComments"|"old"|"timeframe"|"daily"|"tagRelevance"|"frontpage"|"frontpage-rss"|"curated"|"curated-rss"|"community"|"community-rss"|"meta-rss"|"rss"|"topQuestions"|"recentQuestionActivity"|"scheduled"|"rejected"|"drafts"|"all_drafts"|"unlisted"|"userAFSubmissions"|"slugPost"|"legacyIdPost"|"recentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"globalEvents"|"nearbyEvents"|"events"|"eventsInTimeRange"|"upcomingEvents"|"pastEvents"|"tbdEvents"|"nonEventGroupPosts"|"postsWithBannedUsers"|"communityResourcePosts"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"sunshineCuratedSuggestions"|"pingbackPosts"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"voting2019"|"stickied"|"nominatablePostsByVote"|"reviewVoting"|"reviewQuickPage"|"reviewFinalVoting"|"myBookmarkedPosts"|"alignmentSuggestedPosts";
+type QueuedCurationsViewName = never
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminClaimedReports"|"sunshineSidebarReports"|"closedReports";
@@ -86,6 +87,7 @@ interface ViewTermsByCollectionName {
   PostRecommendations: ViewTermsBase
   PostRelations: PostRelationsViewTerms
   Posts: PostsViewTerms
+  QueuedCurations: ViewTermsBase
   RSSFeeds: RSSFeedsViewTerms
   ReadStatuses: ViewTermsBase
   Reports: ReportsViewTerms
