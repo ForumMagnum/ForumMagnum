@@ -29,6 +29,7 @@ registerFragment(`
     isDeleted
     hidden
     hideFromAuthorPage
+    noindex
     curatedOrder
     userProfileOrder
     af
