@@ -33,10 +33,21 @@ interface EAEmojisVoteOnPostProps extends PostVotingComponentProps {
 const EAEmojisVoteOnPost = ({
   document,
   votingSystem,
+  isFooter,
   classes,
 }: EAEmojisVoteOnPostProps) => {
   const voteProps = useVote(document, "Posts", votingSystem);
+
   const {PostsVoteDefault, EAReactsSection} = Components;
+  if (!isFooter) {
+    return (
+      <PostsVoteDefault
+        post={document}
+        votingSystem={votingSystem}
+      />
+    );
+  }
+
   return (
     <div className={classes.root}>
       <PostsVoteDefault

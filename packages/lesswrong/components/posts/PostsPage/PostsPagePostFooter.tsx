@@ -87,7 +87,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       <div className={classes.footerSection}>
         <div className={classes.voteBottom}>
           <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} useHorizontalLayout={isEAForum} />
+            <PostsVote post={post} useHorizontalLayout={isEAForum} isFooter />
           </AnalyticsContext>
         </div>
         {isEAForum && <div className={classes.secondaryInfoRight}>

@@ -26,6 +26,7 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
 export type PostVotingComponentProps = {
   document: PostsWithVotes,
   votingSystem: VotingSystem,
+  isFooter?: boolean,
 }
 
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
