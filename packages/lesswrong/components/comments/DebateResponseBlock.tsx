@@ -32,9 +32,8 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   daySeparator?: string,
   classes: ClassesType,
 }) => {
-  const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, DebateResponse } = Components;
+  const { DebateResponse } = Components;
 
-  
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
@@ -47,7 +46,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
       orderedParticipantList={orderedParticipantList}
       responses={responses}
       post={post}
-
      />)}
   </div>;
 }

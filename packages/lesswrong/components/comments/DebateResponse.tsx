@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'end',
   },
   username: {
-    marginRight: 10,
+    marginRight: 6,
     fontSize: '1.35rem'
   },
   replyLink: {
@@ -50,7 +50,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   editForm: {
     width: '100%'
   },
-  
   greenBorder: {
     borderColor: theme.palette.border.debateComment
   },
@@ -136,6 +135,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const header = showHeader && <>
       <CommentUserName comment={comment} className={classes.username} />
+      <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
       <CommentsItemDate comment={comment} post={post} />
     </>;
 
