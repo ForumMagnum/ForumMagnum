@@ -35,6 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.grey[100],
     },
   },
+  buttonLarge: {
+    gap: "6px",
+  },
   buttonSelected: {
     background: theme.palette.primaryAlpha(0.05),
     color: theme.palette.primary.main,
@@ -62,6 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addEmojiIcon: {
     transform: "translateY(2px)",
+    width: "18px !important",
+    height: "18px !important",
+  },
+  addEmojiIconLarge: {
   },
   tooltipSecondaryText: {
     color: theme.palette.text.tooltipTextDim,
@@ -192,8 +199,9 @@ export const isEAReactableDocument = (
 const EAReactsSection: FC<{
   document: EAReactableDocument,
   voteProps: VotingProps<VoteableTypeClient>,
+  large?: boolean,
   classes: ClassesType,
-}> = ({document, voteProps, classes}) => {
+}> = ({document, voteProps, large, classes}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -273,6 +281,7 @@ const EAReactsSection: FC<{
               onClick={() => onSelectEmoji(emojiOption)}
               className={classNames(classes.button, {
                 [classes.buttonSelected]: isSelected,
+                [classes.buttonLarge]: large,
               })}
             >
               <div className={classes.emojiPreview}>
@@ -286,7 +295,7 @@ const EAReactsSection: FC<{
       <div
         role="button"
         onClick={onOpenMenu}
-        className={classes.button}
+        className={classNames(classes.button, {[classes.buttonLarge]: large})}
       >
         <LWTooltip
           title="Add reaction"
@@ -294,9 +303,11 @@ const EAReactsSection: FC<{
           popperClassName={classNames(classes.tooltip, classes.addEmojiTooltip)}
         >
           <ForumIcon
-            icon="AddEmoji"
+            icon={large ? "AddEmojiLarge" : "AddEmoji"}
             noDefaultStyles
-            className={classes.addEmojiIcon}
+            className={classNames(classes.addEmojiIcon, {
+              [classes.addEmojiIconLarge]: large,
+            })}
           />
         </LWTooltip>
       </div>

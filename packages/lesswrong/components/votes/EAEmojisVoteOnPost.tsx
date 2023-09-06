@@ -60,6 +60,7 @@ const EAEmojisVoteOnPost = ({
         <EAReactsSection
           document={document}
           voteProps={voteProps}
+          large
         />
       </div>
     </div>
