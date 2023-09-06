@@ -19,7 +19,6 @@ augmentFieldsDict(Posts, {
             text: markdownPostBody,
           },
           maxTokens: 1000,
-          context
         });
       }
     },

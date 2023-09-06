@@ -1,5 +1,6 @@
 import { Globals } from '../../lib/vulcan-lib/config';
 import { Configuration as OpenAIApiConfiguration, OpenAIApi } from "openai";
+import Anthropic from '@anthropic-ai/sdk';
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -9,6 +10,7 @@ import take from 'lodash/take';
 
 const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
 const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
+const anthropicApiKey = new DatabaseServerSetting<string|null>('languageModels.anthropic.apiKey', null);
 
 let openAIApi: OpenAIApi|null = null;
 export async function getOpenAI(): Promise<OpenAIApi|null> {
@@ -26,7 +28,20 @@ export async function getOpenAI(): Promise<OpenAIApi|null> {
   return openAIApi;
 }
 
-type LanguageModelAPI = "disabled"|"stub"|"openai";
+let anthropicApi: AnyBecauseTodo|null = null;
+export async function getAnthropic(): Promise<AnyBecauseTodo|null> {
+  if (!anthropicApi) {
+    const apiKey = anthropicApiKey.get()
+    if (apiKey) {
+      anthropicApi = new Anthropic({
+        apiKey: anthropicApiKey.get()
+      })
+    }
+  }
+  return anthropicApi
+}
+
+type LanguageModelAPI = "disabled"|"stub"|"openai"|"anthropic";
 type LanguageModelClassificationTask = "isSpam"|"isFrontpage";
 type LanguageModelGenerationTask = "summarize"|"authorFeedback";
 type LanguageModelTask = LanguageModelClassificationTask|LanguageModelGenerationTask;
@@ -57,8 +72,8 @@ type LanguageModelJob = LanguageModelConfig & {
  * (Attempting to run language-model tasks may still fail even if this returned
  * true, eg if we get an error from the OpenAI API).
  */
-export async function canDoLanguageModelTask(task: LanguageModelTask, context: ResolverContext): Promise<boolean> {
-  const config = await getLMConfigForTask(task, context);
+export async function canDoLanguageModelTask(task: LanguageModelTask): Promise<boolean> {
+  const config = await getLMConfigForTask(task);
   return (config && config.api!=="disabled");
 }
 
@@ -70,7 +85,7 @@ function taskToWikiSlug(task: LanguageModelTask): string {
  * Given a language-model task type, retrieve a corresponding template. Uses the
  * text of an admin-only wiki page, formatted as Markdown.
  */
-async function getLMConfigForTask(task: LanguageModelTask, context: ResolverContext): Promise<LanguageModelConfig> {
+async function getLMConfigForTask(task: LanguageModelTask): Promise<LanguageModelConfig> {
   const wikiPageSlug = taskToWikiSlug(task);
   const tag = await Tags.findOne({slug: wikiPageSlug});
   
@@ -224,12 +239,11 @@ function truncateByTokenCount(str: string, tokens: number): string {
  * input is the text that is being classified; it does *not* include the wrapping
  * template, which is admin-configurable and loaded from the database.
  */
-export async function languageModelClassify({taskName, inputs, context}: {
+export async function languageModelClassify({taskName, inputs}: {
   taskName: LanguageModelClassificationTask,
   inputs: Record<string,string>,
-  context: ResolverContext,
 }): Promise<boolean|"maybe"> {
-  const lmConfig = await getLMConfigForTask(taskName, context);
+  const lmConfig = await getLMConfigForTask(taskName);
   const continuation = await languageModelExecute({
     template: lmConfig.template,
     inputs,
@@ -254,13 +268,12 @@ export async function languageModelClassify({taskName, inputs, context}: {
  the text that is being classified; it does *not* include the wrapping template,
  * which is admin-configurable and loaded from the database.
  */
-export async function languageModelGenerateText({taskName, inputs, maxTokens, context}: {
+export async function languageModelGenerateText({taskName, inputs, maxTokens}: {
   taskName: LanguageModelGenerationTask,
   inputs: Record<string,string>,
   maxTokens: number,
-  context: ResolverContext,
 }): Promise<string> {
-  const lmConfig = await getLMConfigForTask(taskName, context);
+  const lmConfig = await getLMConfigForTask(taskName);
   const continuation = await languageModelExecute({
     template: lmConfig.template,
     inputs,
@@ -298,6 +311,24 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
       const topResult = response.data.choices[0].text;
       if (topResult) return topResult;
       else throw new Error("API did not return a top result");
+    }
+    case "anthropic": {
+      const api = await getAnthropic()
+      if (!api) throw new Error("Anthropic API not configured")
+
+      const HUMAN_PROMPT = '\n\nHuman: '
+      const AI_PROMPT = '\n\nAssistant:'
+      const prompt = substituteIntoTemplate({
+        template: job.template,
+        variables: job.inputs
+      })
+      console.log("PROMPT:::::::::", `${HUMAN_PROMPT}${prompt}${AI_PROMPT}`)
+      const response = await api.completions.create({
+        model: job.model || 'claude-instant-1',
+        prompt: `${HUMAN_PROMPT}${prompt}${AI_PROMPT}`,
+        max_tokens_to_sample: job.maxTokens,
+      })
+      return response.completion
     }
     default: {
       throw new Error(`Invalid language model API: ${job.api}`);
