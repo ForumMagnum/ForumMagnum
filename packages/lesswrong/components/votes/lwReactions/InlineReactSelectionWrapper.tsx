@@ -136,4 +136,3 @@ declare global {
     InlineReactSelectionWrapper: typeof InlineReactSelectionWrapperComponent
   }
 }
-

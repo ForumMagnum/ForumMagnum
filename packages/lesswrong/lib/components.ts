@@ -550,6 +550,7 @@ importComponent("LegacyCommentRedirect", () => require('../components/comments/L
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
 importComponent("DebateResponseBlock", () => require('../components/comments/DebateResponseBlock'));
+importComponent("DebateResponse", () => require('../components/comments/DebateResponse'));
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 
