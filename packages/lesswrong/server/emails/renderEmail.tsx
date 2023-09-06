@@ -12,7 +12,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -22,6 +22,7 @@ import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
+import { hasShareButtonSetting } from '../../lib/publicSettings';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -72,7 +73,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${forumTypeSetting.get() === 'EAForum' ? '#0C869B' : '#5f9b65'}
+    color: ${hasShareButtonSetting.get() ? '#0C869B' : '#5f9b65' // TODO: make this an instance setting?}
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -324,7 +325,7 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
   if (!user.email)
     return "No email address";
-  if (!userEmailAddressIsVerified(user) && forumTypeSetting.get() !== 'EAForum')
+  if (!userEmailAddressIsVerified(user) && !isEAForum) // TODO: make this an instance setting?
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";

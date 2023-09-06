@@ -2,7 +2,7 @@ import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubq
 import { Posts } from '../../lib/collections/posts/collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, Tags } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
 import { viewFieldAllowAny } from '../vulcan-lib';
@@ -125,7 +125,7 @@ defineFeedResolver<Date>({
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: forumTypeSetting.get() === 'EAForum' ? 3 : 6,
+          index: isEAForum ? 3 : 6,
           result: {},
         }),
         

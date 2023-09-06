@@ -32,7 +32,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -202,7 +202,7 @@ export function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (forumTypeSetting.get() !== 'EAForum') {
+    if (!isEAForum) {
       next()
       return
     }

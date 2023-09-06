@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
-import {forumTypeSetting} from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 import Posts from '../../lib/collections/posts/collection';
@@ -145,7 +145,7 @@ addGraphQLResolvers({
         throw new Error('Cannot change username without being logged in')
       }
       // Check they accepted the terms of use
-      if (forumTypeSetting.get() === "EAForum" && !acceptedTos) {
+      if (isEAForum && !acceptedTos) {
         throw new Error("You must accept the terms of use to continue");
       }
       // Only for new users. Existing users should need to contact support to

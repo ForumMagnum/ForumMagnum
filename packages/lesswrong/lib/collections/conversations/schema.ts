@@ -1,6 +1,6 @@
 import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isLWorAF } from '../../instanceSettings';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -45,7 +45,7 @@ const schema: SchemaType<DbConversation> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
-    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+    hidden: !isLWorAF
   },
   messageCount: {
     ...denormalizedCountOfReferences({

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { showCuratedSetting } from '../../lib/publicSettings';
 

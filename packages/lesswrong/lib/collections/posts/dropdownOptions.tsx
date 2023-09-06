@@ -1,7 +1,7 @@
 import React from 'react';
-import { isEAForum } from "../../instanceSettings";
 import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 import { Components } from '../../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export interface SettingsOption {
   label: string | JSX.Element;
@@ -11,15 +11,15 @@ export interface SettingsOption {
 
 export const SORT_ORDER_OPTIONS: Record<PostSortingMode,SettingsOption> = {
   magic: {
-    label: isEAForum ? 'New & upvoted' : 'Magic (New & Upvoted)',
+    label: isFriendlyUI ? 'New & upvoted' : 'Magic (New & Upvoted)',
     tooltip: 'Posts with the highest karma from the past few days',
   },
   top: { label: 'Top' },
   topAdjusted: {
-    label: isEAForum ? 'Top (inflation-adjusted)' : 'Top (Inflation Adjusted)',
+    label: isFriendlyUI ? 'Top (inflation-adjusted)' : 'Top (Inflation Adjusted)',
     tooltip: 'Posts with the highest karma relative to those posted around the same time',
   },
-  recentComments: { label: isEAForum ? 'Recent comments' : 'Recent Comments' },
+  recentComments: { label: isFriendlyUI ? 'Recent comments' : 'Recent Comments' },
   new: { label: 'New' },
   old: { label: 'Old' },
 }

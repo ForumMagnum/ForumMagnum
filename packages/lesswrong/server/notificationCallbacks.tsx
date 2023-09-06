@@ -23,7 +23,7 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../lib/instanceSettings';
 import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
@@ -241,7 +241,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (isEAForum) {
     return usersMatchingFilter
   }
 
@@ -294,7 +294,7 @@ const curationEmailDelay = new EventDebouncer({
 });
 
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
-  if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
+  if(post.curatedDate && !oldPost.curatedDate && isLWorAF) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
     // emailed twice.)

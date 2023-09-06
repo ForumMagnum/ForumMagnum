@@ -2,7 +2,7 @@ import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import { combineIndexWithDefaultViewIndex, ensureIndex, ensureCustomPgIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -176,7 +176,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
     {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
   ]}
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,

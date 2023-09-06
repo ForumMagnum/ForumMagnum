@@ -6,6 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { hasShareButtonSetting } from '../../../lib/publicSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -91,7 +92,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
             <PostsVote post={post} useHorizontalLayout={isFriendlyUI} />
           </AnalyticsContext>
         </div>
-        {isFriendlyUI && <div className={classes.secondaryInfoRight}>
+        {isFriendlyUI && hasShareButtonSetting.get() && <div className={classes.secondaryInfoRight}>
           <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
           <SharePostButton post={post} />
           <span className={classes.actions}>

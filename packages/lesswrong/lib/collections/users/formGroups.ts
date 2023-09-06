@@ -1,5 +1,5 @@
+import { isFriendlyUI } from "../../../themes/forumTheme";
 import { preferredHeadingCase } from "../../forumTypeUtils";
-import { isEAForum } from "../../instanceSettings";
 
 export const formGroups: Partial<Record<string, FormGroupType>> = {
   default: {
@@ -64,17 +64,17 @@ export const formGroups: Partial<Record<string, FormGroupType>> = {
   aboutMe: {
     name: 'aboutMe',
     order: 100,
-    label: isEAForum ? "About you" : "About Me",
+    label: isFriendlyUI ? "About you" : "About Me",
   },
   socialMedia: {
     name: 'socialMedia',
     order: 110,
-    label: isEAForum ? "Social media" : "My Social Media",
+    label: isFriendlyUI ? "Social media" : "My Social Media",
   },
   activity: {
     name: 'activity',
     order: 120,
-    label: isEAForum ? "Your activity" : "My Activity",
+    label: isFriendlyUI ? "Your activity" : "My Activity",
   },
   deactivate: {
     order: 130,

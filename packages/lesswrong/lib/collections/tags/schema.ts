@@ -7,7 +7,7 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
-import { forumTypeSetting, isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
@@ -317,7 +317,7 @@ const schema: SchemaType<DbTag> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
     group: formGroups.advancedOptions,
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: isEAForum,
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
@@ -330,7 +330,7 @@ const schema: SchemaType<DbTag> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x200 px",
     group: formGroups.advancedOptions,
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: isEAForum,
   },
 
   tagFlagsIds: {

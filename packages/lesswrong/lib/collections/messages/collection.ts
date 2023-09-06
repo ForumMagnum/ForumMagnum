@@ -5,7 +5,6 @@ import Conversations from '../conversations/collection'
 import { makeEditable } from '../../editor/make_editable'
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbMessage> = {
   newCheck: async (user: DbUser|null, document: DbMessage|null) => {

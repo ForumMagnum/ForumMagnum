@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, isAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -142,7 +142,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
 }
 
 export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -174,7 +174,7 @@ export const postGetAnswerCountStr = (count: number): string => {
 }
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
@@ -182,7 +182,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
-  if (forumTypeSetting.get() === 'AlignmentForum') return null
+  if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
@@ -236,7 +236,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 

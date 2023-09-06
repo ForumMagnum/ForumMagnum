@@ -1,5 +1,5 @@
 import { ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isAF } from '../../instanceSettings';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import Conversations from "./collection";
 
@@ -14,7 +14,7 @@ declare global {
 
 // will be common to all other view unless specific properties are overwritten
 Conversations.addDefaultView(function (terms: ConversationsViewTerms) {
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum

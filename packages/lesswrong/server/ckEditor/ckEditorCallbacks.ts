@@ -4,7 +4,6 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { restrictViewableFields, userCanDo } from '../../lib/vulcan-users/permissions';

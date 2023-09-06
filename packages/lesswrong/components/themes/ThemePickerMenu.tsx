@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { showThemePickerSetting } from '../../lib/publicSettings';
+import { themePickerUiLocationSetting } from '../../lib/publicSettings';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   check: {
@@ -71,7 +71,7 @@ const ThemePickerMenu = ({children, classes}: {
   const submenu = (
     <Paper>
       <DropdownMenu>
-        {showThemePickerSetting.get() &&
+        {themePickerUiLocationSetting.get() == "menu" &&
           <>
             {themeMetadata.map((themeMetadata: ThemeMetadata) =>
               <DropdownItem

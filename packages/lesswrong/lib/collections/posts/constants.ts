@@ -4,7 +4,7 @@ import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import StarIcon from '@material-ui/icons/Star';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 
 export const postStatuses = {
   STATUS_PENDING: 1, // Unused
@@ -38,8 +38,6 @@ export const postStatusLabels = [
     label: 'deleted'
   }
 ];
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
 const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)

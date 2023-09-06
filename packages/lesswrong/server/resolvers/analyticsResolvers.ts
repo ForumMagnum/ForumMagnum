@@ -1,5 +1,5 @@
 import { PostAnalyticsResult } from "../../components/posts/usePostAnalytics";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { forumTypeSetting, isEAForum } from "../../lib/instanceSettings";
 import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
@@ -154,7 +154,7 @@ addGraphQLResolvers({
       const post = await context.loaders.Posts.load(postId);
       // check that the current user has permission to view post metrics
       // LW doesn't want to show this to authors, but we'll let admins see it
-      if (forumTypeSetting.get() !== "EAForum" && !currentUser.isAdmin) {
+      if (!isEAForum && !currentUser.isAdmin) {
         throw new Error("Permission denied");
       }
       // Maybe check for karma level here?

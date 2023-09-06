@@ -3,7 +3,6 @@ import { createCollection } from '../../vulcan-lib';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbNotification> = {
   newCheck: (user: DbUser|null, document: DbNotification|null) => {

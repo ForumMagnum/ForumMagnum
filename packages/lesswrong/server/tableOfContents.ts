@@ -7,7 +7,7 @@ import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
@@ -225,7 +225,7 @@ async function getTocAnswers (document: DbPost) {
     postId: document._id,
     deleted:false,
   }
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
@@ -266,7 +266,7 @@ async function getTocComments (document: DbPost) {
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && forumTypeSetting.get() === 'AlignmentForum') {
+  if (document.af && isAF) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()

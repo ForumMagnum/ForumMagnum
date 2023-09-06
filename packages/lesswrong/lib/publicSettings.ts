@@ -37,7 +37,7 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (!getPublicSettingsLoaded()) throw Error("Tried to access public setting before it was initialized")
+    if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
@@ -138,5 +138,24 @@ export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurate
 /** TODO; doc */
 export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showCommunityMap", false);
 
-/** TODO; doc */
-export const showThemePickerSetting = new DatabasePublicSetting<boolean>("showThemePicker", false);
+// TODO: make this an instance setting if JP confirms that makes sense, because
+// we'd need it in collections/users/schema
+/** Determines whether to show the Theme Picker (e.g. dark theme) in the menu or the user settings page */
+type ThemePickerLocation = "menu" | "userSettings";
+export const themePickerUiLocationSetting = new DatabasePublicSetting<ThemePickerLocation>("themePickerUiLocation", "menu");
+
+/** Whether to include a Share button. (Forums with no public access wouldn't want one.) */
+export const hasShareButtonSetting = new DatabasePublicSetting<boolean>("hasShareButton", true);
+
+// TODO: make this an instance setting if JP confirms that makes sense, because
+// we'd need it in collections/users/schema and server/emails/renderEmail
+/** whether this forum verifies user emails */
+export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEmails", true);
+
+/** Recipient name and email for the admin team */
+export const adminTeamEmailUsernameSetting = new DatabasePublicSetting<string>("adminTeamEmailUsername", "ERROR: NO ADMIN TEAM EMAIL USERNAME SET");
+export const adminTeamEmailAddressSetting = new DatabasePublicSetting<string>("adminTeamEmailAddress", "ERROR: NO ADMIN TEAM EMAIL ADDRESS SET");
+
+// TODO: make this an instance setting if JP confirms that makes sense
+// /** main theme color, needed here for server/emails/renderEmail */
+// export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");

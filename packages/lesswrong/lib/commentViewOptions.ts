@@ -1,20 +1,21 @@
+import { isFriendlyUI } from "../themes/forumTheme";
 import { preferredHeadingCase } from "./forumTypeUtils";
-import { forumTypeSetting, isAF, isEAForum } from "./instanceSettings";
+import { isAF } from "./instanceSettings";
 
 const customViewNames: Partial<Record<CommentsViewName,string>> = {
-  'postCommentsMagic': isEAForum ? 'New & upvoted' : 'magic (new & upvoted)',
-  'postCommentsTop': isEAForum ? 'Top' : 'top scoring',
+  'postCommentsMagic': isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)',
+  'postCommentsTop': isFriendlyUI ? 'Top' : 'top scoring',
   'postCommentsRecentReplies': preferredHeadingCase('latest reply'),
   'afPostCommentsTop': preferredHeadingCase('top scoring'),
-  'postCommentsNew': isEAForum ? 'New' : 'newest',
-  'postCommentsOld': isEAForum ? 'Old' : 'oldest',
+  'postCommentsNew': isFriendlyUI ? 'New' : 'newest',
+  'postCommentsOld': isFriendlyUI ? 'Old' : 'oldest',
   'postCommentsBest': preferredHeadingCase('highest karma'),
   'postCommentsDeleted': preferredHeadingCase('deleted'),
   'postLWComments': preferredHeadingCase('top scoring (include LW)'),
 }
 
 const commentsTopView: CommentsViewName =
-  forumTypeSetting.get() === 'AlignmentForum'
+  isAF
     ? "afPostCommentsTop"
     : "postCommentsTop";
 const defaultViews: CommentsViewName[] = [

@@ -1,6 +1,6 @@
-import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../forumTheme";
 
-const draftJsButtonFontWeight = isEAForum ? 600 : "inherit";
+const draftJsButtonFontWeight = isFriendlyUI ? 600 : "inherit";
 
 //
 // Styles used by DraftJS and its plugins. It's unclear which of these are

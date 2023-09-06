@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, isEAForum } from "../../instanceSettings";
+import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
@@ -25,8 +25,6 @@ export const alignmentOptionsGroup = {
   label: "Alignment Options",
   startCollapsed: true
 };
-
-const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -792,7 +790,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
+    hidden: (props: SmartFormProps) => isAF || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {
@@ -822,7 +820,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForumAdmins', 'admins'],
     label: "AF Review UserId",
-    hidden: forumTypeSetting.get() === 'EAForum'
+    hidden: !isLWorAF
   },
 
   afDate: {

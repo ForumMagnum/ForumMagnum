@@ -23,8 +23,6 @@ import { userCanVote } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
 import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
-import { isEAForum } from '../lib/instanceSettings';
-
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {

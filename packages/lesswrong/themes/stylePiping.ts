@@ -1,4 +1,4 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -262,7 +262,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited, & a:visited:hover, & a:visited:active': isFriendlyUI ? {
     color: theme.palette.link.visited,
   } : {},
   '& table': {
@@ -321,7 +321,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },

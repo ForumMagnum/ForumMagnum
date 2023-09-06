@@ -18,19 +18,15 @@ import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { adminTeamEmailAddressSetting, adminTeamEmailUsernameSetting } from '../../lib/publicSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
 // This should get refactored someday to be more forum-neutral
-const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
-  {
-    username: "AdminTeam",
-    email: "forum@effectivealtruism.org"
-  } :
-  {
-    username: forumTypeSetting.get(),
-    email: "team@lesswrong.com"
+const adminTeamUserData = {
+    username: adminTeamEmailUsernameSetting.get(),
+    email: adminTeamEmailAddressSetting.get()
   }
 
 export const getAdminTeamAccount = async () => {
@@ -305,7 +301,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
   let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-  const noEmail = forumTypeSetting.get() === "EAForum" 
+  const noEmail = isEAForum 
   ? false 
   : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 
@@ -350,7 +346,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     }
 
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = forumTypeSetting.get() === "EAForum" 
+    const noEmail = isEAForum
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 

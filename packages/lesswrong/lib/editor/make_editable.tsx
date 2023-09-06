@@ -4,7 +4,7 @@ import { ContentType, getOriginalContents } from '../collections/revisions/schem
 import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
-import { isEAForum } from '../instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -43,7 +43,7 @@ export interface MakeEditableOptions {
   hasToc?: boolean,
 }
 
-export const defaultEditorPlaceholder = isEAForum ?
+export const defaultEditorPlaceholder = isFriendlyUI ?
 `Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
   
 `Text goes here! See lesswrong.com/editor for info about everything the editor can do.

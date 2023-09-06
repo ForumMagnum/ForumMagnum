@@ -2,7 +2,7 @@ import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export const pgPromiseLib = pgp({});
 
@@ -14,7 +14,7 @@ let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null{
-  if (isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (isAnyTest && isEAForum) {
     return null;
   }
   if (!connectionString) {

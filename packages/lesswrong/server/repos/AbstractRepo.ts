@@ -1,4 +1,4 @@
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 import { getSqlClient, logIfSlow } from "../../lib/sql/sqlClient";
 import PgCollection from "../../lib/sql/PgCollection";
 
@@ -19,7 +19,7 @@ export default abstract class AbstractRepo<T extends DbObject> {
     const db = sqlClient ?? getSqlClient();
     if (db) {
       this.db = db;
-    } else if (forumTypeSetting.get() === "EAForum") {
+    } else if (isEAForum) {
       throw new Error("Instantiating repo without a SQL client");
     } else {
       // TODO: For now, this is not an error since we need to have LessWrong

@@ -12,8 +12,8 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
-import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import {forumTypeSetting, isEAForum, isLW } from "../../lib/instanceSettings";
+import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, verifyEmailsSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -59,7 +59,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
 getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
   const newEmail = modifier.$set?.email;
   const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
+  if (newEmail && newEmail !== oldEmail && isEAForum) {
     await updateAuth0Email(user, newEmail);
     /*
      * Be careful here: DbUser does NOT includes services, so overwriting
@@ -196,7 +196,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
@@ -258,7 +258,7 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
 });
 
 const sendVerificationEmailConditional = async  (user: DbUser) => {
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
@@ -346,7 +346,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
  * (as of 2021-08-11) drip campaign.
  */
 getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+  if (isAnyTest || !isEAForum) {
     return;
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
@@ -465,7 +465,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
-  if (forumTypeSetting.get() !== 'EAForum') {
+  if (!isEAForum) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,

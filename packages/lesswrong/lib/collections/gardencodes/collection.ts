@@ -7,7 +7,6 @@ import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
-import { forumTypeSetting } from '../../instanceSettings';
 
 function generateCode(length: number) {
   let result = '';
