@@ -156,7 +156,7 @@ declare global {
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
-      
+    
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
