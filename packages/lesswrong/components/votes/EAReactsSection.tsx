@@ -65,10 +65,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addEmojiIcon: {
     transform: "translateY(2px)",
-    width: "18px !important",
-    height: "18px !important",
   },
   addEmojiIconLarge: {
+    width: "18px !important",
+    height: "18px !important",
   },
   tooltipSecondaryText: {
     color: theme.palette.text.tooltipTextDim,
