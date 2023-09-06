@@ -201,7 +201,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         {VoteBottomComponent && <div className={classes.reacts}>
           <VoteBottomComponent
             document={comment}
-            hideKarma={post?.hideCommentKarma}
+            hideKarma={post.hideCommentKarma}
             collection={Comments}
             votingSystem={votingSystem}
             commentItemRef={commentItemRef}

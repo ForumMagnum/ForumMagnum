@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom:theme.spacing.unit*1.5
+    marginBottom:theme.spacing.unit*1.5,
   },
   whiteMeta: {
     color: theme.palette.text.invertedBackgroundText2,
@@ -90,6 +90,7 @@ const MessageItem = ({message, classes}: {
           {message.user && <Components.MetaInfo>
             <span className={colorClassName}><Components.UsersName user={message.user}/></span>
           </Components.MetaInfo>}
+          <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
           {message.createdAt && <Components.MetaInfo>
             <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
           </Components.MetaInfo>}
