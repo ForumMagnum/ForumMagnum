@@ -12,7 +12,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const {PostsVoteDefault} = Components;
-  const Component = votingSystem?.getPostVotingComponent?.();
+  const Component = votingSystem?.getPostBottomVotingComponent?.();
   return Component
     ? (
       <Component

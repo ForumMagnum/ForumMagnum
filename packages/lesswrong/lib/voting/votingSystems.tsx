@@ -39,7 +39,8 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
   getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
-  getPostVotingComponent?: () => PostVotingComponent,
+  getPostBottomVotingComponent?: () => PostVotingComponent,
+  getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -271,7 +272,8 @@ registerVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
-  getPostVotingComponent: () => Components.EAEmojisVoteOnPost,
+  getPostBottomVotingComponent: () => Components.EAEmojisVoteOnPost,
+  getPostBottomSecondaryVotingComponent: () => Components.EAEmojisVoteOnPostSecondary,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,

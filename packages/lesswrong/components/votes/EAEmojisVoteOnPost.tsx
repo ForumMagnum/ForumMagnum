@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useVote } from "./withVote";
 import type { PostVotingComponentProps } from "../../lib/voting/votingSystems";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,6 +23,12 @@ const styles = (theme: ThemeType) => ({
     "& svg": {
       width: 14,
       height: 14,
+    },
+  },
+  // On small screens reactions are displayed by EAEmojisVoteOnPostSecondary
+  hideOnMobile: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
     },
   },
 });
@@ -55,8 +62,8 @@ const EAEmojisVoteOnPost = ({
         votingSystem={votingSystem}
         useHorizontalLayout
       />
-      <div className={classes.divider} />
-      <div className={classes.reacts}>
+      <div className={classNames(classes.divider, classes.hideOnMobile)} />
+      <div className={classNames(classes.reacts, classes.hideOnMobile)}>
         <EAReactsSection
           document={document}
           voteProps={voteProps}

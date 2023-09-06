@@ -5,6 +5,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -72,9 +73,12 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const votingSystemName = post.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
   const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
-  
+  const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
+
   return <>
     {!isEAForum && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <AnalyticsContext pageSectionContext="tagFooter">
@@ -84,22 +88,32 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>
     }
     {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
-      <div className={classes.footerSection}>
-        <div className={classes.voteBottom}>
-          <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} useHorizontalLayout={isEAForum} isFooter />
-          </AnalyticsContext>
-        </div>
-        {isEAForum && <div className={classes.secondaryInfoRight}>
-          <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-          <SharePostButton post={post} />
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton post={post} includeBookmark={!isEAForum} />
+      <>
+        <div className={classes.footerSection}>
+          <div className={classes.voteBottom}>
+            <AnalyticsContext pageSectionContext="lowerVoteButton">
+              <PostsVote post={post} useHorizontalLayout={isEAForum} isFooter />
             </AnalyticsContext>
-          </span>
-        </div>}
-      </div>}
+          </div>
+          {isEAForum && <div className={classes.secondaryInfoRight}>
+            <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+            <SharePostButton post={post} />
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostActionsButton post={post} includeBookmark={!isEAForum} />
+              </AnalyticsContext>
+            </span>
+          </div>}
+        </div>
+        {PostBottomSecondaryVotingComponent &&
+          <PostBottomSecondaryVotingComponent
+            document={post}
+            votingSystem={votingSystem}
+            isFooter
+          />
+        }
+      </>
+    }
     {sequenceId && <div className={classes.bottomNavigation}>
       <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
         <BottomNavigation post={post}/>
