@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     ...(isEAForum && {
-      lineHeight: "1.1rem",
+      lineHeight: "1.3rem",
       fontSize: "1rem",
     }),
   },
