@@ -58,6 +58,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'image',
     alignSelf: 'flex-end'
   },
+  username: {
+    marginRight: 6,
+    fontWeight: 600
+  }
 })
 
 /**
@@ -87,9 +91,9 @@ const MessageItem = ({message, classes}: {
       {profilePhoto}
       <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>
-          {message.user && <Components.MetaInfo>
+          {message.user && <span className={classes.username}>
             <span className={colorClassName}><Components.UsersName user={message.user}/></span>
-          </Components.MetaInfo>}
+          </span>}
           <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
           {message.createdAt && <Components.MetaInfo>
             <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
