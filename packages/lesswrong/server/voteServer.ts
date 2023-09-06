@@ -24,6 +24,7 @@ import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
 import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
 import { isEAForum } from '../lib/instanceSettings';
+import {Posts} from '../lib/collections/posts';
 
 
 // Test if a user has voted on the server
@@ -253,7 +254,11 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
-    throw new Error("Cannot vote on dialogue responses");
+    const post = await Posts.findOne({_id: (document as DbComment).postId});
+    const acceptedCoauthorIds = post ? getConfirmedCoauthorIds(post) : [];
+    if (!acceptedCoauthorIds.includes(user._id)) {
+      throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
+    }
   }
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')

@@ -685,6 +685,7 @@ const schema: SchemaType<DbComment> = {
   debateResponse: {
     type: Boolean,
     optional: true,
+    label: "Dialogue Response",
     nullable: true,
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
