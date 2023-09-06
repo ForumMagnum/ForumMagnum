@@ -259,7 +259,6 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     if (!acceptedCoauthorIds.includes(user._id)) {
       throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
     }
-   // throw new Error("Cannot vote on dialogue responses");
   }
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
