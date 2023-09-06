@@ -107,6 +107,10 @@ declare global {
     warning: {
       main: ColorString,
     }
+    greenUpvote: {
+      main: ColorString,
+      light: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -152,7 +156,7 @@ declare global {
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
-    
+      
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       
