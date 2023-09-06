@@ -25,6 +25,29 @@ import { VotingProps } from '../../votes/votingProps';
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
+export const reactStyles = (theme: ThemeType): JssStyles => ({
+    '&:hover .react-hover-style': {
+      filter: "opacity(0.8)",
+    },
+    // mark.js applies a default highlight of yellow background and black text. 
+    // we need to override to apply our own themes, and avoid being unreadable in dark mode
+    [`& .${faintHighlightClassName}`]: {
+      backgroundColor: "unset",
+      color: "unset",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
+      color: "unset",
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200],
+      color: "unset",
+    },
+    [`&:hover .${faintHighlightClassName}`]: {
+      borderBottom: theme.palette.border.dashed500,
+      color: "unset",
+    },
+  })
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -154,29 +177,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  lwReactStyling: {
-    '&:hover .react-hover-style': {
-      filter: "opacity(0.8)",
-    },
-    // mark.js applies a default highlight of yellow background and black text. 
-    // we need to override to apply our own themes, and avoid being unreadable in dark mode
-    [`& .${faintHighlightClassName}`]: {
-      backgroundColor: "unset",
-      color: "unset",
-    },
-    [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
-      color: "unset",
-    },
-    [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200],
-      color: "unset",
-    },
-    [`&:hover .${faintHighlightClassName}`]: {
-      borderBottom: theme.palette.border.dashed500,
-      color: "unset",
-    },
-  }
+  lwReactStyling: reactStyles(theme),
 });
 
 /**

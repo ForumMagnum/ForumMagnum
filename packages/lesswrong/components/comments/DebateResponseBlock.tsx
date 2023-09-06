@@ -1,7 +1,12 @@
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
+import {useVote} from '../votes/withVote';
+import {getVotingSystemByName} from '../../lib/voting/votingSystems';
+import {Comments} from '../../lib/collections/comments';
+import {reactStyles} from './CommentsItem/CommentsItem';
+import {canVoteOnTag} from '../../lib/voting/tagRelVoteRules';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
@@ -12,6 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     },
     ...theme.typography.commentStyle,
+    position: 'relative'
   },
   blockMargin: {
     marginBottom: 16
@@ -73,6 +79,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   yellowBorder: {
     borderColor: theme.palette.border.debateComment5
+  },
+  lwReactStyling: reactStyles(theme),
+  reacts: {
+    position: 'absolute',
+    right: 10,
+    bottom: -14,
   },
 });
 
@@ -154,6 +166,14 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
         className={classes.menu}
       />;
 
+      const votingSystemName = comment.votingSystem || "default";
+      const votingSystem = getVotingSystemByName(votingSystemName);
+      const voteProps = useVote(comment, "Comments", votingSystem);
+      const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+
+      const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+
+
       const commentBodyOrEditor = showEdit[idx]
       ? <CommentsEditForm
           comment={comment}
@@ -162,7 +182,10 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
           className={classes.editForm}
           formProps={{ post }}
         />
-      : <CommentBody comment={comment} />;
+      : (<div ref={commentItemRef}>
+          <CommentBody comment={comment} voteProps={voteProps} commentItemRef={commentItemRef}/>
+        </div>
+      );
 
       const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => showRepliesForComment(e, idx)}>
         Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
@@ -186,7 +209,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
         <div
           key={`debate-comment-${comment._id}`}
           id={`debate-comment-${comment._id}`}
-          className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
+          className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin }, classes.lwReactStyling)}
         >
           {header}
           {menu}
@@ -195,6 +218,16 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
             {replyLink}
           </div>
           {replyState}
+          {VoteBottomComponent && <div className={classes.reacts}>
+            <VoteBottomComponent
+              document={comment}
+              hideKarma={post?.hideCommentKarma}
+              collection={Comments}
+              votingSystem={votingSystem}
+              commentItemRef={commentItemRef}
+              voteProps={voteProps}
+            />
+          </div>}
         </div>
       );
     })}
@@ -208,4 +241,3 @@ declare global {
     DebateResponseBlock: typeof DebateResponseBlockComponent
   }
 }
-
