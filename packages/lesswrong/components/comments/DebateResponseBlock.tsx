@@ -39,6 +39,7 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
       <span className={classes.dividerLabel}>{daySeparator}</span>
     </div>}
     {responses.map(({ comment, replies }, idx) => <DebateResponse 
+      key={`debateBlock${comment._id}`}
       comment={comment} 
       replies={replies} 
       idx={idx} 

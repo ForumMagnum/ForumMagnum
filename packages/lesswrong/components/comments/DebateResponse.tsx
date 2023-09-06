@@ -104,6 +104,14 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const responseStates = responses.map(_ => false);
     const [showReplyState, setShowReplyState] = useState([...responseStates]);
     const [showEdit, setShowEdit] = useState([...responseStates]);
+    
+    const votingSystemName = comment.votingSystem || "default";
+    const votingSystem = getVotingSystemByName(votingSystemName);
+    const voteProps = useVote(comment, "Comments", votingSystem);
+    const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+
+    const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+
 
     const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
 
@@ -145,14 +153,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       showEdit={() => showEditForResponse(true, idx)}
       className={classes.menu}
     />;
-
-    const votingSystemName = comment.votingSystem || "default";
-    const votingSystem = getVotingSystemByName(votingSystemName);
-    const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
-
-    const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
-
 
     const commentBodyOrEditor = showEdit[idx]
     ? <CommentsEditForm
