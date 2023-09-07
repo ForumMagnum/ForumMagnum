@@ -129,7 +129,7 @@ class ElasticQuery {
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
-        minimum_should_match: "50%",
+        minimum_should_match: "75%",
         operator: "or",
       },
     };
