@@ -165,16 +165,18 @@ class ElasticExporter {
   }
 
   async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
-    const client = this.client.getClient();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
-
     const aliasName = this.getIndexName(collection);
     const indexName = await this.getExistingAliasTarget(aliasName);
     if (!indexName) {
       throw new Error("Can't find backing index for collection " + collectionName);
     }
+    await this.deleteIndexByName(indexName);
+  }
 
+  async deleteIndexByName(indexName: string) {
+    const client = this.client.getClient();
     await client.indices.delete({
       index: indexName,
     });
@@ -477,6 +479,9 @@ Globals.elasticExportAll = () =>
 
 Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
   new ElasticExporter().deleteIndex(collectionName);
+
+Globals.elasticDeleteIndexByName = (indexName: string) =>
+  new ElasticExporter().deleteIndexByName(indexName);
 
 Globals.elasticDeleteOrphanedIndexes = () =>
   new ElasticExporter().deleteOrphanedIndexes();
