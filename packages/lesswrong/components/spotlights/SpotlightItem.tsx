@@ -145,6 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   imageFade: {
     mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 70%,#fff 100%)",
+    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 70%,#fff 100%)",
   },
   author: {
     marginTop: 4,
