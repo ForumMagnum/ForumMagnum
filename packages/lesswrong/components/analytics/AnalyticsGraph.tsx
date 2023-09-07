@@ -40,6 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       minHeight: 42,
     }
   },
+  graphHeaderNoTitle: {
+    [theme.breakpoints.down('xs')]: {
+      minHeight: 0,
+    }
+  },
   graphHeading: {
     fontSize: 32,
     fontWeight: "600",
@@ -325,7 +330,7 @@ export const AnalyticsGraph = ({
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle})}>
+      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>
         <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
           {title}
         </Typography>
