@@ -642,7 +642,7 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
       {usersWhoProReacted.length > 0 &&
         <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
           {usersWhoProReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classes.userWhoReacted}>
+            <span key={userReactInfo.userId}>
               {(i>0) && <span>{", "}</span>}
               {userReactInfo.displayName}
             </span>
@@ -652,7 +652,7 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
       {usersWhoAntiReacted.length > 0 &&
         <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
           {usersWhoAntiReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classNames(classes.userWhoReacted, classes.userWhoAntiReacted)}>
+            <span key={userReactInfo.userId} className={classes.userWhoAntiReacted}>
               {(i>0) && <span>{", "}</span>}
               {userReactInfo.displayName}
             </span>
