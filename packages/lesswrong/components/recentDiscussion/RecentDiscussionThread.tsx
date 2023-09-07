@@ -37,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // position: "absolute",
     // right: "100%",
     paddingBottom:10,
+    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     // width: 300,
     // marginTop: -2,

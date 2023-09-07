@@ -34,6 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     display: 'inline-block',
     fontWeight: 600,
+    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     ...(isEAForum
       ? {

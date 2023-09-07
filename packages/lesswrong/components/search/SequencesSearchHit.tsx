@@ -44,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   snippet: {
+    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     lineHeight: "1.3rem",
     marginTop: 4,

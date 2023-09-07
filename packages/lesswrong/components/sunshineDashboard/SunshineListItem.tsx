@@ -13,6 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: theme.spacing.unit,
   },
   content: {
+    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     overflow: "hidden",
     lineHeight: "1.2rem",
