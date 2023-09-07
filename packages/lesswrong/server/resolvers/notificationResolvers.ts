@@ -1,6 +1,7 @@
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../lib/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
+import { getNotificationTypeByName } from '../../lib/notificationTypes';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -9,6 +10,7 @@ defineQuery({
       checkedAt: Date!
       unreadNotifications: Int!
       unreadPrivateMessages: Int!
+      faviconBadgeNumber: Int!
     }
   `,
   resultType: "NotificationCounts!",
@@ -16,6 +18,7 @@ defineQuery({
     checkedAt: Date,
     unreadNotifications: number
     unreadPrivateMessages: number
+    faviconBadgeNumber: number
   }> => {
     const checkedAt = new Date();
     const { currentUser } = context;
@@ -24,31 +27,29 @@ defineQuery({
         checkedAt,
         unreadNotifications: 0,
         unreadPrivateMessages: 0,
+        faviconBadgeNumber: 0,
       }
     }
     
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
-    const [unreadNotifications, unreadPrivateMessages] = await Promise.all([
-      Notifications.find({
-        ...getDefaultViewSelector("Notifications"),
-        userId: currentUser._id,
-        ...(lastNotificationsCheck && {
-          createdAt: {$gt: lastNotificationsCheck},
-        }),
-      }).count(),
-      Notifications.find({
-        ...getDefaultViewSelector("Notifications"),
-        userId: currentUser._id,
-        type: "newMessage",
-        ...(lastNotificationsCheck && {
-          createdAt: {$gt: lastNotificationsCheck},
-        }),
-      }).count()
-    ]);
+    const newNotifications = await Notifications.find({
+      ...getDefaultViewSelector("Notifications"),
+      userId: currentUser._id,
+      ...(lastNotificationsCheck && {
+        createdAt: {$gt: lastNotificationsCheck},
+      }),
+    }).fetch();
+    const unreadNotifications = newNotifications.length;
+    const unreadPrivateMessages = newNotifications.filter(notif => notif.type === "newMessage").length;
+    const badgeNotifications = newNotifications.filter(notif =>
+      !!getNotificationTypeByName(notif.type).causesRedBadge
+    );
+    
     return {
       checkedAt,
       unreadNotifications,
       unreadPrivateMessages,
+      faviconBadgeNumber: badgeNotifications.length,
     }
   }
 });

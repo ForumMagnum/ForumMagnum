@@ -1,6 +1,5 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
@@ -14,7 +13,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -174,8 +172,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const currentUser = useCurrentUser();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -187,8 +184,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
-      await updateCurrentUser({lastNotificationsCheck: new Date()});
-      await refetchNotificationCounts();
+      await notificationsOpened();
     } else {
       setNotificationOpen(false);
     }
