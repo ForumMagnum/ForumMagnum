@@ -40,11 +40,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   pageHeader: {
-    // display: "flex",
-    justifyContent: "space-between",
     marginTop: 24,
     marginBottom: 24,
-    flexDirection: "row",
   },
   pageHeaderText: {
     fontSize: 28,
@@ -297,6 +294,8 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
         </div>
         <div className={classes.section}>
           <div className={classes.postsListHeader}>
+            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
+                this message isn't needed) */}
             {maybeStale && <span className={classes.fetchingLatest}>
               checking latest data...
             </span>}
