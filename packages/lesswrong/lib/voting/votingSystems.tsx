@@ -18,6 +18,7 @@ export type CommentVotingComponentProps = {
   votingSystem: VotingSystem,
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
+  post?: Pick<PostsMinimumInfo, 'coauthorStatuses'|'userId'|'debate'>,
 }
 export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
   voteProps: VotingProps<VoteableTypeClient>,

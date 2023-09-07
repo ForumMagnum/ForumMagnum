@@ -25,6 +25,8 @@ import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
 import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
 import { isEAForum } from '../lib/instanceSettings';
 import {Posts} from '../lib/collections/posts';
+import { validatedGetRoutes } from './fmCrosspost/routes';
+import { getVoteErrorMessage } from '../lib/collections/votes/permissions';
 
 
 // Test if a user has voted on the server
@@ -235,34 +237,12 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
+  if (!document) throw new Error("Error casting vote: Document not found.")
 
-  if (!document) throw new Error("Error casting vote: Document not found.");
-  
-  const collectionVoteType = `${collectionName.toLowerCase()}.${voteType}`
-
-  if (!user) throw new Error("Error casting vote: Not logged in.");
-  
-  // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = userCanVote(user);
-  if (!selfVote && cannotVote) {
-    throw new Error(reason);
+  const errorMessage = await getVoteErrorMessage({collectionName, voteType, user, selfVote, extendedVote, document})
+  if (errorMessage) {
+    throw new Error(errorMessage)
   }
-
-  if (!extendedVote && voteType && voteType !== "neutral" && !userCanDo(user, collectionVoteType)) {
-    throw new Error(`Error casting vote: User can't cast votes of type ${collectionVoteType}.`);
-  }
-  if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
-
-  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
-    const post = await Posts.findOne({_id: (document as DbComment).postId});
-    const acceptedCoauthorIds = post ? getConfirmedCoauthorIds(post) : [];
-    if (!acceptedCoauthorIds.includes(user._id)) {
-      throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
-    }
-  }
-
-  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
-    throw new Error("Revisions are only voteable if they're revisions of tags");
   
   const existingVote = await getExistingVote({document, user});
   let showVotingPatternWarning = false;

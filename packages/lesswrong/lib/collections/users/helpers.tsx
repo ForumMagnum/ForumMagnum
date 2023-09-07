@@ -570,7 +570,9 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
-export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
+type UserVoteEligibilityInfo = Pick<DbUser, 'karma'|'createdAt'>
+
+export const userCanVote = (user: UserVoteEligibilityInfo|null): PermissionResult => {
   // If the user is null, then returning true from this function is still valid;
   // it just means that the vote buttons are enabled (but their behavior is that
   // they open a login form).
