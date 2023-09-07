@@ -1,6 +1,5 @@
 import React, {useRef, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
@@ -98,7 +97,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
     const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
 
     const responseStates = responses.map(_ => false);
@@ -201,11 +199,12 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         {VoteBottomComponent && <div className={classes.reacts}>
           <VoteBottomComponent
             document={comment}
-            hideKarma={post?.hideCommentKarma}
+            hideKarma={post.hideCommentKarma}
             collection={Comments}
             votingSystem={votingSystem}
             commentItemRef={commentItemRef}
             voteProps={voteProps}
+            post={post}
           />
         </div>}
       </div>

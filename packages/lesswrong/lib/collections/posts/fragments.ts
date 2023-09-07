@@ -20,6 +20,7 @@ registerFragment(`
     coauthorStatuses
     hasCoauthorPermission
     rejected
+    debate
   }
 `);
 
