@@ -221,6 +221,7 @@ export function markHighlights (quotes: string[], highlightClassName: string, co
       separateWordSearch: false,
       acrossElements: true,
       className: highlightClassName,
+      filter: (_node, _term, count) => !count,
     });
   })
 }
