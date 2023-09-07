@@ -353,6 +353,12 @@ class ElasticQuery {
             [snippetName]: {
               ...highlightConfig,
               highlight_query: snippetQuery,
+              // This is the default value for index.highlight.max_analyzed_offset
+              // which we haven't customized. If this wasn't set here or was set
+              // larger than the corresponding setting on the index, then search
+              // would fail entirely when results contain a poss where the
+              // plain-text version of the body is larger than this.
+              max_analyzed_offset: 1000000,
             },
             ...(highlightName && {
               [highlightName]: {
