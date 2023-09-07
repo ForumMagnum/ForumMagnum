@@ -15,7 +15,7 @@ import isEmpty from "lodash/isEmpty";
 
 const mdTitleWidth = 60;
 const smTitleWidth = 50;
-const xsTitleWidth = 40;
+const xsTitleWidth = 45;
 const valueWidth = (titleWidth: number) => (100 - titleWidth) / 4;
 const gridColumns = (titleWidth: number) =>
   `${titleWidth}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(
@@ -39,16 +39,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 16,
     },
   },
+  pageHeader: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  pageHeaderText: {
+    fontSize: 28,
+    fontWeight: "600",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+  },
   postsListHeader: {
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
-  },
-  postsListHeaderText: {
-    fontSize: 20,
-    fontWeight: "600",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[1000],
   },
   fetchingLatest: {
     fontSize: 14,
@@ -177,7 +181,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
           {timeFromNow}
           {ago}
           {" · "}
-          <Link to={postAnalyticsLink}>view post stats</Link>
+          <Link to={postAnalyticsLink}>view detailed stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
@@ -280,14 +284,18 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     <>
       <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
+      <div className={classes.pageHeader}>
+        <Typography variant="headline" className={classes.pageHeaderText}>
+          Your post stats
+        </Typography>
+      </div>
         <div className={classes.section}>
-          <AnalyticsGraph userId={user._id} title="Stats on all posts" />
+          <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
           <div className={classes.postsListHeader}>
-            <Typography variant="headline" className={classes.postsListHeaderText}>
-              Posts
-            </Typography>
+            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
+                this message isn't needed) */}
             {maybeStale && <span className={classes.fetchingLatest}>
               checking latest data...
             </span>}
