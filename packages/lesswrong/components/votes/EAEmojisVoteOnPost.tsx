@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[600],
     "& svg": {
-      width: 16,
+      width: "auto",
       height: 16,
     },
   },
