@@ -221,7 +221,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
   Users: {
     fields: [
-      "displayName^10",
+      "displayName^1000",
       "bio",
       "mapLocationAddress",
       "jobTitle",
