@@ -88,7 +88,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
-    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: user?._id,
@@ -119,7 +119,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
 
-    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: null,
