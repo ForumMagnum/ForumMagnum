@@ -12,6 +12,7 @@ export type Ranking = {
   scoring: {
     type: "numeric",
     pivot: number,
+    min?: number,
   } | {
     type: "date",
   } | {
@@ -221,7 +222,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
   Users: {
     fields: [
-      "displayName^1000",
+      "displayName^10000",
       "bio",
       "mapLocationAddress",
       "jobTitle",
@@ -234,24 +235,25 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {
         field: "karma",
         order: "desc",
-        weight: 25,
-        scoring: {type: "numeric", pivot: 4000},
+        weight: 2,
+        scoring: {type: "numeric", pivot: 5000, min: 1000},
       },
       {
         field: "karma",
         order: "desc",
-        weight: 12,
-        scoring: {type: "numeric", pivot: 1000},
+        weight: 1.5,
+        scoring: {type: "numeric", pivot: 1000, min: 1000},
       },
       {
         field: "karma",
         order: "desc",
-        weight: 4,
-        scoring: {type: "numeric", pivot: 100},
+        weight: 1,
+        scoring: {type: "numeric", pivot: 100, min: 10},
       },
       {
         field: "createdAt",
         order: "desc",
+        weight: 0.5,
         scoring: {type: "date"},
       },
     ],

@@ -66,7 +66,8 @@ class ElasticQuery {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
-      expr = `saturation(Math.max(1, doc['${field}'].value), ${scoring.pivot}L)`;
+      const min = scoring.min ?? 1;
+      expr = `saturation(Math.max(${min}, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
       const start = SEARCH_ORIGIN_DATE;
@@ -157,14 +158,14 @@ class ElasticQuery {
                 fields,
                 type: "phrase",
                 slop: 2,
-                boost: 2,
+                boost: 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: 20,
+                  boost: 1000,
                 },
               },
             },
