@@ -41,7 +41,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: isEAForum ? 16 : '55%',
+    fontSize: isEAForum ? 18 : '55%',
+    fontWeight: isEAForum ? 500 : undefined,
   },
   voteScoreGoodHeart: {
     ...theme.typography.commentStyle,

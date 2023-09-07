@@ -21,8 +21,8 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[600],
     "& svg": {
-      width: 14,
-      height: 14,
+      width: 16,
+      height: 16,
     },
   },
   // On small screens reactions are displayed by EAEmojisVoteOnPostSecondary

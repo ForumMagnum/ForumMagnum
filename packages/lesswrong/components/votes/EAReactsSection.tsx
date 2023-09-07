@@ -67,8 +67,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "translateY(2px)",
   },
   addEmojiIconLarge: {
-    width: "18px !important",
-    height: "18px !important",
+    width: "20px !important",
+    height: "20px !important",
   },
   tooltipSecondaryText: {
     color: theme.palette.text.tooltipTextDim,
