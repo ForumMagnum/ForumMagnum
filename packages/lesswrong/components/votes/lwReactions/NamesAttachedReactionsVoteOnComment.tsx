@@ -194,9 +194,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 18,
     width: 18
   },
-  userWhoReacted: {
-    marginRight: 6
-  },
   reactionQuotes: {
     paddingTop: 8,
     paddingBottom: 8,
