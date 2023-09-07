@@ -351,6 +351,12 @@ class ElasticExporter {
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
     const repo = this.getRepoByCollectionName(collectionName);
 
+    const indexName = this.getIndexName(collection);
+    const alias = await this.getExistingAliasTarget(indexName);
+    if (!alias) {
+      throw new Error("Alias is not configured - run `elasticConfigureIndexes`");
+    }
+
     const total = await repo.countSearchDocuments();
 
     // eslint-disable-next-line no-console
