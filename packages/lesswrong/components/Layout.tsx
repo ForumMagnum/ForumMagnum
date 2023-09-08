@@ -345,14 +345,6 @@ const Layout = ({currentUser, children, classes}: {
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
-                currentEvent={
-                  isEAForum
-                    ? {
-                      name: "Career week",
-                      link: "#",
-                    }
-                    : undefined
-                }
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}

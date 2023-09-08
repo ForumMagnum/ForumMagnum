@@ -14,6 +14,7 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { currentEventHeader } from '../../lib/publicSettings';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -170,18 +171,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type CurrentEvent = {
-  name: string,
-  link: string,
-}
-
 const Header = ({
   standaloneNavigationPresent,
   sidebarHidden,
   toggleStandaloneNavigation,
   stayAtTop=false,
   searchResultsArea,
-  currentEvent,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -189,7 +184,6 @@ const Header = ({
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  currentEvent?: CurrentEvent,
   classes: ClassesType,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -202,6 +196,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const updateCurrentUser = useUpdateCurrentUser();
   const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  const currentEvent = currentEventHeader.get();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
