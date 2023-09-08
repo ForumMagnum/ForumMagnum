@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/votingSystems';
 import {Comments} from '../../lib/collections/comments';
-import {reactStyles} from './CommentsItem/CommentsItem';
+import {lwReactStyles} from './CommentsItem/CommentsItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   yellowBorder: {
     borderColor: theme.palette.border.debateComment5
   },
-  lwReactStyling: reactStyles(theme),
+  lwReactStyling: lwReactStyles(theme),
   bottomUI: {
     position: 'absolute',
     right: 10,
@@ -102,9 +102,8 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 }) => {
     const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
 
-    const responseStates = responses.map(_ => false);
-    const [showReplyState, setShowReplyState] = useState([...responseStates]);
-    const [showEdit, setShowEdit] = useState([...responseStates]);
+    const [showReplyState, setShowReplyState] = useState(false);
+    const [showEdit, setShowEdit] = useState(false);
     
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
@@ -116,18 +115,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
 
-    const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
-      e.preventDefault();
-      const newReplyState = [...showReplyState];
-      newReplyState[responseIdx] = !newReplyState[responseIdx];
-      setShowReplyState(newReplyState);
-    };
 
-    const showEditForResponse = (newShowEditState: boolean, responseIdx: number) => {
-      const newShowEdit = [...showEdit];
-      newShowEdit[responseIdx] = newShowEditState;
-      setShowEdit(newShowEdit);
-    }
 
     const currentUser = useCurrentUser();
 
@@ -151,24 +139,23 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const menu = <CommentsMenu
       comment={comment}
       post={post}
-      showEdit={() => showEditForResponse(true, idx)}
+      showEdit={() => setShowEdit(true)}
       className={classes.menu}
     />;
 
-    const commentBodyOrEditor = showEdit[idx]
+    const commentBodyOrEditor = showEdit
     ? <CommentsEditForm
         comment={comment}
-        successCallback={() => showEditForResponse(false, idx)}
-        cancelCallback={() => showEditForResponse(false, idx)}
+        successCallback={() => setShowEdit(false)}
+        cancelCallback={() => setShowEdit(false)}
         className={classes.editForm}
         formProps={{ post }}
       />
-    : (<div ref={commentItemRef}>
+    : <div ref={commentItemRef}>
         <CommentBody comment={comment} voteProps={voteProps} commentItemRef={commentItemRef}/>
-      </div>
-    );
+      </div>;
 
-    const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => showRepliesForComment(e, idx)}>
+    const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => setShowReplyState(!showReplyState)}>
       Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
     </a>;
 
@@ -184,7 +171,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         }}
       />;
 
-    const replyState = showReplyState[idx] && showReplyLink && replyCommentList;
+    const replyState = showReplyState && showReplyLink && replyCommentList;
 
     return (
       <div
