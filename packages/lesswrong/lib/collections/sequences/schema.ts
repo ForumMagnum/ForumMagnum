@@ -203,7 +203,7 @@ const schema: SchemaType<DbSequence> = {
 
       const count = await getWithCustomLoader<number, string>(
         context,
-        "sequencePostsCount",
+        "sequenceReadPostsCount",
         createCompositeId(sequence._id, currentUser._id),
         (compositeIds): Promise<number[]> => {
           return context.repos.sequences.readPostsCount(compositeIds.map(splitCompositeId));
