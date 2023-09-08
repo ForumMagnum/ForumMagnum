@@ -75,6 +75,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.faint,
     background: theme.palette.panelBackground.darken05,
   },
+  moderatorCommentForm: {
+    border: theme.palette.border.faint,
+    background: theme.palette.panelBackground.darken05,
+  },
+  newCommentLabel: {
+    paddingLeft: theme.spacing.unit*1.5,
+    ...theme.typography.commentStyle,
+    ...theme.typography.body2,
+    fontWeight: 600,
+    marginTop: 12
+  },
 });
 
 export const InsertModeratorCommentContext = createContext<(()=>void)|null>(null);
@@ -212,18 +223,18 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
           },
         )}
       >
-        {showInsertModeratorCommentForm && <>
+        {showInsertModeratorCommentForm && <div className={classes.moderatorCommentForm}>
+          <div className={classes.newCommentLabel}>Moderator Comment</div>
           <CommentsNewForm
             post={post}
             type="comment"
-            replyFormStyle="minimalist"
             prefilledProps={{
               debateResponse: true,
               moderatorHat: true,
               postedAt: new Date(new Date(comment.postedAt).getTime()-1),
             }}
           />
-        </>}
+        </div>}
         {header}
         {menu}
         <div className={classes.commentWithReplyButton}>
