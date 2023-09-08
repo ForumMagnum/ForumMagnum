@@ -50,4 +50,14 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Sequences"`);
     return count;
   }
+
+  async postsCount(sequenceId: string): Promise<number> {
+    // TODO
+    return 0;
+  }
+
+  async readPostsCount({sequenceId, userId}: {sequenceId: string, userId: string}): Promise<number> {
+    // TODO
+    return 0;
+  }
 }

@@ -57,7 +57,7 @@ interface ViewTermsByCollectionName {
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
   ClientIds: ClientIdsViewTerms
-  Collections: ViewTermsBase
+  Collections: CollectionsViewTerms
   CommentModeratorActions: CommentModeratorActionsViewTerms
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms

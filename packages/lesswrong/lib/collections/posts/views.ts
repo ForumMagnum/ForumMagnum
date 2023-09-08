@@ -188,6 +188,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       rejected: { $ne: true },
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
+      ...(terms.postIds && {_id: {$in: terms.postIds}}),
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum

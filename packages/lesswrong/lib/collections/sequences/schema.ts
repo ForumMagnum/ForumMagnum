@@ -1,4 +1,4 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
+import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbSequence> = {
@@ -168,6 +168,26 @@ const schema: SchemaType<DbSequence> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },
+
+  postsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (collection: DbSequence, args: void, context: ResolverContext) => {
+      // TODO getWithLoader
+      // example:
+      // const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
+      //   return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
+      // });
+    }
+  }),
+
+  readPostsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (collection: DbSequence, args: void, context: ResolverContext) => {
+      // TODO getWithLoader
+    }
+  }),
 
   /* Alignment Forum fields */
 
