@@ -1,5 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
+import keyBy from "lodash/keyBy";
 
 export default class SequencesRepo extends AbstractRepo<DbSequence> {
   constructor() {
@@ -51,13 +52,57 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     return count;
   }
 
-  async postsCount(sequenceId: string): Promise<number> {
-    // TODO
-    return 0;
+  /**
+   * The total number of posts for the sequences with the given ids, returned in
+   */
+  async postsCount(sequenceIds: string[]): Promise<number[]> {
+    // TODO do I need to exclude drafts?
+    const query = `
+      SELECT
+        s._id as _id,
+        count(*) as total_count
+      FROM
+        "Sequences" s
+        LEFT JOIN "Chapters" c ON s._id = c."sequenceId"
+        INNER JOIN "Posts" p ON p._id = ANY(c."postIds")
+      WHERE
+        s._id = ANY($1)
+      GROUP BY s._id
+    `;
+  
+    const results = await this.getRawDb().any<{_id: string, total_count: string}>(query, [sequenceIds]);
+    const resultsById = keyBy(results, '_id')
+    return sequenceIds.map(id => {
+      const result = resultsById[id];
+      return result ? parseInt(result.total_count, 10) : 0;
+    })
   }
 
-  async readPostsCount({sequenceId, userId}: {sequenceId: string, userId: string}): Promise<number> {
-    // TODO
-    return 0;
+  async readPostsCount(params: { sequenceId: string; userId: string }[]): Promise<number[]> {
+    // TODO do I need to exclude drafts?
+    const sequenceIds = params.map(p => p.sequenceId);
+    const userIds = params.map(p => p.userId);
+  
+    const query = `
+      SELECT
+        s._id || '-' || rs."userId" as composite_id,
+        count(*) AS read_count
+      FROM
+        "Sequences" s
+        LEFT JOIN "Chapters" c ON s._id = c."sequenceId"
+        INNER JOIN "ReadStatuses" rs ON rs."userId" = ANY($2) AND rs."postId" = ANY(c."postIds") AND rs."isRead" = TRUE
+      WHERE
+        s._id = ANY($1)
+      GROUP BY composite_id
+    `;
+  
+    const results = await this.getRawDb().any<{ composite_id: string, read_count: string }>(query, [sequenceIds, userIds]);
+    const resultsById = keyBy(results, 'composite_id');
+  
+    return params.map(param => {
+      const compositeId = `${param.sequenceId}-${param.userId}`;
+      const result = resultsById[compositeId];
+      return result ? parseInt(result.read_count, 10) : 0
+    });
   }
 }

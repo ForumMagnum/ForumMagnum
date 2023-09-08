@@ -2006,6 +2006,8 @@ interface SequencesPageFragment extends SequencesPageTitleFragment { // fragment
   readonly curatedOrder: number,
   readonly userProfileOrder: number,
   readonly af: boolean,
+  readonly postsCount: number,
+  readonly readPostsCount: number,
 }
 
 interface SequenceContinueReadingFragment { // fragment on Sequences

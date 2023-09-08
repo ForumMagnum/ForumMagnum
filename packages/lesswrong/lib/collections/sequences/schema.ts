@@ -1,5 +1,6 @@
 import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<DbSequence> = {
   userId: {
@@ -172,20 +173,44 @@ const schema: SchemaType<DbSequence> = {
   postsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbSequence, args: void, context: ResolverContext) => {
-      // TODO getWithLoader
-      // example:
-      // const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
-      //   return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
-      // });
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequencePostsCount",
+        sequence._id,
+        (sequenceIds): Promise<number[]> => {
+          return context.repos.sequences.postsCount(sequenceIds);
+        }
+      );
+
+      return count;
     }
   }),
 
   readPostsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbSequence, args: void, context: ResolverContext) => {
-      // TODO getWithLoader
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const currentUser = context.currentUser;
+      
+      if (!currentUser) return 0;
+
+      const createCompositeId = (sequenceId: string, userId: string) => `${sequenceId}-${userId}`;
+      const splitCompositeId = (compositeId: string) => {
+        const [sequenceId, userId] = compositeId.split('-')
+        return {sequenceId, userId};
+      };
+
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequencePostsCount",
+        createCompositeId(sequence._id, currentUser._id),
+        (compositeIds): Promise<number[]> => {
+          return context.repos.sequences.readPostsCount(compositeIds.map(splitCompositeId));
+        }
+      );
+
+      return count;
     }
   }),
 
