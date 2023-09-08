@@ -1,6 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
+import { getViewablePostsSelector } from "./helpers";
 
 export default class SequencesRepo extends AbstractRepo<DbSequence> {
   constructor() {
@@ -53,10 +54,9 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
   }
 
   /**
-   * The total number of posts for the sequences with the given ids, returned in
+   * The total number of posts for the sequences with the given ids, returned in the same order as the ids.
    */
   async postsCount(sequenceIds: string[]): Promise<number[]> {
-    // TODO do I need to exclude drafts?
     const query = `
       SELECT
         s._id as _id,
@@ -64,7 +64,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
       FROM
         "Sequences" s
         LEFT JOIN "Chapters" c ON s._id = c."sequenceId"
-        INNER JOIN "Posts" p ON p._id = ANY(c."postIds")
+        INNER JOIN "Posts" p ON p._id = ANY(c."postIds") AND (${getViewablePostsSelector("p")})
       WHERE
         s._id = ANY($1)
       GROUP BY s._id
@@ -78,8 +78,10 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     })
   }
 
+  /**
+   * The number of read posts for the given (sequenceId, userId) combinations, returned in the same order given.
+   */
   async readPostsCount(params: { sequenceId: string; userId: string }[]): Promise<number[]> {
-    // TODO do I need to exclude drafts?
     const sequenceIds = params.map(p => p.sequenceId);
     const userIds = params.map(p => p.userId);
   
@@ -91,6 +93,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         "Sequences" s
         LEFT JOIN "Chapters" c ON s._id = c."sequenceId"
         INNER JOIN "ReadStatuses" rs ON rs."userId" = ANY($2) AND rs."postId" = ANY(c."postIds") AND rs."isRead" = TRUE
+        INNER JOIN "Posts" p ON p._id = rs."postId" AND (${getViewablePostsSelector("p")})
       WHERE
         s._id = ANY($1)
       GROUP BY composite_id

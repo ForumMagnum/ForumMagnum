@@ -384,7 +384,7 @@ const SequenceOrCollectionCard = ({
   );
 };
 
-const CollectionCard = ({ collection, classes }: { collection: CollectionsPageFragment; classes: ClassesType }) => {
+const CollectionCard = ({ collection, classes }: { collection: CollectionsBestOfFragment; classes: ClassesType }) => {
   const { eventHandlers } = useHover({
     pageElementContext: "collectionCard",
     documentId: collection._id,
@@ -394,11 +394,8 @@ const CollectionCard = ({ collection, classes }: { collection: CollectionsPageFr
   const title = collection.title;
   const author = collection.user;
 
-  const books = collection.books;
-  const chapters = books.flatMap((book) => book.sequences.flatMap((sequence) => sequence.chapters));
-  const posts = chapters.flatMap((chapter) => chapter.posts);
-  const postCount = posts.length;
-  const readCount = posts.filter((post) => post.isRead).length;
+  const postCount = collection.postsCount;
+  const readCount = collection.readPostsCount
 
   const imageId =
     // TODO JP-look-here
@@ -495,24 +492,24 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     fragmentName: 'SequencesPageFragment',
   });
 
-  // const { results: collections, loading: collectionsLoading } = useMulti({
-  //   terms: {collectionIds: allCollectionIds, limit: allCollectionIds.length},
-  //   collectionName: "Collections",
-  //   fragmentName: 'CollectionsPageFragment',
-  // });
+  const { results: collections, loading: collectionsLoading } = useMulti({
+    terms: {collectionIds: allCollectionIds, limit: allCollectionIds.length},
+    collectionName: "Collections",
+    fragmentName: 'CollectionsBestOfFragment',
+  });
 
   const postsById = useMemo(() => keyBy(posts, '_id'), [posts]);
   const sequencesById = useMemo(() => keyBy(sequences, '_id'), [sequences]);
-  // const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
+  const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
-  if (loading || sequencesLoading) return <Components.Loading />;
+  if (loading || sequencesLoading || collectionsLoading) return <Components.Loading />;
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
   const popularThisMonthPosts = popularThisMonthPostIds.map((id) => postsById[id]);
   const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
   const learnAboutEASequences = learnAboutEASequenceIds.map((id) => sequencesById[id]);
-  // const learnAboutEACollections = learnAboutEACollectionIds.map((id) => collectionsById[id]);
+  const learnAboutEACollections = learnAboutEACollectionIds.map((id) => collectionsById[id]);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
   return (
@@ -545,9 +542,9 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Learn about Effective Altruism</h2>
                 <div className={classes.gridSection}>
-                  {/* {learnAboutEACollections.map((collection) => (
+                  {learnAboutEACollections.map((collection) => (
                     <CollectionCard key={collection._id} collection={collection} classes={classes} />
-                  ))} */}
+                  ))}
                   {learnAboutEASequences.map((sequence) => (
                     <SequenceCard key={sequence._id} sequence={sequence} classes={classes} />
                   ))}
