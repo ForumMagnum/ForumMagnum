@@ -1,6 +1,5 @@
 import React, {useRef, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
@@ -37,7 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     "@media print": {
       display: "none",
     },
-    minWidth: 'fit-content'
+    minWidth: 'fit-content',
+    marginLeft: 10
   },
   hideReplyLink: {
     visibility: 'hidden'
@@ -66,10 +66,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.border.debateComment5
   },
   lwReactStyling: lwReactStyles(theme),
-  reacts: {
+  bottomUI: {
     position: 'absolute',
     right: 10,
-    bottom: -14,
+    bottom: -12,
+    display: "flex",
+    alignItems: "center"
   },
 });
 
@@ -113,18 +115,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
 
-    // const showRepliesForComment = (e: React.MouseEvent, responseIdx: number) => {
-    //   e.preventDefault();
-    //   const newReplyState = [...showReplyState];
-    //   newReplyState[responseIdx] = !newReplyState[responseIdx];
-    //   setShowReplyState(newReplyState);
-    // };
 
-    // const showEditForResponse = (newShowEditState: boolean, responseIdx: number) => {
-    //   const newShowEdit = [...showEdit];
-    //   newShowEdit[responseIdx] = newShowEditState;
-    //   setShowEdit(newShowEdit);
-    // }
 
     const currentUser = useCurrentUser();
 
@@ -192,19 +183,20 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         {menu}
         <div className={classes.commentWithReplyButton}>
           {commentBodyOrEditor}
-          {replyLink}
         </div>
         {replyState}
-        {VoteBottomComponent && <div className={classes.reacts}>
-          <VoteBottomComponent
+        <div className={classes.bottomUI}>
+          {VoteBottomComponent && <VoteBottomComponent
             document={comment}
-            hideKarma={post?.hideCommentKarma}
+            hideKarma={post.hideCommentKarma}
             collection={Comments}
             votingSystem={votingSystem}
             commentItemRef={commentItemRef}
             voteProps={voteProps}
-          />
-        </div>}
+            post={post}
+          />}
+          {replyLink}
+        </div>
       </div>
     );
   }
