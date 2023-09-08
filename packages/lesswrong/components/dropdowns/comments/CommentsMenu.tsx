@@ -20,13 +20,14 @@ const styles = (_theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: {
+const CommentsMenu = ({classes, className, comment, post, tag, showEdit, insertModeratorCommentInDialogue, icon}: {
   classes: ClassesType,
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: ()=>void,
+  insertModeratorCommentInDialogue?: ()=>void,
   icon?: any,
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -67,6 +68,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, icon}: 
           post={post}
           tag={tag}
           showEdit={showEdit}
+          insertModeratorCommentInDialogue={insertModeratorCommentInDialogue}
         />}
       </Menu>
     </>

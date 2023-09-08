@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {createContext, useRef, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import {useCurrentUser} from '../common/withUser';
@@ -71,7 +71,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 10,
     bottom: -14,
   },
+  moderatorComment: {
+    border: theme.palette.border.faint,
+    background: theme.palette.panelBackground.darken05,
+  },
 });
+
+export const InsertModeratorCommentContext = createContext<(()=>void)|null>(null);
 
 const getParticipantBorderStyle = (participantIndex: number) => {
   switch (participantIndex) {
@@ -99,11 +105,12 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
     const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
+    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, CommentsNewForm } = Components;
 
     const responseStates = responses.map(_ => false);
     const [showReplyState, setShowReplyState] = useState([...responseStates]);
     const [showEdit, setShowEdit] = useState([...responseStates]);
+    const [showInsertModeratorCommentForm,setShowInsertModeratorCommentForm] = useState(false);
     
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
@@ -129,13 +136,14 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     }
 
     const currentUser = useCurrentUser();
+    const isModeratorComment = comment.moderatorHat;
 
     const isFirstCommentInBlock = idx === 0;
     const isLastCommentInBlock = idx === (responseCount - 1);
     const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
     const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
-    const showHeader = isFirstCommentInBlock;
+    const showHeader = isFirstCommentInBlock && !isModeratorComment;
     const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
     const showReplyLink = replies.length > 0 || showInlineReplyForm;
     const addBottomMargin = isLastCommentInBlock;
@@ -146,11 +154,16 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
       <CommentsItemDate comment={comment} post={post} />
     </>;
+    
+    function insertModeratorComment() {
+      setShowInsertModeratorCommentForm(true);
+    }
 
     const menu = <CommentsMenu
       comment={comment}
       post={post}
       showEdit={() => showEditForResponse(true, idx)}
+      insertModeratorCommentInDialogue={() => insertModeratorComment()}
       className={classes.menu}
     />;
 
@@ -189,8 +202,28 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       <div
         key={`debate-comment-${comment._id}`}
         id={`debate-comment-${comment._id}`}
-        className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin }, classes.lwReactStyling)}
+        className={classNames(
+          classes.innerDebateComment,
+          classes[borderStyle],
+          classes.lwReactStyling,
+          {
+            [classes.blockMargin]: addBottomMargin,
+            [classes.moderatorComment]: isModeratorComment,
+          },
+        )}
       >
+        {showInsertModeratorCommentForm && <>
+          <CommentsNewForm
+            post={post}
+            type="comment"
+            replyFormStyle="minimalist"
+            prefilledProps={{
+              debateResponse: true,
+              moderatorHat: true,
+              postedAt: new Date(new Date(comment.postedAt).getTime()-1),
+            }}
+          />
+        </>}
         {header}
         {menu}
         <div className={classes.commentWithReplyButton}>

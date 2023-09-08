@@ -64,7 +64,19 @@ const schema: SchemaType<DbComment> = {
     type: Date,
     optional: true,
     canRead: ['guests'],
-    onInsert: (document, currentUser) => new Date(),
+    // HACK: Dialogue-moderators can create comments with retroactive postedAt dates, to
+    // make them appear out of order in the log of a dialogue. (The real creation date
+    // will be in the `createdAt` field.)
+    canCreate: ['sunshineRegiment','admins'],
+    canUpdate: ['sunshineRegiment','admins'],
+    hidden: true,
+    onInsert: (document, currentUser) => {
+      if (document.postedAt && document.debateResponse) {
+        return undefined;
+      } else {
+        return new Date();
+      }
+    }
   },
   // The comment author's name
   author: {

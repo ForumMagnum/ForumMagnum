@@ -5,7 +5,10 @@ import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 
-const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
+const ToggleIsModeratorCommentDropdownItem = ({comment, insertModeratorCommentInDialogue}: {
+  comment: CommentsList,
+  insertModeratorCommentInDialogue?: ()=>void,
+}) => {
   const currentUser = useCurrentUser();
   const {mutate: updateComment} = useUpdate({
     collectionName: "Comments",
@@ -30,29 +33,34 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
       data: {moderatorHat: false},
     });
   }
-
+  
   const {DropdownItem} = Components;
-  if (comment.moderatorHat) {
-    return (
-      <DropdownItem
-        title={preferredHeadingCase("Un-mark as Moderator Comment")}
-        onClick={handleUnmarkAsModeratorComment}
-      />
-    );
-  }
+  const buttons: React.ReactNode[] = [];
 
-  return (
-    <>
-      <DropdownItem
-        title={preferredHeadingCase("Mark as Moderator Comment (visible)")}
-        onClick={handleMarkAsModeratorComment()}
-      />
-      <DropdownItem
-        title={preferredHeadingCase("Mark as Moderator Comment (invisible)")}
-        onClick={handleMarkAsModeratorComment({ hideModeratorHat: true })}
-      />
-    </>
-  );
+  if (insertModeratorCommentInDialogue) {
+    buttons.push(<DropdownItem
+      title={preferredHeadingCase("Insert Moderator Comment Above")}
+      onClick={insertModeratorCommentInDialogue}
+    />);
+  }
+  
+  if (comment.moderatorHat) {
+    buttons.push(<DropdownItem
+      title={preferredHeadingCase("Un-mark as Moderator Comment")}
+      onClick={handleUnmarkAsModeratorComment}
+    />);
+  } else {
+    buttons.push(<DropdownItem
+      title={preferredHeadingCase("Mark as Moderator Comment (visible)")}
+      onClick={handleMarkAsModeratorComment()}
+    />);
+    buttons.push(<DropdownItem
+      title={preferredHeadingCase("Mark as Moderator Comment (invisible)")}
+      onClick={handleMarkAsModeratorComment({ hideModeratorHat: true })}
+    />);
+  }
+  
+  return <>{buttons}</>;
 }
 
 const ToggleIsModeratorCommentDropdownItemComponent = registerComponent(

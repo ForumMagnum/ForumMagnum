@@ -3,12 +3,13 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 
-const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
+const CommentActions = ({currentUser, comment, post, tag, showEdit, insertModeratorCommentInDialogue}: {
   currentUser: UsersCurrent, // Must be logged in
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   showEdit: ()=>void,
+  insertModeratorCommentInDialogue?: ()=>void,
 }) => {
   const {
     EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
@@ -90,7 +91,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
       <BanUserFromAllPostsDropdownItem comment={comment} post={postDetails} />
       <BanUserFromAllPersonalPostsDropdownItem comment={comment} post={postDetails} />
-      <ToggleIsModeratorCommentDropdownItem comment={comment} />
+      <ToggleIsModeratorCommentDropdownItem comment={comment} insertModeratorCommentInDialogue={insertModeratorCommentInDialogue}/>
     </DropdownMenu>
   );
 }

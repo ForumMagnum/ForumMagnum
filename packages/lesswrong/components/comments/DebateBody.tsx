@@ -30,20 +30,29 @@ export const DebateBody = ({ debateResponses, post, classes }: {
         // Now, we're going to create blocks of sequential-responses-by-author
         .flatMap(([daySeparator, perDayDebateResponses], dayIdx) => {
           const debateResponseBlocks: DebateResponseWithReplies[][] = [];
-          let lastAuthorId: string;
+          const perDayResponsesSorted = perDayDebateResponses.sort((c1, c2) => moment(c1.comment.postedAt).diff(c2.comment.postedAt));
 
-          perDayDebateResponses.sort((c1, c2) => moment(c1.comment.postedAt).diff(c2.comment.postedAt)).forEach((debateResponse) => {
+          for (let i=0; i<perDayResponsesSorted.length; i++) {
+            const debateResponse = perDayResponsesSorted[i];
+            const previousResponse = i>0 ? perDayResponsesSorted[i-1] : null;
+            
             const currentAuthorId = debateResponse.comment.userId;
-            if (currentAuthorId === lastAuthorId) {
+            const lastAuthorId = previousResponse?.comment.userId;
+
+            // Comments share a block if they're by the same author, and neither is a moderator comment
+            if (previousResponse
+              && !debateResponse.comment.moderatorHat
+              && !previousResponse?.comment.moderatorHat
+              && currentAuthorId === lastAuthorId
+            ) {
               const authorBlock = debateResponseBlocks.pop() ?? [];
               authorBlock.push(debateResponse);
               debateResponseBlocks.push(authorBlock);
             } else {
-              lastAuthorId = currentAuthorId;
               const authorBlock = [debateResponse];
               debateResponseBlocks.push(authorBlock);
             }
-          });
+          }
 
           return debateResponseBlocks.map((debateResponseBlock, blockIdx) => {
             // We only want to show the day separator above the first response in the block
