@@ -451,7 +451,11 @@ const NamesAttachedReactionsCommentBottom = ({
     commentItemRef &&  markHighlights(quotes, faintHighlightClassName, commentItemRef)
   }, [quotes, commentItemRef])
 
-  const showReactButton = !(post && post.debate && currentUser && [...getConfirmedCoauthorIds(post), post.userId].includes(currentUser._id))
+
+  const isDebateComment = post?.debate && document.debateResponse
+  const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
+  const userIsDebateParticipant = currentUser && canReactUserIds.includes(currentUser._id)
+  const showReactButton = !isDebateComment || userIsDebateParticipant
 
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
     {visibleReactionsDisplay.length > 0 && <span className={classes.footerReactions}>
@@ -467,10 +471,10 @@ const NamesAttachedReactionsCommentBottom = ({
           />
         </span>
       )}
-      {hideKarma && showReactButton && <AddReactionIcon />}
+      {hideKarma && <AddReactionIcon />}
     </span>}
     {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
-    <AddReactionButton voteProps={voteProps} classes={classes}/>
+    {showReactButton && <AddReactionButton voteProps={voteProps} classes={classes}/>}
   </span>
 }
 

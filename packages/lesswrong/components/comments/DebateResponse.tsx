@@ -65,11 +65,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderColor: theme.palette.border.debateComment5
   },
   lwReactStyling: reactStyles(theme),
-  reacts: {
+  bottomUI: {
     position: 'absolute',
     right: 10,
-    bottom: -14,
+    bottom: -12,
+    display: "flex",
+    alignItems: "center"
   },
+  reacts: {
+    marginRight: 10
+  }
 });
 
 const getParticipantBorderStyle = (participantIndex: number) => {
@@ -193,11 +198,10 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         {menu}
         <div className={classes.commentWithReplyButton}>
           {commentBodyOrEditor}
-          {replyLink}
         </div>
         {replyState}
-        {VoteBottomComponent && <div className={classes.reacts}>
-          <VoteBottomComponent
+        <div className={classes.bottomUI}>
+          {VoteBottomComponent && <span className={classes.reacts}><VoteBottomComponent
             document={comment}
             hideKarma={post.hideCommentKarma}
             collection={Comments}
@@ -205,8 +209,9 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
             commentItemRef={commentItemRef}
             voteProps={voteProps}
             post={post}
-          />
-        </div>}
+          /></span>}
+          {replyLink}
+        </div>
       </div>
     );
   }
