@@ -295,8 +295,9 @@ class ElasticExporter {
                   tokenizer: "standard",
                   filter: [
                     "lowercase",
-                    "fm_synonym_filter",
+                    "apostrophe",
                     "decimal_digit",
+                    "fm_synonym_filter",
                     "fm_english_stopwords",
                     "fm_english_stemmer",
                   ],
