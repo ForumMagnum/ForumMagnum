@@ -25,7 +25,7 @@ interface CollectionBase<
   options: CollectionOptions
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
-  defaultView?: ViewFunction<N> //FIXME: This is actually nullable (but should just have a default)
+  defaultView?: ViewFunction<N>
   views: Record<string, ViewFunction<N>>
   
   _schemaFields: SchemaType<T>
