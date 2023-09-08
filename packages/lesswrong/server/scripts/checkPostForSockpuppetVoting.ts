@@ -78,8 +78,11 @@ const checkForDuplicateIPs = async (voterIds: string[]): Promise<Record<string, 
 /**
  * Given a postId, this function will check the post and each comment on the post.
  * If, for any of these items, there are multiple voters who share a client ID, it will report them as potential sockpuppet voting.
+ *
  * (Note that there are probably bugs around client ID, and I have personally seen a case where separate users were
- * erroneously associated with a single client ID, so this is not definitive proof.)
+ * erroneously associated with a single client ID. Additionally, there are legit reasons for two people to have accounts
+ * associated with the same client ID (ex. one person is using a shared company account that someone else has previously used).
+ * So this is not definitive proof of sockpuppet voting.)
  *
  * It will also report if multiple users who voted on the post share a recent IP address. This part is still WIP, and most of
  * these cases are false positives since there are many legit reasons for users to be associated with the same IP.
@@ -101,13 +104,14 @@ const checkPostForSockpuppetVoting = async (postId: string, voteDirection: 'up'|
   const postVoterIds = postVotes.map(v => v.userId)
   const postVoterSuspiciousClientIds = await checkForDuplicateClientIds(postVoterIds)
   if (verbose)
-    console.log(`Client IDs that ${voteDirection}voted the post more than once:`, postVoterSuspiciousClientIds)
+    console.log(`Client IDs associated with multiple post ${voteDirection}voters:`, postVoterSuspiciousClientIds)
   
   // Check for duplicate IPs
   // (This is more likely to be noise than to be helpful - feel free to comment this block out.)
+  console.log(`Checking for duplicate IPs within post ${voteDirection}voters...`)
   const postVoterSuspiciousIps = await checkForDuplicateIPs(postVoterIds)
   if (verbose) {
-    console.log(`IPs that ${voteDirection}voted the post more than once:`)
+    console.log(`IPs associated with multiple post ${voteDirection}voters:`)
     Object.keys(postVoterSuspiciousIps).forEach(ip => console.log(`${ip} (User IDs: ${postVoterSuspiciousIps[ip]})`))
   }
   
@@ -135,7 +139,7 @@ const checkPostForSockpuppetVoting = async (postId: string, voteDirection: 'up'|
     const voterIds = votes.map(v => v.userId)
     const voterSuspiciousClientIds = await checkForDuplicateClientIds(voterIds)
     if (verbose)
-      console.log(`Client IDs that ${voteDirection}voted the comment ${comment._id} more than once:`, voterSuspiciousClientIds)
+      console.log(`Client IDs associated with multiple ${voteDirection}voters of comment ${comment._id}:`, voterSuspiciousClientIds)
     if (voterSuspiciousClientIds.length)
       commentsSuspiciousClientIds[comment._id] = voterSuspiciousClientIds
     
@@ -146,17 +150,17 @@ const checkPostForSockpuppetVoting = async (postId: string, voteDirection: 'up'|
   // Print out a summary of the findings
   console.log('~~~~~ SUMMARY ~~~~~')
   if (postVoterSuspiciousClientIds.length) {
-    console.log(`Client IDs that ${voteDirection}voted the post more than once:`, postVoterSuspiciousClientIds)
+    console.log(`Client IDs associated with multiple post ${voteDirection}voters:`, postVoterSuspiciousClientIds)
   } else {
-    console.log(`No client IDs ${voteDirection}voted the post more than once.`)
+    console.log(`Found no client IDs associated with multiple post ${voteDirection}voters.`)
   }
   if (Object.keys(postVoterSuspiciousIps).length) {
-    console.log(`IPs that ${voteDirection}voted the post more than once (with their associated userIds):`, postVoterSuspiciousIps)
+    console.log(`IPs associated with multiple post ${voteDirection}voters (with their associated userIds):`, postVoterSuspiciousIps)
   } else {
-    console.log(`No IPs ${voteDirection}voted the post more than once.`)
+    console.log(`Found no IPs associated with multiple post ${voteDirection}voters.`)
   }
   
-  console.log(`Comments where we found client IDs that ${voteDirection}voted more than once (with the relevant client IDs):`, commentsSuspiciousClientIds)
+  console.log(`Comments where we found client IDs associated with multiple ${voteDirection}voters (with the relevant client IDs):`, commentsSuspiciousClientIds)
 }
 
 Vulcan.checkPostForSockpuppetVoting = wrapVulcanAsyncScript('checkPostForSockpuppetVoting', checkPostForSockpuppetVoting)
