@@ -11,6 +11,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 
 export const descriptionStyles = (theme: JssStyles) => ({
@@ -36,6 +37,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
+    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
+    ...(isEAForum && {
+      maxWidth: SECTION_WIDTH,
+      marginLeft: "auto",
+      marginRight: "auto",
+      [theme.breakpoints.up('md')]: {
+        width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection.
+        // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+      }
+    })
   },
   spotlightItem: {
     position: "relative",
@@ -142,10 +153,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 0,
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
+    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
+    ...(isEAForum && {width: "100%", objectFit: "cover"}),
   },
   imageFade: {
-    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 70%,#fff 100%)",
-    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 70%,#fff 100%)",
+    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
+    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
   },
   author: {
     marginTop: 4,
