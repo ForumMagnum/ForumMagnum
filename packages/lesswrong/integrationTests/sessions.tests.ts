@@ -125,10 +125,10 @@ describe("Sessions", () => {
       state.store.get(sid, (error, session) => {
         expect(error).toBeNull();
         expect(session).toEqual(serializedSession);
-        done();
+        done()
       });
     });
-    state.store.set(sessionId, sessionData);
+    void state.store.set(sessionId, sessionData);
   });
   test("Can create 'create' event callback", (done) => {
     const sessionId = "test-create-event";
@@ -142,7 +142,7 @@ describe("Sessions", () => {
         done();
       });
     });
-    state.store.set(sessionId, sessionData);
+    void state.store.set(sessionId, sessionData);
   });
   test("Can create 'update' event callback", (done) => {
     const sessionId = "test-update-event";
@@ -157,9 +157,8 @@ describe("Sessions", () => {
         done();
       });
     });
-    // TODO: the problem here is that these can execute out of order because they wrap
-    // void-ed promises
-    state.store.set(sessionId, sessionData);
-    state.store.set(sessionId, sessionUpdate);
-  }, 40000);
+    void state.store.set(sessionId, sessionData).then(() => {
+      void state.store.set(sessionId, sessionUpdate);
+    })
+  });
 });
