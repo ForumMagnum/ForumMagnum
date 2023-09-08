@@ -892,6 +892,7 @@ interface PostsMinimumInfo { // fragment on Posts
   }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
+  readonly debate: boolean | null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes

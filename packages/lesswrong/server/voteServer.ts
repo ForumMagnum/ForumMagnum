@@ -255,7 +255,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
     const post = await Posts.findOne({_id: (document as DbComment).postId});
-    const acceptedCoauthorIds = post ? getConfirmedCoauthorIds(post) : [];
+    const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
     if (!acceptedCoauthorIds.includes(user._id)) {
       throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
     }

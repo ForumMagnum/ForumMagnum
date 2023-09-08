@@ -23,6 +23,7 @@ import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
+import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -425,7 +426,7 @@ const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collect
 }
 
 const NamesAttachedReactionsCommentBottom = ({
-  document, hideKarma=false, commentItemRef, classes, voteProps
+  document, hideKarma=false, commentItemRef, classes, voteProps, post
 }: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
@@ -446,7 +447,13 @@ const NamesAttachedReactionsCommentBottom = ({
   useEffect(() => {
     commentItemRef &&  markHighlights(quotes, faintHighlightClassName, commentItemRef)
   }, [quotes, commentItemRef])
-  
+
+
+  const isDebateComment = post?.debate && document.debateResponse
+  const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
+  const userIsDebateParticipant = currentUser && canReactUserIds.includes(currentUser._id)
+  const showReactButton = !isDebateComment || userIsDebateParticipant
+
   return <span className={classes.footerReactionsRow} ref={anchorEl}>
     {visibleReactionsDisplay.length > 0 && <span className={classes.footerReactions}>
       {visibleReactionsDisplay.map(({react, numberShown}) =>
@@ -464,7 +471,7 @@ const NamesAttachedReactionsCommentBottom = ({
       {hideKarma && <AddReactionIcon />}
     </span>}
     {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
-    <AddReactionButton voteProps={voteProps} classes={classes}/>
+    {showReactButton && <AddReactionButton voteProps={voteProps} classes={classes}/>}
   </span>
 }
 
