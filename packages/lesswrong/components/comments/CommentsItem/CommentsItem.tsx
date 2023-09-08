@@ -25,7 +25,7 @@ import { VotingProps } from '../../votes/votingProps';
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
-export const reactStyles = (theme: ThemeType): JssStyles => ({
+export const lwReactStyles = (theme: ThemeType): JssStyles => ({
     '&:hover .react-hover-style': {
       filter: "opacity(0.8)",
     },
@@ -177,7 +177,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  lwReactStyling: reactStyles(theme),
+  lwReactStyling: lwReactStyles(theme),
 });
 
 /**
