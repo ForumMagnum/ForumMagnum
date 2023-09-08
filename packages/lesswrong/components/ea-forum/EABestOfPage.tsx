@@ -394,9 +394,6 @@ const CollectionCard = ({ collection, classes }: { collection: CollectionsBestOf
   const title = collection.title;
   const author = collection.user;
 
-  const postCount = collection.postsCount;
-  const readCount = collection.readPostsCount
-
   const imageId =
     // TODO JP-look-here
     collection.gridImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
@@ -407,8 +404,8 @@ const CollectionCard = ({ collection, classes }: { collection: CollectionsBestOf
       <SequenceOrCollectionCard
         title={title}
         author={author}
-        postCount={postCount}
-        readCount={readCount}
+        postCount={collection.postsCount}
+        readCount={collection.readPostsCount}
         imageId={imageId}
         href={href}
         eventHandlers={eventHandlers}
@@ -432,9 +429,6 @@ const SequenceCard = ({ sequence, classes }: { sequence: SequencesPageFragment; 
   const title = sequence.title;
   const author = sequence.user;
 
-  const postCount = sequence.postsCount;
-  const readCount = sequence.readPostsCount;
-
   const imageId =
     sequence.gridImageId ||
     sequence.bannerImageId ||
@@ -446,8 +440,8 @@ const SequenceCard = ({ sequence, classes }: { sequence: SequencesPageFragment; 
       <SequenceOrCollectionCard
         title={title}
         author={author}
-        postCount={postCount}
-        readCount={readCount}
+        postCount={sequence.postsCount}
+        readCount={sequence.readPostsCount}
         imageId={imageId}
         href={href}
         eventHandlers={eventHandlers}
