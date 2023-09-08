@@ -14,7 +14,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -74,6 +73,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isEAForum ? 400 : undefined,
+  },
+  currentEventLink: {
+    marginLeft: "1ch",
+    background: `linear-gradient(91deg,
+      ${theme.palette.text.currentEventHeader.start} 5.84%,
+      ${theme.palette.text.currentEventHeader.stop} 99.75%)
+    `,
+    backgroundClip: "text",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent",
+    "&:hover": {
+      opacity: 0.8,
+    },
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -158,12 +170,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+type CurrentEvent = {
+  name: string,
+  link: string,
+}
+
+const Header = ({
+  standaloneNavigationPresent,
+  sidebarHidden,
+  toggleStandaloneNavigation,
+  stayAtTop=false,
+  searchResultsArea,
+  currentEvent,
+  classes,
+}: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
+  currentEvent?: CurrentEvent,
   classes: ClassesType,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -311,6 +337,14 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                       {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
+                    {currentEvent &&
+                      <Link
+                        to={currentEvent.link}
+                        className={classes.currentEventLink}
+                      >
+                        {currentEvent.name}
+                      </Link>
+                    }
                     <HeaderSubtitle />
                   </div>
                 </div>
