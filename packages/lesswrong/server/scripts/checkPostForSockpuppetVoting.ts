@@ -5,7 +5,7 @@ import LWEvents from "../../lib/collections/lwevents/collection";
 import Votes from "../../lib/collections/votes/collection";
 import { Vulcan } from "../vulcan-lib";
 import uniq from "lodash/uniq";
-import { intersection } from "lodash";
+import intersection from "lodash/intersection";
 import { wrapVulcanAsyncScript } from "./utils";
 
 /**
@@ -84,7 +84,7 @@ const checkForDuplicateIPs = async (voterIds: string[]): Promise<Record<string, 
  * It will also report if multiple users who voted on the post share a recent IP address. This part is still WIP, and most of
  * these cases are false positives since there are many legit reasons for users to be associated with the same IP.
  */
-const checkPostForSockpuppetVoting = async (postId: string, voteDirection: 'up'|'down' = 'down', verbose: boolean = false) => {
+const checkPostForSockpuppetVoting = async (postId: string, voteDirection: 'up'|'down' = 'down', verbose = false) => {
   const voteTypes = voteDirection === 'up' ? ['smallUpvote', 'bigUpvote'] : ['smallDownvote', 'bigDownvote']
   
   // Get a list of userIds for users who voted on the post (in the given direction)
