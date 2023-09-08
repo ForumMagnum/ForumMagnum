@@ -36,7 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     "@media print": {
       display: "none",
     },
-    minWidth: 'fit-content'
+    minWidth: 'fit-content',
+    marginLeft: 10
   },
   hideReplyLink: {
     visibility: 'hidden'
@@ -72,9 +73,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center"
   },
-  reacts: {
-    marginRight: 10
-  }
 });
 
 const getParticipantBorderStyle = (participantIndex: number) => {
@@ -201,7 +199,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         </div>
         {replyState}
         <div className={classes.bottomUI}>
-          {VoteBottomComponent && <span className={classes.reacts}><VoteBottomComponent
+          {VoteBottomComponent && <VoteBottomComponent
             document={comment}
             hideKarma={post.hideCommentKarma}
             collection={Comments}
@@ -209,7 +207,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
             commentItemRef={commentItemRef}
             voteProps={voteProps}
             post={post}
-          /></span>}
+          />}
           {replyLink}
         </div>
       </div>
