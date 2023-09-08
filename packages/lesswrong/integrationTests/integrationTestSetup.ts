@@ -73,9 +73,14 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await waitUntilCallbacksFinished();
-  // eslint-disable-next-line no-console
-  console.log("Test teardown: closing database connections");
+  // Enforce a wait of at least a 1 second before closing the database connection. To mitigate these potential issues:
+  // - There may be some dead time between callbacks where waitUntilCallbacksFinished resolves, but actually another callback is about to run
+  // - Some async functions may not be caught by waitUntilCallbacksFinished at all
+  for (let i = 0; i < 10; i++) {
+    await waitUntilCallbacksFinished();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
   await Promise.all([
     closeDatabaseConnection(),
     closeSqlClient(getSqlClientOrThrow()),
