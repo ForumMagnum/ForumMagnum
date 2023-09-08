@@ -79,7 +79,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
   }
 
   /**
-   * The number of read posts for the given (sequenceId, userId) combinations, returned in the same order given.
+   * The number of read posts for the given (sequenceId, userId) combinations, returned in the order given.
    */
   async readPostsCount(params: { sequenceId: string; userId: string }[]): Promise<number[]> {
     const sequenceIds = params.map(p => p.sequenceId);

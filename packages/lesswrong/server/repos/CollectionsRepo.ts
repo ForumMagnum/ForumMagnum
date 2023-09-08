@@ -8,6 +8,9 @@ export default class CollectionsRepo extends AbstractRepo<DbCollection> {
     super(Collections);
   }
 
+  /**
+   * The total number of posts for the collections with the given ids, returned in the same order as the ids.
+   */
   async postsCount(collectionIds: string[]): Promise<number[]> {
     const query = `
       SELECT
@@ -32,6 +35,9 @@ export default class CollectionsRepo extends AbstractRepo<DbCollection> {
     });
   }
 
+  /**
+   * The number of read posts for the given (collectionId, userId) combinations, returned in the order given.
+   */
   async readPostsCount(params: { collectionId: string; userId: string }[]): Promise<number[]> {
     const collectionIds = params.map(p => p.collectionId);
     const userIds = params.map(p => p.userId);
