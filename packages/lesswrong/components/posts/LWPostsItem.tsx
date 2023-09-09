@@ -467,7 +467,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             </PostsItem2MetaInfo>}
 
             {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo>
-              <div className={classes.unreadDebateResponseCount}>
+              <div className={classes.unreadDebateResponseCount} onClick={toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
               </div>

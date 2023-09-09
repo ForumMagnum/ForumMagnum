@@ -91,6 +91,7 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
 });
 
 getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment) {
+  if (comment.debateResponse) return comment
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
     const lastCommentedAt = new Date()
@@ -128,7 +129,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   const { postId } = comment;
 
   if (postId) {
-    const postComments = await Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
+    const postComments = await Comments.find({postId, debateResponse: false, deleted: false, deletedPublic: false}, {sort: {postedAt: -1}}).fetch();
     const lastCommentedAt = postComments[0] && postComments[0].postedAt;
   
     // update post with a decremented comment count, and corresponding last commented at date
@@ -192,7 +193,7 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   await recalculateAFCommentMetadata(comment.postId)
   
   if (comment.postId) {
-    const comments = await Comments.find({postId:comment.postId, deleted: false}).fetch()
+    const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
   
     const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
     const lastCommentedAt = (lastComment && lastComment.postedAt) || (await Posts.findOne({_id:comment.postId}))?.postedAt || new Date()
