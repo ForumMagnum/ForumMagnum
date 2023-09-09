@@ -215,6 +215,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
+    currentEventHeader: {
+      start: "#F6A958",
+      stop: "#D87D3C",
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
