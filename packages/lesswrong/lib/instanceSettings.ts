@@ -180,3 +180,9 @@ export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("dis
 export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
+
+/** Whether to include a Share button. (Forums with no public access, or a more conservative style wouldn't want one.) */
+export const shareButtonSetting = new PublicInstanceSetting<boolean>("shareButton", true, "optional");
+
+/** TODO: currently unused, but seems likely to be useful */
+export const publicAccess = new PublicInstanceSetting<boolean>("pulicAccess", true, "optional");

@@ -144,9 +144,6 @@ export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showC
 type ThemePickerLocation = "menu" | "userSettings";
 export const themePickerUiLocationSetting = new DatabasePublicSetting<ThemePickerLocation>("themePickerUiLocation", "menu");
 
-/** Whether to include a Share button. (Forums with no public access wouldn't want one.) */
-export const hasShareButtonSetting = new DatabasePublicSetting<boolean>("hasShareButton", true);
-
 // TODO: make this an instance setting if JP confirms that makes sense, because
 // we'd need it in collections/users/schema and server/emails/renderEmail
 /** whether this forum verifies user emails */
