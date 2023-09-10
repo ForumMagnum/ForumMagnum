@@ -8,7 +8,7 @@ import withErrorBoundary from './withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
 import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 
-const intercomAppIdSetting = new DatabasePublicSetting<string>('intercomAppId', 'wtb8z7sj')
+const intercomAppIdSetting = new DatabasePublicSetting<string|undefined>('intercomAppId', undefined)
 
 const styles = (theme: ThemeType): JssStyles => ({
   "@global": {
@@ -38,6 +38,12 @@ const IntercomWrapper = ({classes}: {
   if (!functionalCookiesAllowed) {
     // eslint-disable-next-line no-console
     console.log("Not showing Intercom because functional cookies are not allowed")
+    return null;
+  }
+  console.log('intercomAppIdSetting.get()', intercomAppIdSetting.get())
+  if (!intercomAppIdSetting.get()) {
+    // eslint-disable-next-line no-console
+    console.log("Not showing Intercom because intercomAppId is not set")
     return null;
   }
   
