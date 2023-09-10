@@ -1,5 +1,6 @@
 import { isAnyTest } from "../../../lib/executionEnvironment";
 import { PublicInstanceSetting, isEAForum } from "../../../lib/instanceSettings";
+import { disableElastic } from "../../../lib/search/elasticUtil";
 
 export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",
@@ -22,12 +23,6 @@ export const elasticPasswordSetting = new PublicInstanceSetting<string|null>(
 export const searchOriginDate = new PublicInstanceSetting<string>(
   "searchOriginDate",
   "2014-06-01T01:00:00Z",
-  "optional",
-);
-
-const disableElastic = new PublicInstanceSetting<boolean>(
-  "disableElastic",
-  false,
   "optional",
 );
 

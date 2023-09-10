@@ -14,6 +14,7 @@ import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { isSearchEnabled } from '../../lib/search/elasticUtil';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -99,6 +100,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.invertedBackgroundText3,
     },
   },
+  noSearch: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    marginRight: 10,
+  },
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
@@ -164,8 +169,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
 
   const { SearchBarResults, ForumIcon } = Components
 
-  if (!isAlgoliaEnabled()) {
-    return <div>Search is disabled (Algolia App ID not configured on server)</div>
+  if (!isSearchEnabled()) {
+    return <div className={classNames(classes.root, classes.noSearch)}>
+      Search is disabled (Neither Elastic or Algolia enabled on server)
+    </div>
   }
 
   return <div className={classes.root} onKeyDown={handleKeyDown}>

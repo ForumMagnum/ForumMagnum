@@ -1,5 +1,6 @@
+import { PublicInstanceSetting } from "../instanceSettings";
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
-import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from "./algoliaUtil";
+import { AlgoliaIndexCollectionName, getAlgoliaIndexName, isAlgoliaEnabled } from "./algoliaUtil";
 
 export const elasticCollectionIsCustomSortable = (
   collectionName: AlgoliaIndexCollectionName,
@@ -25,6 +26,14 @@ export const getElasticSortingsForCollection = (
   }
   return allSortings;
 }
+
+export const disableElastic = new PublicInstanceSetting<boolean>(
+  "disableElastic",
+  false,
+  "optional",
+);
+
+export const isSearchEnabled = () => !disableElastic.get() || isAlgoliaEnabled();
 
 export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
   elasticSortings.has(sorting);

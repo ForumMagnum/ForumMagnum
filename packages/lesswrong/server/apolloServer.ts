@@ -32,7 +32,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { isEAForum, testServerSetting } from '../lib/instanceSettings';
+import { fmCrosspostBaseUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -217,7 +217,9 @@ export function startWebserver() {
     res.send(eagApp)
   })
 
-  addCrosspostRoutes(app);
+  if (fmCrosspostBaseUrlSetting.get()) {
+    addCrosspostRoutes(app);
+  }
   addCypressRoutes(app);
 
   if (isElasticEnabled) {
