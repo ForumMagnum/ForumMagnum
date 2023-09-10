@@ -43,7 +43,7 @@
     "ea-command": "./build.js -run --settings ../ForumCredentials/settings-dev.json --postgresUrlFile ../ForumCredentials/dev-pg-conn.txt --command",
     "ea-command-ci": "./build.js -run --settings ./settings-test.json --postgresUrl $PG_URL --command",
     "ea-start": "./build.js -run -watch --settings ../ForumCredentials/settings-dev.json --postgresUrlFile ../ForumCredentials/dev-pg-conn.txt",
-    "ea-start-xpost-dev": "PORT=4000 ./build.js -run -watch --settings ../ForumCredentials/xpost-dev-settings.json --postgresUrlFile ../ForumCredentials/xpost-dev-pg-conn.txt",
+    "ea-start-xpost-dev": "PORT=4000 ./build.js -run -watch --settings ../ForumCredentials/settings-xpost.json --postgresUrlFile ../ForumCredentials/xpost-pg-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --settings ../ForumCredentials/settings-local-dev-staging-db.json --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",
     "ea-start-prod-db": "./build.js -run --watch --settings ../ForumCredentials/settings-local-dev-prod-db.json --postgresUrlFile ../ForumCredentials/prod-pg-conn.txt",
     "ea-start-testing-db": "./build.js -run --watch --settings ./settings-test.json --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
