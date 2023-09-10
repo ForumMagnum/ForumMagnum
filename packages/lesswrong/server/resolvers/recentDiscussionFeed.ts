@@ -1,9 +1,12 @@
 import { mergeFeedQueries, defineFeedResolver, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../lib/collections/posts/collection';
-import { EA_FORUM_COMMUNITY_TOPIC_ID, Tags } from '../../lib/collections/tags/collection';
+import {
+  EA_FORUM_COMMUNITY_TOPIC_ID,
+  EA_FORUM_TRANSLATION_TOPIC_ID,
+  Tags,
+} from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
-import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import Comments from '../../lib/collections/comments/collection';
 import { viewFieldAllowAny } from '../vulcan-lib';
 
@@ -59,6 +62,11 @@ defineFeedResolver<Date>({
       postCommentedExcludeCommunity = communityFilters.none;
     }
 
+    const translationFilter = {$or: [
+      {[`tagRelevance.${EA_FORUM_TRANSLATION_TOPIC_ID}`]: {$lt: 1}},
+      {[`tagRelevance.${EA_FORUM_TRANSLATION_TOPIC_ID}`]: {$exists: false}},
+    ]};
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -81,6 +89,7 @@ defineFeedResolver<Date>({
               ? {$and: [
                 postCommentedEventsCriteria,
                 postCommentedExcludeCommunity,
+                translationFilter,
               ]}
               : postCommentedEventsCriteria),
           },

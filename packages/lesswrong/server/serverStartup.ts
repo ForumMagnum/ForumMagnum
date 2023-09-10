@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 import './datadog/tracer';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
 import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
@@ -57,30 +55,6 @@ const initConsole = () => {
     //var stack = new Error().stack
     //log(stack)
   });
-}
-
-const connectToMongo = async (connectionString: string) => {
-  if (isEAForum || !connectionString) {
-    return;
-  }
-  try {
-    // eslint-disable-next-line no-console
-    console.log("Connecting to mongodb");
-    const client = new MongoClient(connectionString, {
-      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
-      // for various options that could be tuned here
-
-      // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    const db = client.db();
-    setDatabaseConnection(client, db);
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to mongodb: ", err);
-    process.exit(1);
-  }
 }
 
 const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {

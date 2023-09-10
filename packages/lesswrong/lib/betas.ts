@@ -16,6 +16,7 @@ const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // 
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
+const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
@@ -41,8 +42,10 @@ export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
+
 export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
-export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
+
+export const userHasPopularCommentsSection = isEAForum ? adminOrBeta : disabled;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

@@ -71,7 +71,7 @@ const PostSubmit = ({
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
   cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues }: any) => {
+}: PostSubmitProps, { updateCurrentValues, addToSuccessForm }: any) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
@@ -104,12 +104,14 @@ const PostSubmit = ({
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
                 updateCurrentValues({draft: true});
-                // eslint-disable-next-line
-                window.Intercom(
-                  'trackEvent',
-                  'requested-feedback',
-                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-                )
+                addToSuccessForm((createdPost: DbPost) => {
+                  // eslint-disable-next-line
+                  window.Intercom(
+                    'trackEvent',
+                    'requested-feedback',
+                    {title: createdPost.title, _id: createdPost._id, url: getSiteUrl() + "posts/" + createdPost._id}
+                  );
+                });
               }
             }}
           >

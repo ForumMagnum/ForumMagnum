@@ -73,6 +73,7 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/searchTest">Search Test</Link></li>
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
+        <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
       </ul>
 
       <h3>Server Information</h3>

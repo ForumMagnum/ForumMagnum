@@ -61,16 +61,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export type TagPreviewProps = {
-  tag: TagPreviewFragment | null,
+  tag: TagPreviewFragment | TagSectionPreviewFragment | null,
   loading?: boolean,
   classes: ClassesType,
   showCount?: boolean,
   showRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
+  hash?: string,
 }
 
-const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false}: TagPreviewProps) => {
+const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false, hash}: TagPreviewProps) => {
   const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   const showPosts = postCount > 0 && !!(tag?._id)
   const { results, loading: tagPostsLoading } = useMulti({
@@ -92,7 +93,7 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
   return (<div className={classes.card}>
     {loading && <Loading />}
     {tag && <>
-      <TagPreviewDescription tag={tag}/>
+      <TagPreviewDescription tag={tag} hash={hash}/>
       {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
           {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}

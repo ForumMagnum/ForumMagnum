@@ -646,7 +646,7 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,

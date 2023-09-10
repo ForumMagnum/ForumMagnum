@@ -5,10 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import { useFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
+import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -16,9 +16,9 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
-import { useABTest } from '../../lib/abTestImpl';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 
 const titleWrapper = isLW ? {
   marginBottom: 8
@@ -79,6 +79,24 @@ const advancedSortingText = isFriendlyUI
 
 const defaultLimit = isFriendlyUI ? 11 : 13;
 
+const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
+  if (!isEAForum) {
+    return filterSettings;
+  }
+  const tags = filterSettings.tags.filter(
+    ({tagId}) => tagId !== EA_FORUM_TRANSLATION_TOPIC_ID,
+  );
+  tags.push({
+    tagId: EA_FORUM_TRANSLATION_TOPIC_ID,
+    tagName: "Translation",
+    filterMode: "Hidden",
+  });
+  return {
+    ...filterSettings,
+    tags,
+  };
+}
+
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -103,7 +121,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
 
   const recentPostsTerms = {
     ...query,
-    filterSettings: filterSettings,
+    filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
     forum: true,

@@ -24,6 +24,7 @@ import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
+import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -32,8 +33,11 @@ import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
+import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
+import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
@@ -126,8 +130,10 @@ export type ForumIconName =
   "School" |
   "MapPin" |
   "Pencil" |
+  "PencilSquare" |
   "Comment" |
   "CommentFilled" |
+  "ChatBubbleLeftRight" |
   "Shortform" |
   "Warning" |
   "Report" |
@@ -151,6 +157,8 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Puzzle" |
+  "Image" |
+  "Document" |
   "SoftUpArrow" |
   "ArrowRight" |
   "EllipsisVertical" |
@@ -190,8 +198,10 @@ const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
     ListBullet: ListBulletIcon,
@@ -210,6 +220,8 @@ const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
     MinusSmall: MinusSmallIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
+    Image: PhotoIcon,
+    Document: DocumentTextIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
@@ -253,8 +265,10 @@ const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
     Pencil: PencilIcon,
+    PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
+    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
     ListBullet: ListBulletIcon,
@@ -273,6 +287,8 @@ const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
     MinusSmall: MinusSmallIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
+    Image: PhotoIcon,
+    Document: DocumentTextIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,

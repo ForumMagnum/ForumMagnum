@@ -412,7 +412,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </div>}
     </div>
     {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore />
+      <FooterTagList post={post} hideScore allowTruncate />
     </AnalyticsContext>}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

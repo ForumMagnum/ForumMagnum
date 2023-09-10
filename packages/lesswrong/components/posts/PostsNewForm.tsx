@@ -15,7 +15,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import { Link } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -170,6 +169,28 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
+const getPostEditorGuide = (classes: ClassesType) => {
+  const {LWTooltip, NewPostHowToGuides} = Components;
+  if (isLWorAF) {
+    return (
+      <div className={classes.editorGuideOffset}>
+        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+          <div className={classes.editorGuide}>
+            <QuestionIcon className={classes.editorGuideIcon} />
+            <div className={classes.editorGuideLink}>
+              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+            </div>
+          </div>
+        </LWTooltip>
+      </div>
+    );
+  }
+  if (isEAForum) {
+    return <NewPostHowToGuides />;
+  }
+  return undefined;
+}
+
 const PostsNewForm = ({classes}: {
     classes: ClassesType,
   }) => {
@@ -198,9 +219,12 @@ const PostsNewForm = ({classes}: {
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
-  
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning, SingleColumnSection,
-    Typography, Loading, NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents, LWTooltip } = Components
+
+  const {
+    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+  } = Components;
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const debateForm = !!(query && query.debate);
 
@@ -273,22 +297,11 @@ const PostsNewForm = ({classes}: {
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
-  const postEditorGuide = isLWorAF && <div className={classes.editorGuideOffset}>
-    <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-      <div className={classes.editorGuide}>
-        <QuestionIcon className={classes.editorGuideIcon} />
-        <div className={classes.editorGuideLink}>
-          <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
-        </div>
-      </div>
-    </LWTooltip>
-  </div>;
-
   return (
-    <DynamicTableOfContents rightColumnChildren={postEditorGuide}>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
-          <Components.PostsAcceptTos currentUser={currentUser} />
+          <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>

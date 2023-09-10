@@ -29,13 +29,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     [theme.breakpoints.down('xs')]: {
       fontSize: '2.2rem !important',
-      marginTop: '70px !important'
+      marginTop: '110px !important',
+      textShadow: `
+        0 0 5px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 10px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 20px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 5px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 10px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 20px ${theme.palette.background.pageActiveAreaBackground}
+      `, 
     }
   },
   secondaryHeading: {
     marginTop: '-16px',
     fontStyle: 'italic',
     fontWeight: 'normal',
+    [theme.breakpoints.down('xs')]: {
+      textShadow: `
+        0 0 5px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 10px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 20px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 5px ${theme.palette.background.pageActiveAreaBackground},
+        0 0 10px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 20px ${theme.palette.background.pageActiveAreaBackground}
+      `,  
+    }
   },
   bookExplanation: {
     float: 'right',

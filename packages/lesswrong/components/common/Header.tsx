@@ -163,7 +163,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({
+  standaloneNavigationPresent,
+  sidebarHidden,
+  toggleStandaloneNavigation,
+  stayAtTop=false,
+  searchResultsArea,
+  classes,
+}: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,

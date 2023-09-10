@@ -44,9 +44,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: "unset"
     }
   },
+  lastWord: {
+    whiteSpace: "nowrap",
+  },
   linkIcon: {
     color: theme.palette.grey[500],
-    marginLeft: 4,
+    marginLeft: 14,
     fontSize: "0.8em",
   }
 })
@@ -58,6 +61,9 @@ const PostsPageTitle = ({classes, post}: {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
   const { Typography, ForumIcon } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
+  
+  const mostOfTitle = post.title.split(" ").slice(0, -1).join(" ");
+  const lastWordOfTitle = post.title.split(" ").slice(-1)[0];
   
   return (
     <div>
@@ -72,8 +78,14 @@ const PostsPageTitle = ({classes, post}: {
         </Link>
       </Typography>}
       <Typography variant="display3" className={classes.root}>
-        <Link to={postGetPageUrl(post)} className={classes.link}>{post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title} {showLinkIcon && <ForumIcon className={classes.linkIcon} icon="BoldLink" />}</Link>
+        <Link to={postGetPageUrl(post)} className={classes.link}>
+          {post.draft && <span className={classes.draft}>[Draft] </span>}
+          {mostOfTitle}{mostOfTitle && " "}
+          <span className={classes.lastWord}>
+            {lastWordOfTitle}
+            {showLinkIcon && <><ForumIcon className={classes.linkIcon} icon="BoldLink" /></>}
+          </span>
+        </Link>
       </Typography>
     </div>
   )

@@ -162,6 +162,10 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
+      currentEventHeader: {
+        start: ColorString,
+        stop: ColorString,
+      },
     },
     linkHover: {
       dim: ColorString,
@@ -321,6 +325,7 @@ declare global {
       eaCard: string,
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
+      graphTooltip: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
@@ -433,6 +438,9 @@ declare global {
       background: ColorString,
       border: ColorString,
       hoverBackground: ColorString,
+    },
+    graph: {
+      analyticsReads: ColorString,
     },
     group: ColorString,
     contrastText: ColorString,

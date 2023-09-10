@@ -5,6 +5,7 @@ import { ThemeMetadata, themeMetadata, getForumType, AbstractThemeOptions } from
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from './useTheme';
 import { useCurrentUser } from '../common/withUser';
+import { isMobile } from '../../lib/utils/isMobile'
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -46,14 +47,27 @@ const ThemePickerMenu = ({children, classes}: {
       });
     }
   }
+  
+  // When switching theme on desktop, stop event propagation so that the
+  // event handler in UsersMenu doesn't close the menu, and you can try
+  // multiple themes without having to reopen it.
+  const dontCloseMenu = (event: React.MouseEvent) => {
+    if (!isMobile()) {
+      event.stopPropagation();
+    }
+  }
 
-  const setThemeName = (name: UserThemeSetting) => {
+  const setThemeName = (event: React.MouseEvent, name: UserThemeSetting) => {
+    dontCloseMenu(event);
+
     const newThemeOptions = {...currentThemeOptions, name};
     setTheme(newThemeOptions);
     persistUserTheme(newThemeOptions);
   }
 
-  const setThemeForum = (forumType: ForumTypeString) => {
+  const setThemeForum = (event: React.MouseEvent, forumType: ForumTypeString) => {
+    dontCloseMenu(event);
+
     const newThemeOptions = {
       ...currentThemeOptions,
       siteThemeOverride: {
@@ -77,7 +91,7 @@ const ThemePickerMenu = ({children, classes}: {
               <DropdownItem
                 key={themeMetadata.name}
                 title={themeMetadata.label}
-                onClick={() => setThemeName(themeMetadata.name)}
+                onClick={(event) => setThemeName(event, themeMetadata.name)}
                 icon={() => currentThemeOptions?.name === themeMetadata.name
                   ? <ForumIcon icon="Check" className={classes.check} />
                   : <div className={classes.notChecked} />
@@ -107,7 +121,7 @@ const ThemePickerMenu = ({children, classes}: {
               <DropdownItem
                 key={forumType}
                 title={forumType}
-                onClick={() => setThemeForum(forumType)}
+                onClick={(event) => setThemeForum(event, forumType)}
                 icon={() => selectedForumTheme === forumType
                   ? <ForumIcon icon="Check" className={classes.check} />
                   : <div className={classes.notChecked} />

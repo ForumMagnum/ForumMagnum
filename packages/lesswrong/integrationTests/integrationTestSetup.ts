@@ -2,8 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
+import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
@@ -14,7 +13,6 @@ import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
-import { isEAForum } from '../lib/instanceSettings';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).

@@ -49,7 +49,7 @@ const InboxNavigation = ({
     history.push({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute.name !== "moderatorInbox"
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
 
   return (
     <SingleColumnSection>
