@@ -11,7 +11,7 @@ import Select from '@material-ui/core/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import { moderationEmail } from '../../lib/publicSettings';
+import { ckEditorUploadUrlSetting, moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 
@@ -130,6 +130,12 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       noClickawayCancel: true,
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
+  
+  if (!ckEditorUploadUrlSetting.get()) {
+    // eslint-disable-next-line no-console
+    console.log("ckEditorUploadUrlSetting not set; disabling sharing");
+    return null
+  }
   
   if (!userCanUseSharing(currentUser))
     return <LWTooltip title="You need at least 1 karma or to be approved by a mod to share">

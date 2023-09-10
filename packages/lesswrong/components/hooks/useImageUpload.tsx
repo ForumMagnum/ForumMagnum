@@ -221,6 +221,11 @@ export const useImageUpload = ({
       throw new Error("Cloudinary is not loaded");
     }
 
+    const cloudinaryCloudName = cloudinaryCloudNameSetting.get();
+    if (!cloudinaryCloudName) {
+      throw new Error("Cloudinary not configured");
+    }
+
     const cloudinaryArgs = cloudinaryArgsByImageType[imageType];
     if (!cloudinaryArgs) {
       throw new Error("Unsupported image upload type")
@@ -237,7 +242,7 @@ export const useImageUpload = ({
       multiple: false,
       sources: ["local", "url", "camera", "facebook", "instagram", "google_drive"],
       cropping: true,
-      cloudName: cloudinaryCloudNameSetting.get(),
+      cloudName: cloudinaryCloudName,
       theme: "minimal",
       croppingValidateDimensions: true,
       croppingShowDimensions: true,

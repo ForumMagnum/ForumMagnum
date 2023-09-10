@@ -40,7 +40,6 @@ const IntercomWrapper = ({classes}: {
     console.log("Not showing Intercom because functional cookies are not allowed")
     return null;
   }
-  console.log('intercomAppIdSetting.get()', intercomAppIdSetting.get())
   if (!intercomAppIdSetting.get()) {
     // eslint-disable-next-line no-console
     console.log("Not showing Intercom because intercomAppId is not set")
