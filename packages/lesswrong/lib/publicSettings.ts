@@ -60,7 +60,8 @@ export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | nu
 
 
 export const hideUnreviewedAuthorCommentsSettings = new DatabasePublicSetting<string | null>('hideUnreviewedAuthorComments', null) // Hide comments by unreviewed authors after date provided (prevents spam / flaming / makes moderation easier, but delays new user engagement)
-export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string>('cloudinary.cloudName', 'lesswrong-2-0') // Cloud name for cloudinary hosting
+
+export const cloudinaryCloudNameSetting = new DatabasePublicSetting<string | null>('cloudinary.cloudName', null) // Cloud name for cloudinary hosting
 
 export const forumAllPostsNumDaysSetting = new DatabasePublicSetting<number>('forum.numberOfDays', 10) // Number of days to display in the timeframe view
 
