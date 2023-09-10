@@ -23,11 +23,12 @@ const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 const makeCredentialsPath = (fileName: string) =>
   join("..", "..", "ForumCredentials", fileName);
 
-const readSettingsFile = (mode: Mode): Settings => {
+const readSettingsFile = (mode: Mode, settingsPath: string): Settings => {
   if (mode === "xpost-dev") {
     mode = "dev";
   }
-  const path = makeCredentialsPath(`load${capitalize(mode)}DbSettings.js`);
+  // We are in root/scripts
+  const path = join('..', settingsPath) ?? makeCredentialsPath(`load${capitalize(mode)}DbSettings.js`);
   const data = require(path);
   if (!data.databasePublicSettings || !data.databaseServerSettings) {
     throw new Error("Malformed settings file");
@@ -79,9 +80,10 @@ const deleteByName = async (db: Database, name: string) => {
   if (!isMode(mode)) {
     throw new Error(`Invalid mode: ${mode}`);
   }
+  const settingsPath = process.argv[3] // optional
 
-  const settings = readSettingsFile(mode);
-  const connectionString = await readPgUrl(mode);
+  const settings = readSettingsFile(mode, settingsPath);
+  const connectionString = process.argv[4] ?? await readPgUrl(mode);
 
   const db = pgPromiseLib({
     connectionString,
