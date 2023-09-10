@@ -153,9 +153,9 @@ export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', 
 export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional');
 
 // Sentry settings
-export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
-export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "warning"); // Environment, i.e. "development"
-export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
+export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "optional"); // DSN URL
+export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('sentry.environment', null, "optional"); // Environment, i.e. "development"
+export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "optional") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
 // FM Crossposting
