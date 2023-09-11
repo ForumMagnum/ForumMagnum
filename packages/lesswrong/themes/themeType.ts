@@ -166,6 +166,10 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
+      currentEventHeader: {
+        start: ColorString,
+        stop: ColorString,
+      },
     },
     linkHover: {
       dim: ColorString,

@@ -14,7 +14,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -158,7 +157,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({
+  standaloneNavigationPresent,
+  sidebarHidden,
+  toggleStandaloneNavigation,
+  stayAtTop=false,
+  searchResultsArea,
+  classes,
+}: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,

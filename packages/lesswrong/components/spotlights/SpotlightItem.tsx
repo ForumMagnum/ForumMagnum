@@ -11,6 +11,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 
 export const descriptionStyles = (theme: JssStyles) => ({
@@ -36,6 +37,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
+    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
+    ...(isEAForum && {
+      maxWidth: SECTION_WIDTH,
+      marginLeft: "auto",
+      marginRight: "auto",
+      [theme.breakpoints.up('md')]: {
+        width: SECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection.
+        // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+      }
+    })
   },
   spotlightItem: {
     position: "relative",
@@ -135,33 +146,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   startOrContinue: {
     marginTop: isEAForum ? 16 : 4,
   },
-  imageWrapper: {
-    position: "absolute",
-    top : 0,
-    right: 0,
-    // Try to make this wrapper as tall and wide as the image
-    width: "fit-content",
-    height: "100%",
-    zIndex: 0,
-  },
-  imageFade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    height: "100%",
-    width: "100%",
-    backgroundImage: `linear-gradient(to right, ${theme.palette.grey[0]} 0%, ${theme.palette.inverseGreyAlpha(.5)} 70%, transparent 100%)`,
-    zIndex: 1,
-  },
   image: {
-    // TODO: Temp
+    height: "100%",
     position: "absolute",
     top: 0,
     right: 0,
-    // /Temp
-    height: "100%",
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
+    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
+    ...(isEAForum && {width: "100%", objectFit: "cover"}),
+  },
+  imageFade: {
+    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
+    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
   },
   author: {
     marginTop: 4,
@@ -330,15 +327,13 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
-        {/* TODO: I'll be right back */}
-        {spotlight.spotlightImageId && </* div className={classes.imageWrapper} */>
-          {/* {spotlight.imageFade && <div className={classes.imageFade} />} */}
-          <CloudinaryImage2
-            publicId={spotlight.spotlightImageId}
-            darkPublicId={spotlight.spotlightDarkImageId}
-            className={classes.image}
-          />
-        </>} {/* </div> */}
+        {spotlight.spotlightImageId && <CloudinaryImage2
+          publicId={spotlight.spotlightImageId}
+          darkPublicId={spotlight.spotlightDarkImageId}
+          className={classNames(classes.image, {
+            [classes.imageFade]: spotlight.imageFade,
+          })}
+        />}
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
