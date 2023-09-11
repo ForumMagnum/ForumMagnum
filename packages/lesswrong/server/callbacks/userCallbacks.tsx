@@ -429,6 +429,9 @@ async function sendWelcomeMessageTo(userId: string) {
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
     adminsAccount = await getAdminTeamAccount()
+    if (!adminsAccount) {
+      throw new Error("Could not find admin account")
+    }
   }
   
   const subjectLine = welcomePost.title;

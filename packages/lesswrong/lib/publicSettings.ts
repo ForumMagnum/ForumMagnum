@@ -104,6 +104,12 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+// TODO; LessWrong needs this in their settings
+type AccountInfo = {
+  username: string,
+  email: string,
+};
+export const adminAccountSetting = new DatabasePublicSetting<AccountInfo|null>('adminAccount', null);
 
 export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
 
