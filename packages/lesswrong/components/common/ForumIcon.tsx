@@ -93,7 +93,7 @@ import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
 import { ThickChevronDownIcon } from "../icons/thickChevronDownIcon";
 import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
-import { AddEmojiIcon, AddEmojiLargeIcon } from "../icons/addEmoji";
+import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
@@ -119,7 +119,6 @@ export type ForumIconName =
   "Bell" |
   "BellBorder" |
   "AddEmoji" |
-  "AddEmojiLarge" |
   "Link" |
   "BoldLink" |
   "Pin" |
@@ -188,7 +187,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bell: MuiNotificationsIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
-    AddEmojiLarge: AddEmojiLargeIcon,
     Link: MuiLinkIcon,
     BoldLink: BoldLinkIcon,
     Pin: StickyIcon,
@@ -256,7 +254,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bell: BellIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
-    AddEmojiLarge: AddEmojiLargeIcon,
     Link: LinkIcon,
     BoldLink: BoldLinkIcon,
     Pin: PinIcon,

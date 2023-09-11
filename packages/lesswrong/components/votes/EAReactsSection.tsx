@@ -65,6 +65,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   addEmojiIcon: {
     transform: "translateY(2px)",
+    width: "18px !important",
+    height: "18px !important",
   },
   addEmojiIconLarge: {
     width: "20px !important",
@@ -303,7 +305,7 @@ const EAReactsSection: FC<{
           popperClassName={classNames(classes.tooltip, classes.addEmojiTooltip)}
         >
           <ForumIcon
-            icon={large ? "AddEmojiLarge" : "AddEmoji"}
+            icon="AddEmoji"
             noDefaultStyles
             className={classNames(classes.addEmojiIcon, {
               [classes.addEmojiIconLarge]: large,
