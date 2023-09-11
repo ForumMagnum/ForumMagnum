@@ -12,7 +12,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isEAForum, shareButtonSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -72,7 +72,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${shareButtonSetting.get() ? '#0C869B' : '#5f9b65' // TODO: make this an instance setting?}
+    color: ${isEAForum ? '#0C869B' : '#5f9b65' // TODO: make this an instance setting?}
   }
   blockquote {
     border-left: solid 3px #e0e0e0;

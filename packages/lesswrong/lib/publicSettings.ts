@@ -136,11 +136,8 @@ export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurate
 /** TODO; doc */
 export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showCommunityMap", false);
 
-// TODO: make this an instance setting if JP confirms that makes sense, because
-// we'd need it in collections/users/schema
-/** Determines whether to show the Theme Picker (e.g. dark theme) in the menu or the user settings page */
-type ThemePickerLocation = "menu" | "userSettings";
-export const themePickerUiLocationSetting = new DatabasePublicSetting<ThemePickerLocation>("themePickerUiLocation", "menu");
+/** Whether to include a Share button. (Forums with no public access wouldn't want one.) */
+export const hasShareButtonSetting = new DatabasePublicSetting<boolean>("hasShareButton", true);
 
 // TODO: make this an instance setting if JP confirms that makes sense, because
 // we'd need it in collections/users/schema and server/emails/renderEmail

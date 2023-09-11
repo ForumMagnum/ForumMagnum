@@ -563,7 +563,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: ownsOrIsAdmin,
     canRead: ownsOrIsAdmin,
-    hidden: !isEAForum,
+    hidden: isLWorAF,
     control: "ThemeSelect",
     order: 1,
     group: formGroups.siteCustomizations,
@@ -1581,7 +1581,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: isEAForum ? 5 : 101,
+    order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
@@ -2264,7 +2264,7 @@ const schema: SchemaType<DbUser> = {
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
-    order: isEAForum ? 1 : 40,
+    order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
     group: isEAForum ? formGroups.aboutMe : formGroups.default,
     type: String,
     optional: true,

@@ -1521,3 +1521,5 @@ addRoute(
     title: "Review Admin Dashboard",
   }
 );
+
+require('./forumSpecificRoutes')
