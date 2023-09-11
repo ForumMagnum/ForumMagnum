@@ -98,6 +98,13 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
+import {
+  RecentDiscussionCommentIcon,
+  RecentDiscussionEventIcon,
+  RecentDiscussionPostIcon,
+  RecentDiscussionQuickTakeIcon,
+  RecentDiscussionTagIcon,
+} from "../icons/recentDiscussionIcons";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -147,6 +154,11 @@ export type ForumIconName =
   "ThickChevronRight" |
   "ThickChevronDown" |
   "NarrowArrowDown" |
+  "RecentDiscussionComment" |
+  "RecentDiscussionQuickTake" |
+  "RecentDiscussionPost" |
+  "RecentDiscussionEvent" |
+  "RecentDiscussionTag" |
   "Plus" |
   "Check" |
   "CheckCircle" |
@@ -215,6 +227,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    RecentDiscussionComment: RecentDiscussionCommentIcon,
+    RecentDiscussionQuickTake: RecentDiscussionQuickTakeIcon,
+    RecentDiscussionPost: RecentDiscussionPostIcon,
+    RecentDiscussionEvent: RecentDiscussionEventIcon,
+    RecentDiscussionTag: RecentDiscussionTagIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -282,6 +299,11 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    RecentDiscussionComment: RecentDiscussionCommentIcon,
+    RecentDiscussionQuickTake: RecentDiscussionQuickTakeIcon,
+    RecentDiscussionPost: RecentDiscussionPostIcon,
+    RecentDiscussionEvent: RecentDiscussionEventIcon,
+    RecentDiscussionTag: RecentDiscussionTagIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
