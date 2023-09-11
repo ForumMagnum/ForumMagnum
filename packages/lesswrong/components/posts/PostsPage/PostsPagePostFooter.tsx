@@ -87,7 +87,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </div>
       </AnalyticsContext>
     }
-    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT || isEAForum) &&
       <>
         <div className={classes.footerSection}>
           <div className={classes.voteBottom}>
