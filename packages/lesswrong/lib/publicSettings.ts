@@ -104,6 +104,11 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+type AccountInfo = {
+  username: string,
+  email: string,
+};
+export const adminAccountSetting = new DatabasePublicSetting<AccountInfo|null>('adminAccount', null);
 
 export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
 
@@ -143,10 +148,6 @@ export const hasShareButtonSetting = new DatabasePublicSetting<boolean>("hasShar
 // we'd need it in collections/users/schema and server/emails/renderEmail
 /** whether this forum verifies user emails */
 export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEmails", true);
-
-/** Recipient name and email for the admin team */
-export const adminTeamEmailUsernameSetting = new DatabasePublicSetting<string>("adminTeamEmailUsername", "ERROR: NO ADMIN TEAM EMAIL USERNAME SET");
-export const adminTeamEmailAddressSetting = new DatabasePublicSetting<string>("adminTeamEmailAddress", "ERROR: NO ADMIN TEAM EMAIL ADDRESS SET");
 
 // TODO: make this an instance setting if JP confirms that makes sense
 // /** main theme color, needed here for server/emails/renderEmail */

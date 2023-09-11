@@ -320,11 +320,14 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
     const noEmail = isEAForum
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+    
+    const adminAccount = currentUser ?? await getAdminTeamAccount();
+    if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   
     await sendPostRejectionPM({
       post,
       messageContents: messageContents,
-      lwAccount: currentUser ?? await getAdminTeamAccount(),
+      lwAccount: adminAccount,
       noEmail,
     });  
   }

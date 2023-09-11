@@ -179,6 +179,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
       
       // create a new conversation between the commenter and the admin team account
       const adminsAccount = await getAdminTeamAccount()
+      if (!adminsAccount) throw new Error("Could not find admin account")
       const conversationData = {
         participantIds: [user._id, adminsAccount._id],
         title: 'Your comment was auto-flagged'

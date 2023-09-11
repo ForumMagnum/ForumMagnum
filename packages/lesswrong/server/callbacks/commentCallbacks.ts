@@ -18,23 +18,22 @@ import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { adminTeamEmailAddressSetting, adminTeamEmailUsernameSetting } from '../../lib/publicSettings';
+import { adminAccountSetting } from '../../lib/publicSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-// This should get refactored someday to be more forum-neutral
-const adminTeamUserData = {
-    username: adminTeamEmailUsernameSetting.get(),
-    email: adminTeamEmailAddressSetting.get()
-  }
 
 export const getAdminTeamAccount = async () => {
-  let account = await Users.findOne({username: adminTeamUserData.username});
+  const adminAccountData = adminAccountSetting.get();
+  if (!adminAccountData) {
+    return null;
+  }
+  let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
     const newAccount = await createMutator({
       collection: Users,
-      document: adminTeamUserData,
+      document: adminAccountData,
       validate: false,
     })
     return newAccount.data
@@ -330,8 +329,12 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
+    const lwAccount = await getAdminTeamAccount() ?? commentUser;
+    if (!lwAccount) {
+      // Something has gone horribly wrong
+      throw new Error("Could not find admin account to send PM from");
+    }
 
     let messageContents =
         `<div>
