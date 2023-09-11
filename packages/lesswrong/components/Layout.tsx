@@ -206,8 +206,9 @@ const Layout = ({currentUser, children, classes}: {
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
 
   // enable during ACX Everywhere
-  const [cookies] = useCookiesWithConsent()
-  const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // const [cookies] = useCookiesWithConsent()
+  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
+  // (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
