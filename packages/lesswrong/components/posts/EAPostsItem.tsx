@@ -1,4 +1,4 @@
-import React, { FC, useRef } from "react";
+import React, { FC } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -109,20 +109,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     whiteSpace: "nowrap",
   },
-  metaLeft: {
-    flexGrow: 1,
-    display: "flex",
-    alignItems: "center",
-    overflow: "hidden",
-    "& > :first-child": {
-      marginRight: 5,
-    },
-  },
-  readTime: {
-    "@media screen and (max-width: 350px)": {
-      display: "none",
-    },
-  },
   secondaryContainer: {
     display: "flex",
     alignItems: "center",
@@ -206,7 +192,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     showTrailingButtons,
     showMostValuableCheckbox,
     showDismissButton,
-    showArchiveButton,
     onDismiss,
     onArchive,
     resumeReading,
@@ -224,17 +209,15 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isVoteable,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
-  const authorExpandContainer = useRef(null);
 
   if (isRepeated) {
     return null;
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
-    TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    PostsTitle, ForumIcon, PostActionsButton, KarmaDisplay, EAPostMeta,
+    PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
-    PostsVote,
   } = Components;
 
   const SecondaryInfo = () => (
@@ -321,21 +304,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 className={classes.title}
               />
               <div className={classes.meta}>
-                <div className={classes.metaLeft} ref={authorExpandContainer}>
-                  <InteractionWrapper className={classes.interactionWrapper}>
-                    <TruncatedAuthorsList
-                      post={post}
-                      expandContainer={authorExpandContainer}
-                    />
-                  </InteractionWrapper>
-                  <div>
-                    {' · '}
-                    <PostsItemDate post={post} noStyles includeAgo />
-                    {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) && <span className={classes.readTime}>
-                      {' · '}{post.readTimeMinutes || 1}m read
-                    </span>}
-                  </div>
-                </div>
+                <EAPostMeta post={post} />
                 <div className={classNames(
                   classes.secondaryContainer,
                   classes.onlyMobile,

@@ -2,11 +2,9 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -23,21 +21,21 @@ const RecentDiscussionFeed = ({
   const refetchRef = useRef<null|(()=>void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
-  
+
   useGlobalKeydown(event => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);
     }
   });
-  
+
   const toggleShortformFeed = useCallback(
     () => {
       setShowShortformFeed(!showShortformFeed);
     },
     [setShowShortformFeed, showShortformFeed]
   );
-  
+
   const {
     SingleColumnSection,
     SectionTitle,
@@ -49,14 +47,19 @@ const RecentDiscussionFeed = ({
     RecentDiscussionTag,
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
+    EARecentDiscussionThread,
     AnalyticsInViewTracker,
     RecentDiscussionSubforumThread,
   } = Components;
-  
+
   const refetch = useCallback(() => {
     if (refetchRef.current)
       refetchRef.current();
   }, [refetchRef]);
+
+  const ThreadComponent = isEAForum
+    ? EARecentDiscussionThread
+    : RecentDiscussionThread;
 
   const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
@@ -93,7 +96,7 @@ const RecentDiscussionFeed = ({
               postCommented: {
                 fragmentName: "PostsRecentDiscussion",
                 render: (post: PostsRecentDiscussion) => (
-                  <RecentDiscussionThread
+                  <ThreadComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments}
