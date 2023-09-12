@@ -78,6 +78,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
   const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
+  const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
     {!isEAForum && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
@@ -87,7 +88,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </div>
       </AnalyticsContext>
     }
-    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT || isEAForum) &&
+    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
           <div className={classes.voteBottom}>
