@@ -24,6 +24,8 @@ const styles = (_theme: ThemeType) => ({
   },
   postTitle: {
     marginBottom: 4,
+    fontSize: 16,
+    fontWeight: 600,
   },
   commentCount: {
     display: "flex",
@@ -31,6 +33,9 @@ const styles = (_theme: ThemeType) => ({
     "& svg": {
       fontSize: 18,
     },
+  },
+  excerpt: {
+    marginBottom: 12,
   },
 });
 
@@ -72,7 +77,7 @@ const EARecentDiscussionThread = ({
 
   const {
     EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, EAKarmaDisplay,
-    PostsItemTooltipWrapper,
+    PostsItemTooltipWrapper, PostExcerpt,
   } = Components;
   return (
     <EARecentDiscussionItem
@@ -95,7 +100,7 @@ const EARecentDiscussionThread = ({
           {post.commentCount}
         </Link>
       </div>
-      <div dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight ?? ""}} />
+      <PostExcerpt post={post} className={classes.excerpt} />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
           <CommentsNode

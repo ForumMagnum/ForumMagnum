@@ -187,6 +187,7 @@ importComponent("FlashMessages", () => require('../components/common/FlashMessag
 importComponent("Header", () => require('../components/common/Header'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
+importComponent("PostExcerpt", () => require('../components/common/PostExcerpt'));
 importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("LWHome", () => require('../components/common/LWHome'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
