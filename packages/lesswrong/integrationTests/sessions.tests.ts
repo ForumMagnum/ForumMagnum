@@ -125,10 +125,10 @@ describe("Sessions", () => {
       state.store.get(sid, (error, session) => {
         expect(error).toBeNull();
         expect(session).toEqual(serializedSession);
-        done();
+        done()
       });
     });
-    state.store.set(sessionId, sessionData);
+    void state.store.set(sessionId, sessionData);
   });
   test("Can create 'create' event callback", (done) => {
     const sessionId = "test-create-event";
@@ -142,7 +142,7 @@ describe("Sessions", () => {
         done();
       });
     });
-    state.store.set(sessionId, sessionData);
+    void state.store.set(sessionId, sessionData);
   });
   test("Can create 'update' event callback", (done) => {
     const sessionId = "test-update-event";
@@ -157,7 +157,8 @@ describe("Sessions", () => {
         done();
       });
     });
-    state.store.set(sessionId, sessionData);
-    state.store.set(sessionId, sessionUpdate);
+    void state.store.set(sessionId, sessionData).then(() => {
+      void state.store.set(sessionId, sessionUpdate);
+    })
   });
 });
