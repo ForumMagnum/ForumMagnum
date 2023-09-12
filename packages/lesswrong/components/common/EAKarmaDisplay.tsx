@@ -35,7 +35,7 @@ const EAKarmaDisplay = ({post, className, classes}: {
 const EAKarmaDisplayComponent = registerComponent(
   "EAKarmaDisplay",
   EAKarmaDisplay,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

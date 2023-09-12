@@ -12,20 +12,25 @@ const styles = (_theme: ThemeType) => ({
   header: {
     display: "flex",
     alignItems: "center",
-    width: "100%",
+    gap: "8px",
     marginBottom: 15,
   },
   postInfo: {
     flexGrow: 1,
+    minWidth: 0,
   },
   karmaDisplay: {
     marginLeft: 6,
-    marginRight: 14,
+    marginRight: 8,
   },
   postTitle: {
     marginBottom: 4,
     fontSize: 16,
     fontWeight: 600,
+    display: "block",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   commentCount: {
     display: "flex",
@@ -90,8 +95,10 @@ const EARecentDiscussionThread = ({
       <div className={classes.header}>
         <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         <div className={classes.postInfo}>
-          <PostsItemTooltipWrapper post={post} className={classes.postTitle}>
-            <Link to={postGetPageUrl(post)}>{post.title}</Link>
+          <PostsItemTooltipWrapper post={post}>
+            <Link to={postGetPageUrl(post)} className={classes.postTitle}>
+              {post.title}
+            </Link>
           </PostsItemTooltipWrapper>
           <EAPostMeta post={post} />
         </div>

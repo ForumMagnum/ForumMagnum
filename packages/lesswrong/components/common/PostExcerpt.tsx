@@ -20,10 +20,15 @@ const PostExcerpt = ({post, className, classes}: {
   className?: string,
   classes: ClassesType,
 }) => {
+  const highlight = htmlToTextTruncated(post.contents?.htmlHighlight);
+  if (!highlight) {
+    return null;
+  }
+
   // TODO: Add a 'More' button linking to the post
   return (
     <div className={classNames(classes.root, className)}>
-      {htmlToTextTruncated(post.contents?.htmlHighlight)}
+      {highlight}
     </div>
   );
 }
@@ -31,7 +36,7 @@ const PostExcerpt = ({post, className, classes}: {
 const PostExcerptComponent = registerComponent(
   "PostExcerpt",
   PostExcerpt,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

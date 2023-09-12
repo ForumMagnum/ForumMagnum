@@ -4,11 +4,14 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
 
+const ICON_WIDTH = 24;
+const GAP = 12;
+
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
-    gap: "12px",
+    gap: `${GAP}px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
@@ -18,8 +21,11 @@ const styles = (theme: ThemeType) => ({
   primaryText: {
     color: theme.palette.grey[1000],
   },
+  iconContainer: {
+    width: ICON_WIDTH,
+  },
   container: {
-    width: "100%",
+    width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
   },
   meta: {
     marginBottom: 14,
