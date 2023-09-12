@@ -48,6 +48,7 @@ const RecentDiscussionFeed = ({
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
     EARecentDiscussionThread,
+    EARecentDiscussionTag,
     AnalyticsInViewTracker,
     RecentDiscussionSubforumThread,
   } = Components;
@@ -60,6 +61,9 @@ const RecentDiscussionFeed = ({
   const ThreadComponent = isEAForum
     ? EARecentDiscussionThread
     : RecentDiscussionThread;
+  const TagRevisionComponent = isEAForum
+    ? EARecentDiscussionTag
+    : RecentDiscussionTagRevisionItem;
 
   const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
@@ -129,7 +133,7 @@ const RecentDiscussionFeed = ({
               tagRevised: {
                 fragmentName: "RevisionTagFragment",
                 render: (revision: RevisionTagFragment) => <div>
-                  {revision.tag && <RecentDiscussionTagRevisionItem
+                  {revision.tag && <TagRevisionComponent
                     tag={revision.tag}
                     revision={revision}
                     headingStyle="full"

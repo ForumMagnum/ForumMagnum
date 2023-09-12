@@ -3,6 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
+import { tagGetUrl } from "../../lib/collections/tags/helpers";
 
 const ICON_WIDTH = 24;
 const GAP = 12;
@@ -41,11 +42,18 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export type EARecentDiscussionItemProps = {
+type EARecentDiscussionItemDocument = {
+  post: PostsRecentDiscussion,
+  tag?: never,
+} | {
+  post?: never,
+  tag: TagBasicInfo,
+};
+
+export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
   user?: UsersMinimumInfo | null,
   description: string,
-  post: PostsRecentDiscussion,
   timestamp: Date,
 }
 
@@ -54,6 +62,7 @@ const EARecentDiscussionItem = ({
   user,
   description,
   post,
+  tag,
   timestamp,
   children,
   classes,
@@ -73,9 +82,16 @@ const EARecentDiscussionItem = ({
           {" "}
           {description}
           {" "}
-          <Link to={postGetPageUrl(post)} className={classes.primaryText}>
-            {post.title}
-          </Link>
+          {post &&
+            <Link to={postGetPageUrl(post)} className={classes.primaryText}>
+              {post.title}
+            </Link>
+          }
+          {tag &&
+            <Link to={tagGetUrl(tag)} className={classes.primaryText}>
+              {tag.name}
+            </Link>
+          }
           {" "}
           <FormatDate date={timestamp} includeAgo />
         </div>

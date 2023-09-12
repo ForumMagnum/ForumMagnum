@@ -6,28 +6,47 @@ import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  tagName: {
-    // same as RecentDiscussionThread-title
-    ...theme.typography.display2,
-    ...theme.typography.postStyle,
-    marginTop: 0,
-    marginBottom: 8,
-    display: "block",
-    fontSize: "1.75rem",
-    ...(isEAForum && {
+  root: {
+    marginBottom: isEAForum ? 12 : undefined,
+  },
+  tagName: isEAForum
+    ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
-  },
-  metadata: {
-    color: theme.palette.grey[800],
-    marginRight: theme.spacing.unit,
-    fontSize: "1.1rem",
-    ...theme.typography.commentStyle
-  },
+      fontSize: 16,
+      fontWeight: 600,
+      marginBottom: 10,
+    }
+    : {
+      // same as RecentDiscussionThread-title
+      ...theme.typography.display2,
+      ...theme.typography.postStyle,
+      marginTop: 0,
+      marginBottom: 8,
+      display: "block",
+      fontSize: "1.75rem",
+    },
+  metadata: isEAForum
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontStyle: "italic",
+      fontSize: 14,
+      fontWeight: 500,
+      color: theme.palette.grey[600],
+      marginRight: theme.spacing.unit,
+    }
+    : {
+      color: theme.palette.grey[800],
+      marginRight: theme.spacing.unit,
+      fontSize: "1.1rem",
+      ...theme.typography.commentStyle
+    },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
-  }
+  },
+  changeMetrics: {
+    marginRight: isEAForum ? 8 : undefined,
+  },
 });
 
 const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
@@ -35,10 +54,10 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   revision: RevisionMetadataWithChangeMetrics,
   classes: ClassesType,
 }) => {
-  const { FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote } = Components
+  const {FormatDate, UsersName, ChangeMetricsDisplay, SmallSideVote} = Components;
   const tagUrl = tagGetUrl(tag);
-  
-  return <div>
+
+  return <div className={classes.root}>
     <div className={classes.tagName}>
       <Link to={tagUrl}>
         {tag.name}
@@ -51,9 +70,22 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
         <UsersName documentId={revision.userId}/>
       </span>
       {" "}
-      <ChangeMetricsDisplay changeMetrics={revision.changeMetrics}/>
-      {" "}
-      <FormatDate tooltip={false} format={"MMM Do YYYY z"} date={revision.editedAt}/>{" "}
+      <ChangeMetricsDisplay
+        changeMetrics={revision.changeMetrics}
+        showCharacters={isEAForum}
+        className={classes.changeMetrics}
+      />
+      {!isEAForum &&
+        <>
+          {" "}
+          <FormatDate
+            tooltip={false}
+            format={"MMM Do YYYY z"}
+            date={revision.editedAt}
+          />
+          {" "}
+        </>
+      }
       {" "}
       <SmallSideVote
         document={revision}

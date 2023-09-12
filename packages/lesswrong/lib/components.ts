@@ -543,6 +543,7 @@ importComponent("RecentDiscussionSubscribeReminder", () => require('../component
 importComponent("RecentDiscussionMeetupsPoke", () => require('../components/recentDiscussion/RecentDiscussionMeetupsPoke'));
 importComponent("EARecentDiscussionItem", () => require('../components/recentDiscussion/EARecentDiscussionItem'));
 importComponent("EARecentDiscussionThread", () => require('../components/recentDiscussion/EARecentDiscussionThread'));
+importComponent("EARecentDiscussionTag", () => require('../components/recentDiscussion/EARecentDiscussionTag'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
