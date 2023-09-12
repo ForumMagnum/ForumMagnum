@@ -9,6 +9,7 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import { sequence } from 'fp-ts/lib/Traversable';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -122,6 +123,14 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
+
+export const postGetCommentsUrl = (
+  post: PostsMinimumForGetPageUrl,
+  isAbsolute = false,
+  sequenceId: string | null = null,
+): string => {
+  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+}
 
 export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';

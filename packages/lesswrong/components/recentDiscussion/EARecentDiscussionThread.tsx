@@ -1,12 +1,36 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
+import {
+  postGetCommentsUrl,
+  postGetPageUrl,
+} from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 
 const styles = (_theme: ThemeType) => ({
   header: {
     display: "flex",
+    alignItems: "center",
     width: "100%",
+    marginBottom: 15,
+  },
+  postInfo: {
+    flexGrow: 1,
+  },
+  karmaDisplay: {
+    marginLeft: 6,
+    marginRight: 14,
+  },
+  postTitle: {
+    marginBottom: 4,
+  },
+  commentCount: {
+    display: "flex",
+    gap: "4px",
+    "& svg": {
+      fontSize: 18,
+    },
   },
 });
 
@@ -47,7 +71,7 @@ const EARecentDiscussionThread = ({
   }
 
   const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
+    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, EAKarmaDisplay,
     PostsItemTooltipWrapper,
   } = Components;
   return (
@@ -59,19 +83,17 @@ const EARecentDiscussionThread = ({
       timestamp={comments[0].postedAt}
     >
       <div className={classes.header}>
-        <div>
-          {post.baseScore}
-        </div>
-        <div>
-          <PostsItemTooltipWrapper post={post}>
-            {post.title}
+        <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+        <div className={classes.postInfo}>
+          <PostsItemTooltipWrapper post={post} className={classes.postTitle}>
+            <Link to={postGetPageUrl(post)}>{post.title}</Link>
           </PostsItemTooltipWrapper>
           <EAPostMeta post={post} />
         </div>
-        <div>
+        <Link to={postGetCommentsUrl(post)} className={classes.commentCount}>
           <ForumIcon icon="Comment" />
           {post.commentCount}
-        </div>
+        </Link>
       </div>
       <div dangerouslySetInnerHTML={{__html: post.contents?.htmlHighlight ?? ""}} />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
