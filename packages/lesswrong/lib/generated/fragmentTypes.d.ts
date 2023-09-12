@@ -994,7 +994,6 @@ interface PostsBase_group { // fragment on Localgroups
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
-  readonly emojiReactors: any,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
@@ -1103,7 +1102,6 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly moderationStyle: string,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
-  readonly emojiReactors: any,
   readonly feedLink: string,
   readonly feed: RSSFeedMinimumInfo|null,
   readonly sourcePostRelations: Array<PostsDetails_sourcePostRelations>,
