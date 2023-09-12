@@ -5,8 +5,8 @@ import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { VoteColor, cssLightVoteColors, cssMainVoteColors } from './voteColors';
-import { isEAForum } from '../../lib/instanceSettings';
+import { useVoteColors } from './useVoteColors';
+import type { VoteColor } from './voteColors';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -104,9 +104,7 @@ const VoteArrowIcon = ({
     eventHandlers = {};
   }
 
-  const cssColor = isEAForum && color === "secondary" ? "greenUpvote" : color;
-  const mainColor = cssMainVoteColors[cssColor];
-  const lightColor = cssLightVoteColors[cssColor];
+  const {mainColor, lightColor} = useVoteColors(color);
 
   return (
     <IconButton
