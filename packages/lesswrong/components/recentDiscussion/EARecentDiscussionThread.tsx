@@ -34,6 +34,7 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
   },
   commentCount: {
+    alignSelf: "flex-start",
     color: theme.palette.grey[600],
     display: "flex",
     gap: "4px",
