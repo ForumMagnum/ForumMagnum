@@ -30,8 +30,9 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
-      const updatedPost = await Posts.find({_id: post._id}).fetch();
+      await waitUntilCallbacksFinished();
 
+      const updatedPost = await Posts.find({_id: post._id}).fetch();
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
       (updatedPost[0].inactive as any).should.be.false;
     });
