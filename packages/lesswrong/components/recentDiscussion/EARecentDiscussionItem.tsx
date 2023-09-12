@@ -29,6 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   meta: {
     marginBottom: 14,
+    lineHeight: "1.5em",
   },
   content: {
     flexGrow: 1,
@@ -40,6 +41,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export type EARecentDiscussionItemProps = {
+  icon: ForumIconName,
+  user?: UsersMinimumInfo | null,
+  description: string,
+  post: PostsRecentDiscussion,
+  timestamp: Date,
+}
+
 const EARecentDiscussionItem = ({
   icon,
   user,
@@ -48,12 +57,7 @@ const EARecentDiscussionItem = ({
   timestamp,
   children,
   classes,
-}: {
-  icon: ForumIconName,
-  user?: UsersMinimumInfo | null,
-  description: string,
-  post: PostsRecentDiscussion,
-  timestamp: Date,
+}: EARecentDiscussionItemProps & {
   children: ReactNode,
   classes: ClassesType,
 }) => {

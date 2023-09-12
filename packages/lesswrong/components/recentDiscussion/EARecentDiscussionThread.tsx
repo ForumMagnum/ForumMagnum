@@ -7,8 +7,9 @@ import {
   postGetPageUrl,
 } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
+import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   header: {
     display: "flex",
     alignItems: "center",
@@ -33,6 +34,7 @@ const styles = (_theme: ThemeType) => ({
     textOverflow: "ellipsis",
   },
   commentCount: {
+    color: theme.palette.grey[600],
     display: "flex",
     gap: "4px",
     "& svg": {
@@ -40,10 +42,40 @@ const styles = (_theme: ThemeType) => ({
     },
   },
   excerpt: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
 });
 
+const getItemProps = (
+  post: PostsRecentDiscussion,
+  comments: CommentsList[],
+): EARecentDiscussionItemProps => {
+  if (!comments?.length) {
+    // We're displaying the post as a new post
+    return {
+      icon: "RecentDiscussionPost",
+      user: post.user,
+      description: "posted",
+      post,
+      timestamp: post.postedAt,
+    };
+  }
+
+  // We're displaying the new comments on the post
+  return {
+    icon: "RecentDiscussionComment",
+    user: comments[0].user,
+    description: "commented on",
+    post,
+    timestamp: comments[0].postedAt,
+  };
+}
+
+/**
+ * This component handles entries in recent discussions for both new posts and
+ * new comments on posts. The only difference is whether or not the post's
+ * comment count is greater than 0.
+ */
 const EARecentDiscussionThread = ({
   post,
   comments,
@@ -59,9 +91,7 @@ const EARecentDiscussionThread = ({
 }) => {
   const {
     isSkippable,
-    showHighlight,
     expandAllThreads,
-    lastVisitedAt,
     nestedComments,
     treeOptions,
   } = useRecentDiscussionThread({
@@ -75,23 +105,12 @@ const EARecentDiscussionThread = ({
     return null;
   }
 
-  if (!comments?.length) {
-    // TODO: Display new post?
-    return null;
-  }
-
   const {
     EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, EAKarmaDisplay,
     PostsItemTooltipWrapper, PostExcerpt,
   } = Components;
   return (
-    <EARecentDiscussionItem
-      icon="RecentDiscussionComment"
-      user={comments[0].user}
-      description="commented on"
-      post={post}
-      timestamp={comments[0].postedAt}
-    >
+    <EARecentDiscussionItem {...getItemProps(post, comments ?? [])}>
       <div className={classes.header}>
         <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         <div className={classes.postInfo}>
@@ -104,7 +123,7 @@ const EARecentDiscussionThread = ({
         </div>
         <Link to={postGetCommentsUrl(post)} className={classes.commentCount}>
           <ForumIcon icon="Comment" />
-          {post.commentCount}
+          {post.commentCount ?? 0}
         </Link>
       </div>
       <PostExcerpt post={post} className={classes.excerpt} />
