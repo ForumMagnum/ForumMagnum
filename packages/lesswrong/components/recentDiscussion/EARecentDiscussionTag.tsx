@@ -18,7 +18,8 @@ const EARecentDiscussionTag = ({
   const {EARecentDiscussionItem, TagRevisionItem} = Components;
   return (
     <EARecentDiscussionItem
-      icon="RecentDiscussionTag"
+      icon="TagFilled"
+      iconVariant="green"
       user={revision.user}
       description="edited tag"
       tag={tag}

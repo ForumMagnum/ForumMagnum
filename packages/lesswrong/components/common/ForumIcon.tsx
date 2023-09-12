@@ -30,6 +30,7 @@ import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
 import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
+import TagFilledIcon from "@heroicons/react/24/solid/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
@@ -38,6 +39,7 @@ import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
 import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
+import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
@@ -98,13 +100,6 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
-import {
-  RecentDiscussionCommentIcon,
-  RecentDiscussionEventIcon,
-  RecentDiscussionPostIcon,
-  RecentDiscussionQuickTakeIcon,
-  RecentDiscussionTagIcon,
-} from "../icons/recentDiscussionIcons";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -148,17 +143,13 @@ export type ForumIconName =
   "Eye" |
   "EyeOutline" |
   "Tag" |
+  "TagFilled" |
   "Edit" |
   "Analytics" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
   "NarrowArrowDown" |
-  "RecentDiscussionComment" |
-  "RecentDiscussionQuickTake" |
-  "RecentDiscussionPost" |
-  "RecentDiscussionEvent" |
-  "RecentDiscussionTag" |
   "Plus" |
   "Check" |
   "CheckCircle" |
@@ -171,6 +162,7 @@ export type ForumIconName =
   "Puzzle" |
   "Image" |
   "Document" |
+  "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
   "EllipsisVertical" |
@@ -219,6 +211,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
+    TagFilled: TagFilledIcon,
     Eye: MuiVisibility,
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
@@ -227,11 +220,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     NarrowArrowDown: ArrowLongDown,
-    RecentDiscussionComment: RecentDiscussionCommentIcon,
-    RecentDiscussionQuickTake: RecentDiscussionQuickTakeIcon,
-    RecentDiscussionPost: RecentDiscussionPostIcon,
-    RecentDiscussionEvent: RecentDiscussionEventIcon,
-    RecentDiscussionTag: RecentDiscussionTagIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -239,6 +227,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: MuiEmailIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
+    DocumentFilled: DocumentIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
@@ -291,6 +280,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
+    TagFilled: TagFilledIcon,
     Eye: EyeIcon,
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
@@ -299,11 +289,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     NarrowArrowDown: ArrowLongDown,
-    RecentDiscussionComment: RecentDiscussionCommentIcon,
-    RecentDiscussionQuickTake: RecentDiscussionQuickTakeIcon,
-    RecentDiscussionPost: RecentDiscussionPostIcon,
-    RecentDiscussionEvent: RecentDiscussionEventIcon,
-    RecentDiscussionTag: RecentDiscussionTagIcon,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -311,6 +296,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Email: EmailIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
+    DocumentFilled: DocumentIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,

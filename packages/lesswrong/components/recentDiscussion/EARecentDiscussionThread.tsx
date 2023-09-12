@@ -53,7 +53,8 @@ const getItemProps = (
   if (!comments?.length) {
     // We're displaying the post as a new post
     return {
-      icon: "RecentDiscussionPost",
+      icon: "DocumentFilled",
+      iconVariant: "grey",
       user: post.user,
       description: "posted",
       post,
@@ -63,7 +64,8 @@ const getItemProps = (
 
   // We're displaying the new comments on the post
   return {
-    icon: "RecentDiscussionComment",
+    icon: "CommentFilled",
+    iconVariant: "primary",
     user: comments[0].user,
     description: "commented on",
     post,

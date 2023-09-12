@@ -4,6 +4,7 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
+import classNames from "classnames";
 
 const ICON_WIDTH = 24;
 const GAP = 12;
@@ -23,7 +24,26 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   iconContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.text.alwaysWhite,
+    borderRadius: "50%",
     width: ICON_WIDTH,
+    height: ICON_WIDTH,
+    "& svg": {
+      width: 14,
+      height: 14,
+    },
+  },
+  iconPrimary: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  iconGrey: {
+    backgroundColor: theme.palette.grey[600],
+  },
+  iconGreen: {
+    backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
   container: {
     width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
@@ -52,6 +72,7 @@ type EARecentDiscussionItemDocument = {
 
 export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
+  iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
   description: string,
   timestamp: Date,
@@ -59,6 +80,7 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
 
 const EARecentDiscussionItem = ({
   icon,
+  iconVariant,
   user,
   description,
   post,
@@ -73,7 +95,11 @@ const EARecentDiscussionItem = ({
   const {ForumIcon, UsersNameDisplay, FormatDate} = Components;
   return (
     <div className={classes.root}>
-      <div>
+      <div className={classNames(classes.iconContainer, {
+        [classes.iconPrimary]: iconVariant === "primary",
+        [classes.iconGrey]: iconVariant === "grey",
+        [classes.iconGreen]: iconVariant === "green",
+      })}>
         <ForumIcon icon={icon} />
       </div>
       <div className={classes.container}>

@@ -209,7 +209,8 @@ declare global {
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
       yellow: ColorString,
-      
+      recentDiscussionGreen: ColorString,
+
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
