@@ -28,7 +28,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   metadata: isEAForum
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
-      fontStyle: "italic",
       fontSize: 14,
       fontWeight: 500,
       color: theme.palette.grey[600],
@@ -40,6 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: "1.1rem",
       ...theme.typography.commentStyle
     },
+  metadataText: {
+    fontStyle: isEAForum ? "italic" : undefined,
+  },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
@@ -64,29 +66,31 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
       </Link>
     </div>
     <div className={classes.metadata}>
-      Edited by
-      {" "}
-      <span className={classes.username}>
-        <UsersName documentId={revision.userId}/>
+      <span className={classes.metadataText}>
+        Edited by
+        {" "}
+        <span className={classes.username}>
+          <UsersName documentId={revision.userId}/>
+        </span>
+        {" "}
+        <ChangeMetricsDisplay
+          changeMetrics={revision.changeMetrics}
+          showCharacters={isEAForum}
+          className={classes.changeMetrics}
+        />
+        {!isEAForum &&
+          <>
+            {" "}
+            <FormatDate
+              tooltip={false}
+              format={"MMM Do YYYY z"}
+              date={revision.editedAt}
+            />
+            {" "}
+          </>
+        }
+        {" "}
       </span>
-      {" "}
-      <ChangeMetricsDisplay
-        changeMetrics={revision.changeMetrics}
-        showCharacters={isEAForum}
-        className={classes.changeMetrics}
-      />
-      {!isEAForum &&
-        <>
-          {" "}
-          <FormatDate
-            tooltip={false}
-            format={"MMM Do YYYY z"}
-            date={revision.editedAt}
-          />
-          {" "}
-        </>
-      }
-      {" "}
       <SmallSideVote
         document={revision}
         collection={Revisions}
