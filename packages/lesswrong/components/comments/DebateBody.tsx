@@ -5,6 +5,9 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import { useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
+import { useCurrentUser } from '../common/withUser';
+import { ConnectionMessage } from '../../client/serverSentEventsClient';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +22,14 @@ export const DebateBody = ({ debateResponses, post, classes }: {
 }) => {
   const { DebateResponseBlock } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
+  const [numberUsersTyping, setNumberUsersTyping] = React.useState(0);
+  const currentUser = useCurrentUser();
+
+  useOnNotificationsChanged(currentUser, (messageString) => {
+    // TODO: filter the typingIndicators
+    const message : ConnectionMessage = JSON.parse(messageString)
+    setNumberUsersTyping(message.typingIndicators?.length ?? 0)
+  });
 
   return (<NoSSR>
     <div className={classes.root}>
@@ -60,6 +71,9 @@ export const DebateBody = ({ debateResponses, post, classes }: {
         })
       }
     </div>
+    <div>
+      {numberUsersTyping > 0 && <div>{numberUsersTyping} users are typing...</div>}
+    </div>
   </NoSSR>);
 }
 
@@ -70,4 +84,3 @@ declare global {
     DebateBody: typeof DebateBodyComponent
   }
 }
-

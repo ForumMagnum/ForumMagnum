@@ -1,5 +1,11 @@
 import { serverSentEventsAPI, onServerSentNotificationEvent } from "../components/hooks/useUnreadNotifications";
 
+export interface ConnectionMessage {
+  eventType: 'notificationCheck'|'typingIndicator',
+  typingIndicators?: TypingIndicatorInfo[],
+  newestNotificationTime?: Date,
+}
+
 const notificationEventsApiVersion = 2;
 
 let serverRequestedStop = false;

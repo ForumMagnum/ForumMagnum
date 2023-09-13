@@ -69,8 +69,10 @@ export function useUnreadNotifications(): {
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
 
-  const refetchIfNewNotifications = useCallback((timestamp: Date) => {
-    if (!checkedAt || timestamp > checkedAt) {
+  const refetchIfNewNotifications = useCallback((messageBlob: string) => {
+    // TODO: figure out what's going on with messageBlob (which was formerly timestamp, but,
+    // but not well typed)
+    if (!checkedAt || messageBlob > checkedAt) {
       void refetchBoth();
     }
   }, [checkedAt, refetchBoth]);
@@ -80,13 +82,13 @@ export function useUnreadNotifications(): {
   return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
 }
 
-export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (timestamp: Date)=>void) => {
+export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (messageBlob: string)=>void) => {
   useEffect(() => {
     if (!currentUser)
       return;
 
-    const onServerSentNotification = (timestamp: Date) => {
-      void cb(timestamp);
+    const onServerSentNotification = (messageBlob: string) => {
+      void cb(messageBlob);
     }
     notificationEventListeners.push(onServerSentNotification);
     serverSentEventsAPI.setServerSentEventsActive?.(true);
@@ -105,11 +107,11 @@ export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (t
   }, [currentUser, cb]);
 }
 
-let notificationEventListeners: Array<(newestNotificationTimestamp: Date)=>void> = [];
+let notificationEventListeners: Array<(messageBlob: string)=>void> = [];
 
-export function onServerSentNotificationEvent(newestNotificationTimestamp: Date) {
+export function onServerSentNotificationEvent(messageBlob: string) {
   for (let listener of [...notificationEventListeners]) {
-    listener(newestNotificationTimestamp);
+    listener(messageBlob);
   }
 }
 
@@ -122,4 +124,3 @@ type ServerSentEventsAPI = {
 export const serverSentEventsAPI: ServerSentEventsAPI = {
   setServerSentEventsActive: null,
 };
-

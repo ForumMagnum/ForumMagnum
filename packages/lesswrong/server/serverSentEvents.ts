@@ -5,6 +5,9 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
+import { Posts } from '../lib/collections/posts';
+import uniq from 'lodash/uniq';
+import { ConnectionMessage } from '../client/serverSentEventsClient';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -14,6 +17,7 @@ interface ConnectionInfo {
 }
 const openConnections: Record<string, ConnectionInfo[]> = {};
 
+// TODO: rename this from /notificationEvents to something more generic
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
     const parsedUrl = new URL(req.url, getSiteUrl())
@@ -71,9 +75,136 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
+  setInterval(checkForTypingIndicators, 1000);
 }
 
 let lastNotificationCheck = new Date();
+
+async function checkForTypingIndicators() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
+  // TODO actually load real typingIndicators from the db
+
+  // const newTypingIndicators = await TypingIndicators.find({
+  //   lastUpdated: {$gt: lastNotificationCheck}
+  // }, {
+  //   projection: {userId:1, lastUpdated:1, documentId:1}
+  // }).fetch();
+
+  const newTypingIndicatorsDummy: TypingIndicatorInfo[] = [{
+      _id: "1",
+      userId: "raemon r38pkCm7wF4M44MDQ", // raemon
+      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+      lastUpdated: new Date()
+    }, {
+      _id: "2",
+      userId: "jacob gXeEWGjTWyqgrQTzR", // jacobjacob
+      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+      lastUpdated: new Date()
+    },
+    {
+      _id: "3",
+      userId: "jacobjacob gXeEWGjTWyqgrQTzR", // jacobjacob
+      documentId: "cCnK8CxNKZqxakmsG", // coconut
+      lastUpdated: new Date()
+    },
+    {
+      _id: "4",
+      userId: "testcob ultron i7cWXn8ApqsBaQDre", // testcob ultron
+      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+      lastUpdated: new Date()
+    },
+    {
+      _id: "5",
+      userId: "raemontest kyf5Dfouz6c2udioL", // raemon test
+      documentId: "cCnK8CxNKZqxakmsG", // coconut
+      lastUpdated: new Date()
+    },
+    {
+      _id: "6",
+      userId: "habryka XtphY3uYHwruKqDyG", // habryka
+      documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemo)
+      lastUpdated: new Date()
+    },
+    {
+      _id: "7",
+      userId: "kave 55XxDBpfKkkBPm9H8", // kave
+      documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemon)
+      lastUpdated: new Date()
+    }
+  ]
+
+  //dialog on stuff has 
+    // raemon, testcob ultron
+  // coconut has
+    // jacob, raemontest
+  // Otter world
+    // jacobjacob, kave, habryka, raemon
+
+  const listOfPosts = uniq(newTypingIndicatorsDummy.map(indicator => indicator.documentId))
+
+  const posts = await Posts.find({
+    _id: {$in:listOfPosts}}, {
+    projection: {_id: 1, userId: 1, coauthorStatuses: 1, shareWithUsers: 1}
+  }).fetch()
+
+  const postsWithUserIds: Record<string, string[]> = {}
+  for (let post of posts) {
+    const coauthorIds = post.coauthorStatuses ? post.coauthorStatuses.map(coauthor => coauthor.userId) : []
+    const shareWithUsersIds = post.shareWithUsers ? post.shareWithUsers : []
+    postsWithUserIds[post._id] = [...coauthorIds, ...shareWithUsersIds, post.userId]
+  }
+  
+  const usersWithPostIds: Record<string, string[]> = {}
+  // map users to posts
+  for (let postId of Object.keys(postsWithUserIds)) {
+    const userIds = postsWithUserIds[postId]
+    for (let userId of userIds) {
+      if (userId in usersWithPostIds) {
+        usersWithPostIds[userId].push(postId)
+      } else {
+        usersWithPostIds[userId] = [postId]
+      }
+    }
+  }
+
+  const postsWithTypingIndicators: Record<string, TypingIndicatorInfo[]> = {}
+  for (let typingIndicator of newTypingIndicatorsDummy) {
+    const postId = typingIndicator.documentId
+    if (postId in postsWithTypingIndicators) {
+      postsWithTypingIndicators[postId].push(typingIndicator)
+    } else {
+      postsWithTypingIndicators[postId] = [typingIndicator]
+    }
+  }
+
+  const usersReceivingTypingIndicators: Record<string, TypingIndicatorInfo[]> = {}
+  for (let postId of Object.keys(postsWithTypingIndicators)) {
+    const typingIndicators = postsWithTypingIndicators[postId]
+    const userIds = postsWithUserIds[postId]
+   // console.log("used ids: ", userIds, "typing indicators: ", typingIndicators)
+    for (let userId of userIds) {
+      if (userId in usersReceivingTypingIndicators) {
+        usersReceivingTypingIndicators[userId].push(...typingIndicators)
+      } else {
+        usersReceivingTypingIndicators[userId] = typingIndicators
+      }
+    }
+  }
+
+  for (let userId of Object.keys(usersReceivingTypingIndicators)) {
+    if (openConnections[userId]) {
+      for (let connection of openConnections[userId]) {
+        const message : ConnectionMessage = {eventType: "typingIndicator", typingIndicators: usersReceivingTypingIndicators[userId]}
+        connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
+      }
+  
+    }
+  }
+}
 
 async function checkForNotifications() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -129,7 +260,7 @@ async function checkForNotifications() {
         if (!connection.newestNotificationTimestamp
           || connection.newestNotificationTimestamp < newTimestamp
         ) {
-          const message = { newestNotificationTime: newTimestamp };
+          const message: ConnectionMessage = { eventType: "notificationCheck", newestNotificationTime: newTimestamp };
           connection.res.write(`data: ${JSON.stringify(message)}\n\n`);
           connection.newestNotificationTimestamp = newTimestamp;
         }
