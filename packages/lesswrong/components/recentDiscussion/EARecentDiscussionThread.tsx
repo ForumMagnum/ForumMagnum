@@ -8,6 +8,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   header: {
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
       fontSize: 18,
     },
   },
-  excerpt: {
+  excerptBottomMargin: {
     marginBottom: 16,
   },
 });
@@ -51,6 +52,18 @@ const getItemProps = (
   post: PostsRecentDiscussion,
   comments: CommentsList[],
 ): EARecentDiscussionItemProps => {
+  if (post.isEvent) {
+    // It's a new event
+    return {
+      icon: "Calendar",
+      iconVariant: "grey",
+      user: post.user,
+      description: "scheduled",
+      post,
+      timestamp: post.postedAt,
+    };
+  }
+
   if (!comments?.length) {
     // We're displaying the post as a new post
     return {
@@ -75,9 +88,9 @@ const getItemProps = (
 }
 
 /**
- * This component handles entries in recent discussions for both new posts and
- * new comments on posts. The only difference is whether or not the post's
- * comment count is greater than 0.
+ * This component handles entries in recent discussions for new posts, new
+ * comments on posts, new quick takes and new events. See `getItemProps` for
+ * the logic deciding which variant we choose.
  */
 const EARecentDiscussionThread = ({
   post,
@@ -115,19 +128,23 @@ const EARecentDiscussionThread = ({
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments ?? [])}>
       <div className={classes.header}>
-        <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+        {!post.isEvent &&
+          <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+        }
         <div className={classes.postInfo}>
           <PostsItemTooltipWrapper post={post}>
             <Link to={postGetPageUrl(post)} className={classes.postTitle}>
               {post.title}
             </Link>
           </PostsItemTooltipWrapper>
-          <EAPostMeta post={post} />
+          <EAPostMeta post={post} useEventStyles />
         </div>
-        <Link to={postGetCommentsUrl(post)} className={classes.commentCount}>
-          <ForumIcon icon="Comment" />
-          {post.commentCount ?? 0}
-        </Link>
+        {!post.isEvent &&
+          <Link to={postGetCommentsUrl(post)} className={classes.commentCount}>
+            <ForumIcon icon="Comment" />
+            {post.commentCount ?? 0}
+          </Link>
+        }
       </div>
       {post.url &&
         <LinkPostMessage post={post} />
@@ -135,7 +152,9 @@ const EARecentDiscussionThread = ({
       <PostExcerpt
         post={post}
         lines={comments?.length ? 3 : 10}
-        className={classes.excerpt}
+        className={classNames({
+          [classes.excerptBottomMargin]: nestedComments.length,
+        })}
       />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>

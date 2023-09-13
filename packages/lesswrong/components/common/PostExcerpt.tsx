@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -49,7 +49,7 @@ const PostExcerpt = ({post, lines = 3, className, classes}: {
     <ContentStyles
       contentType="postHighlight"
       className={classNames(classes.root, className)}
-      style={{"-webkit-line-clamp": String(lines)} as CSSProperties}
+      style={{WebkitLineClamp: lines}}
     >
       <ContentItemBody dangerouslySetInnerHTML={{
         __html: post.contents?.htmlHighlight ?? "",

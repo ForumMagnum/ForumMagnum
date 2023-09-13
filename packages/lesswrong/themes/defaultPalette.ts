@@ -264,6 +264,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sprout: '#69886e',
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
+    recentDiscussionGrey: "#757575",
 
     commentsBubble: {
       commentCount: "#fff",

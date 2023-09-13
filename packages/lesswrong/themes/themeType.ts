@@ -210,6 +210,7 @@ declare global {
       sprout: ColorString,
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
+      recentDiscussionGrey: ColorString,
 
       commentsBubble: {
         commentCount: ColorString,

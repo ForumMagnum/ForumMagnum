@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.primary.main,
   },
   iconGrey: {
-    backgroundColor: theme.palette.grey[600],
+    backgroundColor: theme.palette.icon.recentDiscussionGrey,
   },
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
