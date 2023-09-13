@@ -1,6 +1,7 @@
 import React, { ErrorInfo } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { configureScope, captureException }from '@sentry/core';
+import { configureScope } from '@sentry/core';
+import { captureException } from '../../lib/utils/errorUtil';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode,

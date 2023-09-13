@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { captureException }from '@sentry/core';
 import { isServer } from '../../lib/executionEnvironment';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
 import Mark from 'mark.js';
+import { captureException } from '../../lib/utils/errorUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {

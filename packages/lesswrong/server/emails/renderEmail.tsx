@@ -21,7 +21,7 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { captureException } from '@sentry/core';
+import { captureException } from '../../lib/utils/errorUtil';
 
 export interface RenderedEmail {
   user: DbUser | null,

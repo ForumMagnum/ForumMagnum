@@ -17,7 +17,6 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { isEAForum } from '../../lib/instanceSettings';
-import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
@@ -29,6 +28,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
+import { captureException } from '../../lib/utils/errorUtil';
 
 const MINIMUM_APPROVAL_KARMA = 5
 

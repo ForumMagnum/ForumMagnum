@@ -17,7 +17,6 @@ import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupA
 import Head from './components/Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
-import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
@@ -29,6 +28,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
+import { captureException } from '../../../lib/utils/errorUtil';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 

@@ -2,7 +2,6 @@ import { trimLatexAndAddCSS, preProcessLatex } from './utils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
-import { captureException } from '@sentry/core';
 import TurndownService from 'turndown';
 import {gfm} from 'turndown-plugin-gfm';
 import markdownIt from 'markdown-it'
@@ -16,6 +15,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
+import { captureException } from '../../lib/utils/errorUtil';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables

@@ -15,9 +15,9 @@ import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils
 import pick from 'lodash/pick';
 import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
-import { captureException } from '@sentry/core';
 import moment from 'moment';
 import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
+import { captureException } from '../lib/utils/errorUtil';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify

@@ -16,7 +16,6 @@ import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
-import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
 import { DatabaseServerSetting } from "../databaseSettings";
@@ -30,6 +29,7 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
+import { captureException } from '../../lib/utils/errorUtil';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000

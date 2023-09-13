@@ -1,10 +1,10 @@
-import { captureException } from '@sentry/core';
 import { captureEvent } from '../lib/analyticsEvents';
 import { onStartup, isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
 import { printInProgressCallbacks } from '../lib/vulcan-lib/callbacks';
 import { Globals } from '../lib/vulcan-lib/config';
+import { captureException } from '../lib/utils/errorUtil';
 
 import * as Sentry from '@sentry/node';
 import * as SentryIntegrations from '@sentry/integrations';

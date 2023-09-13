@@ -6,10 +6,10 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
-import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { isEAForum } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { captureException } from '../../lib/utils/errorUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {

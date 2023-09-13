@@ -7,7 +7,6 @@ import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { matchSideComments } from '../sideComments';
-import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
@@ -16,6 +15,7 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import PostsRepo from '../repos/PostsRepo';
 import VotesRepo from '../repos/VotesRepo';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { captureException } from '../../lib/utils/errorUtil';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the

@@ -1,4 +1,5 @@
 import type { ApolloError } from '@apollo/client';
+import { captureException as sentryCaptureException } from '@sentry/core';
 
 export function getGraphQLErrorID(error: any): string|null {
   if (!error) {
@@ -27,4 +28,8 @@ export function isMissingDocumentError(error: ApolloError): boolean {
 
 export function isOperationNotAllowedError(error: ApolloError): boolean {
   return (error && error.message==='app.operation_not_allowed');
+}
+
+export function captureException(exception: any) {
+  sentryCaptureException(exception);
 }

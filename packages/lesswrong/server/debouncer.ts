@@ -1,4 +1,3 @@
-import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
 import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
@@ -6,6 +5,7 @@ import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
 import { DebouncerEventsRepo } from './repos';
 import { isAnyTest } from '../lib/executionEnvironment';
+import { captureException } from '../lib/utils/errorUtil';
 
 let eventDebouncersByName: Partial<Record<string,EventDebouncer<any>>> = {};
 

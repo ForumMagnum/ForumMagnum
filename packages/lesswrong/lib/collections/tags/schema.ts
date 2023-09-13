@@ -6,7 +6,6 @@ import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
-import { captureException } from '@sentry/core';
 import { forumTypeSetting, isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
@@ -15,6 +14,7 @@ import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { preferredHeadingCase } from '../../forumTypeUtils';
 import { permissionGroups } from '../../permissions';
+import { captureException } from '../../utils/errorUtil';
 
 addGraphQLSchema(`
   type TagContributor {
