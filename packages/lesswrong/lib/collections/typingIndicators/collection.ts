@@ -1,3 +1,4 @@
+import {ensureIndex} from "../../collectionIndexUtils";
 import {addUniversalFields, getDefaultMutations, getDefaultResolvers} from "../../collectionUtils";
 import {MutationOptions} from "../../vulcan-core/default_mutations";
 import {createCollection} from "../../vulcan-lib";
@@ -36,6 +37,8 @@ TypingIndicators.checkAccess = async (user: DbUser|null, document: DbTypingIndic
   return false
 };
 
-addUniversalFields({collection: TypingIndicators})
+addUniversalFields({ collection: TypingIndicators })
+
+ensureIndex(TypingIndicators, { documentId: 1, userId: 1 }, { unique: true });
 
 export default TypingIndicators;

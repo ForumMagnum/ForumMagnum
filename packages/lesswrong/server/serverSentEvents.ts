@@ -9,6 +9,7 @@ import { Posts } from '../lib/collections/posts';
 import uniq from 'lodash/uniq';
 import type { ConnectionMessage } from '../client/serverSentEventsClient';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
+import TypingIndicators from '../lib/collections/typingIndicators/collection';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -88,54 +89,54 @@ async function checkForTypingIndicators() {
 
   // TODO actually load real typingIndicators from the db
 
-  // const newTypingIndicators = await TypingIndicators.find({
-  //   lastUpdated: {$gt: lastNotificationCheck}
-  // }, {
-  //   projection: {userId:1, lastUpdated:1, documentId:1}
-  // }).fetch();
+  const newTypingIndicators = await TypingIndicators.find({
+    lastUpdated: {$gt: lastNotificationCheck}
+  }, {
+    projection: {userId:1, lastUpdated:1, documentId:1}
+  }).fetch();
 
-  const newTypingIndicatorsDummy: TypingIndicatorInfo[] = [{
-      _id: "1",
-      userId: "r38pkCm7wF4M44MDQ", // raemon
-      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
-      lastUpdated: new Date()
-    }, {
-      _id: "2",
-      userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
-      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
-      lastUpdated: new Date()
-    },
-    {
-      _id: "3",
-      userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
-      documentId: "cCnK8CxNKZqxakmsG", // coconut
-      lastUpdated: new Date()
-    },
-    {
-      _id: "4",
-      userId: "i7cWXn8ApqsBaQDre", // testcob ultron
-      documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
-      lastUpdated: new Date()
-    },
-    {
-      _id: "5",
-      userId: "kyf5Dfouz6c2udioL", // raemon test
-      documentId: "cCnK8CxNKZqxakmsG", // coconut
-      lastUpdated: new Date()
-    },
-    {
-      _id: "6",
-      userId: "XtphY3uYHwruKqDyG", // habryka
-      documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemo)
-      lastUpdated: new Date()
-    },
-    {
-      _id: "7",
-      userId: "55XxDBpfKkkBPm9H8", // kave
-      documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemon)
-      lastUpdated: new Date()
-    }
-  ]
+  // const newTypingIndicatorsDummy: TypingIndicatorInfo[] = [{
+  //     _id: "1",
+  //     userId: "r38pkCm7wF4M44MDQ", // raemon
+  //     documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+  //     lastUpdated: new Date()
+  //   }, {
+  //     _id: "2",
+  //     userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
+  //     documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+  //     lastUpdated: new Date()
+  //   },
+  //   {
+  //     _id: "3",
+  //     userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
+  //     documentId: "cCnK8CxNKZqxakmsG", // coconut
+  //     lastUpdated: new Date()
+  //   },
+  //   {
+  //     _id: "4",
+  //     userId: "i7cWXn8ApqsBaQDre", // testcob ultron
+  //     documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
+  //     lastUpdated: new Date()
+  //   },
+  //   {
+  //     _id: "5",
+  //     userId: "kyf5Dfouz6c2udioL", // raemon test
+  //     documentId: "cCnK8CxNKZqxakmsG", // coconut
+  //     lastUpdated: new Date()
+  //   },
+  //   {
+  //     _id: "6",
+  //     userId: "XtphY3uYHwruKqDyG", // habryka
+  //     documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemo)
+  //     lastUpdated: new Date()
+  //   },
+  //   {
+  //     _id: "7",
+  //     userId: "55XxDBpfKkkBPm9H8", // kave
+  //     documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemon)
+  //     lastUpdated: new Date()
+  //   }
+  // ]
 
   //dialog on stuff has 
     // raemon, testcob ultron
@@ -144,7 +145,7 @@ async function checkForTypingIndicators() {
   // Otter world
     // jacobjacob, kave, habryka, raemon
 
-  const listOfPosts = uniq(newTypingIndicatorsDummy.map(indicator => indicator.documentId))
+  const listOfPosts = uniq(newTypingIndicators.map(indicator => indicator.documentId))
 
   const posts = await Posts.find({
     _id: {$in:listOfPosts}}, {
@@ -172,7 +173,7 @@ async function checkForTypingIndicators() {
   }
 
   const postsWithTypingIndicators: Record<string, TypingIndicatorInfo[]> = {}
-  for (let typingIndicator of newTypingIndicatorsDummy) {
+  for (let typingIndicator of newTypingIndicators) {
     const postId = typingIndicator.documentId
     if (postId in postsWithTypingIndicators) {
       postsWithTypingIndicators[postId].push(typingIndicator)
@@ -194,6 +195,8 @@ async function checkForTypingIndicators() {
       }
     }
   }
+
+  console.log(usersReceivingTypingIndicators)
 
   for (let userId of Object.keys(usersReceivingTypingIndicators)) {
     if (openConnections[userId]) {

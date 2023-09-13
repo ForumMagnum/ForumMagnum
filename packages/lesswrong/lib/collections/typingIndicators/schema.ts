@@ -21,4 +21,5 @@ const schema: SchemaType<DbTypingIndicator> = {
   },
 }
 
+
 export default schema;

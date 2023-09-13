@@ -241,6 +241,7 @@ import './collections/sessions';
 // dialogue typing indicators
 import './collections/typingIndicators/collection';
 import './collections/typingIndicators/fragments';
+import './collections/typingIndicators/views';
 
 // Alignment Forum
 import './alignment-forum/permissions';

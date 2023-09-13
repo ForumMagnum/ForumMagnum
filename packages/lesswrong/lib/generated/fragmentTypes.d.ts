@@ -834,6 +834,12 @@ interface NotificationsDefaultFragment { // fragment on Notifications
   readonly waitingForBatch: boolean,
 }
 
+interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
+  readonly userId: string,
+  readonly documentId: string,
+  readonly lastUpdated: Date,
+}
+
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -3159,12 +3165,6 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
-interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
-  readonly userId: string,
-  readonly documentId: string,
-  readonly lastUpdated: Date,
-}
-
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3210,6 +3210,7 @@ interface FragmentTypes {
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
+  TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
@@ -3381,7 +3382,6 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
-  TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   TypingIndicatorInfo: TypingIndicatorInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3413,6 +3413,7 @@ interface CollectionNamesByFragmentName {
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
   NotificationsDefaultFragment: "Notifications"
+  TypingIndicatorsDefaultFragment: "TypingIndicators"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
@@ -3584,7 +3585,6 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
-  TypingIndicatorsDefaultFragment: "TypingIndicators"
   TypingIndicatorInfo: "TypingIndicators"
   SuggestAlignmentComment: "Comments"
 }

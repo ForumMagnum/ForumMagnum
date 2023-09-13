@@ -5,9 +5,6 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
-import { useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
-import { useCurrentUser } from '../common/withUser';
-import { ConnectionMessage, TypingIndicatorMessage } from '../../client/serverSentEventsClient';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,21 +17,8 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const { DebateResponseBlock } = Components;
+  const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
-  const [numberUsersTyping, setNumberUsersTyping] = React.useState(0);
-  const currentUser = useCurrentUser();
-
-  useOnNotificationsChanged(currentUser, (messageString) => {
-
-    const message : TypingIndicatorMessage = JSON.parse(messageString)
-    const typingIndicators = message.typingIndicators ?? []
-    const typingUsers = typingIndicators.filter((typingIndicator) => {
-      if (!currentUser) return false
-      return typingIndicator.userId !== currentUser._id && typingIndicator.documentId === post._id
-    })
-    setNumberUsersTyping(typingUsers.length)
-  });
 
   return (<NoSSR>
     <div className={classes.root}>
@@ -77,11 +61,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
       }
     </div>
     <div>
-    {numberUsersTyping > 0 && <div>
-      {numberUsersTyping} {numberUsersTyping === 1 ? 
-        'user is' : 
-        'users are'} typing...
-      </div>}
+      <DebateTypingIndicator post={post} />
     </div>
   </NoSSR>);
 }
