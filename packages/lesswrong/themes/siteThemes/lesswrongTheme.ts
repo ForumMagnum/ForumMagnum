@@ -84,7 +84,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVote: {
+      PostsVoteDefault: {
         voteScores: {
           margin: "25% 15% 15% 15%"
         }

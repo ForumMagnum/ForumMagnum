@@ -26,6 +26,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
         post={post}
         useHorizontalLayout={useHorizontalLayout}
         votingSystem={votingSystem}
+        isFooter={isFooter}
       />
     );
 }

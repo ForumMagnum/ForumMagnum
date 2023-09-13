@@ -41,8 +41,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: isEAForum ? 18 : '55%',
-    fontWeight: isEAForum ? 500 : undefined,
+    fontSize: isEAForum ? '50%' : '55%',
+  },
+  voteScoreFooter: {
+    fontSize: 18,
+    fontWeight: 500,
   },
   voteScoreGoodHeart: {
     ...theme.typography.commentStyle,
@@ -64,11 +67,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsVoteDefault = ({post, useHorizontalLayout, votingSystem, classes}: {
+const PostsVoteDefault = ({
+  post,
+  useHorizontalLayout,
+  votingSystem,
+  isFooter,
+  classes,
+}: {
   post: PostsWithVotes,
   /** if true, display the vote arrows to the left & right of the score */
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
+  isFooter?: boolean,
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -118,7 +128,12 @@ const PostsVoteDefault = ({post, useHorizontalLayout, votingSystem, classes}: {
           <div>
             {/* Have to make sure to wrap this in a div because Tooltip requires
               * a child that takes refs */}
-            <Typography variant="headline" className={classes.voteScore}>
+            <Typography
+              variant="headline"
+              className={classNames(classes.voteScore, {
+                [classes.voteScoreFooter]: isFooter,
+              })}
+            >
               {voteProps.baseScore}
             </Typography>
           </div>
@@ -132,7 +147,9 @@ const PostsVoteDefault = ({post, useHorizontalLayout, votingSystem, classes}: {
           >
             <Typography
               variant="headline"
-              className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
+              className={classNames(classes.voteScore, classes.secondaryVoteScore, {
+                [classes.voteScoreFooter]: isFooter,
+              })}>
               Ω {post.afBaseScore}
             </Typography>
           </Tooltip>
