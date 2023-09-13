@@ -7,7 +7,8 @@ import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import { Posts } from '../lib/collections/posts';
 import uniq from 'lodash/uniq';
-import { ConnectionMessage } from '../client/serverSentEventsClient';
+import type { ConnectionMessage } from '../client/serverSentEventsClient';
+import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -17,7 +18,6 @@ interface ConnectionInfo {
 }
 const openConnections: Record<string, ConnectionInfo[]> = {};
 
-// TODO: rename this from /notificationEvents to something more generic
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
     const parsedUrl = new URL(req.url, getSiteUrl())
@@ -153,8 +153,8 @@ async function checkForTypingIndicators() {
 
   const postsWithUserIds: Record<string, string[]> = {}
   for (let post of posts) {
-    const coauthorIds = post.coauthorStatuses ? post.coauthorStatuses.map(coauthor => coauthor.userId) : []
-    const shareWithUsersIds = post.shareWithUsers ? post.shareWithUsers : []
+    const coauthorIds = getConfirmedCoauthorIds(post) // post.coauthorStatuses ? post.coauthorStatuses.map(coauthor => coauthor.userId) : []
+    const shareWithUsersIds = post.shareWithUsers ?? []
     postsWithUserIds[post._id] = [...coauthorIds, ...shareWithUsersIds, post.userId]
   }
   

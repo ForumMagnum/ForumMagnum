@@ -7,7 +7,7 @@ import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
 import { useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
-import { ConnectionMessage } from '../../client/serverSentEventsClient';
+import { ConnectionMessage, TypingIndicatorMessage } from '../../client/serverSentEventsClient';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -26,15 +26,13 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   const currentUser = useCurrentUser();
 
   useOnNotificationsChanged(currentUser, (messageString) => {
-    // TODO: filter the typingIndicators
 
-    const message : ConnectionMessage = JSON.parse(messageString)
+    const message : TypingIndicatorMessage = JSON.parse(messageString)
     const typingIndicators = message.typingIndicators ?? []
     const typingUsers = typingIndicators.filter((typingIndicator) => {
       if (!currentUser) return false
       return typingIndicator.userId !== currentUser._id && typingIndicator.documentId === post._id
     })
-    console.log(typingUsers)
     setNumberUsersTyping(typingUsers.length)
   });
 
