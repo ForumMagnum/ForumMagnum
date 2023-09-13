@@ -76,6 +76,8 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
   description: string,
+  postTitleOverride?: string,
+  postUrlOverride?: string,
   timestamp: Date,
 }
 
@@ -84,6 +86,8 @@ const EARecentDiscussionItem = ({
   iconVariant,
   user,
   description,
+  postTitleOverride,
+  postUrlOverride,
   post,
   tag,
   timestamp,
@@ -110,8 +114,11 @@ const EARecentDiscussionItem = ({
           {description}
           {" "}
           {post &&
-            <Link to={postGetPageUrl(post)} className={classes.primaryText}>
-              {post.title}
+            <Link
+              to={postUrlOverride ?? postGetPageUrl(post)}
+              className={classes.primaryText}
+            >
+              {postTitleOverride ?? post.title}
             </Link>
           }
           {tag &&

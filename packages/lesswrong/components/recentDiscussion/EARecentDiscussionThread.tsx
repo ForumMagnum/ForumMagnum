@@ -6,6 +6,7 @@ import {
   postGetCommentsUrl,
   postGetPageUrl,
 } from "../../lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
@@ -46,11 +47,26 @@ const styles = (theme: ThemeType) => ({
   excerptBottomMargin: {
     marginBottom: 16,
   },
+  newQuickTake: {
+    padding: 0,
+    "& .CommentsItemMeta-root": {
+      paddingTop: 0,
+    },
+    "& .CommentsItem-bottom": {
+      paddingBottom: 0,
+    },
+  },
 });
+
+const isNewQuickTake = (
+  post: PostsRecentDiscussion,
+  comments: CommentsList[] = [],
+) =>
+  post.shortform && comments.length === 1 && !comments[0].parentCommentId;
 
 const getItemProps = (
   post: PostsRecentDiscussion,
-  comments: CommentsList[],
+  comments: CommentsList[] = [],
 ): EARecentDiscussionItemProps => {
   if (post.isEvent) {
     // It's a new event
@@ -62,6 +78,29 @@ const getItemProps = (
       post,
       timestamp: post.postedAt,
     };
+  }
+
+  if (isNewQuickTake(post, comments)) {
+    // The user posted a new quick take
+    return {
+      icon: "CommentFilled",
+      iconVariant: "grey",
+      user: post.user,
+      description: "posted a",
+      postTitleOverride: "Quick Take",
+      postUrlOverride: commentGetPageUrlFromIds({
+        commentId: comments[0]._id,
+        postId: post._id,
+        postSlug: post.slug,
+      }),
+      post,
+      timestamp: comments[0].postedAt,
+    };
+  }
+
+  if (post.shortform) {
+    // Display comments left on a quick take
+    // TODO
   }
 
   if (!comments?.length) {
@@ -122,11 +161,27 @@ const EARecentDiscussionThread = ({
   }
 
   const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, EAKarmaDisplay,
-    PostsItemTooltipWrapper, PostExcerpt, LinkPostMessage,
+    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, CommentsItem,
+    PostsItemTooltipWrapper, PostExcerpt, LinkPostMessage, EAKarmaDisplay,
   } = Components;
+
+  if (isNewQuickTake(post, comments)) {
+    const quickTake = comments![0];
+    return (
+      <EARecentDiscussionItem {...getItemProps(post, comments)}>
+        <CommentsItem
+          treeOptions={treeOptions}
+          comment={quickTake}
+          nestingLevel={1}
+          truncated={false}
+          className={classes.newQuickTake}
+        />
+      </EARecentDiscussionItem>
+    );
+  }
+
   return (
-    <EARecentDiscussionItem {...getItemProps(post, comments ?? [])}>
+    <EARecentDiscussionItem {...getItemProps(post, comments)}>
       <div className={classes.header}>
         {!post.isEvent &&
           <EAKarmaDisplay post={post} className={classes.karmaDisplay} />

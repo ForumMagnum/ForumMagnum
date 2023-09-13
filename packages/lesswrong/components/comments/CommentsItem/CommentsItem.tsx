@@ -185,7 +185,26 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({
+  treeOptions,
+  comment,
+  nestingLevel=1,
+  isChild,
+  collapsed,
+  isParentComment,
+  parentCommentId,
+  scrollIntoView,
+  toggleCollapse,
+  setSingleLine,
+  truncated,
+  showPinnedOnProfile,
+  parentAnswerId,
+  enableGuidelines=true,
+  showParentDefault=false,
+  displayTagIcon=false,
+  className,
+  classes,
+}: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -202,6 +221,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
@@ -361,6 +381,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
       <div className={classNames(
         classes.root,
+        className,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
