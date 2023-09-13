@@ -129,7 +129,11 @@ const EARecentDiscussionThread = ({
           {post.commentCount ?? 0}
         </Link>
       </div>
-      <PostExcerpt post={post} className={classes.excerpt} />
+      <PostExcerpt
+        post={post}
+        lines={comments?.length ? 3 : 10}
+        className={classes.excerpt}
+      />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
           <CommentsNode

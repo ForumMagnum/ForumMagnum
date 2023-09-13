@@ -1,6 +1,5 @@
-import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
-import { htmlToTextTruncated } from "../../lib/htmlToText";
+import React, { CSSProperties } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 
 const styles = (_theme: ThemeType) => ({
@@ -11,25 +10,31 @@ const styles = (_theme: ThemeType) => ({
     textOverflow: "ellipsis",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 3,
   },
 });
 
-const PostExcerpt = ({post, className, classes}: {
+const PostExcerpt = ({post, lines = 3, className, classes}: {
   post: PostsList,
+  lines?: number,
   className?: string,
   classes: ClassesType,
 }) => {
-  const highlight = htmlToTextTruncated(post.contents?.htmlHighlight);
-  if (!highlight) {
+  if (!post.contents?.htmlHighlight) {
     return null;
   }
 
   // TODO: Add a 'More' button linking to the post
+  const {ContentStyles, ContentItemBody} = Components;
   return (
-    <div className={classNames(classes.root, className)}>
-      {highlight}
-    </div>
+    <ContentStyles
+      contentType="postHighlight"
+      className={classNames(classes.root, className)}
+      style={{"-webkit-line-clamp": String(lines)} as CSSProperties}
+    >
+      <ContentItemBody dangerouslySetInnerHTML={{
+        __html: post.contents?.htmlHighlight ?? "",
+      }} />
+    </ContentStyles>
   );
 }
 

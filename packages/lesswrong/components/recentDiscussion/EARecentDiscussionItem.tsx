@@ -51,6 +51,7 @@ const styles = (theme: ThemeType) => ({
   meta: {
     marginBottom: 14,
     lineHeight: "1.5em",
+    fontWeight: 500,
   },
   content: {
     flexGrow: 1,
