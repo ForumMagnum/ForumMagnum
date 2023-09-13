@@ -16,6 +16,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     display: "flex",
     alignItems: "center",
+    gap: "6px",
     fontSize: 16,
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
