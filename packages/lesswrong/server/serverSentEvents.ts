@@ -96,42 +96,42 @@ async function checkForTypingIndicators() {
 
   const newTypingIndicatorsDummy: TypingIndicatorInfo[] = [{
       _id: "1",
-      userId: "raemon r38pkCm7wF4M44MDQ", // raemon
+      userId: "r38pkCm7wF4M44MDQ", // raemon
       documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
       lastUpdated: new Date()
     }, {
       _id: "2",
-      userId: "jacob gXeEWGjTWyqgrQTzR", // jacobjacob
+      userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
       documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
       lastUpdated: new Date()
     },
     {
       _id: "3",
-      userId: "jacobjacob gXeEWGjTWyqgrQTzR", // jacobjacob
+      userId: "gXeEWGjTWyqgrQTzR", // jacobjacob
       documentId: "cCnK8CxNKZqxakmsG", // coconut
       lastUpdated: new Date()
     },
     {
       _id: "4",
-      userId: "testcob ultron i7cWXn8ApqsBaQDre", // testcob ultron
+      userId: "i7cWXn8ApqsBaQDre", // testcob ultron
       documentId: "5qYcLQ8vcXjcpeC2D", // dialogue on stuff
       lastUpdated: new Date()
     },
     {
       _id: "5",
-      userId: "raemontest kyf5Dfouz6c2udioL", // raemon test
+      userId: "kyf5Dfouz6c2udioL", // raemon test
       documentId: "cCnK8CxNKZqxakmsG", // coconut
       lastUpdated: new Date()
     },
     {
       _id: "6",
-      userId: "habryka XtphY3uYHwruKqDyG", // habryka
+      userId: "XtphY3uYHwruKqDyG", // habryka
       documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemo)
       lastUpdated: new Date()
     },
     {
       _id: "7",
-      userId: "kave 55XxDBpfKkkBPm9H8", // kave
+      userId: "55XxDBpfKkkBPm9H8", // kave
       documentId: "Bc9DHPrFJAGZ26bum", // otter world (includes jacobjacob, kave, habryka, raemon)
       lastUpdated: new Date()
     }

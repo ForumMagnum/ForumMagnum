@@ -27,8 +27,15 @@ export const DebateBody = ({ debateResponses, post, classes }: {
 
   useOnNotificationsChanged(currentUser, (messageString) => {
     // TODO: filter the typingIndicators
+
     const message : ConnectionMessage = JSON.parse(messageString)
-    setNumberUsersTyping(message.typingIndicators?.length ?? 0)
+    const typingIndicators = message.typingIndicators ?? []
+    const typingUsers = typingIndicators.filter((typingIndicator) => {
+      if (!currentUser) return false
+      return typingIndicator.userId !== currentUser._id && typingIndicator.documentId === post._id
+    })
+    console.log(typingUsers)
+    setNumberUsersTyping(typingUsers.length)
   });
 
   return (<NoSSR>
@@ -72,7 +79,11 @@ export const DebateBody = ({ debateResponses, post, classes }: {
       }
     </div>
     <div>
-      {numberUsersTyping > 0 && <div>{numberUsersTyping} users are typing...</div>}
+    {numberUsersTyping > 0 && <div>
+      {numberUsersTyping} {numberUsersTyping === 1 ? 
+        'user is' : 
+        'users are'} typing...
+      </div>}
     </div>
   </NoSSR>);
 }
