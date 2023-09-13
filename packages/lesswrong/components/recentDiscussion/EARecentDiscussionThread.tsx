@@ -110,7 +110,7 @@ const EARecentDiscussionThread = ({
 
   const {
     EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, EAKarmaDisplay,
-    PostsItemTooltipWrapper, PostExcerpt,
+    PostsItemTooltipWrapper, PostExcerpt, LinkPostMessage,
   } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments ?? [])}>
@@ -129,6 +129,9 @@ const EARecentDiscussionThread = ({
           {post.commentCount ?? 0}
         </Link>
       </div>
+      {post.url &&
+        <LinkPostMessage post={post} />
+      }
       <PostExcerpt
         post={post}
         lines={comments?.length ? 3 : 10}
