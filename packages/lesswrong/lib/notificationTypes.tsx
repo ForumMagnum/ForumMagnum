@@ -25,6 +25,7 @@ import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
 import {userGetDisplayName} from './collections/users/helpers'
 import {TupleSet, UnionOf} from './utils/typeGuardUtils'
+import DebateIcon from '@material-ui/icons/Forum';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
@@ -42,6 +43,7 @@ interface NotificationType {
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
+  causesRedBadge?: boolean
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -291,8 +293,9 @@ export const NewDebateReplyNotification = registerNotificationType({
     return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
   },
   getIcon() {
-    return <CommentsIcon style={iconStyles}/>
+    return <DebateIcon style={iconStyles}/>
   },
+  causesRedBadge: true,
 });
 
 export const NewShortformNotification = registerNotificationType({
@@ -383,6 +386,7 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MailIcon style={iconStyles}/>
   },
+  causesRedBadge: true,
 });
 
 export const WrappedNotification = registerNotificationType({

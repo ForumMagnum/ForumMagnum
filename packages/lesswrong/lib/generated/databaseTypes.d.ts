@@ -96,6 +96,7 @@ interface DbCollection extends DbObject {
   gridImageId: string
   firstPageLink: string
   hideStartReadingButton: boolean
+  noindex: boolean
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -648,6 +649,7 @@ interface DbPost extends DbObject {
   hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
+  forceAllowType3Audio: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -683,6 +685,7 @@ interface DbPost extends DbObject {
   unlisted: boolean
   disableRecommendation: boolean
   defaultRecommendation: boolean
+  hideFromPopularComments: boolean
   draft: boolean
   meta: boolean
   hideFrontpageComments: boolean
@@ -884,6 +887,7 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  noindex: boolean
   af: boolean
   contents: EditableFieldContents
   contents_latest: string
@@ -915,6 +919,7 @@ interface DbSpotlight extends DbObject {
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
+  imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date

@@ -21,9 +21,10 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
-import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
+import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 import { isEAForum } from '../lib/instanceSettings';
+import {Posts} from '../lib/collections/posts';
 
 
 // Test if a user has voted on the server
@@ -80,7 +81,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return {newDocument, vote};
@@ -206,7 +207,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
@@ -253,7 +254,11 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
-    throw new Error("Cannot vote on dialogue responses");
+    const post = await Posts.findOne({_id: (document as DbComment).postId});
+    const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
+    if (!acceptedCoauthorIds.includes(user._id)) {
+      throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
+    }
   }
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')

@@ -13,6 +13,7 @@ const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', f
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
+const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 /**
  * Build structured data to help with SEO.
@@ -42,14 +43,19 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = (theme: ThemeType): JssStyles => ({
+  spotlightMargin: {
+    marginBottom: 24,
+  },
+});
 
-const EAHome = () => {
+const EAHome = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection,
+    EAPopularCommentsSection, BotSiteBanner, DismissibleSpotlightItem
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -60,6 +66,7 @@ const EAHome = () => {
   const maintenanceTimeValue = maintenanceTime.get()
   const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
+  const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
 
   return (
     <AnalyticsContext pageContext="homePage">
@@ -67,10 +74,7 @@ const EAHome = () => {
       {shouldRenderMaintenanceBanner && <MaintenanceBanner />}
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
-
-      {/* <SingleColumnSection>
-        <CurrentSpotlightItem />
-      </SingleColumnSection> */}
+      {shouldRenderBotSiteBanner && <BotSiteBanner />}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
@@ -78,6 +82,7 @@ const EAHome = () => {
 
       <EAHomeMainContent FrontpageNode={
         () => <>
+          <DismissibleSpotlightItem current className={classes.spotlightMargin} />
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
@@ -94,7 +99,7 @@ const EAHome = () => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome)
+const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
 
 declare global {
   interface ComponentTypes {

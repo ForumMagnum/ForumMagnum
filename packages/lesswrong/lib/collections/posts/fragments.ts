@@ -20,6 +20,7 @@ registerFragment(`
     coauthorStatuses
     hasCoauthorPermission
     rejected
+    debate
   }
 `);
 
@@ -112,6 +113,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
+    onlyVisibleToEstablishedAccounts
 
     reviewCount
     reviewVoteCount
@@ -124,6 +126,7 @@ registerFragment(`
     }
 
     podcastEpisodeId
+    forceAllowType3Audio
 
     # deprecated
     nominationCount2019
@@ -479,6 +482,7 @@ registerFragment(`
     readTimeMinutesOverride
     fmCrosspost
     hideFromRecentDiscussions
+    hideFromPopularComments
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -630,5 +634,45 @@ registerFragment(`
   fragment PostsEditCriticismTips on Post {
     _id
     criticismTipsDismissed
+  }
+`);
+
+registerFragment(`
+  fragment PostsBestOfList on Post {
+    ...PostsBase
+    podcastEpisode {
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+    socialPreviewData {
+      text
+      imageUrl
+    }
+    readTimeMinutes
+    contents {
+      _id
+      plaintextDescription
+      wordCount
+    }
+    user {
+      ...UsersMinimumInfo
+    }
+    bestAnswer {
+      ...CommentsList
+    }
+    lastPromotedComment {
+      user {
+        ...UsersMinimumInfo
+      }
+    }
+    coauthors {
+      ...UsersMinimumInfo
+    }
   }
 `);

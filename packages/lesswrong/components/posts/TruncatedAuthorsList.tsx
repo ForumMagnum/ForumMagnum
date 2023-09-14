@@ -132,7 +132,7 @@ const recalculate = (
 }
 
 const TruncatedAuthorsList = ({post, expandContainer, classes}: {
-  post: PostsList | SunshinePostsList,
+  post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
   classes: ClassesType,
 }) => {

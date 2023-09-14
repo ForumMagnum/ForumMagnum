@@ -111,11 +111,9 @@ export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tr
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
 
-/**
- * This setting is a list of post ids. Comments on these posts will not appear
- * in the "popular comments" section on the frontpage.
- */
-export const excludeFromFrontpagePopularSetting = new DatabasePublicSetting<string[]>(
-  "excludeFromFrontpagePopular",
-  [],
-);
+export type CurrentEventHeader = {
+  name: string,
+  link: string,
+}
+
+export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader | null>("currentEventHeader", null);

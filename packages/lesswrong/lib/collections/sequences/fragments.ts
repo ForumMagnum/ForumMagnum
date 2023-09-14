@@ -29,9 +29,12 @@ registerFragment(`
     isDeleted
     hidden
     hideFromAuthorPage
+    noindex
     curatedOrder
     userProfileOrder
     af
+    postsCount
+    readPostsCount
   }
 `);
 

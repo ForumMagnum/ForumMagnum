@@ -287,6 +287,12 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     hidden: true,
+    onUpdate: ({data, document, oldDocument, currentUser}) => {
+      if (!currentUser?.isAdmin && oldDocument.deletedDraft && !document.deletedDraft) {
+        throw new Error("You cannot un-delete posts");
+      }
+      return data.deletedDraft;
+    },
   },
 
   // The post's status. One of pending (`1`), approved (`2`), rejected (`3`), spam (`4`) or deleted (`5`)
@@ -495,6 +501,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
     canRead: ['guests'],
     canCreate: ['members'],
+    canUpdate: ['members'],
     hidden: true,
   },
 
@@ -980,8 +987,8 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },
@@ -1131,6 +1138,20 @@ const schema: SchemaType<DbPost> = {
     control: 'PodcastEpisodeInput',
     group: formGroups.audio,
     nullable: true
+  },
+  // Forces allowing the type 3 audio player even if the post is not new or high karma enough. Note
+  // this doesn't override every other condition (e.g. questions and events still can't have type 3 audio)
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    hidden: false,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    order: 13,
+    group: formGroups.adminOptions,
   },
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
@@ -1738,6 +1759,20 @@ const schema: SchemaType<DbPost> = {
     label: "Include in default recommendations",
     control: "checkbox",
     order: 13,
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  },
+
+  hideFromPopularComments: {
+    type: Boolean,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    label: "Hide comments on this post from Popular Comments",
+    hidden: !isEAForum,
+    control: "checkbox",
+    order: 14,
     group: formGroups.adminOptions,
     ...schemaDefaultValue(false),
   },

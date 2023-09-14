@@ -62,9 +62,15 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Posts per 1 weeks'),
       last20PostKarmaThreshold: -15,
       downvoterCountThreshold: 4,
-      rateLimitMessage: `Users with -15 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with -15 or less karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
     }, 
-  // 1 post per 2+ weeks rate limits
+    {
+      ...timeframe('1 Posts per 1 weeks'),
+      last20KarmaThreshold: -30,
+      downvoterCountThreshold: 10,
+      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+    }, 
+    // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
       karmaThreshold: -1,

@@ -1315,7 +1315,7 @@ addRoute(
     path:'/posts/:_id/:slug?',
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: isEAForum ? undefined : 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground
@@ -1325,7 +1325,7 @@ addRoute(
     path:'/posts/slug/:slug?',
     componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: isEAForum ? undefined : 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground
