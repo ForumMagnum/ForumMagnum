@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, {useState} from 'react';
 import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnNotificationsChanged} from '../hooks/useUnreadNotifications';
