@@ -1,7 +1,6 @@
 import React from 'react'
 import { createMutator, updateMutator } from "../mutators";
 import passport from 'passport'
-import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
@@ -34,12 +33,18 @@ function createMeteorClientSideHash(password: string) {
 
 async function createPasswordHash(password: string) {
   const meteorClientSideHash = createMeteorClientSideHash(password)
-  return await bcrypt.hash(meteorClientSideHash, 10)
+  return await Bun.password.hash({
+    algorithm: "bcrypt",
+    cost: 10,
+  })
 }
 
 
 async function comparePasswords(password: string, hash: string) {
-  return await bcrypt.compare(createMeteorClientSideHash(password), hash)
+  return await Bun.password.verify(
+    createMeteorClientSideHash(password),
+    hash
+  )
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {

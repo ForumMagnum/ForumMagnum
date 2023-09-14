@@ -1,4 +1,4 @@
-import later from 'later';
+import later from '@breejs/later';
 import * as _ from 'underscore';
 import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
 import { CronHistories } from '../../../lib/collections/cronHistories';
