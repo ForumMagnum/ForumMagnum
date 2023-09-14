@@ -293,9 +293,6 @@ export const sanitizeAllowedTags = [
   "mfrac", "mpadded", "mphantom", "mroot", "mrow", "msqrt", "mstyle",
   "mmultiscripts", "mover", "mprescripts", "msub", "msubsup", "msup", "munder",
   "munderover", "mtable", "mtd", "mtr",
-  
-  // MathML elements that are not included (because they're nonvisual or deprecated)
-  "maction", "semantics", "annotation", "annotation-xml", "menclose", "mfenced",
 ]
 
 const cssSizeRegex = /^(?:\d|\.)+(?:px|em|%)$/;
