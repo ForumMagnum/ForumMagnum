@@ -5,7 +5,7 @@ import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
-import { faviconUrlSetting, faviconWithBadgeSetting } from '../common/HeadTags';
+import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 
 /**
  * Provided by the client (if this is running on the client not the server),

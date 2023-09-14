@@ -1,11 +1,10 @@
 import RSS from 'rss';
-import { taglineSetting } from '../components/common/HeadTags';
 import { Comments } from '../lib/collections/comments';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
 import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
-import { forumTitleSetting, siteUrlSetting } from '../lib/instanceSettings';
+import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { addStaticRoute } from './vulcan-lib';
