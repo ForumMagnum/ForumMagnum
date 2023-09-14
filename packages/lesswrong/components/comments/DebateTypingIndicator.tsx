@@ -1,16 +1,17 @@
 // TODO: Import component in components.ts
 import React, {useEffect, useRef, useState} from 'react';
-import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
+import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnNotificationsChanged} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {TypingIndicatorMessage} from '../../client/serverSentEventsClient';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {useMulti} from '../../lib/crud/withMulti';
 import {gql, useMutation} from '@apollo/client';
+import throttle from 'lodash/throttle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-
+    ...theme.typography.commentStyle
   }
 });
 
@@ -18,7 +19,7 @@ export const DebateTypingIndicator = ({classes, post}: {
   classes: ClassesType,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-
+  const { LWTooltip, FormatDate } = Components
 
   const { results } = useMulti({
     terms: {view: "typingIndicatorsForPost", documentId: post._id},
@@ -40,25 +41,9 @@ export const DebateTypingIndicator = ({classes, post}: {
     ${fragmentTextForQuery("TypingIndicatorsDefaultFragment")}
   `)
 
-  const [keyPressCounter, setKeyPressCounter] = React.useState(0);
-
-
-  useGlobalKeydown((event) => {
-    
-    const newKeyPressCounter = keyPressCounter + 1;
-  
-    if (!currentUser) {
-      setKeyPressCounter(0);
-      return;
-    }
-  
-    if (newKeyPressCounter >= 0) {
-      void upsertTypingIndicator({variables: {documentId: post._id}})
-      setKeyPressCounter(0);
-    } else {
-      setKeyPressCounter(newKeyPressCounter);
-    }
-  });
+  useGlobalKeydown(throttle(() => {
+    void upsertTypingIndicator({variables: {documentId: post._id}})
+  }, 300));
 
   useOnNotificationsChanged(currentUser, (messageString) => {
     const message : TypingIndicatorMessage = JSON.parse(messageString)
@@ -69,18 +54,29 @@ export const DebateTypingIndicator = ({classes, post}: {
     setTypingIndicators(filteredIndicators)
   });
 
+  if (!currentUser) return null;
+
+  const otherUsers = typingIndicators.filter((typingIndicator) => {
+    const thirtySecondsAgo = Date.now() - 30000
+    const typingIndicatorIsRecent = typingIndicator.lastUpdated ?? 0 > thirtySecondsAgo
+    const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
+    return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
+  })
+
+  const tooltip = <div>
+    {typingIndicators.map((typingIndicator) => <div key={typingIndicator._id}>
+      {typingIndicator.userId.slice(0,5)} last typed <FormatDate date={typingIndicator.lastUpdated} /> ago
+    </div>)}
+  </div>
+
   return <div className={classes.root}>
-    {/* {typingIndicators.length > 0 && <div>
-      {typingIndicators.length} {typingIndicators.length === 1 ? 
-        'user is' : 
-        'users are'} typing...
-      </div>} */}
-      {typingIndicators.map((typingIndicator, index) => {
-        return <div key={typingIndicator._id}>
-          {typingIndicator.userId} last typed {new Date(typingIndicator.lastUpdated).toLocaleTimeString()}
-        </div>
-      })
-    }
+    {otherUsers.length > 0 && <LWTooltip title={tooltip}>
+      <div>
+        {otherUsers.length} {otherUsers.length === 1 ? 
+          'user is' : 
+          'users are'} typing...
+      </div>
+    </LWTooltip>}
   </div>;
 }
 
