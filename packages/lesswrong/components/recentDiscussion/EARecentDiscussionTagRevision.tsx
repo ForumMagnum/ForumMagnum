@@ -1,7 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 
-const EARecentDiscussionTag = ({
+const EARecentDiscussionTagRevision = ({
   tag,
   revision,
   collapsed,
@@ -38,13 +38,13 @@ const EARecentDiscussionTag = ({
   );
 }
 
-const EARecentDiscussionTagComponent = registerComponent(
-  "EARecentDiscussionTag",
-  EARecentDiscussionTag,
+const EARecentDiscussionTagRevisionComponent = registerComponent(
+  "EARecentDiscussionTagRevision",
+  EARecentDiscussionTagRevision,
 );
 
 declare global {
   interface ComponentTypes {
-    EARecentDiscussionTag: typeof EARecentDiscussionTagComponent,
+    EARecentDiscussionTagRevision: typeof EARecentDiscussionTagRevisionComponent,
   }
 }

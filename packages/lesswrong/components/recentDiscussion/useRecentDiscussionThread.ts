@@ -54,7 +54,7 @@ export const useRecentDiscussionThread = ({
     highlightDate: lastVisitedAt,
     refetch: refetch,
     condensed: true,
-    post: post,
+    post,
     ...commentTreeOptions
   };
 

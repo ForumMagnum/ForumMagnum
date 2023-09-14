@@ -48,7 +48,8 @@ const RecentDiscussionFeed = ({
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
     EARecentDiscussionThread,
-    EARecentDiscussionTag,
+    EARecentDiscussionTagRevision,
+    EARecentDiscussionTagCommented,
     AnalyticsInViewTracker,
     RecentDiscussionSubforumThread,
   } = Components;
@@ -61,8 +62,11 @@ const RecentDiscussionFeed = ({
   const ThreadComponent = isEAForum
     ? EARecentDiscussionThread
     : RecentDiscussionThread;
+  const TagCommentedComponent = isEAForum
+    ? EARecentDiscussionTagCommented
+    : RecentDiscussionTag;
   const TagRevisionComponent = isEAForum
-    ? EARecentDiscussionTag
+    ? EARecentDiscussionTagRevision
     : RecentDiscussionTagRevisionItem;
 
   const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
@@ -111,7 +115,7 @@ const RecentDiscussionFeed = ({
               tagDiscussed: {
                 fragmentName: "TagRecentDiscussion",
                 render: (tag: TagRecentDiscussion) => (
-                  <RecentDiscussionTag
+                  <TagCommentedComponent
                     tag={tag}
                     refetch={refetch}
                     comments={tag.recentComments}

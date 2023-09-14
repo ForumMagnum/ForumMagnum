@@ -1,8 +1,8 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { Link } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { ContentStyleType } from "../ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,39 +34,42 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostExcerpt = ({post, lines = 3, className, classes}: {
-  post: PostsList,
+const ContentExcerpt = ({
+  contentHtml,
+  moreLink,
+  lines = 3,
+  contentType,
+  className,
+  classes,
+}: {
+  contentHtml: string,
+  moreLink: string,
+  contentType: ContentStyleType,
   lines?: number,
   className?: string,
   classes: ClassesType,
 }) => {
-  if (!post.contents?.htmlHighlight) {
-    return null;
-  }
-
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <ContentStyles
-      contentType="postHighlight"
+      contentType={contentType}
       className={classNames(classes.root, className)}
       style={{WebkitLineClamp: lines}}
     >
-      <ContentItemBody dangerouslySetInnerHTML={{
-        __html: post.contents?.htmlHighlight ?? "",
-      }} />
-      <Link to={postGetPageUrl(post)} className={classes.more}>(More)</Link>
+      <ContentItemBody dangerouslySetInnerHTML={{__html: contentHtml}} />
+      <Link to={moreLink} className={classes.more}>(More)</Link>
     </ContentStyles>
   );
 }
 
-const PostExcerptComponent = registerComponent(
-  "PostExcerpt",
-  PostExcerpt,
+const ContentExcerptComponent = registerComponent(
+  "ContentExcerpt",
+  ContentExcerpt,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    PostExcerpt: typeof PostExcerptComponent,
+    ContentExcerpt: typeof ContentExcerptComponent,
   }
 }
