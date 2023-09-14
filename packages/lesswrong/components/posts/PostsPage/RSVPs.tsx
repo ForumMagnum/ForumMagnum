@@ -49,6 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
   },
+  rsvpCount: {
+    marginLeft: 10,
+  },
   buttons: {
     [theme.breakpoints.down('xs')]: {
       display: "block"
@@ -162,7 +165,7 @@ const RSVPs = ({post, classes}: {
     </div>
     {post.isEvent && post.rsvps?.length > 0 && <>
       <div className={classes.rsvpCounts}>
-        {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response}>
+        {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response} className={classes.rsvpCount}>
           <ResponseIcon response={response} classes={classes} />
           {rsvpCounts[response]??0} {responseToText[response]}
         </span>)}
