@@ -51,7 +51,6 @@ const RecentDiscussionFeed = ({
     EARecentDiscussionTagRevision,
     EARecentDiscussionTagCommented,
     AnalyticsInViewTracker,
-    RecentDiscussionSubforumThread,
   } = Components;
 
   const refetch = useCallback(() => {
@@ -123,6 +122,7 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
+              /*
               tagSubforumComments: {
                 fragmentName: "CommentWithRepliesFragment",
                 render: (comment: CommentWithRepliesFragment) => (
@@ -134,6 +134,7 @@ const RecentDiscussionFeed = ({
                   />
                 ),
               },
+             */
               tagRevised: {
                 fragmentName: "RevisionTagFragment",
                 render: (revision: RevisionTagFragment) => <div>

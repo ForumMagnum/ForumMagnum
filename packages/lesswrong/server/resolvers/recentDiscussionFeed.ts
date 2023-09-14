@@ -106,6 +106,7 @@ defineFeedResolver<Date>({
           },
         }),
         // Subforum comments
+        /*
         viewBasedSubquery({
           type: "tagSubforumComments",
           collection: Comments,
@@ -118,6 +119,7 @@ defineFeedResolver<Date>({
             ...(af ? {af: true} : undefined),
           },
         }),
+        */
         // Large revision to tag
         viewBasedSubquery({
           type: "tagRevised",
