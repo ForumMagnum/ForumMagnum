@@ -72,4 +72,11 @@ const schema: SchemaType<DbNotification> = {
   },
 };
 
+export type NotificationCountsResult = {
+  checkedAt: Date,
+  unreadNotifications: number
+  unreadPrivateMessages: number
+  faviconBadgeNumber: number
+}
+
 export default schema;

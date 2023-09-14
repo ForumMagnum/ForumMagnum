@@ -6,6 +6,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
+import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 
 /**
  * Provided by the client (if this is running on the client not the server),
@@ -15,6 +16,10 @@ import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSe
 type ServerSentEventsAPI = {
   setServerSentEventsActive: ((active:boolean)=>void)|null
 }
+export const serverSentEventsAPI: ServerSentEventsAPI = {
+  setServerSentEventsActive: null,
+};
+
 export type ServerSentEventsMessage = {
   stop?: boolean,
   newestNotificationTime?: string //stringified date
@@ -44,7 +49,7 @@ export function useUnreadNotifications(): {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
-  function updateFavicon(result: any) {
+  function updateFavicon(result: { unreadNotificationCounts: NotificationCountsResult }) {
     const faviconBadgeNumber = result.unreadNotificationCounts?.faviconBadgeNumber;
     setFaviconBadge(faviconBadgeNumber);
   }
@@ -202,7 +207,3 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
     listener(message);
   }
 }
-
-export const serverSentEventsAPI: ServerSentEventsAPI = {
-  setServerSentEventsActive: null,
-};

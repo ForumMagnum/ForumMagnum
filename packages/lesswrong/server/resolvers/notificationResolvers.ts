@@ -2,6 +2,7 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../lib/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
+import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -14,12 +15,7 @@ defineQuery({
     }
   `,
   resultType: "NotificationCounts!",
-  fn: async (root: void, args: {}, context: ResolverContext): Promise<{
-    checkedAt: Date,
-    unreadNotifications: number
-    unreadPrivateMessages: number
-    faviconBadgeNumber: number
-  }> => {
+  fn: async (root: void, args: {}, context: ResolverContext): Promise<NotificationCountsResult> => {
     const checkedAt = new Date();
     const { currentUser } = context;
     if (!currentUser) {
