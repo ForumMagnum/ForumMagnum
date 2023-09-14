@@ -12,7 +12,7 @@ import throttle from 'lodash/throttle';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle
-  }
+  },
 });
 
 export const DebateTypingIndicator = ({classes, post}: {
@@ -57,8 +57,9 @@ export const DebateTypingIndicator = ({classes, post}: {
   if (!currentUser) return null;
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
-    const thirtySecondsAgo = Date.now() - 30000
-    const typingIndicatorIsRecent = typingIndicator.lastUpdated ?? 0 > thirtySecondsAgo
+    const fiveSecondsAgo = Date.now() - 5000
+    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > fiveSecondsAgo;
+    console.log("typing indicator", typingIndicatorIsRecent, "type of typingIndicatorIsRecent", typeof typingIndicatorIsRecent, typingIndicator.lastUpdated, fiveSecondsAgo)
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })
