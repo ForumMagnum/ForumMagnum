@@ -7,9 +7,10 @@ import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import { Posts } from '../lib/collections/posts';
 import uniq from 'lodash/uniq';
-import type { ConnectionMessage } from '../client/serverSentEventsClient';
+import type { ServerSentEventsMessage } from '../client/serverSentEventsClient';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import TypingIndicators from '../lib/collections/typingIndicators/collection';
+import { ServerSentEventsMessage } from '../components/hooks/useUnreadNotifications';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -144,12 +145,10 @@ async function checkForTypingIndicators() {
     }
   }
 
-  console.log(usersReceivingTypingIndicators)
-
   for (let userId of Object.keys(usersReceivingTypingIndicators)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : ConnectionMessage = {eventType: "typingIndicator", typingIndicators: usersReceivingTypingIndicators[userId]}
+        const message : ServerSentEventsMessage = {eventType: "typingIndicator", typingIndicators: usersReceivingTypingIndicators[userId]}
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
   
@@ -211,7 +210,10 @@ async function checkForNotifications() {
         if (!connection.newestNotificationTimestamp
           || connection.newestNotificationTimestamp < newTimestamp
         ) {
-          const message: ConnectionMessage = { eventType: "notificationCheck", newestNotificationTime: newTimestamp };
+          const message: ServerSentEventsMessage = {
+            eventType: "notificationCheck",
+            newestNotificationTime: newTimestamp.toISOString(),
+          };
           connection.res.write(`data: ${JSON.stringify(message)}\n\n`);
           connection.newestNotificationTimestamp = newTimestamp;
         }

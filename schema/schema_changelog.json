@@ -305,8 +305,8 @@
     "timestamp": "2023-08-30T09:41:48.000Z"
   },
   {
-    "acceptsSchemaHash": "24bc9fe665eddf3a725921ac092d7b1b",
-    "acceptedByMigration": "20230913T022642.create_typingindicator_table.ts",
-    "timestamp": "2023-09-13T02:26:42.000Z"
+    "acceptsSchemaHash": "1688c0a0ffbebf808f0ad26c4ba8d073",
+    "acceptedByMigration": "20230914T094148.add_forceAllowType3Audio.ts",
+    "timestamp": "2023-09-14T09:41:48.000Z"
   }
 ]

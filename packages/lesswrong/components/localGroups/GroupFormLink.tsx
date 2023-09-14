@@ -1,45 +1,36 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { Component } from 'react';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
-import withDialog from '../common/withDialog'
+import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
-interface ExternalProps {
-  documentId?: string,
+const GroupFormLink = ({documentId, isOnline}: {
+  documentId?: string
   isOnline?: boolean
-}
-interface GroupFormLinkProps extends ExternalProps, WithDialogProps {
-}
+}) => {
+  const { openDialog } = useDialog();
+  const { SectionButton } = Components
 
-class GroupFormLink extends Component<GroupFormLinkProps> {
-  handleOpenGroupForm = () => {
-    this.props.openDialog({
+  const handleOpenGroupForm = () => {
+    openDialog({
       componentName: "GroupFormDialog",
-      componentProps: {documentId: this.props.documentId, isOnline: this.props.isOnline}
+      componentProps: {documentId: documentId, isOnline: isOnline}
     })
   }
 
-  render() {
-    const { documentId } =  this.props
-    const { SectionButton } = Components
-    return (<React.Fragment>
-      { documentId ?
-        <SectionButton>
-          <span onClick={this.handleOpenGroupForm}>{preferredHeadingCase('Edit Group')}</span>
-        </SectionButton>
-        :
-        <SectionButton>
-          <AddLocationIcon />
-          <span onClick={this.handleOpenGroupForm}>{preferredHeadingCase('New Group')}</span>
-        </SectionButton>
-      }
-    </React.Fragment>)
+  if (documentId) {
+    return <SectionButton>
+      <span onClick={handleOpenGroupForm}>{preferredHeadingCase('Edit Group')}</span>
+    </SectionButton>
+  } else {
+    return <SectionButton>
+      <AddLocationIcon />
+      <span onClick={handleOpenGroupForm}>{preferredHeadingCase('New Group')}</span>
+    </SectionButton>
   }
 }
 
-const GroupFormLinkComponent = registerComponent<ExternalProps>('GroupFormLink', GroupFormLink, {
-  hocs: [withDialog]
-});
+const GroupFormLinkComponent = registerComponent('GroupFormLink', GroupFormLink);
 
 declare global {
   interface ComponentTypes {

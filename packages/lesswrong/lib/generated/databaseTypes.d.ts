@@ -649,6 +649,7 @@ interface DbPost extends DbObject {
   hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
+  forceAllowType3Audio: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean

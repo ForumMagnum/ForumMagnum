@@ -83,7 +83,7 @@ function connectServerSentEvents() {
       serverRequestedStop = true;
       disconnectServerSentEvents();
     } else {
-      onServerSentNotificationEvent(event.data);
+      onServerSentNotificationEvent(parsedEventData);
     }
   }
 }

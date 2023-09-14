@@ -286,7 +286,13 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe',
+  
+  //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
+  "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
+  "mfrac", "mpadded", "mphantom", "mroot", "mrow", "msqrt", "mstyle",
+  "mmultiscripts", "mover", "mprescripts", "msub", "msubsup", "msup", "munder",
+  "munderover", "mtable", "mtd", "mtr",
 ]
 
 const cssSizeRegex = /^(?:\d|\.)+(?:px|em|%)$/;
@@ -307,6 +313,8 @@ const allowedTableStyles = {
   'padding': [/^.*$/],
 };
 
+const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
+
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
@@ -325,6 +333,34 @@ export const sanitize = function(s: string): string {
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
+      
+      // Attributes for MathML elements
+      math: [...allowedMathMLGlobalAttributes, 'display'],
+      mi: allowedMathMLGlobalAttributes,
+      mn: allowedMathMLGlobalAttributes,
+      mtext: allowedMathMLGlobalAttributes,
+      merror: allowedMathMLGlobalAttributes,
+      mfrac: [...allowedMathMLGlobalAttributes, 'linethickness'],
+      mmultiscripts: allowedMathMLGlobalAttributes,
+      mo: [...allowedMathMLGlobalAttributes, 'fence', 'largeop', 'lspace', 'maxsize', 'minsize', 'movablelimits', 'rspace', 'separator', 'stretchy', 'symmetric'],
+      mover: [...allowedMathMLGlobalAttributes, 'accent'],
+      mpadded: [...allowedMathMLGlobalAttributes, 'depth','height','lspace','voffset','width'],
+      mphantom: allowedMathMLGlobalAttributes,
+      mprescripts: allowedMathMLGlobalAttributes,
+      mroot: allowedMathMLGlobalAttributes,
+      mrow: allowedMathMLGlobalAttributes,
+      ms: [...allowedMathMLGlobalAttributes, 'lquote','rquote'],
+      mspace: [...allowedMathMLGlobalAttributes, 'depth','height','width'],
+      msqrt: allowedMathMLGlobalAttributes,
+      mstyle: allowedMathMLGlobalAttributes,
+      msub: allowedMathMLGlobalAttributes,
+      msubsup: allowedMathMLGlobalAttributes,
+      msup: allowedMathMLGlobalAttributes,
+      mtable: allowedMathMLGlobalAttributes,
+      mtd: [...allowedMathMLGlobalAttributes, 'columnspan','rowspan'],
+      mtr: allowedMathMLGlobalAttributes,
+      munder: [...allowedMathMLGlobalAttributes, 'accentunder'],
+      munderover: [...allowedMathMLGlobalAttributes, 'accent','accentunder'],
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com',
