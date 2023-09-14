@@ -1132,6 +1132,8 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.audio,
     nullable: true
   },
+  // Forces allowing the type 3 audio player even if the post is not new or high karma enough. Note
+  // this doesn't override every other condition (e.g. questions and events still can't have type 3 audio)
   forceAllowType3Audio: {
     type: Boolean,
     optional: true,
