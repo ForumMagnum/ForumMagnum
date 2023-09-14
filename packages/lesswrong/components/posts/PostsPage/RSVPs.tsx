@@ -5,12 +5,14 @@ import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent, Components, getFragment } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
-import { responseToText } from './RSVPForm';
+import { responseToText, RsvpResponse } from './RSVPForm';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
 import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
+import groupBy from "lodash/groupBy";
+import mapValues from "lodash/mapValues";
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
@@ -38,9 +40,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallText
   },
   rsvpBlock: {
-    marginTop: 10, 
+    marginTop: 10,
     marginBottom: 10
-  }, 
+  },
+  rsvpCounts: {
+    marginTop: 10,
+    marginBottom: 10,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+  },
+  rsvpCount: {
+    marginLeft: 10,
+  },
   buttons: {
     [theme.breakpoints.down('xs')]: {
       display: "block"
@@ -133,6 +144,8 @@ const RSVPs = ({post, classes}: {
   `)
   const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
 
+  const rsvpCounts: Partial<Record<RsvpResponse,number>> = mapValues(groupBy(post.rsvps, rsvp => rsvp.response), rsvps=>rsvps.length);
+
   return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
       <span className={classes.rsvpMessage}>
@@ -150,19 +163,23 @@ const RSVPs = ({post, classes}: {
         </Button>
       </span>
     </div>
-    {post.isEvent && post.rsvps?.length > 0 && 
+    {post.isEvent && post.rsvps?.length > 0 && <>
+      <div className={classes.rsvpCounts}>
+        {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response} className={classes.rsvpCount}>
+          <ResponseIcon response={response} classes={classes} />
+          {rsvpCounts[response]??0} {responseToText[response]}
+        </span>)}
+      </div>
       <div className={classes.rsvpBlock}>
         {post.rsvps.map((rsvp:RSVPType) => {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
             <div>
-              {responseToText[rsvp.response] === "Going" && <CheckCircleOutlineIcon className={classes.goingIcon} />}
-              {responseToText[rsvp.response] === "Maybe" && <HelpOutlineIcon className={classes.maybeIcon} />}
-              {responseToText[rsvp.response] === "Can't Go" && <HighlightOffIcon className={classes.noIcon} />}
+              <ResponseIcon response={rsvp.response} classes={classes}/>
               <span className={classes.rsvpName}>{rsvp.name}</span>
-                  {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
-                    x
-                  </span>}
+              {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
+                {"x"}
+              </span>}
             </div>
             {currentUser?._id === post.userId && <div className={classes.email}>
               {rsvp.email}
@@ -170,8 +187,24 @@ const RSVPs = ({post, classes}: {
         </span>
         })}
       </div>
-    }
+    </>}
   </ContentStyles>;
+}
+
+function ResponseIcon({response, classes}: {
+  response: RsvpResponse
+  classes: ClassesType
+}) {
+  switch (response) {
+    case "yes":
+      return <CheckCircleOutlineIcon className={classes.goingIcon} />
+    case "maybe":
+      return <HelpOutlineIcon className={classes.maybeIcon} />
+    case "no":
+      return <HighlightOffIcon className={classes.noIcon} />
+    default:
+      return <></>
+  }
 }
 
 const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});

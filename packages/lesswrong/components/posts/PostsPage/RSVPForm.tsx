@@ -11,7 +11,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
 import { isEAForum } from '../../../lib/instanceSettings';
 
-export const responseToText = {
+export type RsvpResponse = "yes"|"maybe"|"no";
+export const responseToText: Record<RsvpResponse,string> = {
   yes: "Going",
   maybe: "Maybe",
   no: "Can't Go"
