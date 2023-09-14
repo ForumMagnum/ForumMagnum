@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnNotificationsChanged} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
-import {TypingIndicatorMessage} from '../../client/serverSentEventsClient';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';

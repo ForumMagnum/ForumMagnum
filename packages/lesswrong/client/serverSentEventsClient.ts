@@ -1,18 +1,5 @@
 import { serverSentEventsAPI, onServerSentNotificationEvent } from "../components/hooks/useUnreadNotifications";
 
-export type TypingIndicatorMessage = {
-  eventType: 'typingIndicator',
-  typingIndicators: TypingIndicatorInfo[],
-}
-
-export type NotificationCheckMessage = {
-  eventType: 'notificationCheck',
-  newestNotificationTime: Date,
-}
-
-export type ServerSentEventsMessage = TypingIndicatorMessage | NotificationCheckMessage;
-
-
 const notificationEventsApiVersion = 2;
 
 let serverRequestedStop = false;

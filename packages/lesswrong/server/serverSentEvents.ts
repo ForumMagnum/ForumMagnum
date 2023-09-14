@@ -7,10 +7,9 @@ import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import { Posts } from '../lib/collections/posts';
 import uniq from 'lodash/uniq';
-import type { ServerSentEventsMessage } from '../client/serverSentEventsClient';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import TypingIndicators from '../lib/collections/typingIndicators/collection';
-import { ServerSentEventsMessage } from '../components/hooks/useUnreadNotifications';
+import {ServerSentEventsMessage} from '../components/hooks/useUnreadNotifications';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
