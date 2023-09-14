@@ -54,11 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   whitescreen: {
     display: "none",
-    position: "absolute",
-    left: -300,
-    width: 3000,
-    top: 0,
-    height: 5000,
+    position: "fixed",
+    inset: 0,
     backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.questionPageWhitescreen,
   },

@@ -1,6 +1,6 @@
 import { postCoauthorIsPending } from "../../lib/collections/posts/helpers";
 
-export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList) => {
+export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList|PostsBestOfList) => {
   const isAnon = !post.user || !!post.hideAuthor;
 
   let topCommentAuthor = post.question
