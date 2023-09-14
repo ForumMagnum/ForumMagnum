@@ -18,7 +18,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.grey[600],
-    margin: "20px 0",
+    margin: "32px 0",
+    "&:first-child": {
+      marginTop: 16,
+    },
   },
   primaryText: {
     color: theme.palette.grey[1000],
