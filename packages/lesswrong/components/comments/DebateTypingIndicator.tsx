@@ -34,13 +34,14 @@ export const DebateTypingIndicator = ({classes, post}: {
     void upsertTypingIndicator({variables: {documentId: post._id}})
   }, 300));
 
-  useOnNotificationsChanged(currentUser, (messageString) => {
-    const message : TypingIndicatorMessage = JSON.parse(messageString)
-    const typingIndicators = message.typingIndicators ?? []
-    const filteredIndicators = typingIndicators.filter((typingIndicator) => {
-      return typingIndicator.documentId === post._id
-    })
-    setTypingIndicators(filteredIndicators)
+  useOnNotificationsChanged(currentUser, (message) => {
+    if (message.eventType === 'typingIndicator') {
+      const typingIndicators = message.typingIndicators ?? []
+      const filteredIndicators = typingIndicators.filter((typingIndicator) => {
+        return typingIndicator.documentId === post._id
+      })
+      setTypingIndicators(filteredIndicators)
+    }
   });
 
   if (!currentUser) return null;

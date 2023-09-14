@@ -37,7 +37,7 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
     totalCount
     __typename
   }
-}`;
+};
 
 function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, fragment, extraVariables}: {
   collectionName: CollectionNameString,

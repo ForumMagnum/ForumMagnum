@@ -10,7 +10,7 @@ export type NotificationCheckMessage = {
   newestNotificationTime: Date,
 }
 
-export type ConnectionMessage = TypingIndicatorMessage | NotificationCheckMessage;
+export type ServerSentEventsMessage = TypingIndicatorMessage | NotificationCheckMessage;
 
 
 const notificationEventsApiVersion = 2;
