@@ -1,11 +1,10 @@
 // TODO: Import component in components.ts
-import React, {useEffect, useRef, useState} from 'react';
-import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
+import React, {useState} from 'react';
+import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import {useOnNotificationsChanged} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {TypingIndicatorMessage} from '../../client/serverSentEventsClient';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
-import {useMulti} from '../../lib/crud/withMulti';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
 
@@ -19,15 +18,6 @@ export const DebateTypingIndicator = ({classes, post}: {
   classes: ClassesType,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-  const { LWTooltip, FormatDate } = Components
-
-  const { results } = useMulti({
-    terms: {view: "typingIndicatorsForPost", documentId: post._id},
-    collectionName: "TypingIndicators",
-    fragmentName: 'TypingIndicatorInfo',
-  });
-
-  //console.log( "results", results )
 
   const [typingIndicators, setTypingIndicators] = useState<TypingIndicatorInfo[]>([]);
   const currentUser = useCurrentUser();
@@ -59,25 +49,17 @@ export const DebateTypingIndicator = ({classes, post}: {
   const otherUsers = typingIndicators.filter((typingIndicator) => {
     const fiveSecondsAgo = Date.now() - 5000
     const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > fiveSecondsAgo;
-    console.log("typing indicator", typingIndicatorIsRecent, "type of typingIndicatorIsRecent", typeof typingIndicatorIsRecent, typingIndicator.lastUpdated, fiveSecondsAgo)
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })
 
-  const tooltip = <div>
-    {typingIndicators.map((typingIndicator) => <div key={typingIndicator._id}>
-      {typingIndicator.userId.slice(0,5)} last typed <FormatDate date={typingIndicator.lastUpdated} /> ago
-    </div>)}
-  </div>
-
   return <div className={classes.root}>
-    {otherUsers.length > 0 && <LWTooltip title={tooltip}>
-      <div>
+    {otherUsers.length > 0 && <div>
         {otherUsers.length} {otherUsers.length === 1 ? 
           'user is' : 
           'users are'} typing...
       </div>
-    </LWTooltip>}
+    }
   </div>;
 }
 
