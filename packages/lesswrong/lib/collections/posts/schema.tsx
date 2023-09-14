@@ -1139,6 +1139,20 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.audio,
     nullable: true
   },
+  // Forces allowing the type 3 audio player even if the post is not new or high karma enough. Note
+  // this doesn't override every other condition (e.g. questions and events still can't have type 3 audio)
+  forceAllowType3Audio: {
+    type: Boolean,
+    optional: true,
+    hidden: false,
+    defaultValue: false,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "checkbox",
+    order: 13,
+    group: formGroups.adminOptions,
+  },
   // Legacy: Boolean used to indicate that post was imported from old LW database
   legacy: {
     type: Boolean,

@@ -303,5 +303,10 @@
     "acceptsSchemaHash": "695076fb79e84a853f06b96943835ff2",
     "acceptedByMigration": "20230830T094148.add_noindex_SequencesCollections.ts",
     "timestamp": "2023-08-30T09:41:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1688c0a0ffbebf808f0ad26c4ba8d073",
+    "acceptedByMigration": "20230914T094148.add_forceAllowType3Audio.ts",
+    "timestamp": "2023-09-14T09:41:48.000Z"
   }
 ]
