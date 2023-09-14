@@ -107,7 +107,7 @@ const HomepageMapFilter = ({classes}:{classes:ClassesType}) => {
   return <Paper>
     <LWTooltip title="September is Meetups Month, celebrating Astral Codex Everywhere. Find a meetup near you." placement="left">
       <div className={classNames(classes.section, classes.title)}>
-        <Link to="/posts/fLdADsBLAMuGvky2M/meetups-everywhere-2022-times-and">
+        <Link to="/posts/ynpC7oXhXxGPNuCgH/acx-meetups-everywhere-2023-times-and-places">
           Meetups Month
         </Link>
       </div>

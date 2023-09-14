@@ -13,10 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
         width: "100%",
         ...descriptionStyles(theme),
       },
-      '& .input-spotlightImageId': {
-        width: "66%"
+      '& .input-spotlightImageId, & .input-darkImageId': {
+        width: "100%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft': {
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade': {
         width: "calc(33% - 12px)",
         overflow: "hidden",
         marginRight: 12

@@ -334,11 +334,12 @@ export const sanitize = function(s: string): string {
       'metaforecast.org',
       'app.thoughtsaver.com',
       'ourworldindata.org',
-      'strawpoll.com'
+      'strawpoll.com',
+      'estimaker.app',
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
       li: [ 'footnote-item' ],

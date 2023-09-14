@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
@@ -111,10 +112,23 @@ const CollectionsPage = ({ documentId, classes }: {
     // eslint-disable-next-line no-console
     console.log(`${wordCount.toLocaleString()} words`)
 
+    const socialImageUrl = collection.gridImageId ? makeCloudinaryImageUrl(collection.gridImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "auto:faces",
+    }) : undefined;
+
     return (<ErrorBoundary>
-      <HeadTags title={collection.title} description={plaintextDescription || undefined} />
+      <HeadTags
+        title={collection.title}
+        description={plaintextDescription || undefined}
+        noIndex={collection.noindex}
+        image={socialImageUrl}
+      />
       <div className={classes.root}>
-      <ToCColumn 
+      <ToCColumn
         tableOfContents={<CollectionTableOfContents collection={document}/>}
       >
         <div className={classes.section}>

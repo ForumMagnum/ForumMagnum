@@ -22,7 +22,7 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -207,7 +207,8 @@ const Layout = ({currentUser, children, classes}: {
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
-  // const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
+  // (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -294,7 +295,7 @@ const Layout = ({currentUser, children, classes}: {
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
+    const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -347,7 +348,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
               />}
               {/* enable during ACX Everywhere */}
-              {/* {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>} */}
+              {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
               
               <div className={classNames(classes.standaloneNavFlex, {
@@ -372,7 +373,7 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name)
+                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name ?? "404")
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }

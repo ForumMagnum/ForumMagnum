@@ -20,6 +20,7 @@ registerFragment(`
     coauthorStatuses
     hasCoauthorPermission
     rejected
+    debate
   }
 `);
 
@@ -112,6 +113,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
+    onlyVisibleToEstablishedAccounts
 
     reviewCount
     reviewVoteCount
@@ -480,6 +482,7 @@ registerFragment(`
     readTimeMinutesOverride
     fmCrosspost
     hideFromRecentDiscussions
+    hideFromPopularComments
     moderationGuidelines {
       ...RevisionEdit
     }

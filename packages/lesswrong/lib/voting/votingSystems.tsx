@@ -11,15 +11,18 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 
-export type CommentVotingComponentProps = {
-  document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
+type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
+
+export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
+  document: T,
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
   commentItemRef?: React.RefObject<HTMLDivElement>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
+  post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }
-export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps {
+export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingComponentProps<CommentsList> {
   voteProps: VotingProps<VoteableTypeClient>,
 }
 
