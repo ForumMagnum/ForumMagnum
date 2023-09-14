@@ -222,14 +222,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     const key: MongoIndexKeyObj<T> = typeof fieldOrSpec === "string"
       ? {[fieldOrSpec as keyof T]: 1 as const} as MongoIndexKeyObj<T>
       : fieldOrSpec;
-    
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
-    
     const query = new CreateIndexQuery(this.getTable(), index, true);
-    if (this.collectionName === "TypingIndicators") {
-      console.log(query, fieldOrSpec)
-    }
-    
     await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 

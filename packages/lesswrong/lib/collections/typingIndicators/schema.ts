@@ -3,14 +3,12 @@ import { userOwns } from '../../vulcan-users/permissions';
 const schema: SchemaType<DbTypingIndicator> = {
   userId: {
     type: String,
-    optional: true,
     nullable: false,
     canRead: ['members'],
     canCreate: ['members'],
   },
   documentId: {
     type: String,
-    optional: true,
     nullable: false,
     canRead: ['members'],
     canCreate: ['members'],
@@ -23,6 +21,5 @@ const schema: SchemaType<DbTypingIndicator> = {
     canUpdate: [userOwns],
   },
 }
-
 
 export default schema;

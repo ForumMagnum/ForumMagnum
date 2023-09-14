@@ -69,10 +69,12 @@ export function useUnreadNotifications(): {
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
 
-  const refetchIfNewNotifications = useCallback((messageBlob: string) => {
-    // TODO: figure out what's going on with messageBlob (which was formerly timestamp, but,
-    // but not well typed)
-    if (!checkedAt || messageBlob > checkedAt) {
+  const refetchIfNewNotifications = useCallback((messageRawJSON: string) => {
+    // TODO: Revisit and check whether this is correct. 
+    // I think messageRawJSON used to be called "newestNotificationTimestamp" 
+    // and was incorrectly typed as Date
+    // @jimrandomh should make a call
+    if (!checkedAt || messageRawJSON > checkedAt) {
       void refetchBoth();
     }
   }, [checkedAt, refetchBoth]);
@@ -82,13 +84,13 @@ export function useUnreadNotifications(): {
   return { unreadNotifications, unreadPrivateMessages, checkedAt, refetch: refetchBoth };
 }
 
-export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (messageBlob: string)=>void) => {
+export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (messageRawJSON: string)=>void) => {
   useEffect(() => {
     if (!currentUser)
       return;
 
-    const onServerSentNotification = (messageBlob: string) => {
-      void cb(messageBlob);
+    const onServerSentNotification = (messageRawJSON: string) => {
+      void cb(messageRawJSON);
     }
     notificationEventListeners.push(onServerSentNotification);
     serverSentEventsAPI.setServerSentEventsActive?.(true);
@@ -107,11 +109,11 @@ export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (m
   }, [currentUser, cb]);
 }
 
-let notificationEventListeners: Array<(messageBlob: string)=>void> = [];
+let notificationEventListeners: Array<(messageRawJSON: string)=>void> = [];
 
-export function onServerSentNotificationEvent(messageBlob: string) {
+export function onServerSentNotificationEvent(messageRawJSON: string) {
   for (let listener of [...notificationEventListeners]) {
-    listener(messageBlob);
+    listener(messageRawJSON);
   }
 }
 

@@ -303,5 +303,10 @@
     "acceptsSchemaHash": "695076fb79e84a853f06b96943835ff2",
     "acceptedByMigration": "20230830T094148.add_noindex_SequencesCollections.ts",
     "timestamp": "2023-08-30T09:41:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "24bc9fe665eddf3a725921ac092d7b1b",
+    "acceptedByMigration": "20230913T022642.create_typingindicator_table.ts",
+    "timestamp": "2023-09-13T02:26:42.000Z"
   }
 ]

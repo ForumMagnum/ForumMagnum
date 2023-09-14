@@ -3,8 +3,6 @@ import TypingIndicatorsRepo from "../repos/TypingIndicatorsRepo";
 import {defineMutation} from "../utils/serverGraphqlUtil";
 
 function isUserDialogueParticipant(userId: string, post: DbPost) {
-  // if  (!post.debate) return false 
-
   if (post.userId === userId) return true 
   if (getConfirmedCoauthorIds(post).includes(userId)) return true
   return false
