@@ -1,9 +1,9 @@
 import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
-import { postStatuses } from "../../lib/collections/posts/constants";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
+import { getViewablePostsSelector } from "./helpers";
 
 export type MeanPostKarma = {
   _id: number,
@@ -24,24 +24,10 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     super(Posts);
   }
 
-  private getKarmaInflationSelector(): string {
-    return `
-      "status" = ${postStatuses.STATUS_APPROVED} AND
-      "draft" = FALSE AND
-      "isFuture" = FALSE AND
-      "unlisted" = FALSE AND
-      "shortform" = FALSE AND
-      "authorIsUnreviewed" = FALSE AND
-      "hiddenRelatedQuestion" = FALSE AND
-      "isEvent" = FALSE AND
-      "postedAt" IS NOT NULL
-    `;
-  }
-
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       SELECT "postedAt" FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
       ORDER BY "postedAt" ASC
       LIMIT 1
     `);
@@ -56,7 +42,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           FLOOR(EXTRACT(EPOCH FROM "postedAt" - $1) / ($2 / 1000)) AS "_id",
           "baseScore"
         FROM "Posts"
-        WHERE ${this.getKarmaInflationSelector()}
+        WHERE ${getViewablePostsSelector()}
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
@@ -69,7 +55,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
     `), "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }

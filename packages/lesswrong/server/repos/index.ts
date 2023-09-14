@@ -1,3 +1,4 @@
+import CollectionsRepo from "./CollectionsRepo";
 import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
@@ -18,6 +19,7 @@ declare global {
 
 const getAllRepos = () => ({
   comments: new CommentsRepo(),
+  collections: new CollectionsRepo(),
   conversations: new ConversationsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
