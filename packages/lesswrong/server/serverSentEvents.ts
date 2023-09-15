@@ -92,10 +92,10 @@ async function checkForTypingIndicators() {
   const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
 
   if (typingIndicatorInfos.length > 0) {
-    // Take the newest createdAt of a notification we saw, or one second ago,
-    // whichever is earlier, as the cutoff date for the next query.
-    // see comment in checkForNotifications for info on why we're doing this
-    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.lastUpdated))!.lastUpdated;
+    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
+    // whichever is earlier, as the cutoff date for the next query. 
+    // See checkForNotifications for more details.
+    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
     const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
     if (newestTypingIndicatorDate > oneSecondAgo) {
       lastTypingIndicatorsCheck = oneSecondAgo;
@@ -120,6 +120,7 @@ async function checkForTypingIndicators() {
     return prev
   }, results)
 
+  console.log(results)
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
