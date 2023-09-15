@@ -24,6 +24,7 @@ export const serverSentEventsAPI: ServerSentEventsAPI = {
 export type TypingIndicatorMessage = {
   eventType: 'typingIndicator',
   typingIndicators: TypingIndicatorInfo[],
+  newestNotificationTime?: string //stringified date
 }
 
 export type NotificationCheckMessage = {
@@ -166,7 +167,7 @@ export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (m
   useEffect(() => {
     if (!currentUser)
       return;
-
+    console.log("ASDFASDFASDF")
     const onServerSentNotification = (message: ServerSentEventsMessage) => {
       void cb(message);
     }

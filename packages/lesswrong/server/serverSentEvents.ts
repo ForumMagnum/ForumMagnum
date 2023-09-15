@@ -5,20 +5,13 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import { Posts } from '../lib/collections/posts';
-import uniq from 'lodash/uniq';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
-import TypingIndicators from '../lib/collections/typingIndicators/collection';
-import {ServerSentEventsMessage} from '../components/hooks/useUnreadNotifications';
+import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
-interface ConnectionInfo {
-  newestNotificationTimestamp: Date|null,
-  res: Response
-}
-const openConnections: Record<string, ConnectionInfo[]> = {};
+const openConnections: Record<string, ServerSentEventsMessage[]> = {};
 
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
@@ -120,11 +113,11 @@ async function checkForTypingIndicators() {
     return prev
   }, results)
 
-  console.log(results)
+  console.log("ZZZZZ", results)
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : ServerSentEventsMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
+        const message : TypingIndicatorMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
     }
