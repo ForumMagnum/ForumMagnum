@@ -3,8 +3,28 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { isEAForum } from '../../lib/instanceSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
+
+const recentDisucssionFeedComponents = forumSelect({
+  EAForum: {
+    ThreadComponent: Components.EARecentDiscussionThread,
+    ShortformComponent: Components.EARecentDiscussionQuickTake,
+    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
+    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: () => null,
+  },
+  default: {
+    ThreadComponent: Components.RecentDiscussionThread,
+    ShortformComponent: Components.RecentDiscussionThread,
+    TagCommentedComponent: Components.RecentDiscussionTag,
+    TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+  },
+});
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -42,15 +62,6 @@ const RecentDiscussionFeed = ({
     SectionButton,
     ShortformSubmitForm,
     MixedTypeFeed,
-    RecentDiscussionThread,
-    RecentDiscussionTagRevisionItem,
-    RecentDiscussionTag,
-    RecentDiscussionSubscribeReminder,
-    RecentDiscussionMeetupsPoke,
-    EARecentDiscussionThread,
-    EARecentDiscussionQuickTake,
-    EARecentDiscussionTagRevision,
-    EARecentDiscussionTagCommented,
     AnalyticsInViewTracker,
   } = Components;
 
@@ -59,18 +70,14 @@ const RecentDiscussionFeed = ({
       refetchRef.current();
   }, [refetchRef]);
 
-  const ThreadComponent = isEAForum
-    ? EARecentDiscussionThread
-    : RecentDiscussionThread;
-  const ShortformComponent = isEAForum
-    ? EARecentDiscussionQuickTake
-    : RecentDiscussionThread;
-  const TagCommentedComponent = isEAForum
-    ? EARecentDiscussionTagCommented
-    : RecentDiscussionTag;
-  const TagRevisionComponent = isEAForum
-    ? EARecentDiscussionTagRevision
-    : RecentDiscussionTagRevisionItem;
+  const {
+    ThreadComponent,
+    ShortformComponent,
+    TagCommentedComponent,
+    TagRevisionComponent,
+    SubscribeReminderComponent,
+    MeetupsPokeComponent,
+  } = recentDisucssionFeedComponents;
 
   const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
@@ -150,11 +157,11 @@ const RecentDiscussionFeed = ({
               },
               subscribeReminder: {
                 fragmentName: null,
-                render: () => <RecentDiscussionSubscribeReminder/>
+                render: () => <SubscribeReminderComponent />
               },
               meetupsPoke: {
                 fragmentName: null,
-                render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
+                render: () => <MeetupsPokeComponent />
               },
             }}
           />
