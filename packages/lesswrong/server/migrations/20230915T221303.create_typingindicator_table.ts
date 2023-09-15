@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-09-15T22:01:28.284Z by `yarn makemigrations`
+ * Generated on 2023-09-15T22:13:03.565Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
