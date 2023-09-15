@@ -168,10 +168,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const featuredCollectionsCollectionIds = [
+  "MobebwWs2o86cS9Rd", // EA Handbook
+];
 const featuredCollectionsSequenceIds = [
   "HSA8wsaYiqdt4ouNF", // First Decade Winners
-  "isENJuPdB3fhjWYHd", // Most important century
-  "a2LBRPLhvwB83DSGq", // Replacing guilt
+  "gBjPorwZHRArNSQ5w", // Most important century implications
 ];
 const bestOfYearPostIds = [
   "Qk3hd6PrFManj8K6o", // Rethink's welfare range estimates
@@ -218,7 +220,7 @@ const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...feature
 
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...learnAboutEASequenceIds, ...introToCauseAreasSequenceIds];
 
-const allCollectionIds = [...learnAboutEACollectionIds];
+const allCollectionIds = [...featuredCollectionsCollectionIds, ...learnAboutEACollectionIds];
 
 const PostListItem = ({
   post,
@@ -333,6 +335,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
   const popularThisMonthPosts = popularThisMonthPostIds.map((id) => postsById[id]);
   const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
+  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
   const learnAboutEASequences = learnAboutEASequenceIds.map((id) => sequencesById[id]);
   const learnAboutEACollections = learnAboutEACollectionIds.map((id) => collectionsById[id]);
@@ -358,6 +361,9 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Featured collections</h2>
                 <div className={classes.gridSection}>
+                  {featuredCollectionCollections.map((collection) => (
+                    <EACollectionCard key={collection._id} collection={collection} />
+                  ))}
                   {featuredCollectionSequences.map((sequence) => (
                     <EASequenceCard key={sequence._id} sequence={sequence} />
                   ))}
