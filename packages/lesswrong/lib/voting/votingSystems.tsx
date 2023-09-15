@@ -26,8 +26,15 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
   voteProps: VotingProps<VoteableTypeClient>,
 }
 
+export type PostVotingComponentProps = {
+  document: PostsWithVotes,
+  votingSystem: VotingSystem,
+  isFooter?: boolean,
+}
+
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
+export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
@@ -35,6 +42,8 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
   getCommentVotingComponent: ()=>CommentVotingComponent,
   getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getPostBottomVotingComponent?: () => PostVotingComponent,
+  getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
@@ -266,6 +275,8 @@ registerVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
+  getPostBottomVotingComponent: () => Components.EAEmojisVoteOnPost,
+  getPostBottomSecondaryVotingComponent: () => Components.EAEmojisVoteOnPostSecondary,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,
@@ -347,11 +358,9 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
       return post.votingSystem;
     }
   }
-  return "default";
+  return (document as DbPost)?.votingSystem ?? "default";
 }
 
 export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
   return getVotingSystemByName(await getVotingSystemNameForDocument(document, context));
 }
-
-
