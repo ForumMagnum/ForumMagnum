@@ -14,6 +14,14 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
   },
+  content: {
+    "& h1": {fontSize: "16px !important"},
+    "& h2": {fontSize: "16px !important"},
+    "& h3": {fontSize: "16px !important"},
+    "& h4": {fontSize: "16px !important"},
+    "& h5": {fontSize: "16px !important"},
+    "& h6": {fontSize: "16px !important"},
+  },
   more: {
     position: "absolute",
     bottom: 0,
@@ -56,7 +64,10 @@ const ContentExcerpt = ({
       className={classNames(classes.root, className)}
       style={{WebkitLineClamp: lines}}
     >
-      <ContentItemBody dangerouslySetInnerHTML={{__html: contentHtml}} />
+      <ContentItemBody
+        dangerouslySetInnerHTML={{__html: contentHtml}}
+        className={classes.content}
+      />
       <Link to={moreLink} className={classes.more}>(More)</Link>
     </ContentStyles>
   );
