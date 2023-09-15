@@ -10,6 +10,7 @@ import uniq from 'lodash/uniq';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import TypingIndicators from '../lib/collections/typingIndicators/collection';
 import {ServerSentEventsMessage} from '../components/hooks/useUnreadNotifications';
+import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -80,6 +81,7 @@ export function addServerSentEventsEndpoint(app: Express) {
 }
 
 let lastNotificationCheck = new Date();
+let lastTypingIndicatorsCheck = new Date();
 
 async function checkForTypingIndicators() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -87,70 +89,50 @@ async function checkForTypingIndicators() {
     return;
   }
 
-  const newTypingIndicators = await TypingIndicators.find({
-    lastUpdated: {$gt: lastNotificationCheck}
-  }, {
-    projection: {userId:1, lastUpdated:1, documentId:1}
-  }).fetch();
+  const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
 
-  const listOfPosts = uniq(newTypingIndicators.map(indicator => indicator.documentId))
-
-  const posts = await Posts.find({
-    _id: {$in:listOfPosts}}, {
-    projection: {_id: 1, userId: 1, coauthorStatuses: 1, shareWithUsers: 1}
-  }).fetch()
-
-  const postsWithUserIds: Record<string, string[]> = {}
-  for (let post of posts) {
-    const coauthorIds = getConfirmedCoauthorIds(post) // post.coauthorStatuses ? post.coauthorStatuses.map(coauthor => coauthor.userId) : []
-    const shareWithUsersIds = post.shareWithUsers ?? []
-    postsWithUserIds[post._id] = [...coauthorIds, ...shareWithUsersIds, post.userId]
-  }
-  
-  const usersWithPostIds: Record<string, string[]> = {}
-  // map users to posts
-  for (let postId of Object.keys(postsWithUserIds)) {
-    const userIds = postsWithUserIds[postId]
-    for (let userId of userIds) {
-      if (userId in usersWithPostIds) {
-        usersWithPostIds[userId].push(postId)
-      } else {
-        usersWithPostIds[userId] = [postId]
-      }
-    }
-  }
-
-  const postsWithTypingIndicators: Record<string, TypingIndicatorInfo[]> = {}
-  for (let typingIndicator of newTypingIndicators) {
-    const postId = typingIndicator.documentId
-    if (postId in postsWithTypingIndicators) {
-      postsWithTypingIndicators[postId].push(typingIndicator)
+  if (typingIndicatorInfos.length > 0) {
+    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
+    // whichever is earlier, as the cutoff date for the next query. The
+    // one-second-ago case is to handle potential concurrency issues in the
+    // database where, if two typingIndicator are created at close to the same
+    // time, then having received the one with the newer timestamp as a result
+    // does not guarantee that the one with the older timestamp has actually
+    // committed.
+    // (This concurrency issue was inferred from theory, we did not observe a
+    // problem happening in practice and expect that the problem would occur
+    // rarely if this was wrong)
+    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
+    const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
+    if (newestTypingIndicatorDate > oneSecondAgo) {
+      lastTypingIndicatorsCheck = oneSecondAgo;
     } else {
-      postsWithTypingIndicators[postId] = [typingIndicator]
+      lastTypingIndicatorsCheck = newestTypingIndicatorDate;
     }
   }
 
-  const usersReceivingTypingIndicators: Record<string, TypingIndicatorInfo[]> = {}
-  for (let postId of Object.keys(postsWithTypingIndicators)) {
-    const typingIndicators = postsWithTypingIndicators[postId]
-    const userIds = postsWithUserIds[postId]
-   // console.log("used ids: ", userIds, "typing indicators: ", typingIndicators)
-    for (let userId of userIds) {
-      if (userId in usersReceivingTypingIndicators) {
-        usersReceivingTypingIndicators[userId].push(...typingIndicators)
+  const results: Record<string, TypingIndicatorInfo[]> = {};
+
+  typingIndicatorInfos.reduce((prev, curr) => {
+    const userIdsToNotify = [curr.postUserId, ...getConfirmedCoauthorIds(prev)].filter((userId) => userId !== curr.userId);
+    
+    userIdsToNotify.forEach(userIdToNotify => {
+      const {_id, userId, documentId, lastUpdated} = curr
+      if (prev[userIdToNotify]) {
+        prev[userIdToNotify].push({_id, userId, documentId, lastUpdated})
       } else {
-        usersReceivingTypingIndicators[userId] = typingIndicators
+        prev[userIdToNotify] = [{_id, userId, documentId, lastUpdated}]
       }
-    }
-  }
+    })
+    return prev
+  }, results)
 
-  for (let userId of Object.keys(usersReceivingTypingIndicators)) {
+  for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : ServerSentEventsMessage = {eventType: "typingIndicator", typingIndicators: usersReceivingTypingIndicators[userId]}
+        const message : ServerSentEventsMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
-  
     }
   }
 }
