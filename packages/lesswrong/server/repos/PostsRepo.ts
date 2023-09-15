@@ -1,9 +1,9 @@
 import Posts from "../../lib/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
-import { postStatuses } from "../../lib/collections/posts/constants";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
+import { getViewablePostsSelector } from "./helpers";
 
 export type MeanPostKarma = {
   _id: number,
@@ -12,9 +12,18 @@ export type MeanPostKarma = {
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
 
-type EmojiReactors = Record<string, Record<string, string[]>>;
+// Map from emoji names to an array of user display names
+type PostEmojiReactors = Record<string, string[]>;
 
-const emojiReactorCache = new LRU<string, Promise<EmojiReactors>>({
+const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
+  maxAge: 30 * 1000, // 30 second TTL
+  updateAgeOnGet: false,
+});
+
+// Map from comment ids to maps from emoji names to an array of user display names
+type CommentEmojiReactors = Record<string, Record<string, string[]>>;
+
+const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
 });
@@ -24,24 +33,10 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     super(Posts);
   }
 
-  private getKarmaInflationSelector(): string {
-    return `
-      "status" = ${postStatuses.STATUS_APPROVED} AND
-      "draft" = FALSE AND
-      "isFuture" = FALSE AND
-      "unlisted" = FALSE AND
-      "shortform" = FALSE AND
-      "authorIsUnreviewed" = FALSE AND
-      "hiddenRelatedQuestion" = FALSE AND
-      "isEvent" = FALSE AND
-      "postedAt" IS NOT NULL
-    `;
-  }
-
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       SELECT "postedAt" FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
       ORDER BY "postedAt" ASC
       LIMIT 1
     `);
@@ -56,7 +51,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           FLOOR(EXTRACT(EPOCH FROM "postedAt" - $1) / ($2 / 1000)) AS "_id",
           "baseScore"
         FROM "Posts"
-        WHERE ${this.getKarmaInflationSelector()}
+        WHERE ${getViewablePostsSelector()}
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
@@ -69,7 +64,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
     `), "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
@@ -104,7 +99,47 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
-  async getEmojiReactors(postId: string): Promise<EmojiReactors> {
+  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
+    const {emojiReactors} = await this.getRawDb().one(`
+      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
+      FROM (
+        SELECT
+          "key",
+          (ARRAY_AGG(
+            "displayName" ORDER BY COALESCE("karma", 0) DESC)
+          ) AS "displayNames"
+        FROM (
+          SELECT
+            u."displayName",
+            u."karma",
+            (JSONB_EACH(v."extendedVoteType")).*
+          FROM "Votes" v
+          JOIN "Users" u ON u."_id" = v."userId"
+          WHERE
+            v."collectionName" = 'Posts' AND
+            v."documentId" = $1 AND
+            v."cancelled" IS NOT TRUE AND
+            v."isUnvote" IS NOT TRUE AND
+            v."extendedVoteType" IS NOT NULL
+        ) q
+        WHERE "key" IN ($2:csv)
+        GROUP BY "key"
+      ) q
+    `, [postId, eaPublicEmojiNames]);
+    return emojiReactors;
+  }
+
+  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
+    const cached = postEmojiReactorCache.get(postId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const emojiReactors = this.getPostEmojiReactors(postId);
+    postEmojiReactorCache.set(postId, emojiReactors);
+    return emojiReactors;
+  }
+
+  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
@@ -145,13 +180,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
-  async getEmojiReactorsWithCache(postId: string): Promise<EmojiReactors> {
-    const cached = emojiReactorCache.get(postId);
+  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
+    const cached = commentEmojiReactorCache.get(postId);
     if (cached !== undefined) {
       return cached;
     }
-    const emojiReactors = this.getEmojiReactors(postId);
-    emojiReactorCache.set(postId, emojiReactors);
+    const emojiReactors = this.getCommentEmojiReactors(postId);
+    commentEmojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
   }
 

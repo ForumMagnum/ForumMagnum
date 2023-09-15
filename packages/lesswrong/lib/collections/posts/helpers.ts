@@ -387,7 +387,8 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     return (
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get()) &&
+        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&

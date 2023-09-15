@@ -98,7 +98,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
           fontSize: "1rem"
         }
       },
-      PostsVote: {
+      PostsVoteDefault: {
         voteScores: {
           fontVariantNumeric: "lining-nums",
         }

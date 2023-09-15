@@ -1,7 +1,6 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import classNames from "classnames";
-import { useSingle } from "../../lib/crud/withSingle";
 import { siteImageSetting } from "../vulcan-core/App";
 import moment from "moment";
 import { InteractionWrapper } from "../common/useClickableCell";
@@ -12,6 +11,8 @@ import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useHover } from "../common/withHover";
+import { useMulti } from "../../lib/crud/withMulti";
+import keyBy from "lodash/keyBy";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -275,71 +276,61 @@ const allSequenceIds = [...featuredCollectionsSequenceIds, ...learnAboutEASequen
 const allCollectionIds = [...learnAboutEACollectionIds];
 
 const PostListItem = ({
-  documentId,
+  post,
   isNarrow = false,
   classes,
 }: {
-  documentId: string;
+  post: PostsBestOfList;
   isNarrow?: boolean;
   classes: ClassesType;
 }) => {
-  const { Loading, TruncatedAuthorsList, ForumIcon } = Components;
+  const { TruncatedAuthorsList, ForumIcon } = Components;
   const authorExpandContainer = useRef(null);
-
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-  });
 
   const { eventHandlers } = useHover({
     pageElementContext: "postListItem",
-    documentId: documentId,
-    documentSlug: document?.slug,
+    documentId: post._id,
+    documentSlug: post?.slug,
   });
 
-  const postLink = document ? postGetPageUrl(document) : "";
+  const postLink = post ? postGetPageUrl(post) : "";
 
-  if (loading) return <Loading />;
-
-  if (!document) return null;
-
-  const timeFromNow = moment(new Date(document.postedAt)).fromNow();
+  const timeFromNow = moment(new Date(post.postedAt)).fromNow();
   const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
 
-  const imageUrl = document.socialPreviewData.imageUrl || customPostImageUrls[documentId] || siteImageSetting.get();
+  const imageUrl = post.socialPreviewData.imageUrl || customPostImageUrls[post._id] || siteImageSetting.get();
 
   return (
-    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
       <div {...eventHandlers} className={classes.postListItem}>
         <div className={classes.postListItemTextSection}>
           <div className={classes.postListItemTitle}>
-            <Link to={postLink}>{document.title}</Link>
+            <Link to={postLink}>{post.title}</Link>
           </div>
           <div className={classes.postListItemMeta}>
             <div ref={authorExpandContainer}>
               <InteractionWrapper>
-                <TruncatedAuthorsList post={document} expandContainer={authorExpandContainer} />
+                <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} />
               </InteractionWrapper>
             </div>
             &nbsp;·&nbsp;
             {timeFromNow}
             {ago}
             &nbsp;·&nbsp;
-            {document.readTimeMinutes}m read
+            {post.readTimeMinutes}m read
             <div>
               {!isNarrow && (
                 <span className={classNames(classes.commentCount, classes.xsHide)}>
                   &nbsp;·&nbsp;
                   <Link to={`${postLink}#comments`} className={classes.commentCount}>
                     <ForumIcon icon="Comment" />
-                    {document.commentCount}
+                    {post.commentCount}
                   </Link>
                 </span>
               )}
             </div>
           </div>
-          <div className={classes.postListItemPreview}>{document.contents?.plaintextDescription}</div>
+          <div className={classes.postListItemPreview}>{post.contents?.plaintextDescription}</div>
         </div>
         <img className={classes.postListItemImage} src={imageUrl} />
       </div>
@@ -393,46 +384,28 @@ const SequenceOrCollectionCard = ({
   );
 };
 
-const CollectionCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
-  const { Loading } = Components;
-
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Collections",
-    fragmentName: "CollectionsPageFragment",
-  });
-
+const CollectionCard = ({ collection, classes }: { collection: CollectionsBestOfFragment; classes: ClassesType }) => {
   const { eventHandlers } = useHover({
     pageElementContext: "collectionCard",
-    documentId: documentId,
-    documentSlug: document?.slug,
+    documentId: collection._id,
+    documentSlug: collection.slug,
   });
 
-  if (loading) return <Loading />;
-
-  if (!document) return null;
-
-  const title = document.title;
-  const author = document.user;
-
-  const books = document.books;
-  const chapters = books.flatMap((book) => book.sequences.flatMap((sequence) => sequence.chapters));
-  const posts = chapters.flatMap((chapter) => chapter.posts);
-  const postCount = posts.length;
-  const readCount = posts.filter((post) => post.isRead).length;
+  const title = collection.title;
+  const author = collection.user;
 
   const imageId =
     // TODO JP-look-here
-    document.gridImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
-  const href = collectionGetPageUrl(document);
+    collection.gridImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+  const href = collectionGetPageUrl(collection);
 
   return (
-    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={collection?.slug ?? "unknown-slug"}>
       <SequenceOrCollectionCard
         title={title}
         author={author}
-        postCount={postCount}
-        readCount={readCount}
+        postCount={collection.postsCount}
+        readCount={collection.readPostsCount}
         imageId={imageId}
         href={href}
         eventHandlers={eventHandlers}
@@ -442,49 +415,33 @@ const CollectionCard = ({ documentId, classes }: { documentId: string; classes: 
   );
 };
 
-const SequenceCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
-  const { Loading } = Components;
-
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Sequences",
-    fragmentName: "SequencesPageWithChaptersFragment",
-  });
+const SequenceCard = ({ sequence, classes }: { sequence: SequencesPageFragment; classes: ClassesType }) => {
   // Note: this is not a real slug, it's just so we can recognise the sequence in the analytics,
   // without risking any weirdness due to titles having spaces in them
-  const slug = slugify(document?.title ?? "unknown-slug");
+  const slug = slugify(sequence?.title ?? "unknown-slug");
 
   const { eventHandlers } = useHover({
     pageElementContext: "sequenceCard",
-    documentId: documentId,
+    documentId: sequence._id,
     documentSlug: slug,
   });
 
-  if (loading) return <Loading />;
-
-  if (!document) return null;
-
-  const title = document.title;
-  const author = document.user;
-
-  const chapters = document.chapters;
-  const posts = chapters.flatMap((chapter) => chapter.posts);
-  const postCount = posts.length;
-  const readCount = posts.filter((post) => post.isRead).length;
+  const title = sequence.title;
+  const author = sequence.user;
 
   const imageId =
-    document.gridImageId ||
-    document.bannerImageId ||
+    sequence.gridImageId ||
+    sequence.bannerImageId ||
     (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
-  const href = sequenceGetPageUrl(document);
+  const href = sequenceGetPageUrl(sequence);
 
   return (
     <AnalyticsContext documentSlug={slug}>
       <SequenceOrCollectionCard
         title={title}
         author={author}
-        postCount={postCount}
-        readCount={readCount}
+        postCount={sequence.postsCount}
+        readCount={sequence.readPostsCount}
         imageId={imageId}
         href={href}
         eventHandlers={eventHandlers}
@@ -494,29 +451,21 @@ const SequenceCard = ({ documentId, classes }: { documentId: string; classes: Cl
   );
 };
 
-const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: ClassesType }) => {
-  const { Loading, PostsPodcastPlayer } = Components;
-
-  const { document, loading } = useSingle({
-    documentId,
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-  });
+const AudioPostCard = ({ post, classes }: { post: PostsBestOfList; classes: ClassesType }) => {
+  const { PostsPodcastPlayer } = Components;
 
   const { eventHandlers } = useHover({
     pageElementContext: "audioCard",
-    documentId: documentId,
-    documentSlug: document?.slug,
+    documentId: post._id,
+    documentSlug: post.slug,
   });
 
-  if (loading) return <Loading />;
-
-  if (!document?.podcastEpisode) return null;
+  if (!post?.podcastEpisode) return null;
 
   return (
-    <AnalyticsContext documentSlug={document?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
       <div {...eventHandlers} className={classes.audioCard}>
-        <PostsPodcastPlayer podcastEpisode={document.podcastEpisode} postId={document._id} hideIconList />
+        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} hideIconList />
       </div>
     </AnalyticsContext>
   );
@@ -524,6 +473,38 @@ const AudioPostCard = ({ documentId, classes }: { documentId: string; classes: C
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const { HeadTags } = Components;
+
+  const { results: posts, loading } = useMulti({
+    terms: {postIds: allPostIds, limit: allPostIds.length},
+    collectionName: "Posts",
+    fragmentName: 'PostsBestOfList',
+  });
+
+  const { results: sequences, loading: sequencesLoading } = useMulti({
+    terms: {sequenceIds: allSequenceIds, limit: allSequenceIds.length},
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+  });
+
+  const { results: collections, loading: collectionsLoading } = useMulti({
+    terms: {collectionIds: allCollectionIds, limit: allCollectionIds.length},
+    collectionName: "Collections",
+    fragmentName: 'CollectionsBestOfFragment',
+  });
+
+  const postsById = useMemo(() => keyBy(posts, '_id'), [posts]);
+  const sequencesById = useMemo(() => keyBy(sequences, '_id'), [sequences]);
+  const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
+
+  if (loading || sequencesLoading || collectionsLoading) return <Components.Loading />;
+
+  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
+  const popularThisMonthPosts = popularThisMonthPostIds.map((id) => postsById[id]);
+  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
+  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
+  const learnAboutEASequences = learnAboutEASequenceIds.map((id) => sequencesById[id]);
+  const learnAboutEACollections = learnAboutEACollectionIds.map((id) => collectionsById[id]);
+  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
   return (
     <>
@@ -535,8 +516,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Featured collections</h2>
                 <div className={classes.gridSection}>
-                  {featuredCollectionsSequenceIds.map((documentId) => (
-                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  {featuredCollectionSequences.map((sequence) => (
+                    <SequenceCard key={sequence._id} sequence={sequence} classes={classes} />
                   ))}
                 </div>
               </div>
@@ -545,8 +526,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Best posts this year</h2>
                 <div className={classes.listSection}>
-                  {bestOfYearPostIds.map((documentId) => (
-                    <PostListItem key={documentId} documentId={documentId} classes={classes} />
+                  {bestOfYearPosts.map((post) => (
+                    <PostListItem key={post._id} post={post} classes={classes} />
                   ))}
                 </div>
               </div>
@@ -555,11 +536,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Learn about Effective Altruism</h2>
                 <div className={classes.gridSection}>
-                  {learnAboutEACollectionIds.map((documentId) => (
-                    <CollectionCard key={documentId} documentId={documentId} classes={classes} />
+                  {learnAboutEACollections.map((collection) => (
+                    <CollectionCard key={collection._id} collection={collection} classes={classes} />
                   ))}
-                  {learnAboutEASequenceIds.map((documentId) => (
-                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  {learnAboutEASequences.map((sequence) => (
+                    <SequenceCard key={sequence._id} sequence={sequence} classes={classes} />
                   ))}
                 </div>
               </div>
@@ -568,8 +549,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Intro to cause areas</h2>
                 <div className={classes.gridSection}>
-                  {introToCauseAreasSequenceIds.map((documentId) => (
-                    <SequenceCard key={documentId} documentId={documentId} classes={classes} />
+                  {introToCauseAreasSequences.map((sequence) => (
+                    <SequenceCard key={sequence._id} sequence={sequence} classes={classes} />
                   ))}
                 </div>
               </div>
@@ -581,8 +562,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Popular this month</h2>
                 <div className={classes.listSection}>
-                  {popularThisMonthPostIds.map((documentId) => (
-                    <PostListItem key={documentId} documentId={documentId} classes={classes} isNarrow />
+                  {popularThisMonthPosts.map((post) => (
+                    <PostListItem key={post._id} post={post} classes={classes} isNarrow />
                   ))}
                 </div>
               </div>
@@ -591,8 +572,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classes.listSection}>
-                  {featuredAudioPostIds.map((documentId) => (
-                    <AudioPostCard key={documentId} documentId={documentId} classes={classes} />
+                  {featuredAudioPosts.map((post) => (
+                    <AudioPostCard key={post._id} post={post} classes={classes} />
                   ))}
                 </div>
               </div>

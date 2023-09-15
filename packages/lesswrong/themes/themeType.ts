@@ -107,6 +107,10 @@ declare global {
     warning: {
       main: ColorString,
     }
+    greenUpvote: {
+      main: ColorString,
+      light: ColorString,
+    },
     text: {
       primary: ColorString,
       secondary: ColorString

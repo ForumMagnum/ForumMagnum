@@ -525,5 +525,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   warning: {
     main: "#ff9800",
-  }
+  },
+  greenUpvote: {
+    main: "#05b600",
+    light: "#05b600",
+  },
 })

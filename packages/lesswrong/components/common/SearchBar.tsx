@@ -8,7 +8,7 @@ import Portal from '@material-ui/core/Portal';
 import IconButton from '@material-ui/core/IconButton';
 import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
+import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
@@ -164,8 +164,8 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
   const { SearchBarResults, ForumIcon } = Components
 
-  if (!isAlgoliaEnabled()) {
-    return <div>Search is disabled (Algolia App ID not configured on server)</div>
+  if (!isSearchEnabled()) {
+    return <div>Search is disabled (ElasticSearch not configured on server)</div>
   }
 
   return <div className={classes.root} onKeyDown={handleKeyDown}>
