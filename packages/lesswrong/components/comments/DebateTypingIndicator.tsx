@@ -35,7 +35,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   useOnNotificationsChanged(currentUser, (message) => {
     if (message.eventType === 'typingIndicator') {
-      const typingIndicators = message.typingIndicators ?? []
+      const typingIndicators = message.typingIndicators
       const filteredIndicators = typingIndicators.filter((typingIndicator) => {
         return typingIndicator.documentId === post._id
       })

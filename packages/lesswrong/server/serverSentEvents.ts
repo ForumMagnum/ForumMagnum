@@ -9,7 +9,7 @@ import { Posts } from '../lib/collections/posts';
 import uniq from 'lodash/uniq';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import TypingIndicators from '../lib/collections/typingIndicators/collection';
-import {ServerSentEventsMessage} from '../components/hooks/useUnreadNotifications';
+import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
@@ -92,17 +92,10 @@ async function checkForTypingIndicators() {
   const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
 
   if (typingIndicatorInfos.length > 0) {
-    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
-    // whichever is earlier, as the cutoff date for the next query. The
-    // one-second-ago case is to handle potential concurrency issues in the
-    // database where, if two typingIndicator are created at close to the same
-    // time, then having received the one with the newer timestamp as a result
-    // does not guarantee that the one with the older timestamp has actually
-    // committed.
-    // (This concurrency issue was inferred from theory, we did not observe a
-    // problem happening in practice and expect that the problem would occur
-    // rarely if this was wrong)
-    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
+    // Take the newest createdAt of a notification we saw, or one second ago,
+    // whichever is earlier, as the cutoff date for the next query.
+    // see comment in checkForNotifications for info on why we're doing this
+    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.lastUpdated))!.lastUpdated;
     const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
     if (newestTypingIndicatorDate > oneSecondAgo) {
       lastTypingIndicatorsCheck = oneSecondAgo;
@@ -130,7 +123,7 @@ async function checkForTypingIndicators() {
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : ServerSentEventsMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
+        const message : TypingIndicatorMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
     }
