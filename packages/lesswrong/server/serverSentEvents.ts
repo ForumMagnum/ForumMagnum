@@ -11,7 +11,12 @@ import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
-const openConnections: Record<string, ServerSentEventsMessage[]> = {};
+interface ConnectionInfo {
+  newestNotificationTimestamp: Date|null,
+  res: Response
+}
+
+const openConnections: Record<string, ConnectionInfo[]> = {};
 
 export function addServerSentEventsEndpoint(app: Express) {
   app.get('/api/notificationEvents', async (req, res) => {
@@ -75,54 +80,6 @@ export function addServerSentEventsEndpoint(app: Express) {
 
 let lastNotificationCheck = new Date();
 let lastTypingIndicatorsCheck = new Date();
-
-async function checkForTypingIndicators() {
-  const numOpenConnections = Object.keys(openConnections).length;
-  if (!numOpenConnections) {
-    return;
-  }
-
-  const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
-
-  if (typingIndicatorInfos.length > 0) {
-    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
-    // whichever is earlier, as the cutoff date for the next query. 
-    // See checkForNotifications for more details.
-    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
-    const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
-    if (newestTypingIndicatorDate > oneSecondAgo) {
-      lastTypingIndicatorsCheck = oneSecondAgo;
-    } else {
-      lastTypingIndicatorsCheck = newestTypingIndicatorDate;
-    }
-  }
-
-  const results: Record<string, TypingIndicatorInfo[]> = {};
-
-  typingIndicatorInfos.reduce((prev, curr) => {
-    const userIdsToNotify = [curr.postUserId, ...getConfirmedCoauthorIds(prev)].filter((userId) => userId !== curr.userId);
-    
-    userIdsToNotify.forEach(userIdToNotify => {
-      const {_id, userId, documentId, lastUpdated} = curr
-      if (prev[userIdToNotify]) {
-        prev[userIdToNotify].push({_id, userId, documentId, lastUpdated})
-      } else {
-        prev[userIdToNotify] = [{_id, userId, documentId, lastUpdated}]
-      }
-    })
-    return prev
-  }, results)
-
-  console.log("ZZZZZ", results)
-  for (let userId of Object.keys(results)) {
-    if (openConnections[userId]) {
-      for (let connection of openConnections[userId]) {
-        const message : TypingIndicatorMessage = {eventType: "typingIndicator", typingIndicators: results[userId]}
-        connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
-      }
-    }
-  }
-}
 
 async function checkForNotifications() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -195,4 +152,54 @@ function dateMax(a: Date, b: Date) {
     return a;
   else
     return b;
+}
+
+
+async function checkForTypingIndicators() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
+  const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
+
+  if (typingIndicatorInfos.length > 0) {
+    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
+    // whichever is earlier, as the cutoff date for the next query. 
+    // See checkForNotifications for more details.
+    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
+    const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
+    if (newestTypingIndicatorDate > oneSecondAgo) {
+      lastTypingIndicatorsCheck = oneSecondAgo;
+    } else {
+      lastTypingIndicatorsCheck = newestTypingIndicatorDate;
+    }
+  }
+
+  const results: Record<string, TypingIndicatorInfo[]> = {};
+  for (const curr of typingIndicatorInfos) {
+    // Get all userIds that have permission to type on the post
+    const userIdsToNotify = [curr.postUserId, ...getConfirmedCoauthorIds(curr)].filter((userId) => userId !== curr.userId);
+  
+    for (const userIdToNotify of userIdsToNotify) {
+      const {_id, userId, documentId, lastUpdated} = curr; // filter to just the fields in TypingIndicatorInfo
+      if (results[userIdToNotify]) {
+        results[userIdToNotify].push({_id, userId, documentId, lastUpdated});
+      } else {
+        results[userIdToNotify] = [{_id, userId, documentId, lastUpdated}];
+      }
+    }
+  }
+  
+  for (let userId of Object.keys(results)) {
+    if (openConnections[userId]) {
+      for (let connection of openConnections[userId]) {
+        const message : TypingIndicatorMessage = {
+          eventType: "typingIndicator", 
+          typingIndicators: results[userId],
+        }
+        connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
+      }
+    }
+  }
 }
