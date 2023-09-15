@@ -48,6 +48,7 @@ registerFragment(`
     voteCount
     baseScore
     extendedScore
+    emojiReactors
     unlisted
     score
     lastVisitedAt

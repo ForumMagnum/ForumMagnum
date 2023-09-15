@@ -2589,6 +2589,29 @@ const schema: SchemaType<DbPost> = {
     }
   }),
 
+  emojiReactors: resolverOnlyField({
+    type: Object,
+    graphQLtype: GraphQLJSON,
+    blackbox: true,
+    nullable: true,
+    optional: true,
+    hidden: true,
+    canRead: ["guests"],
+    resolver: async (post, _, context) => {
+      const {extendedScore} = post;
+      if (
+        !isEAForum ||
+        !extendedScore ||
+        Object.keys(extendedScore).length < 1 ||
+        "agreement" in extendedScore
+      ) {
+        return {};
+      }
+      const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
+      return reactors ?? {};
+    },
+  }),
+
   commentEmojiReactors: resolverOnlyField({
     type: Object,
     graphQLtype: GraphQLJSON,
@@ -2601,7 +2624,7 @@ const schema: SchemaType<DbPost> = {
       if (post.votingSystem !== "eaEmojis") {
         return null;
       }
-      return context.repos.posts.getEmojiReactorsWithCache(post._id);
+      return context.repos.posts.getCommentEmojiReactorsWithCache(post._id);
     },
   }),
 

@@ -12,9 +12,18 @@ export type MeanPostKarma = {
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
 
-type EmojiReactors = Record<string, Record<string, string[]>>;
+// Map from emoji names to an array of user display names
+type PostEmojiReactors = Record<string, string[]>;
 
-const emojiReactorCache = new LRU<string, Promise<EmojiReactors>>({
+const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
+  maxAge: 30 * 1000, // 30 second TTL
+  updateAgeOnGet: false,
+});
+
+// Map from comment ids to maps from emoji names to an array of user display names
+type CommentEmojiReactors = Record<string, Record<string, string[]>>;
+
+const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
 });
@@ -90,7 +99,47 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
-  async getEmojiReactors(postId: string): Promise<EmojiReactors> {
+  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
+    const {emojiReactors} = await this.getRawDb().one(`
+      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
+      FROM (
+        SELECT
+          "key",
+          (ARRAY_AGG(
+            "displayName" ORDER BY COALESCE("karma", 0) DESC)
+          ) AS "displayNames"
+        FROM (
+          SELECT
+            u."displayName",
+            u."karma",
+            (JSONB_EACH(v."extendedVoteType")).*
+          FROM "Votes" v
+          JOIN "Users" u ON u."_id" = v."userId"
+          WHERE
+            v."collectionName" = 'Posts' AND
+            v."documentId" = $1 AND
+            v."cancelled" IS NOT TRUE AND
+            v."isUnvote" IS NOT TRUE AND
+            v."extendedVoteType" IS NOT NULL
+        ) q
+        WHERE "key" IN ($2:csv)
+        GROUP BY "key"
+      ) q
+    `, [postId, eaPublicEmojiNames]);
+    return emojiReactors;
+  }
+
+  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
+    const cached = postEmojiReactorCache.get(postId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const emojiReactors = this.getPostEmojiReactors(postId);
+    postEmojiReactorCache.set(postId, emojiReactors);
+    return emojiReactors;
+  }
+
+  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
@@ -131,13 +180,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
-  async getEmojiReactorsWithCache(postId: string): Promise<EmojiReactors> {
-    const cached = emojiReactorCache.get(postId);
+  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
+    const cached = commentEmojiReactorCache.get(postId);
     if (cached !== undefined) {
       return cached;
     }
-    const emojiReactors = this.getEmojiReactors(postId);
-    emojiReactorCache.set(postId, emojiReactors);
+    const emojiReactors = this.getCommentEmojiReactors(postId);
+    commentEmojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
   }
 

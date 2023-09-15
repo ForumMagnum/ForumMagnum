@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { VoteColor, cssVoteColors } from './voteColors';
+import { useVoteColors } from './useVoteColors';
+import type { VoteColor } from './voteColors';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: 0.6
+    opacity: isEAForum ? 0.7 : 0.6
   },
   up: {},
   right: {
@@ -81,7 +83,20 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({
+  solidArrow,
+  strongVoteDelay,
+  orientation,
+  enabled = true,
+  color,
+  voted,
+  eventHandlers,
+  bigVotingTransition,
+  bigVoted,
+  bigVoteCompleted,
+  alwaysColored,
+  classes,
+}: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
@@ -89,6 +104,8 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
   if (!enabled) {
     eventHandlers = {};
   }
+
+  const {mainColor, lightColor} = useVoteColors(color);
 
   return (
     <IconButton
@@ -100,16 +117,15 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       disableRipple
     >
       <Icon
+        style={{color: voted || alwaysColored ? mainColor : "inherit"}}
         className={classes.smallArrow}
-        color={(voted || alwaysColored) ? color : 'inherit'}
         viewBox='6 6 12 12'
       />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={bigVoteCompleted ? {color: cssVoteColors[color]} : undefined}
+            style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
-            color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'
           />)}
       </Transition>
