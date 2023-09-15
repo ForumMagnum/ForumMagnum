@@ -920,6 +920,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly voteCount: number,
   readonly baseScore: number,
   readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly emojiReactors: any,
   readonly unlisted: boolean,
   readonly score: number,
   readonly lastVisitedAt: Date,

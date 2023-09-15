@@ -5,6 +5,7 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
+import { ServerSentEventsMessage } from '../components/hooks/useUnreadNotifications';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -129,7 +130,9 @@ async function checkForNotifications() {
         if (!connection.newestNotificationTimestamp
           || connection.newestNotificationTimestamp < newTimestamp
         ) {
-          const message = { newestNotificationTime: newTimestamp };
+          const message: ServerSentEventsMessage = {
+            newestNotificationTime: newTimestamp.toISOString(),
+          };
           connection.res.write(`data: ${JSON.stringify(message)}\n\n`);
           connection.newestNotificationTimestamp = newTimestamp;
         }

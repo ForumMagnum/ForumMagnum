@@ -68,7 +68,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     fontSize: 30,
     textAlign: "center",
-    "& .PostsVote-voteBlock": {
+    "& .PostsVoteDefault-voteBlock": {
       marginTop: -5,
     },
   },
