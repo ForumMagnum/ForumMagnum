@@ -91,6 +91,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  viewMore: {
+    marginTop: 24,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+  },
   // Post list item
   postListItem: {
     display: "flex",
@@ -359,6 +366,9 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                     <EASequenceCard key={sequence._id} sequence={sequence} />
                   ))}
                 </div>
+                <div className={classes.viewMore}>
+                  <Link to="/library">View all collections</Link>
+                </div>
               </div>
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="bestPostsThisYear">
@@ -368,6 +378,9 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   {bestOfYearPosts.map((post) => (
                     <PostListItem key={post._id} post={post} classes={classes} />
                   ))}
+                </div>
+                <div className={classes.viewMore}>
+                  <Link to="/recommendations">View more</Link>
                 </div>
               </div>
             </AnalyticsContext>
