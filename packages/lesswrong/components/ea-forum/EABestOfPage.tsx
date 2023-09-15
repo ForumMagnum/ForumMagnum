@@ -180,13 +180,6 @@ const bestOfYearPostIds = [
   "jgspXC8GKA7RtxMRE", // On living without idols
   "8c7LycgtkypkgYjZx", // AGI and the EMH
 ];
-const learnAboutEACollectionIds = [
-  "MobebwWs2o86cS9Rd", // Handbook
-];
-const learnAboutEASequenceIds = [
-  "NKTk9s4tZPiA4aySj", // EA Archives reading list
-  "dg852CXinRkieekxZ", // Classic posts (from the digest)
-];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
   "hnEu2fKLQ9wTRJ9Zc", // Global health and development
@@ -218,9 +211,9 @@ const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52
 // TODO do useMulti's with these to speed things up
 const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
 
-const allSequenceIds = [...featuredCollectionsSequenceIds, ...learnAboutEASequenceIds, ...introToCauseAreasSequenceIds];
+const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
-const allCollectionIds = [...featuredCollectionsCollectionIds, ...learnAboutEACollectionIds];
+const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 const PostListItem = ({
   post,
@@ -337,8 +330,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
-  const learnAboutEASequences = learnAboutEASequenceIds.map((id) => sequencesById[id]);
-  const learnAboutEACollections = learnAboutEACollectionIds.map((id) => collectionsById[id]);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
   return (
@@ -376,19 +367,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <div className={classes.listSection}>
                   {bestOfYearPosts.map((post) => (
                     <PostListItem key={post._id} post={post} classes={classes} />
-                  ))}
-                </div>
-              </div>
-            </AnalyticsContext>
-            <AnalyticsContext pageSectionContext="learnAboutEffectiveAltruism">
-              <div>
-                <h2 className={classes.heading}>Learn about Effective Altruism</h2>
-                <div className={classes.gridSection}>
-                  {learnAboutEACollections.map((collection) => (
-                    <EACollectionCard key={collection._id} collection={collection} />
-                  ))}
-                  {learnAboutEASequences.map((sequence) => (
-                    <EASequenceCard key={sequence._id} sequence={sequence} />
                   ))}
                 </div>
               </div>
