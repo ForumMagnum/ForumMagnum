@@ -34,8 +34,9 @@ export const DebateTypingIndicator = ({classes, post}: {
   }, 300));
 
   useOnNotificationsChanged(currentUser, (message) => {
+    console.log(message)
     if (message.eventType === 'typingIndicator') {
-      const typingIndicators = message.typingIndicators ?? []
+      const typingIndicators = message.typingIndicators
       const filteredIndicators = typingIndicators.filter((typingIndicator) => {
         return typingIndicator.documentId === post._id
       })
@@ -47,7 +48,7 @@ export const DebateTypingIndicator = ({classes, post}: {
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
     const twentySecondsAgo = Date.now() - 20000
-    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated ?? 0).getTime()) > twentySecondsAgo;
+    const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
   })

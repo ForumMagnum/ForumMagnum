@@ -93,15 +93,8 @@ async function checkForTypingIndicators() {
 
   if (typingIndicatorInfos.length > 0) {
     // Take the newest createdAt of a typingIndicator we saw, or one second ago,
-    // whichever is earlier, as the cutoff date for the next query. The
-    // one-second-ago case is to handle potential concurrency issues in the
-    // database where, if two typingIndicator are created at close to the same
-    // time, then having received the one with the newer timestamp as a result
-    // does not guarantee that the one with the older timestamp has actually
-    // committed.
-    // (This concurrency issue was inferred from theory, we did not observe a
-    // problem happening in practice and expect that the problem would occur
-    // rarely if this was wrong)
+    // whichever is earlier, as the cutoff date for the next query. 
+    // See checkForNotifications for more details.
     const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
     const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
     if (newestTypingIndicatorDate > oneSecondAgo) {
@@ -127,6 +120,7 @@ async function checkForTypingIndicators() {
     return prev
   }, results)
 
+  console.log(results)
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {

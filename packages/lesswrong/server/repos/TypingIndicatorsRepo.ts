@@ -33,7 +33,7 @@ export default class TypingIndicatorsRepo extends AbstractRepo<DbTypingIndicator
       FROM "TypingIndicators" t
       JOIN "Posts" p
         ON t."documentId" = p._id 
-      WHERE t.lastUpdated > $1
+      WHERE t."lastUpdated" > $1
     `, [since])
   }
 }
