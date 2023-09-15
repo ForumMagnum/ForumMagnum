@@ -16,7 +16,6 @@ import keyBy from "lodash/keyBy";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
-const DIVIDER_MARGIN = 48;
 
 // For overlay on sequence and collection cards
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
@@ -41,19 +40,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down("md")]: {
       flexDirection: "column",
+      gap: "60px",
     },
     [theme.breakpoints.down("xs")]: {
       padding: "32px 4px",
     },
   },
   column: {
-    "& > *:not(:last-child)::after": {
-      content: '""',
-      display: "block",
-      height: "1px",
-      backgroundColor: theme.palette.grey[400],
-      margin: `${DIVIDER_MARGIN}px 0 ${DIVIDER_MARGIN}px 0`,
-    },
+    display: "flex",
+    flexDirection: "column",
+    gap: "60px",
   },
   leftColumn: {
     flex: "17 1 0%",
@@ -62,15 +58,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightColumn: {
     flex: "10 1 0%",
     minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
-  },
-  divider: {
-    // 1px in size whether horizontal or vertical
-    flex: "0 0 1px",
-    backgroundColor: theme.palette.grey[400],
-    margin: `0 ${DIVIDER_MARGIN}px`,
-    [theme.breakpoints.down("md")]: {
-      margin: `${DIVIDER_MARGIN}px 0`,
-    },
   },
   heading: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -556,7 +543,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               </div>
             </AnalyticsContext>
           </div>
-          <div className={classes.divider} />
           <div className={classNames(classes.column, classes.rightColumn)}>
             <AnalyticsContext pageSectionContext="popularThisMonth">
               <div>
