@@ -51,10 +51,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: "10 1 0%",
     minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
   },
+  pageTitle: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 32,
+    fontWeight: 700,
+    marginTop: 0,
+    marginBottom: 12,
+  },
+  pageDescription: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    fontWeight: 500,
+    lineHeight: "150%",
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
   heading: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: "24px",
-    fontWeight: 600,
+    fontSize: 20,
+    fontWeight: 700,
     marginTop: 0,
     marginBottom: 2,
   },
@@ -195,6 +211,8 @@ const customPostImageUrls: Record<string, string> = {
     "https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/SocialPreview/cmg4r5baxggel7baxiw6",
 };
 
+const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
+
 // TODO do useMulti's with these to speed things up
 const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
 
@@ -326,6 +344,16 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
       <AnalyticsContext pageContext="eaBestOfPage">
         <div className={classes.root}>
           <div className={classNames(classes.column, classes.leftColumn)}>
+            <div>
+              <h1 className={classes.pageTitle}>Best of the Forum</h1>
+              <div className={classes.pageDescription}>
+                There are hundreds of posts on the EA Forum. This page collects
+                a smaller number of excellent posts on a range of topics in
+                effective altruism, selected by the EA Forum Team. You can{" "}
+                <Link to={digestLink}>also sign up for a weekly email</Link>{" "}
+                with some of our favorite posts from the past week.
+              </div>
+            </div>
             <AnalyticsContext pageSectionContext="featuredCollections">
               <div>
                 <h2 className={classes.heading}>Featured collections</h2>
