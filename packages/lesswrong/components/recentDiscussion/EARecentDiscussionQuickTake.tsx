@@ -31,7 +31,13 @@ const getItemProps = (
       iconVariant: "primary",
       user: item.user,
       description: "commented on",
-      post: post,
+      postTitleOverride: `${post.user?.displayName}'s Quick take`,
+      postUrlOverride: commentGetPageUrlFromIds({
+        commentId: item.topLevelCommentId ?? item._id,
+        postId: post._id,
+        postSlug: post.slug,
+      }),
+      post,
       timestamp: item.postedAt,
     }
     : {
