@@ -13,14 +13,14 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
-    gap: `${GAP}px`,
+    gap: "8px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.grey[600],
-    margin: "32px 0",
+    margin: "28px 0",
     "&:first-child": {
-      marginTop: 16,
+      marginTop: 8,
     },
   },
   primaryText: {
@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
   },
   meta: {
-    marginBottom: 14,
+    marginBottom: 12,
     lineHeight: "1.5em",
     fontWeight: 500,
   },
