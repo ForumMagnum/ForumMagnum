@@ -8,6 +8,7 @@ import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 
+
 /**
  * Provided by the client (if this is running on the client not the server),
  * otherwise methods will be null. Methods are filled in by `initServerSentEvents`
@@ -20,10 +21,18 @@ export const serverSentEventsAPI: ServerSentEventsAPI = {
   setServerSentEventsActive: null,
 };
 
-export type ServerSentEventsMessage = {
+export type TypingIndicatorMessage = {
+  eventType: 'typingIndicator',
+  typingIndicators: TypingIndicatorInfo[]
+}
+
+export type NotificationCheckMessage = {
+  eventType: 'notificationCheck',
   stop?: boolean,
   newestNotificationTime?: string //stringified date
 }
+
+export type ServerSentEventsMessage = TypingIndicatorMessage | NotificationCheckMessage;
 
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 
@@ -54,7 +63,7 @@ export function useUnreadNotifications(): {
     setFaviconBadge(faviconBadgeNumber);
   }
   
-  const { data, loading, refetch: refetchCounts } = useQuery(gql`
+  const { data, refetch: refetchCounts } = useQuery(gql`
     query UnreadNotificationCountQuery {
       unreadNotificationCounts {
         unreadNotifications
@@ -125,9 +134,11 @@ export function useUnreadNotifications(): {
   useOnFocusTab(refetchBoth);
   
   const refetchIfNewNotifications = useCallback((message: ServerSentEventsMessage) => {
-    const timestamp = message.newestNotificationTime;
-    if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
-      void refetchBoth();
+    if (message.eventType === 'notificationCheck') {
+      const timestamp = message.newestNotificationTime;
+      if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
+        void refetchBoth();
+      }
     }
   }, [checkedAt, refetchBoth]);
   
@@ -155,7 +166,6 @@ export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (m
   useEffect(() => {
     if (!currentUser)
       return;
-
     const onServerSentNotification = (message: ServerSentEventsMessage) => {
       void cb(message);
     }
@@ -198,7 +208,6 @@ function setFaviconBadge(notificationCount: number) {
     }
   }
 }
-
 
 let notificationEventListeners: Array<(message: ServerSentEventsMessage)=>void> = [];
 
