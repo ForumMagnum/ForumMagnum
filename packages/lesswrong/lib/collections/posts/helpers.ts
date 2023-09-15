@@ -9,7 +9,6 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import { sequence } from 'fp-ts/lib/Traversable';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
