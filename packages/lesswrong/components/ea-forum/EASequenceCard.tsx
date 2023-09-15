@@ -7,7 +7,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const EASequenceCard = ({sequence}: {sequence: SequencesPageFragment}) => {
   // Note: this is not a real slug, it's just so we can recognise the sequence
-  // in the analytics, without risking any weirdness due to titles having spaces 
+  // in the analytics, without risking any weirdness due to titles having spaces
   // in them.
   const slug = slugify(sequence?.title ?? "unknown-slug");
 

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "react-router-dom";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
@@ -8,6 +9,7 @@ const Z_OVERLAY = 2;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    cursor: "pointer",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -58,6 +60,9 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "20px",
     color: theme.palette.grey[600],
   },
+  authorWrapper: {
+    display: "inline",
+  },
 });
 
 const EASequenceOrCollectionCard = ({
@@ -77,25 +82,30 @@ const EASequenceOrCollectionCard = ({
   imageId: string,
   href: string,
   eventHandlers: {
-    onMouseOver: (event: AnyBecauseTodo) => void,
+    onMouseOver: (event: MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: () => void,
   },
   classes: ClassesType,
 }) => {
-  const {CloudinaryImage2, UsersNameDisplay} = Components;
+  const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
+  const {CloudinaryImage2, UsersNameDisplay} = Components;
   return (
-    <div {...eventHandlers} className={classes.root}>
+    <div {...eventHandlers} onClick={onClick} className={classes.root}>
       <div className={classes.sequenceCardImageWrapper}>
         <CloudinaryImage2 publicId={imageId} className={classes.sequenceCardImage} />
         <div className={classes.sequenceReadProgress}>{readProgress} read</div>
       </div>
       <div className={classes.sequenceCardText}>
-        <Link to={href} className={classes.sequenceCardTitle}>
-          {title}
-        </Link>
+        <InteractionWrapper>
+          <Link to={href} className={classes.sequenceCardTitle}>
+            {title}
+          </Link>
+        </InteractionWrapper>
         <div className={classes.sequenceCardMeta}>
-          <UsersNameDisplay user={author} />
+          <InteractionWrapper className={classes.authorWrapper}>
+            <UsersNameDisplay user={author} />
+          </InteractionWrapper>
           {" · "}
           {postCount} posts
         </div>
