@@ -56,7 +56,7 @@ const EAUsersProfileImage = ({user, classes}: {
 
   if (!userCanEditUser(currentUser, user)) {
     return (
-      <UsersProfileImage user={user} size={SIZE} />
+      <UsersProfileImage user={user} size={SIZE} className={classes.root} />
     );
   }
 

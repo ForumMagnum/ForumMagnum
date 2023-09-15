@@ -3,15 +3,8 @@ import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
-
-export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
-export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
-const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
-const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
-
-const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -79,7 +72,6 @@ const HeadTags = ({
 
           {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
-          <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
 
