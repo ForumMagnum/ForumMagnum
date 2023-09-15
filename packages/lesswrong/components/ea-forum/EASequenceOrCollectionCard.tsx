@@ -93,7 +93,14 @@ const EASequenceOrCollectionCard = ({
   return (
     <div {...eventHandlers} onClick={onClick} className={classes.root}>
       <div className={classes.sequenceCardImageWrapper}>
-        <CloudinaryImage2 publicId={imageId} className={classes.sequenceCardImage} />
+        <CloudinaryImage2
+          publicId={imageId}
+          imgProps={{
+            h: String(SEQUENCE_CARD_IMAGE_HEIGHT),
+            dpr: "2",
+          }}
+          className={classes.sequenceCardImage}
+        />
         <div className={classes.sequenceReadProgress}>{readProgress} read</div>
       </div>
       <div className={classes.sequenceCardText}>
