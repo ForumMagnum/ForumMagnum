@@ -88,7 +88,7 @@ const EASequenceOrCollectionCard = ({
     <div {...eventHandlers} className={classes.root}>
       <div className={classes.sequenceCardImageWrapper}>
         <CloudinaryImage2 publicId={imageId} className={classes.sequenceCardImage} />
-        <div className={classes.sequenceReadProgress}>{readProgress}</div>
+        <div className={classes.sequenceReadProgress}>{readProgress} read</div>
       </div>
       <div className={classes.sequenceCardText}>
         <Link to={href} className={classes.sequenceCardTitle}>
