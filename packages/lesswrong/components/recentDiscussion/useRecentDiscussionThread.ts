@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { useRecordPostView } from "../hooks/useRecordPostView";
-import { unflattenComments } from "../../lib/utils/unflatten";
+import { ThreadableCommentType, unflattenComments } from "../../lib/utils/unflatten";
 import type { CommentTreeOptions } from "../comments/commentTree";
 
-export const useRecentDiscussionThread = ({
+export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   post,
   comments,
   refetch,
@@ -11,7 +11,7 @@ export const useRecentDiscussionThread = ({
   initialExpandAllThreads,
 } : {
   post: PostsRecentDiscussion,
-  comments?: Array<CommentsList>,
+  comments?: T[],
   refetch: () => void,
   commentTreeOptions?: CommentTreeOptions,
   initialExpandAllThreads?: boolean,
@@ -38,7 +38,7 @@ export const useRecentDiscussionThread = ({
   );
 
   const lastCommentId = comments && comments[0]?._id;
-  const nestedComments = unflattenComments(comments ?? []);
+  const nestedComments = unflattenComments<T>(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 

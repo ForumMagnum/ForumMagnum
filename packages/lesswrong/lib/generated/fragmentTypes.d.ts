@@ -1295,6 +1295,10 @@ interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
 
+interface ShortformRecentDiscussion extends PostsList { // fragment on Posts
+  readonly recentComments: Array<CommentsListWithTopLevelComment>,
+}
+
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly user: UsersMinimumInfo|null,
   readonly title: string,
@@ -1447,6 +1451,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number,
+}
+
+interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
+  readonly topLevelComment: CommentsList|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -3225,6 +3233,7 @@ interface FragmentTypes {
   PostsEditMutationFragment: PostsEditMutationFragment
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
+  ShortformRecentDiscussion: ShortformRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
@@ -3233,6 +3242,7 @@ interface FragmentTypes {
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsEditCriticismTips: PostsEditCriticismTips
   CommentsList: CommentsList
+  CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
@@ -3426,6 +3436,7 @@ interface CollectionNamesByFragmentName {
   PostsEditMutationFragment: "Posts"
   PostsRevisionsList: "Posts"
   PostsRecentDiscussion: "Posts"
+  ShortformRecentDiscussion: "Posts"
   UsersBannedFromPostsModerationLog: "Posts"
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
@@ -3434,6 +3445,7 @@ interface CollectionNamesByFragmentName {
   PostWithGeneratedSummary: "Posts"
   PostsEditCriticismTips: "Posts"
   CommentsList: "Comments"
+  CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
   CommentEdit: "Comments"

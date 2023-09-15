@@ -29,7 +29,7 @@ const EARecentDiscussionTagCommented = ({
   comments,
   refetch,
   expandAllThreads,
-  classes
+  classes,
 }: {
   tag: TagRecentDiscussion,
   comments: CommentsList[],

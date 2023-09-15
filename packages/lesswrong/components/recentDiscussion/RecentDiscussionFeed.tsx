@@ -48,6 +48,7 @@ const RecentDiscussionFeed = ({
     RecentDiscussionSubscribeReminder,
     RecentDiscussionMeetupsPoke,
     EARecentDiscussionThread,
+    EARecentDiscussionQuickTake,
     EARecentDiscussionTagRevision,
     EARecentDiscussionTagCommented,
     AnalyticsInViewTracker,
@@ -60,6 +61,9 @@ const RecentDiscussionFeed = ({
 
   const ThreadComponent = isEAForum
     ? EARecentDiscussionThread
+    : RecentDiscussionThread;
+  const ShortformComponent = isEAForum
+    ? EARecentDiscussionQuickTake
     : RecentDiscussionThread;
   const TagCommentedComponent = isEAForum
     ? EARecentDiscussionTagCommented
@@ -111,6 +115,17 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
+              shortformCommented: {
+                fragmentName: "ShortformRecentDiscussion",
+                render: (post: ShortformRecentDiscussion) => (
+                  <ShortformComponent
+                    post={post}
+                    refetch={refetch}
+                    comments={post.recentComments}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
               tagDiscussed: {
                 fragmentName: "TagRecentDiscussion",
                 render: (tag: TagRecentDiscussion) => (
@@ -122,19 +137,6 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
-              /*
-              tagSubforumComments: {
-                fragmentName: "CommentWithRepliesFragment",
-                render: (comment: CommentWithRepliesFragment) => (
-                  <RecentDiscussionSubforumThread
-                    comment={comment}
-                    tag={comment.tag}
-                    refetch={refetch}
-                    expandAllThreads={expandAll}
-                  />
-                ),
-              },
-             */
               tagRevised: {
                 fragmentName: "RevisionTagFragment",
                 render: (revision: RevisionTagFragment) => <div>
