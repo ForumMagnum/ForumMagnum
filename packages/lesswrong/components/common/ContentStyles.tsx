@@ -2,6 +2,7 @@ import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   base: {
@@ -12,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postHighlight: {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
+      fontSize: isEAForum ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlickStart: "0 !important",
     },
