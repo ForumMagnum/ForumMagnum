@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme),
     fontSize: '1.3rem',
     '& blockquote, & li': {
-      fontSize: isEAForum ? "1.1rem" : '1.3rem'
+      fontSize: '1.3rem'
     }
   },
   answerBody: {

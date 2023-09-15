@@ -436,7 +436,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: "1.28rem",
+      fontSize: isEAForum ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
     }
   };
