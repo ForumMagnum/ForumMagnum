@@ -120,20 +120,24 @@ const introToCauseAreasSequenceIds = [
   "aH5to3as8yiQA6wGo", // Intro to moral philosophy
   "pFageBjmsLra3ucDC", // Intro to cause prioritization
 ];
+const featuredVideoPostIds = [
+  "bsE5t6qhGC65fEpzN", // Growth and the case against randomista development
+  "whEmrvK9pzioeircr", // Will AI end everything?
+  "LtaT28tevyLbDwidb", // An update to our thinking on climate change
+];
 const featuredAudioPostIds = [
   "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
   "rXYW9GPsmwZYu3doX", // What happens on the average day?
   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
 ];
 
-const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
-
-// TODO do useMulti's with these to speed things up
-const allPostIds = [...bestOfYearPostIds, ...featuredAudioPostIds];
+const allPostIds = [...bestOfYearPostIds, ...featuredVideoPostIds, ...featuredAudioPostIds];
 
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
 const allCollectionIds = [...featuredCollectionsCollectionIds];
+
+const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 const AudioPostCard = ({ post, classes }: { post: PostsBestOfList; classes: ClassesType }) => {
   const { PostsPodcastPlayer } = Components;
@@ -191,6 +195,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
+  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]);
   const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
@@ -274,6 +279,19 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   <Link to="/allPosts?timeframe=monthly&hideCommunity=true&sortedBy=top">
                     View more
                   </Link>
+                </div>
+              </div>
+            </AnalyticsContext>
+            <AnalyticsContext pageSectionContext="featuredVideo">
+              <div>
+                <h2 className={classes.heading}>Featured video</h2>
+                <div className={classes.listSection}>
+                  {featuredAudioPosts.map((post) => (
+                    <AudioPostCard key={post._id} post={post} classes={classes} />
+                  ))}
+                </div>
+                <div className={classes.viewMore}>
+                  <Link to="/topics/video">View more</Link>
                 </div>
               </div>
             </AnalyticsContext>
