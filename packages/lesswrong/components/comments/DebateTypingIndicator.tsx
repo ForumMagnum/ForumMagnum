@@ -13,6 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const INCIDATOR_UPDATE_PERIOD = 15000
+const INDICATOR_DISPLAY_PERIOD = 20000;
+
 export const DebateTypingIndicator = ({classes, post}: {
   classes: ClassesType,
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
@@ -31,10 +34,16 @@ export const DebateTypingIndicator = ({classes, post}: {
   `)
 
   useGlobalKeydown(throttle(() => {
-    if (currentUser && isDialogueParticipant(currentUser, post)) {
+    // Note, ideally we'd have a more specific trigger for the typing indicator
+    // rather than "literally any keypress", but that was a bit more complicated
+    // and this is a good enough approximation for now.
+
+    // If we continue to use this in more places or update it, we may want to 
+    // make it more specific 
+    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
       void upsertTypingIndicator({variables: {documentId: post._id}})
     }
-  }, 300));
+  }, INCIDATOR_UPDATE_PERIOD));
 
   useOnNotificationsChanged(currentUser, (message) => {
     if (message.eventType === 'typingIndicator') {
@@ -49,7 +58,7 @@ export const DebateTypingIndicator = ({classes, post}: {
   if (!currentUser) return null;
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
-    const twentySecondsAgo = Date.now() - 20000
+    const twentySecondsAgo = Date.now() - INDICATOR_DISPLAY_PERIOD;
     const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
