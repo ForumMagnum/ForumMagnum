@@ -1381,18 +1381,13 @@ interface PostsEditCriticismTips { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
 }
 
-interface PostsBestOfList extends PostsBase { // fragment on Posts
+interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
   readonly socialPreviewData: any,
-  readonly readTimeMinutes: number,
-  readonly contents: PostsBestOfList_contents|null,
-  readonly user: UsersMinimumInfo|null,
-  readonly bestAnswer: CommentsList|null,
-  readonly lastPromotedComment: PostsBestOfList_lastPromotedComment|null,
-  readonly coauthors: Array<UsersMinimumInfo>,
 }
 
 interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
+  readonly _id: string,
   readonly title: string,
   readonly podcast: PostsBestOfList_podcastEpisode_podcast,
   readonly episodeLink: string,
@@ -1403,16 +1398,6 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
-}
-
-interface PostsBestOfList_contents { // fragment on Revisions
-  readonly _id: string,
-  readonly plaintextDescription: string,
-  readonly wordCount: number,
-}
-
-interface PostsBestOfList_lastPromotedComment { // fragment on Comments
-  readonly user: UsersMinimumInfo|null,
 }
 
 interface CommentsList { // fragment on Comments

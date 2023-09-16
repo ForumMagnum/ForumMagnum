@@ -1,10 +1,6 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
-import { siteImageSetting } from "../vulcan-core/App";
-import moment from "moment";
-import { InteractionWrapper } from "../common/useClickableCell";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useHover } from "../common/withHover";
@@ -72,106 +68,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     fontWeight: 700,
     marginTop: 0,
-    marginBottom: 2,
+    marginBottom: 20,
   },
   gridSection: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
     gridGap: "16px",
-    // grid layout needs extra padding because the gridGap only applies between items
-    // , and it has to be padding not margin because margin overlap is allowed
-    paddingTop: 16,
   },
   listSection: {
     display: "flex",
     flexDirection: "column",
   },
-  xsHide: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
   viewMore: {
-    marginTop: 24,
+    marginTop: 18,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
-  // Post list item
-  postListItem: {
-    display: "flex",
-    width: "100%",
-    borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.default,
-    padding: "16px 16px",
-    marginTop: 16,
-  },
-  postListItemTextSection: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    display: "flex",
-    flexDirection: "column",
-    fontWeight: 500,
-    flex: 1,
-    maxHeight: 160,
-    minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
-    marginRight: 8,
-  },
-  postListItemTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-    lineHeight: "25px",
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
-  },
-  postListItemMeta: {
-    display: "flex",
-    marginBottom: 8,
-    fontSize: 14,
-    lineHeight: "20px",
-    color: theme.palette.grey[600],
-  },
-  commentCount: {
-    minWidth: 58,
-    marginLeft: 4,
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-    "& svg": {
-      height: 18,
-      marginRight: 1,
-    },
-    "&:hover": {
-      color: theme.palette.grey[800],
-      opacity: 1,
-    },
-  },
-  postListItemPreview: {
-    fontSize: 14,
-    lineHeight: "20px",
-    color: theme.palette.grey[600],
-    position: "relative",
-    overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 3,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  postListItemImage: {
-    height: 140,
-    maxWidth: 150,
-    objectFit: "cover",
-    borderRadius: theme.borderRadius.default,
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
   // Featured audio card
   audioCard: {
-    marginTop: 16,
+    marginBottom: 16,
   },
 });
 
@@ -183,9 +100,11 @@ const featuredCollectionsSequenceIds = [
   "gBjPorwZHRArNSQ5w", // Most important century implications
 ];
 const bestOfYearPostIds = [
-  "Qk3hd6PrFManj8K6o", // Rethink's welfare range estimates
-  "jgspXC8GKA7RtxMRE", // On living without idols
-  "8c7LycgtkypkgYjZx", // AGI and the EMH
+  "vwK3v3Mekf6Jjpeep", // Lets think about slowing down AI
+  "uH9akQzJkzpBD5Duw", // What you can do to help stop violence against women and girls
+  "zy6jGPeFKHaoxKEfT", // Capability approach to human welfare
+  "pbMfYGjBqrhmmmDSo", // Nuclear winter
+  "EEMpNRJK5qqCw6zqH", // Historical farmed animal welfare ballot initiatives
 ];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
@@ -207,12 +126,6 @@ const featuredAudioPostIds = [
   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
 ];
 
-// TODO remove this in final version, I just wasn't sure about changing the social preview image an author set
-const customPostImageUrls: Record<string, string> = {
-  jgspXC8GKA7RtxMRE:
-    "https://res.cloudinary.com/cea/image/upload/c_crop,g_custom/c_fill,dpr_auto,q_auto,f_auto,g_auto:faces/SocialPreview/cmg4r5baxggel7baxiw6",
-};
-
 const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 // TODO do useMulti's with these to speed things up
@@ -221,69 +134,6 @@ const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...feature
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
 const allCollectionIds = [...featuredCollectionsCollectionIds];
-
-const PostListItem = ({
-  post,
-  isNarrow = false,
-  classes,
-}: {
-  post: PostsBestOfList;
-  isNarrow?: boolean;
-  classes: ClassesType;
-}) => {
-  const { TruncatedAuthorsList, ForumIcon } = Components;
-  const authorExpandContainer = useRef(null);
-
-  const { eventHandlers } = useHover({
-    pageElementContext: "postListItem",
-    documentId: post._id,
-    documentSlug: post?.slug,
-  });
-
-  const postLink = post ? postGetPageUrl(post) : "";
-
-  const timeFromNow = moment(new Date(post.postedAt)).fromNow();
-  const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
-
-  const imageUrl = post.socialPreviewData.imageUrl || customPostImageUrls[post._id] || siteImageSetting.get();
-
-  return (
-    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
-      <div {...eventHandlers} className={classes.postListItem}>
-        <div className={classes.postListItemTextSection}>
-          <div className={classes.postListItemTitle}>
-            <Link to={postLink}>{post.title}</Link>
-          </div>
-          <div className={classes.postListItemMeta}>
-            <div ref={authorExpandContainer}>
-              <InteractionWrapper>
-                <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} />
-              </InteractionWrapper>
-            </div>
-            &nbsp;·&nbsp;
-            {timeFromNow}
-            {ago}
-            &nbsp;·&nbsp;
-            {post.readTimeMinutes}m read
-            <div>
-              {!isNarrow && (
-                <span className={classNames(classes.commentCount, classes.xsHide)}>
-                  &nbsp;·&nbsp;
-                  <Link to={`${postLink}#comments`} className={classes.commentCount}>
-                    <ForumIcon icon="Comment" />
-                    {post.commentCount}
-                  </Link>
-                </span>
-              )}
-            </div>
-          </div>
-          <div className={classes.postListItemPreview}>{post.contents?.plaintextDescription}</div>
-        </div>
-        <img className={classes.postListItemImage} src={imageUrl} />
-      </div>
-    </AnalyticsContext>
-  );
-};
 
 const AudioPostCard = ({ post, classes }: { post: PostsBestOfList; classes: ClassesType }) => {
   const { PostsPodcastPlayer } = Components;
@@ -303,11 +153,9 @@ const AudioPostCard = ({ post, classes }: { post: PostsBestOfList; classes: Clas
       </div>
     </AnalyticsContext>
   );
-};
+}
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
-  const { HeadTags, EASequenceCard, EACollectionCard } = Components;
-
   const { results: posts, loading } = useMulti({
     terms: {postIds: allPostIds, limit: allPostIds.length},
     collectionName: "Posts",
@@ -339,6 +187,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
+  const {HeadTags, EASequenceCard, EACollectionCard, PostsItem} = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -373,10 +222,10 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="bestPostsThisYear">
               <div>
-                <h2 className={classes.heading}>Best posts this year</h2>
+                <h2 className={classes.heading}>Highlights this year</h2>
                 <div className={classes.listSection}>
                   {bestOfYearPosts.map((post) => (
-                    <PostListItem key={post._id} post={post} classes={classes} />
+                    <PostsItem key={post._id} post={post} />
                   ))}
                 </div>
                 <div className={classes.viewMore}>
@@ -401,7 +250,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Popular this month</h2>
                 <div className={classes.listSection}>
                   {popularThisMonthPosts.map((post) => (
-                    <PostListItem key={post._id} post={post} classes={classes} isNarrow />
+                    <PostsItem key={post._id} post={post} />
                   ))}
                 </div>
               </div>
