@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import keyBy from "lodash/keyBy";
@@ -88,13 +87,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
-  // Posts list items
   postsItem: {
     maxWidth: "unset",
-  },
-  // Featured audio card
-  audioCard: {
-    marginBottom: 16,
   },
 });
 
@@ -139,25 +133,7 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const AudioPostCard = ({ post, classes }: { post: PostsBestOfList; classes: ClassesType }) => {
-  const { PostsPodcastPlayer } = Components;
 
-  const { eventHandlers } = useHover({
-    pageElementContext: "audioCard",
-    documentId: post._id,
-    documentSlug: post.slug,
-  });
-
-  if (!post?.podcastEpisode) return null;
-
-  return (
-    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
-      <div {...eventHandlers} className={classes.audioCard}>
-        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} hideIconList />
-      </div>
-    </AnalyticsContext>
-  );
-}
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const { results: posts, loading } = useMulti({
@@ -201,7 +177,9 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
-  const {HeadTags, EASequenceCard, EACollectionCard, PostsItem} = Components;
+  const {
+    HeadTags, EASequenceCard, EACollectionCard, PostsItem, PostsAudioCard,
+  } = Components;
   return (
     <>
       <HeadTags title="Best of the Forum" />
@@ -286,8 +264,8 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Featured video</h2>
                 <div className={classes.listSection}>
-                  {featuredAudioPosts.map((post) => (
-                    <AudioPostCard key={post._id} post={post} classes={classes} />
+                  {featuredVideoPosts.map((post) => (
+                    null
                   ))}
                 </div>
                 <div className={classes.viewMore}>
@@ -300,7 +278,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Featured audio</h2>
                 <div className={classes.listSection}>
                   {featuredAudioPosts.map((post) => (
-                    <AudioPostCard key={post._id} post={post} classes={classes} />
+                    <PostsAudioCard key={post._id} post={post} />
                   ))}
                 </div>
               </div>
