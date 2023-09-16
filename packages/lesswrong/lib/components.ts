@@ -413,6 +413,7 @@ importComponent("UserPageTitle", () => require('../components/titles/UserPageTit
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageHeaderTitle'));
 importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/PostsCoauthor'));
+importComponent("PostsVideoCard", () => require('../components/posts/PostsVideoCard'));
 importComponent("PostsAudioCard", () => require('../components/posts/PostsAudioCard'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
 

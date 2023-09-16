@@ -133,8 +133,6 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-
-
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const { results: posts, loading } = useMulti({
     terms: {postIds: allPostIds, limit: allPostIds.length},
@@ -179,6 +177,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
 
   const {
     HeadTags, EASequenceCard, EACollectionCard, PostsItem, PostsAudioCard,
+    PostsVideoCard,
   } = Components;
   return (
     <>
@@ -265,7 +264,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Featured video</h2>
                 <div className={classes.listSection}>
                   {featuredVideoPosts.map((post) => (
-                    null
+                    <PostsVideoCard key={post._id} post={post} />
                   ))}
                 </div>
                 <div className={classes.viewMore}>
