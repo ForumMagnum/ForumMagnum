@@ -634,7 +634,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   </AnalyticsContext>);
 }
 
-function isDialogueParticipant(user: UsersCurrent, post: PostsDetails) {
+export function isDialogueParticipant(user: UsersCurrent, post: PostsDetails) {
   return post.debate && (
     post.userId === user._id
     || post.coauthors.find(coauthor => coauthor._id === user._id)

@@ -5,6 +5,7 @@ import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
 import throttle from 'lodash/throttle';
+import { isDialogueParticipant } from '../posts/PostsPage/PostsPage';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -30,7 +31,9 @@ export const DebateTypingIndicator = ({classes, post}: {
   `)
 
   useGlobalKeydown(throttle(() => {
-    void upsertTypingIndicator({variables: {documentId: post._id}})
+    if (currentUser && isDialogueParticipant(currentUser, post)) {
+      void upsertTypingIndicator({variables: {documentId: post._id}})
+    }
   }, 300));
 
   useOnNotificationsChanged(currentUser, (message) => {
