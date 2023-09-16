@@ -13,10 +13,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-// The throttle period and the indicator period don't necessarily
-// need to be the same, but I think it makes sense for them to be the same
-// for now and seemed nicer to not have random magic numbers in the code.
-const INDICATOR_PERIOD = 20000;
+const INCIDATOR_UPDATE_PERIOD = 15000
+const INDICATOR_DISPLAY_PERIOD = 20000;
 
 export const DebateTypingIndicator = ({classes, post}: {
   classes: ClassesType,
@@ -42,7 +40,7 @@ export const DebateTypingIndicator = ({classes, post}: {
     if (currentUser && isDialogueParticipant(currentUser._id, post)) {
       void upsertTypingIndicator({variables: {documentId: post._id}})
     }
-  }, INDICATOR_PERIOD));
+  }, INCIDATOR_UPDATE_PERIOD));
 
   useOnNotificationsChanged(currentUser, (message) => {
     if (message.eventType === 'typingIndicator') {
@@ -57,7 +55,7 @@ export const DebateTypingIndicator = ({classes, post}: {
   if (!currentUser) return null;
 
   const otherUsers = typingIndicators.filter((typingIndicator) => {
-    const twentySecondsAgo = Date.now() - INDICATOR_PERIOD;
+    const twentySecondsAgo = Date.now() - INDICATOR_DISPLAY_PERIOD;
     const typingIndicatorIsRecent = (new Date(typingIndicator.lastUpdated).getTime()) > twentySecondsAgo;
     const typingIndicatorIsNotCurrentUser = typingIndicator.userId !== currentUser._id
     return typingIndicatorIsRecent && typingIndicatorIsNotCurrentUser
