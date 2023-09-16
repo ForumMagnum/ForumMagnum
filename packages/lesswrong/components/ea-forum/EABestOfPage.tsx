@@ -86,6 +86,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
+  // Posts list items
+  postsItem: {
+    maxWidth: "unset",
+  },
   // Featured audio card
   audioCard: {
     marginBottom: 16,
@@ -225,7 +229,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Highlights this year</h2>
                 <div className={classes.listSection}>
                   {bestOfYearPosts.map((post) => (
-                    <PostsItem key={post._id} post={post} />
+                    <PostsItem
+                      key={post._id}
+                      post={post}
+                      className={classes.postsItem}
+                    />
                   ))}
                 </div>
                 <div className={classes.viewMore}>
@@ -250,7 +258,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Highlights this month</h2>
                 <div className={classes.listSection}>
                   {popularThisMonthPosts.map((post) => (
-                    <PostsItem key={post._id} post={post} />
+                    <PostsItem
+                      key={post._id}
+                      post={post}
+                      className={classes.postsItem}
+                    />
                   ))}
                 </div>
               </div>
@@ -272,7 +284,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   );
 };
 
-const EABestOfPageComponent = registerComponent("EABestOfPage", EABestOfPage, { styles });
+const EABestOfPageComponent = registerComponent(
+  "EABestOfPage",
+  EABestOfPage,
+  {styles, stylePriority: 2},
+);
 
 declare global {
   interface ComponentTypes {

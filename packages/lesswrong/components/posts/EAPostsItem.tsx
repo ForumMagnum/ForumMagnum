@@ -222,6 +222,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isRepeated,
     analyticsProps,
     isVoteable,
+    className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
   const authorExpandContainer = useRef(null);
@@ -279,7 +280,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         {showReadCheckbox &&
           <div className={classes.readCheckbox}>
             <PostReadCheckbox post={post} width={14} />
