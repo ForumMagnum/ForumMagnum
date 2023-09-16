@@ -37,6 +37,9 @@ export const DebateTypingIndicator = ({classes, post}: {
     // Note, ideally we'd have a more specific trigger for the typing indicator
     // rather than "literally any keypress", but that was a bit more complicated
     // and this is a good enough approximation for now.
+
+    // If we continue to use this in more places or update it, we may want to 
+    // make it more specific 
     if (currentUser && isDialogueParticipant(currentUser._id, post)) {
       void upsertTypingIndicator({variables: {documentId: post._id}})
     }
