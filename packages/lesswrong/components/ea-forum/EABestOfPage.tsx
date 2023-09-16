@@ -126,7 +126,7 @@ const popularThisMonthPostIds = [
   "8qXrou57tMGz8cWCL", // Are education interventions as cost effective as the top health interventions?
 ];
 const featuredAudioPostIds = [
-  "jk7A3NMdbxp65kcJJ", // 500 million, but not a single one more
+  "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
   "rXYW9GPsmwZYu3doX", // What happens on the average day?
   "ffmbLCzJctLac3rDu", // StrongMinds should not be a top rated charity (yet)
 ];
