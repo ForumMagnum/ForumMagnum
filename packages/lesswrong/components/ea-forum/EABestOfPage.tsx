@@ -5,6 +5,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
+import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import keyBy from "lodash/keyBy";
 
 const MAX_WIDTH = 1500;
@@ -119,12 +120,6 @@ const introToCauseAreasSequenceIds = [
   "aH5to3as8yiQA6wGo", // Intro to moral philosophy
   "pFageBjmsLra3ucDC", // Intro to cause prioritization
 ];
-const popularThisMonthPostIds = [
-  "z8ZWwm4xeHBAiLZ6d", // Thoughts on far-UVC
-  "Doa69pezbZBqrcucs", // Shaping Humanity's Longterm Trajectory
-  "kHDjtqSiSohZAQyjG", // Some thoughts on quadratic funding
-  "8qXrou57tMGz8cWCL", // Are education interventions as cost effective as the top health interventions?
-];
 const featuredAudioPostIds = [
   "coryFCkmcMKdJb7Pz", // Does economic growth meaningfully improve well-being?
   "rXYW9GPsmwZYu3doX", // What happens on the average day?
@@ -134,7 +129,7 @@ const featuredAudioPostIds = [
 const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 // TODO do useMulti's with these to speed things up
-const allPostIds = [...bestOfYearPostIds, ...popularThisMonthPostIds, ...featuredAudioPostIds];
+const allPostIds = [...bestOfYearPostIds, ...featuredAudioPostIds];
 
 const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasSequenceIds];
 
@@ -179,14 +174,23 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     fragmentName: 'CollectionsBestOfFragment',
   });
 
+  const {
+    results: monthlyHighlights,
+    loading: monthlyHighlightsLoading,
+  } = usePaginatedResolver({
+    fragmentName: "PostsListWithVotes",
+    resolverName: "DigestHighlights",
+  });
+
   const postsById = useMemo(() => keyBy(posts, '_id'), [posts]);
   const sequencesById = useMemo(() => keyBy(sequences, '_id'), [sequences]);
   const collectionsById = useMemo(() => keyBy(collections, '_id'), [collections]);
 
-  if (loading || sequencesLoading || collectionsLoading) return <Components.Loading />;
+  if (loading || sequencesLoading || collectionsLoading || monthlyHighlightsLoading) {
+    return <Components.Loading />;
+  }
 
   const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
-  const popularThisMonthPosts = popularThisMonthPostIds.map((id) => postsById[id]);
   const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
@@ -225,7 +229,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 </div>
               </div>
             </AnalyticsContext>
-            <AnalyticsContext pageSectionContext="bestPostsThisYear">
+            <AnalyticsContext pageSectionContext="highlightsThisYear">
               <div>
                 <h2 className={classes.heading}>Highlights this year</h2>
                 <div className={classes.listSection}>
@@ -242,7 +246,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 </div>
               </div>
             </AnalyticsContext>
-            <AnalyticsContext pageSectionContext="introToCauseAreas">
+            <AnalyticsContext pageSectionContext="exploreCauseAreas">
               <div>
                 <h2 className={classes.heading}>Explore cause areas</h2>
                 <div className={classes.gridSection}>
@@ -254,11 +258,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </AnalyticsContext>
           </div>
           <div className={classNames(classes.column, classes.rightColumn)}>
-            <AnalyticsContext pageSectionContext="popularThisMonth">
+            <AnalyticsContext pageSectionContext="highlightsThisMonth">
               <div>
                 <h2 className={classes.heading}>Highlights this month</h2>
                 <div className={classes.listSection}>
-                  {popularThisMonthPosts.map((post) => (
+                  {monthlyHighlights?.map((post) => (
                     <PostsItem
                       key={post._id}
                       post={post}

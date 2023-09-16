@@ -13,9 +13,8 @@ import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
-import PostsRepo from '../repos/PostsRepo';
-import VotesRepo from '../repos/VotesRepo';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { createPaginatedResolver } from './paginatedResolver';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -183,13 +182,12 @@ export type PostIsCriticismRequest = {
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      const { currentUser } = context
+      const { currentUser, repos } = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
       
-      const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
+      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
       }
@@ -203,12 +201,11 @@ addGraphQLResolvers({
       return await postIsCriticism(args)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
-      const { currentUser } = context
+      const { currentUser, repos } = context
       if (!currentUser || !currentUser.isAdmin) {
         throw new Error('Permission denied')
       }
-      const postsRepo = new PostsRepo()
-      const eligiblePosts = await postsRepo.getEligiblePostsForDigest(digestId, startDate, endDate)
+      const eligiblePosts = await repos.posts.getEligiblePostsForDigest(digestId, startDate, endDate)
       if (!eligiblePosts.length) return []
 
       // TODO: finish implementing this once we figure out what to do with it
@@ -253,3 +250,13 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+createPaginatedResolver({
+  name: "DigestHighlights",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => context.repos.posts.getDigestHighlights({limit}),
+  cacheMaxAgeMs: 3600000, // 1 hour
+});
