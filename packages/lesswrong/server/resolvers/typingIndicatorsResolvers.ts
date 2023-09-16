@@ -7,7 +7,7 @@ defineMutation({
   resultType: "TypingIndicator",
   argTypes: "(documentId: String!)",
   fn: async (_, {documentId}:{documentId:string}, {currentUser, loaders}) => {
-    if (!currentUser) throw new Error("wNo user was provided")
+    if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(documentId)
     if (!post) throw new Error("No post was provided")
     if (!post.debate) throw new Error("Post is not a dialogue")
