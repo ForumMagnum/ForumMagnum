@@ -14,6 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexDirection: "row",
+    gap: "80px",
     maxWidth: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
