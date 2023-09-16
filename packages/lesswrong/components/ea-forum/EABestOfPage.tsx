@@ -235,7 +235,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="introToCauseAreas">
               <div>
-                <h2 className={classes.heading}>Intro to cause areas</h2>
+                <h2 className={classes.heading}>Explore cause areas</h2>
                 <div className={classes.gridSection}>
                   {introToCauseAreasSequences.map((sequence) => (
                     <EASequenceCard key={sequence._id} sequence={sequence} />
@@ -247,7 +247,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
           <div className={classNames(classes.column, classes.rightColumn)}>
             <AnalyticsContext pageSectionContext="popularThisMonth">
               <div>
-                <h2 className={classes.heading}>Popular this month</h2>
+                <h2 className={classes.heading}>Highlights this month</h2>
                 <div className={classes.listSection}>
                   {popularThisMonthPosts.map((post) => (
                     <PostsItem key={post._id} post={post} />
