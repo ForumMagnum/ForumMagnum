@@ -265,6 +265,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                     />
                   ))}
                 </div>
+                <div className={classes.viewMore}>
+                  <Link to="/allPosts?timeframe=monthly&hideCommunity=true&sortedBy=top">
+                    View more
+                  </Link>
+                </div>
               </div>
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="featuredAudio">
