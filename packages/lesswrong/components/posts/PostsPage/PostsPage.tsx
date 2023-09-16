@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -383,7 +383,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   });
   
   useOnNotificationsChanged(currentUser, () => {
-    if (currentUser && isDialogueParticipant(currentUser, post)) {
+    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
       refetchDebateResponses();
     }
   });
@@ -634,13 +634,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   </AnalyticsContext>);
 }
 
-export function isDialogueParticipant(user: UsersCurrent, post: PostsDetails) {
-  return post.debate && (
-    post.userId === user._id
-    || post.coauthors.find(coauthor => coauthor._id === user._id)
-  );
-}
+export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
 
+export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+  if (post.userId === userId) return true 
+  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  return false
+}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",
