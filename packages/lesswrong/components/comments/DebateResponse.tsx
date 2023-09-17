@@ -10,6 +10,7 @@ import {lwReactStyles} from './CommentsItem/CommentsItem';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
+    marginTop: 6,
     padding: '8px 8px 8px 16px',
     borderLeft: 'solid',
     borderLeftWidth: '2px',

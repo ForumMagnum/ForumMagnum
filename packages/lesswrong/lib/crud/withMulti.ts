@@ -28,8 +28,7 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   typeName: string,
   fragmentName: FragmentName,
   extraVariablesString: string,
-}) =>
-`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+}) => `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
       ...${fragmentName}

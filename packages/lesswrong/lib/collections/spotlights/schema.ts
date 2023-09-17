@@ -193,9 +193,13 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     order: 86,
-    ...schemaDefaultValue(isEAForum ? true : false),
     optional: true,
     nullable: false,
+    // we're not using schemaDefaultValue because we can't use forumType
+    // conditionals without breaking schema hash logic
+    defaultValue: true,
+    onCreate: ({document}) => document.imageFade ?? (isEAForum ? true : false),
+    canAutofillDefault: true,
   },
   spotlightImageId: {
     type: String,
