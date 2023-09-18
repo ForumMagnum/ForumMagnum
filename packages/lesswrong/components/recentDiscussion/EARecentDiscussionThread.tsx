@@ -2,10 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
-import {
-  postGetCommentsUrl,
-  postGetPageUrl,
-} from "../../lib/collections/posts/helpers";
+import { postGetCommentsUrl } from "../../lib/collections/posts/helpers";
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import type { EARecentDiscussionItemProps } from "./EARecentDiscussionItem";
 import classNames from "classnames";
@@ -123,7 +120,7 @@ const EARecentDiscussionThread = ({
 
   const {
     EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, PostExcerpt,
-    PostsItemTooltipWrapper, LinkPostMessage, EAKarmaDisplay,
+    PostsItemTooltipWrapper, LinkPostMessage, EAKarmaDisplay, PostsTitle,
   } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
@@ -133,9 +130,7 @@ const EARecentDiscussionThread = ({
         }
         <div className={classes.postInfo}>
           <PostsItemTooltipWrapper post={post}>
-            <Link to={postGetPageUrl(post)} className={classes.postTitle}>
-              {post.title}
-            </Link>
+            <PostsTitle post={post} className={classes.postTitle} />
           </PostsItemTooltipWrapper>
           <EAPostMeta post={post} useEventStyles />
         </div>
