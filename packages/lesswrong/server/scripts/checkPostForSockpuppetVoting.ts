@@ -79,10 +79,10 @@ const checkForDuplicateIPs = async (voterIds: string[]): Promise<Record<string, 
  * Given a postId, this function will check the post and each comment on the post.
  * If, for any of these items, there are multiple voters who share a client ID, it will report them as potential sockpuppet voting.
  *
- * (Note that there are probably bugs around client ID, and I have personally seen a case where separate users were
- * erroneously associated with a single client ID. Additionally, there are legit reasons for two people to have accounts
- * associated with the same client ID (ex. one person is using a shared company account that someone else has previously used).
- * So this is not definitive proof of sockpuppet voting.)
+ * (Note that there are probably bugs around client ID, ex. I have seen analytics events with a client ID that doesn't exist in
+ * the ClientIds table. Additionally, there are legit reasons for two people to have accounts associated with the same client ID,
+ * ex. one person is using a shared company account that someone else has previously used. So this is not definitive proof of
+ * sockpuppet voting.)
  *
  * It will also report if multiple users who voted on the post share a recent IP address. This part is still WIP, and most of
  * these cases are false positives since there are many legit reasons for users to be associated with the same IP.
