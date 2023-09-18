@@ -17,6 +17,10 @@ const styles = (theme: ThemeType) => ({
   header: {
     display: "flex",
     gap: "12px",
+    alignItems: "center",
+  },
+  karma: {
+    marginBottom: 10,
   },
   metadata: {
     marginTop: 4,
@@ -76,12 +80,13 @@ const PostsVideoCard = ({post, classes}: {
 
   const {
     PostsItemTooltipWrapper, PostsTitle, TruncatedAuthorsList, PostsItemDate,
+    EAKarmaDisplay,
   } = Components;
   return (
     <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
       <div {...eventHandlers} className={classes.root}>
         <div className={classes.header}>
-          <div>Vote</div>
+          <EAKarmaDisplay post={post} className={classes.karma} />
           <div>
             <PostsItemTooltipWrapper post={post}>
               <PostsTitle post={post} className={classes.postTitle} />
