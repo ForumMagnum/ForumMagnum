@@ -8,7 +8,7 @@ const EARecentDiscussionTagRevision = ({
   headingStyle,
   documentId,
 }: {
-  tag: TagBasicInfo,
+  tag: TagRecentDiscussion,
   revision: RevisionMetadataWithChangeMetrics,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",

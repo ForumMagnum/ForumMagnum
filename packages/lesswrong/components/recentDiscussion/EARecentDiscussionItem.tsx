@@ -71,7 +71,7 @@ type EARecentDiscussionItemDocument = {
   tag?: never,
 } | {
   post?: never,
-  tag: TagBasicInfo,
+  tag: TagPreviewFragment,
 };
 
 export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
@@ -100,7 +100,10 @@ const EARecentDiscussionItem = ({
   children: ReactNode,
   classes: ClassesType,
 }) => {
-  const {ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper} = Components;
+  const {
+    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
+    TagTooltipWrapper,
+  } = Components;
   return (
     <div className={classes.root}>
       <div className={classNames(classes.iconContainer, {
@@ -127,9 +130,11 @@ const EARecentDiscussionItem = ({
             </PostsItemTooltipWrapper>
           }
           {tag &&
-            <Link to={tagGetUrl(tag)} className={classes.primaryText}>
-              {tag.name}
-            </Link>
+            <TagTooltipWrapper tag={tag} As="span">
+              <Link to={tagGetUrl(tag)} className={classes.primaryText}>
+                {tag.name}
+              </Link>
+            </TagTooltipWrapper>
           }
           {" "}
           <FormatDate date={timestamp} includeAgo />

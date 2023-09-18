@@ -1635,7 +1635,7 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
-  readonly tag: TagBasicInfo|null,
+  readonly tag: TagRecentDiscussion|null,
 }
 
 interface WithVoteRevision { // fragment on Revisions
