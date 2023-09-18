@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import React, { useMemo, useRef } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cheerioParse } from "../../server/utils/htmlUtil";
@@ -10,6 +10,20 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     padding: 12,
     marginBottom: 16,
+    color: theme.palette.text.slightlyIntense2,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+  },
+  header: {
+    display: "flex",
+    gap: "12px",
+  },
+  metadata: {
+    marginTop: 4,
+    marginBottom: 12,
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
   },
   frame: {
     border: "none",
@@ -44,6 +58,7 @@ const PostsVideoCard = ({post, classes}: {
   post: PostsBestOfList,
   classes: ClassesType,
 }) => {
+  const authorExpandContainer = useRef(null);
   const {eventHandlers} = useHover({
     pageElementContext: "videoCard",
     documentId: post._id,
@@ -59,9 +74,28 @@ const PostsVideoCard = ({post, classes}: {
     return null;
   }
 
+  const {
+    PostsItemTooltipWrapper, PostsTitle, TruncatedAuthorsList, PostsItemDate,
+  } = Components;
   return (
     <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
       <div {...eventHandlers} className={classes.root}>
+        <div className={classes.header}>
+          <div>Vote</div>
+          <div>
+            <PostsItemTooltipWrapper post={post}>
+              <PostsTitle post={post} className={classes.postTitle} />
+            </PostsItemTooltipWrapper>
+            <div className={classes.metadata} ref={authorExpandContainer}>
+              <TruncatedAuthorsList
+                post={post}
+                expandContainer={authorExpandContainer}
+              />
+              <span>·</span>
+              <PostsItemDate post={post} noStyles includeAgo />
+            </div>
+          </div>
+        </div>
         <iframe {...embedAttribs} className={classes.frame} />
       </div>
     </AnalyticsContext>
