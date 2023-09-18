@@ -221,6 +221,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h1': {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -232,6 +233,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h2': {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h2:first-child': {
     marginTop: 0,
@@ -240,6 +242,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h3': {
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -249,6 +252,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontWeight:600,
+    color: theme.palette.text.contentHeader,
+  },
+  '& h5': {
+    color: theme.palette.text.contentHeader,
+  },
+  '& h6': {
+    color: theme.palette.text.contentHeader,
   },
   '& img': {
     maxWidth: "100%",
