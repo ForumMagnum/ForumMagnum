@@ -185,6 +185,7 @@ declare global {
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
       visited: ColorString
+      visitedHover?: ColorString,
     },
     icon: {
       normal: ColorString,

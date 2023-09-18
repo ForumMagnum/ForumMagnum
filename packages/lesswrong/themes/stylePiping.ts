@@ -283,8 +283,11 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited': isEAForum ? {
     color: theme.palette.link.visited,
+  } : {},
+  '& a:visited:hover, & a:visited:active': isEAForum ? {
+    color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
     ...tableStyles(theme)

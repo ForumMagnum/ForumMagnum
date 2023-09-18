@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
       ${theme.palette.inverseGreyAlpha(1.0)} 34%,
       ${theme.palette.inverseGreyAlpha(1.0)} 100%
     )`,
-    "&:hover": {
+    "&:hover:not(:visited)": {
       opacity: 1,
       color: `${theme.palette.primary.light} !important`,
     },

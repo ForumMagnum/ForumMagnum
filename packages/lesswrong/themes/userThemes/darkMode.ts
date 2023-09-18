@@ -140,6 +140,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       link: {
         visited: '#9b71be',
+        visitedHover: '#8a59b3',
       },
       panelBackground: {
         default: shadePalette.grey[20],
