@@ -24,7 +24,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent, filters }: {
+const formatFacetFilters = (
+  facetFilters?: Record<string, boolean>,
+): string[][] | undefined =>
+  facetFilters
+    ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
+    : undefined;
+
+const SearchAutoComplete = ({
+  clickAction,
+  placeholder,
+  noSearchPlaceholder,
+  renderSuggestion,
+  hitsPerPage=7,
+  indexName,
+  classes,
+  renderInputComponent,
+  facetFilters,
+}: {
   clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
@@ -33,7 +50,7 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   indexName: string,
   classes: ClassesType,
   renderInputComponent?: any,
-  filters?: string,
+  facetFilters?: Record<string, boolean>,
 }) => {
   if (!isSearchEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
@@ -60,7 +77,10 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     <div className={classes.autoComplete}>
       { /* @ts-ignore */ }
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
-      <Configure hitsPerPage={hitsPerPage} filters={filters}/>
+      <Configure
+        hitsPerPage={hitsPerPage}
+        facetFilters={formatFacetFilters(facetFilters)}
+      />
     </div>
   </InstantSearch>
 }
