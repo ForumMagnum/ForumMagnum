@@ -100,7 +100,7 @@ const EARecentDiscussionItem = ({
   children: ReactNode,
   classes: ClassesType,
 }) => {
-  const {ForumIcon, UsersNameDisplay, FormatDate} = Components;
+  const {ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper} = Components;
   return (
     <div className={classes.root}>
       <div className={classNames(classes.iconContainer, {
@@ -117,12 +117,14 @@ const EARecentDiscussionItem = ({
           {description}
           {" "}
           {post &&
-            <Link
-              to={postUrlOverride ?? postGetPageUrl(post)}
-              className={classes.primaryText}
-            >
-              {postTitleOverride ?? post.title}
-            </Link>
+            <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
+              <Link
+                to={postUrlOverride ?? postGetPageUrl(post)}
+                className={classes.primaryText}
+              >
+                {postTitleOverride ?? post.title}
+              </Link>
+            </PostsItemTooltipWrapper>
           }
           {tag &&
             <Link to={tagGetUrl(tag)} className={classes.primaryText}>
