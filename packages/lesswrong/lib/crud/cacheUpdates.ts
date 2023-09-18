@@ -105,6 +105,7 @@ export const handleCreateMutation = ({ document, results, parameters: { selector
   parameters: any,
   typeName: string,
 }) => {
+  console.log('Mingo create')
   if (!document) return results;
 
   if (mingoBelongsToSet(document, selector)) {
@@ -128,6 +129,7 @@ export const handleUpdateMutation = ({ document, results, parameters: { selector
   parameters: any,
   typeName: string,
 }) => {
+  console.log('Mingo update')
   if (!document) return results;
   if (mingoBelongsToSet(document, selector)) {
     // edited document belongs to the list

@@ -121,6 +121,7 @@ const PopularComment = ({comment, classes}: {
 }) => {
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
+  console.log('🚀 ~ file: PopularComment.tsx:119 ~ comment:', comment)
 
   const onClickCallback = useCallback(() => {
     setExpanded(!expanded);

@@ -26,6 +26,7 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }) => {
+  console.log('addVoteClient()');
   const power = getVotePower({user, voteType, document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
   const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
@@ -54,6 +55,7 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
     afVoteCount: (document.afVoteCount||0) + (isAfVote?1:0),
     __typename: collection.options.typeName,
   };
+  console.log('🚀 ~ file: vote.ts:35 ~ newDocument:', newDocument.currentUserVote, newDocument.baseScore)
 
   newDocument.score = recalculateScore(newDocument);
   return newDocument;

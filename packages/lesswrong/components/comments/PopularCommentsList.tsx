@@ -21,6 +21,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     limit: 3,
     itemsPerPage: 5,
   });
+  console.log('🚀 ~ file: PopularCommentsList.tsx:24 ~ PopularCommentsList ~ results:', results)
 
   const {LoadMore, PopularComment} = Components;
   return (

@@ -65,6 +65,7 @@ const getSubforumCommentBonus = (item: VoteableType) => {
 // modifier functions below, and the SQL in updateScores.ts (until the refactor
 // that is definitely immenent and will not get put off I'm sure ;)
 export const recalculateScore = (item: VoteableType) => {
+  console.log("recalculateScore()");
   // Age Check
   if ((item as any).postedAt) {
     const postedAt = (item as any).postedAt.valueOf();
@@ -82,6 +83,7 @@ export const recalculateScore = (item: VoteableType) => {
 
     // HN algorithm
     const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
+    console.log('🚀 ~ file: scoring.ts:86 ~ recalculateScore ~ newScore:', newScore)
 
     return newScore;
   } else {

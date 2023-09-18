@@ -75,7 +75,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getPopularComments({
-    minScore = 15,
+    minScore = 0,
     offset = 0,
     limit = 3,
     recencyWeight = 0.1,
