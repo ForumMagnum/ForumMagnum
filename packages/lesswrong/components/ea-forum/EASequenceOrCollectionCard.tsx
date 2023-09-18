@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
   },
   sequenceCardTitle: {
     fontSize: 18,
-    lineHeight: "20px",
+    lineHeight: "24px",
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
