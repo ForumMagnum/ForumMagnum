@@ -59,8 +59,13 @@ export function useUnreadNotifications(): {
   const updateCurrentUser = useUpdateCurrentUser();
   
   function updateFavicon(result: { unreadNotificationCounts: NotificationCountsResult }) {
-    const faviconBadgeNumber = result.unreadNotificationCounts?.faviconBadgeNumber;
-    setFaviconBadge(faviconBadgeNumber);
+    /*
+     * TODO: this is disabled right now because it's not a great experience showing up on all tabs for all notifications.
+     * Will re-enable it when we figure out a better ontology, i.e. showing it only on dialogue pages for new dialogue content,
+     * or only showing it on the page where a user is actively in a conversation and got a new DM.
+     */
+    // const faviconBadgeNumber = result.unreadNotificationCounts?.faviconBadgeNumber;
+    // setFaviconBadge(faviconBadgeNumber);
   }
   
   const { data, refetch: refetchCounts } = useQuery(gql`
