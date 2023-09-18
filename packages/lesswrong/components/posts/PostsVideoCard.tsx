@@ -22,6 +22,12 @@ const styles = (theme: ThemeType) => ({
   karma: {
     marginBottom: 10,
   },
+  postTitle: {
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+  },
   metadata: {
     marginTop: 4,
     marginBottom: 12,
@@ -89,7 +95,7 @@ const PostsVideoCard = ({post, classes}: {
           <EAKarmaDisplay post={post} className={classes.karma} />
           <div>
             <PostsItemTooltipWrapper post={post}>
-              <PostsTitle post={post} className={classes.postTitle} />
+              <PostsTitle post={post} wrap className={classes.postTitle} />
             </PostsItemTooltipWrapper>
             <div className={classes.metadata} ref={authorExpandContainer}>
               <TruncatedAuthorsList
