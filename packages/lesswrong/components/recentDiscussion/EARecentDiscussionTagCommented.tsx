@@ -63,7 +63,7 @@ const EARecentDiscussionTagCommented = ({
   return (
     <EARecentDiscussionItem
       icon="TagFilled"
-      iconVariant="grey"
+      iconVariant="primary"
       user={comments[0].user}
       description="commented on tag"
       tag={tag}
