@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DateTimePicker from 'react-datetime';
@@ -259,6 +259,7 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = value ? moment(value) : moment();
   const [error, setError] = useState(false)
+  const valueIsNullRef = useRef(!value)
 
   const handleDateChange = useCallback((newDate: Moment | string) => {
     let parsedDate: Date | null = null;
@@ -279,6 +280,9 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
     }
   }, [onChange]);
 
+  const valueJustCleared = !value && valueIsNullRef.current
+  valueIsNullRef.current = !value
+
   return <FormControl>
     <InputLabel className={classes.label}>
       { label } <span className={classes.timezone}>({tzDate.tz(moment.tz.guess()).zoneAbbr()})</span>
@@ -293,6 +297,7 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
           name:name,
           autoComplete:"off",
           className: classNames(classes.input, {[classes.error]: error}),
+          ...(valueJustCleared && {value: undefined}),
         }}
         onChange={handleDateChange}
         onBlur={handleDateChange}
