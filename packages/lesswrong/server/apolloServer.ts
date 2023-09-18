@@ -24,6 +24,7 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -63,8 +64,10 @@ class ApolloServerLogging {
   }
 }
 
+export type AddMiddlewareType = typeof app.use;
+
 export function startWebserver() {
-  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
+  const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
@@ -101,6 +104,7 @@ export function startWebserver() {
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
+  addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);

@@ -9,7 +9,6 @@ import { isMobile } from '../../lib/utils/isMobile'
 import Paper from '@material-ui/core/Paper';
 import Info from '@material-ui/icons/Info';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { themePickerUiLocationSetting } from '../../lib/publicSettings';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   check: {

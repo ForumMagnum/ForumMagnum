@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
-import { forumTypeSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
@@ -177,7 +177,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       </>}
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
-      {currentAction === "signup" && !['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get()) &&
+      {currentAction === "signup" && isLW &&
         <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(checked: boolean) => setSubscribeToCurated(checked)} />
       }
       <div className={classes.options}>
@@ -186,7 +186,7 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
         { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
         { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
       </div>
-      {forumTypeSetting.get() !== 'EAForum' && <>
+      {isLWorAF && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
           <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>

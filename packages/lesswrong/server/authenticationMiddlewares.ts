@@ -18,6 +18,7 @@ import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
 import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
+import type { AddMiddlewareType } from './apolloServer';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -255,7 +256,7 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
+export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(passport.initialize())
   passport.use(cookieAuthStrategy)
   

@@ -2,12 +2,13 @@ import { randomId } from '../lib/random';
 import { getCookieFromReq, setCookieOnResponse } from './utils/httpUtil';
 import { createMutator } from './vulcan-lib/mutators';
 import { ClientIds } from '../lib/collections/clientIds/collection';
+import type { AddMiddlewareType } from './apolloServer';
 
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
 
 // Middleware for assigning a client ID, if one is not currently assigned.
-export const addClientIdMiddleware = (addMiddleware: AnyBecauseTodo) => {
+export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware(function addClientId(req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) {
     if (!getCookieFromReq(req, "clientId")) {
       const newClientId = randomId();
