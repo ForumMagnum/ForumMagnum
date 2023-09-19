@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   karma: {
+    marginLeft: 4,
     marginBottom: 10,
   },
   postTitle: {
