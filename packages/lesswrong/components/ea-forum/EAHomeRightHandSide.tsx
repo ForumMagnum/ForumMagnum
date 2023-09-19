@@ -31,7 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 40,
     paddingRight: 32,
-    borderLeft: theme.palette.border.faint,
     marginTop: 30,
     marginLeft: 50,
     '@media(max-width: 1370px)': {
