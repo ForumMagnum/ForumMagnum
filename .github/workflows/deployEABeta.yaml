@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ea-typeform-survey]
+    branches: [best-of-page-improvements]
 jobs:
   deploy:
     runs-on: ubuntu-latest
