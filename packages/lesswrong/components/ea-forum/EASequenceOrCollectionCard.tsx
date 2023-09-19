@@ -1,7 +1,7 @@
 import React, { MouseEvent } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
