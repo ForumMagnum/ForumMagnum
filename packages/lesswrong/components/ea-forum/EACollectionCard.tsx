@@ -10,7 +10,12 @@ const defaultImageId = forumSelect({
   default: "sequences/vnyzzznenju0hzdv6pqb.jpg",
 });
 
-const getTitleAndAuthor = ({_id, title, user}: CollectionsBestOfFragment) => {
+const getCardDetails = ({
+  _id,
+  title,
+  user,
+  gridImageId,
+}: CollectionsBestOfFragment) => {
   // Add special case short names for the EA handbook
   if (_id === "MobebwWs2o86cS9Rd") {
     return {
@@ -21,10 +26,15 @@ const getTitleAndAuthor = ({_id, title, user}: CollectionsBestOfFragment) => {
           displayName: "CEA",
         }
         : null,
+      imageId: "268969264-1881a4b1-01d3-4d79-9481-e6b3eae202fc",
     };
   }
 
-  return {title, author: user};
+  return {
+    title,
+    author: user,
+    imageId: gridImageId || defaultImageId,
+  };
 }
 
 const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
@@ -34,9 +44,7 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
     documentSlug: collection.slug,
   });
 
-  const {title, author} = getTitleAndAuthor(collection);
-
-  const imageId = collection.gridImageId || defaultImageId;
+  const {title, author, imageId} = getCardDetails(collection);
   const href = collectionGetPageUrl(collection);
 
   const {EASequenceOrCollectionCard} = Components;
