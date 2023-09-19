@@ -13,8 +13,9 @@ const styles = (theme: ThemeType) => ({
   postListItem: {
     display: "flex",
     width: "100%",
+    background: theme.palette.grey[0],
+    border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.default,
     padding: "16px 16px",
     marginTop: 16,
   },
