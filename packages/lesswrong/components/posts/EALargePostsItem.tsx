@@ -116,13 +116,15 @@ const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
     imageUrl = siteImageSetting.get();
   }
 
-  const {TruncatedAuthorsList, ForumIcon} = Components;
+  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper} = Components;
   return (
     <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
       <div {...eventHandlers} className={classes.postListItem}>
         <div className={classes.postListItemTextSection}>
           <div className={classes.postListItemTitle}>
-            <Link to={postLink}>{post.title}</Link>
+            <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
+              <Link to={postLink}>{post.title}</Link>
+            </PostsItemTooltipWrapper>
           </div>
           {/** TODO
             * The recent discussions redesign adds an `EAPostMeta` component
