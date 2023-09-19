@@ -8,6 +8,7 @@ import NoSSR from "react-no-ssr";
 import type {
   RecommendationsAlgorithmWithStrategy,
 } from "../../lib/collections/users/recommendationSettings";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,47 +62,55 @@ const PostBottomRecommendations = ({post, classes}: {
 
   const {RecommendationsList, PostsLoading} = Components;
   return (
-    <div className={classes.root}>
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>
-          More from {post.user?.displayName}
+    <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
+      <div className={classes.root}>
+        <div className={classes.section}>
+          <div className={classes.sectionHeading}>
+            More from {post.user?.displayName}
+          </div>
+          <AnalyticsContext pageSubSectionContext="moreFromAuthor">
+            <NoSSR onSSR={<PostsLoading />}>
+              <RecommendationsList
+                algorithm={moreFromAuthorAlgorithm}
+                loadingFallback={<PostsLoading />}
+                ListItem={ListItem}
+              />
+            </NoSSR>
+            <div className={classes.viewMore}>
+              <Link to={userGetProfileUrl(post.user)}>
+                View more
+              </Link>
+            </div>
+          </AnalyticsContext>
         </div>
-        <NoSSR onSSR={<PostsLoading />}>
-          <RecommendationsList
-            algorithm={moreFromAuthorAlgorithm}
-            loadingFallback={<PostsLoading />}
-            ListItem={ListItem}
-          />
-        </NoSSR>
-        <div className={classes.viewMore}>
-          <Link to={userGetProfileUrl(post.user)}>
-            View more
-          </Link>
+        <div className={classes.section}>
+          <div className={classes.sectionHeading}>
+            Recommended by the Forum team this week
+          </div>
+          <AnalyticsContext pageSubSectionContext="forumThisWeek">
+            <NoSSR onSSR={<PostsLoading />}>
+              <div /> {/* TODO */}
+            </NoSSR>
+          </AnalyticsContext>
+        </div>
+        <div className={classes.section}>
+          <div className={classes.sectionHeading}>
+            Recent opportunities
+          </div>
+          {opportunitiesLoading && <PostsLoading />}
+          <AnalyticsContext pageSubSectionContext="recentOpportunities">
+            {opportunityPosts?.map((post) => (
+              <ListItem post={post} />
+            ))}
+            <div className={classes.viewMore}>
+              <Link to="/topics/opportunities-to-take-action">
+                View more
+              </Link>
+            </div>
+          </AnalyticsContext>
         </div>
       </div>
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>
-          Recommended by the Forum team this week
-        </div>
-        <NoSSR onSSR={<PostsLoading />}>
-          <div /> {/* TODO */}
-        </NoSSR>
-      </div>
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>
-          Recent opportunities
-        </div>
-        {opportunitiesLoading && <PostsLoading />}
-        {opportunityPosts?.map((post) => (
-          <ListItem post={post} />
-        ))}
-        <div className={classes.viewMore}>
-          <Link to="/topics/opportunities-to-take-action">
-            View more
-          </Link>
-        </div>
-      </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 
