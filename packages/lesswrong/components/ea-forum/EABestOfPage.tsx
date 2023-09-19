@@ -176,7 +176,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
 
   const {
-    HeadTags, EASequenceCard, EACollectionCard, PostsItem, PostsAudioCard,
+    HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,
     PostsVideoCard,
   } = Components;
   return (
@@ -216,7 +216,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Highlights this year</h2>
                 <div className={classes.listSection}>
                   {bestOfYearPosts.map((post) => (
-                    <PostsItem
+                    <EAPostsItem
                       key={post._id}
                       post={post}
                       className={classes.postsItem}
@@ -245,10 +245,11 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                 <h2 className={classes.heading}>Highlights this month</h2>
                 <div className={classes.listSection}>
                   {monthlyHighlights?.map((post) => (
-                    <PostsItem
+                    <EAPostsItem
                       key={post._id}
                       post={post}
                       className={classes.postsItem}
+                      hideSecondaryInfo
                     />
                   ))}
                 </div>

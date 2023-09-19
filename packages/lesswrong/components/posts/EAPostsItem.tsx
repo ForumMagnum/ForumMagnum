@@ -190,10 +190,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 
 export type EAPostsItemProps = PostsItemConfig & {
+  hideSecondaryInfo?: boolean,
   classes: ClassesType,
 };
 
-const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
+const EAPostsItem = ({
+  hideSecondaryInfo,
+  classes,
+  ...props
+}: EAPostsItemProps) => {
   const {
     post,
     postLink,
@@ -238,7 +243,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     PostsVote,
   } = Components;
 
-  const SecondaryInfo = () => (
+  const SecondaryInfo = () => hideSecondaryInfo ? null : (
     <>
       <InteractionWrapper className={classes.interactionWrapper}>
         <a onClick={toggleComments} className={classNames(
