@@ -21,6 +21,7 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import {Button} from '@material-ui/core';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -208,6 +209,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [handshakeClicked, setHandshakeClicked] = useState(false);
+  const [handshakeMessage, setHandshakeMessage] = useState('');
+  const [handshakeSent, setHandshakeSent] = useState(false);
+
   const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
@@ -294,6 +299,44 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
 
     const showInlineCancel = showReplyState && isMinimalist
+
+    const showTokenButton = true
+
+    function sendData(postTitle: string | undefined, commentId: string, commentAuthor: string | undefined, currentUser: string | undefined) {
+      const data = {
+        postTitle,
+        commentId,
+        commentAuthor,
+        currentUser
+      };
+    
+      // Construct the URL with parameters
+      const url = `https://reciprocitybuttonmockup.jacoblagerros.repl.co/?postTitle=${encodeURIComponent(postTitle)}&commentId=${encodeURIComponent(commentId)}&commentUsername=${encodeURIComponent(commentAuthor)}&clickingUsername=${encodeURIComponent(currentUser)}`;
+    
+      setHandshakeClicked(true); // TODO: place this inside of the successful fetch instead and handle properly 
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }).then(() => {
+        console.log('Data sent to server successfully');
+        
+      }).catch(error => {
+        console.log('Failed to send data to server:', error);
+      });
+    }   
+    
+    const { ReactionIcon } = Components
+    const tokenTooltipContent = <div>
+      <strong>Opt-in to dialogue</strong>
+      <p>Click this button to let the comment author know that you would like to discuss or debate this comment with them.</p>
+      <p>Please include a short description of what you are interested in discussing.</p>
+      <p>If they accept your invitation, you are each agreeing to write two replies to this comment, starting with you!</p>
+    </div>;
+
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
         <div>
@@ -303,6 +346,31 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
               {showInlineCancel ? "Cancel" : "Reply"}
             </a>
+          )}
+          {showTokenButton && (
+            <LWTooltip title={tokenTooltipContent}>
+              {handshakeClicked ? (
+                handshakeSent ? (
+                  <span>Sent!</span>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={handshakeMessage}
+                      onChange={(e) => {setHandshakeMessage(e.target.value)}}
+                    />
+                    <button onClick={() => {setHandshakeSent(true); sendData(post?.title, comment._id, comment.user?.displayName, currentUser?.displayName)}}>
+                      Send Handshake
+                    </button>
+                  </>
+                )
+              ) : (
+                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={() => sendData(post?.title, comment._id, comment.user?.displayName, currentUser?.displayName) }>
+                  <ReactionIcon react={"handshake"} size={24} />
+                  Handshake
+                </a>
+              )}
+            </LWTooltip>
           )}
         </div>
         {VoteBottomComponent && <VoteBottomComponent
