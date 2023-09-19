@@ -1,9 +1,31 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
-import { isEAForum } from "../../lib/instanceSettings";
+import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+
+const defaultImageId = forumSelect({
+  EAForum: "Banner/yeldubyolqpl3vqqy0m6.jpg",
+  default: "sequences/vnyzzznenju0hzdv6pqb.jpg",
+});
+
+const getTitleAndAuthor = ({_id, title, user}: CollectionsBestOfFragment) => {
+  // Add special case short names for the EA handbook
+  if (_id === "MobebwWs2o86cS9Rd") {
+    return {
+      title: "The EA Handbook",
+      author: user
+        ? {
+          ...user,
+          displayName: "CEA",
+        }
+        : null,
+    };
+  }
+
+  return {title, author: user};
+}
 
 const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
   const {eventHandlers} = useHover({
@@ -12,12 +34,9 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
     documentSlug: collection.slug,
   });
 
-  const title = collection.title;
-  const author = collection.user;
+  const {title, author} = getTitleAndAuthor(collection);
 
-  const imageId =
-    // TODO JP-look-here
-    collection.gridImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
+  const imageId = collection.gridImageId || defaultImageId;
   const href = collectionGetPageUrl(collection);
 
   const {EASequenceOrCollectionCard} = Components;
