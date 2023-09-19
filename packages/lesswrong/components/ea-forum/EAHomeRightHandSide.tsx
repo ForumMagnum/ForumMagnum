@@ -231,6 +231,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
     maxWidth: 156,
   },
+  feedbackLink: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 600,
+    fontSize: 13,
+  },
 });
 
 /**
@@ -659,6 +665,10 @@ export const EAHomeRightHandSide = ({classes}: {
           </div>
         </div>
       </AnalyticsContext>
+
+      <Link to="/#" className={classes.feedbackLink}>
+        Send feedback
+      </Link>
     </div>
   </AnalyticsContext>
 }
