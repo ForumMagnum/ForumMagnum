@@ -167,7 +167,7 @@ async function checkForTypingIndicators() {
     // Take the newest createdAt of a typingIndicator we saw, or one second ago,
     // whichever is earlier, as the cutoff date for the next query. 
     // See checkForNotifications for more details.
-    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.createdAt))!.createdAt;
+    const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.lastUpdated))!.lastUpdated;
     const oneSecondAgo = moment().subtract(1, 'seconds').toDate();
     if (newestTypingIndicatorDate > oneSecondAgo) {
       lastTypingIndicatorsCheck = oneSecondAgo;
