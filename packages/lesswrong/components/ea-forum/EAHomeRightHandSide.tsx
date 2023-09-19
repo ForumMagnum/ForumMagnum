@@ -573,7 +573,7 @@ export const EAHomeRightHandSide = ({classes}: {
           </div>
           <div>
             <Link to="/groups" className={classes.resourceLink}>
-              <ForumIcon icon="Users" className={classes.resourceIcon} />
+              <ForumIcon icon="UsersOutline" className={classes.resourceIcon} />
               Discover EA groups
             </Link>
           </div>
