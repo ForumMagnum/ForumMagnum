@@ -630,7 +630,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
-    {isEAForum && <PostBottomRecommendations />}
+    {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
