@@ -69,31 +69,39 @@ const PostBottomRecommendations = ({post, classes}: {
     fragmentName: "PostsListWithVotes",
   });
 
+  const profileUrl = userGetProfileUrl(post.user);
+
   const {
     RecommendationsList, PostsLoading, EAPostsItem, EALargePostsItem,
+    UserTooltip,
   } = Components;
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <div className={classes.section}>
-          <div className={classes.sectionHeading}>
-            More from {post.user?.displayName}
-          </div>
-          <AnalyticsContext pageSubSectionContext="moreFromAuthor">
-            <NoSSR onSSR={<PostsLoading />}>
-              <RecommendationsList
-                algorithm={moreFromAuthorAlgorithm}
-                loadingFallback={<PostsLoading />}
-                ListItem={EAPostsItem}
-              />
-            </NoSSR>
-            <div className={classes.viewMore}>
-              <Link to={userGetProfileUrl(post.user)}>
-                View more
-              </Link>
+        {post.user &&
+          <div className={classes.section}>
+            <div className={classes.sectionHeading}>
+              More from{" "}
+              <UserTooltip user={post.user} inlineBlock={false}>
+                <Link to={profileUrl}>{post.user.displayName}</Link>
+              </UserTooltip>
             </div>
-          </AnalyticsContext>
-        </div>
+            <AnalyticsContext pageSubSectionContext="moreFromAuthor">
+              <NoSSR onSSR={<PostsLoading />}>
+                <RecommendationsList
+                  algorithm={moreFromAuthorAlgorithm}
+                  loadingFallback={<PostsLoading />}
+                  ListItem={EAPostsItem}
+                />
+              </NoSSR>
+              <div className={classes.viewMore}>
+                <Link to={profileUrl}>
+                  View more
+                </Link>
+              </div>
+            </AnalyticsContext>
+          </div>
+        }
         <div className={classes.section}>
           <div className={classes.sectionHeading}>
             Recommended by the Forum team this week
