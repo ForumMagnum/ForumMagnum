@@ -401,7 +401,13 @@ const UpcomingEventsSection = ({classes}: {
   
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
-      <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
+      <SectionTitle
+        title="Upcoming events"
+        href="/events"
+        className={classes.sectionTitle}
+        noTopMargin
+        noBottomPadding
+      />
       {upcomingEvents?.map(event => {
         const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
         return <div key={event._id} className={classes.post}>
@@ -562,7 +568,13 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
-          <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <SectionTitle
+            title="Opportunities"
+            href="/topics/opportunities-to-take-action"
+            className={classes.sectionTitle}
+            noTopMargin
+            noBottomPadding
+          />
           {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
@@ -582,7 +594,13 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {!!sortedSavedPosts?.length && <AnalyticsContext pageSubSectionContext="savedPosts">
         <div className={classes.section}>
-          <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <SectionTitle
+            title="Saved posts"
+            href="/saved"
+            className={classes.sectionTitle}
+            noTopMargin
+            noBottomPadding
+          />
           {sortedSavedPosts.map(post => {
             let postAuthor = '[anonymous]'
             if (post.user && !post.hideAuthor) {
@@ -607,7 +625,13 @@ export const EAHomeRightHandSide = ({classes}: {
       
       <AnalyticsContext pageSubSectionContext="podcasts">
         <div className={classNames(classes.section, classes.podcastsSection)}>
-          <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <SectionTitle
+            title="Listen to posts anywhere"
+            href={podcastPost}
+            className={classes.sectionTitle}
+            noTopMargin
+            noBottomPadding
+          />
           <div className={classes.podcastApps}>
             {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
                 <div className={classes.podcastAppIcon}>{podcast.icon}</div>
