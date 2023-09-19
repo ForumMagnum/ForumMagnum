@@ -190,6 +190,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
+  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+      JOIN "Digests" d ON d."_id" = dp."digestId"
+      WHERE d."endDate" IS NULL
+      ORDER BY p."baseScore" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"

@@ -16,6 +16,7 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import PostsRepo from '../repos/PostsRepo';
 import VotesRepo from '../repos/VotesRepo';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { createPaginatedResolver } from './paginatedResolver';
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -253,3 +254,13 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+createPaginatedResolver({
+  name: "DigestPostsThisWeek",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => context.repos.posts.getTopWeeklyDigestPosts(limit),
+  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+});

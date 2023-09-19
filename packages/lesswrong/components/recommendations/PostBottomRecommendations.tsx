@@ -9,6 +9,7 @@ import type {
   RecommendationsAlgorithmWithStrategy,
 } from "../../lib/collections/users/recommendationSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,6 +55,15 @@ const PostBottomRecommendations = ({post, classes}: {
   };
 
   const {
+    results: digestPosts,
+    loading: digestLoading,
+  } = usePaginatedResolver({
+    fragmentName: "PostsListWithVotesAndSequence",
+    resolverName: "DigestPostsThisWeek",
+    limit: 3,
+  });
+
+  const {
     results: opportunityPosts,
     loading: opportunitiesLoading,
   } = useRecentOpportunities({
@@ -87,10 +97,11 @@ const PostBottomRecommendations = ({post, classes}: {
           <div className={classes.sectionHeading}>
             Recommended by the Forum team this week
           </div>
-          <AnalyticsContext pageSubSectionContext="forumThisWeek">
-            <NoSSR onSSR={<PostsLoading />}>
-              <div /> {/* TODO */}
-            </NoSSR>
+          {digestLoading && <PostsLoading />}
+          <AnalyticsContext pageSubSectionContext="digestThisWeek">
+            {digestPosts?.map((post) => (
+              <ListItem post={post} />
+            ))}
           </AnalyticsContext>
         </div>
         <div className={classes.section}>
