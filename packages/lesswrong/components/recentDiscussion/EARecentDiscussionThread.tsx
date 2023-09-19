@@ -64,7 +64,7 @@ const getItemProps = (
   if (!comments?.length) {
     // We're displaying the post as a new post
     return {
-      icon: "DocumentFilled",
+      icon: post.question ? "Q" : "DocumentFilled",
       iconVariant: "grey",
       user: post.user,
       description: "posted",

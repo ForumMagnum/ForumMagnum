@@ -101,6 +101,7 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
+import { QIcon } from "../icons/qIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -176,6 +177,7 @@ export type ForumIconName =
   "ComputerDesktop" |
   "Menu" |
   "CloseMenu" |
+  "Q" |
   "BarChart";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -247,6 +249,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
+    Q: QIcon,
     BarChart: ChartBarIcon,
   },
   EAForum: {
@@ -317,6 +320,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
+    Q: QIcon,
     BarChart: ChartBarIcon,
   },
 };
