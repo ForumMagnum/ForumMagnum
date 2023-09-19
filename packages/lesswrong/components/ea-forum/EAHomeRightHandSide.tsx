@@ -342,7 +342,6 @@ const DigestAd = ({classes}: {
     <div className={classes.digestForm}>
       <TextField
         variant="outlined"
-        label="Email address"
         value={currentUser.email}
         className={classes.digestFormInput}
         disabled={true}
