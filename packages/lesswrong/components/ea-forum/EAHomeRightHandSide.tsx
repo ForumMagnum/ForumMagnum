@@ -194,10 +194,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   eventLocation: {
   },
-  viewMore: {
-    fontWeight: 600,
-    color: theme.palette.text.dim3
-  },
   podcastApps: {
     display: 'grid',
     gridTemplateColumns: "117px 138px",
@@ -426,9 +422,6 @@ const UpcomingEventsSection = ({classes}: {
           </div>
         </div>
       })}
-      <div>
-        <Link to="/events" className={classes.viewMore}>View more</Link>
-      </div>
     </div>
   </AnalyticsContext>
 }
@@ -582,9 +575,6 @@ export const EAHomeRightHandSide = ({classes}: {
               Posted <PostsItemDate post={post} includeAgo />
             </div>
           </div>)}
-          <div>
-            <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
-          </div>
         </div>
       </AnalyticsContext>}
       
@@ -612,9 +602,6 @@ export const EAHomeRightHandSide = ({classes}: {
               </div>
             </div>
           })}
-          <div>
-            <Link to="/saved" className={classes.viewMore}>View more</Link>
-          </div>
         </div>
       </AnalyticsContext>}
       
@@ -630,9 +617,6 @@ export const EAHomeRightHandSide = ({classes}: {
                 </div>
               </Link>
             )}
-          </div>
-          <div>
-            <Link to={podcastPost} className={classes.viewMore}>View more</Link>
           </div>
         </div>
       </AnalyticsContext>
