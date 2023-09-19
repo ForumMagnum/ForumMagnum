@@ -63,7 +63,7 @@ const PostBottomRecommendations = ({post, classes}: {
     results: opportunityPosts,
     loading: opportunitiesLoading,
   } = useRecentOpportunities({
-    fragmentName: "PostsListWithVotesAndSequence",
+    fragmentName: "PostsListWithVotes",
   });
 
   const {
