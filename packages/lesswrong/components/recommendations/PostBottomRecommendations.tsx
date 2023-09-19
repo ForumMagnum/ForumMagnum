@@ -95,7 +95,7 @@ const PostBottomRecommendations = ({post, classes}: {
           <div className={classes.sectionHeading}>
             Recommended by the Forum team this week
           </div>
-          {digestLoading && <PostsLoading />}
+          {digestLoading && !digestPosts?.length && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="digestThisWeek">
             {digestPosts?.map((post) => (
               <EALargePostsItem key={post._id} post={post} noImagePlaceholder />
@@ -106,7 +106,7 @@ const PostBottomRecommendations = ({post, classes}: {
           <div className={classes.sectionHeading}>
             Recent opportunities
           </div>
-          {opportunitiesLoading && <PostsLoading />}
+          {opportunitiesLoading && !opportunityPosts?.length && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="recentOpportunities">
             {opportunityPosts?.map((post) => (
               <EAPostsItem key={post._id} post={post} />
