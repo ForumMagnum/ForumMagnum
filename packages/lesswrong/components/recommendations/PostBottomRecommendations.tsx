@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
+import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import NoSSR from "react-no-ssr";
 import type {
   RecommendationsAlgorithmWithStrategy,
@@ -51,24 +52,24 @@ const PostBottomRecommendations = ({post, classes}: {
     count: 3,
   };
 
+  const {
+    results: opportunityPosts,
+    loading: opportunitiesLoading,
+  } = useRecentOpportunities({
+    fragmentName: "PostsListWithVotesAndSequence",
+  });
+
   const {RecommendationsList, PostsLoading} = Components;
-
-  const loadingFallback = (
-    <div className={classes.listWrapper}>
-      <PostsLoading />
-    </div>
-  );
-
   return (
     <div className={classes.root}>
       <div className={classes.section}>
         <div className={classes.sectionHeading}>
           More from {post.user?.displayName}
         </div>
-        <NoSSR onSSR={loadingFallback}>
+        <NoSSR onSSR={<PostsLoading />}>
           <RecommendationsList
             algorithm={moreFromAuthorAlgorithm}
-            loadingFallback={loadingFallback}
+            loadingFallback={<PostsLoading />}
             ListItem={ListItem}
           />
         </NoSSR>
@@ -82,7 +83,7 @@ const PostBottomRecommendations = ({post, classes}: {
         <div className={classes.sectionHeading}>
           Recommended by the Forum team this week
         </div>
-        <NoSSR onSSR={loadingFallback}>
+        <NoSSR onSSR={<PostsLoading />}>
           <div /> {/* TODO */}
         </NoSSR>
       </div>
@@ -90,9 +91,10 @@ const PostBottomRecommendations = ({post, classes}: {
         <div className={classes.sectionHeading}>
           Recent opportunities
         </div>
-        <NoSSR onSSR={loadingFallback}>
-          <div /> {/* TODO */}
-        </NoSSR>
+        {opportunitiesLoading && <PostsLoading />}
+        {opportunityPosts?.map((post) => (
+          <ListItem post={post} />
+        ))}
         <div className={classes.viewMore}>
           <Link to="/topics/opportunities-to-take-action">
             View more
