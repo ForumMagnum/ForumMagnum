@@ -4,7 +4,9 @@ import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import NoSSR from "react-no-ssr";
-import type { RecommendationsAlgorithmWithStrategy } from "../../lib/collections/users/recommendationSettings";
+import type {
+  RecommendationsAlgorithmWithStrategy,
+} from "../../lib/collections/users/recommendationSettings";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -72,6 +74,27 @@ const PostBottomRecommendations = ({post, classes}: {
         </NoSSR>
         <div className={classes.viewMore}>
           <Link to={userGetProfileUrl(post.user)}>
+            View more
+          </Link>
+        </div>
+      </div>
+      <div className={classes.section}>
+        <div className={classes.sectionHeading}>
+          Recommended by the Forum team this week
+        </div>
+        <NoSSR onSSR={loadingFallback}>
+          <div /> {/* TODO */}
+        </NoSSR>
+      </div>
+      <div className={classes.section}>
+        <div className={classes.sectionHeading}>
+          Recent opportunities
+        </div>
+        <NoSSR onSSR={loadingFallback}>
+          <div /> {/* TODO */}
+        </NoSSR>
+        <div className={classes.viewMore}>
+          <Link to="/topics/opportunities-to-take-action">
             View more
           </Link>
         </div>
