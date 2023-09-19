@@ -1318,7 +1318,8 @@ addRoute(
     subtitleComponentName: isEAForum ? undefined : 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name:'posts.slug.single',
@@ -1328,7 +1329,8 @@ addRoute(
     subtitleComponentName: isEAForum ? undefined : 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name: 'posts.revisioncompare',

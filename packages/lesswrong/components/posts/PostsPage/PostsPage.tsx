@@ -408,7 +408,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer
+    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostBottomRecommendations,
   } = Components
 
   useEffect(() => {
@@ -629,6 +630,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    {isEAForum && <PostBottomRecommendations />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
