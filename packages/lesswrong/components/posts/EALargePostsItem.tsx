@@ -44,6 +44,9 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "20px",
     color: theme.palette.grey[600],
   },
+  authors: {
+    fontSize: "14px !important",
+  },
   commentCount: {
     minWidth: 58,
     marginLeft: 4,
@@ -121,12 +124,18 @@ const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
           <div className={classes.postListItemTitle}>
             <Link to={postLink}>{post.title}</Link>
           </div>
+          {/** TODO
+            * The recent discussions redesign adds an `EAPostMeta` component
+            * which should probably be used here:
+            * https://github.com/ForumMagnum/ForumMagnum/pull/7858/files#diff-56fb35d84b446595acd8a1318777ab5c5d4f1d47434941f5baf9e2949c24431d
+            */}
           <div className={classes.postListItemMeta}>
             <div ref={authorExpandContainer}>
               <InteractionWrapper>
                 <TruncatedAuthorsList
                   post={post}
                   expandContainer={authorExpandContainer}
+                  className={classes.authors}
                 />
               </InteractionWrapper>
             </div>
