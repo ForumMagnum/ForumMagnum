@@ -98,7 +98,7 @@ const PostBottomRecommendations = ({post, classes}: {
           {digestLoading && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="digestThisWeek">
             {digestPosts?.map((post) => (
-              <EALargePostsItem post={post} />
+              <EALargePostsItem post={post} noImagePlaceholder />
             ))}
           </AnalyticsContext>
         </div>

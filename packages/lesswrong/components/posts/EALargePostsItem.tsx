@@ -87,9 +87,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EALargePostsItem = ({post, isNarrow = false, classes}: {
+const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   isNarrow?: boolean,
+  noImagePlaceholder?: boolean,
   classes: ClassesType,
 }) => {
   const authorExpandContainer = useRef(null);
@@ -107,7 +108,10 @@ const EALargePostsItem = ({post, isNarrow = false, classes}: {
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
-  const imageUrl = post.socialPreviewData.imageUrl || siteImageSetting.get();
+  let imageUrl = post.socialPreviewData.imageUrl;
+  if (!imageUrl && !noImagePlaceholder) {
+    imageUrl = siteImageSetting.get();
+  }
 
   const {TruncatedAuthorsList, ForumIcon} = Components;
   return (
@@ -147,7 +151,7 @@ const EALargePostsItem = ({post, isNarrow = false, classes}: {
             {post.contents?.plaintextDescription}
           </div>
         </div>
-        <img className={classes.postListItemImage} src={imageUrl} />
+        {imageUrl && <img className={classes.postListItemImage} src={imageUrl} />}
       </div>
     </AnalyticsContext>
   );
