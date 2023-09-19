@@ -226,7 +226,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   podcastAppName: {
     fontSize: 12,
     fontWeight: 600,
-  }
+  },
+  tooltip: {
+    textAlign: "center",
+    backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
+    maxWidth: 156,
+  },
 });
 
 /**
@@ -396,18 +401,23 @@ const UpcomingEventsSection = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
-  
-  const { SectionTitle, PostsItemTooltipWrapper } = Components
-  
+
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
-      <SectionTitle
-        title="Upcoming events"
-        href="/events"
-        className={classes.sectionTitle}
-        noTopMargin
-        noBottomPadding
-      />
+      <LWTooltip
+        title="View more events"
+        placement="top-start"
+        popperClassName={classes.tooltip}
+      >
+        <SectionTitle
+          title="Upcoming events"
+          href="/events"
+          className={classes.sectionTitle}
+          noTopMargin
+          noBottomPadding
+        />
+      </LWTooltip>
       {upcomingEvents?.map(event => {
         const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
         return <div key={event._id} className={classes.post}>
@@ -568,13 +578,19 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
-          <SectionTitle
-            title="Opportunities"
-            href="/topics/opportunities-to-take-action"
-            className={classes.sectionTitle}
-            noTopMargin
-            noBottomPadding
-          />
+          <LWTooltip
+            title="View more posts tagged “Opportunities to take action”"
+            placement="top-start"
+            popperClassName={classes.tooltip}
+          >
+            <SectionTitle
+              title="Opportunities"
+              href="/topics/opportunities-to-take-action"
+              className={classes.sectionTitle}
+              noTopMargin
+              noBottomPadding
+            />
+          </LWTooltip>
           {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
