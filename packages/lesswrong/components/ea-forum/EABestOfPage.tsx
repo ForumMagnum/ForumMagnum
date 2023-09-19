@@ -80,8 +80,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
   },
+  listGap: {
+    gap: "16px",
+  },
   viewMore: {
-    marginTop: 18,
+    marginTop: 14,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
     fontWeight: 600,
@@ -263,7 +266,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             <AnalyticsContext pageSectionContext="featuredVideo">
               <div>
                 <h2 className={classes.heading}>Featured video</h2>
-                <div className={classes.listSection}>
+                <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredVideoPosts.map((post) => (
                     <PostsVideoCard key={post._id} post={post} />
                   ))}
@@ -276,7 +279,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             <AnalyticsContext pageSectionContext="featuredAudio">
               <div>
                 <h2 className={classes.heading}>Featured audio</h2>
-                <div className={classes.listSection}>
+                <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredAudioPosts.map((post) => (
                     <PostsAudioCard key={post._id} post={post} />
                   ))}

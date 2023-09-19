@@ -24,6 +24,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     marginLeft: 8, // Account for box shadow
+    marginBottom: 8, // Account for box shadow
     boxShadow: buildBoxShadow(theme, 0.1, 2),
     transition: "box-shadow 0.15s ease-in-out",
     "&:hover": {

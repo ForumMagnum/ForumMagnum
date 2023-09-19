@@ -9,7 +9,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
     padding: 12,
-    marginBottom: 16,
     color: theme.palette.text.slightlyIntense2,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
