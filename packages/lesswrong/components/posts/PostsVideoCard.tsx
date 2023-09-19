@@ -2,7 +2,7 @@ import React, { useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { cheerioParse } from "../../server/utils/htmlUtil";
+import cheerio from "cheerio";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,7 +49,8 @@ const videoHosts = [
 ];
 
 const getEmbedAttribsFromHtml = (html: string): Record<string, unknown> | null => {
-  const $ = cheerioParse(html);
+  // @ts-ignore cheerio type definitions are broken
+  const $ = cheerio.load(html, null, false);
   const iframes = $("iframe").toArray();
   for (const iframe of iframes) {
     if ("attribs" in iframe) {
