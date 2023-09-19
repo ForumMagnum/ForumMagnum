@@ -350,6 +350,7 @@ importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMet
 importComponent("PostsItem", () => require('../components/posts/PostsItem.tsx'));
 importComponent("LWPostsItem", () => require('../components/posts/LWPostsItem.tsx'));
 importComponent("EAPostsItem", () => require('../components/posts/EAPostsItem.tsx'));
+importComponent("EALargePostsItem", () => require('../components/posts/EALargePostsItem.tsx'));
 importComponent("PostsItemIntroSequence", () => require('../components/posts/PostsItemIntroSequence.tsx'));
 importComponent("PostsListSortDropdown", () => require('../components/posts/PostsListSortDropdown.tsx'));
 importComponent("PostsLayoutDropdown", () => require('../components/posts/PostsLayoutDropdown'));

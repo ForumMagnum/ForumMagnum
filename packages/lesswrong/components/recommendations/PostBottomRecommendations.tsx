@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -37,12 +37,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ListItem: FC<{post: PostsListWithVotesAndSequence}> = ({post}) => (
-  <Components.EAPostsItem post={post} />
-);
-
 const PostBottomRecommendations = ({post, classes}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision
+  post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
   const moreFromAuthorAlgorithm: RecommendationsAlgorithmWithStrategy = {
@@ -58,7 +54,7 @@ const PostBottomRecommendations = ({post, classes}: {
     results: digestPosts,
     loading: digestLoading,
   } = usePaginatedResolver({
-    fragmentName: "PostsListWithVotesAndSequence",
+    fragmentName: "PostsWithNavigation",
     resolverName: "DigestPostsThisWeek",
     limit: 3,
   });
@@ -70,7 +66,9 @@ const PostBottomRecommendations = ({post, classes}: {
     fragmentName: "PostsListWithVotesAndSequence",
   });
 
-  const {RecommendationsList, PostsLoading} = Components;
+  const {
+    RecommendationsList, PostsLoading, EAPostsItem, EALargePostsItem,
+  } = Components;
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -83,7 +81,7 @@ const PostBottomRecommendations = ({post, classes}: {
               <RecommendationsList
                 algorithm={moreFromAuthorAlgorithm}
                 loadingFallback={<PostsLoading />}
-                ListItem={ListItem}
+                ListItem={EAPostsItem}
               />
             </NoSSR>
             <div className={classes.viewMore}>
@@ -100,7 +98,7 @@ const PostBottomRecommendations = ({post, classes}: {
           {digestLoading && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="digestThisWeek">
             {digestPosts?.map((post) => (
-              <ListItem post={post} />
+              <EALargePostsItem post={post} />
             ))}
           </AnalyticsContext>
         </div>
@@ -111,7 +109,7 @@ const PostBottomRecommendations = ({post, classes}: {
           {opportunitiesLoading && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="recentOpportunities">
             {opportunityPosts?.map((post) => (
-              <ListItem post={post} />
+              <EAPostsItem post={post} />
             ))}
             <div className={classes.viewMore}>
               <Link to="/topics/opportunities-to-take-action">
