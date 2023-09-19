@@ -1,11 +1,13 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
+import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
-import { ContentStyleType } from "../ContentStyles";
 
 const styles = (theme: ThemeType) => ({
   root: {
+  },
+  excerpt: {
     position: "relative",
     fontSize: "1.1rem",
     lineHeight: "1.5em",
@@ -22,20 +24,14 @@ const styles = (theme: ThemeType) => ({
     "& h5": {fontSize: "16px !important"},
     "& h6": {fontSize: "16px !important"},
   },
-  more: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
+  continueReading: {
+    display: "block",
+    marginTop: 12,
+    color: theme.palette.primary.main,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
     fontWeight: 500,
-    paddingLeft: 30,
-    background: `linear-gradient(
-      90deg,
-      ${theme.palette.inverseGreyAlpha(0.2)} 0%,
-      ${theme.palette.inverseGreyAlpha(1.0)} 34%,
-      ${theme.palette.inverseGreyAlpha(1.0)} 100%
-    )`,
-    "&:hover:not(:visited)": {
+    "&:hover": {
       opacity: 1,
       color: `${theme.palette.primary.light} !important`,
     },
@@ -59,17 +55,21 @@ const ContentExcerpt = ({
 }) => {
   const {ContentStyles, ContentItemBody} = Components;
   return (
-    <ContentStyles
-      contentType={contentType}
-      className={classNames(classes.root, className)}
-      style={{WebkitLineClamp: lines}}
-    >
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: contentHtml}}
-        className={classes.content}
-      />
-      <Link to={moreLink} className={classes.more}>(More)</Link>
-    </ContentStyles>
+    <div className={classNames(classes.root, className)}>
+      <ContentStyles
+        contentType={contentType}
+        className={classes.excerpt}
+        style={{WebkitLineClamp: lines}}
+      >
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: contentHtml}}
+          className={classes.content}
+        />
+      </ContentStyles>
+      <Link to={moreLink} className={classes.continueReading}>
+        Continue reading
+      </Link>
+    </div>
   );
 }
 
