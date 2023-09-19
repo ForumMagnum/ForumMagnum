@@ -7,6 +7,15 @@ const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
 const Z_OVERLAY = 2;
 
+const buildBoxShadow = (theme: ThemeType, alpha: number, offset: number) => `
+  /* The top layer shadow */
+  0px ${offset}px 6px 0px ${theme.palette.boxShadowColor(alpha)},
+  /* The second layer */
+  -8px 8px 0 0px ${theme.palette.panelBackground.default},
+  /* The second layer shadow */
+  -10px 10px 10px -1px ${theme.palette.boxShadowColor(alpha)}
+`;
+
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
@@ -15,12 +24,11 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     marginLeft: 8, // Account for box shadow
-    boxShadow: `/* The top layer shadow */
-      -1px 1px 10px ${theme.palette.greyAlpha(0.15)},
-      /* The second layer */
-      -8px 8px 0 0px ${theme.palette.panelBackground.default},
-      /* The second layer shadow */
-      -10px 10px 10px -1px ${theme.palette.greyAlpha(0.15)}`,
+    boxShadow: buildBoxShadow(theme, 0.1, 2),
+    transition: "box-shadow 0.15s ease-in-out",
+    "&:hover": {
+      boxShadow: buildBoxShadow(theme, 0.15, 4),
+    },
   },
   sequenceCardImageWrapper: {
     position: "relative",
