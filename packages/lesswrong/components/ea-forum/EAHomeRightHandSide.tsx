@@ -69,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     fontWeight: 450,
     fontFamily: theme.typography.fontFamily,
-    marginBottom: 30,
+    marginBottom: 32,
   },
   digestAdSection: {
     maxWidth: 334,
