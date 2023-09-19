@@ -17,7 +17,6 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
     padding: "16px 16px",
-    marginTop: 16,
   },
   postListItemTextSection: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -91,10 +90,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
+const EALargePostsItem = ({
+  post,
+  isNarrow,
+  noImagePlaceholder,
+  className,
+  classes,
+}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const authorExpandContainer = useRef(null);
@@ -120,7 +126,10 @@ const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
   const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper} = Components;
   return (
     <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
-      <div {...eventHandlers} className={classes.postListItem}>
+      <div
+        {...eventHandlers}
+        className={classNames(classes.postListItem, className)}
+      >
         <div className={classes.postListItemTextSection}>
           <div className={classes.postListItemTitle}>
             <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
@@ -172,7 +181,7 @@ const EALargePostsItem = ({post, isNarrow, noImagePlaceholder, classes}: {
 const EALargePostsItemComponent = registerComponent(
   "EALargePostsItem",
   EALargePostsItem,
-  {styles},
+  {styles, stylePriority: -1,},
 );
 
 declare global {

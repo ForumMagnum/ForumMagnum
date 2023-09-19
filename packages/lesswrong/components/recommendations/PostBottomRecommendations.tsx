@@ -28,6 +28,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     marginBottom: 16,
   },
+  largePostItem: {
+    marginTop: 16,
+  },
   viewMore: {
     marginTop: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -98,7 +101,12 @@ const PostBottomRecommendations = ({post, classes}: {
           {digestLoading && !digestPosts?.length && <PostsLoading />}
           <AnalyticsContext pageSubSectionContext="digestThisWeek">
             {digestPosts?.map((post) => (
-              <EALargePostsItem key={post._id} post={post} noImagePlaceholder />
+              <EALargePostsItem
+                key={post._id}
+                post={post}
+                className={classes.largePostItem}
+                noImagePlaceholder
+              />
             ))}
           </AnalyticsContext>
         </div>
