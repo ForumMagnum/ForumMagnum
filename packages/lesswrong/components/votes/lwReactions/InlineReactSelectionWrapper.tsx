@@ -1,6 +1,6 @@
-import Mark from 'mark.js';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import type { ContentItemBody } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
 
 export const hideSelectorClassName = "hidden-selector";
@@ -20,10 +20,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, voteProps}: {
+export const InlineReactSelectionWrapper = ({classes, children, commentBodyRef, voteProps}: {
   classes: ClassesType,
   children: React.ReactNode,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
+  commentBodyRef?: React.RefObject<ContentItemBody>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
 }) => {
   const commentTextRef = useRef<HTMLDivElement|null>(null);
@@ -35,30 +35,10 @@ export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, 
 
   const { AddInlineReactionButton, LWPopper } = Components;
   
-  function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
-    const commentTextRect = commentTextRef.current?.getBoundingClientRect();
-    if (!commentTextRect) return 0;
-    const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
-
-    const selectionRectTop = selection.getRangeAt(0).getBoundingClientRect().top;
-    const selectionRectBottom = selection.getRangeAt(0).getBoundingClientRect().bottom;
-    const selectionY = (selectionRectTop + selectionRectBottom) / 2;
-    return selectionY - documentCenter;
-  }
-
   const detectSelection = useCallback((e: MouseEvent): void => {
-  
-    function unMark() {
-      const ref = commentItemRef?.current
-      if (!ref) return
-      let markInstance = new Mark(ref);
-      markInstance.unmark({className: hideSelectorClassName});
-    }
-
     function clearAll() {
       setAnchorEl(null);
       setQuote("")
-      unMark()
       setDisabledButton(false)
     }
   
@@ -70,17 +50,17 @@ export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, 
       return
     }
 
-    const selectionInCommentRef = commentItemRef && commentItemRef.current?.contains(selectionAnchorNode);
+    const selectionInCommentRef = commentBodyRef && commentBodyRef.current?.containsNode(selectionAnchorNode);
     const selectionInPopupRef = popupRef && popupRef.current?.contains(selectionAnchorNode as Node);
 
     if (selectionInCommentRef && !selectionInPopupRef) {
-      const anchorEl = commentItemRef.current;
+      const anchorEl = commentBodyRef?.current?.getAnchorEl();
       
       if (anchorEl instanceof HTMLElement && selectedText.length > 1 ) {
         setAnchorEl(anchorEl);
         setQuote(selectedText);
         setYOffset(getYOffsetFromDocument(selection, commentTextRef));
-        const commentText = commentItemRef.current?.textContent ?? ""
+        const commentText = commentBodyRef.current?.getText() ?? "";
         // Count the number of occurrences of the quote in the raw text
         const count = countStringsInString(commentText, selectedText);
         setDisabledButton(count > 1)
@@ -91,14 +71,14 @@ export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, 
     if (!selectionInCommentRef && !selectionInPopupRef) {
       clearAll()
     }
-  }, [commentItemRef, commentTextRef]);
+  }, [commentBodyRef, commentTextRef]);
   
   useEffect(() => { 
     document.addEventListener('selectionchange', detectSelection);
     return () => {
       document.removeEventListener('selectionchange', detectSelection);
     };
-  }, [detectSelection, commentItemRef]);
+  }, [detectSelection, commentBodyRef]);
 
   return (
     <div className={classes.root} ref={commentTextRef}>
@@ -113,9 +93,21 @@ export const InlineReactSelectionWrapper = ({classes, children, commentItemRef, 
           <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
       </LWPopper>
+
       {children}
     </div>
   );
+}
+
+function getYOffsetFromDocument (selection: Selection, commentTextRef: React.RefObject<HTMLDivElement>) {
+  const commentTextRect = commentTextRef.current?.getBoundingClientRect();
+  if (!commentTextRect) return 0;
+  const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
+
+  const selectionRectTop = selection.getRangeAt(0).getBoundingClientRect().top;
+  const selectionRectBottom = selection.getRangeAt(0).getBoundingClientRect().bottom;
+  const selectionY = (selectionRectTop + selectionRectBottom) / 2;
+  return selectionY - documentCenter;
 }
 
 /** Count instances of a smaller string 'needle' in a larger string 'haystack'. */
