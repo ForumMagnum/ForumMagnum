@@ -189,6 +189,7 @@ importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubt
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("ContentExcerpt", () => require('../components/common/excerpts/ContentExcerpt'));
 importComponent("PostExcerpt", () => require('../components/common/excerpts/PostExcerpt'));
+importComponent("CommentExcerpt", () => require('../components/common/excerpts/CommentExcerpt'));
 importComponent("TagExcerpt", () => require('../components/common/excerpts/TagExcerpt'));
 importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("LWHome", () => require('../components/common/LWHome'));

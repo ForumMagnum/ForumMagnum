@@ -178,6 +178,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3
   },
   lwReactStyling: lwReactStyles(theme),
+  excerpt: {
+    marginBottom: 8,
+  },
 });
 
 /**
@@ -202,6 +205,7 @@ export const CommentsItem = ({
   enableGuidelines=true,
   showParentDefault=false,
   displayTagIcon=false,
+  excerptLines,
   className,
   classes,
 }: {
@@ -221,6 +225,7 @@ export const CommentsItem = ({
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
+  excerptLines?: number,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -283,11 +288,29 @@ export const CommentsItem = ({
         cancelCallback={editCancelCallback}
       />
     } else {
-      return (<div ref={commentItemRef}>
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
-          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef} voteProps={voteProps}
-        />
-      </div>
+      return (
+        <div ref={commentItemRef}>
+          {excerptLines
+            ? (
+              <Components.CommentExcerpt
+                comment={comment}
+                lines={excerptLines}
+                className={classes.excerpt}
+              />
+            )
+            : (
+              <Components.CommentBody
+                truncated={truncated}
+                collapsed={collapsed}
+                comment={comment}
+                postPage={postPage}
+                commentBodyHighlights={commentBodyHighlights}
+                commentItemRef={commentItemRef}
+                voteProps={voteProps}
+              />
+            )
+          }
+        </div>
       );
     }
   }

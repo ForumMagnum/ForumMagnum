@@ -99,6 +99,11 @@ const EARecentDiscussionQuickTake = ({
             comment={comment.item.topLevelComment ?? comment.item}
             nestingLevel={1}
             truncated={false}
+            excerptLines={
+              (comment.item.topLevelComment?.descendentCount ?? 0) > 1
+                ? 3
+                : 20
+            }
             className={classNames(classes.quickTakeBody, {
               [classes.noBottomPadding]: !comment.item.topLevelComment,
             })}
