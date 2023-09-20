@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import type { NamesAttachedReactionsList } from '../../../lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
-import { HoveredReactionContext } from './HoveredReactionContextProvider';
+import { HoveredReactionListContext } from './HoveredReactionContextProvider';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlight: {
@@ -31,10 +31,10 @@ const InlineReactHoverableHighlight = ({reactions, voteProps, children, classes}
   classes: ClassesType,
 }) => {
   const { InlineReactHoverInfo, LWTooltip } = Components;
-  const hoveredReactionContext = useContext(HoveredReactionContext);
-  const isHovered = hoveredReactionContext?.hovered
+  const hoveredReactions = useContext(HoveredReactionListContext);
+  const isHovered = hoveredReactions
     && Object.keys(reactions).some(reaction =>
-      hoveredReactionContext.hovered.find(r=>r===reaction)
+      hoveredReactions.find(r=>r===reaction)
     );
 
   return <LWTooltip

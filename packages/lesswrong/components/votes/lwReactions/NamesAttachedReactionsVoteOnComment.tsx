@@ -9,14 +9,12 @@ import { useCurrentUser } from '../../common/withUser';
 import { useVote } from '../withVote';
 import { useHover } from '../../common/withHover';
 import { useDialog } from '../../common/withDialog';
-import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import filter from 'lodash/filter';
 import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
 import Card from '@material-ui/core/Card'
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
-import { dimHighlightClassName, highlightSelectorClassName, faintHighlightClassName } from '../../comments/CommentsItem/CommentsItem';
 import without from 'lodash/without';
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
@@ -24,7 +22,7 @@ import uniq from 'lodash/uniq';
 import { useTracking } from "../../../lib/analyticsEvents";
 import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
 import type { ContentItemBody } from '../../common/ContentItemBody';
-import { HoveredReactionContext } from './HoveredReactionContextProvider';
+import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -391,7 +389,7 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, c
   const { getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   const currentUserReactionVote = getCurrentUserReactionVote(react);
   const currentUserReaction = getCurrentUserReaction(react)
-  const hoveredReactionContext = useContext(HoveredReactionContext);
+  const setHoveredReaction = useContext(SetHoveredReactionContext);
 
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {}
@@ -405,12 +403,12 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, c
   }
 
   function handleMouseEnter (e: any) {
-    hoveredReactionContext?.setReactionIsHovered(react, true);
+    setHoveredReaction?.({reactionName: react, isHovered: true});
     onMouseOver(e);
   }
   
   function handleMouseLeave () {
-    hoveredReactionContext?.setReactionIsHovered(react, false);
+    setHoveredReaction?.({reactionName: react, isHovered: false});
     onMouseLeave();
   }
 
