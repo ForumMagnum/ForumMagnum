@@ -1,15 +1,12 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { SECTION_WIDTH } from "../common/SingleColumnSection";
+import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
-import NoSSR from "react-no-ssr";
-import type {
-  RecommendationsAlgorithmWithStrategy,
-} from "../../lib/collections/users/recommendationSettings";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
+import { useRecommendations } from "./withRecommendations";
+import { SECTION_WIDTH } from "../common/SingleColumnSection";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,14 +41,18 @@ const PostBottomRecommendations = ({post, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const moreFromAuthorAlgorithm: RecommendationsAlgorithmWithStrategy = {
+  const {
+    recommendationsLoading: moreFromAuthorLoading,
+    recommendations: moreFromAuthorPosts,
+  } = useRecommendations({
     strategy: {
       name: "moreFromAuthor",
       postId: post._id,
       context: "post-footer",
     },
     count: 3,
-  };
+    disableFallbacks: true,
+  });
 
   const {
     results: digestPosts,
@@ -71,14 +72,16 @@ const PostBottomRecommendations = ({post, classes}: {
 
   const profileUrl = userGetProfileUrl(post.user);
 
+  const hasUserPosts = post.user &&
+    (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
+
   const {
-    RecommendationsList, PostsLoading, EAPostsItem, EALargePostsItem,
-    UserTooltip,
+    PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip,
   } = Components;
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        {post.user &&
+        {hasUserPosts &&
           <div className={classes.section}>
             <div className={classes.sectionHeading}>
               More from{" "}
@@ -86,14 +89,13 @@ const PostBottomRecommendations = ({post, classes}: {
                 <Link to={profileUrl}>{post.user.displayName}</Link>
               </UserTooltip>
             </div>
+            {moreFromAuthorLoading && !moreFromAuthorPosts?.length &&
+              <PostsLoading />
+            }
             <AnalyticsContext pageSubSectionContext="moreFromAuthor">
-              <NoSSR onSSR={<PostsLoading />}>
-                <RecommendationsList
-                  algorithm={moreFromAuthorAlgorithm}
-                  loadingFallback={<PostsLoading />}
-                  ListItem={EAPostsItem}
-                />
-              </NoSSR>
+              {moreFromAuthorPosts?.map((post) => (
+                <EAPostsItem key={post._id} post={post} />
+              ))}
               <div className={classes.viewMore}>
                 <Link to={profileUrl}>
                   View more
@@ -106,7 +108,9 @@ const PostBottomRecommendations = ({post, classes}: {
           <div className={classes.sectionHeading}>
             Recommended by the Forum team this week
           </div>
-          {digestLoading && !digestPosts?.length && <PostsLoading />}
+          {digestLoading && !digestPosts?.length &&
+            <PostsLoading />
+          }
           <AnalyticsContext pageSubSectionContext="digestThisWeek">
             {digestPosts?.map((post) => (
               <EALargePostsItem
@@ -122,7 +126,9 @@ const PostBottomRecommendations = ({post, classes}: {
           <div className={classes.sectionHeading}>
             Recent opportunities
           </div>
-          {opportunitiesLoading && !opportunityPosts?.length && <PostsLoading />}
+          {opportunitiesLoading && !opportunityPosts?.length &&
+            <PostsLoading />
+          }
           <AnalyticsContext pageSubSectionContext="recentOpportunities">
             {opportunityPosts?.map((post) => (
               <EAPostsItem key={post._id} post={post} />
