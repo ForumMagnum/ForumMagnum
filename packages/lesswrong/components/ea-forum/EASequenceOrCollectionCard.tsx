@@ -28,7 +28,8 @@ const styles = (theme: ThemeType) => ({
     boxShadow: buildBoxShadow(theme, 0.1, 2),
     transition: "box-shadow 0.15s ease-in-out",
     "&:hover": {
-      boxShadow: buildBoxShadow(theme, 0.15, 4),
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`
     },
   },
   sequenceCardImageWrapper: {

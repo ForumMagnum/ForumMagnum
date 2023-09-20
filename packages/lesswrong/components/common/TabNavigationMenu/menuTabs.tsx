@@ -266,7 +266,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/best-of',
       iconComponent: BestOfIcon,
       selectedIconComponent: BestOfSelectedIcon,
-      tooltip: 'The best content on the forum',
+      tooltip: 'Curated by the Forum team',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
