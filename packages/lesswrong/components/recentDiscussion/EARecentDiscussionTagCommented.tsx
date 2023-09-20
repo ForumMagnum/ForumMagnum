@@ -62,7 +62,7 @@ const EARecentDiscussionTagCommented = ({
   const {EARecentDiscussionItem, TagExcerpt, CommentsNode} = Components;
   return (
     <EARecentDiscussionItem
-      icon="TagFilled"
+      icon="CommentFilled"
       iconVariant="primary"
       user={comments[0].user}
       description="commented on tag"
