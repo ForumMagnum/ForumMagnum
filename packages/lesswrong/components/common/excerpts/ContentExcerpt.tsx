@@ -38,6 +38,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const HTML_CHARS_PER_LINE_HEURISTIC = 120;
+
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
@@ -53,6 +55,7 @@ const ContentExcerpt = ({
   className?: string,
   classes: ClassesType,
 }) => {
+  const showMoreLink = contentHtml.length > HTML_CHARS_PER_LINE_HEURISTIC * lines;
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
@@ -66,9 +69,11 @@ const ContentExcerpt = ({
           className={classes.content}
         />
       </ContentStyles>
-      <Link to={moreLink} className={classes.continueReading}>
-        Continue reading
-      </Link>
+      {showMoreLink &&
+        <Link to={moreLink} className={classes.continueReading}>
+          Continue reading
+        </Link>
+      }
     </div>
   );
 }
