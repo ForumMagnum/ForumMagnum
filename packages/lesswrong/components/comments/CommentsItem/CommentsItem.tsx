@@ -10,7 +10,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetDefaultView, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
@@ -21,6 +21,9 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import {useMulti} from '../../../lib/crud/withMulti';
+import {isValidCommentView} from '../../../lib/commentViewOptions';
+import {useSubscribedLocation} from '../../../lib/routeUtil';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -208,6 +211,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [isChatentry, setIsChatentry] = useState(false);
   const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
@@ -294,15 +298,40 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
 
     const showInlineCancel = showReplyState && isMinimalist
+    const showChatButton = true
+
+    // const { ReactionIcon } = Components
+    const commentAuthor = comment.user?.displayName ?? "the comment author"
+    const chatTooltipContent = <div>
+      <strong>Create a chat under this comment</strong>
+      <li>Only you and {commentAuthor} can write in the chat.</li>
+      <li>There's no voting</li>
+      <li>There are typing indicators</li>
+      <li>Norms are a bit more informal and fast-paced</li>
+      <li>Chats are public</li>
+      <p>Think of it more like having a 1-1 with {commentAuthor} (rather than "broadcasting" on a stage to the LessWrong audience) </p>
+    </div>;
+
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
         <div>
           <CommentBottomCaveats comment={comment} />
           {showReplyButton && (
             treeOptions?.replaceReplyButtonsWith?.(comment)
-            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : (event) => {setIsChatentry(false); showReply(event)}}>
               {showInlineCancel ? "Cancel" : "Reply"}
             </a>
+          )}
+          {showChatButton && (
+
+            <LWTooltip title={chatTooltipContent}>
+              {(
+                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => {setIsChatentry(true); showReply(event)} }>
+                  {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
+                  Chat
+                </a>
+              )}
+            </LWTooltip>
           )}
         </div>
         {VoteBottomComponent && <VoteBottomComponent
@@ -317,7 +346,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     );
   }
 
-  const renderReply = () => {
+  const chatCommentId = comment._id; //TODO: fix this to actually get the right parent id! 
+
+  const renderReply = (chatentry : boolean) => {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
@@ -328,7 +359,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           successCallback={replySuccessCallback}
           cancelCallback={replyCancelCallback}
           prefilledProps={{
-            parentAnswerId: parentAnswerId ? parentAnswerId : null
+            parentAnswerId: parentAnswerId ? parentAnswerId : null,
+            debateResponse: chatentry,
+            title: chatCommentId // TODO: figure out what to do here instead of title.... 
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
@@ -340,7 +373,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay, DebateBody
   } = Components
   
   const votingSystemName = comment.votingSystem || "default";
@@ -356,6 +389,58 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     eligibleToNominate(currentUser)
 
   const voteProps = useVote(comment, "Comments", votingSystem);
+
+  const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+    comment: debateResponse,
+    replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
+  }));
+
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
+    terms: {
+      view: 'debateResponses',
+      postId: post?._id, // just use a fake debate here. 'debateid238r0w8rh0aw98h'
+    },
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    skip: !post?.debate,
+    limit: 1000
+  });
+
+  const location = useSubscribedLocation();
+  const { query, params } = location;
+
+
+  const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
+    ? {...(query as CommentsViewTerms), limit:1000}
+    : {view: defaultView, limit: 1000}
+
+  const { results: nonDebateComments } = useMulti({
+    terms: {...commentTerms, postId: post?._id},
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    skip: !post?._id,
+    fetchPolicy: 'cache-and-network',
+  });
+
+ // const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
+ // const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  //const debateResponseBlocks = debateResponses ? getDebateResponseBlocks(debateResponses, debateResponseReplies) : [];
+
+  
+  const currentCommentId = comment._id;
+  const chatResponses = debateResponses ? debateResponses.filter(response =>  // TODO: only check one of these
+    response.title ? response.title.includes( currentCommentId ) : false  ) : [];
+
+//  console.log("chatResponses", chatResponses)
+  //const chatResponseIds = new Set((chatResponses ?? []).map(response => response._id));
+  const chatResponseBlocks = chatResponses ? getDebateResponseBlocks(chatResponses, []) : [];
+
+  //const showChat = true // if parent has matching commentId to chatEntry
+
+  
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -426,6 +511,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>}
           {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
           {renderBodyOrEditor(voteProps)}
+          {post && chatResponses.length > 0 && <DebateBody
+            debateResponses={chatResponseBlocks}
+            chatCommentId={chatCommentId}
+            post={post}
+          />}
           {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
         </div>
         {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
@@ -437,7 +527,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           </div>
           {post && <ReviewVotingWidget post={post} showTitle={false}/>}
         </div>}
-        { showReplyState && !collapsed && renderReply() }
+        { showReplyState && !collapsed && renderReply(isChatentry) }
       </div>
     </AnalyticsContext>
   )

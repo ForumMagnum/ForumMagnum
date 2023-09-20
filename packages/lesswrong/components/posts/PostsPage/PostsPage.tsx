@@ -636,7 +636,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
 export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
 
-export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+export function isDialogueParticipant(userId: string|undefined, post: PostParticipantInfo) {
+  if (!userId) return false
   if (post.userId === userId) return true 
   if (getConfirmedCoauthorIds(post).includes(userId)) return true
   return false

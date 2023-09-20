@@ -142,8 +142,9 @@ const schema: SchemaType<DbComment> = {
     }),
     optional: true,
     canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
+    canUpdate: ['admins'],
     canCreate: ['members'],
-    hidden: true,
+    // hidden: true,
   },
   userIP: {
     type: String,
@@ -690,14 +691,15 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
-      if (!currentUser || !formProps?.post?.debate) return true;
+    hidden: true,
+    // hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
+    //   if (!currentUser || !formProps?.post?.debate) return true;
 
-      const { post } = formProps;
+    //   const { post } = formProps;
       
-      const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
-      return !debateParticipantsIds.includes(currentUser._id);
-    },
+    //   const debateParticipantsIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)];
+    //   return !debateParticipantsIds.includes(currentUser._id);
+    // },
   },
 
   rejected: {

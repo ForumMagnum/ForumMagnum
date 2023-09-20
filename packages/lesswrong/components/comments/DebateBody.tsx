@@ -5,6 +5,8 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import {isDialogueParticipant} from '../posts/PostsPage/PostsPage';
+import {useCurrentUser} from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -12,14 +14,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const DebateBody = ({ debateResponses, post, classes }: {
+export const DebateBody = ({ debateResponses, post, classes, chatCommentId }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  chatCommentId?: string,
   classes: ClassesType,
 }) => {
   const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
-
+  const { CommentsNewForm } = Components
+  const currentUser = useCurrentUser()
+  
   return (<NoSSR>
     <div className={classes.root}>
       {
@@ -63,6 +68,19 @@ export const DebateBody = ({ debateResponses, post, classes }: {
     <div>
       <DebateTypingIndicator post={post} />
     </div>
+    <CommentsNewForm
+      post={post}
+      replyFormStyle='minimalist'
+      enableGuidelines={false}
+      prefilledProps={{
+        ...(isDialogueParticipant(currentUser?._id, post) ? { 
+          debateResponse: true ,
+          title: chatCommentId // TODO: figure out what to do here instead of title.... 
+        } : {})
+      }}
+      type="comment"
+      {...(isDialogueParticipant(currentUser?._id, post) ? { formProps: { post } } : {})}
+    />
   </NoSSR>);
 }
 
