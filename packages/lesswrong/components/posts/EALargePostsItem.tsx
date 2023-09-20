@@ -17,6 +17,10 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
     padding: "16px 16px",
+    "&:hover": {
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`
+    },
   },
   postListItemTextSection: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -26,12 +30,13 @@ const styles = (theme: ThemeType) => ({
     flex: 1,
     maxHeight: 160,
     minWidth: 0, // Magic flexbox property to prevent overflow, see https://stackoverflow.com/a/66689926
-    marginRight: 8,
   },
   postListItemTitle: {
-    fontSize: 18,
-    marginBottom: 8,
-    lineHeight: "25px",
+    color: theme.palette.text.normal,
+    fontSize: 16,
+    fontWeight: 600,
+    marginBottom: 2,
+    lineHeight: "24px",
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -39,13 +44,13 @@ const styles = (theme: ThemeType) => ({
   },
   postListItemMeta: {
     display: "flex",
-    marginBottom: 8,
-    fontSize: 14,
+    marginBottom: 12,
+    fontSize: 13,
     lineHeight: "20px",
     color: theme.palette.grey[600],
   },
   authors: {
-    fontSize: "14px !important",
+    fontSize: "13px !important",
   },
   commentCount: {
     minWidth: 58,
@@ -64,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
   postListItemPreview: {
     fontSize: 14,
-    lineHeight: "20px",
+    lineHeight: "1.5em",
     color: theme.palette.grey[600],
     position: "relative",
     overflow: "hidden",
@@ -75,10 +80,11 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "auto",
   },
   postListItemImage: {
-    height: 140,
-    maxWidth: 150,
+    height: "auto",
+    maxWidth: 170,
     objectFit: "cover",
-    borderRadius: theme.borderRadius.default,
+    marginLeft: 16,
+    borderRadius: theme.borderRadius.small,
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },

@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 16,
   },
   largePostItem: {
-    marginTop: 16,
+    marginTop: 8,
   },
   viewMore: {
     marginTop: 12,
