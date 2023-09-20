@@ -22,6 +22,9 @@ const styles = (theme: ThemeType) => ({
     marginTop: 8,
     color: theme.palette.grey[600],
   },
+  excerpt: {
+    marginBottom: 16,
+  },
 });
 
 const EARecentDiscussionTagCommented = ({
@@ -75,7 +78,7 @@ const EARecentDiscussionTagCommented = ({
         </Link>
         <div className={classes.metadata}>{metadata}</div>
       </div>
-      <TagExcerpt tag={tag} />
+      <TagExcerpt tag={tag} className={classes.excerpt} />
       {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
         <div key={comment.item._id}>
           <CommentsNode
