@@ -4,6 +4,18 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 
+const HTML_CHARS_PER_LINE_HEURISTIC = 120;
+
+const contentTypeMap: Record<ContentStyleType, string> = {
+  post: "post",
+  postHighlight: "post",
+  comment: "comment",
+  commentExceptPointerEvents: "comment",
+  answer: "answer",
+  tag: "tag",
+  debateResponse: "debate response",
+};
+
 const styles = (theme: ThemeType) => ({
   root: {
   },
@@ -38,8 +50,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const HTML_CHARS_PER_LINE_HEURISTIC = 120;
-
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
@@ -55,7 +65,6 @@ const ContentExcerpt = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const showMoreLink = contentHtml.length > HTML_CHARS_PER_LINE_HEURISTIC * lines;
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
@@ -69,11 +78,12 @@ const ContentExcerpt = ({
           className={classes.content}
         />
       </ContentStyles>
-      {showMoreLink &&
-        <Link to={moreLink} className={classes.continueReading}>
-          Continue reading
-        </Link>
-      }
+      <Link to={moreLink} className={classes.continueReading}>
+        {contentHtml.length > HTML_CHARS_PER_LINE_HEURISTIC * lines
+          ? "Continue reading"
+          : `View ${contentTypeMap[contentType]}`
+        }
+      </Link>
     </div>
   );
 }
