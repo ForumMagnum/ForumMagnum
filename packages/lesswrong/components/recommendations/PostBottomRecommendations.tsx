@@ -58,7 +58,7 @@ const PostBottomRecommendations = ({post, classes}: {
     results: digestPosts,
     loading: digestLoading,
   } = usePaginatedResolver({
-    fragmentName: "PostsWithNavigation",
+    fragmentName: "PostsPage",
     resolverName: "DigestPostsThisWeek",
     limit: 3,
   });

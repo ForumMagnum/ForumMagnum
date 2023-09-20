@@ -97,7 +97,7 @@ const EALargePostsItem = ({
   className,
   classes,
 }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  post: PostsPage,
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
