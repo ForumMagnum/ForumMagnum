@@ -533,7 +533,7 @@ export const EAHomeRightHandSide = ({classes}: {
 
   // data for podcasts section
   const podcasts = [{
-    url: 'https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH',
+    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
     icon: spotifyLogoIcon,
     name: 'Spotify'
   }, {
