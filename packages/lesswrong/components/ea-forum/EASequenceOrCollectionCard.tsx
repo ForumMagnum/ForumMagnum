@@ -1,4 +1,4 @@
-import React, { MouseEvent } from "react";
+import React, { FC, MouseEvent, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -78,6 +78,7 @@ const styles = (theme: ThemeType) => ({
 const EASequenceOrCollectionCard = ({
   title,
   author,
+  hoverOver,
   postCount,
   readCount,
   imageId,
@@ -87,6 +88,7 @@ const EASequenceOrCollectionCard = ({
 }: {
   title: string,
   author: UsersMinimumInfo | null,
+  hoverOver?: ReactNode,
   postCount: number,
   readCount: number,
   imageId: string,
@@ -99,7 +101,16 @@ const EASequenceOrCollectionCard = ({
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
-  const {CloudinaryImage2, UsersNameDisplay} = Components;
+  const {CloudinaryImage2, UsersNameDisplay, LWTooltip} = Components;
+
+  const TitleWrapper: FC<{children: ReactNode}> = hoverOver
+    ? ({children}) => (
+      <LWTooltip title={hoverOver} tooltip={false} placement="bottom">
+        {children}
+      </LWTooltip>
+    )
+    : ({children}) => <>{children}</>;
+
   return (
     <div {...eventHandlers} onClick={onClick} className={classes.root}>
       <div className={classes.sequenceCardImageWrapper}>
@@ -114,11 +125,13 @@ const EASequenceOrCollectionCard = ({
         <div className={classes.sequenceReadProgress}>{readProgress} read</div>
       </div>
       <div className={classes.sequenceCardText}>
-        <InteractionWrapper>
-          <Link to={href} className={classes.sequenceCardTitle}>
-            {title}
-          </Link>
-        </InteractionWrapper>
+        <TitleWrapper>
+          <InteractionWrapper>
+            <Link to={href} className={classes.sequenceCardTitle}>
+              {title}
+            </Link>
+          </InteractionWrapper>
+        </TitleWrapper>
         <div className={classes.sequenceCardMeta}>
           <InteractionWrapper className={classes.authorWrapper}>
             <UsersNameDisplay user={author} />
