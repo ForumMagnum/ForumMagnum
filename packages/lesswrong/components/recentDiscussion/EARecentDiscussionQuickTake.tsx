@@ -112,7 +112,7 @@ const EARecentDiscussionQuickTake = ({
             <CommentsNode
               treeOptions={{
                 ...treeOptions,
-                hideParentCommentToggle: true,
+                hideParentCommentToggleForTopLevel: true,
               }}
               truncated={false}
               expandAllThreads={expandAllThreads}

@@ -240,7 +240,7 @@ export const CommentsItem = ({
 
   const {
     postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId,
+    moderatedCommentId, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
@@ -420,6 +420,9 @@ export const CommentsItem = ({
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
               key={comment.parentCommentId}
+              treeOptions={{
+                hideParentCommentToggleForTopLevel,
+              }}
             />
           </div> 
         )}
