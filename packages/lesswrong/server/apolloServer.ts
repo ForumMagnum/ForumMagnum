@@ -33,7 +33,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { isEAForum, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -260,6 +260,8 @@ export function startWebserver() {
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
     
+    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+    
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -272,6 +274,7 @@ export function startWebserver() {
         + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
+        + faviconHeader
         + clientScript
     );
     

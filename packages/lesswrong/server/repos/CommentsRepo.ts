@@ -74,10 +74,24 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
-  async getPopularComments({minScore = 15, offset = 0, limit = 3}: {
+  async getPopularComments({
+    minScore = 15,
+    offset = 0,
+    limit = 3,
+    recencyWeight = 0.1,
+    recencyFactor = 1000000,
+    recencyBias = 60 * 60 * 2,
+  }: {
     offset?: number,
     limit?: number,
     minScore?: number,
+    // The weight of the recency component
+    recencyWeight?: number,
+    // The factor to divide age by for the recency bonus
+    recencyFactor?: number,
+    // The minimum age that a post will be considered as having, to avoid
+    // over selecting brand new comments - defaults to 2 hours
+    recencyBias?: number,
   }): Promise<DbComment[]> {
     return this.any(`
       SELECT c.*
@@ -99,10 +113,10 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE p."hideFromPopularComments" IS NOT TRUE
-      ORDER BY q."confidence" DESC, c."createdAt" ASC
+      ORDER BY q."confidence" + $4 * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $6) / -$5) DESC
       OFFSET $2
       LIMIT $3
-    `, [minScore, offset, limit]);
+    `, [minScore, offset, limit, recencyWeight, recencyFactor, recencyBias]);
   }
 
   private getSearchDocumentQuery(): string {

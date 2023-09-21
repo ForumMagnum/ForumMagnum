@@ -777,7 +777,7 @@ const schema: SchemaType<DbComment> = {
       ) {
         return {};
       }
-      const reactors = await context.repos.posts.getEmojiReactorsWithCache(comment.postId);
+      const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
       return reactors[comment._id] ?? {};
     },
   }),

@@ -310,7 +310,7 @@ addRoute(
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
+    subtitleComponentName: isEAForum ? undefined : 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"

@@ -33,6 +33,8 @@ registerFragment(`
     curatedOrder
     userProfileOrder
     af
+    postsCount
+    readPostsCount
   }
 `);
 

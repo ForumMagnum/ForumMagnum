@@ -1,6 +1,5 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
@@ -186,8 +185,7 @@ const Header = ({
   const currentUser = useCurrentUser();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -199,8 +197,7 @@ const Header = ({
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
-      await updateCurrentUser({lastNotificationsCheck: new Date()});
-      await refetchNotificationCounts();
+      await notificationsOpened();
     } else {
       setNotificationOpen(false);
     }

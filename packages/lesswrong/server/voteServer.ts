@@ -21,8 +21,8 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { userCanVote } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
-import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
+import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 
 
@@ -80,7 +80,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return {newDocument, vote};
@@ -206,7 +206,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;

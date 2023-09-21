@@ -6,6 +6,7 @@ declare global {
   interface SequencesViewTerms extends ViewTermsBase {
     view?: SequencesViewName
     userId?: string
+    sequenceIds?: string[]
   }
 }
 
@@ -14,6 +15,7 @@ Sequences.addDefaultView((terms: SequencesViewTerms) => {
   let params = {
     selector: {
       hidden: false,
+      ...(terms.sequenceIds && {_id: {$in: terms.sequenceIds}}),
       ...alignmentForum
     }
   }

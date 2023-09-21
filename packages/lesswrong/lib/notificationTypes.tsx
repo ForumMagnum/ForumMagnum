@@ -43,6 +43,7 @@ interface NotificationType {
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
+  causesRedBadge?: boolean
 }
 
 const notificationTypes: Record<string,NotificationType> = {};
@@ -294,6 +295,7 @@ export const NewDebateReplyNotification = registerNotificationType({
   getIcon() {
     return <DebateIcon style={iconStyles}/>
   },
+  causesRedBadge: true,
 });
 
 export const NewShortformNotification = registerNotificationType({
@@ -384,6 +386,7 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MailIcon style={iconStyles}/>
   },
+  causesRedBadge: true,
 });
 
 export const WrappedNotification = registerNotificationType({

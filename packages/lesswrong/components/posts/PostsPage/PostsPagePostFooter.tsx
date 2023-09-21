@@ -4,8 +4,10 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
-import { shareButtonSetting, isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { hasShareButtonSetting } from '../../../lib/publicSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -73,9 +75,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const votingSystemName = post.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
   const { PostsVote, BookmarkButton, SharePostButton, PostActionsButton, BottomNavigation, PingbacksList, FooterTagList } = Components;
   const wordCount = post.contents?.wordCount || 0
-  
+  const PostBottomSecondaryVotingComponent = votingSystem?.getPostBottomSecondaryVotingComponent?.();
+  const isEAEmojis = votingSystemName === "eaEmojis";
+
   return <>
     {isLWorAF && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
       <AnalyticsContext pageSectionContext="tagFooter">
@@ -84,23 +90,33 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </div>
       </AnalyticsContext>
     }
-    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
-      <div className={classes.footerSection}>
-        <div className={classes.voteBottom}>
-          <AnalyticsContext pageSectionContext="lowerVoteButton">
-            <PostsVote post={post} useHorizontalLayout={isFriendlyUI} />
-          </AnalyticsContext>
-        </div>
-        {isFriendlyUI && <div className={classes.secondaryInfoRight}>
-          <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-          {shareButtonSetting.get() && <SharePostButton post={post} />}
-          <span className={classes.actions}>
-            <AnalyticsContext pageElementContext="tripleDotMenu">
-              <PostActionsButton post={post} />
+    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT || isEAEmojis) &&
+      <>
+        <div className={classes.footerSection}>
+          <div className={classes.voteBottom}>
+            <AnalyticsContext pageSectionContext="lowerVoteButton">
+              <PostsVote post={post} useHorizontalLayout={isFriendlyUI} isFooter />
             </AnalyticsContext>
-          </span>
-        </div>}
-      </div>}
+          </div>
+          {isFriendlyUI && <div className={classes.secondaryInfoRight}>
+            <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
+            {hasShareButtonSetting.get() && <SharePostButton post={post} />}
+            <span className={classes.actions}>
+              <AnalyticsContext pageElementContext="tripleDotMenu">
+                <PostActionsButton post={post} includeBookmark={!isFriendlyUI} />
+              </AnalyticsContext>
+            </span>
+          </div>}
+        </div>
+        {PostBottomSecondaryVotingComponent &&
+          <PostBottomSecondaryVotingComponent
+            document={post}
+            votingSystem={votingSystem}
+            isFooter
+          />
+        }
+      </>
+    }
     {sequenceId && <div className={classes.bottomNavigation}>
       <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
         <BottomNavigation post={post}/>

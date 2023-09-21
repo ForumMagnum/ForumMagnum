@@ -243,7 +243,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             fontFamily: sansSerifStack
           }
         },
-        PostsVote: {
+        PostsVoteDefault: {
           voteScore: {
             paddingTop:4,
             paddingBottom:2,
