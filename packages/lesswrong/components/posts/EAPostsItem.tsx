@@ -190,10 +190,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
 
 export type EAPostsItemProps = PostsItemConfig & {
+  hideSecondaryInfo?: boolean,
   classes: ClassesType,
 };
 
-const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
+const EAPostsItem = ({
+  hideSecondaryInfo,
+  classes,
+  ...props
+}: EAPostsItemProps) => {
   const {
     post,
     postLink,
@@ -222,6 +227,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isRepeated,
     analyticsProps,
     isVoteable,
+    className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
   const authorExpandContainer = useRef(null);
@@ -237,7 +243,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     PostsVote,
   } = Components;
 
-  const SecondaryInfo = () => (
+  const SecondaryInfo = () => hideSecondaryInfo ? null : (
     <>
       <InteractionWrapper className={classes.interactionWrapper}>
         <a onClick={toggleComments} className={classNames(
@@ -279,7 +285,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         {showReadCheckbox &&
           <div className={classes.readCheckbox}>
             <PostReadCheckbox post={post} width={14} />
