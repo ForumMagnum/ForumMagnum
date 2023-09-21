@@ -10,13 +10,13 @@ const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
     documentSlug: post.slug,
   });
 
-  if (!post?.podcastEpisode) {
+  if (!post.podcastEpisode) {
     return null;
   }
 
   const {PostsPodcastPlayer} = Components;
   return (
-    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={post.slug}>
       <div {...eventHandlers}>
         <PostsPodcastPlayer
           podcastEpisode={post.podcastEpisode}

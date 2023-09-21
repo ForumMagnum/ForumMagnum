@@ -90,7 +90,7 @@ const PostsVideoCard = ({post, classes}: {
     EAKarmaDisplay,
   } = Components;
   return (
-    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={post.slug}>
       <div {...eventHandlers} className={classes.root}>
         <div className={classes.header}>
           <EAKarmaDisplay post={post} className={classes.karma} />

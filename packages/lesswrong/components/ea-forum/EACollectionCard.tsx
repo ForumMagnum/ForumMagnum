@@ -49,7 +49,7 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
 
   const {EASequenceOrCollectionCard} = Components;
   return (
-    <AnalyticsContext documentSlug={collection?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={collection.slug}>
       <EASequenceOrCollectionCard
         title={title}
         author={author}
