@@ -164,7 +164,7 @@ async function checkForTypingIndicators() {
   const typingIndicatorInfos = await new TypingIndicatorsRepo().getRecentTypingIndicators(lastTypingIndicatorsCheck)
 
   if (typingIndicatorInfos.length > 0) {
-    // Take the newest createdAt of a typingIndicator we saw, or one second ago,
+    // Take the newest lastUpdated of a typingIndicator we saw, or one second ago,
     // whichever is earlier, as the cutoff date for the next query. 
     // See checkForNotifications for more details.
     const newestTypingIndicatorDate: Date = maxBy(typingIndicatorInfos, n=>new Date(n.lastUpdated))!.lastUpdated;
