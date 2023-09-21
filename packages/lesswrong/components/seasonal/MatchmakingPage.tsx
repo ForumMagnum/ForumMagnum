@@ -16,7 +16,7 @@ export const MatchmakingPage = ({classes}: {
 
   const [getMatchmakingRecommendations, {loading, data}] = useQuery(gql`
   query randomUser($userIsAuthor: String!) {
-      GetRandomUser(userIsAuthor: $userIsAuthor) {
+    GetUserMatchmakingRecommendations(userIsAuthor: $userIsAuthor) {
         ...UsersMinimumInfo
       }
     }
