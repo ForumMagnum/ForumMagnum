@@ -5,12 +5,13 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { siteImageSetting } from "../vulcan-core/App";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
-import { InteractionWrapper } from "../common/useClickableCell";
+import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import moment from "moment";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   postListItem: {
+    cursor: "pointer",
     display: "flex",
     width: "100%",
     background: theme.palette.grey[0],
@@ -111,13 +112,14 @@ const EALargePostsItem = ({
 }) => {
   const authorExpandContainer = useRef(null);
 
+  const postLink = postGetPageUrl(post);
+  const {onClick} = useClickableCell({href: postLink});
+
   const {eventHandlers} = useHover({
     pageElementContext: "postListItem",
     documentId: post._id,
-    documentSlug: post?.slug,
+    documentSlug: post.slug,
   });
-
-  const postLink = post ? postGetPageUrl(post) : "";
 
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
   const ago = timeFromNow !== "now"
@@ -131,15 +133,18 @@ const EALargePostsItem = ({
 
   const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper} = Components;
   return (
-    <AnalyticsContext documentSlug={post?.slug ?? "unknown-slug"}>
+    <AnalyticsContext documentSlug={post.slug}>
       <div
         {...eventHandlers}
+        onClick={onClick}
         className={classNames(classes.postListItem, className)}
       >
         <div className={classes.postListItemTextSection}>
           <div className={classes.postListItemTitle}>
             <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-              <Link to={postLink}>{post.title}</Link>
+              <InteractionWrapper>
+                <Link to={postLink}>{post.title}</Link>
+              </InteractionWrapper>
             </PostsItemTooltipWrapper>
           </div>
           {/** TODO
@@ -166,10 +171,12 @@ const EALargePostsItem = ({
               {!isNarrow && (
                 <span className={classNames(classes.commentCount, classes.xsHide)}>
                   &nbsp;·&nbsp;
-                  <Link to={`${postLink}#comments`} className={classes.commentCount}>
-                    <ForumIcon icon="Comment" />
-                    {post.commentCount}
-                  </Link>
+                  <InteractionWrapper>
+                    <Link to={`${postLink}#comments`} className={classes.commentCount}>
+                      <ForumIcon icon="Comment" />
+                      {post.commentCount}
+                    </Link>
+                  </InteractionWrapper>
                 </span>
               )}
             </div>
