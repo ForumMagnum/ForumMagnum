@@ -107,6 +107,7 @@ const PostCollaborationEditor = ({ classes }: {
           userId={currentUser?._id}
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+          document={post}
         />
         <Components.PostVersionHistoryButton
           post={post}

@@ -1254,6 +1254,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
+  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -1285,6 +1286,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   },
   readonly socialPreviewData: any,
   readonly criticismTipsDismissed: boolean,
+  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
