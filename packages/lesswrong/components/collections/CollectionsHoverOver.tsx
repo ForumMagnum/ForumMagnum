@@ -1,6 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { Link } from "react-router-dom";
+import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { isEAForum } from "../../lib/instanceSettings";
 import Card from "@material-ui/core/Card";
