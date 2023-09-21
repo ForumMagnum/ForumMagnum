@@ -42,6 +42,7 @@ const InlineReactHoverableHighlight = ({reactions, voteProps, children, classes}
       reactions={reactions}
       voteProps={voteProps}
     />}
+    placement="top-start"
     tooltip={false}
     flip={false}
     inlineBlock={false}
