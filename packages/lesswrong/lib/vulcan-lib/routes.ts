@@ -101,7 +101,6 @@ export const addRoute = (...routes: Route[]): void => {
 
 export const overrideRoute = (...routes: Route[]): void => {
   // remove the old route if it exists, then call addRoute
-  console.log(routes)
   for (let route of routes) {
     const {name, path} = route;
     delete Routes[name];

@@ -152,3 +152,5 @@ export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEma
 // TODO: make this an instance setting if JP confirms that makes sense
 // /** main theme color, needed here for server/emails/renderEmail */
 // export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)

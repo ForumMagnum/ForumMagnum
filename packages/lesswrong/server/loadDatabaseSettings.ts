@@ -40,7 +40,9 @@ const loadDatabaseSettingsPostgres = async (): Promise<DatabaseSettings> => {
   if (!isAnyTest && (!serverSettingsObject || !publicSettingsObject)) {
     // eslint-disable-next-line no-console
     console.error("Failed to load database settings from Postgres");
+    // eslint-disable-next-line no-console
     if (!serverSettingsObject) console.error("No serverSettingsObject");
+    // eslint-disable-next-line no-console
     if (!publicSettingsObject) console.error("No publicSettingsObject");
   }
 

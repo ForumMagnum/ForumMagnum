@@ -1,6 +1,5 @@
-import { hasCookieConsentSetting } from "../../../lib/cookies/utils";
 import { isServer } from "../../../lib/executionEnvironment";
-import { DatabasePublicSetting } from "../../../lib/publicSettings";
+import { DatabasePublicSetting, hasCookieConsentSetting } from "../../../lib/publicSettings";
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
 
 const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
