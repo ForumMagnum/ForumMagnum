@@ -57,6 +57,20 @@ const getItemProps = (
     };
 }
 
+type NestedComments = CommentTreeNode<CommentsListWithTopLevelComment>;
+
+const splitByTopLevelComment = (nodes: NestedComments[]): NestedComments[][] => {
+  const result: Record<string, NestedComments[]> = {};
+  for (const node of nodes) {
+    if (result[node.item.topLevelCommentId]) {
+      result[node.item.topLevelCommentId].push(node);
+    } else {
+      result[node.item.topLevelCommentId] = [node];
+    }
+  }
+  return Object.values(result);
+}
+
 const EARecentDiscussionQuickTake = ({
   post,
   comments,
@@ -86,44 +100,55 @@ const EARecentDiscussionQuickTake = ({
     return null;
   }
 
+  const splitComments = splitByTopLevelComment(nestedComments);
+
   const {EARecentDiscussionItem, CommentsItem, CommentsNode} = Components;
   return (
     <>
-      {nestedComments.map((comment) => (
-        <EARecentDiscussionItem
-          key={comment.item._id}
-          {...getItemProps(post, comment)}
-        >
-          <CommentsItem
-            treeOptions={treeOptions}
-            comment={comment.item.topLevelComment ?? comment.item}
-            nestingLevel={1}
-            truncated={false}
-            excerptLines={
-              (comment.item.topLevelComment?.descendentCount ?? 0) > 1
-                ? 3
-                : 20
-            }
-            className={classNames(classes.quickTakeBody, {
-              [classes.noBottomPadding]: !comment.item.topLevelComment,
-            })}
-          />
-          {comment.item.topLevelComment &&
-            <CommentsNode
-              treeOptions={{
-                ...treeOptions,
-                hideParentCommentToggleForTopLevel: true,
-              }}
-              truncated={false}
-              expandAllThreads={expandAllThreads}
-              expandNewComments={false}
+      {splitComments.map((comments) => {
+        if (!comments.length) {
+          return null;
+        }
+        const hasComments = !!comments[0].item.parentCommentId;
+        const quickTake = hasComments
+          ? comments[0].item.topLevelComment
+          : comments[0].item;
+        if (!quickTake) {
+          return null;
+        }
+        return (
+          <EARecentDiscussionItem
+            key={quickTake._id}
+            {...getItemProps(post, comments[0])}
+          >
+            <CommentsItem
+              treeOptions={treeOptions}
+              comment={quickTake}
               nestingLevel={1}
-              comment={comment.item}
-              childComments={comment.children}
+              truncated={false}
+              excerptLines={(quickTake.descendentCount ?? 0) > 1 ? 3 : 20}
+              className={classNames(classes.quickTakeBody, {
+                [classes.noBottomPadding]: !hasComments,
+              })}
             />
-          }
-        </EARecentDiscussionItem>
-      ))}
+            {hasComments && comments.map((comment) => (
+              <CommentsNode
+                key={comment.item._id}
+                treeOptions={{
+                  ...treeOptions,
+                  hideParentCommentToggleForTopLevel: true,
+                }}
+                truncated={false}
+                expandAllThreads={expandAllThreads}
+                expandNewComments={false}
+                nestingLevel={1}
+                comment={comment.item}
+                childComments={comment.children}
+              />
+            ))}
+          </EARecentDiscussionItem>
+        );
+      })}
     </>
   );
 }
