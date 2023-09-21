@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8, // Account for box shadow
     marginBottom: 8, // Account for box shadow
     boxShadow: buildBoxShadow(theme, 0.1, 2),
-    transition: "box-shadow 0.15s ease-in-out",
+    border: "1px solid transparent",
     "&:hover": {
       background: theme.palette.grey[50],
       border: `1px solid ${theme.palette.grey[250]}`
