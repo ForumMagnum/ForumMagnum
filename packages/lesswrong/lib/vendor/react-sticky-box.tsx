@@ -2,6 +2,7 @@
  * This file is vendored from React Sticky Box
  * Github: https://github.com/codecks-io/react-sticky-box
  * NPM: https://www.npmjs.com/package/react-sticky-box
+ * ISC License: https://github.com/codecks-io/react-sticky-box/blob/master/LICENSE
  *
  * The reason for vendoring is that the release has some ESM/CJS oddities. It
  * actually works fine when using the server normally, but it completely breaks
