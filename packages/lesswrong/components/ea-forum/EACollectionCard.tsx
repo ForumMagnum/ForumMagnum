@@ -47,12 +47,13 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
   const {title, author, imageId} = getCardDetails(collection);
   const href = collectionGetPageUrl(collection);
 
-  const {EASequenceOrCollectionCard} = Components;
+  const {EASequenceOrCollectionCard, CollectionsHoverOver} = Components;
   return (
     <AnalyticsContext documentSlug={collection.slug}>
       <EASequenceOrCollectionCard
         title={title}
         author={author}
+        hoverOver={<CollectionsHoverOver collection={collection} />}
         postCount={collection.postsCount}
         readCount={collection.readPostsCount}
         imageId={imageId}

@@ -2079,6 +2079,7 @@ interface CollectionsBestOfFragment { // fragment on Collections
   readonly noindex: boolean,
   readonly postsCount: number,
   readonly readPostsCount: number,
+  readonly contents: RevisionDisplay|null,
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
