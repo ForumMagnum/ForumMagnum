@@ -12,11 +12,11 @@ import NoSSR from "react-no-ssr";
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[55],
-    padding: 80,
+    padding: "80px 0",
     marginTop: 80,
   },
   section: {
-    maxWidth: SECTION_WIDTH,
+    maxWidth: 720,//SECTION_WIDTH,
     margin: "0 auto 60px",
   },
   sectionHeading: {
@@ -153,12 +153,17 @@ const PostBottomRecommendations = ({
   post,
   classes,
 }: PostBottomRecommendationsProps) => {
+  const {PostsLoading, ToCColumn} = Components;
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <NoSSR onSSR={<Components.PostsLoading />}>
-          <RecommendationContent post={post} classes={classes} />
-        </NoSSR>
+        <ToCColumn tableOfContents={<div />}>
+          <div>
+          <NoSSR onSSR={<PostsLoading />}>
+            <RecommendationContent post={post} classes={classes} />
+          </NoSSR>
+          </div>
+        </ToCColumn>
       </div>
     </AnalyticsContext>
   );

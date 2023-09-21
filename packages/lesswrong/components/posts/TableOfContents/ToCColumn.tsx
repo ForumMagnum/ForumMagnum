@@ -10,6 +10,7 @@ import classNames from 'classnames';
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
+export const MAX_CONTENT_WIDTH = 720;
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -46,7 +47,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   sideCommentsActive: {
     gridTemplateColumns: `
-      1fr minmax(200px,270px) minmax(10px,25px) minmax(min-content,720px) minmax(10px, 25px) min-content 350px 1fr !important
+      1fr minmax(200px,270px) minmax(10px,25px) minmax(min-content,${MAX_CONTENT_WIDTH}px) minmax(10px, 25px) min-content 350px 1fr !important
     `
   },
   toc: {
