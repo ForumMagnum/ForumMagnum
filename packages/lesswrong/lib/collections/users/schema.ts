@@ -16,6 +16,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
+import { UsersRepo } from '../../../server/repos';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:

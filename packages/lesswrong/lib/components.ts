@@ -556,6 +556,7 @@ importComponent("UserCommentsReplies", () => require('../components/comments/Use
 importComponent("DebateResponseBlock", () => require('../components/comments/DebateResponseBlock'));
 importComponent("DebateResponse", () => require('../components/comments/DebateResponse'));
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
+importComponent("MatchmakingPage", () => require('../components/seasonal/MatchmakingPage'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 

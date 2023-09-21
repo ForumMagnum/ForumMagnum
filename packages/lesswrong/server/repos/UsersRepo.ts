@@ -217,7 +217,25 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT 1;
     `);
   }
-  
+
+  async getUpvotedUsers(userId: string): Promise<DbUser[]> {
+    // get all users that this userId has upvoted in the past year
+    const users = this.any(`
+      SELECT "authorIds", SUM(power), u."displayName"
+      FROM "Votes" v
+      JOIN "Users" u ON v."authorIds"[1] = u._id
+      WHERE 
+        "userId" = $1
+        AND "votedAt" > NOW() - INTERVAL '1 year'
+        AND "power" > 0
+        AND v."authorIds"[1] != u._id
+      GROUP BY "authorIds", u."displayName"
+      ORDER BY SUM(power) desc
+      LIMIT 100
+    `, [userId]);
+    return users
+  }
+
   async getRandomActiveAuthor(): Promise<DbUser> {
     return this.one(`
       SELECT u.*

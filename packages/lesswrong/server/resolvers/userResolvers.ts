@@ -370,6 +370,12 @@ addGraphQLResolvers({
       results['alignment'] = getAlignment(results)
       return results
     },
+    async GetUserMatchmakingRecommendations(root: void, {userId}: {userId: string}, context: ResolverContext) {
+      const usersRepo = new UsersRepo();
+      const upvotedUsers = await usersRepo.getUpvotedUsers(userId);
+      return upvotedUsers;
+    },
+      
     async GetRandomUser(root: void, {userIsAuthor}: {userIsAuthor: 'optional'|'required'}, context: ResolverContext) {
       const { currentUser } = context
       if (!userIsAdminOrMod(currentUser)) {

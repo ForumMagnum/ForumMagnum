@@ -545,3 +545,12 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+// registerFragment(`
+//   fragment UsersCoauthorMatchmaking on User {
+//     ...UsersMinimumInfo
+//     coauthorMatchmaking {
+//       ...UsersMinimumInfo
+//     }
+//   }
+// `)
