@@ -649,6 +649,7 @@ interface DbPost extends DbObject {
   hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
+  forceAllowType3Audio: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -1034,6 +1035,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface TypingIndicatorsCollection extends CollectionBase<DbTypingIndicator, "TypingIndicators"> {
+}
+
+interface DbTypingIndicator extends DbObject {
+  __collectionName?: "TypingIndicators"
+  userId: string
+  documentId: string
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
@@ -1518,6 +1531,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1573,6 +1587,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit

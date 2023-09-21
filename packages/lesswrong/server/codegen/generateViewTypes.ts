@@ -32,7 +32,7 @@ export function generateViewTypes(): string {
     const collectionName = collection.collectionName;
     
     // Does this collection have any views?
-    if (Object.keys(collection.views).length > 0) {
+    if (Object.keys(collection.views).length > 0 || collection.defaultView) {
       sb.push(`  ${collectionName}: ${collectionName}ViewTerms\n`);
     } else {
       sb.push(`  ${collectionName}: ViewTermsBase\n`);

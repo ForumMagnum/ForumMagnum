@@ -66,7 +66,8 @@ class ElasticQuery {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
-      expr = `saturation(Math.max(1, doc['${field}'].value), ${scoring.pivot}L)`;
+      const min = scoring.min ?? 1;
+      expr = `saturation(Math.max(${min}, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
       const start = SEARCH_ORIGIN_DATE;
@@ -129,7 +130,7 @@ class ElasticQuery {
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
-        minimum_should_match: "50%",
+        minimum_should_match: "75%",
         operator: "or",
       },
     };
@@ -157,14 +158,14 @@ class ElasticQuery {
                 fields,
                 type: "phrase",
                 slop: 2,
-                boost: 2,
+                boost: 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: 20,
+                  boost: 1000,
                 },
               },
             },
@@ -340,6 +341,13 @@ class ElasticQuery {
       type: "plain",
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
+
+      // This is the default value for index.highlight.max_analyzed_offset
+      // which we haven't customized. If this wasn't set here or was set
+      // larger than the corresponding setting on the index, then search
+      // would fail entirely when results contain a poss where the
+      // plain-text version of the body is larger than this.
+      max_analyzed_offset: 1000000,
     };
     return {
       index,

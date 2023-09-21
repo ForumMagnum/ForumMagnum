@@ -1,9 +1,11 @@
+import Messages from '../../lib/collections/messages/collection';
 import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import { FLAGGED_FOR_N_DMS, MAX_ALLOWED_CONTACTS_BEFORE_BLOCK, MAX_ALLOWED_CONTACTS_BEFORE_FLAG } from '../../lib/collections/moderatorActions/schema';
 import { loggerConstructor } from '../../lib/utils/logging';
 import Users from '../../lib/vulcan-users';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { createMutator, updateMutator } from '../vulcan-lib';
+import { getAdminTeamAccount } from './commentCallbacks';
 
 /**
  * Before a user has been fully approved, keep track of the number of users
@@ -93,3 +95,31 @@ getCollectionHooks("Conversations").createBefore.add(async function flagUserOnMa
 getCollectionHooks("Conversations").updateBefore.add(async function flagUserOnManyDMsCreate(data, properties) {
   return flagOrBlockUserOnManyDMs({currentConversation: data, oldConversation: properties.oldDocument, currentUser: properties.currentUser, context: properties.context});
 });
+
+getCollectionHooks("Conversations").updateAsync.add(async function leavingNotication({newDocument, oldDocument}) {
+  const usersWhoLeft = (oldDocument?.participantIds ?? [])
+    .filter(id => !newDocument.participantIds?.includes(id))
+  if (usersWhoLeft.length === 0) return;
+  const adminAccount = await getAdminTeamAccount();
+  for (const userId of usersWhoLeft) {
+    const leavingUser = (await Users.findOne(userId));
+    await createMutator({
+      collection: Messages,
+      document: {
+        userId: adminAccount._id,
+        contents: {
+          originalContents: {
+            type: "html",
+            data: `<p>
+              User ${leavingUser?.displayName} left the conversation.
+            </p>`,
+          },
+        },
+        conversationId: newDocument._id,
+        noEmail: true,
+      },
+      currentUser: adminAccount,
+      validate: false,
+    })
+  }
+})

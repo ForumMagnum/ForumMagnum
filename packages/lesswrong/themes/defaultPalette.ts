@@ -216,8 +216,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#1b5e20",
     },
     currentEventHeader: {
-      start: "#F6A958",
-      stop: "#D87D3C",
+      start: "#6987B8",
+      stop: "#536CA4",
     },
   },
   link: {
@@ -523,5 +523,5 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   warning: {
     main: "#ff9800",
-  }
+  },
 })
