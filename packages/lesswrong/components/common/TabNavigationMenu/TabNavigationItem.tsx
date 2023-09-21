@@ -24,6 +24,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontWeight: 600,
     },
   },
+  menuItem: {
+    width: "fit-content",
+  },
   navButton: {
     '&:hover': {
       opacity: isEAForum ? 1 : 0.6,
@@ -130,7 +133,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       // entire sidebar fail on iOS. True story.
       to={tab.link}
       disableGutters
-      rootClass={classNames({
+      rootClass={classNames(classes.menuItem, {
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,

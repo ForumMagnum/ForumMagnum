@@ -75,6 +75,7 @@ export type PostsItemConfig = {
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
+  className?: string,
 }
 
 export type UsePostsItem = ReturnType<typeof usePostsItem>;
@@ -111,6 +112,7 @@ export const usePostsItem = ({
   showMostValuableCheckbox = false,
   showKarma = true,
   isVoteable = false,
+  className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
   const [readComments, setReadComments] = useState(false);
@@ -208,5 +210,6 @@ export const usePostsItem = ({
     strikethroughTitle,
     bookmark,
     isVoteable,
+    className,
   };
 }

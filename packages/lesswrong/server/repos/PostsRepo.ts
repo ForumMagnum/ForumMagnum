@@ -214,6 +214,33 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return results.map(({_id}) => _id);
   }
 
+  getDigestHighlights({
+    maxAgeInDays = 31,
+    numPostsPerDigest = 2,
+    limit = 10,
+  }): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM (
+        SELECT
+          p."_id",
+          d."num" AS "digestNum",
+          ROW_NUMBER() OVER(
+            PARTITION BY dp."digestId" ORDER BY p."baseScore" DESC
+          ) AS "rowNum"
+        FROM "Posts" p
+        JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+        JOIN "Digests" d ON
+          dp."digestId" = d."_id" AND
+          FLOOR(EXTRACT(EPOCH FROM NOW() - d."startDate") / 86400) <= $1
+      ) q
+      JOIN "Posts" p ON q."_id" = p."_id"
+      WHERE q."rowNum" <= $2
+      ORDER BY q."digestNum" DESC, q."rowNum" ASC
+      LIMIT $3
+    `, [maxAgeInDays, numPostsPerDigest, limit]);
+  }
+
   private getSearchDocumentQuery(): string {
     return `
       SELECT
