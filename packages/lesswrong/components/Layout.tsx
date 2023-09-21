@@ -24,7 +24,7 @@ import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
-import StickyBox from "react-sticky-box";
+import StickyBox from '../lib/vendor/react-sticky-box';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -287,7 +287,7 @@ const Layout = ({currentUser, children, classes}: {
     const StickyWrapper: FC<{children: ReactNode}> = ({children}) =>
       eaHomeGridLayout
         ? (
-          <StickyBox offsetTop={0} offsetBottom={20}>
+          <StickyBox offsetTop={20} offsetBottom={20}>
             {children}
           </StickyBox>
         )
