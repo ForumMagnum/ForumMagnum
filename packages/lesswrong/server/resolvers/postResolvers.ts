@@ -258,5 +258,4 @@ createPaginatedResolver({
     context: ResolverContext,
     limit: number,
   ): Promise<DbPost[]> => context.repos.posts.getDigestHighlights({limit}),
-  cacheMaxAgeMs: 3600000, // 1 hour
 });
