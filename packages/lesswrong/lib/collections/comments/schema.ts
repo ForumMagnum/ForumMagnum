@@ -691,7 +691,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
+    hidden: false,
     // hidden: ({ currentUser, formProps }: { currentUser: UsersCurrent | null, formProps?: { post?: PostsDetails } }) => {
     //   if (!currentUser || !formProps?.post?.debate) return true;
 

@@ -24,6 +24,11 @@ import { VotingProps } from '../../votes/votingProps';
 import {useMulti} from '../../../lib/crud/withMulti';
 import {isValidCommentView} from '../../../lib/commentViewOptions';
 import {useSubscribedLocation} from '../../../lib/routeUtil';
+import {useHover} from '../../common/withHover';
+import {trustLevel1Group} from '../../../lib/permissions';
+import Button from '@material-ui/core/Button';
+import {UseSingleProps, useSingle} from '../../../lib/crud/withSingle';
+
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -181,6 +186,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3
   },
   lwReactStyling: lwReactStyles(theme),
+  debateBodySidebar: {
+    width: 500,
+    backgroundColor: theme.palette.background.default,
+    marginLeft: 50,
+    padding: 10,  
+    border: theme.palette.border.normal,
+    borderRadius: theme.borderRadius.small,
+    maxHeight: "80vh",
+    overflowY: "hidden",
+    overflowX: "hidden",
+    "&:hover": {
+      overflowY: "scroll",
+    },
+    "@media (max-width: 600px)": {
+      display: "none"
+    },
+  },
+  asideButton: {
+    padding: 5,
+  }
 });
 
 /**
@@ -302,14 +327,30 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
     // const { ReactionIcon } = Components
     const commentAuthor = comment.user?.displayName ?? "the comment author"
+
+    const currentUserCommentedUpthread = (comment: CommentsList|CommentsListWithParentMetadata): boolean => {
+      // Base case: if the comment is null or undefined, return false
+      if (!comment) {
+        return false;
+      }
+    
+      // If the current user is the author of this comment, return true
+      if (currentUser && comment.user && currentUser._id === comment.user._id) {
+        return true;
+      }
+    
+      // Recursively check the parent comment
+      return currentUserCommentedUpthread(comment); // .parentComment);
+    };
+    
     const chatTooltipContent = <div>
-      <strong>Create a chat under this comment</strong>
+      <strong>Create an aside about this comment</strong>
       <li>Only you and {commentAuthor} can write in the chat.</li>
       <li>There's no voting</li>
       <li>There are typing indicators</li>
       <li>Norms are a bit more informal and fast-paced</li>
-      <li>Chats are public</li>
-      <p>Think of it more like having a 1-1 with {commentAuthor} (rather than "broadcasting" on a stage to the LessWrong audience) </p>
+      <li>Asides are collapsed for other users by default, but anyone can open them</li>
+      <p>Think of it more like having a sidechannel 1-1 with {commentAuthor} (rather than "broadcasting" on a stage to the LessWrong audience) </p>
     </div>;
 
     return (
@@ -326,9 +367,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             <LWTooltip title={chatTooltipContent}>
               {(
-                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => {setIsChatentry(true); showReply(event)} }>
+                <a className={classNames("comments-item-reply-link", classes.replyLink, classes.asideButton)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
                   {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
-                  Chat
+                  { asideAnchorEl ? "Cancel" : "Aside" }
                 </a>
               )}
             </LWTooltip>
@@ -373,7 +414,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay, DebateBody
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay, DebateBody, LWPopper
   } = Components
   
   const votingSystemName = comment.votingSystem || "default";
@@ -440,96 +481,143 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   //const showChat = true // if parent has matching commentId to chatEntry
 
+  // If there are any chatResponses in that array, then set asideConversant to the display name of the first one who has a different name than the author of the current comment
+  const asideConversant = chatResponses.find(response => response.user?.displayName !== comment.user?.displayName)?.user?.displayName;
+
+
   
+  const [asideAnchorEl, setAsideAnchorEl] = useState(null);
+
+  const togglePopper = (event) => {
+    if (asideAnchorEl) {
+      setAsideAnchorEl(null);
+    } else {
+      setAsideAnchorEl(event.currentTarget);
+    }
+  }
+
+  const fragmentName = 'PostsWithNavigationAndRevision' 
+  const documentId = post?._id
+
+  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
+    collectionName: "Posts",
+    fragmentName,
+    documentId,
+  };
+
+  const { document: debateBodyPost, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+
 
   return (
-    <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
-      <div className={classNames(
-        classes.root,
-        "recent-comments-node",
-        {
-          [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          [classes.sideComment]: treeOptions.isSideComment,
-          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
-        },
-      )}>
-        { comment.parentCommentId && showParentState && (
-          <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
-              post={post} tag={tag}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={showParentDefault}
-              key={comment.parentCommentId}
-            />
-          </div> 
-        )}
-        
-        <div className={classes.postTitleRow}>
-          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
-          </div>}
-          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-                {comment.post.draft && "[Draft] "}
-                {comment.post.title}
-              </Link>
-            </LWTooltip>}
-          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
-            {startCase(comment.tag.name)}
-          </Link>}
-        </div>
-        <div className={classNames(classes.body, classes.lwReactStyling)}>
-          {showCommentTitle && <div className={classes.title}>
-            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
-              <CoreTagIcon tag={tag} />
-            </span> : <CommentDiscussionIcon
-              comment={comment}
-            />}
-            {comment.title}
-          </div>}
-          <CommentsItemMeta
-            {...{
-              treeOptions,
-              comment,
-              showCommentTitle,
-              isParentComment,
-              parentCommentId,
-              showParentState,
-              toggleShowParent,
-              scrollIntoView,
-              parentAnswerId,
-              setSingleLine,
-              collapsed,
-              toggleCollapse,
-              setShowEdit,
-            }}
-          />
-          {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
-            Pinned by {comment.promotedByUser.displayName}
-          </div>}
-          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
-          {renderBodyOrEditor(voteProps)}
-          {post && chatResponses.length > 0 && <DebateBody
-            debateResponses={chatResponseBlocks}
-            chatCommentId={chatCommentId}
-            post={post}
-          />}
-          {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
-        </div>
-        {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
-          <div className={classes.updateVoteMessage}>
-            <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
-              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
-              <LWHelpIcon/>
-            </LWTooltip>
+    <div>
+      <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+        <div className={classNames(
+          classes.root,
+          "recent-comments-node",
+          {
+            [classes.deleted]: comment.deleted && !comment.deletedPublic,
+            [classes.sideComment]: treeOptions.isSideComment,
+            [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
+          },
+        )}>
+          { comment.parentCommentId && showParentState && (
+            <div className={classes.firstParentComment}>
+              <Components.ParentCommentSingle
+                post={post} tag={tag}
+                documentId={comment.parentCommentId}
+                nestingLevel={nestingLevel - 1}
+                truncated={showParentDefault}
+                key={comment.parentCommentId}
+              />
+            </div> 
+          )}
+          
+          <div className={classes.postTitleRow}>
+            {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
+              <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
+            </div>}
+            {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
+            {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+                <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                  {comment.post.draft && "[Draft] "}
+                  {comment.post.title}
+                </Link>
+              </LWTooltip>}
+            {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+              {startCase(comment.tag.name)}
+            </Link>}
           </div>
-          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
-        </div>}
-        { showReplyState && !collapsed && renderReply(isChatentry) }
-      </div>
-    </AnalyticsContext>
+          <div className={classNames(classes.body, classes.lwReactStyling)}>
+            {showCommentTitle && <div className={classes.title}>
+              {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+                <CoreTagIcon tag={tag} />
+              </span> : <CommentDiscussionIcon
+                comment={comment}
+              />}
+              {comment.title}
+            </div>}
+            <CommentsItemMeta
+              {...{
+                treeOptions,
+                comment,
+                showCommentTitle,
+                isParentComment,
+                parentCommentId,
+                showParentState,
+                toggleShowParent,
+                scrollIntoView,
+                parentAnswerId,
+                setSingleLine,
+                collapsed,
+                toggleCollapse,
+                setShowEdit,
+              }}
+            />
+            {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
+              Pinned by {comment.promotedByUser.displayName}
+            </div>}
+            {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
+            {renderBodyOrEditor(voteProps)}
+            
+            {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
+          </div>
+          {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
+            <div className={classes.updateVoteMessage}>
+              <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+                Update your {REVIEW_NAME_IN_SITU} vote for this post. 
+                <LWHelpIcon/>
+              </LWTooltip>
+            </div>
+            {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+          </div>}
+          { showReplyState && !collapsed && renderReply(isChatentry) }
+        </div>
+        <div>
+          {chatResponses.length > 0 && /* add a material UI button */ 
+            <Button variant="outlined" color="primary" onClick={(event) => togglePopper(event)} className='asideButton'>
+              { asideAnchorEl ? "Hide aside " : "See aside with " } {asideConversant} ({chatResponses.length})
+            </Button>}
+        </div>
+       
+        {post && chatResponses.length > 0 && debateBodyPost &&
+          <LWPopper
+            open={!!asideAnchorEl}
+            anchorEl={asideAnchorEl}
+            placement="right-start"
+            clickable={false}
+          >
+            <div className={classes.debateBodySidebar}>
+              <DebateBody
+                debateResponses={chatResponseBlocks}
+                chatCommentId={chatCommentId}
+                post={debateBodyPost}
+              />
+            </div>
+        </LWPopper>
+        }
+      </AnalyticsContext>
+      
+    </div>
   )
 }
 
