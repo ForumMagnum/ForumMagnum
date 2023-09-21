@@ -196,8 +196,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       FROM "Posts" p
       JOIN "DigestPosts" dp ON p."_id" = dp."postId"
       JOIN "Digests" d ON d."_id" = dp."digestId"
-      WHERE d."endDate" IS NULL
-      ORDER BY p."baseScore" DESC
+      ORDER BY d."num" DESC, p."baseScore" DESC
       LIMIT $1
     `, [limit]);
   }
