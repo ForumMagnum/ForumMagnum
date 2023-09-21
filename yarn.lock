@@ -13887,6 +13887,11 @@ react-sortable-hoc@^1.10.1:
     invariant "^2.2.4"
     prop-types "^15.5.7"
 
+react-sticky-box@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/react-sticky-box/-/react-sticky-box-2.0.4.tgz#ec5f7f890465bcc13288939044765d818f3503d3"
+  integrity sha512-EcnT4fpyyrBwyy5tsWViBTFBMsJZijDC78s2D/GlqrKuU0vsmW+jNc/Ubs1C4/HF/YmTZ90Y5GIGLQMzScQQbA==
+
 react-test-renderer@^16.13.1:
   version "16.14.0"
   resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.14.0.tgz#e98360087348e260c56d4fe2315e970480c228ae"
