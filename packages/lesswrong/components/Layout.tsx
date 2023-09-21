@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -24,6 +24,7 @@ import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
 import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
+import StickyBox from "react-sticky-box";
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -129,28 +130,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   eaHomeGrid: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar ... main rhs ..."
-      `,
-      gridTemplateColumns: `
-        min-content
-        1fr
-        min-content
-        minmax(50px, max-content)
-        1fr
-      `,
-    },
+    display: "flex",
+    alignItems: "start",
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
   },
   navSidebar: {
     gridArea: 'navSidebar'
-  },
-  rhs: {
-    gridArea: 'rhs',
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -297,6 +284,15 @@ const Layout = ({currentUser, children, classes}: {
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
     const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
 
+    const StickyWrapper: FC<{children: ReactNode}> = ({children}) =>
+      eaHomeGridLayout
+        ? (
+          <StickyBox offsetTop={0} offsetBottom={20}>
+            {children}
+          </StickyBox>
+        )
+        : <>{children}</>;
+
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
       const beforeTime = petrovBeforeTime.get()
@@ -358,11 +354,15 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isEAForum && <AdminToggle />}
-                {standaloneNavigation && <NavigationStandalone
-                  sidebarHidden={hideNavigationSidebar}
-                  unspacedGridLayout={unspacedGridLayout}
-                  className={classes.standaloneNav}
-                />}
+                {standaloneNavigation &&
+                  <StickyWrapper>
+                    <NavigationStandalone
+                      sidebarHidden={hideNavigationSidebar}
+                      unspacedGridLayout={unspacedGridLayout}
+                      className={classes.standaloneNav}
+                    />
+                  </StickyWrapper>
+                }
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -380,9 +380,11 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
-                  <EAHomeRightHandSide />
-                </div>}
+                {!renderSunshineSidebar && eaHomeGridLayout &&
+                  <StickyWrapper>
+                    <EAHomeRightHandSide />
+                  </StickyWrapper>
+                }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
                     <SunshineSidebar/>
