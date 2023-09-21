@@ -69,6 +69,7 @@ try {
   const emptyHandler = () => {};
   window.addEventListener("testPassive", emptyHandler, opts);
   window.removeEventListener("testPassive", emptyHandler, opts);
+// eslint-disable-next-line no-empty
 } catch (e) {}
 
 /*
