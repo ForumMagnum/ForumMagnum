@@ -409,7 +409,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
+    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBodyWithToc,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer
   } = Components
 
@@ -591,7 +591,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ContentStyles>}
 
         {post.debate && debateResponses && debateResponseReplies &&
-          <DebateBody
+          <DebateBodyWithToc
             debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
             post={post}
           />}

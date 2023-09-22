@@ -307,6 +307,10 @@ export const getToCforPost = async ({document, version, context}: {
   return null;
 }
 
+const getToCForDebate({comments, context}): {
+  comments: 
+}
+
 const getToCforTag = async ({document, version, context}: {
   document: DbTag,
   version: string|null,
