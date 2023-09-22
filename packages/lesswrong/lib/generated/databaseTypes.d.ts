@@ -276,6 +276,36 @@ interface DbDigest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
+}
+
+interface DbElicitQuestionPrediction extends DbObject {
+  __collectionName?: "ElicitQuestionPredictions"
+  prediction: number
+  createdAt: Date
+  notes: string | null
+  creator: {
+    id: string,
+    displayName: string,
+    isQuestionCreator: boolean,
+    sourceUserId: string,
+  }
+  sourceUrl: string
+  sourceId: string
+  binaryQuestionId: string
+}
+
+interface ElicitQuestionsCollection extends CollectionBase<DbElicitQuestion, "ElicitQuestions"> {
+}
+
+interface DbElicitQuestion extends DbObject {
+  __collectionName?: "ElicitQuestions"
+  title: string
+  notes: string
+  resolution: string
+  resolvesBy: Date
+}
+
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
 }
 
@@ -1499,6 +1529,8 @@ interface CollectionsByName {
   DebouncerEvents: DebouncerEventsCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
+  ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1555,6 +1587,8 @@ interface ObjectsByCollectionName {
   DebouncerEvents: DbDebouncerEvents
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  ElicitQuestionPredictions: DbElicitQuestionPrediction
+  ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode

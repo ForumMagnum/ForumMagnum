@@ -12,6 +12,8 @@ type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
+type ElicitQuestionPredictionsViewName = never
+type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
@@ -67,6 +69,8 @@ interface ViewTermsByCollectionName {
   DebouncerEvents: ViewTermsBase
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
+  ElicitQuestionPredictions: ViewTermsBase
+  ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms

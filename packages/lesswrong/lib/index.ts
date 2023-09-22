@@ -242,6 +242,12 @@ import './collections/sessions';
 import './collections/typingIndicators/collection';
 import './collections/typingIndicators/fragments';
 
+// elicit questions
+import './collections/elicitQuestions/collection';
+
+// elicit predictions
+import './collections/elicitQuestionPredictions/collection';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

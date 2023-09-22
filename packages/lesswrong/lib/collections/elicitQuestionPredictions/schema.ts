@@ -1,6 +1,5 @@
-import { schemaDefaultValue } from '../../collectionUtils';
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { userOwns } from '../../vulcan-users/permissions';
+import SimpleSchema from 'simpl-schema';
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils';
 
 const commonFields = (nullable: boolean) => ({
   hidden: true,
@@ -11,15 +10,22 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: SchemaType<DbUserMostValuablePost> = {
+const creatorSchema = new SimpleSchema({
+  id: { type: String },
+  displayName: { type: String },
+  isQuestionCreator: { type: Boolean },
+  sourceUserId: { type: String }
+});
+
+const schema: SchemaType<DbElicitQuestionPrediction> = {
   _id: {
     type: String,
     ...commonFields(false)
   },
-  predictionId: {
+  predictionId: resolverOnlyField({
     type: String,
-    ...commonFields(false)
-  },
+    resolver: ({ _id }) => _id,
+  }),
   prediction: {
     type: Number,
     ...commonFields(false)
@@ -30,10 +36,10 @@ const schema: SchemaType<DbUserMostValuablePost> = {
   },
   notes: {
     type: String,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   creator: {
-    type: ElicitUser, // TODO
+    type: creatorSchema,
     ...commonFields(false)
   },
   sourceUrl: {
@@ -45,7 +51,13 @@ const schema: SchemaType<DbUserMostValuablePost> = {
     ...commonFields(false)
   },
   binaryQuestionId: {
-    type: String,
+    ...foreignKeyField({
+      type: 'ElicitQuestion',
+      collectionName: 'ElicitQuestions',
+      idFieldName: 'binaryQuestionId',
+      resolverName: 'question',
+      nullable: false
+    }),
     ...commonFields(false)
   },
 };
