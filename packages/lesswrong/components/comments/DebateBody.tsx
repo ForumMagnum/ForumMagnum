@@ -70,13 +70,15 @@ export const DebateBody = ({ debateResponses, post, classes, chatCommentId }: {
     </div>
     <CommentsNewForm
       post={post}
-      replyFormStyle='minimalist'
+      // replyFormStyle='minimalist'
       enableGuidelines={false}
       prefilledProps={{
-        ...(isDialogueParticipant(currentUser?._id, post) ? { 
-          debateResponse: true ,
-          title: chatCommentId // TODO: figure out what to do here instead of title.... 
-        } : {})
+        // ...(isDialogueParticipant(currentUser?._id, post) ? { 
+        //   debateResponse: true ,
+        //   title: chatCommentId // TODO: figure out what to do here instead of title.... 
+        // } : {})
+        debateResponse: true ,
+        title: chatCommentId // TODO: figure out what to do here instead of title.... 
       }}
       type="comment"
       {...(isDialogueParticipant(currentUser?._id, post) ? { formProps: { post } } : {})}
