@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import classNames from 'classnames';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
 import domAnchorTextQuote from 'dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, wrapRangeWithSpan } from '../../lib/utils/rawDom';
-
-const styles = (theme: ThemeType): JssStyles => ({
-});
 
 interface ExternalProps {
   /**
@@ -136,7 +132,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       // an <a> tag into two).
       this.replaceSubstrings(element);
 
-      this.markScrollableLaTeX(element);
+      this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
       this.markHoverableLinks(element);
       this.markElicitBlocks(element);
@@ -182,7 +178,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     return (<React.Fragment>
       <div
         key={this.state.renderIndex}
-        className={classNames(this.props.classes.root, this.props.className)}
+        className={this.props.className}
         ref={this.bodyRef}
         dangerouslySetInnerHTML={{__html: html}}
       />
@@ -230,14 +226,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     return ret;
   }
   
-  // Find LaTeX elements inside the body, check whether they're wide enough to
-  // need horizontal scroll, and if so, give them
-  // `classes.hasHorizontalScroll`. (They will have a scrollbar regardless;
-  // this gives them additional styling which makes the scrollability
-  // obvious, if your browser hides scrollbars like Mac does and most
-  // mobile browsers do).
+  // Find elements that are too wide, and wrap them in HorizScrollBlock.
   // This is client-only because it requires measuring widths.
-  markScrollableLaTeX = (element: HTMLElement) => {
+  markScrollableBlocks = (element: HTMLElement) => {
     // Iterate through top-level (block) elements, checking their width. If any
     // of them overflow the container, they'll get replaced by a
     // ScrollableBlock.
@@ -428,7 +419,6 @@ const addNofollowToHTML = (html: string): string => {
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  styles,
   // This component can't have HoCs because it's used with a ref, to call
   // methods on it from afar, and many HoCs won't pass the ref through.
 });
