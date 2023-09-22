@@ -611,7 +611,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             </Button>}
         </div>
        
-        {post && chatResponses.length > 0 && debateBodyPost &&
+        {post && debateBodyPost &&
           <LWPopper
             open={!!asideAnchorEl}
             anchorEl={asideAnchorEl}
