@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarToggle: {
     position: 'absolute',
-    top: EA_FORUM_HEADER_HEIGHT + 30,
+    top: 30,
     right: 0,
     height: 36,
     width: 30,
