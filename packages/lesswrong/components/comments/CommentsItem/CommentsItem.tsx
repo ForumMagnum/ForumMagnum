@@ -28,6 +28,7 @@ import {useHover} from '../../common/withHover';
 import {trustLevel1Group} from '../../../lib/permissions';
 import Button from '@material-ui/core/Button';
 import {UseSingleProps, useSingle} from '../../../lib/crud/withSingle';
+import {fade} from '@material-ui/core/styles/colorManipulator';
 
 
 export const highlightSelectorClassName = "highlighted-substring";
@@ -189,7 +190,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   debateBodySidebar: {
     width: 500,
     backgroundColor: theme.palette.background.default,
-    marginLeft: 50,
+    marginLeft: 650,
     padding: 10,  
     border: theme.palette.border.normal,
     borderRadius: theme.borderRadius.small,
@@ -204,7 +205,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   asideButton: {
-    padding: 5,
+    padding: 10,
+    paddingTop: 4,
+    paddingBottom: 4,
+    margin: 8,
+    textTransform: "none",
+    borderRadius: 2,
+    color: theme.palette.text.alwaysBlack,
+    borderColor: fade(theme.palette.text.alwaysBlack, 0.16)
   }
 });
 
@@ -367,7 +375,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             <LWTooltip title={chatTooltipContent}>
               {(
-                <a className={classNames("comments-item-reply-link", classes.replyLink, classes.asideButton)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
+                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
                   {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
                   { asideAnchorEl ? "Cancel" : "Aside" }
                 </a>
@@ -407,6 +415,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           type="reply"
           enableGuidelines={enableGuidelines}
           replyFormStyle={treeOptions.replyFormStyle}
+          removeFields={['af', 'debateResponse']}
         />
       </div>
     )
@@ -594,8 +603,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>
         <div>
           {chatResponses.length > 0 && /* add a material UI button */ 
-            <Button variant="outlined" color="primary" onClick={(event) => togglePopper(event)} className='asideButton'>
-              { asideAnchorEl ? "Hide aside " : "See aside with " } {asideConversant} ({chatResponses.length})
+            <Button variant="outlined" color="secondary" onClick={(event) => togglePopper(event)} className={classes.asideButton}>
+              <span style={{ color: 'grey' }}>
+                { asideAnchorEl ? "[-]" : "[+]" }
+              </span>
+              { asideAnchorEl ? <> Hide aside </> : <> Aside with </> } {asideConversant} ({chatResponses.length})
             </Button>}
         </div>
        
@@ -604,7 +616,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             open={!!asideAnchorEl}
             anchorEl={asideAnchorEl}
             placement="right-start"
-            clickable={false}
+            clickable={true}
           >
             <div className={classes.debateBodySidebar}>
               <DebateBody

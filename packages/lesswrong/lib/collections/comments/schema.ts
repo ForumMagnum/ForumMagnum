@@ -144,7 +144,7 @@ const schema: SchemaType<DbComment> = {
     canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canUpdate: ['admins'],
     canCreate: ['members'],
-    // hidden: true,
+    hidden: true,
   },
   userIP: {
     type: String,
