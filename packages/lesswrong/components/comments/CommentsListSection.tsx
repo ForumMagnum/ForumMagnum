@@ -109,10 +109,9 @@ const CommentsListSection = ({
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
-
   const {
-    LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
-    CommentsNewForm, QuickTakesEntry,
+    LWTooltip, CommentThreads, PostsPageCrosspostComments, MetaInfo, Row,
+    CommentsNewForm, QuickTakesEntry
   } = Components;
 
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
@@ -255,7 +254,7 @@ const CommentsListSection = ({
         <Components.CantCommentExplanation post={post}/>
       }
       { totalComments ? renderTitleComponent() : null }
-      <CommentsList
+      <CommentThreads
         treeOptions={{
           highlightDate: highlightDate,
           post: post,

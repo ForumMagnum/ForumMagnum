@@ -1301,7 +1301,8 @@ interface PostsRevisionsList { // fragment on Posts
 }
 
 interface PostsRecentDiscussion extends PostsList { // fragment on Posts
-  readonly recentComments: Array<CommentsList>,
+  readonly topLevelCommentCount: number,
+  readonly recentComments: Array<RecentDiscussionCommentsList>,
 }
 
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
@@ -1490,6 +1491,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number,
+}
+
+interface RecentDiscussionCommentsList extends CommentsList { // fragment on Comments
+  readonly ancestorComments: Array<CommentsList>,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -3300,6 +3305,7 @@ interface FragmentTypes {
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
   CommentsList: CommentsList
+  RecentDiscussionCommentsList: RecentDiscussionCommentsList
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
@@ -3505,6 +3511,7 @@ interface CollectionNamesByFragmentName {
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
   CommentsList: "Comments"
+  RecentDiscussionCommentsList: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
   CommentEdit: "Comments"

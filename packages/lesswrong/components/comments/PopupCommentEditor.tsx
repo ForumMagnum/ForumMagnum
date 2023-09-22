@@ -81,7 +81,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
     </div>
     <div className={classes.editor}>
       <CommentsNewForm
-        enableGuidelines={false}
+        disableGuidelines={true}
         padding={false}
         successCallback={onClose}
         type="comment"

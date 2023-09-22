@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { ApolloClient, FetchPolicy, WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
 import { useState } from 'react';
@@ -237,7 +237,14 @@ export interface UseMultiOptions<
   ssr?: boolean,
 }
 
-export type LoadMoreCallback = (limitOverride?: number) => void
+/**
+ * Function passed to a LoadMore, when it's clicked. Can either return
+ * void/undefined, in which case nothing special is done with loading-state
+ * indicators, or can return a Promise<void>, in which case the LoadMore
+ * component displays a loading state (regardless of the `loading` prop) until
+ * the promise is resolved.
+ */
+export type LoadMoreCallback = (limitOverride?: number) => void|Promise<void>
 
 export type LoadMoreProps = {
   loadMore: LoadMoreCallback
@@ -424,3 +431,55 @@ export function useMulti<
     limit: effectiveLimit,
   };
 }
+
+/**
+ * Load a list of documents using a view, callback-style. Should only be called
+ * from event handlers and useEffect; calling this from directly inside a render
+ * function will not work. In the common case where a React component is loading
+ * data based on its props, you should use useMulti instead.
+ *
+ * Beware: While the signature of this function is straightforward, the
+ * circumstances in which you would actually have to use it are likely to
+ * involve tricky concurrency issues.
+ *
+ * Returns the list of results, or throws an exception if there's an error such
+ * as a network error. The number of results will be at most the number given as
+ * `limit`, but may be less if there are fewer results than that available, or
+ * if something was removed from the results list by collection-permissions
+ * filtering.
+ *
+ * TODO: Check that the above about error handling is actually true.
+ */
+export const loadMulti = async <
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
+>({terms, limit, client, fragmentName, collectionName, fetchPolicy}: {
+  terms: ViewTermsByCollectionName[CollectionName],
+  limit: number,
+  client: ApolloClient<any>,
+  fragmentName: FragmentTypeName,
+  collectionName: CollectionNamesByFragmentName[FragmentTypeName],
+  fetchPolicy?: FetchPolicy,
+}): Promise<Array<FragmentTypes[FragmentTypeName]>> => {
+  const collection = getCollection(collectionName);
+  const typeName = collection.typeName;
+  const resolverName = camelCaseify(pluralize(typeName));
+  const fragment = getFragment(fragmentName);
+  const query = gql`
+    ${multiClientTemplate({ typeName, fragmentName, extraVariablesString: "" })}
+    ${fragment}
+  `;
+  const queryResult = await client.query({
+    query,
+    fetchPolicy,
+    variables: {
+      input: {
+        terms: {...terms, limit},
+      }
+    },
+  });
+  
+  const result = queryResult?.data?.[resolverName]?.results;
+  return result;
+}
+

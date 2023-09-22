@@ -1,11 +1,11 @@
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import { useUpdateComment } from '../hooks/useUpdateComment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentSuggestForAlignment, commentUnSuggestForAlignment } from '../../lib/alignment-forum/comments/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
@@ -22,47 +22,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-interface ExternalProps {
+const AFSuggestCommentsItem = ({comment, classes}: {
   comment: SuggestAlignmentComment,
-}
-interface AFSuggestCommentsItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
-  updateComment: WithUpdateFunction<CommentsCollection>,
-}
+  classes: ClassesType,
+}) => {
+  const currentUser = useCurrentUser();
+  const updateComment = useUpdateComment("SuggestAlignmentComment");
 
-
-
-class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
-
-  handleMoveToAlignment = async () => {
-    const { currentUser, comment, updateComment } = this.props
-    await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
-        afDate: new Date(),
-        af: true,
-      },
+  const handleMoveToAlignment = async () => {
+    await updateComment(comment._id, {
+      reviewForAlignmentUserId: currentUser!._id,
+      afDate: new Date(),
+      af: true,
     })
   }
 
-  handleDisregardForAlignment = () => {
-    const { currentUser, comment, updateComment } = this.props
-    void updateComment({
-      selector: { _id: comment._id},
-      data: {
-        reviewForAlignmentUserId: currentUser!._id,
-      }
+  const handleDisregardForAlignment = () => {
+    void updateComment(comment._id, {
+      reviewForAlignmentUserId: currentUser!._id,
     })
   }
 
-  render () {
-    const { classes, comment, currentUser, hover, anchorEl, updateComment } = this.props
-    if (!currentUser) return null;
+  const { hover, anchorEl, eventHandlers } = useHover();
+  if (!currentUser) return null;
 
-    const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
-    const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
+  const userHasVoted = comment.suggestForAlignmentUserIds && comment.suggestForAlignmentUserIds.includes(currentUser._id)
+  const userHasSelfSuggested = comment.suggestForAlignmentUsers && comment.suggestForAlignmentUsers.map(user=>user._id).includes(comment.userId)
 
-    return (
+  return <span {...eventHandlers}>
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Components.Typography variant="body2">
@@ -92,29 +79,20 @@ class AFSuggestCommentsItem extends Component<AFSuggestCommentsItemProps> {
               <PlusOneIcon/>
             </Components.SidebarAction>
           }
-          <Components.SidebarAction title="Move to Alignment" onClick={this.handleMoveToAlignment}>
+          <Components.SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
             <Components.OmegaIcon/>
           </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={this.handleDisregardForAlignment}>
+          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
             <ClearIcon/>
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>
-    )
-  }
+  </span>
 }
 
-const AFSuggestCommentsItemComponent = registerComponent<ExternalProps>('AFSuggestCommentsItem', AFSuggestCommentsItem, {
+const AFSuggestCommentsItemComponent = registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItem, {
   styles,
-  hocs: [
-    withUpdate({
-      collectionName: "Comments",
-      fragmentName: 'SuggestAlignmentComment',
-    }),
-    withUser,
-    withHover(),
-    withErrorBoundary
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

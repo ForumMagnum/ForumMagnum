@@ -212,6 +212,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const qualitativeScoreDisplay = qualitativeScore ? getCostData({costTotal})[qualitativeScore].value : "";
   // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
+  const hasUnreadComments = (markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt;
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
@@ -239,10 +240,9 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
         </div>}
         <div className={classes.commentsCount}>
           <PostsItemComments
-            small={false}
+            size="large"
             commentCount={postGetCommentCount(post)}
-            unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
-            newPromotedComments={false}
+            color={hasUnreadComments ? "unread" : "noUnread"}
           />
         </div>
         {reviewPhase === "NOMINATIONS" && <PostsItem2MetaInfo className={classes.count}>

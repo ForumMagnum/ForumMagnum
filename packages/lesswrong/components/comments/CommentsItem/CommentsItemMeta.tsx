@@ -137,7 +137,6 @@ export const CommentsItemMeta = ({
   toggleShowParent,
   scrollIntoView,
   parentAnswerId,
-  setSingleLine,
   collapsed,
   toggleCollapse,
   setShowEdit,
@@ -152,7 +151,6 @@ export const CommentsItemMeta = ({
   toggleShowParent: () => void,
   scrollIntoView?: () => void,
   parentAnswerId?: string,
-  setSingleLine?: (singleLine: boolean) => void,
   collapsed?: boolean,
   toggleCollapse?: () => void,
   setShowEdit: () => void,
@@ -238,7 +236,7 @@ export const CommentsItemMeta = ({
           onClick={toggleShowParent}
         />
       }
-      {(showCollapseButtons || collapsed) &&
+      {(showCollapseButtons || singleLineCollapse || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
           {isEAForum
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
@@ -249,11 +247,6 @@ export const CommentsItemMeta = ({
           }
         </a>
       }
-      {singleLineCollapse && <a className={classes.collapse} onClick={() =>
-        setSingleLine && setSingleLine(true)
-      }>
-        [<span>{collapsed ? "+" : "-"}</span>]
-      </a>}
       <CommentUserName
         comment={comment}
         className={classes.username}

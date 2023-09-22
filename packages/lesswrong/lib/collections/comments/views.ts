@@ -253,6 +253,18 @@ Comments.addView("postCommentsOld", (terms: CommentsViewTerms) => {
 });
 // Uses same index as postCommentsNew
 
+Comments.addView("loadMorePostComments", (terms: CommentsViewTerms) => {
+  if (!terms.postId)
+    throw new Error("Invalid loadMorePostComments view: postId is required");
+  return {
+    selector: {
+      postId: terms.postId,
+      deleted: false
+    },
+    options: {sort: {postedAt: -1}}
+  };
+});
+
 Comments.addView("postCommentsNew", (terms: CommentsViewTerms) => {
   if (!terms.postId)
     throw new Error("Invalid postCommentsNew view: postId is required");

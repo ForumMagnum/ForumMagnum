@@ -2,12 +2,7 @@ import {userNeedsAFNonMemberWarning} from "./users/helpers";
 import {commentSuggestForAlignment} from "./comments/helpers";
 import {postSuggestForAlignment} from "./posts/helpers";
 import {OpenDialogContextType} from "../../components/common/withDialog";
-
-
-const isComment = (document: PostsBase | CommentsList) : document is CommentsList => {
-  if (document.hasOwnProperty("answer")) return true //only comments can be answers
-  return false
-}
+import type {UpdateCommentCallback} from "../../components/hooks/useUpdateComment";
 
 export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, openDialog: OpenDialogContextType["openDialog"]): boolean => {
   if (userNeedsAFNonMemberWarning(currentUser)) { //only fires on AF for non-members
@@ -17,27 +12,36 @@ export const afNonMemberDisplayInitialPopup = (currentUser: UsersCurrent|null, o
   return false;
 }
 
-export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, updateDocument}: {
+export const afCommentNonMemberSuccessHandling = ({currentUser, comment, openDialog, updateComment}: {
   currentUser: UsersCurrent|null,
-  document: PostsBase | CommentsList,
+  comment: CommentsList,
   openDialog: OpenDialogContextType["openDialog"],
-  updateDocument: WithUpdateFunction<CommentsCollection | PostsCollection>
+  updateComment: UpdateCommentCallback,
 }) => {
   //displays explanation of what happens upon non-member submission and submits to queue
 
   if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
-    if (isComment(document)) {
-      void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument})
-      openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: document._id, postId: document.postId}
-      })
-    } else {
-      void postSuggestForAlignment({currentUser, post: document, updatePost: updateDocument})
-      openDialog({
-        componentName: "AFNonMemberSuccessPopup",
-        componentProps: {_id: document._id}
-      })
-    }
+    void commentSuggestForAlignment({currentUser, comment, updateComment})
+    openDialog({
+      componentName: "AFNonMemberSuccessPopup",
+      componentProps: {_id: comment._id, postId: comment.postId}
+    })
+  }
+}
+
+export const afPostNonMemberSuccessHandling = ({currentUser, post, openDialog, updatePost}: {
+  currentUser: UsersCurrent|null,
+  post: PostsBase,
+  openDialog: OpenDialogContextType["openDialog"],
+  updatePost: WithUpdateFunction<PostsCollection>
+}) => {
+  //displays explanation of what happens upon non-member submission and submits to queue
+
+  if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
+    void postSuggestForAlignment({currentUser, post, updatePost: updatePost})
+    openDialog({
+      componentName: "AFNonMemberSuccessPopup",
+      componentProps: {_id: post._id}
+    })
   }
 }

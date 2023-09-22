@@ -11,6 +11,7 @@ import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
+import { getWithCustomLoader } from '../../loaders';
 
 export const moderationOptionsGroup: FormGroupType = {
   order: 50,
@@ -58,6 +59,52 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     hidden: true,
   },
+  ancestorCommentIds: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[String]',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      return await getWithCustomLoader<string[],string>(context, "ancestorCommentIds", comment._id, async (commentIds: string[]): Promise<string[][]> => {
+        const parentIdsMap = await context.repos.comments.getCommentAncestorIds(commentIds); 
+        
+        return commentIds.map((commentId: string): string[] => {
+          const ancestorIds: string[] = [];
+          for(let pos=parentIdsMap[commentId]; pos; pos=parentIdsMap[pos]) {
+            ancestorIds.push(pos);
+          }
+          return  ancestorIds;
+        });
+      });
+    },
+  }),
+  "ancestorCommentIds.$": {
+    type: String,
+    optional: true,
+  },
+  ancestorComments: resolverOnlyField({
+    type: Array,
+    graphQLtype: '[Comment]',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const commentIds = await getWithCustomLoader<string[],string>(context, "ancestorCommentIds", comment._id, async (commentIds: string[]): Promise<string[][]> => {
+        const parentIdsMap = await context.repos.comments.getCommentAncestorIds(commentIds); 
+        
+        return commentIds.map((commentId: string): string[] => {
+          const ancestorIds: string[] = [];
+          for(let pos=parentIdsMap[commentId]; pos; pos=parentIdsMap[pos]) {
+            ancestorIds.push(pos);
+          }
+          return ancestorIds;
+        });
+      });
+      return await context.loaders.Comments.loadMany(commentIds);
+    },
+  }),
+  "ancestorComments.$": {
+    type: "Comment",
+    optional: true,
+  },
+
   // The timestamp of the comment being posted. For now, comments are always
   // created and posted at the same time
   postedAt: {

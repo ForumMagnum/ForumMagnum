@@ -48,6 +48,8 @@ export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? adminOrBeta : disabled;
 
+export const userHasCommentPoolInRecentDiscussion = isEAForum ? disabled : adminOnly;
+
 // Shipped Features
 export const userCanManageTags = shippedFeature;
 export const userCanCreateTags = shippedFeature;

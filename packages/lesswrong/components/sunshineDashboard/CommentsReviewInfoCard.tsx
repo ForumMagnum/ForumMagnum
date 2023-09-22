@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { unflattenComments } from '../../lib/utils/unflatten';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import DoneIcon from '@material-ui/icons/Done';
@@ -121,7 +120,6 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
   const { CommentWithReplies, LWTooltip, Loading } = Components;
   const { comment, actions } = commentModeratorAction;
   const commentVotes = getVoteDistribution(comment);
-  const [commentTreeNode] = unflattenComments([comment]);
 
   const { mutate: updateModeratorActions } = useUpdate({
     collectionName: 'CommentModeratorActions',
@@ -189,11 +187,11 @@ export const CommentsReviewInfoCard = ({ commentModeratorAction, classes }: {
         karmaCollapseThreshold: -9000,
         showParentDefault: true,
         treeOptions: {
-          moderatedCommentId: commentTreeNode.item._id
+          moderatedCommentId: comment._id
         },
         startThreadTruncated: false
       }}
-      comment={commentTreeNode.item}
+      comment={comment}
     />
   </div>;
 

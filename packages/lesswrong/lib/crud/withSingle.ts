@@ -1,7 +1,7 @@
-import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, FetchPolicy, WatchQueryFetchPolicy } from '@apollo/client';
 import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
-import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
+import { extractCollectionInfo, extractFragmentInfo, getCollection, getFragment } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
 
 // Template of a GraphQL query for withSingle/useSingle. A sample query might look
@@ -236,3 +236,52 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   // TS can't deduce that either the document or the error are set and thus loading is inferred to be of type boolean always (instead of either true or false)
   return { document, data, error, ...rest } as TReturn<FragmentTypeName>
 }
+
+/**
+ * Load a document by ID, callback-style. Should only be called from event
+ * handlers and useEffect; calling this from directly inside a render function
+ * will not work. In the common case where a React component is loading data
+ * based on its props, you should use useSingle instead.
+ *
+ * Beware: While the signature of this function is straightforward, the
+ * circumstances in which you would actually have to use it are likely to
+ * involve tricky concurrency issues.
+ *
+ * Returns the loaded document, or null if there's no document with that ID or
+ * the logged in user doesn't have access to that document. If the network
+ * request fails, throw an exception.
+ *
+ * TODO: Check that the above about error handling is actually true.
+ *
+ * Use this if a component's loading behavior is too dynamic to capture in a
+ * useSingle hook.
+ */
+export const loadSingle = async <N extends keyof FragmentTypes>({documentId, client, fragmentName, collectionName, fetchPolicy="network-only"}: {
+  documentId: string,
+  client: ApolloClient<any>,
+  fragmentName: N,
+  collectionName: CollectionNamesByFragmentName[N],
+  fetchPolicy?: FetchPolicy,
+}): Promise<FragmentTypes[N]|null> => {
+  const collection = getCollection(collectionName);
+  const typeName = collection.typeName;
+  const resolverName = getResolverNameFromOptions(collection);
+  const fragment = getFragment(fragmentName);
+  const query = gql`
+    ${singleClientTemplate({ typeName, fragmentName, extraVariablesString: "" })}
+    ${fragment}
+  `;
+  const queryResult = await client.query({
+    query,
+    fetchPolicy,
+    variables: {
+      input: {
+        selector: { documentId },
+      }
+    },
+  });
+  
+  const result = queryResult?.data?.[resolverName]?.result;
+  return result;
+}
+

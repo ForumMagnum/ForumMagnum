@@ -9,7 +9,7 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
   parentCommentId: string,
   directReplies?: boolean
 }) => {
-  const { CommentsList, Loading } = Components;
+  const { CommentThreads, Loading } = Components;
   const terms : CommentsViewTerms = directReplies ? {
     view: "commentReplies",
     parentCommentId,
@@ -29,7 +29,7 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
     return <Loading/>
   
   const nestedComments = unflattenComments(results);
-  return <CommentsList
+  return <CommentThreads
     treeOptions={{
       post,
     }}

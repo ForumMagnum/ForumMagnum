@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { Comments } from '../../../lib/collections/comments/collection';
@@ -18,6 +18,7 @@ import startCase from 'lodash/startCase';
 import FlagIcon from '@material-ui/icons/Flag';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { metaNoticeStyles } from './CommentsItemMeta';
+import { CommentPoolContext, DontInheritCommentPool } from '../CommentPool';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
@@ -48,7 +49,6 @@ export const lwReactStyles = (theme: ThemeType): JssStyles => ({
       color: "unset",
     },
   })
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -185,7 +185,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, showPinnedOnProfile, parentAnswerId, showParentDefault=false, displayTagIcon=false, classes }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -195,11 +195,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentCommentId?: string,
   scrollIntoView?: ()=>void,
   toggleCollapse?: ()=>void,
-  setSingleLine?: (singleLine: boolean)=>void,
   truncated: boolean,
   showPinnedOnProfile?: boolean,
   parentAnswerId?: string,
-  enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
   classes: ClassesType,
@@ -210,12 +208,13 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
+  const commentPoolContext = useContext(CommentPoolContext);
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
   const {
     postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId,
+    moderatedCommentId, disableGuidelines
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
@@ -252,7 +251,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
 
   const toggleShowParent = () => {
-    setShowParentState(!showParentState);
+    if (commentPoolContext) {
+      void commentPoolContext.showParentOf(comment._id);
+    } else {
+      setShowParentState(!showParentState);
+    }
   }
 
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
@@ -331,7 +334,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             parentAnswerId: parentAnswerId ? parentAnswerId : null
           }}
           type="reply"
-          enableGuidelines={enableGuidelines}
+          disableGuidelines={disableGuidelines}
           replyFormStyle={treeOptions.replyFormStyle}
         />
       </div>
@@ -357,8 +360,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const voteProps = useVote(comment, "Comments", votingSystem);
 
-  return (
-    <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+  return <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+    <DontInheritCommentPool>
       <div className={classNames(
         classes.root,
         "recent-comments-node",
@@ -415,7 +418,6 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               toggleShowParent,
               scrollIntoView,
               parentAnswerId,
-              setSingleLine,
               collapsed,
               toggleCollapse,
               setShowEdit,
@@ -439,8 +441,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
-    </AnalyticsContext>
-  )
+    </DontInheritCommentPool>
+  </AnalyticsContext>
 }
 
 const CommentsItemComponent = registerComponent(

@@ -213,6 +213,7 @@ declare global {
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
+        neutral: ColorString,
         newPromoted: ColorString,
       },
     },

@@ -19,6 +19,21 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: -2,
     }
   },
+  commentsIconExtraSmall: {
+    width: 20,
+    fontSize: 11,
+    top: 2,
+    height: 18,
+    position: "relative",
+    flexShrink: 0,
+    
+    "& .MuiSvgIcon-root": {
+      height: "100%",
+    },
+    '& div': {
+      marginTop: -2,
+    }
+  },
   commentsIconLarge: {
     width: 26,
     height: 24,
@@ -39,6 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontVariantNumeric:"lining-nums",
     ...theme.typography.commentStyle
   },
+  neutralColor: {
+    color: theme.palette.icon.commentsBubble.neutral,
+  },
   noUnreadComments: {
     color: theme.palette.icon.commentsBubble.noUnread,
   },
@@ -58,20 +76,27 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({ commentCount, size, onClick, color, classes }: {
   commentCount: number,
-  small: boolean,
+  size: "large"|"small"|"extraSmall",
   onClick?: ()=>void,
-  unreadComments: boolean,
-  newPromotedComments: boolean,
+  color: "newPromoted"|"unread"|"noUnread"|"neutral"
   classes: ClassesType,
 }) => {
-  let unreadCommentsClass =  classes.noUnreadComments
-  if (unreadComments) { unreadCommentsClass = classes.unreadComments }
-  if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
+  let unreadCommentsClass = classes.noUnreadComments
+  if (color==="unread") { unreadCommentsClass = classes.unreadComments }
+  if (color==="newPromoted") { unreadCommentsClass = classes.unreadComments }
+  if (color==="neutral") { unreadCommentsClass = classes.neutralColor }
 
   return (
-    <div className={small ? classes.commentsIconSmall : classes.commentsIconLarge} onClick={onClick}>
+    <div
+      className={classNames({
+        [classes.commentsIconSmall]: size==="small",
+        [classes.commentsIconExtraSmall]: size==="extraSmall",
+        [classes.commentsIconLarge]: size==="large",
+      })}
+      onClick={onClick}
+    >
       <CommentIcon className={classNames(classes.commentCountIcon, unreadCommentsClass)}/>
       <div className={classes.commentCount}>
         { commentCount }

@@ -43,7 +43,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
     limit: 5
   });
   
-  const { Loading, CommentsList, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
+  const { Loading, CommentThreads, SubSection, CommentOnPostWithReplies, LoadMore, ContentStyles } = Components
   
   const lastCommentId = results && results[0]?._id
   const nestedComments = results ? unflattenComments(results) : [];
@@ -70,7 +70,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
             </ContentStyles>
           )}
         </div>}
-        {singleLine ? <CommentsList
+        {singleLine ? <CommentThreads
           treeOptions={{
             lastCommentId: lastCommentId,
             highlightDate: post.lastVisitedAt,

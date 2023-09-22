@@ -1,5 +1,5 @@
+import React, { ComponentProps, useState, useEffect, useRef, useContext } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, {ComponentProps, useState, useEffect, useRef} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -10,14 +10,15 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberDisplayInitialPopup, afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useUpdateComment } from '../hooks/useUpdateComment';
+import { afNonMemberDisplayInitialPopup, afCommentNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { CommentPoolContext } from './CommentPool';
+import { isEAForum } from '../../lib/instanceSettings';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 
 export type CommentFormDisplayMode = "default" | "minimalist"
@@ -143,7 +144,7 @@ export type CommentsNewFormProps = {
   removeFields?: any,
   fragment?: FragmentName,
   formProps?: any,
-  enableGuidelines?: boolean,
+  disableGuidelines?: boolean,
   padding?: boolean
   replyFormStyle?: CommentFormDisplayMode
   classes: ClassesType
@@ -151,22 +152,22 @@ export type CommentsNewFormProps = {
 }
 
 const CommentsNewForm = ({
-  prefilledProps={},
+  prefilledProps = {},
   post,
   tag,
-  tagCommentType="DISCUSSION",
+  tagCommentType = "DISCUSSION",
   parentComment,
   successCallback,
   type,
   cancelCallback,
   removeFields,
-  fragment="CommentsList",
+  fragment = "CommentsList",
   formProps,
-  enableGuidelines=true,
+  disableGuidelines=false,
   padding=true,
-  replyFormStyle="default",
-  classes,
+  replyFormStyle = "default",
   className,
+  classes,
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -194,6 +195,7 @@ const CommentsNewForm = ({
   const formDisabledDueToRateLimit = lastRateLimitExpiry && isInFuture(moment(lastRateLimitExpiry).subtract(1,'minutes').toDate());
 
   const {flash} = useMessages();
+  const commentPoolContext = useContext(CommentPoolContext);
   prefilledProps = {
     ...prefilledProps,
     af: commentDefaultToAlignment(currentUser, post, parentComment),
@@ -206,10 +208,7 @@ const CommentsNewForm = ({
   const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
   
   const { openDialog } = useDialog();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'SuggestAlignmentComment',
-  })
+  const updateComment = useUpdateComment('SuggestAlignmentComment')
   
   // On focus (this bubbles out from the text editor), show moderation guidelines.
   // Defer this through a setTimeout, because otherwise clicking the Cancel button
@@ -233,7 +232,7 @@ const CommentsNewForm = ({
   }, 0);
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
-    afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
+    afCommentNonMemberSuccessHandling({currentUser, comment, openDialog, updateComment })
     if (comment.deleted) {
       flash(comment.deletedReason);
     }
@@ -241,6 +240,10 @@ const CommentsNewForm = ({
       void successCallback(comment, {form});
     }
     setLoading(false)
+    
+    if (commentPoolContext) {
+      void commentPoolContext.addComment(comment);
+    }
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     userWithRateLimit.refetch();
@@ -379,7 +382,7 @@ const CommentsNewForm = ({
             />
           </div>
         </div>
-        {parentDocumentId && enableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
+        {parentDocumentId && !disableGuidelines && showGuidelines && <div className={classes.moderationGuidelinesWrapper}>
           {commentWillBeHidden && <div className={classes.modNote}>
             <NewCommentModerationWarning />
           </div>}

@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { useForceRerender } from "../hooks/useFirstRender";
+import { useForceRerender } from "../hooks/useForceRerender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";

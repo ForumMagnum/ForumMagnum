@@ -682,6 +682,7 @@ CREATE TABLE "Posts" (
     "topLevelCommentCount" double precision DEFAULT 0,
     "criticismTipsDismissed" bool,
     "debate" bool DEFAULT false,
+    "topLevelCommentCount" double precision DEFAULT 0,
     "rejected" bool DEFAULT false,
     "rejectedReason" text,
     "rejectedByUserId" varchar(27),

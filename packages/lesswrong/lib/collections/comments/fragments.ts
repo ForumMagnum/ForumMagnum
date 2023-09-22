@@ -76,6 +76,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RecentDiscussionCommentsList on Comment {
+    ...CommentsList
+    ancestorComments {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {

@@ -103,14 +103,14 @@ const RecentDiscussionSubforumThread = ({ comment, tag, refetch = () => {}, expa
       showPostTitle: false,
       condensed: true,
       replyFormStyle: "minimalist" as const,
+      disableGuidelines: true,
     },
     startThreadTruncated: true,
     isChild: false,
-    enableGuidelines: false,
     displayMode: "minimalist" as const,
     shortform: false
   }
-    
+
   return <div className={classes.root}>
     <div className={classes.tag}>
       <div className={classes.subforumTitleRow}>

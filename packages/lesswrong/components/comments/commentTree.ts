@@ -163,4 +163,30 @@ export interface CommentTreeOptions {
    * Used for displaying inline replies to debate comments
    */
   hideParentCommentToggle?: boolean,
+  
+  /**
+   * If set, moderation guidelines will not be shown on new-comment boxes.
+   */
+  disableGuidelines?: boolean,
+  
+  /**
+   * Disables behavior where if a comment-tree has a highlightDate provided,
+   * comments newer than the highlight date will be exempt from being collapsed
+   * to single-line.
+   */
+  dontExpandNewComments?: boolean
+
+  /**
+   * If a comment is collapsed to single line and has children, show a
+   * comment-bubble on the right side showing the descendent count.
+   */
+  singleLineCommentsShowDescendentCount?: boolean,
+  
+  /**
+   * Whether the comment-bubble icon shown on the right edge of single-line
+   * comments should be faint (so it blends with the no-unread-comments status
+   * of PostsItems, eg on the All Posts page), or dark so it's more readable
+   * (as in comment-pools).
+   */
+  hiddenCommentIconColor?: "faint"|"dark"
 }

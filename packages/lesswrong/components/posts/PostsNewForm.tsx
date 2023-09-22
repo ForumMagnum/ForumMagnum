@@ -9,7 +9,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
 import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { afPostNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
@@ -305,40 +305,39 @@ const PostsNewForm = ({classes}: {
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>
-              <WrappedSmartForm
-                collectionName="Posts"
-                mutationFragment={getFragment('PostsPage')}
-                prefilledProps={prefilledProps}
-                successCallback={(post: any, options: any) => {
-                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.redirectToEditor) {
-                    history.push(postGetEditUrl(post._id));
-                  } else {
-                    // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = isEAForum && !post.draft
-                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                    const url  = postGetPageUrl(post);
-                    history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+            <WrappedSmartForm
+              collectionName="Posts"
+              mutationFragment={getFragment('PostsPage')}
+              prefilledProps={prefilledProps}
+              successCallback={(post: any, options: any) => {
+                if (!post.draft) afPostNonMemberSuccessHandling({currentUser, post, openDialog, updatePost});
+                if (options?.submitOptions?.redirectToEditor) {
+                  history.push(postGetEditUrl(post._id));
+                } else {
+                  // If they are publishing a non-draft post, show the share popup
+                  const showSharePopup = isEAForum && !post.draft
+                  const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                  const url  = postGetPageUrl(post);
+                  history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
 
-                    const postDescription = post.draft ? "Draft" : "Post";
-                    if (!showSharePopup) {
-                      flash({ messageString: `${postDescription} created`, type: 'success'});
-                    }
+                  const postDescription = post.draft ? "Draft" : "Post";
+                  if (!showSharePopup) {
+                    flash({ messageString: `${postDescription} created`, type: 'success'});
                   }
-                }}
-                eventForm={eventForm}
-                debateForm={debateForm}
-                repeatErrors
-                noSubmitOnCmdEnter
-                formComponents={{
-                  FormSubmit: NewPostsSubmit
-                }}
-              />
+                }
+              }}
+              eventForm={eventForm}
+              debateForm={debateForm}
+              repeatErrors
+              noSubmitOnCmdEnter
+              formComponents={{
+                FormSubmit: NewPostsSubmit
+              }}
+            />
           </NoSSR>
         </RecaptchaWarning>
       </div>
     </DynamicTableOfContents>
-
   );
 }
 

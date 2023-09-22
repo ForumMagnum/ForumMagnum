@@ -7,8 +7,8 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useUpdateComment } from '../hooks/useUpdateComment';
+import { afCommentNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { isEAForum } from '../../lib/instanceSettings';
 import { BtnProps } from '../comments/CommentsNewForm';
 
@@ -48,10 +48,7 @@ const NewAnswerForm = ({post, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
+  const updateComment = useUpdateComment();
   
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const submitBtnProps: BtnProps = isEAForum ? {variant: 'contained', color: 'primary'} : {}
@@ -103,7 +100,7 @@ const NewAnswerForm = ({post, classes}: {
           editorHintText: isEAForum ? 'Write a new answer...' : undefined
         }}
         successCallback={(comment: CommentsList, { form }: { form: any }) => {
-          afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment})
+          afCommentNonMemberSuccessHandling({currentUser, comment, openDialog, updateComment})
         }}
         submitLabel={isEAForum ? 'Add answer' : 'Submit'}
       />

@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { useUpdateComment } from '../hooks/useUpdateComment';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import React from 'react';
 import { useHover } from '../common/withHover'
@@ -29,12 +30,8 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   currentUser: UsersCurrent,
   refetch: () => void
 }) => {
-
   const { hover, anchorEl, eventHandlers } = useHover();
-  const { mutate: updateComment } = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-  });
+  const updateComment = useUpdateComment('CommentsListWithParentMetadata');
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsList',
@@ -54,15 +51,12 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   const handleDelete = () => {
     if (confirm(`Are you sure you want to immediately delete this ${report.comment ? "comment" : "post"}?`)) {
       if (report.comment) {
-        void updateComment({
-          selector: {_id: report.comment._id},
-          data: {
-            deleted: true,
-            deletedDate: new Date(),
-            deletedByUserId: currentUser!._id,
-            deletedReason: "spam"
-          }
-        })
+        void updateComment(report.comment._id, {
+          deleted: true,
+          deletedDate: new Date(),
+          deletedByUserId: currentUser!._id,
+          deletedReason: "spam"
+        });
       } else if (report.post) {
         void updatePost({
           selector: {_id: report.post._id},

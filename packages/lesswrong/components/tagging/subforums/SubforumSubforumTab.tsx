@@ -115,10 +115,10 @@ const SubforumSubforumTab = ({
       postPage: true,
       refetch,
       tag,
+      disableGuidelines: true,
     },
     startThreadTruncated: true,
     isChild: false,
-    enableGuidelines: false,
     displayMode: "minimalist" as const,
   };
   const maxAgeHours = 18;
@@ -129,7 +129,7 @@ const SubforumSubforumTab = ({
       <div className={classes.feedPostWrapper}>
         <RecentDiscussionThread
           key={tag.subforumIntroPost._id}
-          post={{ ...tag.subforumIntroPost, recentComments: [] }}
+          post={{ ...tag.subforumIntroPost, topLevelCommentCount: 0, recentComments: [] }}
           comments={[]}
           maxLengthWords={50}
           refetch={refetch}

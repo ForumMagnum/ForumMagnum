@@ -1,22 +1,24 @@
 import React, { useState, useCallback } from 'react';
 import Button from '@material-ui/core/Button';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
-import CloseIcon from '@material-ui/icons/Close';
-
-import classNames from 'classnames';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
+import { loadMulti } from '../../lib/crud/withMulti';
 import { useRecordPostView } from '../hooks/useRecordPostView';
-
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
+import CloseIcon from '@material-ui/icons/Close';
+import classNames from 'classnames';
+import { useApolloClient } from '@apollo/client/react/hooks';
 import { isEAForum } from '../../lib/instanceSettings';
+import { toDictionary } from '../../lib/utils/toDictionary';
+import { userHasCommentPoolInRecentDiscussion } from '../../lib/betas';
+import type { CommentExpansionState } from '../comments/CommentPool';
+import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import uniq from "lodash/uniq";
+import maxBy from 'lodash/maxBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -161,7 +163,7 @@ const RecentDiscussionThread = ({
   classes,
 }: {
   post: PostsRecentDiscussion,
-  comments?: Array<CommentsList>,
+  comments?: RecentDiscussionCommentsList[],
   refetch: any,
   expandAllThreads?: boolean,
   maxLengthWords?: number,
@@ -176,6 +178,8 @@ const RecentDiscussionThread = ({
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { recordPostView } = useRecordPostView(post);
   const currentUser = useCurrentUser();
+  const postId = post._id;
+  const client = useApolloClient();
 
   const markAsRead = useCallback(
     () => {
@@ -192,11 +196,22 @@ const RecentDiscussionThread = ({
     },
     [setHighlightVisible, highlightVisible, markAsRead]
   );
+  const loadMoreComments = useCallback(async (limit: number): Promise<CommentsList[]> => {
+    return await loadMulti({
+      client,
+      collectionName: "Comments",
+      terms: {
+        view: "loadMorePostComments",
+        postId,
+      },
+      limit,
+      fragmentName: "CommentsList",
+    });
+  }, [client, postId]);
 
-  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostActionsButton } = Components
+  const { PostsGroupDetails, PostsItemMeta, CommentPool, PostsHighlight, PostActionsButton, CommentNodeOrPlaceholder } = Components
 
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments ?? []);
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
@@ -219,8 +234,35 @@ const RecentDiscussionThread = ({
     refetch: refetch,
     condensed: true,
     post: post,
+    dontExpandNewComments: true,
     ...commentTreeOptions
   };
+  
+  const ancestorComments = comments
+    ? uniq(comments
+        .flatMap(comment => comment.ancestorComments)
+        .filter(comment => !comments.some(c => c._id===comment._id)))
+    : [];
+  
+  // Start with the most recent comment truncated, the rest single line
+  const initialExpansion: Partial<Record<string,CommentExpansionState>>|undefined = comments
+    ? toDictionary(comments, c=>c._id, _=>"singleLine")
+    : {};
+  if (comments && comments.length>0) {
+    const mostRecentCommentId = maxBy(comments, c=>c.postedAt)?._id;
+    if (mostRecentCommentId) {
+      initialExpansion[mostRecentCommentId] = "truncated";
+    }
+  }
+
+  for (let ancestorComment of ancestorComments) {
+    initialExpansion[ancestorComment._id] = "singleLineGroupable";
+  }
+  
+  const nestedComments = unflattenComments(comments ?? [], {
+    usePlaceholders: userHasCommentPoolInRecentDiscussion(currentUser)
+  });
+
 
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
@@ -263,20 +305,31 @@ const RecentDiscussionThread = ({
         </div>
         <div className={classes.content}>
           <div className={classes.commentsList}>
-            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-              <div key={comment.item._id}>
-                <CommentsNode
+            {userHasCommentPoolInRecentDiscussion(currentUser)
+              ? <CommentPool
+                  initialComments={comments ? [...comments, ...ancestorComments] : []}
+                  initialExpansionState={initialExpansion}
+                  topLevelCommentCount={post.topLevelCommentCount}
+                  totalCommentCount={post.commentCount}
                   treeOptions={treeOptions}
-                  startThreadTruncated={true}
+                  startThreadTruncated
                   expandAllThreads={initialExpandAllThreads || expandAllThreads}
-                  expandNewComments={false}
-                  nestingLevel={1}
-                  comment={comment.item}
-                  childComments={comment.children}
-                  key={comment.item._id}
+                  loadMoreTopLevel={loadMoreComments}
+                  disableTopLevelLoadMore={post.shortform}
                 />
-              </div>
-            )}
+              : !!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+                  <div key={comment._id}>
+                    <CommentNodeOrPlaceholder
+                      treeOptions={treeOptions}
+                      treeNode={comment}
+                      startThreadTruncated
+                      expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                      nestingLevel={1}
+                      key={comment._id}
+                    />
+                  </div>
+                )
+            }
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useUpdateComment } from '../../hooks/useUpdateComment';
 import { useMessages } from '../../common/withMessages';
 import { useApolloClient } from '@apollo/client/react/hooks';
 import { useCurrentUser } from '../../common/withUser';
@@ -39,34 +39,25 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   const currentUser = useCurrentUser();
   const client = useApolloClient();
   const {flash} = useMessages();
-  const {mutate: updateComment} = useUpdate({
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-  });
-
+  const updateComment = useUpdateComment();
+  
   const handleMoveToAlignmentCommentForum = async () => {
     if (!currentUser) return;
-    await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        af: true,
-        afDate: new Date(),
-        moveToAlignmentUserId: currentUser._id
-      },
+    await updateComment(comment._id, {
+      af: true,
+      afDate: new Date(),
+      moveToAlignmentUserId: currentUser._id
     })
     await client.resetStore()
     flash("Comment and its parents moved to AI Alignment Forum")
   }
 
   const handleRemoveFromAlignmentForum = async () => {
-    await updateComment({
-      selector: { _id: comment._id},
-      data: {
-        af: false,
-        afDate: null,
-        moveToAlignmentUserId: null
-      },
-    })
+    await updateComment(comment._id, {
+      af: false,
+      afDate: null,
+      moveToAlignmentUserId: null
+    });
 
     await client.resetStore()
     flash("Comment and its children removed from AI Alignment Forum")
