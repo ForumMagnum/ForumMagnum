@@ -451,12 +451,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const { query, params } = location;
 
 
-  const defaultView = commentGetDefaultView(post, currentUser)
+  // const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const commentOpts = {includeAdminViews: currentUser?.isAdmin};
   const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
     ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
+    : {view: "postCommentsTop", limit: 1000}
 
   const { results: nonDebateComments } = useMulti({
     terms: {...commentTerms, postId: post?._id},
