@@ -35,7 +35,7 @@ export function rawDomNodeToReactComponent(node: Node) {
     throw new Error("Node was not detached");
   }
   
-  function DomNodeConponent(props: {}) {
+  function DomNodeComponent(props: {}) {
     const containerRef = useRef<HTMLSpanElement|null>(null);
     
     useEffect(() => {
@@ -54,7 +54,7 @@ export function rawDomNodeToReactComponent(node: Node) {
     return <span ref={containerRef}/>
   }
   
-  return DomNodeConponent;
+  return DomNodeComponent;
 }
 
 /**

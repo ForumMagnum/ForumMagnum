@@ -9,68 +9,6 @@ import domAnchorTextQuote from 'dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  scrollIndicatorWrapper: {
-    display: "block",
-    position: "relative",
-    
-    paddingLeft: 13,
-    paddingRight: 13,
-  },
-  
-  hidden: {
-    display: "none !important",
-  },
-  
-  scrollIndicator: {
-    position: "absolute",
-    top: "50%",
-    marginTop: -28,
-    cursor: "pointer",
-    
-    // Scroll arrows use the CSS Triangle hack - see
-    // https://css-tricks.com/snippets/css/css-triangle/ for a full explanation
-    borderTop: "20px solid transparent",
-    borderBottom: "20px solid transparent",
-  },
-  
-  scrollIndicatorLeft: {
-    left: 0,
-    borderRight: `10px solid ${theme.palette.grey[310]}`,
-    
-    "&:hover": {
-      borderRight: `10px solid ${theme.palette.grey[620]}`,
-    },
-  },
-  
-  scrollIndicatorRight: {
-    right: 0,
-    borderLeft: `10px solid ${theme.palette.grey[310]}`,
-    
-    "&:hover": {
-      borderLeft: `10px solid ${theme.palette.grey[620]}`,
-    },
-  },
-  
-  scrollableLaTeX: {
-    // Cancel out the margin created by the block elements above and below,
-    // so that we can convert them into padding and get a larger touch
-    // target.
-    // !important to take precedence over .mjx-chtml
-    marginTop: "-1em !important",
-    marginBottom: "-1em !important",
-    
-    paddingTop: "2em !important",
-    paddingBottom: "2em !important",
-    
-    // Hide the scrollbar (on browsers that support it) because our scroll
-    // indicator is better
-    "-ms-overflow-style": "-ms-autohiding-scrollbar",
-    "&::-webkit-scrollbar": {
-      display: "none",
-    },
-    scrollbarWidth: "none",
-  },
-
 });
 
 interface ExternalProps {
@@ -300,82 +238,28 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   // mobile browsers do).
   // This is client-only because it requires measuring widths.
   markScrollableLaTeX = (element: HTMLElement) => {
-    const { classes } = this.props;
-    let latexBlocks = this.getElementsByClassname(element, "mjx-chtml");
-    for(let i=0; i<latexBlocks.length; i++) {
-      let latexBlock = latexBlocks[i];
-      if (!latexBlock.classList.contains("MJXc-display")) {
-        // Skip inline LaTeX
-        continue;
-      }
-      latexBlock.className += " " + classes.scrollableLaTeX;
-      if(latexBlock.scrollWidth > latexBlock.clientWidth) {
-        this.addHorizontalScrollIndicators(latexBlock);
+    // Iterate through top-level (block) elements, checking their width. If any
+    // of them overflow the container, they'll get replaced by a
+    // ScrollableBlock.
+    const allTopLevelBlocks = element.childNodes;
+    for (let i=0; i<allTopLevelBlocks.length; i++) {
+      const block = allTopLevelBlocks[i];
+      if (block.nodeType === Node.ELEMENT_NODE) {
+        const blockAsElement = block as HTMLElement;
+        if (blockAsElement.scrollWidth > this.bodyRef.current!.clientWidth+1) {
+          this.addHorizontalScrollIndicators(blockAsElement);
+        }
       }
     }
   }
   
-  // Given an HTML block element which has horizontal scroll, give it scroll
-  // indicators: left and right arrows that tell you scrolling is possible.
-  // That is, wrap it in this DOM structure and replce it in-place in the
-  // browser DOM:
-  //
-  //   <div class={classes.scrollIndicatorWrapper}>
-  //     <div class={classes.scrollIndicator,classes.scrollIndicatorLeft}/>
-  //     {block}
-  //     <div class={classes.scrollIndicator,classes.scrollIndicatorRight}/>
-  //   </div>
-  //
-  // Instead of doing it with React, we do it with legacy DOM APIs, because
-  // this needs to work when we take some raw non-REACT HTML from the database,
-  // rather than working in a normal React-component-tree context.
-  //
-  // Attaches a handler to `block.onscroll` which shows and hides the scroll
-  // indicators when it's scrolled all the way.
+  // Given an HTML block element which has horizontal scroll, wrap it in a
+  // <HorizScrollBlock>.
   addHorizontalScrollIndicators = (block: HTMLElement) => {
-    const { classes } = this.props;
-    
-    // If already wrapped, don't re-wrap (so this is idempotent).
-    if (block.parentElement && block.parentElement.className === classes.scrollIndicatorWrapper)
-      return;
-    
-    const scrollIndicatorWrapper = document.createElement("div");
-    scrollIndicatorWrapper.className = classes.scrollIndicatorWrapper;
-    
-    const scrollIndicatorLeft = document.createElement("div");
-    scrollIndicatorWrapper.append(scrollIndicatorLeft);
-    
-    block.parentElement?.insertBefore(scrollIndicatorWrapper, block);
-    block.remove();
-    scrollIndicatorWrapper.append(block);
-    
-    const scrollIndicatorRight = document.createElement("div");
-    scrollIndicatorWrapper.append(scrollIndicatorRight);
-    
-    // Update scroll indicator classes, either for the first time (when newly
-    // constructed) or when we've scrolled. We apply `classes.hidden` when the
-    // scroll position is within 1px (exclusive) of an edge, rather than when
-    // it's exactly at an edge, because in at least one tested browser (Chrome
-    // on Windows) scrolling actually stopped a fraction of a pixel short of
-    // where `scrollWidth` said it would.
-    const updateScrollIndicatorClasses = () => {
-      scrollIndicatorLeft.className = classNames(
-        classes.scrollIndicator, classes.scrollIndicatorLeft,
-        { [classes.hidden]: block.scrollLeft < 1 });
-      scrollIndicatorRight.className = classNames(
-        classes.scrollIndicator, classes.scrollIndicatorRight,
-        { [classes.hidden]: block.scrollLeft+block.clientWidth+1 > block.scrollWidth });
-    }
-    
-    scrollIndicatorLeft.onclick = (ev) => {
-      block.scrollLeft = Math.max(block.scrollLeft-block.clientWidth, 0);
-    };
-    scrollIndicatorRight.onclick = (ev) => {
-      block.scrollLeft += Math.min(block.scrollLeft+block.clientWidth, block.scrollWidth-block.clientWidth);
-    };
-    
-    updateScrollIndicatorClasses();
-    block.onscroll = (ev) => updateScrollIndicatorClasses();
+    const ScrollableContents = rawExtractElementChildrenToReactComponent(block)
+    this.replaceElement(block, <Components.HorizScrollBlock>
+      <ScrollableContents/>
+    </Components.HorizScrollBlock>);
   };
 
   forwardAttributes = (node: HTMLElement|Element) => {
