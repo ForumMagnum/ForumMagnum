@@ -188,9 +188,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   lwReactStyling: lwReactStyles(theme),
   debateBodySidebar: {
-    width: 500,
+    width: 395,
     backgroundColor: theme.palette.background.default,
-    marginLeft: 650,
+    marginLeft: 570,
     padding: 10,  
     border: theme.palette.border.normal,
     borderRadius: theme.borderRadius.small,
@@ -604,7 +604,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         <div>
           {chatResponses.length > 0 && /* add a material UI button */ 
             <Button variant="outlined" color="secondary" onClick={(event) => togglePopper(event)} className={classes.asideButton}>
-              <span style={{ color: 'grey' }}>
+              <span style={{ color: 'grey', marginRight: 8 }}>
                 { asideAnchorEl ? "[-]" : "[+]" }
               </span>
               { asideAnchorEl ? <> Hide aside </> : <> Aside with </> } {asideConversant} ({chatResponses.length})
