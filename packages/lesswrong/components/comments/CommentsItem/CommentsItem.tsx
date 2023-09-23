@@ -101,6 +101,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  sidechatLink: {
+    marginLeft: 12,
+    marginRight: 8,
+    display: "inline",
+    fontWeight: isEAForum ? 600 : theme.typography.body1.fontWeight,
+    color: theme.palette.link.dim,
+    fontSize: isEAForum ? "1.1rem" : undefined,
+    "@media print": {
+      display: "none",
+    },
+  },
   firstParentComment: {
     marginLeft: -theme.spacing.unit*1.5,
     marginRight: -theme.spacing.unit*1.5
@@ -190,7 +201,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   debateBodySidebar: {
     width: 395,
     backgroundColor: theme.palette.background.default,
-    marginLeft: 570,
     padding: 10,  
     border: theme.palette.border.normal,
     borderRadius: theme.borderRadius.small,
@@ -353,10 +363,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     };
     
     const chatTooltipContent = <div>
-      <p>Create an side chat that only you and {commentAuthor} can write in the chat.</p>
-      <li>There's no voting</li>
-      <li>Asides are collapsed for other users by default, but anyone can open them</li>
-      <li>Norms are a bit more informal and fast-paced</li>
+      <div>Create a chat, where only you and {commentAuthor} can write</div>
+      <em>
+        <li>There's no voting</li>
+        <li>Collapsed by default, but anyone can open them</li>
+        <li>Norms are more informal and fast-paced</li>
+      </em>
     </div>;
 
     return (
@@ -373,7 +385,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
             <LWTooltip title={chatTooltipContent}>
               {(
-                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
+                <a className={classNames("comments-item-reply-link", classes.sidechatLink)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
                   {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
                   { asideAnchorEl ? "Cancel" : "Side Chat" }
                 </a>
@@ -617,10 +629,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             clickable={true}
           >
             <div className={classes.debateBodySidebar}>
-              <p><i>Only you and {asideConversant} can write here. It only appears for others if {asideConversant} replies.</i></p>
+              <i><p>Only you and {asideConversant} can write here. <br/>It only appears for others if {asideConversant} replies.</p></i>
               <DebateBody
                 debateResponses={chatResponseBlocks}
                 chatCommentId={chatCommentId}
+                sideChatConversant={asideConversant}
                 post={debateBodyPost}
               />
             </div>

@@ -72,12 +72,12 @@ export const DebateBody = ({ debateResponses, post, classes, chatCommentId }: {
       post={post}
       // replyFormStyle='minimalist'
       enableGuidelines={false}
+      formProps={{post, fields:['body']}}
       prefilledProps={{
         debateResponse: true ,
         title: chatCommentId // TODO: figure out what to do here instead of title.... 
       }}
       type="comment"
-      {...(isDialogueParticipant(currentUser?._id, post) ? { formProps: { post } } : {})}
     />
   </NoSSR>);
 }
