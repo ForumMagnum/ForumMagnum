@@ -194,6 +194,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 10,  
     border: theme.palette.border.normal,
     borderRadius: theme.borderRadius.small,
+    ...theme.typography.body2,
     maxHeight: "80vh",
     overflowY: "hidden",
     overflowX: "hidden",
@@ -352,13 +353,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     };
     
     const chatTooltipContent = <div>
-      <strong>Create an aside about this comment</strong>
-      <li>Only you and {commentAuthor} can write in the chat.</li>
+      <p>Create an side chat that only you and {commentAuthor} can write in the chat.</p>
       <li>There's no voting</li>
-      <li>There are typing indicators</li>
-      <li>Norms are a bit more informal and fast-paced</li>
       <li>Asides are collapsed for other users by default, but anyone can open them</li>
-      <p>Think of it more like having a sidechannel 1-1 with {commentAuthor} (rather than "broadcasting" on a stage to the LessWrong audience) </p>
+      <li>Norms are a bit more informal and fast-paced</li>
     </div>;
 
     return (
@@ -377,7 +375,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               {(
                 <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
                   {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
-                  { asideAnchorEl ? "Cancel" : "Aside" }
+                  { asideAnchorEl ? "Cancel" : "Side Chat" }
                 </a>
               )}
             </LWTooltip>
@@ -614,11 +612,12 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         {post && debateBodyPost &&
           <LWPopper
             open={!!asideAnchorEl}
-            anchorEl={asideAnchorEl}
+            anchorEl={commentItemRef.current}
             placement="right-start"
             clickable={true}
           >
             <div className={classes.debateBodySidebar}>
+              <p><i>Only you and {asideConversant} can write here. It only appears for others if {asideConversant} replies.</i></p>
               <DebateBody
                 debateResponses={chatResponseBlocks}
                 chatCommentId={chatCommentId}

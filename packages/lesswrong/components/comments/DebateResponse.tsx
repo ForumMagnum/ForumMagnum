@@ -12,8 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
     marginTop: 6,
     padding: '8px 8px 8px 16px',
-    borderLeft: 'solid',
-    borderLeftWidth: '2px',
+    border: 'solid',
+    borderRadius: 5,
     '&:hover $menu': {
       opacity: 0.5
     },
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bottomUI: {
     position: 'absolute',
     right: 10,
-    bottom: -12,
+    bottom: 4,
     display: "flex",
     alignItems: "center"
   },
@@ -196,7 +196,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
             voteProps={voteProps}
             post={post}
           />}
-          {replyLink}
         </div>
       </div>
     );

@@ -35,9 +35,9 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   const { DebateResponse } = Components;
 
   return <div>
-    {daySeparator && <div className={classes.divider}>
+    {/* {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
-    </div>}
+    </div>} */}
     {responses.map(({ comment, replies }, idx) => <DebateResponse 
       key={`debateBlock${comment._id}`}
       comment={comment} 
