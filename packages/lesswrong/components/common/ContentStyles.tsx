@@ -25,10 +25,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   debateResponseBody: {
     ...commentBodyStyles(theme),
-    fontSize: '1.3rem',
-    '& blockquote, & li': {
-      fontSize: '1.3rem'
-    }
+    // fontSize: '1.3rem',
+    // '& blockquote, & li': {
+    //   fontSize: '1.3rem'
+    // }
   },
   answerBody: {
     ...smallPostStyles(theme)
