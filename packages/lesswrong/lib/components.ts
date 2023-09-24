@@ -160,8 +160,8 @@ importComponent("QuickTakesListItem", () => require('../components/quickTakes/Qu
 importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
 
 // RSS Feed Integration
-importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
-//importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
+importComponent("NewFeedButton", () => require('../components/feeds/NewFeedButton'));
+//importComponent("EditFeedButton", () => require('../components/feeds/EditFeedButton'));
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
