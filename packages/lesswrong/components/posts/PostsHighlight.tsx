@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import React, {useState, useCallback} from 'react';
+import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
@@ -30,6 +30,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   }
 })
+
+const TruncatedSuffix: FC<{
+  post: PostsList,
+  forceSeeMore?: boolean,
+  wordsLeft: number,
+  clickExpand: (ev: MouseEvent) => void,
+}> = ({post, forceSeeMore, wordsLeft, clickExpand}) => {
+  if (forceSeeMore || wordsLeft < 1000) {
+    return (
+      <Link
+        to={postGetPageUrl(post)}
+        onClick={clickExpand}
+        eventProps={{intent: 'expandPost'}}
+      >
+        ({preferredHeadingCase("See More")} – {wordsLeft} more words)
+      </Link>
+    );
+  }
+  return (
+    <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
+      {isEAForum
+        ? "Continue reading"
+        : `(Continue Reading – ${wordsLeft} more words)`
+      }
+    </Link>
+  );
+}
 
 const foreignFetchProps = {
   collectionName: "Posts",
@@ -65,7 +92,7 @@ const HighlightBody = ({
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
-  const clickExpand = useCallback((ev) => {
+  const clickExpand = useCallback((ev: MouseEvent) => {
     setExpanded(true);
     ev.preventDefault();
   }, [setExpanded]);
@@ -77,16 +104,16 @@ const HighlightBody = ({
       graceWords={20}
       rawWordCount={wordCount}
       expanded={expanded}
-      getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
-        {(forceSeeMore || wordsLeft < 1000)
-          ? <Link to={postGetPageUrl(post)} onClick={clickExpand} eventProps={{intent: 'expandPost'}}>
-              ({preferredHeadingCase("See More")} – {wordsLeft} more words)
-            </Link>
-          : <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-              ({preferredHeadingCase("Continue Reading")}  – {wordsLeft} more words)
-            </Link>
-        }
-      </div>}
+      getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) =>
+        <div className={classes.highlightContinue}>
+          <TruncatedSuffix
+            post={post}
+            forceSeeMore={forceSeeMore}
+            wordsLeft={wordsLeft}
+            clickExpand={clickExpand}
+          />
+        </div>
+      }
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}

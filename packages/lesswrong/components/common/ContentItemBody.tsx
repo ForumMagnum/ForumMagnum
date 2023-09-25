@@ -8,7 +8,6 @@ import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
 import withUser from './withUser';
 import { withLocation } from '../../lib/routeUtil';
-import Mark from 'mark.js';
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
