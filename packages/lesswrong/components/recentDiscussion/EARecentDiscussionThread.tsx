@@ -130,7 +130,11 @@ const EARecentDiscussionThread = ({
         }
         <div className={classes.postInfo}>
           <PostsItemTooltipWrapper post={post}>
-            <PostsTitle post={post} className={classes.postTitle} />
+            <PostsTitle
+              post={post}
+              read={post.isRead}
+              className={classes.postTitle}
+            />
           </PostsItemTooltipWrapper>
           <EAPostMeta post={post} useEventStyles />
         </div>
