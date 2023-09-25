@@ -4,9 +4,9 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useMulti } from "../../lib/crud/withMulti";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
-import { useRecommendations } from "./withRecommendations";
-import { SECTION_WIDTH } from "../common/SingleColumnSection";
+import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 import NoSSR from "react-no-ssr";
 
 const styles = (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 80,
   },
   section: {
-    maxWidth: 720,//SECTION_WIDTH,
+    maxWidth: MAX_CONTENT_WIDTH,
     margin: "0 auto 60px",
   },
   sectionHeading: {
@@ -48,16 +48,16 @@ const RecommendationContent: FC<PostBottomRecommendationsProps> = ({
   classes,
 }) => {
   const {
-    recommendationsLoading: moreFromAuthorLoading,
-    recommendations: moreFromAuthorPosts,
-  } = useRecommendations({
-    strategy: {
-      name: "moreFromAuthor",
-      postId: post._id,
-      context: "post-footer",
+    results: moreFromAuthorPosts,
+    loading: moreFromAuthorLoading,
+  } = useMulti({
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+    terms: {
+      userId: post.userId,
+      sortedBy: "topAdjusted",
+      limit: 3,
     },
-    count: 3,
-    disableFallbacks: true,
   });
 
   const {
