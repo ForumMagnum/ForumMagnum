@@ -11,6 +11,9 @@ const styles = (_theme: ThemeType) => ({
     padding: 0,
     "& .CommentsItemMeta-root": {
       paddingTop: 0,
+      "& .CommentsItemMeta-rightSection": {
+        top: 0,
+      },
     },
   },
   noBottomPadding: {
