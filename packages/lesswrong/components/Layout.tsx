@@ -187,14 +187,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 const StickyWrapper: FC<{
   eaHomeGridLayout: boolean,
   headerVisible: boolean,
+  headerAtTop: boolean,
   children: ReactNode,
   classes: ClassesType,
-}> = ({eaHomeGridLayout, headerVisible, children, classes}) =>
+}> = ({eaHomeGridLayout, headerVisible, headerAtTop, children, classes}) =>
   eaHomeGridLayout
     ? (
       <StickyBox offsetTop={20} offsetBottom={20}>
         <div className={classNames(classes.stickyWrapper, {
-          [classes.stickyWrapperHeaderVisible]: headerVisible,
+          [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
         })}>
           {children}
         </div>
@@ -215,8 +216,7 @@ const Layout = ({currentUser, children, classes}: {
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
-  const headerVisible = useHeaderVisible();
-  console.log("mark visible", headerVisible);
+  const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -375,6 +375,7 @@ const Layout = ({currentUser, children, classes}: {
                   <StickyWrapper
                     eaHomeGridLayout={eaHomeGridLayout}
                     headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
                     classes={classes}
                   >
                     <NavigationStandalone
@@ -405,6 +406,7 @@ const Layout = ({currentUser, children, classes}: {
                   <StickyWrapper
                     eaHomeGridLayout={eaHomeGridLayout}
                     headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
                     classes={classes}
                   >
                     <EAHomeRightHandSide />

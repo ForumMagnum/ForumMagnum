@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 
-export const useHeaderVisible = () => {
-  const [visible, setVisible] = useState(true);
+type HeaderVisibility = {
+  headerVisible: boolean,
+  headerAtTop: boolean,
+}
+
+export const useHeaderVisible = (): HeaderVisibility => {
+  const [visible, setVisible] = useState<HeaderVisibility>({
+    headerVisible: true,
+    headerAtTop: true,
+  });
 
   useEffect(() => {
     const targetNode = document.querySelector(".headroom");
@@ -9,7 +17,10 @@ export const useHeaderVisible = () => {
       return;
     }
     const mutationObserver = new MutationObserver(() => {
-      setVisible(!targetNode.classList.contains("headroom--unpinned"));
+      setVisible({
+        headerVisible: !targetNode.classList.contains("headroom--unpinned"),
+        headerAtTop: targetNode.classList.contains("headroom--unfixed"),
+      });
     });
     mutationObserver.observe(targetNode, {attributes: true});
     return () => mutationObserver.disconnect();
