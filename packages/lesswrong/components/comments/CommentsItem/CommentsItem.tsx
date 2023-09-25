@@ -492,7 +492,9 @@ export const CommentsItem = ({
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary],
+    styles,
+    stylePriority: -1,
+    hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",
     },
