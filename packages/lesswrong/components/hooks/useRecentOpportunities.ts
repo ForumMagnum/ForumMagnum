@@ -21,7 +21,7 @@ export const useRecentOpportunities =<
     terms: {
       view: "magic",
       filterSettings: {tags: [{
-        tagId: "z8qFsGt5iXyZiLbjN",
+        tagId: "z8qFsGt5iXyZiLbjN", // topics/opportunities-to-take-action
         filterMode: "Required",
       }]},
       after: dateCutoff,
