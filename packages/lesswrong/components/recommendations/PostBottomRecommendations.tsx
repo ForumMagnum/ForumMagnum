@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
@@ -7,7 +7,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
-import NoSSR from "react-no-ssr";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,14 +37,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type PostBottomRecommendationsProps = {
+const PostBottomRecommendations = ({post, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
-}
-
-const RecommendationContent: FC<PostBottomRecommendationsProps> = ({
-  post,
-  classes,
 }) => {
   const {
     results: moreFromAuthorPosts,
@@ -81,87 +75,74 @@ const RecommendationContent: FC<PostBottomRecommendationsProps> = ({
   const hasUserPosts = post.user &&
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
-  const {
-    PostsLoading, EAPostsItem, EALargePostsItem, UserTooltip,
-  } = Components;
-  return (
-    <>
-      {hasUserPosts &&
-        <div className={classes.section}>
-          <div className={classes.sectionHeading}>
-            More from{" "}
-            <UserTooltip user={post.user} inlineBlock={false}>
-              <Link to={profileUrl}>{post.user.displayName}</Link>
-            </UserTooltip>
-          </div>
-          {moreFromAuthorLoading && !moreFromAuthorPosts?.length &&
-            <PostsLoading />
-          }
-          <AnalyticsContext pageSubSectionContext="moreFromAuthor">
-            {moreFromAuthorPosts?.map((post) => (
-              <EAPostsItem key={post._id} post={post} />
-            ))}
-            <div className={classes.viewMore}>
-              <Link to={profileUrl}>
-                View more
-              </Link>
-            </div>
-          </AnalyticsContext>
-        </div>
-      }
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>
-          Recommended by the Forum team this week
-        </div>
-        {digestLoading && !digestPosts?.length &&
-          <PostsLoading />
-        }
-        <AnalyticsContext pageSubSectionContext="digestThisWeek">
-          {digestPosts?.map((post) => (
-            <EALargePostsItem
-              key={post._id}
-              post={post}
-              className={classes.largePostItem}
-              noImagePlaceholder
-            />
-          ))}
-        </AnalyticsContext>
-      </div>
-      <div className={classes.section}>
-        <div className={classes.sectionHeading}>
-          Recent opportunities
-        </div>
-        {opportunitiesLoading && !opportunityPosts?.length &&
-          <PostsLoading />
-        }
-        <AnalyticsContext pageSubSectionContext="recentOpportunities">
-          {opportunityPosts?.map((post) => (
-            <EAPostsItem key={post._id} post={post} />
-          ))}
-          <div className={classes.viewMore}>
-            <Link to="/topics/opportunities-to-take-action">
-              View more
-            </Link>
-          </div>
-        </AnalyticsContext>
-      </div>
-    </>
-  );
-}
 
-const PostBottomRecommendations = ({
-  post,
-  classes,
-}: PostBottomRecommendationsProps) => {
-  const {PostsLoading, ToCColumn} = Components;
+  const {
+    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip,
+  } = Components;
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
         <ToCColumn tableOfContents={<div />}>
           <div>
-          <NoSSR onSSR={<PostsLoading />}>
-            <RecommendationContent post={post} classes={classes} />
-          </NoSSR>
+            {hasUserPosts &&
+              <div className={classes.section}>
+                <div className={classes.sectionHeading}>
+                  More from{" "}
+                  <UserTooltip user={post.user} inlineBlock={false}>
+                    <Link to={profileUrl}>{post.user.displayName}</Link>
+                  </UserTooltip>
+                </div>
+                {moreFromAuthorLoading && !moreFromAuthorPosts?.length &&
+                  <PostsLoading />
+                }
+                <AnalyticsContext pageSubSectionContext="moreFromAuthor">
+                  {moreFromAuthorPosts?.map((post) => (
+                    <EAPostsItem key={post._id} post={post} />
+                  ))}
+                  <div className={classes.viewMore}>
+                    <Link to={profileUrl}>
+                      View more
+                    </Link>
+                  </div>
+                </AnalyticsContext>
+              </div>
+            }
+            <div className={classes.section}>
+              <div className={classes.sectionHeading}>
+                Recommended by the Forum team this week
+              </div>
+              {digestLoading && !digestPosts?.length &&
+                <PostsLoading />
+              }
+              <AnalyticsContext pageSubSectionContext="digestThisWeek">
+                {digestPosts?.map((post) => (
+                  <EALargePostsItem
+                    key={post._id}
+                    post={post}
+                    className={classes.largePostItem}
+                    noImagePlaceholder
+                  />
+                ))}
+              </AnalyticsContext>
+            </div>
+            <div className={classes.section}>
+              <div className={classes.sectionHeading}>
+                Recent opportunities
+              </div>
+              {opportunitiesLoading && !opportunityPosts?.length &&
+                <PostsLoading />
+              }
+              <AnalyticsContext pageSubSectionContext="recentOpportunities">
+                {opportunityPosts?.map((post) => (
+                  <EAPostsItem key={post._id} post={post} />
+                ))}
+                <div className={classes.viewMore}>
+                  <Link to="/topics/opportunities-to-take-action">
+                    View more
+                  </Link>
+                </div>
+              </AnalyticsContext>
+            </div>
           </div>
         </ToCColumn>
       </div>
