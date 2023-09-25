@@ -78,7 +78,7 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
   iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
-  description: string,
+  action: string,
   postTitleOverride?: string,
   postUrlOverride?: string,
   timestamp: Date,
@@ -88,7 +88,7 @@ const EARecentDiscussionItem = ({
   icon,
   iconVariant,
   user,
-  description,
+  action,
   postTitleOverride,
   postUrlOverride,
   post,
@@ -117,7 +117,7 @@ const EARecentDiscussionItem = ({
         <div className={classes.meta}>
           <UsersNameDisplay user={user} className={classes.primaryText} />
           {" "}
-          {description}
+          {action}
           {" "}
           {post &&
             <PostsItemTooltipWrapper post={post} placement="bottom" As="span">

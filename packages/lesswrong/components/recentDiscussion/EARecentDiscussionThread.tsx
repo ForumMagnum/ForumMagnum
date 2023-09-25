@@ -55,7 +55,7 @@ const getItemProps = (
       icon: "Calendar",
       iconVariant: "grey",
       user: post.user,
-      description: "scheduled",
+      action: "scheduled",
       post,
       timestamp: post.postedAt,
     };
@@ -67,7 +67,7 @@ const getItemProps = (
       icon: post.question ? "Q" : "DocumentFilled",
       iconVariant: "grey",
       user: post.user,
-      description: "posted",
+      action: "posted",
       post,
       timestamp: post.postedAt,
     };
@@ -78,7 +78,7 @@ const getItemProps = (
     icon: "CommentFilled",
     iconVariant: "primary",
     user: comments[0].user,
-    description: "commented on",
+    action: "commented on",
     post,
     timestamp: comments[0].postedAt,
   };

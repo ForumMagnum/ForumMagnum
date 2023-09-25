@@ -21,7 +21,7 @@ const EARecentDiscussionTagRevision = ({
       icon="TagFilled"
       iconVariant="green"
       user={revision.user}
-      description="edited tag"
+      action="edited tag"
       tag={tag}
       timestamp={revision.editedAt}
     >

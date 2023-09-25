@@ -68,7 +68,7 @@ const EARecentDiscussionTagCommented = ({
       icon="CommentFilled"
       iconVariant="primary"
       user={comments[0].user}
-      description="commented on tag"
+      action="commented on tag"
       tag={tag}
       timestamp={comments[0].postedAt}
     >
