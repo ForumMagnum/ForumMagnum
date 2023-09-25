@@ -181,6 +181,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   stickyWrapper: {
     transition: "transform 200ms ease-in-out",
     transform: `translateY(${STICKY_SECTION_TOP_MARGIN}px)`,
+    marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
     transform: `translateY(${EA_FORUM_HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
