@@ -10,7 +10,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
-import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { commentAllowTitle as commentAllowTitle, commentGetDefaultView, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
@@ -21,6 +21,15 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import {useMulti} from '../../../lib/crud/withMulti';
+import {isValidCommentView} from '../../../lib/commentViewOptions';
+import {useSubscribedLocation} from '../../../lib/routeUtil';
+import {useHover} from '../../common/withHover';
+import {trustLevel1Group} from '../../../lib/permissions';
+import Button from '@material-ui/core/Button';
+import {UseSingleProps, useSingle} from '../../../lib/crud/withSingle';
+import {fade} from '@material-ui/core/styles/colorManipulator';
+
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -178,6 +187,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3
   },
   lwReactStyling: lwReactStyles(theme),
+  debateBodySidebar: {
+    width: 500,
+    backgroundColor: theme.palette.background.default,
+    marginLeft: 650,
+    padding: 10,  
+    border: theme.palette.border.normal,
+    borderRadius: theme.borderRadius.small,
+    maxHeight: "80vh",
+    overflowY: "hidden",
+    overflowX: "hidden",
+    "&:hover": {
+      overflowY: "scroll",
+    },
+    "@media (max-width: 600px)": {
+      display: "none"
+    },
+  },
+  asideButton: {
+    padding: 10,
+    paddingTop: 4,
+    paddingBottom: 4,
+    margin: 8,
+    textTransform: "none",
+    borderRadius: 2,
+    color: theme.palette.text.alwaysBlack,
+    borderColor: fade(theme.palette.text.alwaysBlack, 0.16)
+  }
 });
 
 /**
@@ -208,6 +244,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [isChatentry, setIsChatentry] = useState(false);
   const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
@@ -294,15 +331,56 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     )
 
     const showInlineCancel = showReplyState && isMinimalist
+    const showChatButton = true
+
+    // const { ReactionIcon } = Components
+    const commentAuthor = comment.user?.displayName ?? "the comment author"
+
+    const currentUserCommentedUpthread = (comment: CommentsList|CommentsListWithParentMetadata): boolean => {
+      // Base case: if the comment is null or undefined, return false
+      if (!comment) {
+        return false;
+      }
+    
+      // If the current user is the author of this comment, return true
+      if (currentUser && comment.user && currentUser._id === comment.user._id) {
+        return true;
+      }
+    
+      // Recursively check the parent comment
+      return currentUserCommentedUpthread(comment); // .parentComment);
+    };
+    
+    const chatTooltipContent = <div>
+      <strong>Create an aside about this comment</strong>
+      <li>Only you and {commentAuthor} can write in the chat.</li>
+      <li>There's no voting</li>
+      <li>There are typing indicators</li>
+      <li>Norms are a bit more informal and fast-paced</li>
+      <li>Asides are collapsed for other users by default, but anyone can open them</li>
+      <p>Think of it more like having a sidechannel 1-1 with {commentAuthor} (rather than "broadcasting" on a stage to the LessWrong audience) </p>
+    </div>;
+
     return (
       <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
         <div>
           <CommentBottomCaveats comment={comment} />
           {showReplyButton && (
             treeOptions?.replaceReplyButtonsWith?.(comment)
-            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : showReply}>
+            || <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={showInlineCancel ? replyCancelCallback : (event) => {setIsChatentry(false); showReply(event)}}>
               {showInlineCancel ? "Cancel" : "Reply"}
             </a>
+          )}
+          {showChatButton && (
+
+            <LWTooltip title={chatTooltipContent}>
+              {(
+                <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={(event) => togglePopper(event) /* setIsChatentry(true); showReply(event)} */ }>
+                  {/* <ReactionIcon react={"noun-chat"} size={24} />  */}
+                  { asideAnchorEl ? "Cancel" : "Aside" }
+                </a>
+              )}
+            </LWTooltip>
           )}
         </div>
         {VoteBottomComponent && <VoteBottomComponent
@@ -317,7 +395,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     );
   }
 
-  const renderReply = () => {
+  const chatCommentId = comment._id; //TODO: fix this to actually get the right parent id! 
+
+  const renderReply = (chatentry : boolean) => {
     const levelClass = (nestingLevel + 1) % 2 === 0 ? "comments-node-even" : "comments-node-odd"
 
     return (
@@ -328,11 +408,14 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           successCallback={replySuccessCallback}
           cancelCallback={replyCancelCallback}
           prefilledProps={{
-            parentAnswerId: parentAnswerId ? parentAnswerId : null
+            parentAnswerId: parentAnswerId ? parentAnswerId : null,
+            debateResponse: chatentry,
+            title: chatCommentId // TODO: figure out what to do here instead of title.... 
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
           replyFormStyle={treeOptions.replyFormStyle}
+          removeFields={['af', 'debateResponse']}
         />
       </div>
     )
@@ -340,7 +423,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay, DebateBody, LWPopper
   } = Components
   
   const votingSystemName = comment.votingSystem || "default";
@@ -357,89 +440,196 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const voteProps = useVote(comment, "Comments", votingSystem);
 
+  const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
+    comment: debateResponse,
+    replies: replies.filter(reply => reply.topLevelCommentId === debateResponse._id)
+  }));
+
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
+    terms: {
+      view: 'debateResponses',
+      postId: post?._id, // just use a fake debate here. 'debateid238r0w8rh0aw98h'
+    },
+    collectionName: 'Comments',
+    fragmentName: 'CommentsList',
+    skip: !post?.debate,
+    limit: 1000
+  });
+
+  const location = useSubscribedLocation();
+  const { query, params } = location;
+
+
+  // const defaultView = commentGetDefaultView(post, currentUser)
+  // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
+  const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
+    ? {...(query as CommentsViewTerms), limit:1000}
+    : {view: "postCommentsTop", limit: 1000}
+
+  const { results: nonDebateComments } = useMulti({
+    terms: {...commentTerms, postId: post?._id},
+    collectionName: "Comments",
+    fragmentName: 'CommentsList',
+    skip: !post?._id,
+    fetchPolicy: 'cache-and-network',
+  });
+
+ // const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
+ // const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  //const debateResponseBlocks = debateResponses ? getDebateResponseBlocks(debateResponses, debateResponseReplies) : [];
+
+  
+  const currentCommentId = comment._id;
+  const chatResponses = debateResponses ? debateResponses.filter(response =>  // TODO: only check one of these
+    response.title ? response.title.includes( currentCommentId ) : false  ) : [];
+
+//  console.log("chatResponses", chatResponses)
+  //const chatResponseIds = new Set((chatResponses ?? []).map(response => response._id));
+  const chatResponseBlocks = chatResponses ? getDebateResponseBlocks(chatResponses, []) : [];
+
+  //const showChat = true // if parent has matching commentId to chatEntry
+
+  // If there are any chatResponses in that array, then set asideConversant to the display name of the first one who has a different name than the author of the current comment
+  const asideConversant = chatResponses.find(response => response.user?.displayName !== comment.user?.displayName)?.user?.displayName;
+
+
+  
+  const [asideAnchorEl, setAsideAnchorEl] = useState(null);
+
+  const togglePopper = (event) => {
+    if (asideAnchorEl) {
+      setAsideAnchorEl(null);
+    } else {
+      setAsideAnchorEl(event.currentTarget);
+    }
+  }
+
+  const fragmentName = 'PostsWithNavigationAndRevision' 
+  const documentId = post?._id
+
+  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
+    collectionName: "Posts",
+    fragmentName,
+    documentId,
+  };
+
+  const { document: debateBodyPost, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+
+
   return (
-    <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
-      <div className={classNames(
-        classes.root,
-        "recent-comments-node",
-        {
-          [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          [classes.sideComment]: treeOptions.isSideComment,
-          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
-        },
-      )}>
-        { comment.parentCommentId && showParentState && (
-          <div className={classes.firstParentComment}>
-            <Components.ParentCommentSingle
-              post={post} tag={tag}
-              documentId={comment.parentCommentId}
-              nestingLevel={nestingLevel - 1}
-              truncated={showParentDefault}
-              key={comment.parentCommentId}
-            />
-          </div> 
-        )}
-        
-        <div className={classes.postTitleRow}>
-          {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
-            <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
-          </div>}
-          {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
-              <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
-                {comment.post.draft && "[Draft] "}
-                {comment.post.title}
-              </Link>
-            </LWTooltip>}
-          {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
-            {startCase(comment.tag.name)}
-          </Link>}
-        </div>
-        <div className={classNames(classes.body, classes.lwReactStyling)}>
-          {showCommentTitle && <div className={classes.title}>
-            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
-              <CoreTagIcon tag={tag} />
-            </span> : <CommentDiscussionIcon
-              comment={comment}
-            />}
-            {comment.title}
-          </div>}
-          <CommentsItemMeta
-            {...{
-              treeOptions,
-              comment,
-              showCommentTitle,
-              isParentComment,
-              parentCommentId,
-              showParentState,
-              toggleShowParent,
-              scrollIntoView,
-              parentAnswerId,
-              setSingleLine,
-              collapsed,
-              toggleCollapse,
-              setShowEdit,
-            }}
-          />
-          {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
-            Pinned by {comment.promotedByUser.displayName}
-          </div>}
-          {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
-          {renderBodyOrEditor(voteProps)}
-          {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
-        </div>
-        {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
-          <div className={classes.updateVoteMessage}>
-            <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
-              Update your {REVIEW_NAME_IN_SITU} vote for this post. 
-              <LWHelpIcon/>
-            </LWTooltip>
+    <div>
+      <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+        <div className={classNames(
+          classes.root,
+          "recent-comments-node",
+          {
+            [classes.deleted]: comment.deleted && !comment.deletedPublic,
+            [classes.sideComment]: treeOptions.isSideComment,
+            [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
+          },
+        )}>
+          { comment.parentCommentId && showParentState && (
+            <div className={classes.firstParentComment}>
+              <Components.ParentCommentSingle
+                post={post} tag={tag}
+                documentId={comment.parentCommentId}
+                nestingLevel={nestingLevel - 1}
+                truncated={showParentDefault}
+                key={comment.parentCommentId}
+              />
+            </div> 
+          )}
+          
+          <div className={classes.postTitleRow}>
+            {showPinnedOnProfile && comment.isPinnedOnProfile && <div className={classes.pinnedIconWrapper}>
+              <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
+            </div>}
+            {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
+            {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+                <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
+                  {comment.post.draft && "[Draft] "}
+                  {comment.post.title}
+                </Link>
+              </LWTooltip>}
+            {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
+              {startCase(comment.tag.name)}
+            </Link>}
           </div>
-          {post && <ReviewVotingWidget post={post} showTitle={false}/>}
-        </div>}
-        { showReplyState && !collapsed && renderReply() }
-      </div>
-    </AnalyticsContext>
+          <div className={classNames(classes.body, classes.lwReactStyling)}>
+            {showCommentTitle && <div className={classes.title}>
+              {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
+                <CoreTagIcon tag={tag} />
+              </span> : <CommentDiscussionIcon
+                comment={comment}
+              />}
+              {comment.title}
+            </div>}
+            <CommentsItemMeta
+              {...{
+                treeOptions,
+                comment,
+                showCommentTitle,
+                isParentComment,
+                parentCommentId,
+                showParentState,
+                toggleShowParent,
+                scrollIntoView,
+                parentAnswerId,
+                setSingleLine,
+                collapsed,
+                toggleCollapse,
+                setShowEdit,
+              }}
+            />
+            {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
+              Pinned by {comment.promotedByUser.displayName}
+            </div>}
+            {comment.rejected && <p><RejectedReasonDisplay reason={comment.rejectedReason}/></p>}
+            {renderBodyOrEditor(voteProps)}
+            
+            {!comment.deleted && !collapsed && renderCommentBottom(voteProps)}
+          </div>
+          {displayReviewVoting && !collapsed && <div className={classes.reviewVotingButtons}>
+            <div className={classes.updateVoteMessage}>
+              <LWTooltip title={`If this review changed your mind, update your ${REVIEW_NAME_IN_SITU} vote for the original post `}>
+                Update your {REVIEW_NAME_IN_SITU} vote for this post. 
+                <LWHelpIcon/>
+              </LWTooltip>
+            </div>
+            {post && <ReviewVotingWidget post={post} showTitle={false}/>}
+          </div>}
+          { showReplyState && !collapsed && renderReply(isChatentry) }
+        </div>
+        <div>
+          {chatResponses.length > 0 && /* add a material UI button */ 
+            <Button variant="outlined" color="secondary" onClick={(event) => togglePopper(event)} className={classes.asideButton}>
+              <span style={{ color: 'grey' }}>
+                { asideAnchorEl ? "[-]" : "[+]" }
+              </span>
+              { asideAnchorEl ? <> Hide aside </> : <> Aside with </> } {asideConversant} ({chatResponses.length})
+            </Button>}
+        </div>
+       
+        {post && debateBodyPost &&
+          <LWPopper
+            open={!!asideAnchorEl}
+            anchorEl={asideAnchorEl}
+            placement="right-start"
+            clickable={true}
+          >
+            <div className={classes.debateBodySidebar}>
+              <DebateBody
+                debateResponses={chatResponseBlocks}
+                chatCommentId={chatCommentId}
+                post={debateBodyPost}
+              />
+            </div>
+        </LWPopper>
+        }
+      </AnalyticsContext>
+      
+    </div>
   )
 }
 
