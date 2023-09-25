@@ -83,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  siteLogo: isEAForum ? {
+  siteLogo: isFriendlyUI ? {
     marginLeft:  -7,
     marginRight: 6,
     [theme.breakpoints.down('sm')]: {
