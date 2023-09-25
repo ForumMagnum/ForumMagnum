@@ -30,6 +30,8 @@ import StickyBox from '../lib/vendor/react-sticky-box';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
+const STICKY_SECTION_TOP_MARGIN = 20;
+
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
 // Refer to routes.js for the route names. Or console log in the route you'd
@@ -178,9 +180,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   stickyWrapper: {
     transition: "transform 200ms ease-in-out",
+    transform: `translateY(${STICKY_SECTION_TOP_MARGIN}px)`,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${EA_FORUM_HEADER_HEIGHT}px)`,
+    transform: `translateY(${EA_FORUM_HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
 });
 
@@ -193,7 +196,7 @@ const StickyWrapper: FC<{
 }> = ({eaHomeGridLayout, headerVisible, headerAtTop, children, classes}) =>
   eaHomeGridLayout
     ? (
-      <StickyBox offsetTop={20} offsetBottom={20}>
+      <StickyBox offsetTop={0} offsetBottom={20}>
         <div className={classNames(classes.stickyWrapper, {
           [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
         })}>

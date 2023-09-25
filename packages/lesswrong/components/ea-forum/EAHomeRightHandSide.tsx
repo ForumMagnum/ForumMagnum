@@ -18,7 +18,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
@@ -26,12 +25,11 @@ import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingLeft: 40,
     paddingRight: 50,
-    marginTop: 30,
+    marginTop: 10,
     marginLeft: 50,
     '@media(max-width: 1370px)': {
       display: 'none'
