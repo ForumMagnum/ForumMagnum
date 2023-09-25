@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
+const EXPAND_IN_PLACE_LINES = 10;
 
 const contentTypeMap: Record<ContentStyleType, string> = {
   post: "post",
@@ -37,6 +38,7 @@ const styles = (theme: ThemeType) => ({
     "& h6": {fontSize: "16px !important"},
   },
   continueReading: {
+    cursor: "pointer",
     display: "block",
     marginTop: 12,
     color: theme.palette.primary.main,
@@ -54,6 +56,7 @@ const ContentExcerpt = ({
   contentHtml,
   moreLink,
   lines = 3,
+  alwaysExpandInPlace,
   contentType,
   className,
   classes,
@@ -62,28 +65,50 @@ const ContentExcerpt = ({
   moreLink: string,
   contentType: ContentStyleType,
   lines?: number,
+  alwaysExpandInPlace?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const onExpand = useCallback(() => setExpanded(true), []);
+
+  const isTruncated = contentHtml.length > HTML_CHARS_PER_LINE_HEURISTIC * lines;
+  const expandInPlace = alwaysExpandInPlace ||
+    contentHtml.length < HTML_CHARS_PER_LINE_HEURISTIC * EXPAND_IN_PLACE_LINES;
+
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <ContentStyles
         contentType={contentType}
         className={classes.excerpt}
-        style={{WebkitLineClamp: lines}}
+        style={expanded ? undefined : {WebkitLineClamp: lines}}
       >
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: contentHtml}}
           className={classes.content}
         />
       </ContentStyles>
-      <Link to={moreLink} className={classes.continueReading}>
-        {contentHtml.length > HTML_CHARS_PER_LINE_HEURISTIC * lines
-          ? "Continue reading"
-          : `View ${contentTypeMap[contentType]}`
-        }
-      </Link>
+      {expandInPlace
+        ? (
+          expanded
+            ? null
+            : (
+              <div onClick={onExpand} className={classes.continueReading}>
+                Continue reading
+              </div>
+            )
+        )
+        : (
+          <Link to={moreLink} className={classes.continueReading}>
+            {isTruncated
+              ? "Continue reading"
+              : `View ${contentTypeMap[contentType]}`
+            }
+          </Link>
+        )
+      }
     </div>
   );
 }

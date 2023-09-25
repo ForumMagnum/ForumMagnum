@@ -23,6 +23,7 @@ const CommentExcerpt = ({comment, lines = 3, className}: {
       })}
       contentType="comment"
       lines={lines}
+      alwaysExpandInPlace
       className={className}
     />
   );
