@@ -76,6 +76,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment CommentsListWithTopLevelComment on Comment {
+    ...CommentsList
+    topLevelComment {
+      ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment ShortformComments on Comment {
     ...CommentsList
     post {

@@ -1304,6 +1304,10 @@ interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
 
+interface ShortformRecentDiscussion extends PostsList { // fragment on Posts
+  readonly recentComments: Array<CommentsListWithTopLevelComment>,
+}
+
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly user: UsersMinimumInfo|null,
   readonly title: string,
@@ -1477,6 +1481,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly wordCount: number,
 }
 
+interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
+  readonly topLevelComment: CommentsList|null,
+}
+
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly relevantTags: Array<TagPreviewFragment>,
@@ -1612,7 +1620,7 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
-  readonly tag: TagBasicInfo|null,
+  readonly tag: TagRecentDiscussion|null,
 }
 
 interface WithVoteRevision { // fragment on Revisions
@@ -3277,6 +3285,7 @@ interface FragmentTypes {
   PostsEditMutationFragment: PostsEditMutationFragment
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
+  ShortformRecentDiscussion: ShortformRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
@@ -3286,6 +3295,7 @@ interface FragmentTypes {
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
   CommentsList: CommentsList
+  CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
@@ -3482,6 +3492,7 @@ interface CollectionNamesByFragmentName {
   PostsEditMutationFragment: "Posts"
   PostsRevisionsList: "Posts"
   PostsRecentDiscussion: "Posts"
+  ShortformRecentDiscussion: "Posts"
   UsersBannedFromPostsModerationLog: "Posts"
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
@@ -3491,6 +3502,7 @@ interface CollectionNamesByFragmentName {
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
   CommentsList: "Comments"
+  CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
   CommentEdit: "Comments"

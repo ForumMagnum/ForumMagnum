@@ -539,6 +539,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ShortformRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsListWithTopLevelComment
+    }
+  }
+`);
+
+registerFragment(`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
