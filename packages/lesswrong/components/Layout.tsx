@@ -21,9 +21,10 @@ import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
-import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+// import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
+import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -175,7 +176,31 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-})
+  stickyWrapper: {
+    transition: "transform 200ms ease-in-out",
+  },
+  stickyWrapperHeaderVisible: {
+    transform: `translateY(${EA_FORUM_HEADER_HEIGHT}px)`,
+  },
+});
+
+const StickyWrapper: FC<{
+  eaHomeGridLayout: boolean,
+  headerVisible: boolean,
+  children: ReactNode,
+  classes: ClassesType,
+}> = ({eaHomeGridLayout, headerVisible, children, classes}) =>
+  eaHomeGridLayout
+    ? (
+      <StickyBox offsetTop={20} offsetBottom={20}>
+        <div className={classNames(classes.stickyWrapper, {
+          [classes.stickyWrapperHeaderVisible]: headerVisible,
+        })}>
+          {children}
+        </div>
+      </StickyBox>
+    )
+    : <>{children}</>;
 
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
@@ -183,14 +208,15 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [sideCommentsActive,setSideCommentsActive] = useState(false);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const { currentRoute, params: { slug }, pathname} = useLocation();
+  const { currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+  const headerVisible = useHeaderVisible();
+  console.log("mark visible", headerVisible);
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -284,15 +310,6 @@ const Layout = ({currentUser, children, classes}: {
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
     const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
 
-    const StickyWrapper: FC<{children: ReactNode}> = ({children}) =>
-      eaHomeGridLayout
-        ? (
-          <StickyBox offsetTop={20} offsetBottom={20}>
-            {children}
-          </StickyBox>
-        )
-        : <>{children}</>;
-
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
       const beforeTime = petrovBeforeTime.get()
@@ -355,7 +372,11 @@ const Layout = ({currentUser, children, classes}: {
               )}>
                 {isEAForum && <AdminToggle />}
                 {standaloneNavigation &&
-                  <StickyWrapper>
+                  <StickyWrapper
+                    eaHomeGridLayout={eaHomeGridLayout}
+                    headerVisible={headerVisible}
+                    classes={classes}
+                  >
                     <NavigationStandalone
                       sidebarHidden={hideNavigationSidebar}
                       unspacedGridLayout={unspacedGridLayout}
@@ -381,7 +402,11 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
                 {!renderSunshineSidebar && eaHomeGridLayout &&
-                  <StickyWrapper>
+                  <StickyWrapper
+                    eaHomeGridLayout={eaHomeGridLayout}
+                    headerVisible={headerVisible}
+                    classes={classes}
+                  >
                     <EAHomeRightHandSide />
                   </StickyWrapper>
                 }
