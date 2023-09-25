@@ -77,7 +77,6 @@ defineFeedResolver<Date>({
           translationFilter,
         ]}
         : postCommentedEventsCriteria),
-      ...(isEAForum && {frontpageDate: {$exists: true}}),
     };
 
     return await mergeFeedQueries<SortKeyType>({
