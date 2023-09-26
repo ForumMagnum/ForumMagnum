@@ -1028,7 +1028,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: "PetrovDayPoll",
     },
     {
-      name: 'petrovDayPoll',
+      name: 'petroyDayPoll',
       path: '/petroyDayPoll',
       componentName: "PetrovDayPoll",
       title: "Petrov Day Poll",
