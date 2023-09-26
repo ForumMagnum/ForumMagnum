@@ -122,7 +122,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
             v."isUnvote" IS NOT TRUE AND
             v."extendedVoteType" IS NOT NULL
         ) q
-        WHERE "key" IN ($2:csv)
+        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
         GROUP BY "key"
       ) q
     `, [postId, eaPublicEmojiNames]);
