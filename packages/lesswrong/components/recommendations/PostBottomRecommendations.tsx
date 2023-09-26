@@ -82,7 +82,7 @@ const PostBottomRecommendations = ({post, classes}: {
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <ToCColumn tableOfContents={<div />}>
+        <ToCColumn tableOfContents={<div />} notHideable>
           <div>
             {hasUserPosts &&
               <div className={classes.section}>

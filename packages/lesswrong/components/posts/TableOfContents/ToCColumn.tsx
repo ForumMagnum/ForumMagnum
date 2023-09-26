@@ -155,12 +155,14 @@ export const ToCColumn = ({
   tableOfContents,
   header,
   rightColumnChildren,
+  notHideable,
   children,
   classes,
 }: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
   rightColumnChildren?: React.ReactNode,
+  notHideable?: boolean,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -170,7 +172,7 @@ export const ToCColumn = ({
     shouldHideToggleContentsButton,
   );
   const [hidden, setHidden] = useState(false);
-  const hideable = isEAForum && !!tableOfContents;
+  const hideable = isEAForum && !notHideable && !!tableOfContents;
 
   useEffect(() => {
     const handler = () => setHideTocButtonHidden(
