@@ -859,6 +859,7 @@ importComponent("HomepageMapFilter", () => require('../components/seasonal/Homep
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
+importComponent("PetrovDayPoll", () => require('../components/seasonal/petrovDay/PetrovDayPoll'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
