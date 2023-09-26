@@ -1026,6 +1026,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'petrovDayPoll',
       path: '/petrovDayPoll',
       componentName: "PetrovDayPoll",
+    },
+    {
+      name: 'petroyDayPoll',
+      path: '/petroyDayPoll',
+      componentName: "PetrovDayPoll",
+      title: "Petrov Day Poll",
     }
   ],
   AlignmentForum: [
