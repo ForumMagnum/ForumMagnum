@@ -17,7 +17,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   timeBlockTitle: {
     whiteSpace: "pre",
     textOverflow: "ellipsis",
-    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     position: "sticky",
     zIndex: 1,

@@ -21,7 +21,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: theme.spacing.unit*2,
-    // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
     ...(isEAForum && {
