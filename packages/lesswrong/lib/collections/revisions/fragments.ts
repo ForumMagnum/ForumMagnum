@@ -79,7 +79,7 @@ registerFragment(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
-      ...TagBasicInfo
+      ...TagRecentDiscussion
     }
   }
 `);

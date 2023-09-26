@@ -1,6 +1,6 @@
 import * as _ from 'underscore';
 
-interface ThreadableCommentType {
+export interface ThreadableCommentType {
   _id: string
   parentCommentId: string
   topLevelCommentId: string
