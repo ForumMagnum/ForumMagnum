@@ -77,7 +77,6 @@ const analyticsColumnSet = new pgPromiseLib.helpers.ColumnSet(['environment', 'e
 // Writes an event to the analytics database.
 async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, props: AnyBecauseTodo}[]) {
   const connection = getAnalyticsConnection()
-  const mirrorConnection = getMirrorAnalyticsConnection()
   
   if (connection) {
     try {
@@ -99,10 +98,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       
       inFlightRequestCounter.inFlightRequests++;
       try {
-        await Promise.all([
-          connection?.none(query),
-          mirrorConnection?.none(query)
-        ])
+        await connection?.none(query);
       } finally {
         inFlightRequestCounter.inFlightRequests--;
       }
