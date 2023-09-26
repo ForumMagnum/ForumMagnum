@@ -1,0 +1,84 @@
+import React from "react";
+import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotlight";
+import { registerComponent } from "../../lib/vulcan-lib";
+import { currentEventHeader } from "../../lib/publicSettings";
+import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
+
+const styles = (_theme: ThemeType) => ({
+  root: {
+    marginLeft: "1em",
+    backgroundClip: "text !important",
+    "-webkit-background-clip": "text !important",
+    "-webkit-text-fill-color": "transparent",
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
+});
+
+const makeBackground = (leftColor?: string | null, rightColor?: string | null) =>
+  `linear-gradient(
+    91deg,
+    ${leftColor ?? "#F35B3E"} 5.84%,
+    ${rightColor ?? "#D92B08"} 99.75%
+  )`;
+
+type CurrentEvent = {
+  title: string,
+  link: string,
+  background: string,
+}
+
+const useCurrentEvent = (): CurrentEvent | null => {
+  const currentEventSetting = currentEventHeader.get();
+  const spotlight = useCurrentFrontpageSpotlight();
+
+  if (currentEventSetting) {
+    return {
+      title: currentEventSetting.name,
+      link: currentEventSetting.link,
+      background: makeBackground(),
+    };
+  }
+
+  if (spotlight?.headerTitle) {
+    return {
+      title: spotlight.headerTitle,
+      link: getSpotlightUrl(spotlight),
+      background: makeBackground(
+        spotlight.headerTitleLeftColor,
+        spotlight.headerTitleRightColor,
+      ),
+    };
+  }
+
+  return null;
+}
+
+const HeaderEventSubtitle = ({classes}: {classes: ClassesType}) => {
+  const currentEvent = useCurrentEvent();
+  return currentEvent
+    ? (
+      <Link
+        to={currentEvent.link}
+        style={{background: currentEvent.background}}
+        className={classes.root}
+      >
+        {currentEvent.title}
+      </Link>
+    )
+    : null;
+}
+
+const HeaderEventSubtitleComponent = registerComponent(
+  "HeaderEventSubtitle",
+  HeaderEventSubtitle,
+  {styles},
+);
+
+declare global {
+  interface ComponentTypes {
+    HeaderEventSubtitle: typeof HeaderEventSubtitleComponent
+  }
+}
