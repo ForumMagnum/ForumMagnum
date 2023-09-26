@@ -9,5 +9,7 @@ export const getSiteTheme = (forumType: ForumTypeString): SiteThemeSpecification
     EAForum: eaForumTheme,
     LessWrong: lessWrongTheme,
   }
+  if (!forumThemes[forumType]) throw Error(`No theme for forum type ${forumType}`);
+
   return forumThemes[forumType];
 }
