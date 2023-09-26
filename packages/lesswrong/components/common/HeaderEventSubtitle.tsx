@@ -38,7 +38,10 @@ const useCurrentEvent = (): CurrentEvent | null => {
     return {
       title: currentEventSetting.name,
       link: currentEventSetting.link,
-      background: makeBackground(),
+      background: makeBackground(
+        currentEventSetting.leftColor,
+        currentEventSetting.rightColor,
+      ),
     };
   }
 

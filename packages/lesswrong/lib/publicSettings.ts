@@ -114,6 +114,8 @@ export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('data
 export type CurrentEventHeader = {
   name: string,
   link: string,
+  leftColor?: string,
+  rightColor?: string,
 }
 
 export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader | null>("currentEventHeader", null);
