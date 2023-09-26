@@ -2,10 +2,13 @@ import React from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   base: {
-    ...postBodyStyles(theme)
+    ...postBodyStyles(theme),
+    fontSize: isEAForum ? '1.3rem' : undefined,
+    lineHeight: isEAForum ? '1.7em' : undefined,
   },
   postBody: {
   },
