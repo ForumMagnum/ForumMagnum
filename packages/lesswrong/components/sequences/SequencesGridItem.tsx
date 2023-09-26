@@ -64,6 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   author: {
     color: theme.palette.text.dim,
+    fontSize: isEAForum ? 14 : undefined,
   },
 
   meta: {

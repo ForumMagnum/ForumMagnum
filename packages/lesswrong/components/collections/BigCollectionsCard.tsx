@@ -40,7 +40,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   text: {
     // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    fontSize: isEAForum ? "1.2rem" : undefined,
+    lineHeight: isEAForum ? "1.5em" : undefined,
   },
   author: {
     // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
@@ -48,6 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom:theme.spacing.unit,
     ...(isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
     }),
   },
   media: {

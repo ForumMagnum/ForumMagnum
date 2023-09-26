@@ -45,6 +45,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   text: {
     // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
     ...theme.typography.postStyle,
+    fontSize: isEAForum ? "1.2rem" : undefined,
+    lineHeight: isEAForum ? "1.5em" : undefined,
   },
   author: {
     // TODO-wh this may now be getting fontSize: "1.35rem" from postStyle when there was previously no size applied
@@ -53,15 +55,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     ...(isEAForum && {
       fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
     }),
   },
   media: {
     '& img':{
       width:307,
+      maxHeight: isEAForum ? 80 : undefined,
       [theme.breakpoints.down('sm')]: {
         width: "100%",
         maxWidth:307,
-        overflow: "hidden"
+        overflow: "hidden",
       },
     },
     

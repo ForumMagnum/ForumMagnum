@@ -16,6 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxSizing: 'border-box',
     borderRadius: theme.borderRadius.default,
     fontSize: 14,
+    fontWeight: 500,
     lineHeight: "21px",
   } : {
     ...theme.typography.contentNotice,

@@ -116,7 +116,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       color: palette.grey[900],
       // use ems (not rems) to preserve relative height even if font-size is changed
       lineHeight: '1.7em',
-      fontSize: '1.35rem',
+      fontSize: '1.3rem',
       fontWeight: 400,
       fontFamily: serifStack
     }
