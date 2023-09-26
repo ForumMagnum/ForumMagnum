@@ -15,6 +15,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "space-between",
     maxWidth: SECTION_WIDTH,
+    marginBottom: "12px",
   },
   readCheckbox: {
     minWidth: 24,
@@ -186,6 +187,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
   },
+  contentPreviewPadding: {
+    padding: "0 20px 20px",
+  },
 });
 
 
@@ -234,7 +238,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
     TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
-    PostsVote,
+    PostsVote, PostsHighlight
   } = Components;
 
   const SecondaryInfo = () => (
@@ -263,19 +267,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     </>
   );
 
-  // The nesting here gets a little messy: we need to add the extra `Link`
-  // around the title to make it right-clickable/cmd+clickable. However,
-  // clicking this adds a second history item when navigating to the post
-  // normally requiring the user to press back twice to get to where they
-  // started so we need to wrap that whole thing in an `InteractionWrapper`
-  // too.
-  const TitleWrapper: FC = ({children}) => (
-    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
-      <InteractionWrapper className={classes.titleWrapper}>
-        <Link to={postLink}>{children}</Link>
-      </InteractionWrapper>
-    </PostsItemTooltipWrapper>
-  );
 
   return (
     <AnalyticsContext {...analyticsProps}>
@@ -315,7 +306,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                   strikethroughTitle,
                   curatedIconLeft,
                 }}
-                Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
                 className={classes.title}
@@ -331,9 +321,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                   <div>
                     {' · '}
                     <PostsItemDate post={post} noStyles includeAgo />
-                    {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) && <span className={classes.readTime}>
-                      {' · '}{post.readTimeMinutes || 1}m read
-                    </span>}
                   </div>
                 </div>
                 <div className={classNames(
@@ -383,6 +370,10 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               />
             </div>
           }
+          {post.contents && post.contents.wordCount > 1 &&
+            <div className={classes.contentPreviewPadding}>
+              <PostsHighlight post={post} maxLengthWords={50} smallerFonts={false} />
+            </div>}
         </div>
       </div>
     </AnalyticsContext>
