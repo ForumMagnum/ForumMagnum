@@ -284,7 +284,7 @@ const Header = ({
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
+    NotificationsMenu, HeaderSubtitle, Typography, ForumIcon
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -334,10 +334,6 @@ const Header = ({
                 </NoSSR>
                 {!isFriendlyUI && usersMenuNode}
                 {!currentUser && <UsersAccountMenu />}
-                {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
-                  currentUser={currentUser}
-                  className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
-                />}
                 {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}
                   toggle={handleNotificationToggle}
