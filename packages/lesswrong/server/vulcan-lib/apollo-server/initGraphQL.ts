@@ -221,7 +221,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
-            [resolverName]: (document: T, args: any, context: ResolverContext, info: any) => {
+            [resolverName]: (document: AnyBecauseHard, args: any, context: ResolverContext, info: any) => {
               const { currentUser } = context;
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);

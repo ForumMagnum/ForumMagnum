@@ -23,6 +23,23 @@ interface CollectionFieldPermissions {
 
 type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
+type Without<T extends DbObject, D extends keyof T = never> = {
+  [k in Exclude<keyof T, D>]: undefined;
+};
+
+interface ResolveAs<T extends DbObject, D extends ReadonlyArray<keyof T>> {
+  type: string|GraphQLScalarType,
+  description?: string,
+  fieldName?: string,
+  addOriginalField?: boolean,
+  arguments?: string|null,
+  dependsOn: D,
+  resolver: (root: Pick<T, D[number]> & Without<T, D[number]>, args: any, context: ResolverContext, info?: any)=>any,
+}
+
+type foobar = readonly string[] extends string[] ? true : false;
+type ffbb = readonly any[] extends readonly (string | number)[] ? true : false;
+
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -30,16 +47,10 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   defaultValue?: any,
   graphQLType?: string,
   typescriptType?: string,
+
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
-  resolveAs?: {
-    type: string|GraphQLScalarType,
-    description?: string,
-    fieldName?: string,
-    addOriginalField?: boolean,
-    arguments?: string|null,
-    resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
-  },
+  resolveAs?: ResolveAs<T, ReadonlyArray<keyof T>>,
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,

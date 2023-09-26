@@ -91,17 +91,46 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   return restrictedDocs;
 }
 
+interface ForeignKeyFields<T extends DbObject, ForeignCollectionName extends CollectionNameString> {
+  type: StringConstructor,
+  foreignKey: ForeignCollectionName,
+  // Technically the second type parameter should be a generic constrained to `keyof T & string`, but that makes things hard and this doesn't actually let anything illegal through where it matters
+  resolveAs: ResolveAs<T, ReadonlyArray<keyof T>>
+}
+
+interface ForeignKeyArrayFields<T extends DbObject, ForeignCollectionName extends CollectionNameString> {
+  type: ArrayConstructor,
+  defaultValue: [],
+  // Technically the second type parameter should be a generic constrained to `keyof T & string`, but that makes things hard and this doesn't actually let anything illegal through where it matters
+  resolveAs: ResolveAs<T, ReadonlyArray<keyof T>>
+}
+
+// interface TestThis<T extends { foobar: 'foobar' }> {
+//   foobar: this['foobar']
+// }['foobar']
+
+// const ff: TestThis<{ foobar: 'foobar' }> = { foobar: 'foobar' };
+
+// function apply<T>(fn: (t: T) => T) {}
+// const schema: SchemaType<DbComment> = {
+//   testField: foreignKeyField({ collectionName: 'Tags', idFieldName })
+// }
+
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
  */
-export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
-  idFieldName: string,
+export function foreignKeyField<
+  LocalCollection extends DbObject,
+  ForeignCollectionName extends CollectionNameString,
+  IdField extends keyof LocalCollection & string
+>({idFieldName, resolverName, collectionName, type, nullable=true}: {
+  idFieldName: IdField,
   resolverName: string,
-  collectionName: CollectionName,
+  collectionName: ForeignCollectionName,
   type: string,
   nullable?: boolean,
-}) => {
+}): ForeignKeyFields<LocalCollection, ForeignCollectionName> {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -111,6 +140,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
     resolveAs: {
       fieldName: resolverName,
       type: nullable ? type : `${type}!`,
+      dependsOn: [idFieldName],
       resolver: generateIdResolverSingle({
         collectionName,
         fieldName: idFieldName,
@@ -121,13 +151,17 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
   }
 }
 
-export function arrayOfForeignKeysField<CollectionName extends keyof CollectionsByName>({idFieldName, resolverName, collectionName, type, getKey}: {
-  idFieldName: string,
+export function arrayOfForeignKeysField<
+  LocalCollection extends DbObject,
+  ForeignCollectionName extends keyof CollectionsByName,
+  IdField extends keyof LocalCollection & string
+>({idFieldName, resolverName, collectionName, type, getKey}: {
+  idFieldName: IdField,
   resolverName: string,
-  collectionName: CollectionName,
+  collectionName: ForeignCollectionName,
   type: string,
   getKey?: (key: any)=>string,
-}) {
+}): ForeignKeyArrayFields<LocalCollection, ForeignCollectionName> {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -137,6 +171,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,
+      dependsOn: [idFieldName],
       resolver: generateIdResolverMulti({
         collectionName,
         fieldName: idFieldName,
@@ -155,17 +190,19 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
   else return null;
 }
 
-interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpecification<T> {
-  resolver: (doc: T, args: any, context: ResolverContext) => any,
+interface ResolverOnlyFieldArgs<T extends DbObject, D extends ReadonlyArray<keyof T>> extends CollectionFieldSpecification<T> {
+  dependsOn: D,
+  resolver: ResolveAs<T, D>['resolver'], // (doc: T, args: any, context: ResolverContext) => any,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
+
 
 /**
  * This field is not stored in the database, but is filled in at query-time by
  * our GraphQL API using the supplied resolver function.
  */
-export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
+export const resolverOnlyField = <T extends DbObject, D extends (keyof T)[]>({type, graphQLtype=null, resolver, graphqlArguments=null, dependsOn, ...rest}: ResolverOnlyFieldArgs<T, D>): CollectionFieldSpecification<T> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
     throw new Error("Could not determine resolver graphQL type");
@@ -176,6 +213,7 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
       type: resolverType,
       arguments: graphqlArguments,
       resolver: resolver,
+      dependsOn: dependsOn as AnyBecauseHard
     },
     ...rest
   }

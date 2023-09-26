@@ -29,9 +29,9 @@ export function describeTerms(terms: ViewTermsBase) {
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).
  */
-export function viewTermsToQuery<N extends CollectionNameString>(collectionName: N, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext) {
+export function viewTermsToQuery<N extends CollectionNameString>(collectionName: N, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext, fragmentFields?: string[]) {
   const collection = getCollection(collectionName);
-  return getParameters(collection, terms, apolloClient, resolverContext);
+  return getParameters(collection, terms, apolloClient, resolverContext, fragmentFields);
 }
 
 /**
@@ -53,7 +53,8 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
   collection: CollectionBase<T>,
   terms: ViewTermsByCollectionName[N] = {},
   apolloClient?: any,
-  context?: ResolverContext
+  context?: ResolverContext,
+  fragmentFields?: string[]
 ): MergedViewQueryAndOptions<N,T> {
   const collectionName = collection.collectionName;
   const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
@@ -121,6 +122,14 @@ function getParameters<N extends CollectionNameString, T extends DbObject=Object
       }
     });
   }
+
+  if (fragmentFields?.length) {
+    parameters.projection ??= {};
+    fragmentFields.forEach(fragmentField => {
+      parameters.projection[fragmentField] = 1;
+    })
+  }
+  
 
   // limit number of items to 1000 by default
   const maxDocuments = maxDocumentsPerRequestSetting.get();

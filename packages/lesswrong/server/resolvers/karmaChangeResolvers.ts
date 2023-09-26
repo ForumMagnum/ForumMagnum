@@ -1,7 +1,7 @@
 import Users from "../../lib/collections/users/collection";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
-import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
+import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges, USER_KARMA_CHANGE_NOTIFIER_FIELDS } from "../karmaChanges";
 
 augmentFieldsDict(Users, {
   karmaChanges: {
@@ -9,6 +9,7 @@ augmentFieldsDict(Users, {
     resolveAs: {
       arguments: 'startDate: Date, endDate: Date',
       type: 'KarmaChanges',
+      dependsOn: USER_KARMA_CHANGE_NOTIFIER_FIELDS,
       resolver: async (document, {startDate,endDate}, context: ResolverContext) => {
         const { currentUser } = context;
         if (!currentUser)

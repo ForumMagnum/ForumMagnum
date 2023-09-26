@@ -2,8 +2,16 @@ export function fieldIn<T extends {}>(field: string | number | symbol, ...object
   return objects.every(object => field in object);
 }
 
-type Literal<T> = string|number extends T ? never : T;
-type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
+type Literal<T> = string extends T
+  ? never
+  : number extends T
+  ? never
+  : T;
+
+export type Tuple<T extends ReadonlyArray<string|number>> = 
+  Literal<T[number]> extends never
+    ? never
+    : T;
 
 /**
  * We fairly frequently encounter the following pattern:
@@ -35,7 +43,7 @@ type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends 
  * new TupleSet(['sunshineNewUsers', 'allUsers']); // missing `as const`
  * ```
  */
-export class TupleSet<T extends ReadonlyArray<string|number>> extends Set<string|number> {
+export class TupleSet<const T extends ReadonlyArray<string|number>> extends Set<string|number> {
   constructor(knownValues: Tuple<T>) {
     super(knownValues);
   }

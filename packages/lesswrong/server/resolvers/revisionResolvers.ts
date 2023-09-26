@@ -34,6 +34,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
+      dependsOn: ['originalContents'],
       resolver: ({originalContents}) => originalContents
         ? dataToMarkdown(originalContents.data, originalContents.type)
         : null,
@@ -43,6 +44,7 @@ augmentFieldsDict(Revisions, {
     type: Object,
     resolveAs: {
       type: 'JSON',
+      dependsOn: ['originalContents'],
       resolver: ({originalContents}) => originalContents
         ? dataToDraftJS(originalContents.data, originalContents.type)
         : null,
@@ -52,6 +54,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
+      dependsOn: ['originalContents'] as const,
       resolver: ({originalContents, html}) => originalContents
         // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
         ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
@@ -62,6 +65,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
+      dependsOn: ['originalContents'],
       resolver: ({html}) => highlightFromHTML(html)
     }
   },

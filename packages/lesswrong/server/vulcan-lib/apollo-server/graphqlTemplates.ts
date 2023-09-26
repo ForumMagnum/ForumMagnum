@@ -198,6 +198,8 @@ export const multiInputTemplate = ({ typeName }: {typeName: string}) => (
   enableTotal: Boolean
   # The document to create if none are found
   createIfMissing: JSON
+  # The name of the fragment used for the query
+  fragmentName: String
   # OpenCRUD fields
   where: ${typeName}SelectorInput
   orderBy: ${typeName}OrderByInput

@@ -318,7 +318,7 @@ export function useMulti<
   const graphQLVariables = {
     input: {
       terms: { ...terms, limit: defaultLimit },
-      enableCache, enableTotal, createIfMissing
+      enableCache, enableTotal, createIfMissing, fragmentName
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
   }
