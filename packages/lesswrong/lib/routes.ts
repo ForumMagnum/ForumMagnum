@@ -1021,6 +1021,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'editor',
       path: '/editor',
       redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    },
+    {
+      name: 'petrovDayPoll',
+      path: '/petrovDayPoll',
+      componentName: "PetrovDayPoll",
+    },
+    {
+      name: 'petroyDayPoll',
+      path: '/petroyDayPoll',
+      componentName: "PetrovDayPoll",
+      title: "Petrov Day Poll",
     }
   ],
   AlignmentForum: [
