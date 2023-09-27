@@ -938,7 +938,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    /* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */
+    hidden: true // (props) => props.eventForm,
   },
   "tagRelevance.$": {
     type: Number,

@@ -1326,6 +1326,7 @@ const schema: SchemaType<DbUser> = {
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
+    hidden: true, // re-enable when tags/topics are re-enabled after launch
   },
   notificationPrivateMessage: {
     label: "Private messages",
