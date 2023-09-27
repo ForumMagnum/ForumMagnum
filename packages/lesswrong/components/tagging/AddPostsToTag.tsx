@@ -12,6 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { formatFacetFilters } from '../search/SearchAutoComplete';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -145,7 +146,7 @@ const AddPostsToTag = ({classes, tag}: {
           <SearchPagination />
         </div>
         <Configure
-          facetFilters={`tags:-zxmLyuTr7nujF523s`}
+          facetFilters={formatFacetFilters({tags: `-${tag._id}`})}
           hitsPerPage={10}
         />
         <Hits hitComponent={({hit}: {hit: any}) => <span className={classes.postHit} onClick={() => onPostSelected(hit._id)}>
