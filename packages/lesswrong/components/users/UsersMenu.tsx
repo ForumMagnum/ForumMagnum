@@ -198,7 +198,8 @@ const UsersMenu = ({classes}: {
                 * as there's issues with the new quick takes entry for such users.
                 * Long-term, we should fix these issues and reenable this option.
                 */}
-              {showNewButtons && (!isFriendlyUI || userCanComment(currentUser)) &&
+              {/* Quick takes are removed for launch, but may be added back later, so I'm leaving this commented out. */}
+              {/* {showNewButtons && (!isFriendlyUI || userCanComment(currentUser)) &&
                 <DropdownItem
                   title={isFriendlyUI ? "New quick take" : "New Shortform"}
                   onClick={() => openDialog({componentName:"NewShortformDialog"})}
@@ -286,7 +287,7 @@ const UsersMenu = ({classes}: {
                 icon="Bookmarks"
                 iconClassName={classes.icon}
               />
-              {currentUser.shortformFeedId &&
+              {/* {currentUser.shortformFeedId &&
                 <DropdownItem
                   title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
                   to={postGetPageUrl({
@@ -296,7 +297,7 @@ const UsersMenu = ({classes}: {
                   icon={isFriendlyUI ? "CommentFilled" : "Shortform"}
                   iconClassName={classes.icon}
                 />
-              }
+              } */}
               {isFriendlyUI && messagesNode}
               {isFriendlyUI && accountSettingsNode}
   

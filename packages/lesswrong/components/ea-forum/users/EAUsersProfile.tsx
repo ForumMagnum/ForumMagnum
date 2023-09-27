@@ -511,10 +511,11 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentIncludeEvents={currentIncludeEvents}
             currentHideCommunity={currentHideCommunity}
           />}
-          <AnalyticsContext listContext="userPagePosts">
+          {/* Quick takes are removed for launch, but may be added back later, so I'm leaving this commented out. */}
+          {/* <AnalyticsContext listContext="userPagePosts">
             <ProfileShortform user={user} />
             <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
-          </AnalyticsContext>
+          </AnalyticsContext> */}
         </div>}
 
         {!!user.sequenceCount && <div className={classes.section}>

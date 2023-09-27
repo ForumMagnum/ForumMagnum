@@ -399,11 +399,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'shortform',
-      title: 'Shortform',
-      link: '/shortform',
-      subItem: true,
-    }, {
+    /* Quick takes are removed for launch, but may be added back later, so I'm leaving this commented out. */
+    //   id: 'shortform',
+    //   title: 'Shortform',
+    //   link: '/shortform',
+    //   subItem: true,
+    // }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
     }, {

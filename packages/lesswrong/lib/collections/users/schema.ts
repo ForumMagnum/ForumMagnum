@@ -1304,6 +1304,7 @@ const schema: SchemaType<DbUser> = {
       ? "Quick takes by users I'm subscribed to"
       : "Shortform by users I'm subscribed to",
     ...notificationTypeSettingsField(),
+    hidden: true,
   },
   notificationRepliesToMyComments: {
     label: "Replies to my comments",
@@ -1968,6 +1969,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
+    hidden: true,
   },
 
   viewUnreviewedComments: {
