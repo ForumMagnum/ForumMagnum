@@ -25,7 +25,7 @@ export type QueryFilter = {
 } & ({
   type: "facet",
   value: boolean | string,
-  negated?: boolean,
+  negated: boolean,
 } | {
   type: "numeric",
   value: number,
