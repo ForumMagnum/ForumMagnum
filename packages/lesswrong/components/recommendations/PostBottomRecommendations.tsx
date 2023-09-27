@@ -55,11 +55,11 @@ const PostBottomRecommendations = ({post, classes}: {
   });
 
   const {
-    results: digestPosts,
-    loading: digestLoading,
+    results: curatedAndPopularPosts,
+    loading: curatedAndPopularLoading,
   } = usePaginatedResolver({
     fragmentName: "PostsPage",
-    resolverName: "DigestPostsThisWeek",
+    resolverName: "CuratedAndPopularThisWeek",
     limit: 3,
   });
 
@@ -109,13 +109,13 @@ const PostBottomRecommendations = ({post, classes}: {
             }
             <div className={classes.section}>
               <div className={classes.sectionHeading}>
-                Recommended by the Forum team this week
+                Curated and popular this week
               </div>
-              {digestLoading && !digestPosts?.length &&
+              {curatedAndPopularLoading && !curatedAndPopularPosts?.length &&
                 <PostsLoading />
               }
-              <AnalyticsContext pageSubSectionContext="digestThisWeek">
-                {digestPosts?.map((post) => (
+              <AnalyticsContext pageSubSectionContext="curatedAndPopular">
+                {curatedAndPopularPosts?.map((post) => (
                   <EALargePostsItem
                     key={post._id}
                     post={post}
