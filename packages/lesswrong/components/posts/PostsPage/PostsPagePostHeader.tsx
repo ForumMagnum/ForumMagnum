@@ -411,9 +411,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
+    {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+    {/*!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
       <FooterTagList post={post} hideScore allowTruncate />
-    </AnalyticsContext>}
+          </AnalyticsContext>*/}
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

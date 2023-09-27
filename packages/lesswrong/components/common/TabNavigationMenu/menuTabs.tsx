@@ -364,15 +364,16 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: false,
       showOnCompressed: true,
     }, {
-      id: 'wiki',
-      title: 'Wiki',
-      mobileTitle: 'Wiki',
-      link: getAllTagsPath(),
-      iconComponent: LocalOffer,
-      tooltip: 'Collaboratively edited Tags and Wiki Articles',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
+    /* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */
+    //   id: 'wiki',
+    //   title: 'Wiki',
+    //   mobileTitle: 'Wiki',
+    //   link: getAllTagsPath(),
+    //   iconComponent: LocalOffer,
+    //   tooltip: 'Collaboratively edited Tags and Wiki Articles',
+    //   showOnMobileStandalone: true,
+    //   showOnCompressed: true,
+    // }, {
       id: 'library',
       title: 'Library',
       link: '/library',

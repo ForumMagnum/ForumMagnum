@@ -257,13 +257,14 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
           <PostActionsButton post={post} popperGap={16} autoPlace vertical />
         </InteractionWrapper>
       </div>
-      {tagRel &&
+      {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+      {/*tagRel &&
         <div className={classes.tagRelWrapper}>
           <InteractionWrapper className={classes.interactionWrapper}>
             <PostsItemTagRelevance tagRel={tagRel} />
           </InteractionWrapper>
         </div>
-      }
+      */}
     </>
   );
 

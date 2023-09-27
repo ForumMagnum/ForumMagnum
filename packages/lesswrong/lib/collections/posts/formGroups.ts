@@ -95,10 +95,11 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     label: "Audio",
     startCollapsed: true
   },
-  tags: {
-    order: isEAForum ? 20 : 60,
-    name: "tags",
-    label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
-    startCollapsed: false
-  }
+  /* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */
+  // tags: {
+  //   order: isEAForum ? 20 : 60,
+  //   name: "tags",
+  //   label: isEAForum ? `Set ${taggingNamePluralSetting.get()}` : `Apply ${taggingNamePluralCapitalSetting.get()}`,
+  //   startCollapsed: false
+  // }
 };

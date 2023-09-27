@@ -92,7 +92,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <SetSideCommentVisibility />
       <HideFrontpagePostDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
-      {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
+      {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+      {/*currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />*/}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
       <SuggestCuratedDropdownItem post={post} />
