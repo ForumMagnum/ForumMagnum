@@ -194,6 +194,7 @@ const EAPostsItem = ({
     resumeReading,
     strikethroughTitle,
     curatedIconLeft,
+    showIcons,
     isRead,
     showReadCheckbox,
     tooltipPlacement,
@@ -290,6 +291,7 @@ const EAPostsItem = ({
                   showPersonalIcon,
                   strikethroughTitle,
                   curatedIconLeft,
+                  showIcons,
                 }}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
