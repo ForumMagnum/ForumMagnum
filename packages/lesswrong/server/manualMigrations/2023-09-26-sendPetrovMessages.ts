@@ -20,9 +20,8 @@ async function sendMessageTo(userId: string) {
     adminsAccount = await getAdminTeamAccount()
   }
   
-  const subjectLine = ''; // TODO
-  const welcomeMessageBody = ''; // TODO
-  
+  const subjectLine = 'Petrov Day Poll';
+  const welcomeMessageBody = '<p>Today is&nbsp;<a href="https://www.lesswrong.com/posts/QtyKq4BDyuJ3tysoK/9-26-is-petrov-day"><u>Petrov Day</u></a>! A day celebrating that the world didn’t end, and the virtues that helped it not end. There’s been a lot of discussion.</p><p>This year we’re conducting a poll about Petrov Day virtues. Please click the link of the virtue you think is most important (you’d preserve that over all others). Only the first link you click on will count towards the results.</p><p>The Virtues</p><ul><li><a href="https://lesswrong.com/petroyDayPoll?choice=A"><u>Virtue A – Avoiding actions that noticeably increase the chance that civilization is destroyed</u></a></li><li><a href="https://lesswrong.com/petroyDayPoll?choice=B"><u>Virtue B – Accurately reporting your epistemic state</u></a></li><li><a href="https://lesswrong.com/petroyDayPoll?choice=C"><u>Virtue C – Quickly orienting to novel situations</u></a></li><li><a href="https://lesswrong.com/petroyDayPoll?choice=D"><u>Virtue D – Resisting social pressure</u></a></li></ul><p>Thank you!</p><p>- The LessWrong Team</p>'
   const conversationData = {
     participantIds: [user._id, adminsAccount._id],
     title: subjectLine,
