@@ -49,12 +49,13 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
 
   return <div>
     <DynamicTableOfContentsContext.Provider value={context}>
-      <ToCColumn 
+      <ToCColumn
         tableOfContents={<TableOfContents 
           sectionData={sectionData}
           title={displayedTitle}
         />}
         rightColumnChildren={rightColumnChildren}
+        notHideable
       >
         {children}
       </ToCColumn>
