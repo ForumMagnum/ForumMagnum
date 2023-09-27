@@ -24,6 +24,7 @@ import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -453,28 +454,13 @@ export const EAHomeRightHandSide = ({classes}: {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
-  const { timezone } = useTimezone()
   // logged in users can hide the RHS - this is tracked via state so that the UI is snappy
   const [isHidden, setIsHidden] = useState(!!currentUser?.hideHomeRHS)
 
-  const now = moment().tz(timezone)
-  const dateCutoff = now.subtract(7, 'days').format("YYYY-MM-DD")
-  const { results: opportunityPosts } = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "magic",
-      filterSettings: {tags: [{
-        tagId: 'z8qFsGt5iXyZiLbjN',
-        filterMode: 'Required'
-      }]},
-      after: dateCutoff,
-      limit: 3
-    },
-    fragmentName: "PostsList",
-    enableTotal: false,
-    fetchPolicy: "cache-and-network",
-  })
-  
+  const {results: opportunityPosts} = useRecentOpportunities({
+    fragmentName: "PostsListWithVotesAndSequence",
+  });
+
   const {results: savedPosts} = useMulti({
     collectionName: "Posts",
     terms: {

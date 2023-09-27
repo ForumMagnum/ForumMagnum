@@ -347,6 +347,11 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
   })
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).newAsync.add(async (doc: DbPost) => {
+      await Globals.rehostPostMetaImages(doc);
+    })
+  }
 }
 
 export function addAllEditableCallbacks() {

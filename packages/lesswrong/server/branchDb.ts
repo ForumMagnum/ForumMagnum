@@ -25,7 +25,8 @@ export const getBranchDbName = async (): Promise<string | undefined> => {
       return dbName;
     }
   } catch (e) {
+    // Commenting out this console log because this feature is unfinished
     // eslint-disable-next-line no-console
-    console.warn("Warning loading branch dbs:", e.message, process.cwd());
+    // console.warn("Warning loading branch dbs:", e.message, process.cwd());
   }
 }

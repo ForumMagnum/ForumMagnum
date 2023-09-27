@@ -33,8 +33,6 @@ class ElasticClient {
     }
 
     if (!globalClient) {
-      // eslint-disable-next-line no-console
-      console.log("Connecting to Elasticsearch...");
       globalClient = new Client({
         requestTimeout: 600000,
         cloud: {id: cloudId},

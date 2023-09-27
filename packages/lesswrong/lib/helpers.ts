@@ -119,3 +119,48 @@ export const generateDateSeries = (startDate: moment.Moment | Date, endDate: mom
   }
   return dateSeries;
 };
+
+/**
+ * Given an arbitrary object and a path into that object, where the result is presumed to exist and
+ * be a string, recurse through that object getting the value at the given path. Eg
+ *
+ *     getAtPath({
+ *       x: {
+ *         y: {
+ *           z: "asdf"
+ *         },
+ *       }
+ *     }, ["x","y","z"])
+ *
+ * is "asdf". This is not as strong a typecheck as would be ideal; it might be possible to make
+ * something stronger by replacing ThemePath with a type that manipulates T to assert that the path
+ * exists as a string, but I (Jim) gave it a shot and didn't find a way to do that that worked.
+ */
+export const getAtPath = <T extends {}, V extends AnyBecauseHard>(
+  data: T,
+  path: (string | number)[],
+): V | undefined => {
+  if (!data) {
+    return undefined;
+  }
+  return path.length < 2
+    ? data[path[0] as keyof T] as V | undefined
+    : getAtPath(data[path[0] as keyof T] as AnyBecauseHard, path.slice(1));
+}
+
+/**
+ * Similar to `getAtPath`, but acts as a setter rather than a getter. See
+ * `getAtPath` for details.
+ */
+export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
+  data: T,
+  path: (string | number)[],
+  value: V,
+): V => {
+  if (path.length < 2) {
+    (data[path[0] as keyof T] as V) = value;
+  } else {
+    setAtPath(data[path[0] as keyof T] as AnyBecauseHard, path.slice(1), value);
+  }
+  return value;
+}

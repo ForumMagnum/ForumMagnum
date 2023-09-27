@@ -70,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
+  mainNoFooter: {
+    paddingBottom: 0,
+  },
   mainFullscreen: {
     height: "100%",
     padding: 0,
@@ -395,6 +398,7 @@ const Layout = ({currentUser, children, classes}: {
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
+                  [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
@@ -407,7 +411,7 @@ const Layout = ({currentUser, children, classes}: {
                       : children
                     }
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && <Footer />}
+                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 {!renderSunshineSidebar &&
                   eaHomeGridLayout &&
