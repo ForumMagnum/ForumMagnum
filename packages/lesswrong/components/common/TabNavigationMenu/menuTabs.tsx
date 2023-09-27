@@ -382,18 +382,19 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'events',
-      title: 'Community and Events',
-      mobileTitle: 'Events',
-      link: communityPath,
-      iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See groups and events in your area',
-      showOnMobileStandalone: true,
-      showOnCompressed: true
-    }, {
-      id: 'eventsList',
-      customComponentName: "EventsList",
-    }, {
+    /* Events are removed for launch, but will be added back later, so I'm leaving this commented out. */
+    //   id: 'events',
+    //   title: 'Community and Events',
+    //   mobileTitle: 'Events',
+    //   link: communityPath,
+    //   iconComponent: SupervisedUserCircleIcon,
+    //   tooltip: 'See groups and events in your area',
+    //   showOnMobileStandalone: true,
+    //   showOnCompressed: true
+    // }, {
+    //   id: 'eventsList',
+    //   customComponentName: "EventsList",
+    // }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,

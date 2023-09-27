@@ -203,14 +203,15 @@ const UsersMenu = ({classes}: {
                   title={isFriendlyUI ? "New quick take" : "New Shortform"}
                   onClick={() => openDialog({componentName:"NewShortformDialog"})}
                 />
-              }
-              {showNewButtons && <DropdownDivider />}
+              } */}
+              {/* Events are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+              {/* {showNewButtons && <DropdownDivider />}
               {showNewButtons && userCanPost(currentUser) &&
                 <DropdownItem
                   title={preferredHeadingCase("New Event")}
                   to="/newPost?eventForm=true"
                 />
-              }
+              } */}
               {showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD &&
                 <DropdownItem
                   title={preferredHeadingCase("New Sequence")}

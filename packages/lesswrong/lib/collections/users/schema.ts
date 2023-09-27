@@ -1291,7 +1291,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     ...schemaDefaultValue(true),
   },
 
@@ -1319,7 +1319,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationSubscribedTagPost: {
@@ -1341,17 +1341,17 @@ const schema: SchemaType<DbUser> = {
   },
   notificationEventInRadius: {
     label: "New events in my notification radius",
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationGroupAdministration: {
     label: "Group administration notifications",
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
   notificationCommentsOnDraft: {
@@ -1556,7 +1556,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
-    hidden: !hasEventsSetting.get(),
+    hidden: true, //!hasEventsSetting.get(),
     label: "Account location (used for location-based recommendations)",
     control: 'LocationFormComponent',
     blackbox: true,

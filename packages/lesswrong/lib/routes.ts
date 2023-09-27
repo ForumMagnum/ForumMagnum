@@ -1219,78 +1219,79 @@ addRoute(...forumSelect<Route[]>({
   ],
 }));
 
-if (hasEventsSetting.get()) {
-  addRoute(
-    {
-      name: 'EventsPast',
-      path: '/pastEvents',
-      componentName: 'EventsPast',
-      title: "Past Events by Day"
-    },
-    {
-      name: 'EventsUpcoming',
-      path: '/upcomingEvents',
-      componentName: 'EventsUpcoming',
-      title: "Upcoming Events by Day"
-    },
-    {
-      name: 'CommunityHome',
-      path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
-      componentName: 'CommunityHome',
-      title: 'Community',
-      ...communitySubtitle
-    },
-    {
-      name: 'MeetupsHome',
-      path: '/meetups',
-      componentName: 'CommunityHome',
-      title: 'Community',
-    },
+{/* Events are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+// if (hasEventsSetting.get()) {
+//   addRoute(
+//     {
+//       name: 'EventsPast',
+//       path: '/pastEvents',
+//       componentName: 'EventsPast',
+//       title: "Past Events by Day"
+//     },
+//     {
+//       name: 'EventsUpcoming',
+//       path: '/upcomingEvents',
+//       componentName: 'EventsUpcoming',
+//       title: "Upcoming Events by Day"
+//     },
+//     {
+//       name: 'CommunityHome',
+//       path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
+//       componentName: 'CommunityHome',
+//       title: 'Community',
+//       ...communitySubtitle
+//     },
+//     {
+//       name: 'MeetupsHome',
+//       path: '/meetups',
+//       componentName: 'CommunityHome',
+//       title: 'Community',
+//     },
 
-    {
-      name: 'AllLocalGroups',
-      path: '/allgroups',
-      componentName: 'AllGroupsPage',
-      title: "All Local Groups"
-    },
+//     {
+//       name: 'AllLocalGroups',
+//       path: '/allgroups',
+//       componentName: 'AllGroupsPage',
+//       title: "All Local Groups"
+//     },
     
-    {
-      name: 'GroupsMap',
-      path: '/groups-map',
-      componentName: 'GroupsMap',
-      title: "Groups Map",
-      standalone: true
-    },
+//     {
+//       name: 'GroupsMap',
+//       path: '/groups-map',
+//       componentName: 'GroupsMap',
+//       title: "Groups Map",
+//       standalone: true
+//     },
 
-    {
-      name:'Localgroups.single',
-      path: '/groups/:groupId',
-      componentName: 'LocalGroupSingle',
-      titleComponentName: 'LocalgroupPageTitle',
-      ...communitySubtitle
-    },
-    {
-      name:'events.single',
-      path: '/events/:_id/:slug?',
-      componentName: 'PostsSingle',
-      titleComponentName: 'PostsPageHeaderTitle',
-      previewComponentName: 'PostLinkPreview',
-      subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
-      subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
-      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-      background: postBackground
-    },
-    {
-      name: 'groups.post',
-      path: '/g/:groupId/p/:_id',
-      componentName: 'PostsSingle',
-      previewComponentName: 'PostLinkPreview',
-      background: postBackground,
-      ...communitySubtitle,
-      getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-    },
-  );
-}
+//     {
+//       name:'Localgroups.single',
+//       path: '/groups/:groupId',
+//       componentName: 'LocalGroupSingle',
+//       titleComponentName: 'LocalgroupPageTitle',
+//       ...communitySubtitle
+//     },
+//     {
+//       name:'events.single',
+//       path: '/events/:_id/:slug?',
+//       componentName: 'PostsSingle',
+//       titleComponentName: 'PostsPageHeaderTitle',
+//       previewComponentName: 'PostLinkPreview',
+//       subtitle: forumTypeSetting.get() === 'EAForum' ? 'Events' : 'Community',
+//       subtitleLink: forumTypeSetting.get() === 'EAForum' ? '/events' : communityPath,
+//       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+//       background: postBackground
+//     },
+//     {
+//       name: 'groups.post',
+//       path: '/g/:groupId/p/:_id',
+//       componentName: 'PostsSingle',
+//       previewComponentName: 'PostLinkPreview',
+//       background: postBackground,
+//       ...communitySubtitle,
+//       getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
+//     },
+//   );
+// }
 
 addRoute(
   {

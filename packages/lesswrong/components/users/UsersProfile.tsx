@@ -320,10 +320,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.DraftsList limit={5}/>
               <Components.PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false}/>
             </AnalyticsContext>
-            {hasEventsSetting.get() && <Components.LocalGroupsList
+            {/* Events are removed for launch, but will be added back later, so I'm leaving this commented out. */}
+            {/* {hasEventsSetting.get() && <Components.LocalGroupsList
               terms={{view: 'userInactiveGroups', userId: currentUser?._id}}
               showNoResults={false}
-            />}
+            />} */}
           </SingleColumnSection> }
           {/* AF Submissions Section */}
           {ownPage && nonAFMember && <SingleColumnSection>
