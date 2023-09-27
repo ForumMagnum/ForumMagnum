@@ -1298,6 +1298,7 @@ const schema: SchemaType<DbUser> = {
   notificationCommentsOnSubscribedPost: {
     label: `Comments on posts/events I'm subscribed to`,
     ...notificationTypeSettingsField(),
+    hidden: true, //!hasEventsSetting.get(),
   },
   notificationShortformContent: {
     label: isEAForum
