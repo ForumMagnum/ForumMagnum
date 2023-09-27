@@ -314,6 +314,9 @@ const Layout = ({currentUser, children, classes}: {
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
     const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
 
+    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
+      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
       const beforeTime = petrovBeforeTime.get()
@@ -399,14 +402,16 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name ?? "404")
+                    {showNewUserCompleteProfile
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && <Footer />}
                 </div>
-                {!renderSunshineSidebar && eaHomeGridLayout &&
+                {!renderSunshineSidebar &&
+                  eaHomeGridLayout &&
+                  !showNewUserCompleteProfile &&
                   <StickyWrapper
                     eaHomeGridLayout={eaHomeGridLayout}
                     headerVisible={headerVisible}
