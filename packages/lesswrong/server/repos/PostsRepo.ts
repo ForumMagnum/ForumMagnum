@@ -4,6 +4,7 @@ import { logIfSlow } from "../../lib/sql/sqlClient";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
 export type MeanPostKarma = {
   _id: number,
@@ -238,6 +239,38 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ORDER BY q."digestNum" DESC, q."rowNum" ASC
       LIMIT $3
     `, [maxAgeInDays, numPostsPerDigest, limit]);
+  }
+
+  getCuratedAndPopularPosts({days = 7, limit = 3}: {
+    days?: number,
+    limit?: number,
+  } = {}) {
+    const filter = getViewablePostsSelector("p");
+    return this.any(`
+      SELECT *
+      FROM "Posts" p
+      WHERE
+        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        ${filter}
+      UNION
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Users" u ON p."userId" = u."_id"
+      WHERE
+        p."curatedDate" IS NULL AND
+        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        COALESCE(
+          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
+          0
+        ) < 1 AND
+        p."groupId" IS NULL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        u."deleted" IS NOT TRUE AND
+        ${filter}
+      ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
+      LIMIT $2
+    `, [String(days), limit]);
   }
 
   private getSearchDocumentQuery(): string {

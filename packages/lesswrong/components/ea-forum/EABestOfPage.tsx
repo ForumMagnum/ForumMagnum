@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import classNames from "classnames";
+import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
-import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import keyBy from "lodash/keyBy";
+import moment from "moment";
+import classNames from "classnames";
 
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
@@ -155,12 +156,17 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     fragmentName: 'CollectionsBestOfFragment',
   });
 
+  const currentTime = useCurrentTime();
   const {
     results: monthlyHighlights,
     loading: monthlyHighlightsLoading,
-  } = usePaginatedResolver({
+  } = useMulti({
+    collectionName: "Posts",
     fragmentName: "PostsListWithVotes",
-    resolverName: "DigestHighlights",
+    terms: {
+      view: "curated",
+      after: moment(currentTime).subtract(1, "month").startOf("day").toDate(),
+    },
   });
 
   const postsById = useMemo(() => keyBy(posts, '_id'), [posts]);
@@ -252,6 +258,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                       key={post._id}
                       post={post}
                       className={classes.postsItem}
+                      showIcons={false}
                       hideSecondaryInfo
                     />
                   ))}

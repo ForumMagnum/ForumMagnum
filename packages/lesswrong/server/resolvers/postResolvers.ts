@@ -269,3 +269,13 @@ createPaginatedResolver({
   ): Promise<DbPost[]> => context.repos.posts.getTopWeeklyDigestPosts(limit),
   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
 });
+
+createPaginatedResolver({
+  name: "CuratedAndPopularThisWeek",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => context.repos.posts.getCuratedAndPopularPosts({limit}),
+  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+});
