@@ -492,8 +492,7 @@ export const EAHomeRightHandSide = ({classes}: {
       void updateCurrentUser({hideHomeRHS: true})
     }
   }
-  
-  // Currently, this is only visible to beta users.
+
   if (!userHasEAHomeRHS(currentUser)) return null
   
   const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
