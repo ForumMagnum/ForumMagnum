@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { gql, useApolloClient, useQuery } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useDialog } from '../../common/withDialog';
@@ -91,10 +91,11 @@ const ResyncRssDialog = ({onClose, post, classes}: {
     },
   });
 
-  const { mutate: updatePost, loading: updateLoading } = useUpdate({
+  const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: "PostsEdit",
   });
+  const [isSaving, setIsSaving] = useState(false);
   
   function cancel() {
     onClose();
@@ -102,6 +103,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   
   function apply() {
     void (async () => {
+      setIsSaving(true);
       await updatePost({
         selector: {
           _id: post._id,
@@ -115,12 +117,13 @@ const ResyncRssDialog = ({onClose, post, classes}: {
           } as AnyBecauseHard,
         },
       });
+
+      onClose();
+      setIsSaving(false);
       
       // Client-side updating doesn't work for this because, among other things,
       // there are server-side transforms done.
       await client.resetStore();
-
-      onClose();
     })();
   }
 
@@ -145,7 +148,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
       </div>
     </DialogContent>
     
-    {updateLoading && <Loading/>}
+    {isSaving && <Loading/>}
     <DialogActions>
       <div className={classes.buttons}>
         <Button className={classes.button} onClick={cancel}>Cancel</Button>
