@@ -1,12 +1,17 @@
 import { addCronJob } from '../cronUtil';
 import RSSFeeds from '../../lib/collections/rssfeeds/collection';
-import { createMutator, Globals, updateMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib/mutators';
+import { Globals } from '../../lib/vulcan-lib/config';
 import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import feedparser from 'feedparser-promised';
 import { userIsAdminOrMod } from '../../lib/vulcan-users';
-import { defineMutation } from '../utils/serverGraphqlUtil';
+import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
+import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { diffHtml } from '../resolvers/htmlDiff';
+import { sanitize } from '../../lib/vulcan-lib/utils';
+import { dataToHTML } from '../editor/conversionUtils';
 
 const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -48,17 +53,7 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   })
 
   await asyncForeachSequential(newPosts, async newPost => {
-    var body;
-
-    if (newPost['content:encoded'] && newPost.displayFullContent) {
-      body = newPost['content:encoded'];
-    } else if (newPost.description) {
-      body = newPost.description;
-    } else if (newPost.summary) {
-      body = newPost.summary;
-    } else {
-      body = "";
-    }
+    const body = getRssPostContents(newPost);
 
     var post = {
       title: newPost.title,
@@ -86,6 +81,18 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   })
 }
 
+function getRssPostContents(rssPost: AnyBecauseHard): string {
+  if (rssPost['content:encoded'] && rssPost.displayFullContent) {
+    return rssPost['content:encoded'];
+  } else if (rssPost.description) {
+    return rssPost.description;
+  } else if (rssPost.summary) {
+    return rssPost.summary;
+  } else {
+    return "";
+  }
+}
+
 defineMutation({
   name: "resyncRssFeed",
   argTypes: "(feedId: String!)",
@@ -106,6 +113,75 @@ defineMutation({
     await resyncFeed(feed);
     return true;
   }
+});
+
+defineQuery({
+  name: "RssPostChanges",
+  argTypes: "(postId: String!)",
+  resultType: "RssPostChangeInfo!",
+  schema: `
+    type RssPostChangeInfo {
+      isChanged: Boolean!
+      newHtml: String!
+      htmlDiff: String!
+    }
+  `,
+  fn: async (_root: void, args: {postId: string}, context: ResolverContext) => {
+    // Find and validate the post, feed, etc
+    const { currentUser } = context;
+    if (!currentUser) {
+      throw new Error("Not logged in");
+    }
+
+    const post = await accessFilterSingle(currentUser, Posts,
+      await context.loaders.Posts.load(args.postId),
+      context
+    );
+    if (!post) {
+      throw new Error("Invalid postId");
+    }
+    if (post.userId !== currentUser._id && !userIsAdminOrMod(currentUser)) {
+      throw new Error("You can only RSS-resync your own posts"); 
+    }
+    const feedId = post.feedId;
+    if (!feedId) {
+      throw new Error("This post is not associated with an RSS feed");
+    }
+    const feed = await accessFilterSingle(currentUser, RSSFeeds,
+      await context.loaders.RSSFeeds.load(feedId),
+      context
+    );
+    if (!feed) {
+      throw new Error("Invalid RSS feed");
+    }
+    
+    // Refresh the RSS feed
+    const feedUrl = feed.url
+    const feedPosts = await feedparser.parse(feedUrl);
+    
+    // Find matching feed post
+    let matchingPost = null;
+    for (let feedPost of feedPosts) {
+      if (feedPost.link === post.feedLink) {
+        matchingPost = feedPost;
+      }
+    }
+    if (!matchingPost) {
+      throw new Error("Could not find matching post");
+    }
+    
+    // Diff the contents between the RSS feed and the LW version
+    const newHtml = sanitize(getRssPostContents(matchingPost));
+    console.log("Diffing");
+    const oldHtml = sanitize(await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, true));
+    const htmlDiff = diffHtml(oldHtml, newHtml, false);
+
+    return {
+      isChanged: oldHtml!==newHtml,
+      newHtml: newHtml,
+      htmlDiff: htmlDiff,
+    };
+  },
 });
 
 addCronJob({
