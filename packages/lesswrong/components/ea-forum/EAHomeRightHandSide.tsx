@@ -28,7 +28,6 @@ import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingLeft: 40,
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
