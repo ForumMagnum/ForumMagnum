@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => {
       flexDirection: "column",
       justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
-      paddingTop: 15,
+      paddingTop: isEAForum ? undefined : 15,
       paddingLeft: isEAForum ? 6 : undefined,
     },
     navSidebarTransparent: {

@@ -8,6 +8,7 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
+import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
@@ -120,6 +121,7 @@ export type ForumIconName =
   "Star" |
   "User" |
   "Users" |
+  "UsersOutline" |
   "Bell" |
   "BellBorder" |
   "AddEmoji" |
@@ -192,6 +194,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: MuiStarIcon,
     User: MuiPersonIcon,
     Users: MuiPeopleIcon,
+    UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
@@ -263,6 +266,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: StarIcon,
     User: UserIcon,
     Users: UsersIcon,
+    UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
