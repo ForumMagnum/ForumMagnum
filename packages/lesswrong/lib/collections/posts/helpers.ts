@@ -345,7 +345,7 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
   return userIds.indexOf(user._id) >= 0;
 }
 
-export const isNotHostedHere = (post: PostsPage|DbPost) => {
+export const isNotHostedHere = (post: Pick<PostsPage|DbPost, 'fmCrosspost'>) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
 }
 
