@@ -77,16 +77,6 @@ const HighlightBody = ({
       graceWords={20}
       rawWordCount={wordCount}
       expanded={expanded}
-      getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) => <div className={classes.highlightContinue}>
-        {(forceSeeMore || wordsLeft < 1000)
-          ? <Link to={postGetPageUrl(post)} onClick={clickExpand} eventProps={{intent: 'expandPost'}}>
-              ({wordsLeft} more words)
-            </Link>
-          : <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-              ({wordsLeft} more words)
-            </Link>
-        }
-      </div>}
       dangerouslySetInnerHTML={{__html: expandedDocument?.contents?.html || htmlHighlight}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
