@@ -573,7 +573,7 @@ export const EAHomeRightHandSide = ({classes}: {
           >
             <SectionTitle
               title="Opportunities"
-              href="/topics/opportunities-to-take-action"
+              href="/topics/opportunities-to-take-action?sortedBy=magic"
               className={classes.sectionTitle}
               noTopMargin
               noBottomPadding
