@@ -7,7 +7,7 @@ import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
-import { addStaticRoute } from './vulcan-lib';
+import { addStaticRoute, createAnonymousContext } from './vulcan-lib';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
@@ -41,12 +41,13 @@ const roundKarmaThreshold = (threshold: number): KarmaThreshold =>
   : (threshold < 162) ? 125
   : 200;
 
-export const servePostRSS = async (terms: RSSTerms, url?: string) => {
+const servePostRSS = async (terms: RSSTerms, url?: string) => {
   // LESSWRONG - this was added to handle karmaThresholds
   let karmaThreshold = terms.karmaThreshold = roundKarmaThreshold(parseInt(terms.karmaThreshold, 10));
   url = url || rssTermsToUrl(terms); // Default value is the custom rss feed computed from terms
   const feed = new RSS(getMeta(url));
-  let parameters = viewTermsToQuery("Posts", terms);
+  const context = createAnonymousContext();
+  const parameters = viewTermsToQuery("Posts", terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
 
   parameters.options.limit = 10;
@@ -125,6 +126,9 @@ addStaticRoute('/feed.xml', async function(params, req, res, next) {
   res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';
+  }
+  if (params.query.filterSettings) {
+    params.query.filterSettings = JSON.parse(params.query.filterSettings);
   }
   if (params.query.type && params.query.type === "comments") {
     res.end(await serveCommentRSS(params.query, req, res));
