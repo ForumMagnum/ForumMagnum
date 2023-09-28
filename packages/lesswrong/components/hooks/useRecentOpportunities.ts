@@ -2,6 +2,19 @@ import moment from "moment";
 import { useTimezone } from "../common/withTimezone";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 
+const requiredTags: string[] = [
+  "z8qFsGt5iXyZiLbjN", // Opportunities to take action
+];
+
+const subscribedTags: string[] = [
+  "fCcrMpyRbozMfwYPF", // Application announcements
+  "be4pBryMKxLhkmgvE", // Funding opportunities
+  "2BvgFyR85zX25osTT", // Fellowships and internships
+  "54Ls7K7N53kYws9ja", // Job listing (open)
+  "vgT4Fiybt4qjHLoBv", // Bounty (open)
+  "ihpwNfh2ZxR4ZHaAK", // Prizes and contests
+];
+
 export const useRecentOpportunities =<
   FragmentTypeName extends keyof FragmentTypes
 > ({
@@ -20,10 +33,10 @@ export const useRecentOpportunities =<
     collectionName: "Posts",
     terms: {
       view: "magic",
-      filterSettings: {tags: [{
-        tagId: "z8qFsGt5iXyZiLbjN", // topics/opportunities-to-take-action
-        filterMode: "Required",
-      }]},
+      filterSettings: {tags: [
+        ...requiredTags.map((tagId) => ({tagId, filterMode: "Required"})),
+        ...subscribedTags.map((tagId) => ({tagId, filterMode: "Subscribed"})),
+      ]},
       after: dateCutoff,
       limit,
     },
