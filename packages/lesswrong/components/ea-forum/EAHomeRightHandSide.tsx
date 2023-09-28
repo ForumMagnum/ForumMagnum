@@ -37,7 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarToggle: {
     position: 'absolute',
-    top: 30,
     right: 0,
     height: 36,
     width: 30,
