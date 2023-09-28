@@ -10,7 +10,7 @@ const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
-export const USER_KARMA_CHANGE_NOTIFIER_FIELDS = ['_id', 'karmaChangeNotifierSettings'] satisfies (keyof DbUser)[];
+export const USER_KARMA_CHANGE_NOTIFIER_FIELDS = ['_id', 'karmaChangeNotifierSettings'] as const;
 type UserKarmaChangeNotifierFields = Pick<DbUser, typeof USER_KARMA_CHANGE_NOTIFIER_FIELDS[number]>;
 
 // Given a user and a date range, get a summary of karma changes that occurred

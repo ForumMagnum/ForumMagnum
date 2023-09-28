@@ -174,10 +174,10 @@ const notificationTypeSettingsField = (overrideSettings?: Partial<NotificationTy
   optional: true,
   group: formGroups.notifications,
   control: "NotificationTypeSettings" as const,
-  canRead: [userOwns, 'admins'] as FieldPermissions,
-  canUpdate: [userOwns, 'admins'] as FieldPermissions,
+  canRead: [userOwns, 'admins'] as FieldPermissions<DbUser>,
+  canUpdate: [userOwns, 'admins'] as FieldPermissions<DbUser>,
   canCreate: ['members', 'admins'] as FieldCreatePermissions,
-  ...schemaDefaultValue({ ...defaultNotificationTypeSettings, ...overrideSettings })
+  ...schemaDefaultValue<DbUser>({ ...defaultNotificationTypeSettings, ...overrideSettings })
 });
 
 const partiallyReadSequenceItem = new SimpleSchema({
@@ -356,11 +356,12 @@ const schema: SchemaType<DbUser> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
-  hasAuth0Id: resolverOnlyField({
+  hasAuth0Id: resolverOnlyField<DbUser, ['services']>({
     type: Boolean,
     // Mods cannot read because they cannot read services, which is a prerequisite
     canRead: [userOwns, 'admins'],
-    resolver: (user: DbUser) => {
+    dependsOn: ['services'],
+    resolver: (user) => {
       try {
         getAuth0Id(user);
         return true;
@@ -513,41 +514,37 @@ const schema: SchemaType<DbUser> = {
 
   // GraphQL only fields
 
-  pageUrl: {
+  pageUrl: resolverOnlyField({
     type: String,
+    graphQLtype: 'String',
     optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return userGetProfileUrl(user, true);
-      },
-    },
-  },
+    dependsOn: ['slug'],
+    resolver: (user, args: void, context: ResolverContext): string => {
+      return userGetProfileUrl(user, true);
+    }
+  }),
 
-  pagePath: {
+  pagePath: resolverOnlyField({
     type: String,
+    graphQLtype: 'String',
     optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return userGetProfileUrl(user, false);
-      },
-    },
-  },
+    dependsOn: ['slug'],
+    resolver: (user, args: void, context: ResolverContext): string => {
+      return userGetProfileUrl(user, false);
+    }
+  }),
 
-  editUrl: {
+  editUrl: resolverOnlyField({
     type: String,
     optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'String',
-      resolver: (user: DbUser, args: void, context: ResolverContext): string => {
-        return userGetEditUrl(user, true);
-      },
-    },
-  },
+    dependsOn: ['slug'],
+    resolver: (user, args: void, context: ResolverContext): string => {
+      return userGetEditUrl(user, true);
+    }
+  }),
   lwWikiImport: {
     type: Boolean,
     optional: true, 
@@ -1238,7 +1235,8 @@ const schema: SchemaType<DbUser> = {
     graphQLtype: '[String]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (user, args: void, context: ResolverContext) => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -1793,9 +1791,10 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.adminOptions,
   },
 
-  isReviewed: resolverOnlyField({
+  isReviewed: resolverOnlyField<DbUser, ['reviewedByUserId']>({
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    dependsOn: ['reviewedByUserId'],
     resolver: (user, args, context: ResolverContext) => !!user.reviewedByUserId,
   }),
 
@@ -1819,7 +1818,8 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     graphQLtype: "Float",
     canRead: ['guests'],
-    resolver: (user: DbUser, args: void, context: ResolverContext) => {
+    dependsOn: ['reviewedByUserId', 'signUpReCaptchaRating', 'karma', 'isAdmin', 'deleteContent'],
+    resolver: (user, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
       const { karma, signUpReCaptchaRating } = user;
 
@@ -1844,6 +1844,7 @@ const schema: SchemaType<DbUser> = {
     type: Array,
     graphQLtype: '[Vote]',
     canRead: ['admins', 'sunshineRegiment'],
+    dependsOn: ['_id'],
     resolver: async (document, args, context: ResolverContext) => {
       const { Votes, currentUser } = context;
       const votes = await Votes.find({
@@ -2018,6 +2019,7 @@ const schema: SchemaType<DbUser> = {
   reviewVoteCount:resolverOnlyField({
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
+    dependsOn: ['_id'],
     resolver: async (document, args, context: ResolverContext) => {
       const { ReviewVotes } = context;
       const voteCount = await ReviewVotes.find({
@@ -2127,21 +2129,20 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(0)
   },
   // The user's associated posts (GraphQL only)
-  posts: {
+  posts: resolverOnlyField({
     type: Object,
+    graphQLtype: '[Post]',
     optional: true,
     canRead: ['guests'],
-    resolveAs: {
-      arguments: 'limit: Int = 5',
-      type: '[Post]',
-      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
-        const { limit } = args;
-        const { currentUser, Posts } = context;
-        const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
-        return await accessFilterMultiple(currentUser, Posts, posts, context);
-      }
+    graphqlArguments: 'limit: Int = 5',
+    dependsOn: ['_id'],
+    resolver: async (user, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+      const { limit } = args;
+      const { currentUser, Posts } = context;
+      const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
+      return await accessFilterMultiple(currentUser, Posts, posts, context);
     }
-  },
+  }),
 
   commentCount: {
     ...denormalizedCountOfReferences({
@@ -2534,7 +2535,8 @@ const schema: SchemaType<DbUser> = {
     graphQLtype: "ClientId",
     nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId|null> => {
+    dependsOn: ['_id'],
+    resolver: async (user, args: void, context: ResolverContext): Promise<DbClientId|null> => {
       return await context.ClientIds.findOne({userIds: user._id}, {
         sort: {createdAt: -1}
       });
@@ -2546,7 +2548,8 @@ const schema: SchemaType<DbUser> = {
     graphQLtype: "[ClientId!]",
     nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<DbClientId[]|null> => {
+    dependsOn: ['_id'],
+    resolver: async (user, args: void, context: ResolverContext): Promise<DbClientId[]|null> => {
       return await context.ClientIds.find(
         {userIds: user._id},
         {
@@ -2563,7 +2566,8 @@ const schema: SchemaType<DbUser> = {
   altAccountsDetected: resolverOnlyField({
     type: Boolean,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
+    dependsOn: ['_id'],
+    resolver: async (user, args: void, context: ResolverContext): Promise<boolean> => {
       const clientIds = await context.ClientIds.find(
         {userIds: user._id},
         {
@@ -2595,6 +2599,7 @@ const schema: SchemaType<DbUser> = {
     type: Array,
     graphQLtype: '[ModeratorAction]',
     canRead: ['sunshineRegiment', 'admins'],
+    dependsOn: ['_id'],
     resolver: async (doc, args, context) => {
       const { ModeratorActions, loaders } = context;
       return ModeratorActions.find({ userId: doc._id }).fetch();

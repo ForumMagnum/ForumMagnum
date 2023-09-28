@@ -104,4 +104,5 @@ export type RateLimitComparison<T extends AutoRateLimit> = {
   strictestNewRateLimit?: undefined;
 };
 
-
+export type UserRateLimitFields = Pick<DbUser, '_id' | 'banned' | 'groups' | 'isAdmin' | keyof UserKarmaInfo>;
+export type UserRateLimitGroupFields = Pick<DbUser, 'banned' | 'groups' | 'isAdmin'>;

@@ -2,7 +2,7 @@ import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
 import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsMemberOf, OwnableDocument } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
@@ -36,7 +36,7 @@ export const getUserName = function(user: {username: string} | null): string|nul
 };
 
 export const userOwnsAndInGroup = (group: PermissionGroups) => {
-  return (user: DbUser, document: HasUserIdType): boolean => {
+  return <T extends OwnableDocument>(user: DbUser, document: T): boolean => {
     return userOwns(user, document) && userIsMemberOf(user, group)
   }
 }
@@ -320,7 +320,7 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: Pick<DbUser|UsersMinimumInfo|AlgoliaUser, 'slug'>|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -524,7 +524,7 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
 // TODO: I (JP) think this should be configurable in the function parameters
 /** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
  * we get from auth0 but is ultimately from google this function will throw. */
-export const getAuth0Id = (user: DbUser) => {
+export const getAuth0Id = (user: Pick<DbUser, 'services'>) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {
     const id = auth0.id ?? auth0.user_id;

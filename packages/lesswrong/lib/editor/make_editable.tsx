@@ -1,7 +1,7 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { ContentType, getOriginalContents } from '../collections/revisions/schema'
-import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
+import { accessFilterMultiple, addFieldsDict, resolverAndDbField, resolverOnlyField } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isEAForum } from '../instanceSettings';
@@ -148,7 +148,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
   };
 
   addFieldsDict(collection, {
-    [fieldName || "contents"]: {
+    [fieldName || "contents"]: resolverAndDbField({
       type: RevisionStorageType,
       optional: true,
       logChanges: false, //Logged via Revisions rather than LWEvents
@@ -161,7 +161,8 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc: T, args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
+        dependsOn: ['_id', (fieldName || 'contents') as keyof T & string, ...(Object.keys(collection._schemaFields).includes('userId') ? ['userId'] as (keyof T & string)[] : [])],
+        resolver: async (doc, args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
           const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
@@ -212,7 +213,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
         commentStyles,
         hideControls,
       },
-    },
+    }),
 
     [`${fieldName || "contents"}_latest`]: {
       type: String,
@@ -220,38 +221,36 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       optional: true,
     },
 
-    [camelCaseify(`${fieldName}Revisions`)]: {
+    [camelCaseify(`${fieldName}Revisions`)]: resolverOnlyField({
       type: Object,
       canRead: ['guests'],
       optional: true,
-      resolveAs: {
-        type: '[Revision]',
-        arguments: 'limit: Int = 5',
-        resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
-          const { limit } = args;
-          const { currentUser, Revisions } = context;
-          const field = fieldName || "contents"
-          
-          // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
-          // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
-          const loaderResults = await getWithLoader(context, Revisions, `revisionsByDocumentId_${field}_${limit}`, { fieldName: field }, "documentId", post._id, { sort: {editedAt: -1}, limit });
+      graphqlArguments: 'limit: Int = 5',
+      graphQLtype: '[Revision]',
+      dependsOn: ['_id'],
+      resolver: async (post, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
+        const { limit } = args;
+        const { currentUser, Revisions } = context;
+        const field = fieldName || "contents"
+        
+        // getWithLoader is used here to fix a performance bug for a particularly nasty bot which resolves `revisions` for thousands of comments.
+        // Previously, this would cause a query for every comment whereas now it only causes one (admittedly quite slow) query
+        const loaderResults = await getWithLoader(context, Revisions, `revisionsByDocumentId_${field}_${limit}`, { fieldName: field }, "documentId", post._id, { sort: {editedAt: -1}, limit });
 
-          return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
-        }
+        return await accessFilterMultiple(currentUser, Revisions, loaderResults, context);
       }
-    },
+    }),
     
-    [camelCaseify(`${fieldName}Version`)]: {
+    [camelCaseify(`${fieldName}Version`)]: resolverOnlyField({
       type: String,
       canRead: ['guests'],
       optional: true,
-      resolveAs: {
-        type: 'String',
-        resolver: (post: T): string => {
-          return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
-        }
+      graphQLtype: 'String',
+      dependsOn: [(fieldName || "contents") as keyof T & string],
+      resolver: (post): string => {
+        return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
       }
-    }
+    })
   });
   
   if (pingbacks) {

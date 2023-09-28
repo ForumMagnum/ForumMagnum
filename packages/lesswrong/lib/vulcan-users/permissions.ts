@@ -41,7 +41,7 @@ export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
 >;
 
 // get a list of a user's groups
-export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
+export const userGetGroups = (user: Pick<PermissionableUser|DbUser, 'banned' | 'groups' | 'isAdmin'>|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   }
@@ -77,7 +77,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: PermissionGroups): boolean => {
+export const userIsMemberOf = (user: Pick<PermissionableUser|DbUser, 'banned' | 'groups' | 'isAdmin'>|null, group: PermissionGroups): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
@@ -101,7 +101,7 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
 export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;
 
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
+export const userOwns = function <T extends OwnableDocument | DbObject>(user: UsersMinimumInfo|DbUser|null, document: T): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -125,9 +125,9 @@ export const userOwnsAndOnLW = function (user:UsersMinimumInfo|DbUser|null, docu
   return isLW && userOwns(user, document)
 }
 
-export const documentIsNotDeleted = (
+export const documentIsNotDeleted = <T extends OwnableDocument>(
   user: PermissionableUser|DbUser|null,
-  document: OwnableDocument,
+  document: T,
 ) => {
   // Admins and mods can see deleted content
   if (userIsAdminOrMod(user)) {
@@ -182,7 +182,7 @@ export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, documen
 }
 
 // Check if a user is an admin
-export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
+export const userIsAdmin = function <T extends Pick<UsersMinimumInfo|DbUser, 'isAdmin'>|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
   if (!user) return false;
   return user.isAdmin;
 };
@@ -273,7 +273,7 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>): boolean => {
+export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
   const canUpdate = field.canUpdate;
 
   if (canUpdate) {

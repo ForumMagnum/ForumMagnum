@@ -20,7 +20,7 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
+export const postGetLink = function (post: Pick<DbPost, 'fmCrosspost' | 'url' | keyof PostsMinimumForGetPageUrl>, isAbsolute=false, isRedirected=true): string {
   const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
     ? post.fmCrosspost.foreignPostId
     : undefined;
@@ -65,17 +65,17 @@ export const postIsApproved = function (post: DbPost): boolean {
 };
 
 // Get URL for sharing on Twitter.
-export const postGetTwitterShareUrl = (post: DbPost): string => {
+export const postGetTwitterShareUrl = (post: PostsMinimumForGetLink & Pick<DbPost, 'title'>): string => {
   return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
 };
 
 // Get URL for sharing on Facebook.
-export const postGetFacebookShareUrl = (post: DbPost): string => {
+export const postGetFacebookShareUrl = (post: PostsMinimumForGetLink): string => {
   return `https://www.facebook.com/sharer/sharer.php?u=${ encodeURIComponent(postGetLink(post, true)) }`;
 };
 
 // Get URL for sharing by Email.
-export const postGetEmailShareUrl = (post: DbPost): string => {
+export const postGetEmailShareUrl = (post: PostsMinimumForGetLink & Pick<DbPost, 'title'>): string => {
   const subject = `Interesting link: ${post.title}`;
   const body = `I thought you might find this interesting:
 
@@ -90,7 +90,7 @@ ${postGetLink(post, true, false)}
 // Select the social preview image for the post, using the manually-set
 // cloudinary image if available, or the auto-set from the post contents. If
 // neither of those are available, it will return null.
-export const getSocialPreviewImage = (post: DbPost): string => {
+export const getSocialPreviewImage = (post: Pick<DbPost, 'socialPreview' | 'socialPreviewImageAutoUrl'>): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = post.socialPreview?.imageId
@@ -107,6 +107,8 @@ export interface PostsMinimumForGetPageUrl {
   isEvent?: boolean
   groupId?: string|undefined
 }
+
+interface PostsMinimumForGetLink extends Pick<DbPost, 'fmCrosspost' | 'url' | keyof PostsMinimumForGetPageUrl> {}
 
 // Get URL of a post page.
 export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
@@ -141,7 +143,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
   }
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
+export const postGetCommentCount = (post: Pick<PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost, 'commentCount' | 'afCommentCount'>): number => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afCommentCount || 0;
   } else {
@@ -152,7 +154,7 @@ export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigatio
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post?: Pick<PostsBase|DbPost, 'commentCount' | 'afCommentCount'>|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
     return "No comments";

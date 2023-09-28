@@ -471,7 +471,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
   if (!isEmpty(modifier)) {
     // update document
     logger('updating document')
-    await Connectors.updateOne(collection, selector, modifier, { removeEmptyStrings: false });
+    await Connectors.updateOne<T>(collection, selector, modifier, { removeEmptyStrings: false });
 
     // get fresh copy of document from db
     const fetched = await Connectors.get(collection, selector);

@@ -417,7 +417,7 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: [documentIsNotDeleted],
+    canRead: [documentIsNotDeleted<DbComment>],
     dependsOn: ['contents'],
     resolver: (comment, args: void, context: ResolverContext) => {
       const contents = comment.contents;

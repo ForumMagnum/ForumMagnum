@@ -2,7 +2,7 @@ import Revisions, { PLAINTEXT_DESCRIPTION_LENGTH, PLAINTEXT_HTML_TRUNCATION_LENG
 import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { highlightFromHTML, truncate } from '../../lib/editor/ellipsize';
 import { htmlStartingAtHash } from '../extractHighlights';
-import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, resolverOnlyField } from '../../lib/utils/schemaUtils'
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
@@ -30,98 +30,86 @@ const htmlToTextPlaintextDescription = compileHtmlToText({
 });
 
 augmentFieldsDict(Revisions, {
-  markdown: {
+  markdown: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      dependsOn: ['originalContents'],
-      resolver: ({originalContents}) => originalContents
-        ? dataToMarkdown(originalContents.data, originalContents.type)
-        : null,
-    }
-  },
-  draftJS: {
+    graphQLtype: 'String',
+    dependsOn: ['originalContents'],
+    resolver: ({originalContents}) => originalContents
+      ? dataToMarkdown(originalContents.data, originalContents.type)
+      : null,
+  }),
+  draftJS: resolverOnlyField({
     type: Object,
-    resolveAs: {
-      type: 'JSON',
-      dependsOn: ['originalContents'],
-      resolver: ({originalContents}) => originalContents
-        ? dataToDraftJS(originalContents.data, originalContents.type)
-        : null,
-    }
-  },
-  ckEditorMarkup: {
+    graphQLtype: 'JSON',
+    dependsOn: ['originalContents'],
+    resolver: ({originalContents}) => originalContents
+      ? dataToDraftJS(originalContents.data, originalContents.type)
+      : null,
+  }),
+  ckEditorMarkup: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      dependsOn: ['originalContents'] as const,
-      resolver: ({originalContents, html}) => originalContents
-        // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
-        ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
-        : null,
-    }
-  },
-  htmlHighlight: {
+    graphQLtype: 'String',
+    dependsOn: ['originalContents'],
+    resolver: ({originalContents, html}) => originalContents
+    // For ckEditorMarkup we just fall back to HTML, since it's a superset of html
+    ? (originalContents.type === 'ckEditorMarkup' ? originalContents.data : html)
+    : null,
+  }),
+  htmlHighlight: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      dependsOn: ['originalContents'],
-      resolver: ({html}) => highlightFromHTML(html)
-    }
-  },
-  htmlHighlightStartingAtHash: {
+    graphQLtype: 'String',
+    dependsOn: ['html'],
+    resolver: ({html}) => highlightFromHTML(html)
+  }),
+  htmlHighlightStartingAtHash: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      arguments: 'hash: String',
-      resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
-        const {hash} = args;
-        const rawHtml = revision?.html;
-        
-        // Process the HTML through the table of contents generator (which has
-        // the byproduct of marking section headers with anchors)
-        const toc = extractTableOfContents(rawHtml);
-        const html = toc?.html || rawHtml;
-        
-        const startingFromHash = htmlStartingAtHash(html, hash);
-        const highlight = highlightFromHTML(startingFromHash);
-        return highlight;
-      },
-    }
-  },
-  plaintextDescription: {
+    graphQLtype: 'String',
+    dependsOn: ['html'],
+    resolver: async (revision, args: {hash: string}, context: ResolverContext): Promise<string> => {
+      const {hash} = args;
+      const rawHtml = revision?.html;
+      
+      // Process the HTML through the table of contents generator (which has
+      // the byproduct of marking section headers with anchors)
+      const toc = extractTableOfContents(rawHtml);
+      const html = toc?.html || rawHtml;
+      
+      const startingFromHash = htmlStartingAtHash(html, hash);
+      const highlight = highlightFromHTML(startingFromHash);
+      return highlight;
+    },
+  }),
+  plaintextDescription: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      resolver: ({html}) => {
-        if (!html) return
-        const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
-      }
+    graphQLtype: 'String',
+    dependsOn: ['html'],
+    resolver: ({html}) => {
+      if (!html) return
+      const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+      return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
     }
-  },
+  }),
   // Plaintext version, except that specially-formatted blocks like blockquotes are filtered out, for use in highly-abridged displays like SingleLineComment.
-  plaintextMainText: {
+  plaintextMainText: resolverOnlyField({
     type: String,
-    resolveAs: {
-      type: 'String',
-      resolver: ({html}) => {
-        const mainTextHtml = sanitizeHtml(
-          html, {
-            allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
-            nonTextTags: ['blockquote', 'img', 'style'],
-            
-            exclusiveFilter: function(element: IFrame) {
-              return (element.attribs?.class === 'spoilers' || element.attribs?.class === 'spoiler' || element.attribs?.class === "spoiler-v2");
-            }
+    graphQLtype: 'String',
+    dependsOn: ['html'],
+    resolver: ({html}) => {
+      const mainTextHtml = sanitizeHtml(
+        html, {
+          allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),
+          nonTextTags: ['blockquote', 'img', 'style'],
+          
+          exclusiveFilter: function(element: IFrame) {
+            return (element.attribs?.class === 'spoilers' || element.attribs?.class === 'spoiler' || element.attribs?.class === "spoiler-v2");
           }
-        )
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
-        return htmlToTextDefault(truncatedHtml)
-          .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
-      }
+        }
+      )
+      const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH)
+      return htmlToTextDefault(truncatedHtml)
+        .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
     }
-  },
+  }),
 })
 
 defineQuery({

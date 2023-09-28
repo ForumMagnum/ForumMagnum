@@ -10,7 +10,7 @@ export const COMMENT_MODERATOR_ACTION_TYPES = {
 /**
  * If the action hasn't ended yet (either no endedAt, or endedAt in the future), it's active.
  */
-export const isCommentActionActive = (moderatorAction: DbCommentModeratorAction) => {
+export const isCommentActionActive = (moderatorAction: Pick<DbCommentModeratorAction, 'endedAt'>) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 
@@ -46,9 +46,10 @@ const schema: SchemaType<DbCommentModeratorAction> = {
     canCreate: ['sunshineRegiment', 'admins'],
     control: 'datetime',
   },
-  active: resolverOnlyField({
+  active: resolverOnlyField<DbCommentModeratorAction, ['endedAt']>({
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    dependsOn: ['endedAt'],
     resolver: (doc) => isCommentActionActive(doc)
   })
 };

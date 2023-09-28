@@ -21,7 +21,7 @@ export const userGetDisplayNameById = async function(userId: string): Promise<st
 // Get a user's account edit URL
 // @param {Object} user (note: we only actually need either the _id or slug properties)
 // @param {Boolean} isAbsolute
-export const userGetEditUrl = function(user: DbUser|UsersMinimumInfo|null, isAbsolute=false): string {
+export const userGetEditUrl = function(user: Pick<DbUser|UsersMinimumInfo, 'slug'>|null, isAbsolute=false): string {
   return `${userGetProfileUrl(user, isAbsolute)}/edit`;
 };
 

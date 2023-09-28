@@ -37,10 +37,10 @@ const voteResolver = {
     // compatibility.
     //
     // Returns the document that was voted upon, with its score updated.
-    async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
+    async vote(root: void, args: {documentId: string, voteType: string, collectionName: VoteableCollectionName, voteId?: string}, context: ResolverContext) {
       const {documentId, voteType, collectionName} = args;
       const { currentUser } = context;
-      const collection = context[collectionName] as CollectionBase<DbVoteableType>;
+      const collection = context[collectionName] as unknown as CollectionBase<DbVoteableType>;
       
       if (!collection) throw new Error("Error casting vote: Invalid collectionName");
       if (!collectionIsVoteable(collectionName)) throw new Error("Error casting vote: Collection is not voteable");

@@ -8,7 +8,7 @@ import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
+import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserKarmaInfo, UserRateLimit, UserRateLimitGroupFields, UserRateLimitFields } from "../lib/rateLimits/types"
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getUserRateLimitInfo, getUserRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
 import Users from "../lib/collections/users/collection"
 import { triggerReview } from "./callbacks/sunshineCallbackUtils"
@@ -26,7 +26,7 @@ async function getModPostSpecificRateLimitHours(userId: string): Promise<number>
   return hasPostSpecificRateLimit ? getTimeframeForRateLimit(RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK) : 0
 }
 
-async function getPostsInTimeframe(user: DbUser, maxHours: number) {
+async function getPostsInTimeframe(user: Pick<DbUser, '_id'>, maxHours: number) {
   return await Posts.find({
     userId:user._id, 
     draft: false,
@@ -48,7 +48,7 @@ function getUserRateLimit<T extends DbUserRateLimit['type']>(userId: string, typ
 }
 
 function getPostRateLimitInfos(
-  user: DbUser,
+  user: UserRateLimitFields,
   postsInTimeframe: Array<DbPost>,
   modRateLimitHours: number,
   userPostRateLimit: UserRateLimit<"allPosts">|null,
@@ -88,7 +88,7 @@ async function getCommentsInTimeframe(userId: string, maxTimeframe: number) {
  * If the post has "ignoreRateLimits" set, then all users are exempt.
  * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
-async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, context: ResolverContext): Promise<boolean> {
+async function shouldIgnoreCommentRateLimit(user: UserRateLimitGroupFields, postId: string|null, context: ResolverContext): Promise<boolean> {
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return true;
   }
@@ -138,7 +138,7 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
 
 async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, userCommentRateLimit, recentKarmaInfo, context}: {
   commentsInTimeframe: Array<DbComment>,
-  user: DbUser,
+  user: Pick<DbUser, '_id' | 'banned' | 'groups' | 'isAdmin' | keyof UserKarmaInfo>,
   modRateLimitHours: number,
   modPostSpecificRateLimitHours: number,
   userCommentRateLimit: UserRateLimit<'allComments'> | null,
@@ -169,7 +169,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
   return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, userRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
 
-export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
+export async function rateLimitDateWhenUserNextAbleToPost(user: UserRateLimitFields): Promise<RateLimitInfo|null> {
   // Admins and Sunshines aren't rate-limited
   if (shouldIgnorePostRateLimit(user)) return null;
   
@@ -194,7 +194,7 @@ export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise
   return getStrictestRateLimitInfo(rateLimitInfos)
 }
 
-export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postId: string|null, context: ResolverContext): Promise<RateLimitInfo|null> {
+export async function rateLimitDateWhenUserNextAbleToComment(user: UserRateLimitFields, postId: string|null, context: ResolverContext): Promise<RateLimitInfo|null> {
   const ignoreRateLimits = await shouldIgnoreCommentRateLimit(user, postId, context);
   if (ignoreRateLimits) return null;
 

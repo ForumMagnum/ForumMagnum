@@ -7,7 +7,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict, accessFilterMultiple, resolverOnlyField, augmentResolverOnlyField } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { loadByIds } from '../../lib/loaders';
@@ -300,57 +300,55 @@ type ContributorStats = {
 type ContributorStatsList = Partial<Record<string,ContributorStats>>;
 
 augmentFieldsDict(Tags, {
-  contributors: {
-    resolveAs: {
-      arguments: 'limit: Int, version: String',
-      type: "TagContributorsList",
-      resolver: async (tag: DbTag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
-        contributors: ContributorWithStats[],
-        totalCount: number,
-      }> => {
-        const contributionStatsByUserId = await getContributorsList(tag, version||null);
-        const contributorUserIds = Object.keys(contributionStatsByUserId);
-        const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
-        const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
-        const usersById = keyBy(contributorUsers, u => u._id);
-  
-        const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
-        
-        const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
-          user: usersById[userId],
-          ...contributionStatsByUserId[userId]!,
-        }));
-        
-        if (limit) {
-          return {
-            contributors: take(topContributors, limit),
-            totalCount: topContributors.length,
-          }
-        } else {
-          return {
-            contributors: topContributors,
-            totalCount: topContributors.length,
-          }
+  contributors: augmentResolverOnlyField({
+    graphqlArguments: 'limit: Int, version: String',
+    graphQLtype: 'TagContributorsList',
+    dependsOn: ['_id', 'contributionStats'],
+    resolver: async (tag, {limit, version}: {limit?: number, version?: string}, context: ResolverContext): Promise<{
+      contributors: ContributorWithStats[],
+      totalCount: number,
+    }> => {
+      const contributionStatsByUserId = await getContributorsList(tag, version||null);
+      const contributorUserIds = Object.keys(contributionStatsByUserId);
+      const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
+      const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
+      const usersById = keyBy(contributorUsers, u => u._id);
+
+      const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
+      
+      const topContributors: ContributorWithStats[] = sortedContributors.map(userId => ({
+        user: usersById[userId],
+        ...contributionStatsByUserId[userId]!,
+      }));
+      
+      if (limit) {
+        return {
+          contributors: take(topContributors, limit),
+          totalCount: topContributors.length,
+        }
+      } else {
+        return {
+          contributors: topContributors,
+          totalCount: topContributors.length,
         }
       }
     }
-  },
+  })
 });
 
 augmentFieldsDict(TagRels, {
-  autoApplied: {
-    resolveAs: {
-      type: "Boolean",
-      resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
-        const tagBotUserId = await getTagBotUserId(context);
-        if (!tagBotUserId) return false;
-        return (document.userId===tagBotUserId && document.voteCount===1);
-      },
-    },
-  },
+  autoApplied: augmentResolverOnlyField({
+    graphQLtype: 'Boolean',
+    dependsOn: ['userId', 'voteCount'],
+    resolver: async (document, args: void, context: ResolverContext) => {
+      const tagBotUserId = await getTagBotUserId(context);
+      if (!tagBotUserId) return false;
+      return (document.userId===tagBotUserId && document.voteCount===1);
+    }
+  })
 });
 
-async function getContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
+async function getContributorsList(tag: Pick<DbTag, '_id' | 'contributionStats'>, version: string|null): Promise<ContributorStatsList> {
   if (version)
     return await buildContributorsList(tag, version);
   else if (tag.contributionStats)
@@ -383,7 +381,7 @@ const getSelfVotes = async (tagRevisionIds: string[]): Promise<DbVote[]> => {
   }
 }
 
-async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
+async function buildContributorsList(tag: Pick<DbTag, '_id'>, version: string|null): Promise<ContributorStatsList> {
   if (!(tag?._id))
     throw new Error("Invalid tag");
   
@@ -436,7 +434,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
   return contributionStatsByUserId;
 }
 
-export async function updateDenormalizedContributorsList(tag: DbTag): Promise<ContributorStatsList> {
+export async function updateDenormalizedContributorsList(tag: Pick<DbTag, '_id' | 'contributionStats'>): Promise<ContributorStatsList> {
   const contributionStats = await buildContributorsList(tag, null);
   
   if (JSON.stringify(tag.contributionStats) !== JSON.stringify(contributionStats)) {

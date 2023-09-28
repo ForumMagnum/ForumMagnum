@@ -27,7 +27,7 @@ interface UtilsType {
   
   // In server/tableOfContents.ts
   getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
+  getToCforTag: ({document, version, context}: { document: Pick<DbTag, '_id' | 'htmlWithContributorAnnotations' | 'description'>, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator

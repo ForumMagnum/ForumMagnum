@@ -3,6 +3,7 @@ import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import { permissionGroups } from "../permissions";
+import { Tuple } from '../utils/typeGuardUtils';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -12,12 +13,14 @@ type PermissionGroups = typeof permissionGroups[number];
 
 type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
-type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
-type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
+type SingleFieldUpdatePermissions<T extends Partial<DbObject>> = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: T)=>boolean)
+type FieldUpdatePermissions<T extends Partial<DbObject>> = SingleFieldUpdatePermissions<T>|Array<SingleFieldUpdatePermissions<T>>
+type SingleFieldPermissions<T extends DbObject> = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: T)=>boolean)
+type FieldPermissions<T extends DbObject> = SingleFieldPermissions<T>|Array<SingleFieldPermissions<T>>
 
-interface CollectionFieldPermissions {
-  canRead?: FieldPermissions,
-  canUpdate?: FieldPermissions,
+interface CollectionFieldPermissions<T extends DbObject> {
+  canRead?: FieldPermissions<T>,
+  canUpdate?: FieldPermissions<T>,
   canCreate?: FieldCreatePermissions,
 }
 
@@ -27,7 +30,7 @@ type Without<T extends DbObject, D extends keyof T = never> = {
   [k in Exclude<keyof T, D>]: undefined;
 };
 
-interface ResolveAs<T extends DbObject, D extends ReadonlyArray<keyof T>> {
+interface ResolveAs<T extends DbObject, D extends ReadonlyArray<keyof T & string> = never> {
   type: string|GraphQLScalarType,
   description?: string,
   fieldName?: string,
@@ -37,10 +40,20 @@ interface ResolveAs<T extends DbObject, D extends ReadonlyArray<keyof T>> {
   resolver: (root: Pick<T, D[number]> & Without<T, D[number]>, args: any, context: ResolverContext, info?: any)=>any,
 }
 
+// const ra = {
+//   dependsOn: ['originalContents'] as const,
+//   type: 'String',
+//   resolver: () => {}
+// } satisfies ResolveAs<DbRevision>;
+
 type foobar = readonly string[] extends string[] ? true : false;
 type ffbb = readonly any[] extends readonly (string | number)[] ? true : false;
 
-interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
+// interface RCollectionFieldSpecification<T extends DbObject, D extends ReadonlyArray<keyof T & string>> extends CollectionFieldSpecification<T> {
+//   resolveAs?: ResolveAs<T>,
+// }
+
+interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions<T> {
   type?: any,
   description?: string,
   optional?: boolean,
@@ -50,7 +63,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
 
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
-  resolveAs?: ResolveAs<T, ReadonlyArray<keyof T>>,
+  resolveAs?: ResolveAs<T, ReadonlyArray<keyof T & string>>,
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,

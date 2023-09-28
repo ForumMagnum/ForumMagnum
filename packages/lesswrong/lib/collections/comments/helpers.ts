@@ -15,7 +15,7 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
   return user ? userGetDisplayName(user) : comment.author;
 };
 
-export const COMMENT_PAGE_URL_FIELDS = ['_id', 'postId', 'tagId', 'tagCommentType'] satisfies (keyof DbComment)[];
+export const COMMENT_PAGE_URL_FIELDS = ['_id', 'postId', 'tagId', 'tagCommentType'] as const;
 export type CommentPageUrlFields = Pick<DbComment, typeof COMMENT_PAGE_URL_FIELDS[number]>;
 
 // Get URL of a comment page.

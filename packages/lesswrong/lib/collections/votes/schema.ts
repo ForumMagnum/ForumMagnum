@@ -59,7 +59,8 @@ const schema: SchemaType<DbVote> = {
     type: String,
     graphQLtype: 'String',
     canRead: ['guests'],
-    resolver: (vote: DbVote): string => vote.authorIds[0],
+    dependsOn: ['authorIds'],
+    resolver: (vote): string => vote.authorIds[0],
   }),
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
@@ -138,7 +139,8 @@ const schema: SchemaType<DbVote> = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
-    resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
+    dependsOn: ['collectionName', 'documentId'],
+    resolver: async (vote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
       if (vote.collectionName === "TagRels") {
         return await TagRels.findOne({_id: vote.documentId});
       } else {
@@ -151,7 +153,8 @@ const schema: SchemaType<DbVote> = {
     type: "Comment",
     graphQLtype: 'Comment',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
+    dependsOn: ['collectionName', 'documentId'],
+    resolver: async (vote, args: void, context: ResolverContext): Promise<DbComment|null> => {
       if (vote.collectionName === "Comments") {
         return await context.loaders.Comments.load(vote.documentId);
       } else {
@@ -164,7 +167,8 @@ const schema: SchemaType<DbVote> = {
     type: "Post",
     graphQLtype: 'Post',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
+    dependsOn: ['collectionName', 'documentId'],
+    resolver: async (vote, args: void, context: ResolverContext): Promise<DbPost|null> => {
       if (vote.collectionName === "Posts") {
         return await context.loaders.Posts.load(vote.documentId);
       } else {

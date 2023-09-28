@@ -41,15 +41,15 @@ const getExistingVote = async ({ document, user }: {
 }
 
 // Add a vote of a specific type on the server
-const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
-  document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+const addVoteServer = async <T extends DbVoteableType>({ document, collection, voteType, extendedVote, user, voteId, context }: {
+  document: T,
+  collection: CollectionBase<T>,
   voteType: string,
   extendedVote: any,
   user: DbUser,
   voteId: string,
   context: ResolverContext,
-}): Promise<VoteDocTuple> => {
+}): Promise<VoteDocTuple<T>> => {
   // create vote and insert it
   const partialVote = createVote({ document, collectionName: collection.options.collectionName, voteType, extendedVote, user, voteId });
   const {data: vote} = await createMutator({
@@ -118,10 +118,10 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
-  document: DbVoteableType,
+export const clearVotesServer = async <T extends DbVoteableType>({ document, user, collection, excludeLatest, context }: {
+  document: T,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<T>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
@@ -184,10 +184,10 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 
     await voteCallbacks.cancelSync.runCallbacks({
       iterator: {newDocument, vote},
-      properties: [collection, user]
+      properties: [collection as unknown as CollectionBase<DbVoteableType>, user]
     });
     await voteCallbacks.cancelAsync.runCallbacksAsync(
-      [{newDocument, vote}, collection, user]
+      [{newDocument, vote}, collection as unknown as CollectionBase<DbVoteableType>, user]
     );
   }
   const newScores = await recalculateDocumentScores(document, context);
@@ -214,12 +214,12 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
 }
 
 // Server-side database operation
-export const performVoteServer = async ({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
+export const performVoteServer = async <T extends DbVoteableType>({ documentId, document, voteType, extendedVote, collection, voteId = randomId(), user, toggleIfAlreadyVoted = true, skipRateLimits, context, selfVote = false }: {
   documentId?: string,
-  document?: DbVoteableType|null,
+  document?: T|null,
   voteType: string,
   extendedVote?: any,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<T>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
@@ -253,15 +253,15 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   }
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
-  if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
-    const post = await Posts.findOne({_id: (document as DbComment).postId});
+  if (!selfVote && collectionName === "Comments" && (document as unknown as DbComment).debateResponse) {
+    const post = await Posts.findOne({_id: (document as unknown as DbComment).postId});
     const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
     if (!acceptedCoauthorIds.includes(user._id)) {
       throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
     }
   }
 
-  if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')
+  if (collectionName==="Revisions" && (document as unknown as DbRevision).collectionName!=='Tags')
     throw new Error("Revisions are only voteable if they're revisions of tags");
   
   const existingVote = await getExistingVote({document, user});
@@ -298,10 +298,10 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       }
     }
 
-    let voteDocTuple: VoteDocTuple = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
+    let voteDocTuple: VoteDocTuple<T> = await addVoteServer({document, user, collection, voteType, extendedVote, voteId, context});
     voteDocTuple = await voteCallbacks.castVoteSync.runCallbacks({
       iterator: voteDocTuple,
-      properties: [collection, user]
+      properties: [collection as unknown as CollectionBase<DbVoteableType>, user]
     });
     document = voteDocTuple.newDocument;
     
@@ -312,7 +312,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
     })
     
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
-      [voteDocTuple, collection, user, context]
+      [voteDocTuple, collection as unknown as CollectionBase<DbVoteableType>, user, context]
     );
   }
 
@@ -416,9 +416,9 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  * May also add apply voting-related consequences such as flagging the user for
  * moderation, as side effects.
  */
-const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
+const checkVotingRateLimits = async <T extends DbVoteableType>({ document, collection, voteType, user }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<T>,
   voteType: string,
   user: DbUser
 }): Promise<{

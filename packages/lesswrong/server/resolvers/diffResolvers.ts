@@ -25,7 +25,7 @@ addGraphQLResolvers({
         throw new Error(`Invalid field for RevisionsDiff: ${collectionName}.${fieldName}`);
       }
       
-      const collection = context[collectionName];
+      const collection: CollectionBase<AnyBecauseHard> = context[collectionName];
       
       const documentUnfiltered = await context.loaders[collectionName].load(id);
       
