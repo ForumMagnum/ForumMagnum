@@ -65,7 +65,7 @@ export const wakingUpTheme: SiteThemeSpecification = {
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
-      background: shadePalette.type === 'light' ? '#eeeeee' : shadePalette.grey[30],
+      background: shadePalette.type === 'light' ? '#ffffff' : shadePalette.grey[30],
     },
     event: '#215adb',
     group: '#538747',
@@ -242,6 +242,13 @@ export const wakingUpTheme: SiteThemeSpecification = {
             },
           }
         },
+        Layout: {
+          main: {
+            '@media (max-width: 979px)': {
+              paddingTop: 22,
+            },
+          }
+        },
         MuiTooltip: {
           tooltip: {
             fontSize: "1rem",
@@ -304,6 +311,15 @@ export const wakingUpTheme: SiteThemeSpecification = {
         TabNavigationCompressedItem: {
           icon: {
             opacity: 1
+          }
+        },
+        ContentStyles: {
+          postHighlight: {
+            fontFamily: palette.fonts.sansSerifStack,
+            fontWeight: 400,
+            "& li": {
+              fontFamily: palette.fonts.sansSerifStack,
+            }
           }
         },
         PostsPageTitle: {

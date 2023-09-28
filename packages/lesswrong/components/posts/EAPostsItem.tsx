@@ -45,18 +45,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
   container: {
     position: "relative",
     flexGrow: 1,
+    flexWrap: "wrap",
     maxWidth: "100%",
     display: "flex",
     alignItems: "center",
-    padding: `8px 12px 8px 0`,
+    paddingTop: "8px",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 13,
     color: theme.palette.grey[600],
     cursor: "pointer",
-    [theme.breakpoints.down("xs")]: {
-      paddingRight: 12,
-    },
   },
   karma: {
     width: 50,
@@ -81,11 +79,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   voteArrow: {
     color: theme.palette.grey[400],
-    margin: "-6px 0 2px 0",
+    margin: "-12px 0 2px 0",
   },
   details: {
     flexGrow: 1,
     minWidth: 0, // flexbox black magic
+    flexBasis: "50%",
   },
   titleWrapper: {
     display: "inline",
@@ -109,6 +108,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     whiteSpace: "nowrap",
+    paddingBottom: "10px",
   },
   metaLeft: {
     flexGrow: 1,
@@ -127,6 +127,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   secondaryContainer: {
     display: "flex",
     alignItems: "center",
+    marginTop: -9,
   },
   audio: {
     marginLeft: 6,
@@ -162,6 +163,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postActions: {
     minWidth: 20,
     marginLeft: -5,
+    paddingRight: 16,
     "& .PostActionsButton-icon": {
       fontSize: 20,
     },
@@ -187,8 +189,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
   },
-  contentPreviewPadding: {
-    padding: "0 20px 20px",
+  contentPreviewContainer: {
+    padding: "20px 50px",
+    flexBasis: "100%",
+    backgroundColor: theme.palette.grey[100],
+    borderTop: `1px solid ${theme.palette.grey[250]}`,
   },
 });
 
@@ -358,6 +363,11 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 }}
               />
             </InteractionWrapper>
+            {post.contents && post.contents.wordCount > 1 &&
+              <div className={classes.contentPreviewContainer}>
+                <PostsHighlight post={post} maxLengthWords={50} smallerFonts={false} />
+              </div>
+            }
           </div>
           {renderComments &&
             <div className={classes.expandedComments}>
@@ -371,10 +381,6 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
               />
             </div>
           }
-          {post.contents && post.contents.wordCount > 1 &&
-            <div className={classes.contentPreviewPadding}>
-              <PostsHighlight post={post} maxLengthWords={50} smallerFonts={false} />
-            </div>}
         </div>
       </div>
     </AnalyticsContext>
