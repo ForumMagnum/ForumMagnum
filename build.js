@@ -19,6 +19,7 @@ const [opts, args] = cliopts.parse(
   ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
   ["command", "Run the given server shell command, then exit", "<string>"],
+  ["lint", "Run the linter on site refresh"],
 );
 
 const defaultServerPort = 3000;
@@ -106,7 +107,9 @@ build({
     setClientRebuildInProgress(true);
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
-    startLint();
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: (config, buildResult, ctx) => {
     setClientRebuildInProgress(false);
@@ -157,7 +160,9 @@ build({
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
     setServerRebuildInProgress(true);
-    startLint();
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: () => {
     setServerRebuildInProgress(false);

@@ -186,6 +186,7 @@ importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));
 importComponent("Header", () => require('../components/common/Header'));
 importComponent("HeaderSubtitle", () => require('../components/common/HeaderSubtitle'));
+importComponent("HeaderEventSubtitle", () => require('../components/common/HeaderEventSubtitle'));
 importComponent("HeadTags", () => require('../components/common/HeadTags'));
 importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("LWHome", () => require('../components/common/LWHome'));
@@ -859,6 +860,7 @@ importComponent("HomepageMapFilter", () => require('../components/seasonal/Homep
 importComponent("PetrovDayWrapper", () => require('../components/seasonal/PetrovDayWrapper'));
 importComponent("PetrovDayButton", () => require('../components/seasonal/PetrovDayButton'));
 importComponent("PetrovDayLossScreen", () => require('../components/seasonal/PetrovDayLossScreen'));
+importComponent("PetrovDayPoll", () => require('../components/seasonal/petrovDay/PetrovDayPoll'));
 importComponent("CoronavirusFrontpageWidget", () => require('../components/seasonal/CoronavirusFrontpageWidget'));
 // importComponent("AprilFools2022", () => require('../components/seasonal/AprilFools2022'));
 
