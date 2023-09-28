@@ -391,7 +391,7 @@ const Layout = ({currentUser, children, classes}: {
                     <NavigationStandalone
                       sidebarHidden={hideNavigationSidebar}
                       unspacedGridLayout={unspacedGridLayout}
-                      className={classes.standaloneNav}
+                      noTopMargin={eaHomeLayout}
                     />
                   </StickyWrapper>
                 }
