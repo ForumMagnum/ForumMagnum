@@ -1,7 +1,6 @@
 import React from "react";
 import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotlight";
 import { registerComponent } from "../../lib/vulcan-lib";
-import { currentEventHeader } from "../../lib/publicSettings";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 
@@ -31,32 +30,19 @@ type CurrentEvent = {
 }
 
 const useCurrentEvent = (): CurrentEvent | null => {
-  const currentEventSetting = currentEventHeader.get();
   const spotlight = useCurrentFrontpageSpotlight();
-
-  if (currentEventSetting) {
-    return {
-      title: currentEventSetting.name,
-      link: currentEventSetting.link,
-      background: makeBackground(
-        currentEventSetting.leftColor,
-        currentEventSetting.rightColor,
-      ),
-    };
+  if (!spotlight?.headerTitle) {
+    return null;
   }
 
-  if (spotlight?.headerTitle) {
-    return {
-      title: spotlight.headerTitle,
-      link: getSpotlightUrl(spotlight),
-      background: makeBackground(
-        spotlight.headerTitleLeftColor,
-        spotlight.headerTitleRightColor,
-      ),
-    };
-  }
-
-  return null;
+  return {
+    title: spotlight.headerTitle,
+    link: getSpotlightUrl(spotlight),
+    background: makeBackground(
+      spotlight.headerTitleLeftColor,
+      spotlight.headerTitleRightColor,
+    ),
+  };
 }
 
 const HeaderEventSubtitle = ({classes}: {classes: ClassesType}) => {
