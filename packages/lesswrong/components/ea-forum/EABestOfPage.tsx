@@ -272,7 +272,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
             </AnalyticsContext>
             <AnalyticsContext pageSectionContext="featuredVideo">
               <div>
-                <h2 className={classes.heading}>Featured video</h2>
+                <h2 className={classes.heading}>Featured videos</h2>
                 <div className={classNames(classes.listSection, classes.listGap)}>
                   {featuredVideoPosts.map((post) => (
                     <PostsVideoCard key={post._id} post={post} />
