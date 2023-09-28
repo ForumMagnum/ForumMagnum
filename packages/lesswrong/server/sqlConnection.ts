@@ -9,7 +9,7 @@ import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
-const pgPromiseLib = pgp({
+export const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
   connect: async ({client}) => {
     const result: IResult<{oid: number}> = await client.query(
