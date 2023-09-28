@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
@@ -138,6 +139,8 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
+  const currentCuratedPostCount = useCurrentCuratedPostCount();
+
   const { results: posts, loading } = useMulti({
     terms: {postIds: allPostIds, limit: allPostIds.length},
     collectionName: "Posts",
@@ -253,12 +256,12 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
               <div>
                 <h2 className={classes.heading}>Highlights this month</h2>
                 <div className={classes.listSection}>
-                  {monthlyHighlights?.map((post) => (
+                  {monthlyHighlights?.map((post, i) => (
                     <EAPostsItem
                       key={post._id}
                       post={post}
                       className={classes.postsItem}
-                      showIcons={false}
+                      curatedIconLeft={i < currentCuratedPostCount}
                       hideSecondaryInfo
                     />
                   ))}
