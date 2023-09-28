@@ -49,6 +49,7 @@ const PostBottomRecommendations = ({post, classes}: {
     fragmentName: "PostsListWithVotes",
     terms: {
       userId: post.userId,
+      notPostIds: [post._id],
       sortedBy: "topAdjusted",
       limit: 3,
     },
@@ -74,7 +75,6 @@ const PostBottomRecommendations = ({post, classes}: {
 
   const hasUserPosts = post.user &&
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
-
 
   const {
     PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip,
