@@ -135,7 +135,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  eaHomeGrid: {
+  eaHomeLayout: {
     display: "flex",
     alignItems: "start",
     [theme.breakpoints.down('md')]: {
@@ -192,13 +192,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const StickyWrapper: FC<{
-  eaHomeGridLayout: boolean,
+  eaHomeLayout: boolean,
   headerVisible: boolean,
   headerAtTop: boolean,
   children: ReactNode,
   classes: ClassesType,
-}> = ({eaHomeGridLayout, headerVisible, headerAtTop, children, classes}) =>
-  eaHomeGridLayout
+}> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
+  eaHomeLayout
     ? (
       <StickyBox offsetTop={0} offsetBottom={20}>
         <div className={classNames(classes.stickyWrapper, {
@@ -315,7 +315,7 @@ const Layout = ({currentUser, children, classes}: {
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
+    const eaHomeLayout = isEAForum && currentRoute?.name === 'home'
 
     const showNewUserCompleteProfile = currentUser?.usernameUnset &&
       !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
@@ -377,13 +377,13 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
+                [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isEAForum && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
-                    eaHomeGridLayout={eaHomeGridLayout}
+                    eaHomeLayout={eaHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
@@ -414,10 +414,10 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 {!renderSunshineSidebar &&
-                  eaHomeGridLayout &&
+                  eaHomeLayout &&
                   !showNewUserCompleteProfile &&
                   <StickyWrapper
-                    eaHomeGridLayout={eaHomeGridLayout}
+                    eaHomeLayout={eaHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
