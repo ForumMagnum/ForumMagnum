@@ -5,7 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   sidebar: {
@@ -58,7 +58,7 @@ const NavigationStandalone = (
         <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
       </Slide>
     </div>
-    {!isEAForum && <div className={classNames(classes.footerBar, className)}>
+    {isLWorAF && <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>}
   </>
