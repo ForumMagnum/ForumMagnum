@@ -145,35 +145,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-          <LWTooltip
-            title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
-            hideOnTouchScreens
-          >
-            <SettingsButton
-              className={classes.hideOnMobile}
-              label={filterSettingsVisibleDesktop ?
-                filterSettingsToggleLabels.desktopVisible :
-                filterSettingsToggleLabels.desktopHidden}
-              showIcon={false}
-              onClick={changeShowTagFilterSettingsDesktop}
-            />
-            <SettingsButton
-              className={classes.hideOnDesktop}
-              label={filterSettingsVisibleMobile ?
-                filterSettingsToggleLabels.mobileVisible :
-                filterSettingsToggleLabels.mobileHidden}
-              showIcon={false}
-              onClick={() => {
-                setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-                captureEvent("filterSettingsClicked", {
-                  settingsVisible: !filterSettingsVisibleMobile,
-                  settings: filterSettings,
-                  pageSectionContext: "latestPosts"
-                })
-              }} />
-          </LWTooltip>
-        </SectionTitle>
+        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding></SectionTitle>
   
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
