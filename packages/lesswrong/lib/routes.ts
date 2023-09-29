@@ -235,48 +235,6 @@ addRoute(
     componentName: 'PostsAnalyticsPage',
     background: "white"
   },
-  {
-    name: 'collaboratePost',
-    path: '/collaborateOnPost',
-    componentName: 'PostCollaborationEditor',
-    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.query.postId),
-    background: "white",
-  },
-  // disabled except during review voting phase
-  {
-    name:'reviewVoting',
-    path: '/reviewVoting',
-    redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
-  },
-  // {
-  //   name:'reviewVoting2019',
-  //   path: '/reviewVoting/2019',
-  //   title: "Voting 2019 Review",
-  //   componentName: "ReviewVotingPage2019"
-  // },
-  {
-    name:'reviewVotingByYear',
-    path: '/reviewVoting/:year',
-    title: "Review Voting",
-    componentName: "ReviewVotingPage",
-    subtitleComponentName: "ReviewHeaderTitle"
-  },
-
-  {
-    name: 'reviewQuickPage',
-    path: '/reviewQuickPage',
-    componentName: 'ReviewQuickPage',
-    title: "Review Quick Page",
-    subtitle: "Quick Review Page"
-  },
-
-  {
-    name: "newLongformReviewForm",
-    path: '/newLongformReview',
-    title: "New Longform Review",
-    componentName: "NewLongformReviewForm",
-  },
-
   // Sequences
   // {
   //   name: 'sequences.single.old',
