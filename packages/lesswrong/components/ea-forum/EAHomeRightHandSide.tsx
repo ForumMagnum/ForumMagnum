@@ -74,6 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     rowGap: '6px',
   },
   digestAd: {
+    maxWidth: 280,
     backgroundColor: theme.palette.grey[200],
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default
