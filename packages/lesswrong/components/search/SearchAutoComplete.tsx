@@ -24,8 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const formatFacetFilters = (
-  facetFilters?: Record<string, boolean>,
+export const formatFacetFilters = (
+  facetFilters?: Record<string, boolean | string>,
 ): string[][] | undefined =>
   facetFilters
     ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
