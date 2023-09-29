@@ -43,22 +43,6 @@ const schema: SchemaType<DbSequence> = {
       return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
     }
   }),
-  // {
-  //   type: Array,
-  //   optional: true,
-  //   canRead: ['guests'],
-  //   resolveAs: {
-  //     fieldName: 'chapters',
-  //     type: '[Chapter]',
-  //     resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
-  //       const chapters = await context.Chapters.find(
-  //         {sequenceId: sequence._id},
-  //         {sort: {number: 1}},
-  //       ).fetch();
-  //       return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
-  //     }
-  //   }
-  // },
 
   'chaptersDummy.$': {
     type: String,
@@ -155,34 +139,6 @@ const schema: SchemaType<DbSequence> = {
       }
     }
   }),
-  // {
-  //   type: String,
-  //   foreignKey: {
-  //     collection: "Collections",
-  //     field: "slug",
-  //   },
-  //   optional: true,
-  //   canRead: ['guests'],
-  //   canUpdate: ['admins'],
-  //   canCreate: ['admins'],
-  //   hidden: false,
-  //   control: "text",
-  //   order: 30,
-  //   label: "Collection Slug",
-  //   tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
-  //   resolveAs: {
-  //     fieldName: 'canonicalCollection',
-  //     addOriginalField: true,
-  //     type: "Collection",
-  //     // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
-  //     // work out of the box with the id-resolver generators
-  //     resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
-  //       if (!sequence.canonicalCollectionSlug) return null;
-  //       const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
-  //       return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
-  //     }
-  //   }
-  // },
 
   hidden: {
     type: Boolean,

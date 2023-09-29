@@ -8,7 +8,6 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
-import { Tuple } from './typeGuardUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -106,17 +105,6 @@ interface ForeignKeyArrayFields<T extends DbObject> {
   resolveAs: ResolveAs<T, ReadonlyArray<keyof T & string>>
 }
 
-// interface TestThis<T extends { foobar: 'foobar' }> {
-//   foobar: this['foobar']
-// }['foobar']
-
-// const ff: TestThis<{ foobar: 'foobar' }> = { foobar: 'foobar' };
-
-// function apply<T>(fn: (t: T) => T) {}
-// const schema: SchemaType<DbComment> = {
-//   testField: foreignKeyField({ collectionName: 'Tags', idFieldName })
-// }
-
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
@@ -193,17 +181,13 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<T extends DbObject, D extends ReadonlyArray<keyof T & string>> extends CollectionFieldSpecification<T> {
   dependsOn: D,
-  resolver: ResolveAs<T, D>['resolver'], // (doc: T, args: any, context: ResolverContext) => any,
+  resolver: ResolveAs<T, D>['resolver'],
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
 
 interface ResolverAndDbFieldArgs<T extends DbObject, D extends ReadonlyArray<keyof T & string>> extends CollectionFieldSpecification<T> {
-  // dependsOn: D,
-  // resolver: ResolveAs<T, D>['resolver'], // (doc: T, args: any, context: ResolverContext) => any,
   resolveAs: ResolveAs<T, D>,
-  // graphQLtype?: string|GraphQLScalarType|null,
-  // graphqlArguments?: string|null,
 }
 
 
@@ -233,7 +217,6 @@ export const augmentResolverOnlyField = <T extends DbObject, D extends ReadonlyA
   if (!resolverType)
     throw new Error("Could not determine resolver graphQL type for augmented field");
   return {
-    // type: type,
     optional: true,
     resolveAs: {
       type: resolverType,

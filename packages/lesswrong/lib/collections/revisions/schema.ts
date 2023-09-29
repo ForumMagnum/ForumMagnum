@@ -160,26 +160,6 @@ const schema: SchemaType<DbRevision> = {
       return document.originalContents
     }
   }),
-  // {
-  //   type: ContentType,
-  //   canRead: ['guests'],
-  //   resolveAs: {
-  //     type: 'ContentType',
-  //     dependsOn: [],
-  //     resolver: async (document, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
-  //       // Original contents sometimes contains private data (ckEditor suggestions 
-  //       // via Track Changes plugin). In those cases the html field strips out the 
-  //       // suggestion. Original contents is only visible to people who are invited 
-  //       // to collaborative editing. (This is only relevant for posts, but supporting
-  //       // it means we need originalContents to default to unviewable)
-  //       if (document.collectionName === "Posts") {
-  //         const post = await context.loaders["Posts"].load(document.documentId)
-  //         return getOriginalContents(context.currentUser, post, document.originalContents)
-  //       }
-  //       return document.originalContents
-  //     }
-  //   }
-  // },
   html: {
     type: String,
     optional: true,
