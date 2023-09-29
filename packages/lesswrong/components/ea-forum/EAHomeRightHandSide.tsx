@@ -647,9 +647,9 @@ export const EAHomeRightHandSide = ({classes}: {
         </div>
       </AnalyticsContext>
 
-      <Link to="/#" className={classes.feedbackLink}>
+      <a href="mailto:forum@effectivealtruism.org" className={classes.feedbackLink}>
         Send feedback
-      </Link>
+      </a>
     </div>
   </AnalyticsContext>
 }
