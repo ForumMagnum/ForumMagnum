@@ -308,7 +308,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
         <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
-      <div className={classes.sectionSubHeadingRow}>
+      {/* <div className={classes.sectionSubHeadingRow}>
         <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
@@ -316,7 +316,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </SectionButton>
         </Link>}
       </div>
-      <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 9}} showLoadMore={true} />
+      <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 9}} showLoadMore={true} /> */}
     </>
   }]
   if (userOrganizesGroups?.length) {
@@ -518,14 +518,14 @@ const EAUsersProfile = ({terms, slug, classes}: {
           </AnalyticsContext> */}
         </div>}
 
-        {!!user.sequenceCount && <div className={classes.section}>
+        {/* {!!user.sequenceCount && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Sequences <div className={classes.sectionHeadingCount}>{user.sequenceCount}</div>
             </Typography>
           </div>
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
-        </div>}
+        </div>} */}
 
         <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
       </SingleColumnSection>

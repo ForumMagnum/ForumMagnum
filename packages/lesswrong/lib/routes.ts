@@ -278,72 +278,72 @@ addRoute(
   },
 
   // Sequences
-  {
-    name: 'sequences.single.old',
-    path: '/sequences/:_id',
-    componentName: 'SequencesSingle',
-    previewComponentName: 'SequencePreview'
-  },
-  {
-    name: 'sequences.single',
-    path: '/s/:_id',
-    componentName: 'SequencesSingle',
-    titleComponentName: 'SequencesPageTitle',
-    subtitleComponentName: 'SequencesPageTitle',
-    previewComponentName: 'SequencePreview'
-  },
-  {
-    name: 'sequencesEdit',
-    path: '/sequencesEdit/:_id',
-    componentName: 'SequencesEditForm',
-    background: "white"
-  },
-  {
-    name: 'sequencesNew',
-    path: '/sequencesNew',
-    componentName: 'SequencesNewForm',
-    title: "New Sequence",
-    background: "white"
-  },
-  {
-    name: 'sequencesPost',
-    path: '/s/:sequenceId/p/:postId',
-    componentName: 'SequencesPost',
-    titleComponentName: 'PostsPageHeaderTitle',
-    previewComponentName: 'PostLinkPreviewSequencePost',
-    getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
-    background: "white"
-  },
+  // {
+  //   name: 'sequences.single.old',
+  //   path: '/sequences/:_id',
+  //   componentName: 'SequencesSingle',
+  //   previewComponentName: 'SequencePreview'
+  // },
+  // {
+  //   name: 'sequences.single',
+  //   path: '/s/:_id',
+  //   componentName: 'SequencesSingle',
+  //   titleComponentName: 'SequencesPageTitle',
+  //   subtitleComponentName: 'SequencesPageTitle',
+  //   previewComponentName: 'SequencePreview'
+  // },
+  // {
+  //   name: 'sequencesEdit',
+  //   path: '/sequencesEdit/:_id',
+  //   componentName: 'SequencesEditForm',
+  //   background: "white"
+  // },
+  // {
+  //   name: 'sequencesNew',
+  //   path: '/sequencesNew',
+  //   componentName: 'SequencesNewForm',
+  //   title: "New Sequence",
+  //   background: "white"
+  // },
+  // {
+  //   name: 'sequencesPost',
+  //   path: '/s/:sequenceId/p/:postId',
+  //   componentName: 'SequencesPost',
+  //   titleComponentName: 'PostsPageHeaderTitle',
+  //   previewComponentName: 'PostLinkPreviewSequencePost',
+  //   getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+  //   background: "white"
+  // },
 
-  {
-    name: 'chaptersEdit',
-    path: '/chaptersEdit/:_id',
-    componentName: 'ChaptersEditForm',
-    title: "Edit Chapter",
-    background: "white"
-  },
+  // {
+  //   name: 'chaptersEdit',
+  //   path: '/chaptersEdit/:_id',
+  //   componentName: 'ChaptersEditForm',
+  //   title: "Edit Chapter",
+  //   background: "white"
+  // },
 
-  // Collections
-  {
-    name: 'collections',
-    path: '/collections/:_id',
-    componentName: 'CollectionsSingle'
-  },
-  {
-    name: 'highlights',
-    path: '/highlights',
-    title: "Sequences Highlights",
-    componentName: 'SequencesHighlightsCollection'
-  },
-  {
-    name: 'highlights.posts.single',
-    path: '/highlights/:slug',
-    componentName: 'PostsSingleSlug',
-    previewComponentName: 'PostLinkPreviewSlug',
-    ...highlightsSubtitle,
-    getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    background: postBackground
-  },
+  // // Collections
+  // {
+  //   name: 'collections',
+  //   path: '/collections/:_id',
+  //   componentName: 'CollectionsSingle'
+  // },
+  // {
+  //   name: 'highlights',
+  //   path: '/highlights',
+  //   title: "Sequences Highlights",
+  //   componentName: 'SequencesHighlightsCollection'
+  // },
+  // {
+  //   name: 'highlights.posts.single',
+  //   path: '/highlights/:slug',
+  //   componentName: 'PostsSingleSlug',
+  //   previewComponentName: 'PostLinkPreviewSlug',
+  //   ...highlightsSubtitle,
+  //   getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
+  //   background: postBackground
+  // },
 
   // Tags redirects
   {

@@ -366,14 +366,15 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     //   showOnMobileStandalone: true,
     //   showOnCompressed: true,
     // }, {
-      id: 'library',
-      title: 'Library',
-      link: '/library',
-      iconComponent: LocalLibrary,
-      tooltip: eaSequencesHomeDescription,
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
+    /* Sequences are removed for launch, but might be added back later, so I'm leaving this commented out. */
+    //   id: 'library',
+    //   title: 'Library',
+    //   link: '/library',
+    //   iconComponent: LocalLibrary,
+    //   tooltip: eaSequencesHomeDescription,
+    //   showOnMobileStandalone: true,
+    //   showOnCompressed: true,
+    // }, {
     /* Events are removed for launch, but will be added back later, so I'm leaving this commented out. */
     //   id: 'events',
     //   title: 'Community and Events',

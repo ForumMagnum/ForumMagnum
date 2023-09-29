@@ -1340,6 +1340,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
+    hidden: true,
   },
 
   coauthorStatuses: {
@@ -1500,7 +1501,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
-    hidden: false,
+    hidden: true,
     control: "text",
   },
 
@@ -1514,7 +1515,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    hidden: false,
+    hidden: true,
     control: "text",
     group: formGroups.canonicalSequence,
     resolveAs: {
@@ -1544,7 +1545,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
-    hidden: false,
+    hidden: true,
     control: "text",
   },
 
@@ -1559,7 +1560,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
-    hidden: false,
+    hidden: true,
     control: "text"
   },
 
@@ -1574,7 +1575,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     group: formGroups.canonicalSequence,
-    hidden: false,
+    hidden: true,
     control: "text"
   },
 
