@@ -356,14 +356,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'allPosts',
-      title: 'All Posts',
-      link: '/allPosts',
-      iconComponent: Sort,
-      tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
-      showOnMobileStandalone: false,
-      showOnCompressed: true,
-    }, {
     /* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */
     //   id: 'wiki',
     //   title: 'Wiki',

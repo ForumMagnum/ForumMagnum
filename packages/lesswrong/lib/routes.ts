@@ -1452,13 +1452,6 @@ addRoute(
 
 addRoute(
   {
-    name: 'allPosts',
-    path: '/allPosts',
-    componentName: 'AllPostsPage',
-    enableResourcePrefetch: true,
-    title: "All Posts",
-  },
-  {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',
