@@ -67,6 +67,8 @@ interface CollectionBase<
   _ensureIndex: any
 }
 
+type ObjectFromCollectionBase<T extends CollectionBase<any>> = T extends CollectionBase<infer U> ? U : never;
+
 interface CollectionOptions {
   typeName: string
   collectionName: CollectionNameString

@@ -1131,8 +1131,6 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     dependsOn: ['_id'],
     resolver: async (post, args: void, context: ResolverContext) => {
-      const { contents, sideCommentsCache, ...rest } = post;
-      console.log({ post: rest });
       // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
       // Since the post at this point is already filtered by fields that this user has access, we have to grab
       // an unfiltered version of the post from cache

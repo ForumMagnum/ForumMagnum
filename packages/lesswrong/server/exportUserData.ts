@@ -41,7 +41,7 @@ export const exportUserData = async (
 
   const userId = user._id;
 
-  const entries: [CollectionBase<DbObject>, {fetch: () => Promise<DbObject[]>}][] = [
+  const entries: [CollectionBase<any>, {fetch: () => Promise<DbObject[]>}][] = [
     [Users, {fetch: () => Promise.resolve([user])}],
     [Bans, Bans.find({userId})],
     [ClientIds, ClientIds.find({userIds: userId})],

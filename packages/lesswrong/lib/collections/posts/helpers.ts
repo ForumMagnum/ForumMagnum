@@ -20,7 +20,7 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: Pick<DbPost, 'fmCrosspost' | 'url' | keyof PostsMinimumForGetPageUrl>, isAbsolute=false, isRedirected=true): string {
+export const postGetLink = function (post: Pick<DbPost, 'fmCrosspost' | 'url' | keyof PostsMinimumForGetPageUrl> | PostsBase, isAbsolute=false, isRedirected=true): string {
   const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
     ? post.fmCrosspost.foreignPostId
     : undefined;

@@ -181,14 +181,14 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR, projection }: {
+export async function migrateDocuments<T extends CollectionBase<any>>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR, projection }: {
   description?: string,
-  collection: CollectionBase<T>,
+  collection: T,
   batchSize?: number,
   unmigratedDocumentQuery?: any,
-  migrate: (documents: Array<T>) => Promise<void>,
+  migrate: (documents: Array<ObjectFromCollectionBase<T>>) => Promise<void>,
   loadFactor?: number,
-  projection?: MongoProjection<T>
+  projection?: MongoProjection<ObjectFromCollectionBase<T>>
 })
 {
   // Validate arguments

@@ -553,7 +553,7 @@ export function getAlgoliaAdminClient()
 }
 
 export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ documents, collection, updateFunction}: {
-  documents: Array<AlgoliaIndexedDbObject>,
+  documents: Array<T>,
   collection: AlgoliaIndexedCollection<T>,
   updateFunction?: any,
 }) {
@@ -573,7 +573,7 @@ export async function algoliaDocumentExport<T extends AlgoliaIndexedDbObject>({ 
   
   await algoliaIndexDocumentBatch({
     documents,
-    collection: collection as AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
+    collection,
     algoliaIndex,
     errors: totalErrors,
     updateFunction

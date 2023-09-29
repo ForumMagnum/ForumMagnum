@@ -18,7 +18,7 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<T>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   

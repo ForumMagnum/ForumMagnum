@@ -21,7 +21,7 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
   currentUser: UsersCurrent|null,
   document: PostsBase | CommentsList,
   openDialog: OpenDialogContextType["openDialog"],
-  updateDocument: WithUpdateFunction<CommentsCollection | PostsCollection>
+  updateDocument: WithUpdateFunction<CollectionBase<DbComment | DbPost>>
 }) => {
   //displays explanation of what happens upon non-member submission and submits to queue
 

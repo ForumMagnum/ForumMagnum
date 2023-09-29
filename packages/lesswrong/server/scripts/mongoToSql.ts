@@ -47,7 +47,7 @@ const copyData = async <T extends DbObject>(table: Table<T>, sql: SqlClient, col
   const formatData: (doc: DbObject) => T = formatters[collectionName] ?? ((document) => document);
   let errorIds: string[] = [];
   let count = 0;
-  await forEachDocumentBatchInCollection({
+  await forEachDocumentBatchInCollection<T>({
     collection,
     batchSize,
     callback: async (documents: DbObject[]) => {
