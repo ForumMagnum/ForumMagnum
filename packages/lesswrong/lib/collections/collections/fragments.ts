@@ -55,5 +55,8 @@ registerFragment(`
     noindex
     postsCount
     readPostsCount
+    contents {
+      ...RevisionDisplay
+    }
   }
 `);

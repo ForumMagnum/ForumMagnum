@@ -22,11 +22,14 @@ const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className
   </ul>
 </div>
 
+const defaultTooltipEAF = () =>
+  "Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.";
+
 const forumDefaultTooltip: ForumOptions<(classes?: ClassesType) => JSX.Element | string> = {
   LessWrong: defaultTooltipLWAF,
   AlignmentForum: defaultTooltipLWAF,
-  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog.",
-  default: () => "Uncheck this box if you want your post to stay on your personal blog."
+  EAForum: defaultTooltipEAF,
+  default: defaultTooltipEAF,
 }
 
 const defaultTooltip = forumSelect(forumDefaultTooltip)

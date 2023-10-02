@@ -131,9 +131,10 @@ const recalculate = (
   ref.current.appendChild(scratch);
 }
 
-const TruncatedAuthorsList = ({post, expandContainer, classes}: {
+const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
+  className?: string,
   classes: ClassesType,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
@@ -151,7 +152,7 @@ const TruncatedAuthorsList = ({post, expandContainer, classes}: {
   return isAnon || authors.length == 0
     ? <UserNameDeleted />
     : (
-      <div className={classes.root} ref={ref}>
+      <div className={classNames(classes.root, className)} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
           <UsersNameDisplay user={authors[0]} />
         </span>
@@ -182,7 +183,7 @@ const TruncatedAuthorsList = ({post, expandContainer, classes}: {
 const TruncatedAuthorsListComponent = registerComponent(
   "TruncatedAuthorsList",
   TruncatedAuthorsList,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {
