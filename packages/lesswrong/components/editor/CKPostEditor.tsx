@@ -14,7 +14,7 @@ import type { Command, Editor } from "@ckeditor/ckeditor5-core";
 import type { Element as CKElement, Selection } from "@ckeditor/ckeditor5-engine";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import { Button } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
