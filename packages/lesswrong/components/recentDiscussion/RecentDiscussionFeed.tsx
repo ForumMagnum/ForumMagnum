@@ -2,11 +2,29 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 
-const isEAForum = forumTypeSetting.get() === "EAForum"
+const recentDisucssionFeedComponents = forumSelect({
+  EAForum: {
+    ThreadComponent: Components.EARecentDiscussionThread,
+    ShortformComponent: Components.EARecentDiscussionQuickTake,
+    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
+    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: () => null,
+  },
+  default: {
+    ThreadComponent: Components.RecentDiscussionThread,
+    ShortformComponent: Components.RecentDiscussionThread,
+    TagCommentedComponent: Components.RecentDiscussionTag,
+    TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+  },
+});
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -23,40 +41,43 @@ const RecentDiscussionFeed = ({
   const refetchRef = useRef<null|(()=>void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
-  
+
   useGlobalKeydown(event => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);
     }
   });
-  
+
   const toggleShortformFeed = useCallback(
     () => {
       setShowShortformFeed(!showShortformFeed);
     },
     [setShowShortformFeed, showShortformFeed]
   );
-  
+
   const {
     SingleColumnSection,
     SectionTitle,
     SectionButton,
     ShortformSubmitForm,
     MixedTypeFeed,
-    RecentDiscussionThread,
-    RecentDiscussionTagRevisionItem,
-    RecentDiscussionTag,
-    RecentDiscussionSubscribeReminder,
-    RecentDiscussionMeetupsPoke,
     AnalyticsInViewTracker,
-    RecentDiscussionSubforumThread,
   } = Components;
-  
+
   const refetch = useCallback(() => {
     if (refetchRef.current)
       refetchRef.current();
   }, [refetchRef]);
+
+  const {
+    ThreadComponent,
+    ShortformComponent,
+    TagCommentedComponent,
+    TagRevisionComponent,
+    SubscribeReminderComponent,
+    MeetupsPokeComponent,
+  } = recentDisucssionFeedComponents;
 
   const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
@@ -93,7 +114,18 @@ const RecentDiscussionFeed = ({
               postCommented: {
                 fragmentName: "PostsRecentDiscussion",
                 render: (post: PostsRecentDiscussion) => (
-                  <RecentDiscussionThread
+                  <ThreadComponent
+                    post={post}
+                    refetch={refetch}
+                    comments={post.recentComments}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
+              shortformCommented: {
+                fragmentName: "ShortformRecentDiscussion",
+                render: (post: ShortformRecentDiscussion) => (
+                  <ShortformComponent
                     post={post}
                     refetch={refetch}
                     comments={post.recentComments}
@@ -104,7 +136,7 @@ const RecentDiscussionFeed = ({
               tagDiscussed: {
                 fragmentName: "TagRecentDiscussion",
                 render: (tag: TagRecentDiscussion) => (
-                  <RecentDiscussionTag
+                  <TagCommentedComponent
                     tag={tag}
                     refetch={refetch}
                     comments={tag.recentComments}
@@ -112,21 +144,10 @@ const RecentDiscussionFeed = ({
                   />
                 )
               },
-              tagSubforumComments: {
-                fragmentName: "CommentWithRepliesFragment",
-                render: (comment: CommentWithRepliesFragment) => (
-                  <RecentDiscussionSubforumThread
-                    comment={comment}
-                    tag={comment.tag}
-                    refetch={refetch}
-                    expandAllThreads={expandAll}
-                  />
-                ),
-              },
               tagRevised: {
                 fragmentName: "RevisionTagFragment",
                 render: (revision: RevisionTagFragment) => <div>
-                  {revision.tag && <RecentDiscussionTagRevisionItem
+                  {revision.tag && <TagRevisionComponent
                     tag={revision.tag}
                     revision={revision}
                     headingStyle="full"
@@ -136,11 +157,11 @@ const RecentDiscussionFeed = ({
               },
               subscribeReminder: {
                 fragmentName: null,
-                render: () => <RecentDiscussionSubscribeReminder/>
+                render: () => <SubscribeReminderComponent />
               },
               meetupsPoke: {
                 fragmentName: null,
-                render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
+                render: () => <MeetupsPokeComponent />
               },
             }}
           />
