@@ -2,23 +2,25 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
+import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import type { Option } from '../common/InlineSelect';
+import { getPostViewOptions } from '../../lib/PostViewOptions';
+import qs from 'qs'
 
 const titleWrapper = isLW ? {
   marginBottom: 8
@@ -54,22 +56,23 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
-})
-
-const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
-
-const filterSettingsToggleLabels = forumSelect({
-  EAForum: {
-    desktopVisible: "Customize feed",
-    desktopHidden: "Customize feed",
-    mobileVisible: "Customize feed",
-    mobileHidden: "Customize feed",
+  icon: {
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+    fontSize: 18,
+    position: 'relative',
+    top: '4px',
   },
-  default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+  iconWithLabelGroup: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+  },
+  sortMenuContainer: {
+    fontSize: "1.1rem",
+    fontWeight: "450",
+    lineHeight: "1.5em",
+    fontFamily: theme.palette.fonts.sansSerifStack,
   }
 })
 
@@ -112,32 +115,33 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, Typography, InlineSelect
   } = Components
+  const { history } = useNavigation();
+
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
   const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
+  const currentSorting = (query.view || currentUser?.allPostsSorting || 'magic') as PostSortingMode;
+  const viewOptions = getPostViewOptions();
+  const selectedOption = viewOptions.find((option) => option.value === query.view) || viewOptions[0]
+
+  const handleViewClick = (opt: Option & {value: CommentsViewName}) => {
+    const view = opt.value
+    const { query } = location;
+    const newQuery = {...query, view: view}
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  };
+
   const recentPostsTerms = {
     ...query,
     filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
-    view: "magic",
+    view: currentSorting,
     forum: true,
-    limit:limit
-  }
-  
-  const changeShowTagFilterSettingsDesktop = () => {
-    setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (isLWorAF) {
-      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
-    }
-    
-    captureEvent("filterSettingsClicked", {
-      settingsVisible: !filterSettingsVisibleDesktop,
-      settings: filterSettings,
-    })
+    limit:limit,
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
@@ -145,8 +149,13 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding></SectionTitle>
-  
+        <Typography
+          variant="body2"
+          component='span'
+          className={classes.inline}
+        >
+          Sorted by <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick} />
+        </Typography>
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
             [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
