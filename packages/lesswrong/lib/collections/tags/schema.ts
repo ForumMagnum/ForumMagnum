@@ -285,7 +285,7 @@ const schema: SchemaType<DbTag> = {
         ) ?? undefined;
 
       const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
-        
+      
       const comments = await Comments.find({
         ...getDefaultViewSelector("Comments"),
         tagId: tag._id,
