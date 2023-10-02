@@ -511,13 +511,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
             currentIncludeEvents={currentIncludeEvents}
             currentHideCommunity={currentHideCommunity}
           />}
-          {/* Quick takes are removed for launch, but may be added back later, so I'm leaving this commented out. */}
-          {/* <AnalyticsContext listContext="userPagePosts">
-            <ProfileShortform user={user} />
-            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform />
-          </AnalyticsContext> */}
+          <AnalyticsContext listContext="userPagePosts">
+            <PostsList2 terms={postTerms} boxShadow={false} hideAuthor hideShortform={true} />
+          </AnalyticsContext>
         </div>}
 
+        {/* Sequences are removed for launch, but may be added back later. */}
         {/* {!!user.sequenceCount && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
