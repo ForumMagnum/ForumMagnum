@@ -43,6 +43,7 @@ export type Route = {
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
+  noFooter?: boolean,
   standalone?: boolean // if true, this page has no header / intercom
   staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
   fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling

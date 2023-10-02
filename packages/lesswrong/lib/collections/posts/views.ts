@@ -55,6 +55,7 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
+    notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
     excludeContents?: boolean,
@@ -189,6 +190,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...(terms.postIds && {_id: {$in: terms.postIds}}),
+      ...(terms.notPostIds && {_id: {$nin: terms.notPostIds}}),
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum

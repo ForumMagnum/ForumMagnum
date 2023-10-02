@@ -1,8 +1,7 @@
-import React, { FC, useRef } from "react";
+import React, { FC } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
-import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
@@ -57,13 +56,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 12,
     },
   },
-  karma: {
-    width: 50,
-    minWidth: 50,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
   postsVote: {
     position: "relative",
     fontSize: 30,
@@ -77,10 +69,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     transform: "translateY(1px)",
     marginLeft: 44,
     marginRight: 14,
-  },
-  voteArrow: {
-    color: theme.palette.grey[400],
-    margin: "-6px 0 2px 0",
   },
   details: {
     flexGrow: 1,
@@ -108,20 +96,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     whiteSpace: "nowrap",
-  },
-  metaLeft: {
-    flexGrow: 1,
-    display: "flex",
-    alignItems: "center",
-    overflow: "hidden",
-    "& > :first-child": {
-      marginRight: 5,
-    },
-  },
-  readTime: {
-    "@media screen and (max-width: 350px)": {
-      display: "none",
-    },
   },
   secondaryContainer: {
     display: "flex",
@@ -186,14 +160,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     },
   },
+  karmaDisplay: {
+    width: 50,
+    minWidth: 50,
+  },
 });
 
 
 export type EAPostsItemProps = PostsItemConfig & {
+  hideSecondaryInfo?: boolean,
   classes: ClassesType,
 };
 
-const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
+const EAPostsItem = ({
+  hideSecondaryInfo,
+  classes,
+  ...props
+}: EAPostsItemProps) => {
   const {
     post,
     postLink,
@@ -206,12 +189,12 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     showTrailingButtons,
     showMostValuableCheckbox,
     showDismissButton,
-    showArchiveButton,
     onDismiss,
     onArchive,
     resumeReading,
     strikethroughTitle,
     curatedIconLeft,
+    showIcons,
     isRead,
     showReadCheckbox,
     tooltipPlacement,
@@ -222,22 +205,21 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     isRepeated,
     analyticsProps,
     isVoteable,
+    className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
-  const authorExpandContainer = useRef(null);
 
   if (isRepeated) {
     return null;
   }
 
   const {
-    PostsTitle, PostsItemDate, ForumIcon, PostActionsButton, KarmaDisplay,
-    TruncatedAuthorsList, PostsItemTagRelevance, PostsItemTooltipWrapper,
+    PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
+    PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
-    PostsVote,
   } = Components;
 
-  const SecondaryInfo = () => (
+  const SecondaryInfo = () => hideSecondaryInfo ? null : (
     <>
       <InteractionWrapper className={classes.interactionWrapper}>
         <a onClick={toggleComments} className={classNames(
@@ -279,7 +261,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
 
   return (
     <AnalyticsContext {...analyticsProps}>
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         {showReadCheckbox &&
           <div className={classes.readCheckbox}>
             <PostReadCheckbox post={post} width={14} />
@@ -297,12 +279,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 </InteractionWrapper>
               )
               : (
-                <div className={classes.karma}>
-                  <div className={classes.voteArrow}>
-                    <SoftUpArrowIcon />
-                  </div>
-                  <KarmaDisplay document={post} />
-                </div>
+                <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
               )
             }
             <div className={classes.details}>
@@ -314,6 +291,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                   showPersonalIcon,
                   strikethroughTitle,
                   curatedIconLeft,
+                  showIcons,
                 }}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
@@ -321,21 +299,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                 className={classes.title}
               />
               <div className={classes.meta}>
-                <div className={classes.metaLeft} ref={authorExpandContainer}>
-                  <InteractionWrapper className={classes.interactionWrapper}>
-                    <TruncatedAuthorsList
-                      post={post}
-                      expandContainer={authorExpandContainer}
-                    />
-                  </InteractionWrapper>
-                  <div>
-                    {' · '}
-                    <PostsItemDate post={post} noStyles includeAgo />
-                    {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) && <span className={classes.readTime}>
-                      {' · '}{post.readTimeMinutes || 1}m read
-                    </span>}
-                  </div>
-                </div>
+                <EAPostMeta post={post} />
                 <div className={classNames(
                   classes.secondaryContainer,
                   classes.onlyMobile,

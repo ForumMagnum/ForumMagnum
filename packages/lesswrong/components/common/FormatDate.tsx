@@ -9,22 +9,31 @@ export const ExpandedDate = ({date}: {date: Date | string}) => {
   return <>{moment(new Date(date)).tz(timezone).format("LLL z")}</>
 };
 
+const formatRelative = (
+  date: Date | string,
+  now: Date,
+  includeAgo?: boolean,
+): string => {
+  const formatted = moment(date).from(now);
+  return includeAgo && formatted !== "now" ? formatted + " ago" : formatted;
+}
+
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
 /// for the actual (non-relative) date/time.
-const FormatDate = ({date, format, tooltip=true}: {
+const FormatDate = ({date, format, includeAgo, tooltip=true}: {
   date: Date | string,
   format?: string,
+  includeAgo?: boolean,
   tooltip?: boolean,
 }) => {
   const now = useCurrentTime();
   const dateToRender = date||now;
   const { LWTooltip } = Components
 
-  const formatted: string = (format
+  const formatted: string = format
     ? moment(dateToRender).format(format)
-    : moment(dateToRender).from(now)
-  );
-  
+    : formatRelative(dateToRender, now, includeAgo);
+
   if (tooltip) {
     return <LWTooltip title={<ExpandedDate date={date}/>}>
       {formatted}

@@ -376,6 +376,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
+    className,
   } = usePostsItem(props);
 
   if (isRepeated) {
@@ -400,6 +401,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
         </div>}
         <div className={classNames(
           classes.root,
+          className,
           {
             [classes.background]: !translucentBackground,
             [classes.checkboxWidth]: showReadCheckbox,

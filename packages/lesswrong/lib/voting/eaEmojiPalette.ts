@@ -54,3 +54,14 @@ export const eaEmojiNames = [
 ].map(({name}) => name);
 
 export const eaPublicEmojiNames = eaEmojiPalette.map(({name}) => name);
+
+export const getEmojiMutuallyExclusivePartner = (emojiName: string) => {
+  switch (emojiName) {
+  case "agree":
+    return "disagree";
+  case "disagree":
+    return "agree";
+  default:
+    return undefined;
+  }
+}
