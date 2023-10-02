@@ -2481,7 +2481,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted && !comment.rejected && !comment.debateResponse
+      filterFn: comment => !comment.deleted && !comment.rejected
     }),
     canRead: ['guests'],
   },
@@ -2743,7 +2743,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: (comment: DbComment) => comment.af && !comment.deleted && !comment.debateResponse,
+      filterFn: (comment: DbComment) => comment.af && !comment.deleted,
     }),
     label: "Alignment Comment Count",
     canRead: ['guests'],
