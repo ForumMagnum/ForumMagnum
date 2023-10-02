@@ -156,16 +156,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
         >
           Sorted by <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick} />
         </Typography>
-        <AnalyticsContext pageSectionContext="tagFilterSettings">
-          <div className={classNames({
-            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-          })}>
-            <TagFilterSettings
-              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
-            />
-          </div>
-        </AnalyticsContext>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
