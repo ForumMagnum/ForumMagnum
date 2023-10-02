@@ -95,23 +95,22 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
   if (comment.postId) {
     const lastCommentedAt = new Date()
 
-    if (!comment.debateResponse) {
-      await Posts.rawUpdateOne(comment.postId, {
-        $set: {lastCommentedAt},
-      })
-    }
-
     // we're updating the comment author's lastVisitedAt time for the post as well,
     // so that their comment doesn't cause the post to look like it has unread comments
-    await ReadStatuses.rawUpdateOne({
-      postId: comment.postId,
-      userId: comment.userId,
-      tagId: null,
-    }, {
-      $set: {
-        lastUpdated: lastCommentedAt
-      }
-    })
+    await Promise.all([
+      !comment.debateResponse ? Posts.rawUpdateOne(comment.postId, {
+        $set: {lastCommentedAt},
+      }) : null,
+      ReadStatuses.rawUpdateOne({
+        postId: comment.postId,
+        userId: comment.userId,
+        tagId: null,
+      }, {
+        $set: {
+          lastUpdated: lastCommentedAt
+        }
+      })
+    ])
   } else if (comment.tagId) {
     const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
