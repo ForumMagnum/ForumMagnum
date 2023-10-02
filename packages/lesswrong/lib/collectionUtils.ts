@@ -82,14 +82,14 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
   }
 }
 
-export function addUniversalFields<T extends DbObject>({
+export function addUniversalFields<T extends CollectionBase<any>>({
   collection,
   schemaVersion = 1,
   createdAtOptions = {},
 }: {
-  collection: CollectionBase<T>,
+  collection: T,
   schemaVersion?: number
-  createdAtOptions?: Partial<CollectionFieldPermissions>,
+  createdAtOptions?: Partial<CollectionFieldPermissions<ObjectFromCollectionBase<T>>>,
 }): void {
   addFieldsDict(collection, {
     _id: {

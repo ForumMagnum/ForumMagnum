@@ -56,7 +56,8 @@ const schema: SchemaType<DbTagRel> = {
     type: Boolean,
     graphQLtype: 'Boolean',
     canRead: ['guests'],
-    resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
+    dependsOn: ['tagId', 'postId'],
+    resolver: async (document, args: void, context: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
       return context.currentUser
         ? !(await canVoteOnTagAsync(context.currentUser, document.tagId, document.postId, context, 'smallUpvote')).fail

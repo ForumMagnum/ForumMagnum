@@ -217,7 +217,7 @@ function tagToHeadingLevel(tagName: string): number
     return 0;
 }
 
-async function getTocAnswers (document: DbPost) {
+async function getTocAnswers (document: Pick<DbPost, '_id' | 'question'>) {
   if (!document.question) return []
 
   let answersTerms: MongoSelector<DbComment> = {
@@ -259,7 +259,7 @@ async function getTocAnswers (document: DbPost) {
   }
 }
 
-async function getTocComments (document: DbPost) {
+async function getTocComments (document: Pick<DbPost, '_id' | 'af' | 'commentCount' | 'afCommentCount'>) {
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
@@ -274,7 +274,7 @@ async function getTocComments (document: DbPost) {
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost,
+  document: Pick<DbPost, '_id' | 'contents' | 'question' | 'af' | 'commentCount' | 'afCommentCount'>,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
@@ -308,7 +308,7 @@ export const getToCforPost = async ({document, version, context}: {
 }
 
 const getToCforTag = async ({document, version, context}: {
-  document: DbTag,
+  document: Pick<DbTag, '_id' | 'htmlWithContributorAnnotations' | 'description'>,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {

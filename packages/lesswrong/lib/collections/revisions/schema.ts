@@ -1,7 +1,7 @@
 import { foreignKeyField, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 import { addGraphQLSchema } from '../../vulcan-lib';
-import { userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
+import { OwnableDocument, userCanReadField, userIsPodcaster, userOwns } from '../../vulcan-users/permissions';
 import { SharableDocument, userIsSharedOn } from '../users/helpers';
 
 /**
@@ -41,7 +41,7 @@ const isSharable = (document: any) : document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 
-export const getOriginalContents = (currentUser: DbUser|null, document: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
+export const getOriginalContents = <T extends DbObject>(currentUser: DbUser|null, document: T, originalContents: EditableFieldContents["originalContents"]) => {
   const canViewOriginalContents = (user: DbUser|null, doc: DbObject) => isSharable(doc) ? userIsSharedOn(user, doc) : true
 
   const returnOriginalContents = userCanReadField(
@@ -142,25 +142,24 @@ const schema: SchemaType<DbRevision> = {
     optional: true,
     canRead: ['guests'],
   },
-  originalContents: {
+  originalContents: resolverOnlyField({
     type: ContentType,
     canRead: ['guests'],
-    resolveAs: {
-      type: 'ContentType',
-      resolver: async (document: DbRevision, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
-        // Original contents sometimes contains private data (ckEditor suggestions 
-        // via Track Changes plugin). In those cases the html field strips out the 
-        // suggestion. Original contents is only visible to people who are invited 
-        // to collaborative editing. (This is only relevant for posts, but supporting
-        // it means we need originalContents to default to unviewable)
-        if (document.collectionName === "Posts") {
-          const post = await context.loaders["Posts"].load(document.documentId)
-          return getOriginalContents(context.currentUser, post, document.originalContents)
-        }
-        return document.originalContents
+    graphQLtype: 'ContentType',
+    dependsOn: ['collectionName', 'documentId', 'originalContents'],
+    resolver: async (document, args: void, context: ResolverContext): Promise<DbRevision["originalContents"]|null> => {
+      // Original contents sometimes contains private data (ckEditor suggestions 
+      // via Track Changes plugin). In those cases the html field strips out the 
+      // suggestion. Original contents is only visible to people who are invited 
+      // to collaborative editing. (This is only relevant for posts, but supporting
+      // it means we need originalContents to default to unviewable)
+      if (document.collectionName === "Posts") {
+        const post = await context.loaders["Posts"].load(document.documentId)
+        return getOriginalContents(context.currentUser, post, document.originalContents)
       }
+      return document.originalContents
     }
-  },
+  }),
   html: {
     type: String,
     optional: true,
@@ -217,7 +216,8 @@ const schema: SchemaType<DbRevision> = {
     type: "Tag",
     graphQLtype: "Tag",
     canRead: ['guests'],
-    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+    dependsOn: ['collectionName', 'documentId'],
+    resolver: async (revision, args: void, context: ResolverContext) => {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
         return null;
@@ -229,7 +229,8 @@ const schema: SchemaType<DbRevision> = {
     type: "Post",
     graphQLtype: "Post",
     canRead: ['guests'],
-    resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
+    dependsOn: ['collectionName', 'documentId'],
+    resolver: async (revision, args: void, context: ResolverContext) => {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")
         return null;

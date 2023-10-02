@@ -10,6 +10,9 @@ const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
+export const USER_KARMA_CHANGE_NOTIFIER_FIELDS = ['_id', 'karmaChangeNotifierSettings'] as const;
+type UserKarmaChangeNotifierFields = Pick<DbUser, typeof USER_KARMA_CHANGE_NOTIFIER_FIELDS[number]>;
+
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
 //
@@ -32,7 +35,7 @@ const COMMENT_DESCRIPTION_LENGTH = 500;
 //   ]
 // }
 export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=null, af=false, context}: {
-  user: DbUser,
+  user: UserKarmaChangeNotifierFields,
   startDate: Date,
   endDate: Date,
   nextBatchDate?: Date|null,

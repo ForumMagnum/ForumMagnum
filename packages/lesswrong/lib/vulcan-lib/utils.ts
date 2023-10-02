@@ -18,7 +18,7 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<T>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
   slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
   
@@ -27,7 +27,7 @@ interface UtilsType {
   
   // In server/tableOfContents.ts
   getToCforPost: ({document, version, context}: { document: DbPost, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
-  getToCforTag: ({document, version, context}: { document: DbTag, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
+  getToCforTag: ({document, version, context}: { document: Pick<DbTag, '_id' | 'htmlWithContributorAnnotations' | 'description'>, version: string|null, context: ResolverContext }) => Promise<ToCData|null>
   
   // In server/vulcan-lib/mutators.ts
   createMutator: CreateMutator

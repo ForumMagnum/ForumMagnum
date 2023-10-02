@@ -236,10 +236,10 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
-    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const collection = getCollectionsByName()[revision.collectionName]
     const document = await collection.findOne({_id: revision.documentId})
     if (document) {
-      await syncDocumentWithLatestRevision(
+      await syncDocumentWithLatestRevision<any>(
         collection,
         document,
         revision.fieldName

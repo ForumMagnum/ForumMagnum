@@ -5,7 +5,7 @@ import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 import { forumTypeSetting, isEAForum } from "../../instanceSettings";
-import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
+import { commentAllowTitle, commentGetPageUrlFromDB, CommentPageUrlFields, COMMENT_PAGE_URL_FIELDS } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
@@ -176,7 +176,8 @@ const schema: SchemaType<DbComment> = {
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+    dependsOn: COMMENT_PAGE_URL_FIELDS,
+    resolver: async (comment, args: void, context: ResolverContext) => {
       return await commentGetPageUrlFromDB(comment, context, true)
     },
   }),
@@ -184,7 +185,8 @@ const schema: SchemaType<DbComment> = {
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+    dependsOn: COMMENT_PAGE_URL_FIELDS,
+    resolver: async (comment, args: void, context: ResolverContext) => {
       return await commentGetPageUrlFromDB(comment, context, false)
     },
   }),
@@ -240,7 +242,8 @@ const schema: SchemaType<DbComment> = {
     type: Array,
     graphQLtype: '[Comment]',
     canRead: ['guests'],
-    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (comment, args: void, context: ResolverContext) => {
       const { Comments } = context;
       const params = viewTermsToQuery("Comments", {view:"shortformLatestChildren", topLevelCommentId: comment._id});
       return await Comments.find(params.selector, params.options).fetch()
@@ -404,7 +407,8 @@ const schema: SchemaType<DbComment> = {
   wordCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
+    dependsOn: ['contents'],
+    resolver: (comment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -413,8 +417,9 @@ const schema: SchemaType<DbComment> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: [documentIsNotDeleted],
-    resolver: (comment: DbComment, args: void, context: ResolverContext) => {
+    canRead: [documentIsNotDeleted<DbComment>],
+    dependsOn: ['contents'],
+    resolver: (comment, args: void, context: ResolverContext) => {
       const contents = comment.contents;
       if (!contents) return "";
       return contents.html;
@@ -424,7 +429,8 @@ const schema: SchemaType<DbComment> = {
   votingSystem: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
+    dependsOn: ['_id', 'score', 'baseScore', 'voteCount', 'extendedScore', 'af', 'afBaseScore', 'afExtendedScore', 'tagId', 'postId'],
+    resolver: (comment, args: void, context: ResolverContext): Promise<string> => {
       return getVotingSystemNameForDocument(comment, context)
     }
   }),
@@ -769,6 +775,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     hidden: true,
     canRead: ["guests"],
+    dependsOn: ['_id', 'postId', 'extendedScore'],
     resolver: async (comment, _, context) => {
       const {extendedScore} = comment;
       if (

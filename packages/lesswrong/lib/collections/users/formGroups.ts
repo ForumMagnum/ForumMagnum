@@ -1,7 +1,7 @@
 import { preferredHeadingCase } from "../../forumTypeUtils";
 import { isEAForum } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string, FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType<DbUser>>> = {
   default: {
     name: "default",
     order: 0,

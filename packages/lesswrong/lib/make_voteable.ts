@@ -1,4 +1,4 @@
-import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, resolverOnlyField } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
@@ -40,11 +40,13 @@ export const apolloCacheVoteablePossibleTypes = () => {
   }
 }
 
+const VOTEABLE_TYPE_FIELDS = ['_id', 'schemaVersion', 'userId', 'score', 'baseScore', 'voteCount', 'extendedScore', 'af', 'afBaseScore', 'afExtendedScore'] as const;
+
 // options: {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options: CollectionVoteOptions): void => {
+export const makeVoteable = <T extends CollectionBase<any>>(collection: ObjectFromCollectionBase<T> extends DbVoteableType ? T : never, options: CollectionVoteOptions): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
@@ -52,68 +54,60 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
   VoteableCollectionOptions[collection.collectionName] = options;
 
   addFieldsDict(collection, {
-    currentUserVote: {
+    currentUserVote: resolverOnlyField({
       type: String,
-      optional: true,
+      graphQLtype: 'String',
       canRead: ['guests'],
-      resolveAs: {
-        type: 'String',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].voteType;
-        }
+      dependsOn: VOTEABLE_TYPE_FIELDS,
+      resolver: async (document, args: void, context: ResolverContext): Promise<string|null> => {
+        const votes = await getCurrentUserVotes(document, context);
+        if (!votes.length) return null;
+        return votes[0].voteType;
       }
-    },
+    }),
     
-    currentUserExtendedVote: {
+    currentUserExtendedVote: resolverOnlyField({
       type: GraphQLJSON,
-      optional: true,
+      graphQLtype: GraphQLJSON,
       canRead: ['guests'],
-      resolveAs: {
-        type: GraphQLJSON,
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
-          const votes = await getCurrentUserVotes(document, context);
-          if (!votes.length) return null;
-          return votes[0].extendedVoteType || null;
-        }
-      },
-    },
+      dependsOn: VOTEABLE_TYPE_FIELDS,
+      resolver: async (document, args: void, context: ResolverContext): Promise<string|null> => {
+        const votes = await getCurrentUserVotes(document, context);
+        if (!votes.length) return null;
+        return votes[0].extendedVoteType || null;
+      }
+    }),
     
     // DEPRECATED (but preserved for backwards compatibility): Returns an array
     // of vote objects, if the user has voted (or an empty array otherwise).
-    currentUserVotes: {
+    currentUserVotes: resolverOnlyField({
       type: Array,
-      optional: true,
+      graphQLtype: '[Vote]',
       canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
-          return await getCurrentUserVotes(document, context);
-        },
+      dependsOn: VOTEABLE_TYPE_FIELDS,
+      resolver: async (document, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        return await getCurrentUserVotes(document, context);
       }
-    },
+    }),
     'currentUserVotes.$': {
       type: Object,
       optional: true
     },
     
-    allVotes: {
+    allVotes: resolverOnlyField({
       type: Array,
-      optional: true,
+      graphQLtype: '[Vote]',
       canRead: ['guests'],
-      resolveAs: {
-        type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
-          const { currentUser } = context;
-          if (userIsAdminOrMod(currentUser)) {
-            return await getAllVotes(document, context);
-          } else {
-            return await getCurrentUserVotes(document, context);
-          }
-        },
+      dependsOn: VOTEABLE_TYPE_FIELDS,
+      resolver: async (document, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        const { currentUser } = context;
+        if (userIsAdminOrMod(currentUser)) {
+          return await getAllVotes(document, context);
+        } else {
+          return await getCurrentUserVotes(document, context);
+        }
       }
-    },
+    }),
     'allVotes.$': {
       type: Object,
       optional: true
@@ -135,7 +129,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: customBaseScoreReadAccess || ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
+      onInsert: (document: DbInsertion<DbVoteableType>): number => {
         // default to 0 if empty
         return document.baseScore || 0;
       }
@@ -151,7 +145,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       optional: true,
       defaultValue: 0,
       canRead: ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
+      onInsert: (document: DbInsertion<DbVoteableType>): number => {
         // default to 0 if empty
         return document.score || 0;
       }

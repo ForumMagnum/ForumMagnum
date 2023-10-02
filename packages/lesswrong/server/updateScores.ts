@@ -192,7 +192,7 @@ const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, 
     ? getBatchItemsPg(collection, inactive, forceUpdate)
     : getBatchItemsMongo(collection, inactive);
 
-export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
+export const batchUpdateScore = async <T extends DbObject>({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<T> }) => {
   const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 

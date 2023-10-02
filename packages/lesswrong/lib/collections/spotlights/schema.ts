@@ -1,7 +1,7 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
-import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
+import { resolverOnlyField, accessFilterSingle, accessFilterMultiple, resolverAndDbField } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 import { isEAForum } from "../../instanceSettings";
 
@@ -40,7 +40,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 };
 
 const schema: SchemaType<DbSpotlight> = {
-  documentId: {
+  documentId: resolverAndDbField({
     type: String,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -51,14 +51,15 @@ const schema: SchemaType<DbSpotlight> = {
       addOriginalField: true,
       // TODO: try a graphql union type?
       type: 'Post!',
-      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
+      dependsOn: ['documentType'],
+      resolver: async (spotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
         const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
-        const collection = context[collectionName];
+        const collection: CollectionBase<any> = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
         return accessFilterSingle(context.currentUser, collection, document, context);
       }
     },
-  },
+  }),
   
   /**
    * Type of document that is spotlighted, from the options in DOCUMENT_TYPES.
@@ -253,7 +254,8 @@ const schema: SchemaType<DbSpotlight> = {
     type: Array,
     graphQLtype: '[Chapter]',
     canRead: ['guests'],
-    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
+    dependsOn: ['documentId', 'documentType'],
+    resolver: async (spotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
       if (!spotlight.documentId || spotlight.documentType !== "Sequence") {
         return null;
       }

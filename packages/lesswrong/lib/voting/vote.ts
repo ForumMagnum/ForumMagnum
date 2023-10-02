@@ -4,8 +4,8 @@ import { recalculateScore } from '../scoring';
 import { voteTypes, calculateVotePower } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 
-export interface VoteDocTuple {
-  newDocument: DbVoteableType
+export interface VoteDocTuple<T extends DbVoteableType = DbVoteableType> {
+  newDocument: T
   vote: DbVote
 }
 export const voteCallbacks = {
@@ -15,12 +15,11 @@ export const voteCallbacks = {
   castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser,ResolverContext]>("votes.castVote.async"),
 };
 
-
 // Given a client-side view of a document, return a modified version in which
 // the user has voted and the scores are updated appropriately.
-const addVoteClient = ({ document, collection, voteType, extendedVote, user, votingSystem }: {
+const addVoteClient = <T extends DbObject>({ document, collection, voteType, extendedVote, user, votingSystem }: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<T>,
   voteType: string,
   extendedVote: any,
   user: UsersCurrent,
@@ -62,9 +61,9 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
 
 // Given a client-side view of a document, return a modified version in which
 // the current user's vote is removed and the score is adjusted accordingly.
-const cancelVoteClient = ({document, collection, user, votingSystem}: {
+const cancelVoteClient = <T extends DbObject>({document, collection, user, votingSystem}: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<T>,
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }): VoteableTypeClient => {

@@ -1,6 +1,6 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
+import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle, resolverAndDbField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
@@ -107,7 +107,7 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
-async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+async function getLastReadStatus(post: Pick<DbPost, '_id'>, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
   if (!currentUser) return null;
 
@@ -157,7 +157,7 @@ const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | 
     : userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
 }
 
-const schemaDefaultValueFmCrosspost = schemaDefaultValue({
+const schemaDefaultValueFmCrosspost = schemaDefaultValue<DbPost>({
   isCrosspost: false,
 })
 
@@ -439,25 +439,29 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url),
+    dependsOn: ['url'],
+    resolver: (post, args: void, context: ResolverContext) => getDomain(post.url),
   }),
 
   pageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
+    dependsOn: ['_id', 'slug', 'isEvent', 'groupId'],
+    resolver: (post, args: void, context: ResolverContext) => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, false),
+    dependsOn: ['_id', 'slug', 'isEvent', 'groupId'],
+    resolver: (post, args: void, context: ResolverContext) => postGetPageUrl(post, false),
   }),
 
   linkUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id', 'url', 'slug', 'isEvent', 'groupId'],
+    resolver: (post, args: void, context: ResolverContext) => {
       return post.url ? getOutgoingUrl(post.url) : postGetPageUrl(post, true);
     },
   }),
@@ -465,7 +469,8 @@ const schema: SchemaType<DbPost> = {
   postedAtFormatted: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['postedAt'],
+    resolver: (post, args: void, context: ResolverContext) => {
       return moment(post.postedAt).format('dddd, MMMM Do YYYY');
     }
   }),
@@ -473,26 +478,30 @@ const schema: SchemaType<DbPost> = {
   emailShareUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetEmailShareUrl(post),
+    dependsOn: ['_id', 'url', 'title', 'slug', 'groupId', 'fmCrosspost', 'isEvent'],
+    resolver: (post, args: void, context: ResolverContext) => postGetEmailShareUrl(post),
   }),
 
   twitterShareUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetTwitterShareUrl(post),
+    dependsOn: ['_id', 'url', 'title', 'slug', 'groupId', 'fmCrosspost', 'isEvent'],
+    resolver: (post, args: void, context: ResolverContext) => postGetTwitterShareUrl(post),
   }),
 
   facebookShareUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
+    dependsOn: ['_id', 'url', 'slug', 'groupId', 'fmCrosspost', 'isEvent'],
+    resolver: (post, args: void, context: ResolverContext) => postGetFacebookShareUrl(post),
   }),
 
   // DEPRECATED: use socialPreview.imageUrl instead
   socialPreviewImageUrl: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => getSocialPreviewImage(post)
+    dependsOn: ['socialPreview', 'socialPreviewImageAutoUrl'],
+    resolver: (post, args: void, context: ResolverContext) => getSocialPreviewImage(post)
   }),
 
   question: {
@@ -533,7 +542,8 @@ const schema: SchemaType<DbPost> = {
   readTimeMinutes: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost) =>
+    dependsOn: ['readTimeMinutesOverride', 'contents'],
+    resolver: ({readTimeMinutesOverride, contents}) =>
       Math.max(
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
@@ -546,7 +556,8 @@ const schema: SchemaType<DbPost> = {
   wordCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
+    dependsOn: ['contents'],
+    resolver: (post, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return 0;
       return contents.wordCount;
@@ -555,8 +566,9 @@ const schema: SchemaType<DbPost> = {
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
-    canRead: [documentIsNotDeleted],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
+    canRead: [documentIsNotDeleted<DbPost>],
+    dependsOn: ['contents'],
+    resolver: (post, args: void, { Posts }: ResolverContext) => {
       const contents = post.contents;
       if (!contents) return "";
       return contents.html;
@@ -610,7 +622,8 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
       return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
@@ -624,7 +637,8 @@ const schema: SchemaType<DbPost> = {
     type: Array,
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const { Posts, currentUser, repos } = context;
       let postRelations: DbPostRelation[] = [];
       if (Posts.isPostgres()) {
@@ -894,7 +908,8 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "TagRel",
     canRead: ['guests'],
     graphqlArguments: 'tagId: String',
-    resolver: async (post: DbPost, args: {tagId: string}, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: {tagId: string}, context: ResolverContext) => {
       const { tagId } = args;
       const { currentUser } = context;
       const tagRels = await getWithLoader(context, TagRels,
@@ -915,7 +930,8 @@ const schema: SchemaType<DbPost> = {
     type: "[Tag]",
     graphQLtype: "[Tag]",
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['tagRelevance'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const { currentUser } = context;
       const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
@@ -950,6 +966,7 @@ const schema: SchemaType<DbPost> = {
     type: "Comment",
     graphQLtype: "Comment",
     canRead: ['guests'],
+    dependsOn: ['_id', 'lastCommentPromotedAt'],
     resolver: async (post, args, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       if (post.lastCommentPromotedAt) {
@@ -965,7 +982,8 @@ const schema: SchemaType<DbPost> = {
     type: "Comment",
     graphQLtype: "Comment",
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id', 'question', 'lastCommentPromotedAt'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       if (post.question) {
         if (post.lastCommentPromotedAt) {
@@ -1069,7 +1087,8 @@ const schema: SchemaType<DbPost> = {
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
     canRead: ['members'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1110,7 +1129,8 @@ const schema: SchemaType<DbPost> = {
   myEditorAccess: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
       // Since the post at this point is already filtered by fields that this user has access, we have to grab
       // an unfiltered version of the post from cache
@@ -1223,7 +1243,8 @@ const schema: SchemaType<DbPost> = {
   lastVisitedAt: resolverOnlyField({
     type: Date,
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.lastUpdated;
     }
@@ -1232,7 +1253,8 @@ const schema: SchemaType<DbPost> = {
   isRead: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (post, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.isRead;
     }
@@ -1260,7 +1282,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     group: formGroups.adminOptions,
   },
-  suggestForCuratedUserIds: {
+  suggestForCuratedUserIds: resolverAndDbField({
     // FIXME: client-side mutations of this are rewriting the whole thing,
     // when they should be doing add or delete. The current set up can cause
     // overwriting of other people's changes in a race.
@@ -1275,7 +1297,8 @@ const schema: SchemaType<DbPost> = {
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
       type: 'String',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string|null> => {
+      dependsOn: ['suggestForCuratedUserIds'],
+      resolver: async (post, args: void, context: ResolverContext): Promise<string|null> => {
         // TODO - Turn this into a proper resolve field.
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
@@ -1294,7 +1317,7 @@ const schema: SchemaType<DbPost> = {
       },
       addOriginalField: true,
     }
-  },
+  }),
   'suggestForCuratedUserIds.$': {
     type: String,
     foreignKey: 'Users',
@@ -1341,12 +1364,13 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.canonicalSequence,
   },
 
-  coauthorStatuses: {
+  coauthorStatuses: resolverAndDbField({
     type: Array,
     resolveAs: {
       fieldName: 'coauthors',
       type: '[User!]',
-      resolver: async (post: DbPost, args: void, context: ResolverContext) =>  {
+      dependsOn: ['coauthorStatuses'],
+      resolver: async (post, args: void, context: ResolverContext) =>  {
         const resolvedDocs = await loadByIds(context, "Users",
           post.coauthorStatuses?.map(({ userId }) => userId) || []
         );
@@ -1354,7 +1378,7 @@ const schema: SchemaType<DbPost> = {
       },
       addOriginalField: true,
     },
-    canRead: [documentIsNotDeleted],
+    canRead: [documentIsNotDeleted<DbPost>],
     canUpdate: ['sunshineRegiment', 'admins', userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     canCreate: ['sunshineRegiment', 'admins', userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)],
     optional: true,
@@ -1362,7 +1386,7 @@ const schema: SchemaType<DbPost> = {
     label: "Co-Authors",
     control: "CoauthorsListEditor",
     group: formGroups.coauthors
-  },
+  }),
   'coauthorStatuses.$': {
     type: new SimpleSchema({
       userId: String,
@@ -1408,7 +1432,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
   },
 
-  socialPreview: {
+  socialPreview: resolverAndDbField<DbPost, ['socialPreview', 'socialPreviewImageAutoUrl']>({
     type: new SimpleSchema({
       imageId: {
         type: String,
@@ -1425,7 +1449,8 @@ const schema: SchemaType<DbPost> = {
       type: "SocialPreviewType",
       fieldName: "socialPreviewData",
       addOriginalField: true,
-      resolver: async (post: DbPost, args, context: ResolverContext) => {
+      dependsOn: ['socialPreview', 'socialPreviewImageAutoUrl'],
+      resolver: async (post, args, context: ResolverContext) => {
         const { imageId, text } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
@@ -1443,7 +1468,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
-  },
+  }),
 
   fmCrosspost: {
     type: new SimpleSchema({
@@ -1454,7 +1479,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: [documentIsNotDeleted],
-    canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
+    canUpdate: [allOf<[DbUser, DbPost]>(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
     control: "FMCrosspostControl",
     tooltip: fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org") ?
@@ -1503,7 +1528,7 @@ const schema: SchemaType<DbPost> = {
     control: "text",
   },
 
-  canonicalCollectionSlug: {
+  canonicalCollectionSlug: resolverAndDbField({
     type: String,
     foreignKey: {
       collection: 'Collections',
@@ -1520,15 +1545,16 @@ const schema: SchemaType<DbPost> = {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
       type: "Collection",
+      dependsOn: ['canonicalCollectionSlug'],
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (post, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!post.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     },
-  },
+  }),
 
   canonicalBookId: {
     ...foreignKeyField({
@@ -1589,7 +1615,8 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "Post",
     canRead: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
+    dependsOn: ['_id', 'canonicalSequenceId', 'canonicalNextPostSlug'],
+    resolver: async (post, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
@@ -1639,7 +1666,8 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "Post",
     canRead: ['guests'],
     graphqlArguments: 'sequenceId: String',
-    resolver: async (post: DbPost, args: {sequenceId: string}, context: ResolverContext) => {
+    dependsOn: ['_id', 'canonicalSequenceId', 'canonicalPrevPostSlug'],
+    resolver: async (post, args: {sequenceId: string}, context: ResolverContext) => {
       const { sequenceId } = args;
       const { currentUser, Posts } = context;
       if (sequenceId) {
@@ -1694,7 +1722,8 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "Sequence",
     canRead: ['guests'],
     graphqlArguments: 'sequenceId: String, prevOrNext: String',
-    resolver: async (post: DbPost, args: {sequenceId: string, prevOrNext?: 'prev' | 'next'}, context: ResolverContext) => {
+    dependsOn: ['_id', 'canonicalSequenceId'],
+    resolver: async (post, args: {sequenceId: string, prevOrNext?: 'prev' | 'next'}, context: ResolverContext) => {
       const { sequenceId, prevOrNext } = args;
       const { currentUser } = context;
       let sequence: DbSequence|null = null;
@@ -2391,35 +2420,31 @@ const schema: SchemaType<DbPost> = {
 
   // GraphQL only field that resolves based on whether the current user has closed
   // this posts author's moderation guidelines in the past
-  showModerationGuidelines: {
+  showModerationGuidelines: resolverOnlyField({
     type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    resolveAs: {
-      type: 'Boolean',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
-        const { LWEvents, currentUser } = context;
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await context.loaders.Users.load(post.userId);
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
-        } else {
-          return false
+    graphQLtype: 'Boolean',
+    dependsOn: ['userId', 'moderationGuidelines', 'moderationStyle'],
+    resolver: async (post, args: void, context: ResolverContext): Promise<boolean> => {
+      const { LWEvents, currentUser } = context;
+      if(currentUser){
+        const query = {
+          name:'toggled-user-moderation-guidelines',
+          documentId: post.userId,
+          userId: currentUser._id
         }
-      },
-      addOriginalField: false
+        const sort = {sort:{createdAt:-1}}
+        const event = await LWEvents.findOne(query, sort);
+        const author = await context.loaders.Users.load(post.userId);
+        if (event) {
+          return !!(event.properties && event.properties.targetState)
+        } else {
+          return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
+        }
+      } else {
+        return false
+      }
     }
-  },
+  }),
 
   moderationStyle: {
     type: String,
@@ -2507,9 +2532,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: "[Comment]",
     canRead: ['guests'],
     graphqlArguments: 'commentsLimit: Int, maxAgeHours: Int, af: Boolean',
+    dependsOn: ['_id', 'lastCommentedAt'],
     // commentsLimit for some reason can receive a null (which was happening in one case)
     // we haven't figured out why yet
-    resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
+    resolver: async (post, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
       const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
@@ -2564,6 +2590,7 @@ const schema: SchemaType<DbPost> = {
     type: Number,
     nullable: true,
     canRead: ['guests'],
+    dependsOn: ['_id', 'debate'],
     resolver: async (post, _, context) => {
       if (!post.debate) return 0;
       const { Comments, currentUser } = context;
@@ -2597,6 +2624,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ["guests"],
+    dependsOn: ['_id', 'extendedScore'],
     resolver: async (post, _, context) => {
       const {extendedScore} = post;
       if (
@@ -2620,6 +2648,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     canRead: ['guests'],
+    dependsOn: ['_id', 'votingSystem'],
     resolver: (post, _, context) => {
       if (post.votingSystem !== "eaEmojis") {
         return null;
@@ -2672,6 +2701,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     nullable: true,
     canRead: ['guests'],
+    dependsOn: ['_id', 'debate'],
     resolver: async (post, _, context) => {
       if (!post.debate) return null;
 

@@ -32,7 +32,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     removeCallback(this.name, fn);
   }
   
-  runCallbacks = async ({iterator, properties, ignoreExceptions}: {iterator: IteratorType, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<IteratorType> => {
+  runCallbacks = async <T extends IteratorType>({iterator, properties, ignoreExceptions}: {iterator: T, properties: ArgumentsType, ignoreExceptions?: boolean}): Promise<T> => {
     const start = Date.now();
 
     const result = await runCallbacks({

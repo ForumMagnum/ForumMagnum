@@ -1,4 +1,4 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
+import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField, resolverAndDbField } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithCustomLoader } from '../../loaders';
 
@@ -31,22 +31,18 @@ const schema: SchemaType<DbSequence> = {
   },
 
   // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
-  chaptersDummy: {
+  chaptersDummy: resolverOnlyField({
     type: Array,
-    optional: true,
-    canRead: ['guests'],
-    resolveAs: {
-      fieldName: 'chapters',
-      type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
-        const chapters = await context.Chapters.find(
-          {sequenceId: sequence._id},
-          {sort: {number: 1}},
-        ).fetch();
-        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
-      }
+    graphQLtype: '[Chapter]',
+    dependsOn: ['_id'],
+    resolver: async (sequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+      const chapters = await context.Chapters.find(
+        {sequenceId: sequence._id},
+        {sort: {number: 1}},
+      ).fetch();
+      return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
     }
-  },
+  }),
 
   'chaptersDummy.$': {
     type: String,
@@ -114,7 +110,7 @@ const schema: SchemaType<DbSequence> = {
     ...schemaDefaultValue(false),
   },
 
-  canonicalCollectionSlug: {
+  canonicalCollectionSlug: resolverAndDbField({
     type: String,
     foreignKey: {
       collection: "Collections",
@@ -133,15 +129,16 @@ const schema: SchemaType<DbSequence> = {
       fieldName: 'canonicalCollection',
       addOriginalField: true,
       type: "Collection",
+      dependsOn: ['canonicalCollectionSlug'],
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (sequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
       }
     }
-  },
+  }),
 
   hidden: {
     type: Boolean,
@@ -173,7 +170,8 @@ const schema: SchemaType<DbSequence> = {
   postsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (sequence, args: void, context: ResolverContext) => {
       const count = await getWithCustomLoader<number, string>(
         context,
         "sequencePostsCount",
@@ -190,7 +188,8 @@ const schema: SchemaType<DbSequence> = {
   readPostsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (sequence, args: void, context: ResolverContext) => {
       const currentUser = context.currentUser;
       
       if (!currentUser) return 0;

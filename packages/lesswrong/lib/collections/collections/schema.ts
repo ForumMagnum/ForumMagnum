@@ -40,7 +40,8 @@ const schema: SchemaType<DbCollection> = {
     type: Array,
     graphQLtype: '[Book]',
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (collection, args: void, context: ResolverContext) => {
       const { currentUser, Books } = context;
       const books = await Books.find(
         {collectionId: collection._id},
@@ -59,7 +60,8 @@ const schema: SchemaType<DbCollection> = {
   postsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (collection, args: void, context: ResolverContext) => {
       const count = await getWithCustomLoader<number, string>(
         context,
         "collectionPostsCount",
@@ -76,7 +78,8 @@ const schema: SchemaType<DbCollection> = {
   readPostsCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (collection, args: void, context: ResolverContext) => {
       const currentUser = context.currentUser;
       
       if (!currentUser) return 0;

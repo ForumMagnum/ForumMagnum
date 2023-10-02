@@ -1,8 +1,12 @@
-import { Utils, getTypeName, getCollection } from '../vulcan-lib';
+import { Utils, getTypeName, getCollection, getFragment } from '../vulcan-lib';
 import { restrictViewableFields } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
+import type { FieldNode } from 'graphql';
+import { isResolverOnly } from '../sql/Type';
+import { getSchema } from '../utils/getSchema';
+import { DocumentNode } from 'graphql';
 
 const maxAllowedSkip = 2000;
 
@@ -13,6 +17,24 @@ interface DefaultResolverOptions {
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
+
+function getFragmentFields(parsedFragment: DocumentNode, collection: CollectionBase<any>) {
+  const definitionNode = parsedFragment?.definitions[0];
+  if (!definitionNode || !("name" in definitionNode) || !("selectionSet" in definitionNode)) {
+    return undefined;
+  }
+  const nonSpreadFieldNodes = definitionNode.selectionSet.selections.filter((selection): selection is FieldNode => selection.kind === 'Field');
+  const fragmentFieldNames = nonSpreadFieldNodes.map(node => node.name.value);
+  const collectionSchema = getSchema(collection);
+
+  const collectionFieldNames = new Set(Object.keys(collectionSchema));
+
+  const databaseFieldNames = fragmentFieldNames.filter(fieldName => {
+    return collectionFieldNames.has(fieldName) && !isResolverOnly(fieldName, collectionSchema);
+  });
+
+  return databaseFieldNames;
+}
 
 // Default resolvers. Provides `single` and `multi` resolvers, which power the
 // useSingle and useMulti hooks.
@@ -27,10 +49,10 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
+      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>, fragmentName: FragmentName} }, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
         const startResolve = Date.now()
         const input = args?.input || {};
-        const { terms={}, enableCache = false, enableTotal = false } = input;
+        const { terms={}, enableCache = false, enableTotal = false, fragmentName } = input;
         const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
         logger('multi resolver()')
         logger('multi terms', terms)
@@ -46,9 +68,12 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // get collection based on collectionName argument
         const collection = getCollection(collectionName);
 
+        const fragment = getFragment(fragmentName);
+        const fragmentFields = getFragmentFields(fragment, collection);
+
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
-        const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
+        const parameters = viewTermsToQuery(collectionName, terms as any, {}, context, fragmentFields);
         
         let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
 

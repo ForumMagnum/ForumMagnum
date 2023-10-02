@@ -1,6 +1,6 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, augmentResolverOnlyField, denormalizedField, resolverOnlyField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
@@ -34,62 +34,55 @@ augmentFieldsDict(Users, {
       }
     })
   },
-  bio: {
-    resolveAs: {
-      type: "String",
-      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
-        const bio = user.biography?.originalContents;
-        if (!bio) return "";
-        return dataToMarkdown(bio.data, bio.type);
-      }
+  bio: augmentResolverOnlyField({
+    graphQLtype: 'String',
+    dependsOn: ['biography'],
+    resolver: (user, args: void, { Users }: ResolverContext) => {
+      const bio = user.biography?.originalContents;
+      if (!bio) return "";
+      return dataToMarkdown(bio.data, bio.type);
     }
-  },
-  htmlBio: {
-    resolveAs: {
-      type: "String",
-      resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
-        const bio = user.biography;
-        return bio?.html || "";
-      }
+  }),
+  htmlBio: augmentResolverOnlyField({
+    graphQLtype: 'String',
+    dependsOn: ['biography'],
+    resolver: (user, args: void, { Users }: ResolverContext) => {
+      const bio = user.biography;
+      return bio?.html || "";
     }
-  },
-  rateLimitNextAbleToComment: {
+  }),
+  rateLimitNextAbleToComment: augmentResolverOnlyField({
     nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      arguments: 'postId: String',
-      resolver: async (user: DbUser, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
-      }
-    },
-  },
-  rateLimitNextAbleToPost: {
+    graphQLtype: GraphQLJSON,
+    dependsOn: ['_id', 'groups', 'banned', 'isAdmin', 'karma', 'voteReceivedCount', 'smallUpvoteReceivedCount', 'smallDownvoteReceivedCount', 'bigDownvoteReceivedCount', 'bigUpvoteReceivedCount'],
+    resolver: async (user, args: {postId: string | null}, context: ResolverContext): Promise<RateLimitInfo|null> => {
+      return rateLimitDateWhenUserNextAbleToComment(user, args.postId, context);
+    }
+  }),
+  rateLimitNextAbleToPost: augmentResolverOnlyField({
     nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      arguments: 'eventForm: Boolean',
-      resolver: async (user: DbUser, args: { eventForm?: boolean }, context: ResolverContext): Promise<RateLimitInfo|null> => {
-        const { eventForm } = args
-        if (eventForm) return null
+    graphQLtype: GraphQLJSON,
+    dependsOn: ['_id', 'groups', 'banned', 'isAdmin', 'karma', 'voteReceivedCount', 'smallUpvoteReceivedCount', 'smallDownvoteReceivedCount', 'bigDownvoteReceivedCount', 'bigUpvoteReceivedCount'],
+    resolver: async (user, args: { eventForm?: boolean }, context: ResolverContext): Promise<RateLimitInfo|null> => {
+      const { eventForm } = args
+      if (eventForm) return null
 
-        const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
-        if (rateLimit) {
-          return rateLimit
-        } else {
-          return null
-        }
+      const rateLimit = await rateLimitDateWhenUserNextAbleToPost(user);
+      if (rateLimit) {
+        return rateLimit
+      } else {
+        return null
       }
     }
-  },
-  recentKarmaInfo: {
+  }),
+  recentKarmaInfo: augmentResolverOnlyField({
     nullable: true,
-    resolveAs: {
-      type: GraphQLJSON,
-      resolver: async (user: DbUser, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
-        return getRecentKarmaInfo(user._id)
-      }
+    graphQLtype: GraphQLJSON,
+    dependsOn: ['_id'],
+    resolver: async (user, args, context: ResolverContext): Promise<RecentKarmaInfo> => {
+      return getRecentKarmaInfo(user._id)
     }
-  }
+  }),
 });
 
 addGraphQLSchema(`

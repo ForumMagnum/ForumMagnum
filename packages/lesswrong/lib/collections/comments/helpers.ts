@@ -15,8 +15,11 @@ export async function commentGetAuthorName(comment: DbComment): Promise<string> 
   return user ? userGetDisplayName(user) : comment.author;
 };
 
+export const COMMENT_PAGE_URL_FIELDS = ['_id', 'postId', 'tagId', 'tagCommentType'] as const;
+export type CommentPageUrlFields = Pick<DbComment, typeof COMMENT_PAGE_URL_FIELDS[number]>;
+
 // Get URL of a comment page.
-export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
+export async function commentGetPageUrlFromDB(comment: CommentPageUrlFields, context: ResolverContext, isAbsolute: boolean): Promise<string> {
   if (comment.postId) {
     const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)

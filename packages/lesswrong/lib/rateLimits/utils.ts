@@ -5,7 +5,7 @@ import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReview
 import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserRateLimitGroupFields, UserKarmaInfo, UserKarmaInfoWindow, UserRateLimitFields } from "./types"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -30,7 +30,7 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   }))
 }
 
-export function shouldIgnorePostRateLimit(user: DbUser) {
+export function shouldIgnorePostRateLimit(user: UserRateLimitGroupFields) {
   return userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")
 }
 
@@ -89,7 +89,7 @@ export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, time
   return moment(doc.postedAt).add(timeframeLength, timeframeUnit).toDate()
 }
 
-export function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
+export function getAutoRateLimitInfo(user: UserRateLimitFields, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
   // rate limit effects
   const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
 

@@ -33,7 +33,7 @@ export function constantTimeCompare({ correctValue, unknownValue }: { correctVal
 }
 
 // LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
-Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
+Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<T>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   let suffix = '';
   let index = 0;
   

@@ -271,6 +271,7 @@ const schema: SchemaType<DbTag> = {
     graphQLtype: "[Comment]",
     canRead: ['guests'],
     graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
+    dependsOn: ['_id', 'lastSubforumCommentAt', 'lastCommentedAt'],
     resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = "DISCUSSION" }, context: ResolverContext) => {
       const { currentUser, Comments } = context;
       const lastCommentTime = tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt
@@ -377,7 +378,8 @@ const schema: SchemaType<DbTag> = {
     type: Date,
     canRead: ['guests'],
     optional: true,
-    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return null;
 
@@ -395,7 +397,8 @@ const schema: SchemaType<DbTag> = {
     type: Boolean,
     canRead: ['guests'],
     optional: true,
-    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+    dependsOn: ['_id'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
       const { ReadStatuses, currentUser } = context;
       if (!currentUser) return false;
       
@@ -414,7 +417,8 @@ const schema: SchemaType<DbTag> = {
     canRead: ['guests'],
     graphQLtype: GraphQLJSON,
     graphqlArguments: 'version: String',
-    resolver: async (document: DbTag, args: {version: string}, context: ResolverContext) => {
+    dependsOn: ['_id', 'htmlWithContributorAnnotations', 'description'],
+    resolver: async (document, args: {version: string}, context: ResolverContext) => {
       try {
         return await Utils.getToCforTag({document, version: args.version||null, context});
       } catch(e) {
@@ -508,7 +512,8 @@ const schema: SchemaType<DbTag> = {
     type: Number,
     nullable: true,
     canRead: ['guests'],
-    resolver: async (tag: DbTag, args: void, context: ResolverContext) => {
+    dependsOn: ['_id', 'isSubforum'],
+    resolver: async (tag, args: void, context: ResolverContext) => {
       if (!tag.isSubforum) return null;
       const userTagRel = context.currentUser ? await UserTagRels.findOne({userId: context.currentUser._id, tagId: tag._id}) : null;
       // This is when this field was added, so assume all messages before then have been read
