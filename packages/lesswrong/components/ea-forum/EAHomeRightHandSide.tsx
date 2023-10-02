@@ -37,7 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarToggle: {
     position: 'absolute',
-    top: 30,
     right: 0,
     height: 36,
     width: 30,
@@ -75,6 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     rowGap: '6px',
   },
   digestAd: {
+    maxWidth: 280,
     backgroundColor: theme.palette.grey[200],
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default
@@ -647,9 +647,9 @@ export const EAHomeRightHandSide = ({classes}: {
         </div>
       </AnalyticsContext>
 
-      <Link to="/#" className={classes.feedbackLink}>
+      <a href="mailto:forum@effectivealtruism.org" className={classes.feedbackLink}>
         Send feedback
-      </Link>
+      </a>
     </div>
   </AnalyticsContext>
 }

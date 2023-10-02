@@ -11,8 +11,8 @@ import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[55],
-    padding: "80px 0",
-    marginTop: 80,
+    padding: "60px 0 80px 0",
+    marginTop: 60,
   },
   section: {
     maxWidth: MAX_CONTENT_WIDTH,
@@ -49,6 +49,7 @@ const PostBottomRecommendations = ({post, classes}: {
     fragmentName: "PostsListWithVotes",
     terms: {
       userId: post.userId,
+      notPostIds: [post._id],
       sortedBy: "topAdjusted",
       limit: 3,
     },
@@ -74,7 +75,6 @@ const PostBottomRecommendations = ({post, classes}: {
 
   const hasUserPosts = post.user &&
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
-
 
   const {
     PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip,

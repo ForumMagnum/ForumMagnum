@@ -274,8 +274,11 @@ createPaginatedResolver({
   name: "CuratedAndPopularThisWeek",
   graphQLType: "Post",
   callback: async (
-    context: ResolverContext,
+    {repos, currentUser}: ResolverContext,
     limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getCuratedAndPopularPosts({limit}),
+  ): Promise<DbPost[]> => repos.posts.getCuratedAndPopularPosts({
+    currentUser,
+    limit,
+  }),
   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
 });

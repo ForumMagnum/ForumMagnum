@@ -241,22 +241,36 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [maxAgeInDays, numPostsPerDigest, limit]);
   }
 
-  getCuratedAndPopularPosts({days = 7, limit = 3}: {
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+    currentUser?: DbUser | null,
     days?: number,
     limit?: number,
   } = {}) {
-    const filter = getViewablePostsSelector("p");
+    const postFilter = getViewablePostsSelector("p");
+    const readFilter = currentUser
+      ? {
+        join: `
+          LEFT JOIN "ReadStatuses" rs ON
+            p."_id" = rs."postId" AND
+            rs."userId" = $3
+        `,
+        filter: `rs."isRead" IS NOT TRUE AND`,
+      }
+      : {join: "", filter: ""};
     return this.any(`
-      SELECT *
+      SELECT p.*
       FROM "Posts" p
+      ${readFilter.join}
       WHERE
         NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
-        ${filter}
+        ${readFilter.filter}
+        ${postFilter}
       UNION
       SELECT p.*
       FROM "Posts" p
       JOIN "Users" u ON p."userId" = u."_id"
+      ${readFilter.join}
       WHERE
         p."curatedDate" IS NULL AND
         NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
@@ -267,10 +281,11 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."groupId" IS NULL AND
         p."disableRecommendation" IS NOT TRUE AND
         u."deleted" IS NOT TRUE AND
-        ${filter}
+        ${readFilter.filter}
+        ${postFilter}
       ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
       LIMIT $2
-    `, [String(days), limit]);
+    `, [String(days), limit, currentUser?._id]);
   }
 
   private getSearchDocumentQuery(): string {

@@ -214,7 +214,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: isEAForum ? 16 : undefined
   },
   noCommentsPlaceholder: {
-    margin: "100px 0 20px 0",
+    marginTop: 60,
     color: theme.palette.grey[600],
     textAlign: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,

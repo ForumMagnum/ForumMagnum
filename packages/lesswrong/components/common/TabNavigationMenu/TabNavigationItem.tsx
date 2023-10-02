@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   menuItem: {
-    width: "fit-content",
+    width: 190,
   },
   navButton: {
     '&:hover': {
