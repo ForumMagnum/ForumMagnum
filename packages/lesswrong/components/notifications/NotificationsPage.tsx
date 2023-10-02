@@ -4,36 +4,17 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import Badge from '@material-ui/core/Badge';
-import Tab from '@material-ui/core/Tab';
-import Tabs from '@material-ui/core/Tabs';
-import ClearIcon from '@material-ui/icons/Clear';
 import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MailIcon from '@material-ui/icons/Mail';
 import { useMulti } from '../../lib/crud/withMulti';
-import { renderMessage } from './NotificationsItem';
-import { getNotificationTypeByName } from '../../lib/notificationTypes';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
-  notification: {
-    marginBottom: 24,
-  },
-  message: {
-    marginTop: 8,
-    marginRight: 24,
-    ...theme.typography.commentStyle,
-    display: "flex",
-    alignItems: "center",
-    color: theme.palette.grey[600],
-    '& svg': {
-      fontSize: 16,
-      marginLeft: '4px !important',
-      opacity: .5
-    }
-  },
-  notificationPreview: {
-    width: 400
+  root: {
+    width: 450,
+    marginLeft: "auto",
+    marginRight: "auto"
   }
 });
 
@@ -41,13 +22,11 @@ export const NotificationsPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { NotificationsList, NotificationsPreview, ErrorAccessDenied, SingleColumnSection, SectionTitle } = Components
+  const { NotificationsPageItem, ErrorAccessDenied, SingleColumnSection, SectionTitle, SectionFooterCheckbox } = Components
   const currentUser = useCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { unreadPrivateMessages } = useUnreadNotifications();
   const [tab,setTab] = useState(0);
-  const [lastNotificationsCheck] = useState(
-    ((currentUser?.lastNotificationsCheck) || ""),
-  );
+  const [expanded, setExpanded] = useState(true);
   const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
@@ -80,31 +59,25 @@ export const NotificationsPage = ({classes}: {
   const category = notificationCategoryTabs[tab];
   const notificationTerms = category.terms;
 
-  if (!currentUser) { return <ErrorAccessDenied /> }
-
   const { results, loading, loadMore } = useMulti({
-    terms: {...notificationTerms, userId: currentUser._id},
+    terms: {...notificationTerms, userId: currentUser?._id},
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
-    limit: 20,
-    enableTotal: false
+    limit: 50,
+    itemsPerPage: 100,
+    enableTotal: false,
+    skip: !currentUser
   });
 
-  return <div className={classes.root}>
-    <SingleColumnSection>
-      <SectionTitle title="Notifications">
+  if (!currentUser) { return <ErrorAccessDenied /> }
 
-      </SectionTitle>
-      {results?.map((notification) => <div className={classes.notification} key={notification._id} >
-        <div className={classes.message}>
-          {getNotificationTypeByName(notification.type).getIcon()}
-          {renderMessage(notification)}
-        </div>
-        <div className={classes.notificationPreview}>
-          <NotificationsPreview notification={notification} currentUser={currentUser} lastNotificationsCheck={lastNotificationsCheck}/>
-          </div>
-        </div>)}
-    </SingleColumnSection>
+  return <div className={classes.root}>
+    <SectionTitle title="Notifications"/>
+    {results?.map((notification) => <NotificationsPageItem 
+      key={notification._id} 
+      notification={notification} 
+      currentUser={currentUser} 
+    />)}
   </div>;
 }
 

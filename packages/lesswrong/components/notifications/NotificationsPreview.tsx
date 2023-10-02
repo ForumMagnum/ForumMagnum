@@ -34,6 +34,8 @@ export const NotificationsPreview = ({classes, currentUser, notification, lastNo
 
   const parsedPath = parseRouteWithErrors(notificationLink)
 
+  if (!currentUser) return null
+
   if (notificationType.onsiteHoverView) {
     return <Card>
       {notificationType.onsiteHoverView({notification})}
