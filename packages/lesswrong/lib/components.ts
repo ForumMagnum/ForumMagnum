@@ -164,7 +164,9 @@ importComponent("newFeedButton", () => require('../components/feeds/newFeedButto
 //importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
+importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
+importComponent("NotificationsPreview", () => require('../components/notifications/NotificationsPreview'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));

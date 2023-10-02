@@ -5,6 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isEAForum } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,6 +36,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
+
   const { results, loading, loadMore } = useMulti({
     terms,
     collectionName: "Notifications",
@@ -61,11 +63,10 @@ const NotificationsList = ({ terms, currentUser, classes }: {
           <ListItem
             button={true}
             className={classes.loadMoreButton}
-            onClick={() => loadMore()}
           >
-            <div className={classes.loadMoreLabel}>
-              {preferredHeadingCase("Load More")}
-            </div>
+            <Link to={"/notifications"} className={classes.loadMoreLabel}>
+              {preferredHeadingCase("View All")}
+            </Link>
           </ListItem>}
       </List>
     )

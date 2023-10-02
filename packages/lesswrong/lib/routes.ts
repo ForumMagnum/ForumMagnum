@@ -1494,6 +1494,12 @@ addRoute(
     redirect: () => `/reviewVoting/${REVIEW_YEAR}`,
   },
   {
+    name: 'notifications',
+    path: '/notifications',
+    componentName: 'NotificationsPage',
+    title: "Notifications"
+  },
+  {
     name: 'userReviewsByYear',
     path:'/users/:slug/reviews/:year',
     componentName: 'UserReviews',

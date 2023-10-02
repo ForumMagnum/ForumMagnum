@@ -2,7 +2,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { getUrlClass, useNavigation } from '../../lib/routeUtil';
 import { useHover } from '../common/withHover';
@@ -58,6 +57,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export const renderMessage = (notification: NotificationsList) => {
+  const { TagRelNotificationItem } = Components
+  switch (notification.documentType) {
+    // TODO: add case for tagRel
+    case 'tagRel': 
+      return <TagRelNotificationItem tagRelId={notification.documentId}/>
+    default:
+      return notification.message
+  }
+}
+
 const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
@@ -71,7 +81,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   });
   const { captureEvent } = useTracking();
   const { history } = useNavigation();
-  const { LWPopper } = Components
+  const { LWPopper, NotificationsPreview} = Components
   const notificationType = getNotificationTypeByName(notification.type);
 
   const notificationLink = (notificationType.getLink
@@ -82,47 +92,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     })
     : notification.link
   );
-
-  const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
-    const parsedPath = parseRouteWithErrors(notificationLink)
-
-    if (notificationType.onsiteHoverView) {
-      return <Card>
-        {notificationType.onsiteHoverView({notification})}
-      </Card>
-    } else if (notification.type == "postNominated") {
-      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
-    } else {
-      switch (notification.documentType) {
-        case 'tagRel':
-          return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
-        case 'post':
-          return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
-        case 'comment':
-          const postId = parsedPath?.params?._id
-          if (!postId) return null
-          return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
-        case 'message':
-          return <Card>
-            <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
-          </Card>
-        default:
-          return null
-      }
-    }
-  }
-
-  const renderMessage = () => {
-    const { TagRelNotificationItem } = Components
-    switch (notification.documentType) {
-      // TODO: add case for tagRel
-      case 'tagRel': 
-        return <TagRelNotificationItem tagRelId={notification.documentId}/>
-      default:
-        return notification.message
-    }
-  }
   
   return (
     <span {...eventHandlers}>
@@ -132,7 +101,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         placement="left-start"
         allowOverflow
       >
-        <span className={classes.preview}>{renderPreview()}</span>
+        <span className={classes.preview}>{<NotificationsPreview notification={notification} currentUser={currentUser} lastNotificationsCheck={lastNotificationsCheck}/>}</span>
       </LWPopper>
       <a
         href={notificationLink}
@@ -175,7 +144,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       >
       {notificationType.getIcon()}
       <div className={classes.notificationLabel}>
-        {renderMessage()}
+        {renderMessage(notification)}
       </div>
     </a>
     </span>
