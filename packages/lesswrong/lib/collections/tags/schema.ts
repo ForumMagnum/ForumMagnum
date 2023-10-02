@@ -273,12 +273,17 @@ const schema: SchemaType<DbTag> = {
     canRead: ['guests'],
     graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
     resolver: async (tag, args: { tagCommentsLimit?: number|null, maxAgeHours?: number, af?: boolean, tagCommentType?: TagCommentType }, context: ResolverContext) => {
-      // assuming this might have the same issue as `recentComments` on the posts schema, w.r.t. null vs. undefined
+      // assuming this might have the same issue as `recentComments` on the posts schema, w.r.t. tagCommentsLimit being null vs. undefined
       const { tagCommentsLimit, maxAgeHours=18, af=false, tagCommentType='DISCUSSION' } = args;
     
       const { currentUser, Comments } = context;
       // `lastCommentTime` can be `null`, which produces <Invalid Date> when passed through moment, rather than the desired Date.now() default
-      const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
+      const lastCommentTime = (
+        tagCommentType === "SUBFORUM"
+          ? tag.lastSubforumCommentAt
+          : tag.lastCommentedAt
+        ) ?? undefined;
+
       const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
         
       const comments = await Comments.find({
