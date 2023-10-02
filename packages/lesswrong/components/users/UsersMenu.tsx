@@ -186,7 +186,15 @@ const UsersMenu = ({classes}: {
                     !isEAForum &&
                     userCanCreateField(currentUser, postSchema['debate']) &&
                   <DropdownItem
-                    title={preferredHeadingCase("New Dialogue")}
+                    title={preferredHeadingCase("New Dialogue [Collab]")}
+                    to="/newDialgogue"
+                  />
+                }
+                {userCanPost(currentUser) &&
+                    !isEAForum &&
+                    userCanCreateField(currentUser, postSchema['debate']) &&
+                  <DropdownItem
+                    title={preferredHeadingCase("New Dialogue [Old style]")}
                     to="/newpost?debate=true"
                   />
                 }
