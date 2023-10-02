@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.headerStyle,
     ...(isEAForum && {
       fontWeight: 700,
-      fontSize: isEAForum ? "3rem" : 32,
+      fontSize: "3rem",
       marginBottom: 12,
     }),
     width: "100%",
