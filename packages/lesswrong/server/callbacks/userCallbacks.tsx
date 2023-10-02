@@ -404,7 +404,7 @@ getCollectionHooks("Users").newAsync.add(async function sendWelcomingPM(user: Db
 });
 
 const welcomeEmailPostId = new DatabaseServerSetting<string|null>("welcomeEmailPostId", null);
-const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
+export const forumTeamUserId = new DatabaseServerSetting<string|null>("forumTeamUserId", null);
 
 async function sendWelcomeMessageTo(userId: string) {
   const postId = welcomeEmailPostId.get();
