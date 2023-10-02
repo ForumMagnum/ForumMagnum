@@ -632,6 +632,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/best-of',
       componentName: 'EABestOfPage',
       title: 'Best of the Forum',
+      subtitle: 'Best of the Forum',
+      subtitleLink: '/best-of',
     },
     {
       name: 'BestOfCamelCase',
