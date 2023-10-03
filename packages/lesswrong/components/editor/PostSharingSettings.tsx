@@ -97,7 +97,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       flash(`Change the editor type to ${ckEditorName} to enable sharing`);
       return;
     }
-    
+     
     openDialog({
       componentName: "PostSharingSettingsDialog",
       componentProps: {

@@ -19,7 +19,7 @@ import { afNonMemberSuccessHandling } from '../../../lib/alignment-forum/display
 import { SHARE_POPUP_QUERY_PARAM } from '../PostsPage/PostsPage';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { generateLinkSharingKey } from '../../../server/ckEditor/ckEditorCallbacks';
+// import { generateLinkSharingKey } from '../../../server/ckEditor/ckEditorCallbacks';
 
 const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
@@ -193,7 +193,7 @@ export const DialoguesNewForm = ({classes}: {
   if (!currentUser) {
     return (<WrappedLoginForm />);
   }
-
+ 
   if (!userCanPost(currentUser)) {
     return (<SingleColumnSection>
       <Typography variant="display1">
@@ -217,10 +217,12 @@ export const DialoguesNewForm = ({classes}: {
               mutationFragment={getFragment('PostsPage')}
               fields={['title', 'af', 'coauthorStatuses']}
               prefilledProps={{
-                postCategory: "dialogue"
+                postCategory: "dialogue",
+                draft: true
               }}
               successCallback={(post: any, options: any) => {
-                history.push(`${postGetEditUrl(post._id)}?blockOwnership=true`);
+                const url = `/editPost?postId=${post._id}&key=${post.linkSharingKey}&blockOwnership=true`
+                history.push(url);
               }}
               repeatErrors
               noSubmitOnCmdEnter

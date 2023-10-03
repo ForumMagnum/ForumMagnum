@@ -1,214 +1,180 @@
-// TODO: Import component in components.ts
-import React from 'react';
-import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
-import { useTracking } from "../../../lib/analyticsEvents";
-import { useCurrentUser } from '../../common/withUser';
-import { forumTypeSetting, isEAForum, isLW } from '../../../lib/instanceSettings';
-import { isPostCategory, postDefaultCategory, postGetEditUrl, postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { useMessages } from '../../common/withMessages';
-import { useLocation, useNavigation } from '../../../lib/routeUtil';
-import { useUpdate } from '../../../lib/crud/withUpdate';
-import { useDialog } from '../../common/withDialog';
+import React, { useEffect, useRef, useState } from 'react';
+import { Components, registerComponent, getFragment } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
+import { useMessages } from '../../common/withMessages';
+import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
+import { useLocation, useNavigation } from '../../../lib/routeUtil'
 import NoSSR from 'react-no-ssr';
-import { userCanPost } from '../../../lib/collections/posts';
-import { SubmitToFrontpageCheckboxProps } from '../SubmitToFrontpageCheckbox';
-import { PostSubmitProps } from '../PostSubmit';
-import { getPostEditorGuide } from '../PostsNewForm';
-import { afNonMemberSuccessHandling } from '../../../lib/alignment-forum/displayAFNonMemberPopups';
+import { styles } from '../PostsNewForm';
+import { useDialog } from "../../common/withDialog";
+import {useCurrentUser} from "../../common/withUser";
+import { useUpdate } from "../../../lib/crud/withUpdate";
+import { afNonMemberSuccessHandling } from "../../../lib/alignment-forum/displayAFNonMemberPopups";
+import type { SubmitToFrontpageCheckboxProps } from '../SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from '../PostSubmit';
+import { userIsPodcaster } from '../../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from '../PostsPage/PostsPage';
-import Button from '@material-ui/core/Button';
-import classNames from 'classnames';
-import { DialogueInviteButton } from './DialoguesNewForm';
+import { isEAForum } from '../../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  postForm: {
-    maxWidth: 715,
-    margin: "0 auto",
-
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    },
-
-    "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
-      margin: 0,
-      [theme.breakpoints.down('xs')]: {
-        width:125,
-      },
-
-      "& .form-group.row": {
-        marginBottom:0,
-      },
-
-      "& .checkbox": {
-        width: 150,
-        margin: "0 0 6px 0",
-        [theme.breakpoints.down('xs')]: {
-          width: 150,
-        }
-      }
-    },
-    "& .document-new .input-frontpage .checkbox": {
-      marginBottom: 12,
-    },
-    "& .document-new .input-draft .checkbox": {
-      marginBottom: 12,
-    },
-
-    "& .vulcan-form .input-draft": {
-      right:115,
-      width:125,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 0,
-        width: 100,
-
-        "& .checkbox": {
-          width: 100,
-        }
-      }
-    },
-
-    "& .vulcan-form .input-frontpage": {
-      right: 255,
-      width: 150,
-      [theme.breakpoints.down('xs')]: {
-        bottom: 50,
-        right: 150,
-        width: 100,
-      }
-    },
-
-    "& .document-edit > div > hr": {
-    // Ray Sept 2017:
-    // This hack is necessary because SmartForm automatically includes an <hr/> tag in the "delete" menu:
-    // path: /packages/vulcan-forms/lib/Form.jsx
-      display: "none",
-    },
-
-    "& .form-submit": {
-      textAlign: "right",
-    },
-    
-    "& .form-input.input-url": {
-      margin: 0,
-      ...(isEAForum && {width: "100%"})
-    },
-    "& .form-input.input-contents": {
-      marginTop: 0,
-    },
-  },
-  formSubmit: {
-    display: "flex",
-    flexWrap: "wrap",
-    marginTop: 20
-  },
-  collaborativeRedirectLink: {
-    color:  theme.palette.secondary.main
-  },
-  modNote: {
-    [theme.breakpoints.down('xs')]: {
-      paddingTop: 20,
-    },
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20
-  },
-  editorGuideOffset: {
-    paddingTop: 100,
-  },
-  editorGuide: {
-    display: 'flex',
-    alignItems: 'center',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 10,
-    borderRadius: theme.borderRadius.default,
-    color: theme.palette.primary.main,
-    [theme.breakpoints.up('lg')]: {
-      width: 'max-content',
-      paddingLeft: 20,
-      paddingRight: 20
-    },
-  },
-  editorGuideIcon: {
-    height: 40,
-    width: 40,
-    fill: theme.palette.primary.main,
-    marginRight: -4
-  },
-  editorGuideLink: {}
-});
-
-export const DialoguesEditForm = ({classes}: {
+const DialoguesEditForm = ({ documentId, classes }: {
+  documentId: string,
   classes: ClassesType,
 }) => {
-  const { query } = useLocation();
+  const { location, query } = useLocation();
   const { history } = useNavigation();
-  const currentUser = useCurrentUser();
   const { flash } = useMessages();
+  const { document, loading } = useSingle({
+    documentId,
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
+  });
   const { openDialog } = useDialog();
+  const currentUser = useCurrentUser();
+  const { params } = location; // From withLocation
+  const isDraft = document && document.draft;
+  console.log('over here', document)
+
+  const wasEverDraft = useRef(isDraft);
+  useEffect(() => {
+    if (wasEverDraft.current === undefined && isDraft !== undefined) {
+      wasEverDraft.current = isDraft;
+    }
+  }, [isDraft]);
+
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
+    RateLimitWarning, DynamicTableOfContents } = Components
+  
+  const saveDraftLabel: string = ((post) => {
+    if (!post) return "Save Draft"
+    if (!post.draft) return "Move to Drafts"
+    return "Save Draft"
+  })(document)
+  
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
-  
-  const {
-    SectionTitle, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
-    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
-  } = Components;
-  const af = forumTypeSetting.get() === 'AlignmentForum'
 
   const {document: userWithRateLimit} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UsersCurrentPostRateLimit",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser
+    skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
-
-  if (!currentUser) {
-    return (<WrappedLoginForm />);
+    
+  
+  if (!document && loading) {
+    return <Components.Loading/>
   }
 
-  if (!userCanPost(currentUser)) {
-    return (<SingleColumnSection>
-      <Typography variant="display1">
-        You don't have permission to post
-      </Typography>
-    </SingleColumnSection>);
+  // If we only have read access to this post, but it's shared with us,
+  // redirect to the collaborative editor.
+  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
+    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+  }
+  
+  // If we don't have access at all but a link-sharing key was provided, redirect to the
+  // collaborative editor
+  if (!document && !loading && query?.key) {
+    return <Components.PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+  }
+  
+  // If the post has a link-sharing key which is not in the URL, redirect to add
+  // the link-sharing key to the URL. (linkSharingKey has field-level
+  // permissions so it will only be present if we've either already used the
+  // link-sharing key, or have access through something other than link-sharing.)
+  if (document?.linkSharingKey && !(query?.key)) {
+    return <Components.PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
+  }
+  
+  // If we don't have the post and none of the earlier cases applied, we either
+  // have an invalid post ID or the post is a draft that we don't have access
+  // to.
+  if (!document) {
+    return <Components.Error404/>
   }
 
-  // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
-
+  if (isNotHostedHere(document)) {
+    return <ForeignCrosspostEditForm post={document} />;
+  }
+  
+  const EditPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
+    return <div className={classes.formSubmit}>
+      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
+      <PostSubmit
+        saveDraftLabel={saveDraftLabel}
+        feedbackLabel={"Get Feedback"}
+        {...props}
+      />
+    </div>
+  }
+  
   return (
+    <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>
-        <RecaptchaWarning currentUser={currentUser}>
-          <PostsAcceptTos currentUser={currentUser} />
-          {postWillBeHidden && <NewPostModerationWarning />}
-          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <NoSSR>
-            <WrappedSmartForm
-              collectionName="Posts"
-              mutationFragment={getFragment('PostsPage')}
-              fields={['title', 'af', 'coauthorStatuses']}
-              prefilledProps={{
-                postCategory: "dialogue"
-              }}
-              successCallback={(post: any, options: any) => {
-                history.push(postGetEditUrl(post._id));
-              }}
-              repeatErrors
-              noSubmitOnCmdEnter
-              formComponents={{
-                FormSubmit: DialogueInviteButton
-              }}
-            />
-          </NoSSR>
-        </RecaptchaWarning>
+        <HeadTags title={document.title} />
+        {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
+        {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+        <NoSSR>
+          <WrappedSmartForm
+            collectionName="Posts"
+            removeFields={document.debate ? ['debate'] : []}
+            documentId={documentId}
+            queryFragment={getFragment('PostsEditQueryFragment')}
+            mutationFragment={getFragment('PostsEditMutationFragment')}
+            successCallback={(post: any, options: any) => {
+              const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
+              if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
+              if (options?.submitOptions?.redirectToEditor) {
+                history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
+              } else {
+                // If they are publishing a draft, show the share popup
+                // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
+                const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+                const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
+
+                if (!showSharePopup) {
+                  flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
+                }
+              }
+            }}
+            eventForm={document.isEvent}
+            removeSuccessCallback={({ documentId, documentTitle }: { documentId: string; documentTitle: string; }) => {
+              // post edit form is being included from a single post, redirect to index
+              // note: this.props.params is in the worst case an empty obj (from react-router)
+              if (params._id) {
+                history.push('/');
+              }
+
+              flash({ messageString: `Post "${documentTitle}" deleted.`, type: 'success'});
+              // todo: handle events in collection callbacks
+              // this.context.events.track("post deleted", {_id: documentId});
+            }}
+            showRemove={true}
+            submitLabel={isDraft ? "Publish" : "Publish Changes"}
+            formComponents={{FormSubmit:EditPostsSubmit}}
+            extraVariables={{
+              version: 'String'
+            }}
+            version="draft"
+            noSubmitOnCmdEnter
+            repeatErrors
+            
+            /*
+            * addFields includes tagRelevance because the field permissions on
+            * the schema say the user can't edit this field, but the widget
+            * "edits" the tag list via indirect operations (upvoting/downvoting
+            * relevance scores).
+            */
+            addFields={document.isEvent ? [] : ['tagRelevance']}
+          />
+        </NoSSR>
       </div>
+    </DynamicTableOfContents>
   );
 }
 

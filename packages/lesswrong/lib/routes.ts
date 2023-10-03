@@ -230,6 +230,13 @@ addRoute(
     background: "white"
   },
   {
+    name: 'editDialogue',
+    path: '/editDialogue',
+    componentName: 'DialoguesEditForm',
+    title: "Edit Dialogue",
+    background: "white"
+  },
+  {
     name: 'newDialogue',
     path: '/newDialogue',
     componentName: 'DialoguesNewForm',
