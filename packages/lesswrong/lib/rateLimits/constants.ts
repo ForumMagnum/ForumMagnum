@@ -23,19 +23,25 @@ const timeframe = <A extends AutoRateLimit['actionType']>(timeframeString: Timef
 
 const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   POSTS: [
+    {
+      ...timeframe('1 Posts per 1 days'),
+      karmaThreshold: 49,
+      rateLimitType: "newUserDefault",
+      rateLimitMessage: `Users with less than 50 karma can publish up to 1 post a day.`
+    },
   ],
   COMMENTS: [
     {
       ...timeframe('4 Comments per 30 minutes'),
       karmaThreshold: 30,
       rateLimitType: "lowKarma",
-      rateLimitMessage: "You'll be able to post more comments as your karma increases.",
+      rateLimitMessage: "You've written more than 3 comments in the last 30 minutes. You'll be able to post more comments as your karma increases.",
       appliesToOwnPosts: true
     }, {
       ...timeframe('4 Comments per 30 minutes'),
       downvoteRatioThreshold: .3,
       rateLimitType: "downvoteRatio",
-      rateLimitMessage: "",
+      rateLimitMessage: "You've written more than 3 comments in the last 30 minutes.",
       appliesToOwnPosts: true
     },
   ]
@@ -181,7 +187,8 @@ const ALL = {
 
 export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
   EAForum: [
-    ALL.POSTS.FIVE_PER_DAY
+    ALL.POSTS.FIVE_PER_DAY,
+    ...EA.POSTS,
   ],
   LessWrong: [ 
     ...LW.POSTS,
