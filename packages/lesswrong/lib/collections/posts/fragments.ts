@@ -21,6 +21,7 @@ registerFragment(`
     hasCoauthorPermission
     rejected
     debate
+    collabEditorDialogue
   }
 `);
 

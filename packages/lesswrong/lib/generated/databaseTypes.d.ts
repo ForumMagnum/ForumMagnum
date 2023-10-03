@@ -738,6 +738,7 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string

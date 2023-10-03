@@ -145,6 +145,10 @@ const UsersMenu = ({classes}: {
     icon="Email"
     iconClassName={classes.icon}
   />
+  
+  const canCreateDialogue = userCanPost(currentUser)
+    && !isEAForum
+    && userCanCreateField(currentUser, postSchema['debate']);
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -182,21 +186,21 @@ const UsersMenu = ({classes}: {
                     to="/newPost"
                   />
                 }
-                {userCanPost(currentUser) &&
-                    !isEAForum &&
-                    userCanCreateField(currentUser, postSchema['debate']) &&
+                {canCreateDialogue &&
                   <DropdownItem
                     title={preferredHeadingCase("New Dialogue")}
                     to="/newDialogue"
                   />
                 }
-                {userCanPost(currentUser) &&
-                    !isEAForum &&
-                    userCanCreateField(currentUser, postSchema['debate']) &&
+                {canCreateDialogue &&
                   <DropdownItem
-                    title={preferredHeadingCase("New Dialogue [old]")}
-                    to="/newpost?debate=true"
+                    title={preferredHeadingCase("New Dialogue [Jim]")}
+                    onClick={() => openDialog({componentName:"NewDialogueDialog"})}
                   />
+                  /*<DropdownItem
+                    title={preferredHeadingCase("New Dialogue")}
+                    to="/newpost?debate=true"
+                  />*/
                 }
               </div>
               {/*
