@@ -88,7 +88,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   viewMore: {
     marginTop: 14,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     color: theme.palette.grey[600],
   },
