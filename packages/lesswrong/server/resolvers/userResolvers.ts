@@ -465,3 +465,23 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
+
+addGraphQLResolvers({
+  Query: {
+    async SuggestedDialogueUsers(root: void, args: {limit: number|undefined}, context: ResolverContext) {
+      const usersRepo = new UsersRepo()
+      const users = await usersRepo.get10000karmaUsers()
+      return {
+        users: users
+      }
+    }
+  }
+})
+
+addGraphQLSchema(`
+  type SuggestedDialogueUsersResult {
+   users: [User!]
+  }
+`);
+
+addGraphQLQuery('SuggestedDialogueUsers(limit: Int): SuggestedDialogueUsersResult')

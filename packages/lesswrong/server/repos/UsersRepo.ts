@@ -240,4 +240,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT 1;
     `);
   }
+
+  async get10000karmaUsers(): Promise<DbUser[]> {
+    return this.any(`
+      SELECT *
+      FROM "Users"
+      WHERE "karma" > 10000
+      LIMIT 100
+    `);
+  }
 }

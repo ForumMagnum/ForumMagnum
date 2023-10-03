@@ -1,14 +1,65 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
+import {gql, NetworkStatus, useQuery} from "@apollo/client";
+
+
 
 const LWHome = () => {
   const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
 
+  // const { data, fetchMore, networkStatus, loading } = useQuery(gql`
+  // query getCommentsWithReacts($limit: Int) {
+  //   CommentsWithReacts(limit: $limit) {
+  //     comments {
+  //       ...CommentsListWithParentMetadata
+  //     }
+  //   }
+  // }
+  // ${fragmentTextForQuery("CommentsListWithParentMetadata")}
+  // `,
+  //   {
+  //     ssr: true,
+  //     fetchPolicy: "cache-and-network",
+  //     nextFetchPolicy: "cache-only",
+  //     variables: {limit: 50},
+  //     notifyOnNetworkStatusChange: true
+  //   }
+  // )
+
+  // const results = data?.CommentsWithReacts.comments
+  // console.log("results yeaaaahhhh", results)
+
+  const { data, fetchMore, networkStatus, loading } = useQuery(gql`
+  query get10000karmaUsers {
+    SuggestedDialogueUsers(limit: 100) {
+      users {
+        ...UsersMinimumInfo
+      }
+    }
+  }
+  ${fragmentTextForQuery('UsersMinimumInfo')}
+  `,
+    {
+      ssr: true,
+      fetchPolicy: "cache-and-network",
+      nextFetchPolicy: "cache-only",
+      variables: {limit: 50},
+      notifyOnNetworkStatusChange: true
+    }
+  )
+
+  const results = data?.results?.users
+  console.log("hereeeeee", {results: results?.slice(0, 10), data})
+  
+
+
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+         
+          <LWRecommendations configName="frontpage" />
 
           {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
