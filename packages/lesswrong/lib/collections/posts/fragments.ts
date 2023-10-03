@@ -470,6 +470,9 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    usersSharedWith { #TODO this should only be in PostsEdit, but PostCollaborationEditor is using the wrong fragment
+      ...UsersMinimumInfo
+    }
   }
 `)
 
@@ -500,6 +503,9 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    usersSharedWith {
+      ...UsersMinimumInfo
+    }
   }
 `);
 

@@ -247,6 +247,7 @@ interface EditorProps {
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
+  document?: any,
   _classes: ClassesType,
 }
 
@@ -535,6 +536,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       formType,
       isCollaborative,
       onFocus,
+      document,
       _classes: classes,
     } = this.props;
     const { Loading } = Components
@@ -563,7 +565,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           }
         },
         onFocus,
-        onInit: (editor: any) => this.setState({ckEditorReference: editor})
+        onInit: (editor: any) => this.setState({ckEditorReference: editor}),
+        document,
       }
 
       // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)

@@ -2270,13 +2270,19 @@ const schema: SchemaType<DbPost> = {
   },
   
   shareWithUsers: {
-    type: Array,
     order: 15,
     canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true, 
+    
+    ...arrayOfForeignKeysField({
+      idFieldName: "shareWithUsers",
+      resolverName: "usersSharedWith",
+      collectionName: "Users",
+      type: "User"
+    }),
   },
 
   'shareWithUsers.$': {
