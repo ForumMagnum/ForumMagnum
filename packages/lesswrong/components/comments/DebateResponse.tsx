@@ -96,7 +96,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
+    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu } = Components;
 
     const [showEdit, setShowEdit] = useState(false);
     
@@ -107,20 +107,11 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
-
-    const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
-
-
-
-    const currentUser = useCurrentUser();
-
     const isFirstCommentInBlock = idx === 0;
     const isLastCommentInBlock = idx === (responseCount - 1);
     const commentParticipantIndex = orderedParticipantList.indexOf(comment.userId);
-    const readerIsParticipant = currentUser && fullParticipantSet.has(currentUser._id);
 
     const showHeader = isFirstCommentInBlock;
-    const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
     
     const addBottomMargin = isLastCommentInBlock;
     const borderStyle = getParticipantBorderStyle(commentParticipantIndex);
@@ -152,18 +143,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     : <div ref={commentItemRef}>
         <CommentBody comment={comment} voteProps={voteProps} commentItemRef={commentItemRef}/>
       </div>;
-
-    const replyCommentList =
-      <DebateCommentsListSection
-        comments={replies}
-        totalComments={replies.length}
-        post={post}
-        newForm={showInlineReplyForm}
-        newFormProps={{
-          parentComment: comment,
-          replyFormStyle: 'minimalist',
-        }}
-      />;
 
     return (
       <div
