@@ -698,6 +698,23 @@ ensureIndex(Posts,
   }
 );
 
+Posts.addView("suggestedDialogues", (terms: PostsViewTerms) => ({
+  selector: {
+    debate: true,
+    baseScore: { $gte: 20 }
+  },
+  options: {
+    sort: { score: -1 }
+  }
+}));
+
+ensureIndex(Posts,
+  augmentForDefaultView({ debate:1, score: -1 }),
+  {
+    name: "posts.suggestedDialogues",
+  }
+);
+
 Posts.addView("recentQuestionActivity", (terms: PostsViewTerms) => ({
   selector: {
     question: true,

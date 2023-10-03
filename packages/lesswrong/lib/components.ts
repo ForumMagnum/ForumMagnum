@@ -576,6 +576,7 @@ importComponent("DebateResponse", () => require('../components/comments/DebateRe
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
+importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
