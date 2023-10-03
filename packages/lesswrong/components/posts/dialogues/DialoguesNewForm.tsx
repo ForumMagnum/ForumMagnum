@@ -140,7 +140,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-const DialogueInviteButton = (_, { updateCurrentValues }: any) => {
+export const DialogueInviteButton = ({
+  submitLabel = "Submit",
+  cancelLabel = "Cancel",
+  saveDraftLabel = "Save as draft",
+  feedbackLabel = "Request Feedback",
+  cancelCallback, document, collectionName, classes
+}: PostSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
   const currentUser = useCurrentUser();
   if (!currentUser) throw Error("must be logged in to post")
 
@@ -169,9 +175,9 @@ export const DialoguesNewForm = ({classes}: {
   })
   
   const {
-    SectionTitle, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+    NewPostModerationWarning, RateLimitWarning,
   } = Components;
   const af = forumTypeSetting.get() === 'AlignmentForum'
 
@@ -214,7 +220,7 @@ export const DialoguesNewForm = ({classes}: {
                 postCategory: "dialogue"
               }}
               successCallback={(post: any, options: any) => {
-                history.push(postGetEditUrl(post._id));
+                history.push(`${postGetEditUrl(post._id)}?blockOwnership=true`);
               }}
               repeatErrors
               noSubmitOnCmdEnter

@@ -19,7 +19,7 @@ import { afNonMemberSuccessHandling } from '../../../lib/alignment-forum/display
 import { SHARE_POPUP_QUERY_PARAM } from '../PostsPage/PostsPage';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
-import { generateLinkSharingKey } from '../../../server/ckEditor/ckEditorCallbacks';
+import { DialogueInviteButton } from './DialoguesNewForm';
 
 const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
@@ -138,22 +138,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   editorGuideLink: {}
 });
-
-
-const DialogueInviteButton = (_, { updateCurrentValues }: any) => {
-  const currentUser = useCurrentUser();
-  if (!currentUser) throw Error("must be logged in to post")
-
-  return (
-    <div style={{textAlign: "right"}}>
-      <Button type="submit"
-        onClick={() => updateCurrentValues({draft: true})}
-      >
-        Invite to Dialogue
-      </Button>
-    </div>
-  );
-}
 
 export const DialoguesEditForm = ({classes}: {
   classes: ClassesType,
