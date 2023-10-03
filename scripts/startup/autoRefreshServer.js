@@ -1,7 +1,10 @@
+// @ts-check
 const WebSocket = require('ws');
 const crypto = require('crypto');
 const fs = require('fs');
 const { getOutputDir } = require('./buildUtil');
+const childProcess = require('child_process');
+const { promisify } = require('util');
 
 const openWebsocketConnections = [];
 let clientRebuildInProgress = false;
@@ -108,4 +111,24 @@ function startAutoRefreshServer({serverPort, websocketPort}) {
   });
 }
 
-module.exports = { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh };
+const asyncExec = promisify(childProcess.exec);
+let eslintIsRunning = false;
+
+async function startLint() {
+  if (eslintIsRunning) {
+    return;
+  }
+
+  eslintIsRunning = true;
+
+  try {
+    const eslintProcess = childProcess.spawn('yarn', ['--silent', 'eslint'], { stdio: 'inherit' });
+    eslintProcess.on('close', () => {
+      eslintIsRunning = false;
+    });
+  } catch(err) {
+    console.error('Lint failed: ', err);
+  }
+}
+
+module.exports = { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint };

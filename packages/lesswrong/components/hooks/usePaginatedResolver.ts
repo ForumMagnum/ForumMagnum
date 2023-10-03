@@ -94,7 +94,7 @@ export const usePaginatedResolver = <
   }
 
   useEffect(() => {
-    if (results?.length && results.length > (list?.length ?? 0)) {
+    if (results?.length && results.length >= (list?.length ?? 0)) {
       setList(results);
     }
   }, [results, list?.length]);

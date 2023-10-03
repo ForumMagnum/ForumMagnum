@@ -94,22 +94,24 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
     const lastCommentedAt = new Date()
+
+    if (!comment.debateResponse) {
+      await Posts.rawUpdateOne(comment.postId, {
+        $set: {lastCommentedAt},
+      })
+    }
+
     // we're updating the comment author's lastVisitedAt time for the post as well,
     // so that their comment doesn't cause the post to look like it has unread comments
-    await Promise.all([
-      Posts.rawUpdateOne(comment.postId, {
-        $set: {lastCommentedAt},
-      }),
-      ReadStatuses.rawUpdateOne({
-        postId: comment.postId,
-        userId: comment.userId,
-        tagId: null,
-      }, {
-        $set: {
-          lastUpdated: lastCommentedAt
-        }
-      })
-    ])
+    await ReadStatuses.rawUpdateOne({
+      postId: comment.postId,
+      userId: comment.userId,
+      tagId: null,
+    }, {
+      $set: {
+        lastUpdated: lastCommentedAt
+      }
+    })
   } else if (comment.tagId) {
     const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
     await Tags.rawUpdateOne(comment.tagId, {
@@ -128,7 +130,7 @@ getCollectionHooks("Comments").removeAsync.add(async function CommentsRemovePost
   const { postId } = comment;
 
   if (postId) {
-    const postComments = await Comments.find({postId}, {sort: {postedAt: -1}}).fetch();
+    const postComments = await Comments.find({postId, debateResponse: false, deleted: false}, {sort: {postedAt: -1}}).fetch();
     const lastCommentedAt = postComments[0] && postComments[0].postedAt;
   
     // update post with a decremented comment count, and corresponding last commented at date
@@ -192,7 +194,7 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   await recalculateAFCommentMetadata(comment.postId)
   
   if (comment.postId) {
-    const comments = await Comments.find({postId:comment.postId, deleted: false}).fetch()
+    const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
   
     const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
     const lastCommentedAt = (lastComment && lastComment.postedAt) || (await Posts.findOne({_id:comment.postId}))?.postedAt || new Date()

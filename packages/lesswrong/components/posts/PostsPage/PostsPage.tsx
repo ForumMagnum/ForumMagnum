@@ -203,7 +203,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: 'calc(70vh - 100px)',
+    minHeight: isEAForum ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -212,6 +212,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
     paddingTop: isEAForum ? 16 : undefined
+  },
+  noCommentsPlaceholder: {
+    marginTop: 60,
+    color: theme.palette.grey[600],
+    textAlign: "center",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -382,9 +391,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     limit: 1000
   });
   
-  useOnNotificationsChanged(currentUser, () => {
-    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-      refetchDebateResponses();
+  useOnNotificationsChanged(currentUser, (message) => {
+    if (message.eventType === 'notificationCheck') {
+      if (currentUser && isDialogueParticipant(currentUser._id, post)) {
+        refetchDebateResponses();
+      }
     }
   });
 
@@ -408,7 +419,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer
+    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostBottomRecommendations,
   } = Components
 
   useEffect(() => {
@@ -626,9 +638,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
+          {isEAForum && post.commentCount < 1 &&
+            <div className={classes.noCommentsPlaceholder}>
+              <div>No comments on this post yet.</div>
+              <div>Be the first to respond.</div>
+            </div>
+          }
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);

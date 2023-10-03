@@ -155,6 +155,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
+  excerpt: {
+    marginBottom: 8,
+  },
 });
 
 /**
@@ -162,7 +165,27 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({
+  treeOptions,
+  comment,
+  nestingLevel=1,
+  isChild,
+  collapsed,
+  isParentComment,
+  parentCommentId,
+  scrollIntoView,
+  toggleCollapse,
+  setSingleLine,
+  truncated,
+  showPinnedOnProfile,
+  parentAnswerId,
+  enableGuidelines=true,
+  showParentDefault=false,
+  displayTagIcon=false,
+  excerptLines,
+  className,
+  classes,
+}: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -179,6 +202,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
+  excerptLines?: number,
+  className?: string,
   classes: ClassesType,
 }) => {
   const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
@@ -191,7 +216,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId,
+    moderatedCommentId, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
@@ -238,11 +263,19 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         successCallback={editSuccessCallback}
         cancelCallback={editCancelCallback}
       />
+    } else if (excerptLines) {
+      return <Components.CommentExcerpt
+        comment={comment}
+        lines={excerptLines}
+        className={classes.excerpt}
+      />
     } else {
       return <Components.CommentBody
         commentBodyRef={commentBodyRef}
-        truncated={truncated} collapsed={collapsed}
-        comment={comment} postPage={postPage}
+        truncated={truncated}
+        collapsed={collapsed}
+        comment={comment}
+        postPage={postPage}
         voteProps={voteProps}
       />
     }
@@ -339,6 +372,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     <HoveredReactionContextProvider>
       <div className={classNames(
         classes.root,
+        className,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
@@ -354,6 +388,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
               key={comment.parentCommentId}
+              treeOptions={{
+                hideParentCommentToggleForTopLevel,
+              }}
             />
           </div> 
         )}
@@ -424,7 +461,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary],
+    styles,
+    stylePriority: -1,
+    hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",
     },

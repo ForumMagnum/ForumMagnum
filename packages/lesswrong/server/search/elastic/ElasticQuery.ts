@@ -25,6 +25,7 @@ export type QueryFilter = {
 } & ({
   type: "facet",
   value: boolean | string,
+  negated: boolean,
 } | {
   type: "numeric",
   value: number,
@@ -99,11 +100,21 @@ class ElasticQuery {
     for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        terms.push({
+        const term: QueryDslQueryContainer = {
           term: {
             [filter.field]: filter.value,
           },
-        });
+        };
+        terms.push(
+          filter.negated
+            ? {
+              bool: {
+                should: [],
+                must_not: [term],
+              },
+            }
+            : term,
+        );
         break;
       case "numeric":
         terms.push({
@@ -341,6 +352,13 @@ class ElasticQuery {
       type: "plain",
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
+
+      // This is the default value for index.highlight.max_analyzed_offset
+      // which we haven't customized. If this wasn't set here or was set
+      // larger than the corresponding setting on the index, then search
+      // would fail entirely when results contain a poss where the
+      // plain-text version of the body is larger than this.
+      max_analyzed_offset: 1000000,
     };
     return {
       index,

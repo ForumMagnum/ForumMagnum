@@ -123,6 +123,14 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
+export const postGetCommentsUrl = (
+  post: PostsMinimumForGetPageUrl,
+  isAbsolute = false,
+  sequenceId: string | null = null,
+): string => {
+  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+}
+
 export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   if (linkSharingKey) {
