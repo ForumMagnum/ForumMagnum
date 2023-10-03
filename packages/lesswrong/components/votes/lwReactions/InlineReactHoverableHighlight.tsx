@@ -16,9 +16,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.primaryTranslucentHeavy,
   },
 
-  // Comment hovered
+  // Comment or post hovered
   "@global": {
     ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight": {
+      borderBottom: theme.palette.border.dashed500,
+    },
+    ".PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight": {
       borderBottom: theme.palette.border.dashed500,
     },
   }

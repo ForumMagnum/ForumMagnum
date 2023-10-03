@@ -36,6 +36,7 @@ export const InlineReactSelectionWrapper = ({classes, children, commentBodyRef, 
   const { AddInlineReactionButton, LWPopper } = Components;
   
   const detectSelection = useCallback((e: MouseEvent): void => {
+    console.log(`In InlineReactSelectionWrapper.detectSelection`);
     function clearAll() {
       setAnchorEl(null);
       setQuote("")

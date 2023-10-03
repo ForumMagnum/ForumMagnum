@@ -155,47 +155,57 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
-    if (!comment.extendedScore) {
-      return {};
+    return getDocumentHighlights(comment.extendedScore, voteProps);
+  },
+  
+  getPostHighlights: ({post, voteProps}: {
+    post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(post.extendedScore, voteProps);
+  }
+});
+
+function getDocumentHighlights(extendedScore: NamesAttachedReactionsScore, voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponent> {
+  if (!extendedScore) {
+    return {};
+  }
+  const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
+  
+  for (let reactionType of Object.keys(extendedScore.reacts)) {
+    const userReactions = extendedScore.reacts[reactionType]
+    if (!userReactions) {
+      continue;
     }
-    const extendedScore = comment.extendedScore as NamesAttachedReactionsScore;
-    const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
-    
-    for (let reactionType of Object.keys(extendedScore.reacts)) {
-      const userReactions = extendedScore.reacts[reactionType]
-      if (!userReactions) {
-        continue;
-      }
-      for (let userReaction of userReactions) {
-        if (userReaction.quotes) {
-          for (let quote of userReaction.quotes) {
-            if (!reactionsByQuote[quote]) {
-              reactionsByQuote[quote] = {};
-            }
-            if (!reactionsByQuote[quote][reactionType]) {
-              reactionsByQuote[quote][reactionType] = [];
-            }
-            reactionsByQuote[quote][reactionType]!.push(userReaction);
+    for (let userReaction of userReactions) {
+      if (userReaction.quotes) {
+        for (let quote of userReaction.quotes) {
+          if (!reactionsByQuote[quote]) {
+            reactionsByQuote[quote] = {};
           }
+          if (!reactionsByQuote[quote][reactionType]) {
+            reactionsByQuote[quote][reactionType] = [];
+          }
+          reactionsByQuote[quote][reactionType]!.push(userReaction);
         }
       }
     }
-    
-    const result: Record<string, ContentReplacedSubstringComponent> = {};
-    const { InlineReactHoverableHighlight } = Components;
-    for (let quote of Object.keys(reactionsByQuote)) {
-      result[quote] = ({children}: {
-        children: React.ReactNode
-      }) => <InlineReactHoverableHighlight
-        reactions={reactionsByQuote[quote]}
-        voteProps={voteProps}
-      >
-        {children}
-      </InlineReactHoverableHighlight>
-    }
-    return result;
-  },
-});
+  }
+  
+  const result: Record<string, ContentReplacedSubstringComponent> = {};
+  const { InlineReactHoverableHighlight } = Components;
+  for (let quote of Object.keys(reactionsByQuote)) {
+    result[quote] = ({children}: {
+      children: React.ReactNode
+    }) => <InlineReactHoverableHighlight
+      reactions={reactionsByQuote[quote]}
+      voteProps={voteProps}
+    >
+      {children}
+    </InlineReactHoverableHighlight>
+  }
+  return result;
+}
 
 export type EmojiReactName = string;
 export type VoteOnReactionType = "created"|"seconded"|"disagreed";
