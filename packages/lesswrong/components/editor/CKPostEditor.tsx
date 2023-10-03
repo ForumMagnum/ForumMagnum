@@ -215,6 +215,7 @@ const CKPostEditor = ({
         }
         
         if (isBlockOwnershipMode) {
+          editor.execute( 'insertSimpleBox' )
           editor.model.on('_afterChanges', (change) => {
             const currentSelection: Selection = (change?.source as AnyBecauseHard)?.document?.selection;
             const blocks = currentSelection?.getSelectedBlocks?.();
@@ -271,7 +272,7 @@ const CKPostEditor = ({
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),
-          bundleVersion: ckEditorBundleVersion,
+         // bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
           channelId: getCKEditorDocumentId(documentId, userId, formType)
