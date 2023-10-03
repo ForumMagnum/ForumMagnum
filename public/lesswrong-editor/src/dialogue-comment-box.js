@@ -9,7 +9,7 @@ import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
 
-export default class SimpleBox extends Plugin {
+export default class DialogueCommentBox extends Plugin {
     static get requires() {
         return [ SimpleBoxEditing, SimpleBoxUI ];
     }
@@ -60,6 +60,7 @@ class SimpleBoxEditing extends Plugin {
 
         this._defineSchema();
         this._defineConverters();
+        this._definePostFixers();
 
         this.editor.commands.add( 'insertSimpleBox', new InsertSimpleBoxCommand( this.editor ) );
     }
@@ -68,9 +69,11 @@ class SimpleBoxEditing extends Plugin {
         const schema = this.editor.model.schema;
 
         schema.register( 'simpleBox', {
-            // Behaves like a self-contained block object (e.g. a block image)
-            // allowed in places where other blocks are allowed (e.g. directly in the root).
-            inheritAllFrom: '$blockObject'
+            // Behaves like a self-contained object (e.g. an image).
+			isObject: true,
+
+			// Allow in places where other blocks are allowed (e.g. directly in the root).
+			allowWhere: '$block'
         } );
 
         schema.register( 'simpleBoxTitle', {
@@ -177,25 +180,59 @@ class SimpleBoxEditing extends Plugin {
             }
         } );
     }
+    
+    _definePostFixers() {
+        this.editor.model.document.registerPostFixer( writer => {
+            const root = this.editor.model.document.getRoot();
+            const simpleBox = root.getChild( root.childCount - 1 );
+    
+            if ( simpleBox && simpleBox.is( 'element', 'simpleBox' ) ) {
+                // If the simpleBox is already the last child, do nothing.
+                return false;
+            }
+    
+            // Find the simpleBox and move it to the end.
+            for ( const child of root.getChildren() ) {
+                if ( child.is( 'element',  'simpleBox' ) ) {
+                    writer.move( writer.createRangeOn( child ), writer.createPositionAt( root, 'end' ) );
+                    return true;
+                }
+            }
+    
+            return false;
+        } );
+    }
 }
+
+
+
 
 class InsertSimpleBoxCommand extends Command {
     execute() {
-        this.editor.model.change( writer => {
-            // Insert <simpleBox>*</simpleBox> at the current selection position
-            // in a way that will result in creating a valid model structure.
-            this.editor.model.insertObject( createSimpleBox( writer ) );
-        } );
+        // ensure there's a simple box
+        const model = this.editor.model;
+
+        model.change(writer => {
+            // Check if a simpleBox already exists in the document.
+            const root = model.document.getRoot();
+            //console.log("children", root.getChildren())
+            if ([...root.getChildren()].every(node => !node.is('element', 'simpleBox'))) {
+                // If a simpleBox doesn't exist, create a new one.
+                model.insertContent(createSimpleBox(writer));
+            }
+        });
     }
 
     refresh() {
         const model = this.editor.model;
         const selection = model.document.selection;
-        const allowedIn = model.schema.findAllowedParent( selection.getFirstPosition(), 'simpleBox' );
+        const allowedIn = model.schema.findAllowedParent(selection.getFirstPosition(), 'simpleBox');
 
         this.isEnabled = allowedIn !== null;
     }
 }
+
+
 
 function createSimpleBox( writer ) {
     const simpleBox = writer.createElement( 'simpleBox' );
@@ -211,17 +248,3 @@ function createSimpleBox( writer ) {
 
     return simpleBox;
 }
-
-// ClassicEditor
-//     .create( document.querySelector( '#editor' ), {
-//         plugins: [ Essentials, Bold, Italic, Heading, List, Paragraph, SimpleBox ],
-//         toolbar: [ 'heading', '|', 'bold', 'italic', 'numberedList', 'bulletedList', 'simpleBox' ],
-//     } )
-//     .then( editor => {
-//         console.log( 'Editor was initialized', editor );
-
-//         window.editor = editor;
-//     } )
-//     .catch( err => {
-//         console.error( err.stack );
-//     } );
