@@ -104,7 +104,8 @@ const CKPostEditor = ({
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const { flash } = useMessages();
-  const isBlockOwnershipMode = isCollaborative && query.blockOwnership;
+  const post = (document as PostsEdit);
+  const isBlockOwnershipMode = isCollaborative && (query.blockOwnership || post.collabEditorDialogue);
   
   const { EditorTopBar } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
@@ -172,7 +173,6 @@ const CKPostEditor = ({
     const splitOnColon = text.split(':');
     if (splitOnColon.length>1 && isRelevantUsername(splitOnColon[0])) {
       const markedUsername = splitOnColon[0].toLowerCase();
-      const post = (document as PostsEdit);
       for (let sharedUser of [...post.usersSharedWith, post.user!]) {
         if (sharedUser.displayName.toLowerCase()===markedUsername || sharedUser.slug.toLowerCase()===markedUsername) {
           return sharedUser._id;

@@ -2555,7 +2555,22 @@ const schema: SchemaType<DbPost> = {
     // Implementation in postSummaryResolver.ts
   },
 
+  // This flag corresponds to the comments-in-the-post debate mode, not to be
+  // confused with collab-editor debates.
   debate: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['debaters', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false)
+  },
+  
+  // This flag corresponds to the collab-editor dialogue type, not to be confused
+  // with comments-in-the-post style dialogues (which is the `debate`) flag.
+  collabEditorDialogue: {
     type: Boolean,
     optional: true,
     nullable: true,

@@ -703,6 +703,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly collabEditorDialogue: boolean | null,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
@@ -900,6 +901,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
   readonly debate: boolean | null,
+  readonly collabEditorDialogue: boolean | null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
