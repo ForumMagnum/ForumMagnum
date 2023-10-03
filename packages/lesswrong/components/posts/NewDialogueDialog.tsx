@@ -43,7 +43,7 @@ const NewDialogueDialog = ({onClose, classes}: {
     });
     if (createResult?.data?.createPost?.data) {
       const post = createResult?.data?.createPost?.data;
-      const postId = post.data.id;
+      const postId = post._id;
       const postEditUrl = `/posts/edit?postId=${postId}`;
       history.push(postEditUrl);
     }
