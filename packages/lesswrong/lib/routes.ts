@@ -230,6 +230,13 @@ addRoute(
     background: "white"
   },
   {
+    name: 'newDialogue',
+    path: '/newDialogue',
+    componentName: 'DialoguesNewForm',
+    title: "New Dialogue",
+    background: "white"
+  },
+  {
     name: 'postAnalytics',
     path: '/postAnalytics',
     componentName: 'PostsAnalyticsPage',

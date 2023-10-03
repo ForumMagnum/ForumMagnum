@@ -396,6 +396,7 @@ importComponent("UserSuggestNominations", () => require('../components/posts/Use
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
+importComponent("DialoguesNewForm", () => require('../components/posts/dialogues/DialoguesNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
 importComponent("NewPostHowToGuides", () => require('../components/posts/NewPostHowToGuides'));

@@ -168,7 +168,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (

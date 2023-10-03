@@ -38,6 +38,7 @@ const placeholders: Record<PostCategory, string> = {
   "post": "Post title",
   "question": "Question title",
   "linkpost": "Linkpost title",
+  "dialogue": "Dialogue title",
 }
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
@@ -57,7 +58,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question, postCategory } = document;
 
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
-  const displayPlaceholder = isEAForum ? placeholders[effectiveCategory] : placeholder;
+  const displayPlaceholder = placeholders[effectiveCategory];
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
