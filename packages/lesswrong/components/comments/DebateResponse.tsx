@@ -17,6 +17,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover $menu': {
       opacity: 0.5
     },
+    '&:hover $responseDate': {
+      opacity: 0.5
+    },
     ...theme.typography.commentStyle,
     position: 'relative'
   },
@@ -31,17 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   username: {
     marginRight: 6,
     fontSize: '1.35rem'
-  },
-  replyLink: {
-    color: theme.palette.link.dim,
-    "@media print": {
-      display: "none",
-    },
-    minWidth: 'fit-content',
-    marginLeft: 10
-  },
-  hideReplyLink: {
-    visibility: 'hidden'
   },
   menu: {
     opacity: 0,
@@ -74,6 +66,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center"
   },
+  responseDate: {
+    opacity: 0,
+  }
 });
 
 const getParticipantBorderStyle = (participantIndex: number) => {
@@ -103,7 +98,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 }) => {
     const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
 
-    const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     
     const votingSystemName = comment.votingSystem || "default";
@@ -127,14 +121,17 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const showHeader = isFirstCommentInBlock;
     const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
-    const showReplyLink = replies.length > 0 || showInlineReplyForm;
+    
     const addBottomMargin = isLastCommentInBlock;
     const borderStyle = getParticipantBorderStyle(commentParticipantIndex);
 
     const header = showHeader && <>
       <CommentUserName comment={comment} className={classes.username} />
-      <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
-      <CommentsItemDate comment={comment} post={post} />
+      <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */ }</span>
+      <span className={classes.responseDate}>
+        <CommentsItemDate comment={comment} post={post} />
+      </span>
+      
     </>;
 
     const menu = <CommentsMenu
@@ -156,10 +153,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         <CommentBody comment={comment} voteProps={voteProps} commentItemRef={commentItemRef}/>
       </div>;
 
-    const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => setShowReplyState(!showReplyState)}>
-      Reply <span>({replies.filter(replyComment => replyComment.topLevelCommentId === comment._id).length})</span>
-    </a>;
-
     const replyCommentList =
       <DebateCommentsListSection
         comments={replies}
@@ -172,8 +165,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         }}
       />;
 
-    const replyState = showReplyState && showReplyLink && replyCommentList;
-
     return (
       <div
         key={`debate-comment-${comment._id}`}
@@ -185,7 +176,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         <div className={classes.commentWithReplyButton}>
           {commentBodyOrEditor}
         </div>
-        {replyState}
         <div className={classes.bottomUI}>
           {VoteBottomComponent && <VoteBottomComponent
             document={comment}
@@ -196,7 +186,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
             voteProps={voteProps}
             post={post}
           />}
-          {replyLink}
         </div>
       </div>
     );
