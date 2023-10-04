@@ -154,13 +154,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
             "commentId",
             "key",
             (ARRAY_AGG(
-              "displayName" ORDER BY COALESCE("karma", 0) DESC)
+              "displayName" ORDER BY "createdAt" ASC)
             ) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
               u."displayName",
-              u."karma",
+              v."createdAt",
               (JSONB_EACH(v."extendedVoteType")).*
             FROM "Comments" c
             JOIN "Votes" v ON
