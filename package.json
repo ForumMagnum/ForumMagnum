@@ -179,7 +179,7 @@
     "crypto-js": "^3.1.9-1",
     "csso": "^5.0.5",
     "dataloader": "^2.2.2",
-    "dd-trace": "^3.5.0",
+    "dd-trace": "^4.16.0",
     "deepmerge": "^1.2.0",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.4",
