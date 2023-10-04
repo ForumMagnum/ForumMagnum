@@ -50,7 +50,7 @@ const LWHome = () => {
     }
   )
 
-  const results = data?.results?.users
+  const results = data?.SuggestedDialogueUsers?.users
   console.log("hereeeeee", {results: results?.slice(0, 10), data})
   
 
@@ -58,14 +58,17 @@ const LWHome = () => {
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-         
-          <LWRecommendations configName="frontpage" />
 
           {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
-          {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
-            <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
-          </SingleColumnSection>}
+          {<div>
+            <h2>Users with over 10000 karma</h2>
+              <ul>
+                {results?.slice(0, 10).map(user => (
+                  <li key={user._id}>{user.displayName}</li>
+                ))}
+              </ul>
+            </div>}
         
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
