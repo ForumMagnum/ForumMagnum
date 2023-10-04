@@ -128,6 +128,7 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
+	DialogueCommentBox
 	// FontColor,
 	// FontBackgroundColor,
 ];
@@ -140,7 +141,7 @@ const collaborativeEditorPlugins = [
 	RealTimeCollaborativeTrackChanges,
 	TrackChangesData,
 	PresenceList,
-	DialogueCommentBox
+	// DialogueCommentBox
 ];
 
 PostEditor.builtinPlugins = [ ...postEditorPlugins ];
