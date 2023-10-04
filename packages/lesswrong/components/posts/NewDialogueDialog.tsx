@@ -34,6 +34,7 @@ const NewDialogueDialog = ({onClose, classes}: {
         title,
         draft: true,
         collabEditorDialogue: true,
+        coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
         shareWithUsers: participants,
         sharingSettings: {
           anyoneWithLinkCan: "none",

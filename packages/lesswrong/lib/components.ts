@@ -399,6 +399,7 @@ importComponent("PostsCommentsThread", () => require('../components/posts/PostsC
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("DialoguesEditForm", () => require('../components/posts/dialogues/DialoguesEditForm'));
 importComponent("DialoguesNewForm", () => require('../components/posts/dialogues/DialoguesNewForm'));
+importComponent("DialogueEditorUI", () => require('../components/posts/dialogues/DialogueEditorUI'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
 importComponent("NewPostHowToGuides", () => require('../components/posts/NewPostHowToGuides'));

@@ -165,6 +165,7 @@ const PostsEditForm = ({ documentId, classes }: {
               // this.context.events.track("post deleted", {_id: documentId});
             }}
             showRemove={true}
+            collabEditorDialogue={!!document.collabEditorDialogue}
             submitLabel={isDraft ? "Publish" : "Publish Changes"}
             formComponents={{FormSubmit:EditPostsSubmit}}
             extraVariables={{
