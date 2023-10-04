@@ -1,15 +1,32 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Button from '@material-ui/core/Button';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
 import { useNavigation } from '../../lib/routeUtil';
+import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
+    padding: 16,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.text.normal,
+  },
+  inputRow: {
+    marginBottom: 12,
+  },
+  label: {
+    ...theme.typography.body2,
+    display: "inline-block",
+    marginRight: 10,
+  },
+  titleInput: {
+    ...theme.typography.body2,
+    width: 400,
+  },
+  usersListEditor: {
+    display: "inline-block",
   },
 })
 
@@ -56,33 +73,32 @@ const NewDialogueDialog = ({onClose, classes}: {
     fullWidth
     maxWidth={"sm"}
     dialogClasses={{paper: classes.dialogPaper}}
-    className={classes.dialog}
   >
-    <DialogTitle>Start a Dialogue</DialogTitle>
-    
-    <DialogContent>
-      <div>Title</div>
-      <input
+    <div className={classes.dialog}>
+      <h2>Start a Dialogue</h2>
+  
+      <Input
         type="text"
         placeholder="Title"
         value={title}
+        className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
       />
-  
-      <div>Invited Participants</div>
-      <UsersListEditor
-        value={participants}
-        setValue={setParticipants}
-        label="Participants"
-      />
-    </DialogContent>
-    
-    <DialogActions>
-      {loading && <Loading/>}
-      <Button onClick={createDialogue}>
-        Create
-      </Button>
-    </DialogActions>
+      <div className={classes.usersListEditor}>
+        <UsersListEditor
+          value={participants}
+          setValue={setParticipants}
+          label="Participants"
+        />
+      </div>
+      
+      <DialogActions>
+        {loading && <Loading/>}
+        <Button onClick={createDialogue}>
+          Create
+        </Button>
+      </DialogActions>
+    </div>
   </LWDialog>
 }
 
