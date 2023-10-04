@@ -130,16 +130,16 @@ async function disableModerationAction(userId: string, warningType: DbModeratorA
   }
 }
 
-/**
- * Enables or disables a moderator action on a specific user, based on a conditional
- */
-function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type']) {
-  if (triggerAction) {
-    void triggerModerationAction(userId, actionType);
-  } else {
-    void disableModerationAction(userId, actionType);
-  }
-}
+// /**
+//  * Enables or disables a moderator action on a specific user, based on a conditional
+//  */
+// function handleAutomodAction(triggerAction: boolean, userId: string, actionType: DbModeratorAction['type']) {
+//   if (triggerAction) {
+//     void triggerModerationAction(userId, actionType);
+//   } else {
+//     void disableModerationAction(userId, actionType);
+//   }
+// }
 
 /**
  * WARNING: assumes that the input actions are already sorted by createdAt descending
@@ -154,69 +154,62 @@ function getUnmoderatedContent(content: (DbPost | DbComment)[], lastActionEndedA
     : content;
 }
 
-/**
- * recently downvoted content:
- * - if active, disable if no longer meets condition
- * - if inactive, condition should only check content (both posts & comments) from after the last endedAt
- * 
- * low average karma:
- * - if active, disable if no longer meets condition
- * - if inactive, condition should only check content (whichever one matches the action type) from after the last endedAt
- */
-export async function triggerAutomodIfNeededForUser(user: DbUser) {
-  const userId = user._id;
+// /**
+//  * recently downvoted content:
+//  * - if active, disable if no longer meets condition
+//  * - if inactive, condition should only check content (both posts & comments) from after the last endedAt
+//  *
+//  * low average karma:
+//  * - if active, disable if no longer meets condition
+//  * - if inactive, condition should only check content (whichever one matches the action type) from after the last endedAt
+//  */
+// export async function triggerAutomodIfNeededForUser(user: DbUser) {
+//   const userId = user._id;
 
-  const [userModeratorActions, latestComments, latestPosts] = await Promise.all([
-    // Sort by createdAt descending so that `.find` returns the most recent one matching the condition
-    ModeratorActions.find({ userId }, { sort: { createdAt: -1 } }).fetch(),
-    Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
-    Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20, projection: { postedAt: 1, baseScore: 1 } }).fetch()
-  ]);
+//   const [userModeratorActions, latestComments, latestPosts] = await Promise.all([
+//     // Sort by createdAt descending so that `.find` returns the most recent one matching the condition
+//     ModeratorActions.find({ userId }, { sort: { createdAt: -1 } }).fetch(),
+//     Comments.find({ userId }, { sort: { postedAt: -1 }, limit: 20 }).fetch(),
+//     Posts.find({ userId, isEvent: false, draft: false }, { sort: { postedAt: -1 }, limit: 20, projection: { postedAt: 1, baseScore: 1 } }).fetch()
+//   ]);
 
-  const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
+//   const voteableContent = [...latestComments, ...latestPosts].sort((a, b) => b.postedAt.valueOf() - a.postedAt.valueOf());
 
-  if (userModeratorActions.filter(isActionActive).some(action => rateLimitSet.has(action.type) )) {
-    // if a mod has already given them a rate limit, they don't need to have any new actions applied to them
-    // TODO: if we build any more complicated mod action rules, this will need to be updated
-    // eaforum-look-here
-    return
-  }
-  const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
-  handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT);
+//   if (userModeratorActions.filter(isActionActive).some(action => rateLimitSet.has(action.type) )) {
+//     // if a mod has already given them a rate limit, they don't need to have any new actions applied to them
+//     // TODO: if we build any more complicated mod action rules, this will need to be updated
+//     // eaforum-look-here
+//     return
+//   }
+//   const activeNegativeKarmaUser = isActiveNegativeKarmaUser(user, voteableContent);
+//   handleAutomodAction(activeNegativeKarmaUser, userId, NEGATIVE_KARMA_USER_ALERT);
 
-  // Remove the most recent content item for each rule
-  // Since posts & comments start by default without much karma, they artificially down-weight averages
-  latestComments.shift();
-  latestPosts.shift();
+//   // Remove the most recent content item for each rule
+//   // Since posts & comments start by default without much karma, they artificially down-weight averages
+//   latestComments.shift();
+//   latestPosts.shift();
 
-  // Get the `endedAt` of the most recently-created action of each type
-  // We don't care about the distinction between an active action with no `endedAt` and the user not having that type of action at all
-  // We'll check that distinction later in `triggerModerationAction`, if necessary
-  // Also, we want to be able to disable active actions on the basis of recent content getting upvoted
-  // That would be impossible if we filtered it out
-  const downvotedContentActionEndedAt = getLastActionEndedAt(userModeratorActions, RECENTLY_DOWNVOTED_CONTENT_ALERT);
-  const lowAvgKarmaCommentEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_COMMENT_ALERT);
-  const lowAvgKarmaPostEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_POST_ALERT);
+//   // Get the `endedAt` of the most recently-created action of each type
+//   // We don't care about the distinction between an active action with no `endedAt` and the user not having that type of action at all
+//   // We'll check that distinction later in `triggerModerationAction`, if necessary
+//   // Also, we want to be able to disable active actions on the basis of recent content getting upvoted
+//   // That would be impossible if we filtered it out
+//   const downvotedContentActionEndedAt = getLastActionEndedAt(userModeratorActions, RECENTLY_DOWNVOTED_CONTENT_ALERT);
+//   const lowAvgKarmaCommentEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_COMMENT_ALERT);
+//   const lowAvgKarmaPostEndedAt = getLastActionEndedAt(userModeratorActions, LOW_AVERAGE_KARMA_POST_ALERT);
 
-  const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
-  const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
-  const unmoderatedLatestPosts = getUnmoderatedContent(latestPosts, lowAvgKarmaPostEndedAt);
+//   const unmoderatedVoteableContent = getUnmoderatedContent(voteableContent, downvotedContentActionEndedAt);
+//   const unmoderatedLatestComments = getUnmoderatedContent(latestComments, lowAvgKarmaCommentEndedAt);
+//   const unmoderatedLatestPosts = getUnmoderatedContent(latestPosts, lowAvgKarmaPostEndedAt);
   
-  const lowQualityContent = isRecentlyDownvotedContent(unmoderatedVoteableContent);
-  const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(unmoderatedLatestComments, 'comment');
-  const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(unmoderatedLatestPosts, 'post');
+//   const lowQualityContent = isRecentlyDownvotedContent(unmoderatedVoteableContent);
+//   const { lowAverage: mediocreQualityComments } = isLowAverageKarmaContent(unmoderatedLatestComments, 'comment');
+//   const { lowAverage: mediocreQualityPosts } = isLowAverageKarmaContent(unmoderatedLatestPosts, 'post');
 
-  handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
-  handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
-  handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
-}
-
-export async function triggerAutomodIfNeeded(userId: string) {
-  const user = await Users.findOne(userId);
-  if (!user) return;
-
-  await triggerAutomodIfNeededForUser(user);
-}
+//   handleAutomodAction(lowQualityContent, userId, RECENTLY_DOWNVOTED_CONTENT_ALERT);
+//   handleAutomodAction(mediocreQualityComments, userId, LOW_AVERAGE_KARMA_COMMENT_ALERT);
+//   handleAutomodAction(mediocreQualityPosts, userId, LOW_AVERAGE_KARMA_POST_ALERT);
+// }
 
 export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vote: DbVote) {
   const context = createAdminContext();

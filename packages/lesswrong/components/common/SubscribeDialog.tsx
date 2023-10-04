@@ -101,11 +101,10 @@ const postsPerWeek = forumSelect<Record<string, number>>({
     '45': 1,
   },
   default: {
-    '2': 80,
-    '30': 16,
-    '45': 13,
-    '75': 7,
-    '125': 2,
+    '2': 20,
+    '30': 8,
+    '45': 2,
+    '75': 1,
   }
 });
 
