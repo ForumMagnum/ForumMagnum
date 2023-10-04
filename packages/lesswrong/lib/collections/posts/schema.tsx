@@ -1368,6 +1368,7 @@ const schema: SchemaType<DbPost> = {
       userId: String,
       confirmed: Boolean,
       requested: Boolean,
+
     }),
     optional: true,
   },
@@ -2373,12 +2374,14 @@ const schema: SchemaType<DbPost> = {
     optional: true, nullable: true, hidden: true,
   },
   
+  // This is basically deprecated. We now have them enabled by default
+  // for all users. Leaving this field for legacy reasons.
   sideCommentVisibility: {
     type: String,
     optional: true,
     control: "select",
     group: formGroups.advancedOptions,
-    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    hidden: true,
     
     label: "Replies in sidebar",
     canRead: ['guests'],
