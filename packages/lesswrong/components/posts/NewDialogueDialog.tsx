@@ -22,7 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 10,
   },
   titleInput: {
-    ...theme.typography.body2,
+    ...theme.typography.display2,
+    ...theme.typography.headerStyle,
+    marginTop: 12,
     width: 400,
   },
   usersListEditor: {
@@ -75,12 +77,10 @@ const NewDialogueDialog = ({onClose, classes}: {
     maxWidth={"sm"}
     dialogClasses={{paper: classes.dialogPaper}}
   >
-    <div className={classes.dialog}>
-      <h2>Start a Dialogue</h2>
-  
+    <div className={classes.dialog}>  
       <Input
         type="text"
-        placeholder="Title"
+        placeholder="New Dialogue Title"
         value={title}
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
@@ -89,14 +89,14 @@ const NewDialogueDialog = ({onClose, classes}: {
         <UsersListEditor
           value={participants}
           setValue={setParticipants}
-          label="Participants"
+          label="Add Participants"
         />
       </div>
       
       <DialogActions>
         {loading && <Loading/>}
         <Button onClick={createDialogue}>
-          Create
+          Create Dialogue
         </Button>
       </DialogActions>
     </div>
