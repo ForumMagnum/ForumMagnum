@@ -1,6 +1,7 @@
 import { getDatadogUser } from '../../lib/collections/users/helpers'
 import type { Request } from 'express';
 import tracer from './tracer'
+import { isDatadogEnabled } from '../../client/datadogRum';
 
 export const getIpFromRequest = (req: Request): string => {
   let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
@@ -16,6 +17,10 @@ export const getIpFromRequest = (req: Request): string => {
  * - Allow the headers required for Real User Monitoring
  */
 export const datadogMiddleware = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  if (!isDatadogEnabled()) {
+    return next();
+  }
+
   const span = tracer.scope().active()
   if (span !== null) {
     // @ts-ignore - there is currently no public API for getting the root span, this is the accepted way (see https://github.com/DataDog/dd-trace-js/issues/725#issuecomment-805277510)

@@ -1,18 +1,27 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { getDatadogUser } from '../lib/collections/users/helpers';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
-import { isServer } from '../lib/executionEnvironment';
+import { isAnyTest, isServer } from '../lib/executionEnvironment';
+
+export const isDatadogEnabled = () =>
+  isServer &&
+  !isAnyTest &&
+  !testServerSetting.get() &&
+  isEAForum;
 
 let datadogInitialized = false;
 
 export async function initDatadog() {
+  if (!isDatadogEnabled()) {
+    return;
+  }
+
   const { cookiePreferences } = await getCookiePreferences();
 
   const analyticsCookiesAllowed = cookiePreferences.includes("analytics");
 
-  if (isServer || forumTypeSetting.get() !== 'EAForum') return
   if (!analyticsCookiesAllowed) {
     // eslint-disable-next-line no-console
     console.log("Not initializing datadog because analytics cookies are not allowed")
@@ -44,7 +53,7 @@ export async function initDatadog() {
 }
 
 export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
-  if (forumTypeSetting.get() !== 'EAForum' || !datadogInitialized) return
+  if (!isDatadogEnabled() || !datadogInitialized) return
 
   // Set the user which will appear in traces
   datadogRum.setUser(user ? getDatadogUser(user) : {});
