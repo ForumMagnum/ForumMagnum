@@ -1,14 +1,14 @@
 import React from "react";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const CuratedPostsList = () => {
-  const currentUser = useCurrentUser();
+  const currentCuratedPostCount = useCurrentCuratedPostCount();
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
       <Components.PostsList2
-        terms={{view:"curated", limit: currentUser ? 3 : 2}}
+        terms={{view:"curated", limit: currentCuratedPostCount}}
         showNoResults={false}
         showLoadMore={false}
         hideLastUnread={true}

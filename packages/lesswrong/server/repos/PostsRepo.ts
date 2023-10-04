@@ -4,6 +4,7 @@ import { logIfSlow } from "../../lib/sql/sqlClient";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
 export type MeanPostKarma = {
   _id: number,
@@ -190,6 +191,17 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
+  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+      JOIN "Digests" d ON d."_id" = dp."digestId"
+      ORDER BY d."num" DESC, p."baseScore" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"
@@ -200,6 +212,80 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
+  }
+
+  getDigestHighlights({
+    maxAgeInDays = 31,
+    numPostsPerDigest = 2,
+    limit = 10,
+  }): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM (
+        SELECT
+          p."_id",
+          d."num" AS "digestNum",
+          ROW_NUMBER() OVER(
+            PARTITION BY dp."digestId" ORDER BY p."baseScore" DESC
+          ) AS "rowNum"
+        FROM "Posts" p
+        JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+        JOIN "Digests" d ON
+          dp."digestId" = d."_id" AND
+          FLOOR(EXTRACT(EPOCH FROM NOW() - d."startDate") / 86400) <= $1
+      ) q
+      JOIN "Posts" p ON q."_id" = p."_id"
+      WHERE q."rowNum" <= $2
+      ORDER BY q."digestNum" DESC, q."rowNum" ASC
+      LIMIT $3
+    `, [maxAgeInDays, numPostsPerDigest, limit]);
+  }
+
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+    currentUser?: DbUser | null,
+    days?: number,
+    limit?: number,
+  } = {}) {
+    const postFilter = getViewablePostsSelector("p");
+    const readFilter = currentUser
+      ? {
+        join: `
+          LEFT JOIN "ReadStatuses" rs ON
+            p."_id" = rs."postId" AND
+            rs."userId" = $3
+        `,
+        filter: `rs."isRead" IS NOT TRUE AND`,
+      }
+      : {join: "", filter: ""};
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      ${readFilter.join}
+      WHERE
+        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      UNION
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Users" u ON p."userId" = u."_id"
+      ${readFilter.join}
+      WHERE
+        p."curatedDate" IS NULL AND
+        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        COALESCE(
+          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
+          0
+        ) < 1 AND
+        p."groupId" IS NULL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        u."deleted" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
+      LIMIT $2
+    `, [String(days), limit, currentUser?._id]);
   }
 
   private getSearchDocumentQuery(): string {

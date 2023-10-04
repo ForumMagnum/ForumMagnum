@@ -215,10 +215,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
-    currentEventHeader: {
-      start: "#F35B3E",
-      stop: "#D92B08",
-    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -263,7 +259,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     navigationSidebarIcon: shades.greyAlpha(1.0),
     sprout: '#69886e',
     yellow: '#ffc500',
-    
+    recentDiscussionGreen: "#72B065",
+    recentDiscussionGrey: "#757575",
+
     commentsBubble: {
       commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),

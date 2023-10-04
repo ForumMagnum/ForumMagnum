@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
-import { currentEventHeader } from '../../lib/publicSettings';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   subtitle: {
@@ -12,20 +11,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     textTransform: isEAForum ? undefined : 'uppercase',
     color: theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
-  },
-  currentEventLink: {
-    marginLeft: "1em",
-    background: `linear-gradient(
-      91deg,
-      ${theme.palette.text.currentEventHeader.start} 5.84%,
-      ${theme.palette.text.currentEventHeader.stop} 99.75%
-    )`,
-    backgroundClip: "text",
-    "-webkit-background-clip": "text",
-    "-webkit-text-fill-color": "transparent",
-    "&:hover": {
-      opacity: 0.8,
-    },
   },
 });
 
@@ -52,17 +37,7 @@ const HeaderSubtitle = ({classes}: {
       {subtitleString}
     </span>
   } else {
-    const currentEvent = currentEventHeader.get();
-    return currentEvent
-      ? (
-        <Link
-          to={currentEvent.link}
-          className={classes.currentEventLink}
-        >
-          {currentEvent.name}
-        </Link>
-      )
-      : null;
+    return <Components.HeaderEventSubtitle />;
   }
 }
 

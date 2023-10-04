@@ -159,6 +159,33 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true
   },
+  headerTitle: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 65,
+    optional: true,
+    nullable: true,
+  },
+  headerTitleLeftColor: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 66,
+    optional: true,
+    nullable: true,
+  },
+  headerTitleRightColor: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 67,
+    optional: true,
+    nullable: true,
+  },
   lastPromotedAt: {
     type: Date,
     control: "datetime",
