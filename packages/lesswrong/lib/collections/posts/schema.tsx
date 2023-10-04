@@ -2581,24 +2581,27 @@ const schema: SchemaType<DbPost> = {
       const lastReadStatus = await getLastReadStatus(post, context);
       if (!lastReadStatus) return null;
 
-      // const blockTimestamps = 
+      const messageTimestamps = context.repos.posts.getDialogueMessageTimestamps(post)
+      const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
+
+      return newMessageTimestamps.length ?? 0
 
 
-      const comments = await Comments.find({
-        ...getDefaultViewSelector("Comments"),
-        postId: post._id,
-        // This actually forces `deleted: false` by combining with the default view selector
-        deletedPublic: false,
-        debateResponse: true,
-        postedAt: { $gt: lastReadStatus.lastUpdated },
-      }, {
-        sort: { postedAt: 1 }
-      }).fetch();
+      // const comments = await Comments.find({
+      //   ...getDefaultViewSelector("Comments"),
+      //   postId: post._id,
+      //   // This actually forces `deleted: false` by combining with the default view selector
+      //   deletedPublic: false,
+      //   debateResponse: true,
+      //   postedAt: { $gt: lastReadStatus.lastUpdated },
+      // }, {
+      //   sort: { postedAt: 1 }
+      // }).fetch();
 
-      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
-      const count = filteredComments.length;
+      // const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
+      // const count = filteredComments.length;
 
-      return count;
+      // return count;
     }
   }),
 

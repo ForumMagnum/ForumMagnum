@@ -569,7 +569,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
-  //console.log("ruby world ", post.totalDialogueResponseCount)
+  console.log("total dialogue response count ", post.totalDialogueResponseCount)
+  console.log("unread dialogue response count", post.unreadDebateResponseCount)
+
 
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
