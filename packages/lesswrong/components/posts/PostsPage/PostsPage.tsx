@@ -57,6 +57,7 @@ export const getPostDescription = (post: {
     return post.socialPreviewData.text;
   }
 
+
   const longDescription = post.customHighlight?.plaintextDescription || post.contents?.plaintextDescription;
   if (longDescription) {
     // concatenate the first few paragraphs together up to some reasonable length
@@ -567,6 +568,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
+
+  //console.log("ruby world ", post.totalDialogueResponseCount)
+
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>

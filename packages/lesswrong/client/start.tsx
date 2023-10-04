@@ -10,6 +10,7 @@ import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
 
 onStartup(() => {
+  console.log("can you here me????")
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();

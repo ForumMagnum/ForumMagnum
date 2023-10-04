@@ -2560,6 +2560,16 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
+  totalDialogueResponseCount: resolverOnlyField({
+    type: Number, 
+    nullable: true, 
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (!post.debate) return 0;
+      return context.repos.posts.getDialogueResponseCount(post)
+    } 
+  }),
+
   unreadDebateResponseCount: resolverOnlyField({
     type: Number,
     nullable: true,
@@ -2570,6 +2580,9 @@ const schema: SchemaType<DbPost> = {
 
       const lastReadStatus = await getLastReadStatus(post, context);
       if (!lastReadStatus) return null;
+
+      // const blockTimestamps = 
+
 
       const comments = await Comments.find({
         ...getDefaultViewSelector("Comments"),
