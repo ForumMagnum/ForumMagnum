@@ -36,6 +36,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   addMessageButton: {
     marginBottom: 30,
   },
+  hidden: {
+    display: "none",
+  },
 })
 
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
@@ -64,6 +67,10 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   }
 }
 
+export type ConnectedUserInfo = {
+  _id: string
+  name: string
+}
 
 const CKPostEditor = ({
   data,
@@ -120,6 +127,7 @@ const CKPostEditor = ({
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+  const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
@@ -132,7 +140,7 @@ const CKPostEditor = ({
 
   const editorRef = useRef<CKEditor>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
-  const presenceListRef = useRef<HTMLDivElement>(null)
+  const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
@@ -189,11 +197,13 @@ const CKPostEditor = ({
     
     {isCollaborative && <EditorTopBar
       accessLevel={accessLevel||"none"}
-      presenceListRef={presenceListRef}
       collaborationMode={collaborationMode}
       setCollaborationMode={changeCollaborationMode}
+      post={post}
+      connectedUsers={connectedUsers}
     />}
     
+    <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
     {layoutReady && <CKEditor
@@ -203,6 +213,7 @@ const CKPostEditor = ({
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={(editor: Editor) => {
+        console.log("In CkPostEditor onInit");
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -260,6 +271,28 @@ const CKPostEditor = ({
               });
             }
           });
+          const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
+          if (sessionsPlugin) {
+            console.log("Attaching event listeners to Sessions plugin");
+            const connectedUsers = sessionsPlugin.allConnectedUsers
+            const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
+              const newUsersArr = [...usersCollection];
+              setConnectedUsers(newUsersArr.map(u => ({
+                _id: u.id,
+                name: u.name,
+              })));
+            }
+            connectedUsers.on('add', (change: AnyBecauseHard) => {
+              if (change.source) {
+                updateConnectedUsers(change.source);
+              }
+            });
+            connectedUsers.on('remove', (change: AnyBecauseHard) => {
+              if (change.source) {
+                updateConnectedUsers(change.source);
+              }
+            });
+          }
         }
 
         if (onInit) onInit(editor)
@@ -284,7 +317,7 @@ const CKPostEditor = ({
           container: sidebarRef.current
         },
         presenceList: {
-          container: presenceListRef.current
+          container: hiddenPresenceListRef.current
         },
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,

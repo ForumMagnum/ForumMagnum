@@ -102,6 +102,7 @@ importComponent("EditLinkpostUrl", () => require('../components/editor/EditLinkp
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
+importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
