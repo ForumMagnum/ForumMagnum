@@ -23,6 +23,7 @@ export const truncate = (
   truncateLength: number,
   truncateBy?: "words" | "characters" | "paragraphs",
   suffix?: string,
+  allowTruncationMidWord?: boolean,
 ) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
@@ -35,6 +36,7 @@ export const truncate = (
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
+    Strict: allowTruncationMidWord ?? true,
   });
   return styles + truncatedHtml;
 }
