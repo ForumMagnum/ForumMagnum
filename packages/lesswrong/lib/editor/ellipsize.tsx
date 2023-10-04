@@ -18,7 +18,12 @@ export const highlightFromHTML = (html: string): string => {
   });
 };
 
-export const truncate = (html: string|null|undefined, truncateLength: number, truncateBy?: string, suffix?: string) => {
+export const truncate = (
+  html: string|null|undefined,
+  truncateLength: number,
+  truncateBy?: "words" | "characters" | "paragraphs",
+  suffix?: string,
+) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
