@@ -9,7 +9,7 @@ import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
-const pgPromiseLib = pgp({
+export const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
   connect: async ({client}) => {
     const result: IResult<{oid: number}> = await client.query(
@@ -266,11 +266,6 @@ export const createSqlConnection = async (
     max: MAX_CONNECTIONS,
     idleTimeoutMillis: pgConnIdleTimeoutMsSetting.get(),
   });
-
-  if (!isAnyTest) {
-    // eslint-disable-next-line no-console
-    console.log(`Connecting to postgres with a connection-pool max size of ${MAX_CONNECTIONS}`);
-  }
 
   const client: SqlClient = {
     ...db,

@@ -107,9 +107,6 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-
-  //eslint-disable-next-line no-console
-  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema
@@ -184,11 +181,7 @@ export function startWebserver() {
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer

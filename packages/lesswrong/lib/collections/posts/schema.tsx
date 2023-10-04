@@ -203,7 +203,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
+    control: 'EditLinkpostUrl',
     order: 12,
     form: {
       labels: {
@@ -213,7 +213,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm,
+    hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
   },
   // Category (post, linkpost, or question)
   postCategory: {
@@ -226,7 +226,7 @@ const schema: SchemaType<DbPost> = {
     order: 9,
     group: formGroups.category,
     control: 'EditPostCategory',
-    hidden: (props) => !isEAForum || props.eventForm || props.debateForm,
+    hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
     ...schemaDefaultValue(postDefaultCategory),
   },
   // Title
@@ -1090,7 +1090,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     canRead: ['guests'],
     canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
+    group: formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
@@ -2264,7 +2264,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: isEAForum ? formGroups.title : formGroups.options,
+    group: formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2487,7 +2487,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted && !comment.rejected
+      filterFn: comment => !comment.deleted && !comment.rejected && !comment.debateResponse
     }),
     canRead: ['guests'],
   },
@@ -2742,7 +2742,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['alignmentForum'],
     canCreate: ['alignmentForum'],
     control: 'checkbox',
-    group: formGroups.options,
+    group: formGroups.advancedOptions,
   },
 
   afDate: {
@@ -2754,7 +2754,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum'],
     canCreate: ['alignmentForum'],
-    group: formGroups.options,
+    group: formGroups.advancedOptions,
   },
 
   afCommentCount: {
@@ -2764,7 +2764,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: (comment: DbComment) => comment.af && !comment.deleted,
+      filterFn: (comment: DbComment) => comment.af && !comment.deleted && !comment.debateResponse,
     }),
     label: "Alignment Comment Count",
     canRead: ['guests'],

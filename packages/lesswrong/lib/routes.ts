@@ -230,6 +230,20 @@ addRoute(
     background: "white"
   },
   {
+    name: 'editDialogue',
+    path: '/editDialogue',
+    componentName: 'DialoguesEditForm',
+    title: "Edit Dialogue",
+    background: "white"
+  },
+  {
+    name: 'newDialogue',
+    path: '/newDialogue',
+    componentName: 'DialoguesNewForm',
+    title: "New Dialogue",
+    background: "white"
+  },
+  {
     name: 'postAnalytics',
     path: '/postAnalytics',
     componentName: 'PostsAnalyticsPage',
@@ -632,6 +646,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/best-of',
       componentName: 'EABestOfPage',
       title: 'Best of the Forum',
+      subtitle: 'Best of the Forum',
+      subtitleLink: '/best-of',
     },
     {
       name: 'BestOfCamelCase',
@@ -1021,6 +1037,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'editor',
       path: '/editor',
       redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    },
+    {
+      name: 'petrovDayPoll',
+      path: '/petrovDayPoll',
+      componentName: "PetrovDayPoll",
+    },
+    {
+      name: 'petroyDayPoll',
+      path: '/petroyDayPoll',
+      componentName: "PetrovDayPoll",
+      title: "Petrov Day Poll",
     }
   ],
   AlignmentForum: [
@@ -1316,7 +1343,8 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name:'posts.slug.single',
@@ -1325,7 +1353,8 @@ addRoute(
     titleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name: 'posts.revisioncompare',

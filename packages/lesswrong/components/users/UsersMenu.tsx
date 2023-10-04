@@ -189,6 +189,12 @@ const UsersMenu = ({classes}: {
                 {canCreateDialogue &&
                   <DropdownItem
                     title={preferredHeadingCase("New Dialogue")}
+                    to="/newDialogue"
+                  />
+                }
+                {canCreateDialogue &&
+                  <DropdownItem
+                    title={preferredHeadingCase("New Dialogue [Jim]")}
                     onClick={() => openDialog({componentName:"NewDialogueDialog"})}
                   />
                   /*<DropdownItem

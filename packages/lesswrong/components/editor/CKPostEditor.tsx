@@ -168,7 +168,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && (query.blockOwnership || post.collabEditorDialogue);
   
-  const { EditorTopBar } = Components;
+  const { EditorTopBar, DialogueEditorUI } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -245,6 +245,9 @@ const CKPostEditor = ({
   }
   
   return <div>
+
+    {isBlockOwnershipMode && <DialogueEditorUI />}
+    
     {isCollaborative && <EditorTopBar
       accessLevel={accessLevel||"none"}
       presenceListRef={presenceListRef}

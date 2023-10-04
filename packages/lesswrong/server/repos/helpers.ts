@@ -5,6 +5,7 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
   return `
     ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
     ${aliasPrefix}"draft" = FALSE AND
+    ${aliasPrefix}"deletedDraft" = FALSE AND
     ${aliasPrefix}"isFuture" = FALSE AND
     ${aliasPrefix}"unlisted" = FALSE AND
     ${aliasPrefix}"shortform" = FALSE AND

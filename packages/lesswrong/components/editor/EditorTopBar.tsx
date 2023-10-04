@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     background: theme.palette.grey[60],
     padding: 4,
-    paddingLeft: 8,
+    paddingLeft: 16,
     marginBottom: 16,
   },
   presenceList: {

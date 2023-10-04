@@ -12,6 +12,7 @@ import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 
 
 export const descriptionStyles = (theme: JssStyles) => ({
@@ -241,16 +242,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const getUrlFromDocument = (document: SpotlightDisplay_document, documentType: SpotlightDocumentType) => {
-  switch (documentType) {
-    case "Sequence":
-      return `/s/${document._id}`;
-    case "Post":
-      return `/posts/${document._id}/${document.slug}`
-  }
-}
-
-
 export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
@@ -277,7 +268,7 @@ export const SpotlightItem = ({
   const [edit, setEdit] = useState<boolean>(false)
   const [editDescription, setEditDescription] = useState<boolean>(false)
 
-  const url = getUrlFromDocument(spotlight.document, spotlight.documentType)
+  const url = getSpotlightUrl(spotlight);
 
   const duration = spotlight.duration
 

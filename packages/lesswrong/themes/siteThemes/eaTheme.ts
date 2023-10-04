@@ -57,7 +57,8 @@ export const eaForumTheme: SiteThemeSpecification = {
       main: "#ffad08"
     },
     text: {
-      primaryAlert: "#137283"
+      primaryAlert: "#137283",
+      contentHeader: shadePalette.grey[1000],
     },
     link: {
       visited: "#7130a6",
