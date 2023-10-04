@@ -63,9 +63,6 @@ class SimpleBoxEditing extends Plugin {
         const schema = this.editor.model.schema;
 
         schema.register( 'dialogueMessageInput', {
-            // Behaves like a self-contained object (e.g. an image).
-			// isObject: true,
-
 			// Allow in places where other blocks are allowed (e.g. directly in the root).
 			allowWhere: '$block',
 
@@ -73,9 +70,19 @@ class SimpleBoxEditing extends Plugin {
             allowContentOf: '$root',
 
             isLimit: true,
-            isSelectable: false,
             allowAttributes: ['user-id', 'display-name'],
         } );
+
+        schema.register( 'dialogueMessage', {
+			// Allow in places where other blocks are allowed (e.g. directly in the root).
+			allowWhere: '$block',
+
+            // Allow content which is allowed in the root (e.g. paragraphs).
+            allowContentOf: '$root',
+
+            isLimit: true,
+            allowAttributes: ['user-id', 'display-name', 'submitted-date'],
+        });
     }
 
     _defineConverters() {
@@ -103,7 +110,9 @@ class SimpleBoxEditing extends Plugin {
                 const button = viewWriter.createUIElement( 'button', { type: 'button', style: 'width: 30px; height: 30px;' }, function (domDocument) {
                     const domElement = this.toDomElement(domDocument);
                     domElement.addEventListener('click', () => {
-                        editor.execute('submitDialogueMessage');                        
+                        const userId = modelElement.getAttribute('user-id');
+                        const displayName = modelElement.getAttribute('display-name');
+                        editor.execute('submitDialogueMessage', { userId, displayName });
                     });
 
                     return domElement;
@@ -111,6 +120,30 @@ class SimpleBoxEditing extends Plugin {
 
                 const section = viewWriter.createContainerElement( 'section', { class: 'dialogue-message-input', style: 'border: solid' } );
                 viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
+
+                return section;
+            }
+        } );
+
+        // <dialogueMessage> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: 'dialogueMessage',
+            view: {
+                name: 'section',
+                classes: 'dialogue-message',
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'dialogueMessage',
+            view: {
+                name: 'section',
+                classes: 'dialogue-message'
+            }
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'dialogueMessage',
+            view: ( modelElement, { writer: viewWriter } ) => {
+                const section = viewWriter.createContainerElement( 'section', { class: 'dialogue-message', style: 'border-left: solid' } );
 
                 return section;
             }
@@ -147,26 +180,37 @@ class InsertSimpleBoxCommand extends Command {
 }
 
 class SubmitDialogueMessageCommand extends Command {
-    execute() {
-        // ensure there's a simple box
+    execute( { userId, displayName } ) {
+        if (!userId || !displayName) return
         const model = this.editor.model;
 
         model.change(writer => {
-            // Check if a dialogueMessageInput already exists in the document.
             const root = model.document.getRoot();
             if (!root) return;
 
-            Array.from(root.getChildren()).filter(node => node.is('element', 'dialogueMessageInput')).forEach(child => {
-                if (child.is('element')) {
-                    Array.from(child.getChildren()).forEach(userInput => {
-                        writer.append(userInput, root);
+            const dialogueMessageInput = Array.from(root.getChildren()).find(node => (
+                node.is('element', 'dialogueMessageInput') && node.getAttribute('user-id') === userId
+            ));
+
+            if (dialogueMessageInput) {
+                const attributes = { 'user-id': userId, 'display-name': displayName, 'submitted-date': (new Date()).toUTCString() };
+                const dialogueMessage = writer.createElement('dialogueMessage', attributes);
+
+                if (dialogueMessageInput.is('element')) {
+                    writer.append(dialogueMessage, root);
+                    const inputContents = Array.from(dialogueMessageInput.getChildren());
+                    if (inputContents.length === 0) {
+                        writer.appendElement('paragraph', dialogueMessage);
+                    }
+                    
+                    Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
+                        writer.append(userInput, dialogueMessage);
                     });
                 } else {
-                    const paragraph = writer.createElement('paragraph');
-                    writer.insertText(child.data, paragraph);
-                    writer.append(paragraph, root);
+                    writer.insertText(dialogueMessageInput.data, dialogueMessage);
+                    writer.append(dialogueMessage, root);
                 }
-            });
+            }
         });
     }
 
