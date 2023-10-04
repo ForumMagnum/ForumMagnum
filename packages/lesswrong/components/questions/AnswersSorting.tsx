@@ -6,6 +6,7 @@ import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
+// TODO: use postViewOptions
 export const sortingNames = {
   'top': 'top scoring',
   'magic': isFriendlyUI ? 'new & upvoted' : 'magic (new & upvoted)',
@@ -50,4 +51,3 @@ declare global {
     AnswersSorting: typeof AnswersSortingComponent,
   }
 }
-

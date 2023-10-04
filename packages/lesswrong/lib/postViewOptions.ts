@@ -1,3 +1,4 @@
+/** TODO: Use this in more places, like AnswersSorting */
 import { isFriendlyUI } from "../themes/forumTheme";
 
 const customViewNames: Partial<Record<PostsViewName,string>> = {
