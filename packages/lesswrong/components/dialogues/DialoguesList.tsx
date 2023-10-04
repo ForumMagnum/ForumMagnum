@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 const DialoguesList = ({limit=20, hideLoadMore=false}: {
   limit?: number,
@@ -12,17 +13,13 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
   const currentUser = useCurrentUser();
   const { PostsItem, LoadMore } = Components
 
-  const {results: dialoguePosts, loadMoreProps} = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "suggestedDialogues",
-      limit: limit,
-    },
-    itemsPerPage: 20,
-    fragmentName: "PostsListWithVotes",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser?._id,
-  });
+  const {
+    results: dialoguePosts
+  } = usePaginatedResolver({
+    fragmentName: "PostsPage",
+    resolverName: "RecentlyActiveDialogues",
+    limit: 3,
+  }); 
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <div>
@@ -32,8 +29,7 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
-      {!hideLoadMore && <LoadMore {...loadMoreProps}/>}
-    </div>
+   </div>
   </AnalyticsContext>
 }
 

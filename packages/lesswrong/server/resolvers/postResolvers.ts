@@ -85,13 +85,13 @@ augmentFieldsDict(Posts, {
           && cache.generatedAt > post.contents?.editedAt
           && cache.version === sideCommentCacheVersion;
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
-        
+
         const now = new Date();
         const comments = await Comments.find({
           ...getDefaultViewSelector("Comments"),
           postId: post._id,
         }).fetch();
-        
+
         if (cacheIsValid) {
           unfilteredResult = {annotatedHtml: cache.annotatedHtml, commentsByBlock: cache.commentsByBlock};
         } else {
@@ -102,14 +102,14 @@ augmentFieldsDict(Posts, {
             html: html,
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
           });
-          
+
           const newCacheEntry = {
             version: sideCommentCacheVersion,
             generatedAt: now,
             annotatedHtml: sideCommentMatches.html,
             commentsByBlock: sideCommentMatches.sideCommentsByBlock,
           }
-          
+
           await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
@@ -128,7 +128,7 @@ augmentFieldsDict(Posts, {
         const commentsById = keyBy(comments, comment=>comment._id);
         let highKarmaCommentsByBlock: Record<string,string[]> = {};
         let nonnegativeKarmaCommentsByBlock: Record<string,string[]> = {};
-        
+
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
           const commentIdsHere = unfilteredResult.commentsByBlock[blockID];
           const highKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
@@ -145,7 +145,7 @@ augmentFieldsDict(Posts, {
           if (highKarmaCommentIdsHere.length > 0) {
             highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
           }
-          
+
           const nonnegativeKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
             const comment: DbComment = commentsById[commentId];
             if (!comment)
@@ -161,7 +161,7 @@ augmentFieldsDict(Posts, {
             nonnegativeKarmaCommentsByBlock[blockID] = nonnegativeKarmaCommentIdsHere;
           }
         }
-        
+
         return {
           html: unfilteredResult.annotatedHtml,
           commentsByBlock: nonnegativeKarmaCommentsByBlock,
@@ -186,7 +186,7 @@ addGraphQLResolvers({
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
-      
+
       const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
@@ -197,7 +197,7 @@ addGraphQLResolvers({
       if (!currentUser) {
         throw new Error('Must be logged in to check post')
       }
-            
+
       return await postIsCriticism(args)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
@@ -212,14 +212,14 @@ addGraphQLResolvers({
       // const votesRepo = new VotesRepo()
       // const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
       // console.log('DigestPlannerData votes', votes)
-      
+
       return eligiblePosts.map(post => {
         // const postVotes = votes.find(v => v.postId === post._id)
         // const rating = postVotes ?
         //   Math.round(
         //     ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
         //   ) : 0
-        
+
         return {
           post,
           digestPost: {
@@ -281,4 +281,14 @@ createPaginatedResolver({
     limit,
   }),
   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+});
+
+createPaginatedResolver({
+  name: "RecentlyActiveDialogues",
+  graphQLType: "Post",
+  callback: async (
+    {repos}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => repos.posts.getRecentlyActiveDialogues(limit),
+  cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
 });
