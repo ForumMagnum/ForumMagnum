@@ -10,11 +10,14 @@ import { CollaborationMode } from './EditorTopBar';
 import { useLocation, useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import type { Command, Editor } from "@ckeditor/ckeditor5-core";
-import type { Element as CKElement, Selection } from "@ckeditor/ckeditor5-engine";
+import type { Editor } from "@ckeditor/ckeditor5-core";
+import type { Element as CKElement, Selection, Node, Writer, RootElement } from "@ckeditor/ckeditor5-engine";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import Button from '@material-ui/core/Button';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
+import sortBy from 'lodash/sortBy'
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -40,6 +43,64 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "none",
   },
 })
+
+
+function areLastElementsAllInputs(lastChildren: Node[]) {
+  return lastChildren.every(child => {
+    return child.is('element', 'dialogueMessageInput');
+  });
+}
+
+function areInputsInCorrectOrder(dialogueMessageInputs: Node[], coauthors: UsersMinimumInfo[]) {
+  return dialogueMessageInputs.every((input, idx) => {
+    const inputDisplayName = input.getAttribute('display-name');
+    return inputDisplayName === coauthors[idx].displayName;
+  });
+}
+
+function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, root: RootElement) {
+  authorsWithoutInputs.forEach(author => {
+    const newUserMessageInput = writer.createElement('dialogueMessageInput', { 'user-id': author._id, 'display-name': author.displayName });
+    writer.append(newUserMessageInput, root);
+  });
+}
+
+function getInputsWithoutAuthors(dialogueMessageInputs: Node[], coauthors: UsersMinimumInfo[]) {
+  return dialogueMessageInputs.filter(input => {
+    return !coauthors.some(coauthor => {
+      const inputUserId = input.getAttribute('user-id') as string | undefined;
+      return coauthor._id === inputUserId;
+    });
+  });
+}
+
+function getAuthorsWithoutInputs(sortedCoauthors: UsersMinimumInfo[], dialogueMessageInputs: Node[]) {
+  return sortedCoauthors.filter(coauthor => {
+    return !dialogueMessageInputs.some(input => {
+      const inputUserId = input.getAttribute('user-id') as string | undefined;
+      return coauthor._id === inputUserId;
+    });
+  });
+}
+
+function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
+  const inputsForAuthor = new Map<string, Node>();
+  return dialogueMessageInputs.some(input => {
+    const inputUserId = input.getAttribute('user-id') as string | undefined;
+    if (!inputUserId) {
+      writer.remove(input);
+      return true;
+    }
+
+    if (inputsForAuthor.has(inputUserId)) {
+      writer.remove(input);
+      return true;
+    }
+
+    inputsForAuthor.set(inputUserId, input);
+    return false;
+  });
+}
 
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
@@ -227,9 +288,58 @@ const CKPostEditor = ({
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
         }
+
+        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
+        const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
+        const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+
+        const sortedCoauthors = sortBy(coauthors, (coauthor) => coauthor.displayName);
         
+        editor.model.document.registerPostFixer( writer => {
+          const root = editor.model.document.getRoot()!;
+          const children = Array.from(root.getChildren());
+          const dialogueMessageInputs = children.filter(child => child.is('element', 'dialogueMessageInput'));
+
+          // We require a paragraph at the start of the document, since otherwise users wouldn't be able to write any content manually
+          if (children.length === dialogueMessageInputs.length) {
+            writer.insertElement('paragraph', {}, root, 0);
+            return true;
+          }
+
+          // We check that we don't have any _duplicate_ input elements
+          const anyExtraRemoved = removeDuplicateInputs(dialogueMessageInputs, writer);
+          if (anyExtraRemoved) {
+            return true;
+          }
+
+          // We check that we have an input element for every author
+          const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
+          createMissingInputs(authorsWithoutInputs, writer, root);
+
+          const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, coauthors);
+          if (inputsWithoutAuthors.length > 0 || authorsWithoutInputs.length > 0) {
+            return true;
+          }
+
+          // We check that the inputs are in lexical order by author displayName
+          const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, coauthors);
+
+          // We check that the inputs are the last elements of the document
+          const lastChildren = children.slice(-dialogueMessageInputs.length);
+          const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
+
+          if (incorrectOrder || !lastElementsAreAllInputs) {
+            const sortedInputs = sortBy(dialogueMessageInputs, (i) => i.getAttribute('display-name'));
+            sortedInputs.forEach(sortedInput => {
+              writer.append(sortedInput, root);
+            });
+            return true;
+          }
+
+          return false;
+        } );
+
         if (isBlockOwnershipMode) {
-          editor.execute( 'insertSimpleBox' )
           editor.model.on('_afterChanges', (change) => {
             const currentSelection: Selection = (change?.source as AnyBecauseHard)?.document?.selection;
             const blocks = currentSelection?.getSelectedBlocks?.();

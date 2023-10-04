@@ -1,10 +1,4 @@
-// import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic';
-// import { Bold, Italic } from '@ckeditor/ckeditor5-basic-styles';
-// import { Essentials } from '@ckeditor/ckeditor5-essentials';
-// import { Heading } from '@ckeditor/ckeditor5-heading';
-// import { List } from '@ckeditor/ckeditor5-list';
-// import { Paragraph } from '@ckeditor/ckeditor5-paragraph';
-
+// @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
@@ -22,9 +16,9 @@ class SimpleBoxUI extends Plugin {
         const editor = this.editor;
         const t = editor.t;
 
-        // The "simpleBox" button must be registered among the UI components of the editor
+        // The "dialogueMessageInput" button must be registered among the UI components of the editor
         // to be displayed in the toolbar.
-        editor.ui.componentFactory.add( 'simpleBox', locale => {
+        editor.ui.componentFactory.add( 'dialogueMessageInput', locale => {
             // The state of the button will be bound to the widget command.
             const command = editor.commands.get( 'insertSimpleBox' );
 
@@ -60,146 +54,99 @@ class SimpleBoxEditing extends Plugin {
 
         this._defineSchema();
         this._defineConverters();
-        this._definePostFixers();
 
         this.editor.commands.add( 'insertSimpleBox', new InsertSimpleBoxCommand( this.editor ) );
+        this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
     }
 
     _defineSchema() {
         const schema = this.editor.model.schema;
 
-        schema.register( 'simpleBox', {
-            // Behaves like a self-contained object (e.g. an image).
-			isObject: true,
-
+        schema.register( 'dialogueMessageInput', {
 			// Allow in places where other blocks are allowed (e.g. directly in the root).
-			allowWhere: '$block'
-        } );
-
-        schema.register( 'simpleBoxTitle', {
-            // Cannot be split or left by the caret.
-            isLimit: true,
-
-            allowIn: 'simpleBox',
-
-            // Allow content which is allowed in blocks (i.e. text with attributes).
-            allowContentOf: '$block'
-        } );
-
-        schema.register( 'simpleBoxDescription', {
-            // Cannot be split or left by the caret.
-            isLimit: true,
-
-            allowIn: 'simpleBox',
+			allowWhere: '$block',
 
             // Allow content which is allowed in the root (e.g. paragraphs).
-            allowContentOf: '$root'
+            allowContentOf: '$root',
+
+            isLimit: true,
+            allowAttributes: ['user-id', 'display-name'],
         } );
 
-        schema.addChildCheck( ( context, childDefinition ) => {
-            if ( context.endsWith( 'simpleBoxDescription' ) && childDefinition.name == 'simpleBox' ) {
-                return false;
-            }
-        } );
+        schema.register( 'dialogueMessage', {
+			// Allow in places where other blocks are allowed (e.g. directly in the root).
+			allowWhere: '$block',
+
+            // Allow content which is allowed in the root (e.g. paragraphs).
+            allowContentOf: '$root',
+
+            isLimit: true,
+            allowAttributes: ['user-id', 'display-name', 'submitted-date'],
+        });
     }
 
     _defineConverters() {
         const conversion = this.editor.conversion;
 
-        // <simpleBox> converters
+        // <dialogueMessageInput> converters
         conversion.for( 'upcast' ).elementToElement( {
-            model: 'simpleBox',
+            model: 'dialogueMessageInput',
             view: {
                 name: 'section',
-                classes: 'simple-box'
+                classes: 'dialogue-message-input',
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'simpleBox',
+            model: 'dialogueMessageInput',
             view: {
                 name: 'section',
-                classes: 'simple-box'
+                classes: 'dialogue-message-input'
             }
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'simpleBox',
+            model: 'dialogueMessageInput',
             view: ( modelElement, { writer: viewWriter } ) => {
-                const section = viewWriter.createContainerElement( 'section', { class: 'simple-box' } );
+                const editor = this.editor
+                const button = viewWriter.createUIElement( 'button', { type: 'button', style: 'width: 30px; height: 30px;' }, function (domDocument) {
+                    const domElement = this.toDomElement(domDocument);
+                    domElement.addEventListener('click', () => {
+                        const userId = modelElement.getAttribute('user-id');
+                        const displayName = modelElement.getAttribute('display-name');
+                        editor.execute('submitDialogueMessage', { userId, displayName });
+                    });
 
-                return toWidget( section, viewWriter, { label: 'simple box widget' } );
+                    return domElement;
+                });
+
+                const section = viewWriter.createContainerElement( 'section', { class: 'dialogue-message-input', style: 'border: solid' } );
+                viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
+
+                return section;
             }
         } );
 
-        // <simpleBoxTitle> converters
+        // <dialogueMessage> converters
         conversion.for( 'upcast' ).elementToElement( {
-            model: 'simpleBoxTitle',
+            model: 'dialogueMessage',
             view: {
-                name: 'h1',
-                classes: 'simple-box-title'
+                name: 'section',
+                classes: 'dialogue-message',
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'simpleBoxTitle',
+            model: 'dialogueMessage',
             view: {
-                name: 'h1',
-                classes: 'simple-box-title'
+                name: 'section',
+                classes: 'dialogue-message'
             }
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'simpleBoxTitle',
+            model: 'dialogueMessage',
             view: ( modelElement, { writer: viewWriter } ) => {
-                // Note: You use a more specialized createEditableElement() method here.
-                const h1 = viewWriter.createEditableElement( 'h1', { class: 'simple-box-title' } );
+                const section = viewWriter.createContainerElement( 'section', { class: 'dialogue-message', style: 'border-left: solid' } );
 
-                return toWidgetEditable( h1, viewWriter );
+                return section;
             }
-        } );
-
-        // <simpleBoxDescription> converters
-        conversion.for( 'upcast' ).elementToElement( {
-            model: 'simpleBoxDescription',
-            view: {
-                name: 'div',
-                classes: 'simple-box-description'
-            }
-        } );
-        conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'simpleBoxDescription',
-            view: {
-                name: 'div',
-                classes: 'simple-box-description'
-            }
-        } );
-        conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'simpleBoxDescription',
-            view: ( modelElement, { writer: viewWriter } ) => {
-                // Note: You use a more specialized createEditableElement() method here.
-                const div = viewWriter.createEditableElement( 'div', { class: 'simple-box-description' } );
-
-                return toWidgetEditable( div, viewWriter );
-            }
-        } );
-    }
-    
-    _definePostFixers() {
-        this.editor.model.document.registerPostFixer( writer => {
-            const root = this.editor.model.document.getRoot();
-            const simpleBox = root.getChild( root.childCount - 1 );
-    
-            if ( simpleBox && simpleBox.is( 'element', 'simpleBox' ) ) {
-                // If the simpleBox is already the last child, do nothing.
-                return false;
-            }
-    
-            // Find the simpleBox and move it to the end.
-            for ( const child of root.getChildren() ) {
-                if ( child.is( 'element',  'simpleBox' ) ) {
-                    writer.move( writer.createRangeOn( child ), writer.createPositionAt( root, 'end' ) );
-                    return true;
-                }
-            }
-    
-            return false;
         } );
     }
 }
@@ -213,11 +160,11 @@ class InsertSimpleBoxCommand extends Command {
         const model = this.editor.model;
 
         model.change(writer => {
-            // Check if a simpleBox already exists in the document.
+            // Check if a dialogueMessageInput already exists in the document.
             const root = model.document.getRoot();
             //console.log("children", root.getChildren())
-            if ([...root.getChildren()].every(node => !node.is('element', 'simpleBox'))) {
-                // If a simpleBox doesn't exist, create a new one.
+            if (Array.from(root.getChildren()).every(node => !node.is('element', 'dialogueMessageInput'))) {
+                // If a dialogueMessageInput doesn't exist, create a new one.
                 model.insertContent(createSimpleBox(writer));
             }
         });
@@ -226,25 +173,62 @@ class InsertSimpleBoxCommand extends Command {
     refresh() {
         const model = this.editor.model;
         const selection = model.document.selection;
-        const allowedIn = model.schema.findAllowedParent(selection.getFirstPosition(), 'simpleBox');
+        const allowedIn = model.schema.findAllowedParent(selection.getFirstPosition(), 'dialogueMessageInput');
 
         this.isEnabled = allowedIn !== null;
     }
 }
 
+class SubmitDialogueMessageCommand extends Command {
+    execute( { userId, displayName } ) {
+        if (!userId || !displayName) return
+        const model = this.editor.model;
 
+        model.change(writer => {
+            const root = model.document.getRoot();
+            if (!root) return;
+
+            const dialogueMessageInput = Array.from(root.getChildren()).find(node => (
+                node.is('element', 'dialogueMessageInput') && node.getAttribute('user-id') === userId
+            ));
+
+            if (dialogueMessageInput) {
+                const attributes = { 'user-id': userId, 'display-name': displayName, 'submitted-date': (new Date()).toUTCString() };
+                const dialogueMessage = writer.createElement('dialogueMessage', attributes);
+
+                if (dialogueMessageInput.is('element')) {
+                    writer.append(dialogueMessage, root);
+                    const inputContents = Array.from(dialogueMessageInput.getChildren());
+                    if (inputContents.length === 0) {
+                        writer.appendElement('paragraph', dialogueMessage);
+                    }
+                    
+                    Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
+                        writer.append(userInput, dialogueMessage);
+                    });
+                } else {
+                    writer.insertText(dialogueMessageInput.data, dialogueMessage);
+                    writer.append(dialogueMessage, root);
+                }
+            }
+        });
+    }
+
+    refresh() {
+        const model = this.editor.model;
+        const selection = model.document.selection;
+        const allowedIn = model.schema.findAllowedParent(selection.getFirstPosition(), 'dialogueMessageInput');
+
+        this.isEnabled = allowedIn !== null;
+    }
+}
 
 function createSimpleBox( writer ) {
-    const simpleBox = writer.createElement( 'simpleBox' );
-    const simpleBoxTitle = writer.createElement( 'simpleBoxTitle' );
-    const simpleBoxDescription = writer.createElement( 'simpleBoxDescription' );
-
-    writer.append( simpleBoxTitle, simpleBox );
-    writer.append( simpleBoxDescription, simpleBox );
+    const dialogueMessageInput = writer.createElement( 'dialogueMessageInput' );
 
     // There must be at least one paragraph for the description to be editable.
     // See https://github.com/ckeditor/ckeditor5/issues/1464.
-    writer.appendElement( 'paragraph', simpleBoxDescription );
+    writer.appendElement( 'paragraph', dialogueMessageInput );
 
-    return simpleBox;
+    return dialogueMessageInput;
 }
