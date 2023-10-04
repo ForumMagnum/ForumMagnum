@@ -83,15 +83,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  siteLogo: isEAForum ? {
+  siteLogo: {
     marginLeft:  -7,
     marginRight: 6,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -12,
       marginRight: 3
     },
-  } : {
-    marginLeft: -theme.spacing.unit * 1.5,
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
