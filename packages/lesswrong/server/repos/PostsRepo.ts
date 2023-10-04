@@ -210,6 +210,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       JOIN (
           SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
           FROM "Comments"
+          WHERE "debateResponse" IS TRUE
           GROUP BY "postId"
           ) c ON p."_id" = c."postId"
       WHERE p.debate IS TRUE AND p.draft IS NOT TRUE
