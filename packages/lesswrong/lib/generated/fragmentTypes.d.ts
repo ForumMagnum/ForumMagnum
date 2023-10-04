@@ -1308,6 +1308,10 @@ interface PostsRecentDiscussion extends PostsList { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
 
+interface ShortformRecentDiscussion extends PostsList { // fragment on Posts
+  readonly recentComments: Array<CommentsListWithTopLevelComment>,
+}
+
 interface UsersBannedFromPostsModerationLog { // fragment on Posts
   readonly user: UsersMinimumInfo|null,
   readonly title: string,
@@ -1391,18 +1395,13 @@ interface PostsEditCriticismTips { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
 }
 
-interface PostsBestOfList extends PostsBase { // fragment on Posts
+interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
   readonly socialPreviewData: any,
-  readonly readTimeMinutes: number,
-  readonly contents: PostsBestOfList_contents|null,
-  readonly user: UsersMinimumInfo|null,
-  readonly bestAnswer: CommentsList|null,
-  readonly lastPromotedComment: PostsBestOfList_lastPromotedComment|null,
-  readonly coauthors: Array<UsersMinimumInfo>,
 }
 
 interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
+  readonly _id: string,
   readonly title: string,
   readonly podcast: PostsBestOfList_podcastEpisode_podcast,
   readonly episodeLink: string,
@@ -1413,16 +1412,6 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
-}
-
-interface PostsBestOfList_contents { // fragment on Revisions
-  readonly _id: string,
-  readonly plaintextDescription: string,
-  readonly wordCount: number,
-}
-
-interface PostsBestOfList_lastPromotedComment { // fragment on Comments
-  readonly user: UsersMinimumInfo|null,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1494,6 +1483,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number,
+}
+
+interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
+  readonly topLevelComment: CommentsList|null,
 }
 
 interface ShortformComments extends CommentsList { // fragment on Comments
@@ -1631,7 +1624,7 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
-  readonly tag: TagBasicInfo|null,
+  readonly tag: TagRecentDiscussion|null,
 }
 
 interface WithVoteRevision { // fragment on Revisions
@@ -2098,6 +2091,7 @@ interface CollectionsBestOfFragment { // fragment on Collections
   readonly noindex: boolean,
   readonly postsCount: number,
   readonly readPostsCount: number,
+  readonly contents: RevisionDisplay|null,
 }
 
 interface SuggestAlignmentPost extends PostsList { // fragment on Posts
@@ -3107,6 +3101,9 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly headerTitle: string | null,
+  readonly headerTitleLeftColor: string | null,
+  readonly headerTitleRightColor: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
   readonly showAuthor: boolean,
@@ -3126,6 +3123,9 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly headerTitle: string | null,
+  readonly headerTitleLeftColor: string | null,
+  readonly headerTitleRightColor: string | null,
   readonly duration: number,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
@@ -3295,6 +3295,7 @@ interface FragmentTypes {
   PostsEditMutationFragment: PostsEditMutationFragment
   PostsRevisionsList: PostsRevisionsList
   PostsRecentDiscussion: PostsRecentDiscussion
+  ShortformRecentDiscussion: ShortformRecentDiscussion
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
@@ -3304,6 +3305,7 @@ interface FragmentTypes {
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
   CommentsList: CommentsList
+  CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
   CommentWithRepliesFragment: CommentWithRepliesFragment
   CommentEdit: CommentEdit
@@ -3500,6 +3502,7 @@ interface CollectionNamesByFragmentName {
   PostsEditMutationFragment: "Posts"
   PostsRevisionsList: "Posts"
   PostsRecentDiscussion: "Posts"
+  ShortformRecentDiscussion: "Posts"
   UsersBannedFromPostsModerationLog: "Posts"
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
@@ -3509,6 +3512,7 @@ interface CollectionNamesByFragmentName {
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
   CommentsList: "Comments"
+  CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
   CommentWithRepliesFragment: "Comments"
   CommentEdit: "Comments"

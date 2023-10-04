@@ -11,6 +11,7 @@ import {
   eaAnonymousEmojiPalette,
   eaEmojiPalette,
   EmojiOption,
+  getEmojiMutuallyExclusivePartner,
 } from "../../lib/voting/eaEmojiPalette";
 import type { VotingProps } from "./votingProps";
 import Menu from "@material-ui/core/Menu";
@@ -233,13 +234,19 @@ const EAReactsSection: FC<{
       return;
     }
 
+    const extendedVote = {
+      ...voteProps.document.currentUserExtendedVote,
+      [emojiOption.name]: !isEmojiSelected(voteProps, emojiOption),
+    };
+    const partner = getEmojiMutuallyExclusivePartner(emojiOption.name);
+    if (partner && extendedVote[emojiOption.name]) {
+      extendedVote[partner] = false;
+    }
+
     voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote ?? "neutral",
-      extendedVote: {
-        ...voteProps.document.currentUserExtendedVote,
-        [emojiOption.name]: !isEmojiSelected(voteProps, emojiOption),
-      },
+      extendedVote,
       currentUser,
     });
   }, [currentUser, openDialog, voteProps]);

@@ -1,5 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor, colorToString } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
@@ -46,7 +46,11 @@ export const invertedGreyscale = {
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
-const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+
+const inverseGreyAlpha = (alpha: number) => {
+  const [r, g, b] = invertColor([1, 1, 1, 1]);
+  return `rgba(${zeroTo255(r)},${zeroTo255(g)},${zeroTo255(b)},${alpha})`;
+}
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -136,6 +140,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       link: {
         visited: '#9b71be',
+        visitedHover: '#8a59b3',
       },
       panelBackground: {
         default: shadePalette.grey[20],

@@ -546,6 +546,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ShortformRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsListWithTopLevelComment
+    }
+  }
+`);
+
+registerFragment(`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
@@ -647,8 +656,9 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsBestOfList on Post {
-    ...PostsBase
+    ...PostsListWithVotes
     podcastEpisode {
+      _id
       title
       podcast {
         title
@@ -661,26 +671,6 @@ registerFragment(`
     socialPreviewData {
       text
       imageUrl
-    }
-    readTimeMinutes
-    contents {
-      _id
-      plaintextDescription
-      wordCount
-    }
-    user {
-      ...UsersMinimumInfo
-    }
-    bestAnswer {
-      ...CommentsList
-    }
-    lastPromotedComment {
-      user {
-        ...UsersMinimumInfo
-      }
-    }
-    coauthors {
-      ...UsersMinimumInfo
     }
   }
 `);

@@ -7,7 +7,6 @@ import {
 } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
-import Comments from '../../lib/collections/comments/collection';
 import { viewFieldAllowAny } from '../vulcan-lib';
 
 const communityFilters = {
@@ -31,8 +30,8 @@ defineFeedResolver<Date>({
   cutoffTypeGraphQL: "Date",
   resultTypesGraphQL: `
     postCommented: Post
+    shortformCommented: Post
     tagDiscussed: Tag
-    tagSubforumComments: Comment
     tagRevised: Revision
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
@@ -43,13 +42,9 @@ defineFeedResolver<Date>({
     type SortKeyType = Date;
     const {af} = args;
     const {currentUser} = context;
-    
+
     const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
-    
-    const subforumTagIds = currentUser?.profileTagIds || [];
-    // TODO possibly include subforums for tags that a user is subscribed to as below
-    // const subforumTagIds = currentUser?.frontpageFilterSettings.tags.filter(tag => filterModeIsSubscribed(tag.filterMode)).map(tag => tag.tagId) || [];
-    
+
     const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
 
     // On the EA Forum, we default to hiding posts tagged with "Community" from
@@ -67,6 +62,23 @@ defineFeedResolver<Date>({
       {[`tagRelevance.${EA_FORUM_TRANSLATION_TOPIC_ID}`]: {$exists: false}},
     ]};
 
+    const postSelector = {
+      baseScore: {$gt:0},
+      hideFrontpageComments: false,
+      lastCommentedAt: {$exists: true},
+      hideFromRecentDiscussions: {$ne: true},
+      hiddenRelatedQuestion: viewFieldAllowAny,
+      groupId: viewFieldAllowAny,
+      ...(af ? {af: true} : undefined),
+      ...(isEAForum
+        ? {$and: [
+          postCommentedEventsCriteria,
+          postCommentedExcludeCommunity,
+          translationFilter,
+        ]}
+        : postCommentedEventsCriteria),
+    };
+
     return await mergeFeedQueries<SortKeyType>({
       limit, cutoff, offset,
       subqueries: [
@@ -77,21 +89,22 @@ defineFeedResolver<Date>({
           sortField: "lastCommentedAt",
           context,
           selector: {
-            baseScore: {$gt:0},
-            hideFrontpageComments: false,
-            lastCommentedAt: {$exists: true},
-            hideFromRecentDiscussions: {$ne: true},
-            hiddenRelatedQuestion: viewFieldAllowAny,
-            shortform: viewFieldAllowAny,
-            groupId: viewFieldAllowAny,
-            ...(af ? {af: true} : undefined),
-            ...(isEAForum
-              ? {$and: [
-                postCommentedEventsCriteria,
-                postCommentedExcludeCommunity,
-                translationFilter,
-              ]}
-              : postCommentedEventsCriteria),
+            ...postSelector,
+            $or: [
+              {shortform: {$exists: false}},
+              {shortform: {$eq: false}},
+            ],
+          },
+        }),
+        // Shortform/quick take commented
+        viewBasedSubquery({
+          type: "shortformCommented",
+          collection: Posts,
+          sortField: "lastCommentedAt",
+          context,
+          selector: {
+            ...postSelector,
+            shortform: {$eq: true},
           },
         }),
         // Tags with discussion comments
@@ -102,19 +115,6 @@ defineFeedResolver<Date>({
           context,
           selector: {
             lastCommentedAt: {$exists: true},
-            ...(af ? {af: true} : undefined),
-          },
-        }),
-        // Subforum comments
-        viewBasedSubquery({
-          type: "tagSubforumComments",
-          collection: Comments,
-          sortField: "lastSubthreadActivity",
-          context,
-          selector: {
-            tagId: {$in: subforumTagIds},
-            tagCommentType: "SUBFORUM",
-            topLevelCommentId: {$exists: false},
             ...(af ? {af: true} : undefined),
           },
         }),
@@ -137,7 +137,6 @@ defineFeedResolver<Date>({
           index: forumTypeSetting.get() === 'EAForum' ? 3 : 6,
           result: {},
         }),
-        
         // Suggestion to subscribe to meetups
         ...(shouldSuggestMeetupSubscription ?
           [fixedIndexSubquery({
