@@ -90,7 +90,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
-      ...(isEAForum && {width: "100%"})
+      width: "100%"
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -113,7 +113,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 20
   },
   editorGuideOffset: {
-    paddingTop: 100,
+    paddingTop: isLW ? 80 : 100,
   },
   editorGuide: {
     display: 'flex',

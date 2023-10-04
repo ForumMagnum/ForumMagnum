@@ -32,7 +32,6 @@ const PostsEditForm = ({ documentId, classes }: {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const isDraft = document && document.draft;
-  console.log('over here', document)
 
   const wasEverDraft = useRef(isDraft);
   useEffect(() => {
