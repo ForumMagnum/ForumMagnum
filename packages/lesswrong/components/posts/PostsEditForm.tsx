@@ -40,8 +40,7 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
-    RateLimitWarning, DynamicTableOfContents } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -166,7 +165,7 @@ const PostsEditForm = ({ documentId, classes }: {
             showRemove={true}
             collabEditorDialogue={!!document.collabEditorDialogue}
             submitLabel={isDraft ? "Publish" : "Publish Changes"}
-            formComponents={{FormSubmit:EditPostsSubmit}}
+            formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
             extraVariables={{
               version: 'String'
             }}
