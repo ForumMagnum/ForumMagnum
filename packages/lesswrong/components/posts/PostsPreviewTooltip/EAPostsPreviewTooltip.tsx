@@ -23,11 +23,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     gap: "16px",
     padding: 16,
   },
+  headerContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
   title: {
     fontSize: "1.3rem",
     fontWeight: 600,
     lineHeight: "130%",
     color: theme.palette.grey.A400,
+  },
+  tags: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "4px",
+    rowGap: "4px",
+    overflow: "hidden",
+    height: 20,
   },
   image: {
     width: "auto",
@@ -55,13 +68,22 @@ const EAPostsPreviewTooltip = ({
 
   const {imageUrl} = post.socialPreviewData ?? {};
 
-  const {PostExcerpt} = Components;
+  const {PostExcerpt, FooterTag} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <div className={classes.root}>
         <div className={classes.mainContainer}>
-          <div className={classes.title}>
-            {post.title}
+          <div className={classes.headerContainer}>
+            <div className={classes.title}>
+              {post.title}
+            </div>
+            {post.tags &&
+              <div className={classes.tags}>
+                {post.tags.slice(0, 4).map((tag) => (
+                  <FooterTag key={tag._id} tag={tag} smallText />
+                ))}
+              </div>
+            }
           </div>
           <PostExcerpt post={post} lines={7} />
         </div>
