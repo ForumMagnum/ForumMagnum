@@ -62,7 +62,7 @@ import RestyledCommentButton from './restyled-comment-button-plugin';
 import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
-import DialogueCommentBox from './dialogue-comment-box';
+import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'

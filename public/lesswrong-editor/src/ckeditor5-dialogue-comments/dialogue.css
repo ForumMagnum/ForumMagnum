@@ -1,0 +1,50 @@
+.dialogue-message-input {
+  border: 2px solid;
+  padding: 12px 8px 0px 8px;
+  position: relative;
+}
+
+.dialogue-message-input-header {
+  position: absolute;
+  top: -14px;
+  background-color: white;
+  padding: 4px;
+}
+
+.dialogue-message-input button {
+  margin-left: auto;
+  margin-right: -8px;
+  padding-bottom: 8px;
+  display: block;
+}
+
+.dialogue-message {
+  border-left: 2px solid;
+  margin-top: 6px;
+  padding: 8px 8px 8px 16px;
+  position: relative;
+}
+
+.dialogue-message p, .dialogue-message-input p {
+  margin-bottom: 0px !important;
+}
+
+.dialogue-message[user-order="1"], .dialogue-message-input[user-order="1"] {
+  border-color: #1c912766 !important;
+}
+
+.dialogue-message[user-order="2"], .dialogue-message-input[user-order="2"] {
+  border-color: #df1d4566 !important;
+}
+
+.dialogue-message[user-order="3"], .dialogue-message-input[user-order="3"] {
+  border-color: #2671ff66 !important;
+}
+
+.dialogue-message[user-order="4"], .dialogue-message-input[user-order="4"] {
+  border-color: #eb26ff66 !important;
+}
+
+.dialogue-message[user-order="5"], .dialogue-message-input[user-order="5"] {
+  border-color: #efdc0066 !important;
+}

@@ -102,6 +102,24 @@ function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
   });
 }
 
+function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return dialogueMessages.map(message => {
+    const messageUserId = message.getAttribute('user-id');
+    let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
+    if (!userOrder || userOrder < 1) {
+      userOrder = 1;
+    }
+
+    const messageUserOrder = message.getAttribute('user-order');
+    if (userOrder !== messageUserOrder) {
+      writer.setAttribute('user-order', userOrder, message);
+      return true;
+    }
+
+    return false;
+  }).some(e => e);
+}
+
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
@@ -298,11 +316,16 @@ const CKPostEditor = ({
         editor.model.document.registerPostFixer( writer => {
           const root = editor.model.document.getRoot()!;
           const children = Array.from(root.getChildren());
-          const dialogueMessageInputs = children.filter(child => child.is('element', 'dialogueMessageInput'));
+          const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput" } => child.is('element', 'dialogueMessageInput'));
+          const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage" } => child.is('element', 'dialogueMessage'));
 
-          // We require a paragraph at the start of the document, since otherwise users wouldn't be able to write any content manually
-          if (children.length === dialogueMessageInputs.length) {
-            writer.insertElement('paragraph', {}, root, 0);
+          const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
+          if (anyIncorrectInputUserOrders) {
+            return true;
+          }
+
+          const anyIncorrectMessageUserOrders = assignUserOrders(dialogueMessages, sortedCoauthors, writer);
+          if (anyIncorrectMessageUserOrders) {
             return true;
           }
 
@@ -336,8 +359,34 @@ const CKPostEditor = ({
             return true;
           }
 
+          // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
+          dialogueMessageInputs.forEach(input => {
+            const inputIsEmpty = Array.from(input.getChildren()).length === 0;
+            if (inputIsEmpty) {
+              writer.appendElement('paragraph', input);
+              return true;
+            }
+          });
+
+          // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
+          const hasSpuriousLeadingParagraph = children.length === dialogueMessageInputs.length + 1
+            && children[0].is('element', 'paragraph')
+            && Array.from(children[0].getChildren()).length === 0;
+
+          if (hasSpuriousLeadingParagraph) {
+            writer.remove(children[0]);
+            return true;
+          }
+
           return false;
         } );
+
+        // This is just to trigger the postFixer when the editor is initialized
+        editor.model.change(writer => {
+          const dummyParagraph = writer.createElement('paragraph');
+          writer.append(dummyParagraph, editor.model.document.getRoot()!);
+          writer.remove(dummyParagraph);
+        });
 
         if (isBlockOwnershipMode) {
           editor.model.on('_afterChanges', (change) => {
@@ -471,3 +520,4 @@ declare global {
     CKPostEditor: typeof CKPostEditorComponent
   }
 }
+
