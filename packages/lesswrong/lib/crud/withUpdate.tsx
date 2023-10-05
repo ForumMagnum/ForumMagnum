@@ -134,6 +134,6 @@ export const useUpdate = <CollectionName extends CollectionNameString>(options: 
       variables: { selector, data, ...extraVariables },
       update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName)
     })
-  }, [mutate, typeName]);
+  }, [mutate, typeName, options.skipCacheUpdate]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }
