@@ -221,6 +221,9 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageId
+    }
 
     feedId
     unreadDebateResponseCount
