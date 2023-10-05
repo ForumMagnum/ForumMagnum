@@ -5,10 +5,18 @@ import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
 
-const PostExcerpt = ({post, lines = 3, hideMoreLink, hash, className}: {
+const PostExcerpt = ({
+  post,
+  lines = 3,
+  hideMoreLink,
+  smallText,
+  hash,
+  className,
+}: {
   post: PostsList | SunshinePostsList,
   lines?: number,
   hideMoreLink?: boolean,
+  smallText?: boolean,
   hash?: string | null,
   className?: string,
 }) => {
@@ -60,6 +68,7 @@ const PostExcerpt = ({post, lines = 3, hideMoreLink, hash, className}: {
       contentHtml={contentHtml}
       moreLink={postGetPageUrl(post)}
       hideMoreLink={hideMoreLink}
+      smallText={smallText}
       contentType="postHighlight"
       lines={lines}
       className={className}

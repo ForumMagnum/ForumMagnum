@@ -17,6 +17,15 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   debateResponse: "debate response",
 };
 
+const normalHeading = {
+  fontSize: "16px !important",
+};
+
+const smallHeading = {
+  fontSize: "14px !important",
+  fontWeight: 700,
+};
+
 const styles = (theme: ThemeType) => ({
   root: {
   },
@@ -29,13 +38,22 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
   },
-  content: {
-    "& h1": {fontSize: "16px !important"},
-    "& h2": {fontSize: "16px !important"},
-    "& h3": {fontSize: "16px !important"},
-    "& h4": {fontSize: "16px !important"},
-    "& h5": {fontSize: "16px !important"},
-    "& h6": {fontSize: "16px !important"},
+  contentNormalText: {
+    "& h1": normalHeading,
+    "& h2": normalHeading,
+    "& h3": normalHeading,
+    "& h4": normalHeading,
+    "& h5": normalHeading,
+    "& h6": normalHeading,
+  },
+  contentSmallText: {
+    "& h1": smallHeading,
+    "& h2": smallHeading,
+    "& h3": smallHeading,
+    "& h4": smallHeading,
+    "& h5": smallHeading,
+    "& h6": smallHeading,
+    "& p": {fontSize: "13px !important"},
   },
   continueReading: {
     cursor: "pointer",
@@ -56,6 +74,7 @@ const ContentExcerpt = ({
   contentHtml,
   moreLink,
   hideMoreLink,
+  smallText,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
@@ -65,6 +84,7 @@ const ContentExcerpt = ({
   contentHtml: string,
   moreLink: string,
   hideMoreLink?: boolean,
+  smallText?: boolean,
   contentType: ContentStyleType,
   lines?: number,
   alwaysExpandInPlace?: boolean,
@@ -89,7 +109,10 @@ const ContentExcerpt = ({
       >
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: contentHtml}}
-          className={classes.content}
+          className={classNames({
+            [classes.contentNormalText]: !smallText,
+            [classes.contentSmallText]: smallText,
+          })}
         />
       </ContentStyles>
       {!hideMoreLink && (expandInPlace

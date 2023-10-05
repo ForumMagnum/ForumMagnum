@@ -98,14 +98,20 @@ const EAPostsPreviewTooltip = ({
                   hideReply: true,
                   forceNotSingleLine: true,
                 }}
-                truncated
                 comment={renderedComment}
+                truncated
                 hoverPreview
                 forceUnCollapsed
               />
             )
             : (
-              <PostExcerpt post={post} hash={hash} lines={7} hideMoreLink />
+              <PostExcerpt
+                post={post}
+                hash={hash}
+                lines={7}
+                hideMoreLink
+                smallText
+              />
             )
           }
         </div>
