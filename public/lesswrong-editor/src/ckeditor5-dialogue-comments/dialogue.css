@@ -1,6 +1,9 @@
 .dialogue-message-input {
-  border: 2px solid;
-  padding: 12px;
+  border: 2px solid !important;
+  padding: 20px 16px 26px 16px;
+  border-radius: 3px;
+  position: relative;
+  margin: 24px 0;
   position: relative;
 }
 
@@ -48,4 +51,12 @@
 
 .dialogue-message[user-order="5"], .dialogue-message-input[user-order="5"] {
   border-color: #efdc0066 !important;
+}
+
+.dialogue-message-input button {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  padding: 0;
+  min-height: unset;
 }

@@ -37,7 +37,7 @@
     "combine-coverage": "./scripts/combineCoverage.sh",
     "encrypt-credentials": "tar czf credentials.tar.gz --exclude '.git/*' -C ../ ./LessWrong-Credentials; travis encrypt-file credentials.tar.gz --add; rm credentials.tar.gz",
     "generate": "scripts/generateTypes.sh",
-    "rebuild-ckeditor": "cd ./public/lesswrong-editor && yarn install && yarn run build",
+    "rebuild-ckeditor": "export NODE_OPTIONS=--openssl-legacy-provider && cd ./public/lesswrong-editor && yarn install && yarn run build",
     "production": "scripts/runProduction.sh",
     "deploy": "scripts/deploy.sh",
     "ea-command-dev": "./build.js -run --settings ../ForumCredentials/settings-dev.json --postgresUrlFile ../ForumCredentials/dev-pg-conn.txt --command",
