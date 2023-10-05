@@ -85,7 +85,7 @@ const EAPostsPreviewTooltip = ({
               </div>
             }
           </div>
-          <PostExcerpt post={post} lines={7} />
+          <PostExcerpt post={post} lines={7} hideMoreLink />
         </div>
         {imageUrl &&
           <img className={classes.image} src={imageUrl} />

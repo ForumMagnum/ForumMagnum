@@ -3,9 +3,10 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 
-const PostExcerpt = ({post, lines = 3, className}: {
+const PostExcerpt = ({post, lines = 3, hideMoreLink, className}: {
   post: PostsList | SunshinePostsList,
   lines?: number,
+  hideMoreLink?: boolean,
   className?: string,
 }) => {
   const {postContents, loading, error} = usePostContents({
@@ -34,6 +35,7 @@ const PostExcerpt = ({post, lines = 3, className}: {
     <ContentExcerpt
       contentHtml={contentHtml}
       moreLink={postGetPageUrl(post)}
+      hideMoreLink={hideMoreLink}
       contentType="postHighlight"
       lines={lines}
       className={className}

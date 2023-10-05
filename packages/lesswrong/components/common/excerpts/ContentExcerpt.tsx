@@ -55,6 +55,7 @@ const styles = (theme: ThemeType) => ({
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
+  hideMoreLink,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
@@ -63,6 +64,7 @@ const ContentExcerpt = ({
 }: {
   contentHtml: string,
   moreLink: string,
+  hideMoreLink?: boolean,
   contentType: ContentStyleType,
   lines?: number,
   alwaysExpandInPlace?: boolean,
@@ -90,7 +92,7 @@ const ContentExcerpt = ({
           className={classes.content}
         />
       </ContentStyles>
-      {expandInPlace
+      {!hideMoreLink && (expandInPlace
         ? (
           expanded
             ? null
@@ -108,7 +110,7 @@ const ContentExcerpt = ({
             }
           </Link>
         )
-      }
+      )}
     </div>
   );
 }
