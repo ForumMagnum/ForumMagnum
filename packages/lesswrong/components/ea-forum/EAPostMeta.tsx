@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EAPostMeta = ({post, useEventStyles, classes}: {
-  post: PostsList,
+  post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   classes: ClassesType,
 }) => {

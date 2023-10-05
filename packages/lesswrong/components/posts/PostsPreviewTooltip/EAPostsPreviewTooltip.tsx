@@ -56,8 +56,8 @@ type EAPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
 }
 
 const EAPostsPreviewTooltip = ({
-  postsList,
   post,
+  postsList,
   hash,
   comment,
   classes,
@@ -66,9 +66,10 @@ const EAPostsPreviewTooltip = ({
     return null;
   }
 
+  const showSubheaderInfo = !postsList;
   const {imageUrl} = post.socialPreviewData ?? {};
 
-  const {PostExcerpt, FooterTag} = Components;
+  const {PostExcerpt, EAPostMeta, FooterTag} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <div className={classes.root}>
@@ -77,7 +78,10 @@ const EAPostsPreviewTooltip = ({
             <div className={classes.title}>
               {post.title}
             </div>
-            {post.tags &&
+            {showSubheaderInfo &&
+              <EAPostMeta post={post} useEventStyles={post.isEvent} />
+            }
+            {!showSubheaderInfo && post.tags &&
               <div className={classes.tags}>
                 {post.tags.slice(0, 4).map((tag) => (
                   <FooterTag key={tag._id} tag={tag} smallText />
