@@ -9,6 +9,8 @@ import { makeApiUrl, PostRequestTypes, PostResponseTypes, ValidatedPostRouteName
 import { signToken } from "./tokens";
 import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload } from "./types";
 import { DatabaseServerSetting } from "../databaseSettings";
+import stringify from "json-stringify-deterministic";
+import LRU from "lru-cache";
 
 const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
 
@@ -22,6 +24,11 @@ const getUserId = (req?: Request) => {
   }
   return userId;
 }
+
+const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
+  maxAge: 1000 * 60 * 30, // 30 minute TTL
+  updateAgeOnGet: false,
+});
 
 export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
   routeName: RouteName,
@@ -120,14 +127,19 @@ const crosspostResolvers = {
     },
   },
   Query: {
-    getCrosspost: async (_root: void, { args }: { args: GetCrosspostRequest }) => {
-      const crosspostData = await makeCrossSiteRequest(
-        'getCrosspost',
-        args,
-        'Failed to get crosspost'
-      );
-
-      return crosspostData.document;
+    getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
+      const key = stringify(args);
+      let promise = foreignPostCache.get(key);
+      if (!promise) {
+        promise = makeCrossSiteRequest(
+          'getCrosspost',
+          args,
+          'Failed to get crosspost'
+        );
+        foreignPostCache.set(key, promise);
+      }
+      const {document} = await promise;
+      return document;
     }
   }
 };
