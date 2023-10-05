@@ -71,7 +71,7 @@ class SimpleBoxEditing extends Plugin {
 
         schema.register( 'dialogueMessage', {
 			// Allow in places where other blocks are allowed (e.g. directly in the root).
-			allowWhere: '$block',
+			allowIn: '$root',
 
             // Allow content which is allowed in the root (e.g. paragraphs).
             allowContentOf: '$root',
@@ -79,12 +79,21 @@ class SimpleBoxEditing extends Plugin {
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
         });
 
-        schema.register( 'dialogueMessageHeader', {
-            allowWhere: 'dialogueMessage',
-            allowContentOf: '$root',
-            isLimit: true,
-            allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date']
-        })
+        schema.addChildCheck((context, childDefinition) => {
+            if (
+                (context.endsWith('dialogueMessage') || context.endsWith('dialogueMessageInput')) &&
+                (childDefinition.name === 'dialogueMessage' || childDefinition.name === 'dialogueMessageHeader')
+            ) {
+                return false;
+            }
+        });
+
+        // schema.register( 'dialogueMessageHeader', {
+        //     allowWhere: 'dialogueMessage',
+        //     allowContentOf: '$root',
+        //     // isLimit: true,
+        //     allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date']
+        // });
     }
 
     _defineConverters() {
@@ -178,34 +187,6 @@ class SimpleBoxEditing extends Plugin {
                 const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
                 const section = viewWriter.createContainerElement( 'section', sectionAttributes );
 
-                return section;
-            }
-        } );
-
-        // <dialogueMessageHeader> converters
-        conversion.for( 'upcast' ).elementToElement( {
-            model: (viewElement, { writer: modelWriter }) => {
-                const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
-                return modelWriter.createElement('dialogueMessageHeader', attributes);
-            },
-            view: {
-                name: 'section',
-                classes: 'dialogue-message-header',
-                attributes: {
-                    'message-id': true,
-                    'user-id': true,
-                    'display-name': true,
-                    'submitted-date': true
-                }
-            }
-        } );
-        conversion.for( 'dataDowncast' ).elementToElement( {
-            model: 'dialogueMessageHeader',
-            view: generateDialogueMessageHeaderView('dialogue-message-header CommentUserName-author UsersNameDisplay-noColor')
-        } );
-        conversion.for( 'editingDowncast' ).elementToElement( {
-            model: 'dialogueMessageHeader',
-            view: ( modelElement, { writer: viewWriter }) => {
                 const userDisplayName = getUserDisplayName(modelElement);
 
                 const headerAttributes = {
@@ -221,9 +202,54 @@ class SimpleBoxEditing extends Plugin {
                     return domElement;
                 });
 
-                return headerElement;
+                viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+
+                return section;
             }
         } );
+
+        // <dialogueMessageHeader> converters
+        // conversion.for( 'upcast' ).elementToElement( {
+        //     model: (viewElement, { writer: modelWriter }) => {
+        //         const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+        //         return modelWriter.createElement('dialogueMessageHeader', attributes);
+        //     },
+        //     view: {
+        //         name: 'section',
+        //         classes: 'dialogue-message-header',
+        //         attributes: {
+        //             'message-id': true,
+        //             'user-id': true,
+        //             'display-name': true,
+        //             'submitted-date': true
+        //         }
+        //     }
+        // } );
+        // conversion.for( 'dataDowncast' ).elementToElement( {
+        //     model: 'dialogueMessageHeader',
+        //     view: generateDialogueMessageHeaderView('dialogue-message-header CommentUserName-author UsersNameDisplay-noColor')
+        // } );
+        // conversion.for( 'editingDowncast' ).elementToElement( {
+        //     model: 'dialogueMessageHeader',
+        //     view: ( modelElement, { writer: viewWriter }) => {
+        //         const userDisplayName = getUserDisplayName(modelElement);
+
+        //         const headerAttributes = {
+        //             class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor',
+        //             contenteditable: 'false'
+        //         };
+
+        //         const headerElement = viewWriter.createUIElement('section', headerAttributes, function(domDocument) {
+        //             const domElement = this.toDomElement(domDocument);
+        //             domElement.contentEditable = 'false';
+        //             domElement.append(userDisplayName);
+
+        //             return domElement;
+        //         });
+
+        //         return headerElement;
+        //     }
+        // } );
     }
 }
 
@@ -277,9 +303,9 @@ class SubmitDialogueMessageCommand extends Command {
                 const messageAttributes = { 'message-id': messageId, 'user-id': userId, 'display-name': displayName, 'submitted-date': (new Date()).toUTCString() };
 
                 const dialogueMessage = writer.createElement('dialogueMessage', messageAttributes);
-                const dialogueMessageHeader = writer.createElement('dialogueMessageHeader', messageAttributes);
+                // const dialogueMessageHeader = writer.createElement('dialogueMessageHeader', messageAttributes);
 
-                writer.append(dialogueMessageHeader, dialogueMessage);
+                // writer.append(dialogueMessageHeader, dialogueMessage);
 
                 if (dialogueMessageInput.is('element')) {
                     writer.append(dialogueMessage, root);
@@ -289,6 +315,7 @@ class SubmitDialogueMessageCommand extends Command {
                     }
 
                     Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
+                        console.log({ userInput });
                         writer.append(userInput, dialogueMessage);
                     });
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
