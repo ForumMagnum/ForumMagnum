@@ -549,7 +549,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
-  readonly postCategory: "post" | "linkpost" | "question",
+  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -1289,6 +1289,7 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly socialPreviewData: any,
   readonly criticismTipsDismissed: boolean,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
+  readonly coauthors: Array<UsersMinimumInfo>,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
