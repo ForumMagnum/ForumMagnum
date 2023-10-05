@@ -31,7 +31,7 @@
 .dialogue-message {
   border-left: 2px solid;
   margin-top: 6px;
-  padding: 8px 8px 8px 16px;
+  padding: 22px 8px 8px 16px;
   position: relative;
 }
 
@@ -57,4 +57,9 @@
 
 .dialogue-message[user-order="5"], .dialogue-message-input[user-order="5"] {
   border-color: #efdc0066 !important;
+}
+
+.dialogue-message-header {
+  position: absolute;
+  top: 3px;
 }
