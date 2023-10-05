@@ -26,14 +26,10 @@ export const DialogueEditorUI = ({classes}: {
   return <div className={classes.root}>
     <div>Dialogue Editor</div>
     <ul className={classes.info}>
-      <li>Have a conversation with other dialogue participants.</li>
-      <li>Other participants can see comments you're writing as you write them.</li>
-      <li>You can edit and publish the dialogue afterwards.</li>
+      <li>You can edit your responses afterwards.</li>
+      <li>You can see each other's responses as you type them</li>
+      <li>Default etiquette is that it's fine to draft your message before the other person finishes.</li>
     </ul>
-    <p className={classes.info}><em>
-      Suggested norms for when to start writing are similar to a real conversation, i.e. you might sometimes interrupt each other or talk over each other briefly, and kinda negotiate who speaks next based on how much people seem to care about typing.
-      </em>
-    </p>
   </div>;
 }
 
