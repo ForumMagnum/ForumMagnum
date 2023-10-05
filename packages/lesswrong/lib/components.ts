@@ -372,6 +372,7 @@ importComponent("PostReadCheckbox", () => require('../components/posts/PostReadC
 importComponent("PostMostValuableCheckbox", () => require('../components/posts/PostMostValuableCheckbox'))
 importComponent("PostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip/PostsPreviewTooltip'));
 importComponent("LWPostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip/LWPostsPreviewTooltip'));
+importComponent("EAPostsPreviewTooltip", () => require('../components/posts/PostsPreviewTooltip/EAPostsPreviewTooltip'));
 importComponent("PostsPreviewTooltipSingle", () => require('../components/posts/PostsPreviewTooltip/PostsPreviewTooltipSingle'));
 importComponent("PostsPreviewTooltipSingleWithComment", () => require('../components/posts/PostsPreviewTooltip/PostsPreviewTooltipSingle'));
 importComponent("PostsItemComments", () => require('../components/posts/PostsItemComments'));

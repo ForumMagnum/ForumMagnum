@@ -8,9 +8,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { sortTags } from '../../tagging/FooterTagList';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
+import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
 import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
-
-export const POST_PREVIEW_WIDTH = 400
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -137,8 +136,8 @@ const LWPostsPreviewTooltip = ({
   postsList,
   post,
   hash,
-  classes,
   comment,
+  classes,
 }: LWPostsPreviewTooltipProps) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
     Loading, ContentStyles, EventTime } = Components
@@ -178,7 +177,7 @@ const LWPostsPreviewTooltip = ({
   }
   const postCategory: string|null = getPostCategory(post);
 
-  return <AnalyticsContext pageElementContext="hoverPreview">
+  return <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <Card className={classes.root}>
         <div className={classes.header}>
           <div>

@@ -11,7 +11,7 @@ export type PostsPreviewTooltipProps = {
 
 const PostsPreviewTooltip = (props: PostsPreviewTooltipProps) =>
   isEAForum
-    ? <Components.LWPostsPreviewTooltip {...props} />
+    ? <Components.EAPostsPreviewTooltip {...props} />
     : <Components.LWPostsPreviewTooltip {...props} />;
 
 const PostsPreviewTooltipComponent = registerComponent(
