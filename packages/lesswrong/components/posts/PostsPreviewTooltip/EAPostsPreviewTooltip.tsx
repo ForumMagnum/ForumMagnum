@@ -105,7 +105,7 @@ const EAPostsPreviewTooltip = ({
               />
             )
             : (
-              <PostExcerpt post={post} lines={7} hideMoreLink />
+              <PostExcerpt post={post} hash={hash} lines={7} hideMoreLink />
             )
           }
         </div>
