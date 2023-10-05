@@ -223,6 +223,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
 
+    feedId
     unreadDebateResponseCount
     dialogTooltipPreview
   }
