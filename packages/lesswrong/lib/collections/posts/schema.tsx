@@ -932,7 +932,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     canCreate: ['members'],
     // This must be set to editable to allow the data to be sent from the edit form, but in practice it's always overwritten by updatePostDenormalizedTags
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     
     blackbox: true,
@@ -1089,7 +1089,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     control: "select",
     form: {

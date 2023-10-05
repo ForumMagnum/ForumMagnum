@@ -113,10 +113,8 @@ const PostsEditForm = ({ documentId, classes }: {
   
   let removedFields = []
   // old debate style, probably deprecated
-  if (document.debate) {
-  }
   if (query.blockOwnership) {
-    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits')
+    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance')
   }
 
   return (
