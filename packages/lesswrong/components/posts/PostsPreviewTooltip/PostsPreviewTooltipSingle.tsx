@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
+import { POST_PREVIEW_WIDTH } from './LWPostsPreviewTooltip';
 
 export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
   width: POST_PREVIEW_WIDTH,

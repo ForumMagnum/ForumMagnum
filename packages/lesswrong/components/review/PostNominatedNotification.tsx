@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewTooltipSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({

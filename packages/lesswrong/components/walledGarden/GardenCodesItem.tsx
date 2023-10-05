@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
-import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';
 import { userOwns, userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import PersonIcon from '@material-ui/icons/Person';
