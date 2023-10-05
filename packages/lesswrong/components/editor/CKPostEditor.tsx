@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { getCkEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
-import { useLocation, useSubscribedLocation } from '../../lib/routeUtil';
+import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import type { Editor } from "@ckeditor/ckeditor5-core";
@@ -124,6 +124,76 @@ function getBlockUserId(modelElement: CKElement) {
   return (modelElement.getAttribute('user-id') || '').toString();
 }
 
+function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumInfo[]) {
+  return (writer: Writer) => {
+    const root = editor.model.document.getRoot()!;
+    const children = Array.from(root.getChildren());
+    const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput"; } => child.is('element', 'dialogueMessageInput'));
+    const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage"; } => child.is('element', 'dialogueMessage'));
+
+    const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
+    if (anyIncorrectInputUserOrders) {
+      return true;
+    }
+
+    const anyIncorrectMessageUserOrders = assignUserOrders(dialogueMessages, sortedCoauthors, writer);
+    if (anyIncorrectMessageUserOrders) {
+      return true;
+    }
+
+    // We check that we don't have any _duplicate_ input elements
+    const anyExtraRemoved = removeDuplicateInputs(dialogueMessageInputs, writer);
+    if (anyExtraRemoved) {
+      return true;
+    }
+
+    // We check that we have an input element for every author
+    const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
+    createMissingInputs(authorsWithoutInputs, writer, root);
+
+    const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, sortedCoauthors);
+    if (inputsWithoutAuthors.length > 0 || authorsWithoutInputs.length > 0) {
+      return true;
+    }
+
+    // We check that the inputs are in lexical order by author displayName
+    const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
+
+    // We check that the inputs are the last elements of the document
+    const lastChildren = children.slice(-dialogueMessageInputs.length);
+    const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
+
+    if (incorrectOrder || !lastElementsAreAllInputs) {
+      const sortedInputs = sortBy(dialogueMessageInputs, (i) => i.getAttribute('display-name'));
+      sortedInputs.forEach(sortedInput => {
+        writer.append(sortedInput, root);
+      });
+      return true;
+    }
+
+    // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
+    dialogueMessageInputs.forEach(input => {
+      const inputIsEmpty = Array.from(input.getChildren()).length === 0;
+      if (inputIsEmpty) {
+        writer.appendElement('paragraph', input);
+        return true;
+      }
+    });
+
+    // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
+    const hasSpuriousLeadingParagraph = children.length === dialogueMessageInputs.length + 1
+      && children[0].is('element', 'paragraph')
+      && Array.from(children[0].getChildren()).length === 0;
+
+    if (hasSpuriousLeadingParagraph) {
+      writer.remove(children[0]);
+      return true;
+    }
+
+    return false;
+  };
+}
+
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
@@ -192,7 +262,6 @@ const CKPostEditor = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { query } = useLocation();
   const { flash } = useMessages();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
@@ -253,27 +322,7 @@ const CKPostEditor = ({
     }
     setCollaborationMode(mode);
   }
-  
-  const isRelevantUsername = (name: string): boolean => {
-    return name.indexOf(' ')===-1;
-  }
-  const getBlockOwner = (block: CKElement): string|null => {
-    const json: any = block.toJSON();
-    const text = (json.children ?? []).map((child: any) => child.data).join("");
-    console.log(`Checking block with text: ${text}`);
-    const splitOnColon = text.split(':');
-    if (splitOnColon.length>1 && isRelevantUsername(splitOnColon[0])) {
-      const markedUsername = splitOnColon[0].toLowerCase();
-      for (let sharedUser of [...post.usersSharedWith, post.user!]) {
-        if (sharedUser.displayName.toLowerCase()===markedUsername || sharedUser.slug.toLowerCase()===markedUsername) {
-          return sharedUser._id;
-        }
-      }
-    }
 
-    return null;
-  }
-  
   return <div>
 
     {isBlockOwnershipMode && <>
@@ -309,7 +358,6 @@ const CKPostEditor = ({
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={(editor: Editor) => {
-        console.log("In CkPostEditor onInit");
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -330,75 +378,7 @@ const CKPostEditor = ({
 
         const sortedCoauthors = sortBy(coauthors, (coauthor) => coauthor.displayName);
         
-        editor.model.document.registerPostFixer( writer => {
-          console.log("In CkPostEditor postFixer")
-          const root = editor.model.document.getRoot()!;
-          const children = Array.from(root.getChildren());
-          const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput" } => child.is('element', 'dialogueMessageInput'));
-          const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage" } => child.is('element', 'dialogueMessage'));
-
-          const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
-          if (anyIncorrectInputUserOrders) {
-            return true;
-          }
-
-          const anyIncorrectMessageUserOrders = assignUserOrders(dialogueMessages, sortedCoauthors, writer);
-          if (anyIncorrectMessageUserOrders) {
-            return true;
-          }
-
-          // We check that we don't have any _duplicate_ input elements
-          const anyExtraRemoved = removeDuplicateInputs(dialogueMessageInputs, writer);
-          if (anyExtraRemoved) {
-            return true;
-          }
-
-          // We check that we have an input element for every author
-          const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
-          createMissingInputs(authorsWithoutInputs, writer, root);
-
-          const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, coauthors);
-          if (inputsWithoutAuthors.length > 0 || authorsWithoutInputs.length > 0) {
-            return true;
-          }
-
-          // We check that the inputs are in lexical order by author displayName
-          const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
-
-          // We check that the inputs are the last elements of the document
-          const lastChildren = children.slice(-dialogueMessageInputs.length);
-          const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
-
-          if (incorrectOrder || !lastElementsAreAllInputs) {
-            const sortedInputs = sortBy(dialogueMessageInputs, (i) => i.getAttribute('display-name'));
-            console.log( {incorrectOrder, lastElementsAreAllInputs, dialogueMessageInputs, sortedInputs, coauthors} )
-            sortedInputs.forEach(sortedInput => {
-              writer.append(sortedInput, root);
-            });
-            return true;
-          }
-
-          // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
-          dialogueMessageInputs.forEach(input => {
-            const inputIsEmpty = Array.from(input.getChildren()).length === 0;
-            if (inputIsEmpty) {
-              writer.appendElement('paragraph', input);
-              return true;
-            }
-          });
-
-          // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
-          const hasSpuriousLeadingParagraph = children.length === dialogueMessageInputs.length + 1
-            && children[0].is('element', 'paragraph')
-            && Array.from(children[0].getChildren()).length === 0;
-
-          if (hasSpuriousLeadingParagraph) {
-            writer.remove(children[0]);
-            return true;
-          }
-
-          return false;
-        } );
+        editor.model.document.registerPostFixer( createDialoguePostFixer(editor, sortedCoauthors) );
 
         // This is just to trigger the postFixer when the editor is initialized
         editor.model.change(writer => {
@@ -428,10 +408,8 @@ const CKPostEditor = ({
             }
             
             if (blockOwners.some(blockOwner => blockOwner !== currentUser!._id)) {
-              console.log("Switching into suggest mode");
               changeCollaborationMode("Commenting");
             } else {
-              console.log("Leaving suggest mode");
               changeCollaborationMode("Editing");
             }
 
@@ -457,7 +435,6 @@ const CKPostEditor = ({
           });
           const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
           if (sessionsPlugin) {
-            console.log("Attaching event listeners to Sessions plugin");
             const connectedUsers = sessionsPlugin.allConnectedUsers
             const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
               const newUsersArr = [...usersCollection];

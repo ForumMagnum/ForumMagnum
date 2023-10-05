@@ -1,4 +1,3 @@
-// @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
@@ -12,8 +11,6 @@ export default class DialogueCommentBox extends Plugin {
 
 class SimpleBoxUI extends Plugin {
     init() {
-        console.log( 'SimpleBoxUI#init() got called' );
-
         const editor = this.editor;
         const t = editor.t;
 
@@ -51,8 +48,6 @@ class SimpleBoxEditing extends Plugin {
     }
 
     init() {
-        console.log( 'SimpleBoxEditing#init() got called' );
-
         this._defineSchema();
         this._defineConverters();
 
@@ -86,6 +81,7 @@ class SimpleBoxEditing extends Plugin {
 
         schema.register( 'dialogueMessageHeader', {
             allowWhere: 'dialogueMessage',
+            allowContentOf: '$root',
             isLimit: true,
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date']
         })
@@ -96,7 +92,6 @@ class SimpleBoxEditing extends Plugin {
 
         // <dialogueMessageInput> converters
         conversion.for( 'upcast' ).elementToElement( {
-            // model: 'dialogueMessageInput',
             model: (viewElement, { writer: modelWriter }) => {
                 return modelWriter.createElement('dialogueMessageInput');
             },
@@ -145,7 +140,7 @@ class SimpleBoxEditing extends Plugin {
                 const userOrder = getUserOrder(modelElement);
                 const userId = modelElement.getAttribute('user-id');
                 const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId };
-                const section = viewWriter.createEditableElement( 'section', sectionAttributes );
+                const section = viewWriter.createContainerElement( 'section', sectionAttributes );
 
                 viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
                 viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
@@ -157,7 +152,8 @@ class SimpleBoxEditing extends Plugin {
         // <dialogueMessage> converters
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
-                return modelWriter.createElement('dialogueMessage');
+                const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+                return modelWriter.createElement('dialogueMessage', attributes);
             },
             view: {
                 name: 'section',
@@ -178,9 +174,6 @@ class SimpleBoxEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessage',
             view: ( modelElement, { writer: viewWriter } ) => {
-                console.log({ modelElementAttributes: JSON.stringify(Array.from(modelElement.getAttributes())) });
-                console.log({ modelElementAttributes: modelElement.getAttributes() });
-
                 const userOrder = getUserOrder(modelElement);
                 const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
                 const section = viewWriter.createContainerElement( 'section', sectionAttributes );
@@ -214,13 +207,15 @@ class SimpleBoxEditing extends Plugin {
             model: 'dialogueMessageHeader',
             view: ( modelElement, { writer: viewWriter }) => {
                 const userDisplayName = getUserDisplayName(modelElement);
-                console.log({ modelElement });
 
-                const headerAttributes = { class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor' };
-                const headerElement = viewWriter.createUIElement('div', headerAttributes, function(domDocument) {
+                const headerAttributes = {
+                    class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor',
+                    contenteditable: 'false'
+                };
+
+                const headerElement = viewWriter.createUIElement('section', headerAttributes, function(domDocument) {
                     const domElement = this.toDomElement(domDocument);
                     domElement.contentEditable = 'false';
-
                     domElement.append(userDisplayName);
 
                     return domElement;
@@ -360,14 +355,4 @@ function getUserOrder(modelElement) {
  */
 function getUserDisplayName(modelElement) {
     return (modelElement.getAttribute('display-name') || '').toString();
-}
-
-function createSimpleBox( writer ) {
-    const dialogueMessageInput = writer.createElement( 'dialogueMessageInput' );
-
-    // There must be at least one paragraph for the description to be editable.
-    // See https://github.com/ckeditor/ckeditor5/issues/1464.
-    writer.appendElement( 'paragraph', dialogueMessageInput );
-
-    return dialogueMessageInput;
 }
