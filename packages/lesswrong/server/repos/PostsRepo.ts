@@ -5,6 +5,7 @@ import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import {cheerioParse} from "../utils/htmlUtil";
 
 export type MeanPostKarma = {
   _id: number,
@@ -346,5 +347,26 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
+  }
+
+  getDialogueResponseIds = (post:DbPost) => {
+    const html = post.contents.originalContents.data;
+    const parsedHtml= cheerioParse(html);
+    
+    const blocksWithId = parsedHtml('block[message-id]');
+    const ids : string[] = blocksWithId.map( (i, block) => parsedHtml(block).attr('message-id')).get();
+    
+    return ids;
+  }
+
+  getDialogueMessageTimestamps = (post: DbPost): Date[] => {
+    const html = post.contents.originalContents.data;
+    const parsedHtml= cheerioParse(html);
+  
+    const blocksWithId = parsedHtml('block[message-id]');
+    const timestampStrings = blocksWithId.map( (i, block) => (parsedHtml(block).attr('submitted-at'))).get();
+    const timestamps = timestampStrings.map( dateString => new Date(dateString))
+    
+    return timestamps
   }
 }

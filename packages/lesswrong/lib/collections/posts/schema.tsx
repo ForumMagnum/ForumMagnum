@@ -2560,32 +2560,31 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
+  totalDialogueResponseCount: resolverOnlyField({
+    type: Number, 
+    nullable: true, 
+    canRead: ['guests'],
+    resolver: async (post, _, context) => {
+      if (!post.debate) return 0;
+      return context.repos.posts.getDialogueResponseIds(post).length
+    } 
+  }),
+
   unreadDebateResponseCount: resolverOnlyField({
     type: Number,
     nullable: true,
     canRead: ['guests'],
     resolver: async (post, _, context) => {
       if (!post.debate) return 0;
-      const { Comments, currentUser } = context;
 
       const lastReadStatus = await getLastReadStatus(post, context);
       if (!lastReadStatus) return null;
 
-      const comments = await Comments.find({
-        ...getDefaultViewSelector("Comments"),
-        postId: post._id,
-        // This actually forces `deleted: false` by combining with the default view selector
-        deletedPublic: false,
-        debateResponse: true,
-        postedAt: { $gt: lastReadStatus.lastUpdated },
-      }, {
-        sort: { postedAt: 1 }
-      }).fetch();
+      const messageTimestamps = context.repos.posts.getDialogueMessageTimestamps(post)
+      const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
 
-      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
-      const count = filteredComments.length;
+      return newMessageTimestamps.length ?? 0
 
-      return count;
     }
   }),
 
