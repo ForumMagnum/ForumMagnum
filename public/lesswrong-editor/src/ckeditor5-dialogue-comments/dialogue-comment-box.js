@@ -86,7 +86,8 @@ class SimpleBoxEditing extends Plugin {
 
         schema.register( 'dialogueMessageHeader', {
             allowWhere: 'dialogueMessage',
-            isLimit: true
+            isLimit: true,
+            allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date']
         })
     }
 
@@ -95,7 +96,10 @@ class SimpleBoxEditing extends Plugin {
 
         // <dialogueMessageInput> converters
         conversion.for( 'upcast' ).elementToElement( {
-            model: 'dialogueMessageInput',
+            // model: 'dialogueMessageInput',
+            model: (viewElement, { writer: modelWriter }) => {
+                return modelWriter.createElement('dialogueMessageInput');
+            },
             view: {
                 name: 'section',
                 classes: 'dialogue-message-input',
@@ -151,22 +155,31 @@ class SimpleBoxEditing extends Plugin {
 
         // <dialogueMessage> converters
         conversion.for( 'upcast' ).elementToElement( {
-            model: 'dialogueMessage',
+            model: (viewElement, { writer: modelWriter }) => {
+                return modelWriter.createElement('dialogueMessage');
+            },
             view: {
                 name: 'section',
                 classes: 'dialogue-message',
+                attributes: {
+                    'message-id': true,
+                    'user-id': true,
+                    'display-name': true,
+                    'submitted-date': true,
+                    'user-order': true
+                }
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'dialogueMessage',
-            view: {
-                name: 'section',
-                classes: 'dialogue-message'
-            }
+            view: generateDialogueMessageView('dialogue-message ContentStyles-debateResponseBody')
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessage',
             view: ( modelElement, { writer: viewWriter } ) => {
+                console.log({ modelElementAttributes: JSON.stringify(Array.from(modelElement.getAttributes())) });
+                console.log({ modelElementAttributes: modelElement.getAttributes() });
+
                 const userOrder = getUserOrder(modelElement);
                 const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
                 const section = viewWriter.createContainerElement( 'section', sectionAttributes );
@@ -177,23 +190,30 @@ class SimpleBoxEditing extends Plugin {
 
         // <dialogueMessageHeader> converters
         conversion.for( 'upcast' ).elementToElement( {
-            model: 'dialogueMessageHeader',
+            model: (viewElement, { writer: modelWriter }) => {
+                const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+                return modelWriter.createElement('dialogueMessageHeader', attributes);
+            },
             view: {
                 name: 'section',
                 classes: 'dialogue-message-header',
+                attributes: {
+                    'message-id': true,
+                    'user-id': true,
+                    'display-name': true,
+                    'submitted-date': true
+                }
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'dialogueMessageHeader',
-            view: {
-                name: 'section',
-                classes: 'dialogue-message-header'
-            }
+            view: generateDialogueMessageHeaderView('dialogue-message-header CommentUserName-author UsersNameDisplay-noColor')
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessageHeader',
             view: ( modelElement, { writer: viewWriter }) => {
                 const userDisplayName = getUserDisplayName(modelElement);
+                console.log({ modelElement });
 
                 const headerAttributes = { class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor' };
                 const headerElement = viewWriter.createUIElement('div', headerAttributes, function(domDocument) {
@@ -210,8 +230,6 @@ class SimpleBoxEditing extends Plugin {
         } );
     }
 }
-
-
 
 
 class InsertRootParagraphBoxCommand extends Command {
@@ -292,6 +310,37 @@ class SubmitDialogueMessageCommand extends Command {
 
         this.isEnabled = allowedIn !== null;
     }
+}
+
+function generateDialogueMessageView(className) {
+    return (modelElement, { writer: viewWriter }) => {
+        const attributeList = [
+            'message-id',
+            'user-id',
+            'display-name',
+            'submitted-date',
+            'user-order'
+        ];
+
+        const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
+
+        return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
+    };
+}
+
+function generateDialogueMessageHeaderView(className) {
+    return (modelElement, { writer: viewWriter }) => {
+        const attributeList = [
+            'message-id',
+            'user-id',
+            'display-name',
+            'submitted-date',
+        ];
+
+        const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
+
+        return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
+    };
 }
 
 /**

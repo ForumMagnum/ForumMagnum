@@ -120,6 +120,10 @@ function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedC
   }).some(e => e);
 }
 
+function getBlockUserId(modelElement: CKElement) {
+  return (modelElement.getAttribute('user-id') || '').toString();
+}
+
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
@@ -395,9 +399,15 @@ const CKPostEditor = ({
             const blockOwners: string[] = [];
             if (blocks) {
               for (let block of blocks) {
-                const owner = getBlockOwner(block);
-                if (owner) {
-                  blockOwners.push(owner);
+                const ancestors = block.getAncestors({ includeSelf: true });
+                const parentDialogueElement = ancestors.find((ancestor): ancestor is CKElement => {
+                  return ancestor.is('element', 'dialogueMessage') || ancestor.is('element', 'dialogueMessageInput');
+                })
+                if (parentDialogueElement) {
+                  const owner = getBlockUserId(parentDialogueElement);  
+                  if (owner) {
+                    blockOwners.push(owner);
+                  }
                 }
               }
             }
