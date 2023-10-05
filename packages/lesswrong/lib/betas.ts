@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum } from "./instanceSettings";
+import { testServerSetting, isEAForum, isLWorAF } from "./instanceSettings";
 import { userOverNKarmaOrApproved } from "./vulcan-users";
 
 // States for in-progress features
@@ -47,6 +47,9 @@ export const userHasEagProfileImport = disabled;
 export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
+
+// Non-user-specific features
+export const dialoguesEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

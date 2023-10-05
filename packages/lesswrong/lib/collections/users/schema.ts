@@ -16,6 +16,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
+import { dialoguesEnabled } from '../../betas';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1377,7 +1378,8 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDebateReplies: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField()
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
   },
 
   // Karma-change notifier settings
