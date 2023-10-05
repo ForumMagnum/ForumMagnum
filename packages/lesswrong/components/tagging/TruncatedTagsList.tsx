@@ -29,6 +29,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const reformatTagPlaceholder = (
+  moreCount: number,
+  _totalItems: number,
+  moreNode: Element,
+) => {
+  moreNode.innerHTML = moreNode.innerHTML.replace(
+    /\d+ more/,
+    `${moreCount} more`,
+  );
+}
+
 const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
@@ -43,21 +54,11 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
     if (!tags?.length) {
       return;
     }
-    const reformatPlaceholder = (
-      moreCount: number,
-      _totalItems: number,
-      moreNode: Element,
-    ) => {
-      moreNode.innerHTML = moreNode.innerHTML.replace(
-        /\d+ more/,
-        `${moreCount} more`,
-      );
-    }
     const handler = () => recalculateTruncation(
       ref,
       expandContainer,
       classes,
-      reformatPlaceholder,
+      reformatTagPlaceholder,
     );
     handler();
     window.addEventListener("resize", handler);

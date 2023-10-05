@@ -28,6 +28,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
+const reformatAuthorPlaceholder = (
+  moreCount: number,
+  totalItems: number,
+  moreNode: Element,
+) => {
+  const text = moreCount === totalItems
+    ? `${moreCount} authors`
+    : `+ ${moreCount} more`
+  moreNode.innerHTML = moreNode.innerHTML.replace(
+    /(\+ \d+ more)|(\d+ authors)/,
+    text,
+  );
+}
+
 const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
@@ -41,24 +55,11 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
     if (isAnon || authors.length === 0) {
       return;
     }
-    const reformatPlaceholder = (
-      moreCount: number,
-      totalItems: number,
-      moreNode: Element,
-    ) => {
-      const text = moreCount === totalItems
-        ? `${moreCount} authors`
-        : `+ ${moreCount} more`
-      moreNode.innerHTML = moreNode.innerHTML.replace(
-        /(\+ \d+ more)|(\d+ authors)/,
-        text,
-      );
-    }
     const handler = () => recalculateTruncation(
       ref,
       expandContainer,
       classes,
-      reformatPlaceholder,
+      reformatAuthorPlaceholder,
     );
     handler();
     window.addEventListener("resize", handler);
