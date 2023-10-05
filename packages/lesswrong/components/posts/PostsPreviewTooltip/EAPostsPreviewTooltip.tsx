@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from "./helpers";
+import { sortTags } from "../../tagging/FooterTagList";
 import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -70,6 +71,10 @@ const EAPostsPreviewTooltip = ({
   const renderedComment = comment || post.bestAnswer;
   const {imageUrl} = post.socialPreviewData ?? {};
 
+  const tags = post.tags
+    ? sortTags(post.tags, (t) => t).slice(0, 4)
+    : null;
+
   const {PostExcerpt, EAPostMeta, FooterTag, CommentsNode} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
@@ -82,9 +87,9 @@ const EAPostsPreviewTooltip = ({
             {showSubheaderInfo &&
               <EAPostMeta post={post} useEventStyles={post.isEvent} />
             }
-            {!showSubheaderInfo && post.tags &&
+            {!showSubheaderInfo && tags &&
               <div className={classes.tags}>
-                {post.tags.slice(0, 4).map((tag) => (
+                {tags.map((tag) => (
                   <FooterTag key={tag._id} tag={tag} smallText />
                 ))}
               </div>
