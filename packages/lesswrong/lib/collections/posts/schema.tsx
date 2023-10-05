@@ -2561,13 +2561,15 @@ const schema: SchemaType<DbPost> = {
   },
 
   totalDialogueResponseCount: {
-    type: Number, 
+    type: Number,
+    optional: true,
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
 
   unreadDebateResponseCount: {
     type: Number,
+    optional: true,
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
