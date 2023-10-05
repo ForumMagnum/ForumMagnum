@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor } from '../../lib/wrapCkEditor';
+import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
@@ -324,7 +324,6 @@ const CKPostEditor = ({
   }
 
   return <div>
-
     {isBlockOwnershipMode && <>
      <DialogueEditorUI />
      <style>
@@ -485,34 +484,6 @@ const CKPostEditor = ({
         mention: mentionPluginConfiguration
       }}
     />}
-    
-    {layoutReady && isBlockOwnershipMode && <Button
-      className={classes.addMessageButton}
-      onClick={ev => {
-        const textToInsert = currentUser?.displayName+": ";
-        const editor = (editorRef.current?.editor as Editor);
-        
-        editor.model.change(writer => {
-          // Create a new paragraph element with the given text.
-          const paragraph = writer.createElement('paragraph');
-          const textNode = writer.createText(textToInsert);
-  
-          writer.append(textNode, paragraph);
-  
-          // Find the root in which the editor content is stored.
-          const root = editor.model.document.getRoot();
-  
-          // Append the new paragraph to the root.
-          if (root) {
-            writer.append(paragraph, root);
-          }
-          
-          // TODO move the cursor to the end of that paragraph, and set focus
-        });
-      }}
-    >
-      Add Message
-    </Button>}
   </div>
 }
 
