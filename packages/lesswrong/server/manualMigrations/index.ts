@@ -123,6 +123,3 @@ import './2023-06-13-renameShortformToQuicktakes'
 import './2023-07-28-viewUpdaterErrorHandling'
 import './2023-08-25-importACXMeetups-23-fall'
 import './2023-09-08-filterDebateResponses'
-
-// import tempfunction from wherefver it is
-import '../resolvers/tempfunction'
