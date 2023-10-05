@@ -34,7 +34,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   constructor() {
     super(Posts);
   }
-
+  
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       SELECT "postedAt" FROM "Posts"
@@ -44,7 +44,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `);
     return result?.postedAt ?? new Date();
   }
-
+  
   async getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
     return await logIfSlow(async () => this.getRawDb().any(`
       SELECT "_id", AVG("baseScore") AS "meanKarma"
@@ -61,7 +61,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       "getMeanKarmaByInterval"
     );
   }
-
+  
   async getMeanKarmaOverall(): Promise<number> {
     const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
@@ -70,8 +70,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `), "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
-
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
+  
+  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & { lastUpdated: Date }>> {
     return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
@@ -100,7 +100,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT 200
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
-
+  
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
@@ -130,7 +130,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [postId, eaPublicEmojiNames]);
     return emojiReactors;
   }
-
+  
   async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
     const cached = postEmojiReactorCache.get(postId);
     if (cached !== undefined) {
@@ -140,7 +140,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     postEmojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
   }
-
+  
   async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
@@ -181,7 +181,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [postId, eaPublicEmojiNames]);
     return emojiReactors;
   }
-
+  
   async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
     const cached = commentEmojiReactorCache.get(postId);
     if (cached !== undefined) {
@@ -191,7 +191,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     commentEmojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
   }
-
+  
   getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
     return this.any(`
       SELECT p.*
@@ -202,7 +202,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT $1
     `, [limit]);
   }
-
+  
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"
@@ -214,12 +214,12 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `);
     return results.map(({_id}) => _id);
   }
-
+  
   getDigestHighlights({
-    maxAgeInDays = 31,
-    numPostsPerDigest = 2,
-    limit = 10,
-  }): Promise<DbPost[]> {
+                        maxAgeInDays = 31,
+                        numPostsPerDigest = 2,
+                        limit = 10,
+                      }): Promise<DbPost[]> {
     return this.any(`
       SELECT p.*
       FROM (
@@ -241,7 +241,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT $3
     `, [maxAgeInDays, numPostsPerDigest, limit]);
   }
-
+  
   getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
     currentUser?: DbUser | null,
     days?: number,
@@ -288,7 +288,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT $2
     `, [String(days), limit, currentUser?._id]);
   }
-
+  
   private getSearchDocumentQuery(): string {
     return `
       SELECT
@@ -327,14 +327,14 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;
   }
-
+  
   getSearchDocumentById(id: string): Promise<AlgoliaPost> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE p."_id" = $1
     `, [id]);
   }
-
+  
   getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
@@ -343,30 +343,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       OFFSET $2
     `, [limit, offset]);
   }
-
+  
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
-  }
-
-  getDialogueResponseCount = (post:DbPost) => {
-    const html = post.contents.originalContents.data;
-    const parsedHtml= cheerioParse(html);
-    
-    const blocksWithId = parsedHtml('block[message-id]');
-    const ids : string[] = blocksWithId.map( (i, block) => parsedHtml(block).attr('message-id')).get();
-    
-    return ids.length;
-  }
-
-  getDialogueMessageTimestamps = (post: DbPost): Date[] => {
-    const html = post.contents.originalContents.data;
-    const parsedHtml= cheerioParse(html);
-  
-    const blocksWithId = parsedHtml('block[message-id]');
-    const timestampStrings = blocksWithId.map( (i, block) => (parsedHtml(block).attr('submitted-at'))).get();
-    const timestamps = timestampStrings.map( dateString => new Date(dateString))
-    
-    return timestamps
   }
 }

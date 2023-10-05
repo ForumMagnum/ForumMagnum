@@ -107,7 +107,7 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
-async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
   if (!currentUser) return null;
 
@@ -2560,34 +2560,20 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
-  totalDialogueResponseCount: resolverOnlyField({
+  totalDialogueResponseCount: {
     type: Number, 
     nullable: true, 
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (!post.debate) return 0;
-      return context.repos.posts.getDialogueResponseCount(post)
-    } 
-  }),
+    // Implementation in postResolvers.ts
+  },
 
-  unreadDebateResponseCount: resolverOnlyField({
+  unreadDebateResponseCount: {
     type: Number,
     nullable: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (!post.debate) return 0;
-
-      const lastReadStatus = await getLastReadStatus(post, context);
-      if (!lastReadStatus) return null;
-
-      const messageTimestamps = context.repos.posts.getDialogueMessageTimestamps(post)
-      const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
-
-      return newMessageTimestamps.length ?? 0
-
-    }
-  }),
-
+    // Implementation in postResolvers.ts
+  },
+  
   emojiReactors: resolverOnlyField({
     type: Object,
     graphQLtype: GraphQLJSON,

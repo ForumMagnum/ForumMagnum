@@ -1,7 +1,7 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
-import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
+import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
@@ -15,6 +15,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
+import { getDialogueResponseCount, getDialogueMessageTimestamps } from "../posts/utils";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -71,6 +72,31 @@ augmentFieldsDict(Posts, {
         }
       },
     }
+  },
+  totalDialogueResponseCount: {
+    resolveAs: {
+      type: 'Int', 
+      resolver: (post, _, context) => {
+        if (!post.debate) return 0;
+        return getDialogueResponseCount(post)
+      }
+    }
+  },
+  unreadDialogueResponseCount: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post, _, context) => {
+        if (!post.debate) return 0;
+
+        const lastReadStatus = await getLastReadStatus(post, context);
+        if (!lastReadStatus) return 0;
+
+        const messageTimestamps = getDialogueMessageTimestamps(post)
+        const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
+
+        return newMessageTimestamps.length ?? 0
+      }
+  }
   },
   sideComments: {
     resolveAs: {
