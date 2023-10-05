@@ -1,6 +1,6 @@
 import React from 'react';
-import { useSingle } from '../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useSingle } from '../../../lib/crud/withSingle';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from './PostsPreviewTooltip';
 
 export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({

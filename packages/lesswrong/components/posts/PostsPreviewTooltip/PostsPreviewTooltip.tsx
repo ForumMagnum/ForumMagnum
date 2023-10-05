@@ -1,13 +1,13 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { truncate } from '../../lib/editor/ellipsize';
-import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { truncate } from '../../../lib/editor/ellipsize';
+import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import Card from '@material-ui/core/Card';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
-import { sortTags } from '../tagging/FooterTagList';
-import { useSingle } from '../../lib/crud/withSingle';
-import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
+import {AnalyticsContext} from "../../../lib/analyticsEvents";
+import { Link } from '../../../lib/reactRouterWrapper';
+import { sortTags } from '../../tagging/FooterTagList';
+import { useSingle } from '../../../lib/crud/withSingle';
+import {useForeignApolloClient} from '../../hooks/useForeignApolloClient';
 
 export const POST_PREVIEW_WIDTH = 400
 
