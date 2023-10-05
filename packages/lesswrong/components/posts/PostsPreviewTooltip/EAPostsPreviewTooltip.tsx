@@ -67,9 +67,10 @@ const EAPostsPreviewTooltip = ({
   }
 
   const showSubheaderInfo = !postsList;
+  const renderedComment = comment || post.bestAnswer;
   const {imageUrl} = post.socialPreviewData ?? {};
 
-  const {PostExcerpt, EAPostMeta, FooterTag} = Components;
+  const {PostExcerpt, EAPostMeta, FooterTag, CommentsNode} = Components;
   return (
     <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <div className={classes.root}>
@@ -89,7 +90,24 @@ const EAPostsPreviewTooltip = ({
               </div>
             }
           </div>
-          <PostExcerpt post={post} lines={7} hideMoreLink />
+          {renderedComment
+            ? (
+              <CommentsNode
+                treeOptions={{
+                  post,
+                  hideReply: true,
+                  forceNotSingleLine: true,
+                }}
+                truncated
+                comment={renderedComment}
+                hoverPreview
+                forceUnCollapsed
+              />
+            )
+            : (
+              <PostExcerpt post={post} lines={7} hideMoreLink />
+            )
+          }
         </div>
         {imageUrl &&
           <img className={classes.image} src={imageUrl} />
