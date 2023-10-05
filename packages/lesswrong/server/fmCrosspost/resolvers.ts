@@ -28,6 +28,7 @@ const getUserId = (req?: Request) => {
 const foreignPostCache = new LRU<string, Promise<AnyBecauseHard>>({
   maxAge: 1000 * 60 * 30, // 30 minute TTL
   updateAgeOnGet: false,
+  max: 100,
 });
 
 export const makeCrossSiteRequest = async <RouteName extends ValidatedPostRouteName>(
