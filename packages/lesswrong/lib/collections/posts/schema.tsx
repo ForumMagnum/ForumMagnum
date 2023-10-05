@@ -1089,7 +1089,7 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.adminOptions,
     control: "select",
     form: {

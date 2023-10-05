@@ -40,8 +40,7 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
-    RateLimitWarning, DynamicTableOfContents } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -112,12 +111,11 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   let removedFields = []
-  // old debate style, probably deprecated
-  if (document.debate) {
+  if (document.collabEditorDialogue) {
+    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
   }
-  if (query.blockOwnership) {
-    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits')
-  }
+
+  console.log("Collab Editor Ben and Ray!", document.collabEditorDialogue)
 
   return (
     <DynamicTableOfContents title={document.title}>
@@ -164,7 +162,7 @@ const PostsEditForm = ({ documentId, classes }: {
             showRemove={true}
             collabEditorDialogue={!!document.collabEditorDialogue}
             submitLabel={isDraft ? "Publish" : "Publish Changes"}
-            formComponents={{FormSubmit:EditPostsSubmit}}
+            formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
             extraVariables={{
               version: 'String'
             }}
@@ -178,7 +176,7 @@ const PostsEditForm = ({ documentId, classes }: {
             * "edits" the tag list via indirect operations (upvoting/downvoting
             * relevance scores).
             */
-            addFields={document.isEvent ? [] : ['tagRelevance']}
+            addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
           />
         </NoSSR>
       </div>

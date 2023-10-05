@@ -504,7 +504,13 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    user {
+      ...UsersMinimumInfo
+    }
     usersSharedWith {
+      ...UsersMinimumInfo
+    }
+    coauthors {
       ...UsersMinimumInfo
     }
   }
