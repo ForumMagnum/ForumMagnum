@@ -68,6 +68,7 @@ const PostBody = ({post, html, sideCommentMode}: {
     return <InlineReactSelectionWrapper
       commentBodyRef={contentRef}
       voteProps={voteProps}
+      styling="post"
     >
       {content}
     </InlineReactSelectionWrapper>
