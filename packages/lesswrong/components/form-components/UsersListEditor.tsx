@@ -5,7 +5,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "flex"
+    display: "flex",
+    alignItems: "center"
   },
   list: {
     display: "flex",

@@ -148,7 +148,6 @@ const UsersMenu = ({classes}: {
   
   const canCreateDialogue = userCanPost(currentUser)
     && !isEAForum
-    && userCanCreateField(currentUser, postSchema['debate']);
 
   return (
     <div className={classes.root} {...eventHandlers}>

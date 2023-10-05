@@ -9,7 +9,8 @@ import Input from '@material-ui/core/Input';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
-    padding: 16,
+    padding: 24,
+    paddingBottom: 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
   },
@@ -19,17 +20,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   label: {
     ...theme.typography.body2,
     display: "inline-block",
-    marginRight: 10,
   },
   titleInput: {
-    ...theme.typography.display2,
+    ...theme.typography.body1,
     ...theme.typography.headerStyle,
     marginTop: 12,
     width: 400,
   },
   usersListEditor: {
+    marginTop: 12,
     display: "inline-block",
   },
+  header: {
+    ...theme.typography.headerStyle,
+    marginTop: 0
+  },
+  info: {
+    ...theme.typography.body2,
+    marginRight: 12
+  }
 })
 
 const NewDialogueDialog = ({onClose, classes}: {
@@ -44,6 +53,7 @@ const NewDialogueDialog = ({onClose, classes}: {
   const { history } = useNavigation();
   
   async function createDialogue() {
+    if (loading) return;
     if (!title.length) {
       flash("You must choose a title");
       return;
@@ -63,10 +73,12 @@ const NewDialogueDialog = ({onClose, classes}: {
     });
     if (createResult?.data?.createPost?.data) {
       const post = createResult?.data?.createPost?.data;
-      const postId = post._id;
-      const postEditUrl = `/editPost?postId=${postId}`;
-      history.push(postEditUrl);
-      onClose();
+      if (post) {
+        const postId = post._id;
+        const postEditUrl = `/editPost?postId=${postId}`;
+        history.push(postEditUrl);
+        onClose();
+      }
     }
   }
 
@@ -78,9 +90,16 @@ const NewDialogueDialog = ({onClose, classes}: {
     dialogClasses={{paper: classes.dialogPaper}}
   >
     <div className={classes.dialog}>  
+      <h2 className={classes.header}>Start Dialogue</h2>
+      <p className={classes.info}>
+        Invite users to a conversation where you can explore ideas, interview each other, or debate a topic. You can edit the transcript, and when you're ready, publish it as a post.
+      </p>
+      <p className={classes.info}>
+        You'll be able to see each other's comments as you're writing.
+      </p>
       <Input
         type="text"
-        placeholder="New Dialogue Title"
+        placeholder="Dialogue Title"
         value={title}
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
@@ -95,7 +114,7 @@ const NewDialogueDialog = ({onClose, classes}: {
       
       <DialogActions>
         {loading && <Loading/>}
-        <Button onClick={createDialogue}>
+        <Button onClick={createDialogue} disabled={!!loading}>
           Create Dialogue
         </Button>
       </DialogActions>

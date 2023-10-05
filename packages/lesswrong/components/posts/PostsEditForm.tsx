@@ -115,8 +115,6 @@ const PostsEditForm = ({ documentId, classes }: {
     removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
   }
 
-  console.log("Collab Editor Ben and Ray!", document.collabEditorDialogue)
-
   return (
     <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>
