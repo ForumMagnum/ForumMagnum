@@ -143,7 +143,8 @@ class SimpleBoxEditing extends Plugin {
                 });
 
                 const userOrder = getUserOrder(modelElement);
-                const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder };
+                const userId = modelElement.getAttribute('user-id');
+                const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId };
                 const section = viewWriter.createEditableElement( 'section', sectionAttributes );
 
                 viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
@@ -295,10 +296,14 @@ class SubmitDialogueMessageCommand extends Command {
                     Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
                         writer.append(userInput, dialogueMessage);
                     });
+                    // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
+                    writer.appendElement('paragraph', dialogueMessageInput)
                 } else {
                     writer.insertText(dialogueMessageInput.data, dialogueMessage);
                     writer.append(dialogueMessage, root);
                 }
+
+                writer.setSelection(dialogueMessageInput, 0)
             }
         });
     }

@@ -1,6 +1,6 @@
 .dialogue-message-input {
   border: 2px solid;
-  padding: 12px 8px 0px 8px;
+  padding: 12px;
   position: relative;
 }
 
@@ -14,6 +14,7 @@
 .dialogue-message-input button {
   margin-left: auto;
   margin-right: -8px;
+  margin-bottom: -8px;
   padding-bottom: 8px;
   display: block;
 }

@@ -51,10 +51,10 @@ function areLastElementsAllInputs(lastChildren: Node[]) {
   });
 }
 
-function areInputsInCorrectOrder(dialogueMessageInputs: Node[], coauthors: UsersMinimumInfo[]) {
+function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
   return dialogueMessageInputs.every((input, idx) => {
     const inputDisplayName = input.getAttribute('display-name');
-    return inputDisplayName === coauthors[idx].displayName;
+    return inputDisplayName === sortedCoauthors[idx].displayName;
   });
 }
 
@@ -276,7 +276,20 @@ const CKPostEditor = ({
   
   return <div>
 
-    {isBlockOwnershipMode && <DialogueEditorUI />}
+    {isBlockOwnershipMode && <>
+     <DialogueEditorUI />
+     <style>
+      {
+      `.dialogue-message-input button {
+        display: none;
+      }
+      
+      .dialogue-message-input[user-id="${currentUser!._id}"] button {
+        display: block;
+      }
+      `}
+     </style>
+    </>}
     
     {isCollaborative && <EditorTopBar
       accessLevel={accessLevel||"none"}
@@ -318,6 +331,7 @@ const CKPostEditor = ({
         const sortedCoauthors = sortBy(coauthors, (coauthor) => coauthor.displayName);
         
         editor.model.document.registerPostFixer( writer => {
+          console.log("In CkPostEditor postFixer")
           const root = editor.model.document.getRoot()!;
           const children = Array.from(root.getChildren());
           const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput" } => child.is('element', 'dialogueMessageInput'));
@@ -349,7 +363,7 @@ const CKPostEditor = ({
           }
 
           // We check that the inputs are in lexical order by author displayName
-          const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, coauthors);
+          const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
 
           // We check that the inputs are the last elements of the document
           const lastChildren = children.slice(-dialogueMessageInputs.length);
@@ -357,6 +371,7 @@ const CKPostEditor = ({
 
           if (incorrectOrder || !lastElementsAreAllInputs) {
             const sortedInputs = sortBy(dialogueMessageInputs, (i) => i.getAttribute('display-name'));
+            console.log( {incorrectOrder, lastElementsAreAllInputs, dialogueMessageInputs, sortedInputs, coauthors} )
             sortedInputs.forEach(sortedInput => {
               writer.append(sortedInput, root);
             });
