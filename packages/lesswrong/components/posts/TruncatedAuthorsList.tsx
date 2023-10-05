@@ -3,7 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import classNames from "classnames";
 
-const TRUNCATION_PADDING = 10;
+export const TRUNCATION_PADDING = 10;
 
 const styles = (_: ThemeType): JssStyles => ({
   root: {
@@ -29,7 +29,7 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-const getMaxExpandableWidth = (container: HTMLElement): number => {
+export const getMaxExpandableWidth = (container: HTMLElement): number => {
   let width = container.getBoundingClientRect().width;
   // Get expandable width excluding first child
   for (let i = 1; i < container.children.length; ++i) {
@@ -166,9 +166,9 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
           <LWTooltip
             title={
               <div className={classes.tooltip}>
-                  {authors.map((author) =>
-                    <UsersNameDisplay key={author._id} user={author} />
-                  )}
+                {authors.map((author) =>
+                  <UsersNameDisplay key={author._id} user={author} />
+                )}
               </div>
             }
             className={classes.more}
