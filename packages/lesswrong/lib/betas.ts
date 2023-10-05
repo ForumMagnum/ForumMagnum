@@ -7,7 +7,7 @@
 // Beta-feature test functions must handle the case where user is null.
 
 import { testServerSetting, isEAForum, isLWorAF } from "./instanceSettings";
-import { userOverNKarmaOrApproved } from "./vulcan-users";
+import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
