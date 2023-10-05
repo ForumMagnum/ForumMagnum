@@ -106,6 +106,7 @@ type FragmentOrFragmentName =
  */
 export const useUpdate = <CollectionName extends CollectionNameString>(options: FragmentOrFragmentName & {
   collectionName: CollectionName,
+  skipCacheUpdate?: boolean,
 }): {
   /** Set a field to `null` to delete it */
   mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
@@ -131,7 +132,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>(options: 
   }) => {
     return mutate({
       variables: { selector, data, ...extraVariables },
-      update: updateCacheAfterUpdate(typeName)
+      update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName)
     })
   }, [mutate, typeName]);
   return {mutate: wrappedMutate, loading, error, called, data};
