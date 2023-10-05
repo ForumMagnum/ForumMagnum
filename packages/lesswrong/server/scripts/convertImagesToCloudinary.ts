@@ -88,11 +88,15 @@ function getImageUrlWhitelist() {
 }
 
 function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
-  const parsedUrl = new URL(url);
-  if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
+  try {
+    const parsedUrl = new URL(url);
+    if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
+      return false;
+    }
+    return filterFn(url);
+  } catch (e) {
     return false;
   }
-  return filterFn(url);
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {

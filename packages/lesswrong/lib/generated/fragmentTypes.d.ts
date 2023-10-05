@@ -1044,6 +1044,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly feedId: string,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string,
 }
