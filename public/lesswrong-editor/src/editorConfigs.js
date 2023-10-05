@@ -109,7 +109,7 @@ export const postEditorConfig = {
 		'mathDisplay',
 		'mediaEmbed',
 		'footnote',
-		'simpleBox'
+		'dialogueMessageInput'
 	],
 	toolbar: {
 		items: [
