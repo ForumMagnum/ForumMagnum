@@ -95,7 +95,7 @@ addGraphQLSchema(`
   }
 `)
 
-const MINIMUM_COAUTHOR_KARMA = 1;
+export const MINIMUM_COAUTHOR_KARMA = 1;
 
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
