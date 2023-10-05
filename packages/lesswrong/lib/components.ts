@@ -299,7 +299,6 @@ importComponent("VoteHistoryTab", () => require('../components/bookmarks/VoteHis
 importComponent("DraftsPage", () => require('../components/posts/DraftsPage'));
 importComponent("DraftsList", () => require('../components/posts/DraftsList'));
 importComponent("DraftsListSettings", () => require('../components/posts/DraftsListSettings'));
-importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("UsersName", () => require('../components/users/UsersName'));
 importComponent("UsersNameWrapper", () => require('../components/users/UsersNameWrapper'));
 importComponent("UsersNameDisplay", () => require('../components/users/UsersNameDisplay'));
@@ -398,7 +397,6 @@ importComponent("UserSuggestNominations", () => require('../components/posts/Use
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
 importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
-importComponent("DialogueEditorUI", () => require('../components/posts/dialogues/DialogueEditorUI'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
 importComponent("NewPostHowToGuides", () => require('../components/posts/NewPostHowToGuides'));
@@ -410,6 +408,10 @@ importComponent("CollabEditorPermissionsNotices", () => require('../components/e
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
 importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
+
+importComponent("DialogueEditorUI", () => require('../components/posts/dialogues/DialogueEditorUI'));
+importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
+importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
