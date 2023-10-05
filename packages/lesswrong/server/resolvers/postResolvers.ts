@@ -5,7 +5,6 @@ import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideC
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
-import { getDefaultPostLocationFields } from '../posts/utils'
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
@@ -15,7 +14,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
-import { getDialogueResponseCount, getDialogueMessageTimestamps } from "../posts/utils";
+import { getDefaultPostLocationFields, getDialogueResponseCount, getDialogueMessageTimestamps } from "../posts/utils";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
