@@ -2566,7 +2566,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     resolver: async (post, _, context) => {
       if (!post.debate) return 0;
-      return context.repos.posts.getDialogueResponseCount(post)
+      return context.repos.posts.getDialogueResponseIds(post).length
     } 
   }),
 

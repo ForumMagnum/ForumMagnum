@@ -34,6 +34,7 @@ import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
+import PostsRepo from './repos/PostsRepo';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -221,6 +222,40 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
     }
   }
 });
+
+getCollectionHooks("Posts").editAsync.add(async function newDialogueSubscribersNotification ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  if (newPost.debate) {
+  
+    const postsRepo = new PostsRepo()
+      
+    const oldIds = postsRepo.getDialogueResponseIds(oldPost);
+    const newIds = postsRepo.getDialogueResponseIds(newPost);
+    const uniqueNewIds = _.difference(newIds, oldIds);
+    const uniqueNewCount = uniqueNewIds.length;
+
+    const debateParticipantIds = [newPost.userId, ...(newPost.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]
+
+    const debateSubscribers = await getSubscribedUsers({
+      documentId: newPost._id,
+      collectionName: "Posts",
+      type: subscriptionTypes.newDebateComments,
+      // potentiallyDefaultSubscribedUserIds: debateParticipantIds
+    });
+
+    const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+    const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, debateParticipantIds);
+    await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newPublishedDebateMessage', documentType: 'post', documentId: newPost._id });
+
+    // Handle debate participants
+    // const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
+    // await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'post', documentId: newPost._id });
+
+    // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
+    notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
+    
+
+  }
+};
 
 getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {

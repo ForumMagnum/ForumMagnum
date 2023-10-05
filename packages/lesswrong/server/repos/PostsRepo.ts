@@ -349,14 +349,14 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return count;
   }
 
-  getDialogueResponseCount = (post:DbPost) => {
+  getDialogueResponseIds = (post:DbPost) => {
     const html = post.contents.originalContents.data;
     const parsedHtml= cheerioParse(html);
     
     const blocksWithId = parsedHtml('block[message-id]');
     const ids : string[] = blocksWithId.map( (i, block) => parsedHtml(block).attr('message-id')).get();
     
-    return ids.length;
+    return ids;
   }
 
   getDialogueMessageTimestamps = (post: DbPost): Date[] => {
