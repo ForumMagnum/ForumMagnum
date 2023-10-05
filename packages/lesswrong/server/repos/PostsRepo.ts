@@ -359,7 +359,6 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return ids.length;
   }
 
-
   getDialogueMessageTimestamps = (post: DbPost): Date[] => {
     const html = post.contents.originalContents.data;
     const parsedHtml= cheerioParse(html);
@@ -369,7 +368,5 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const timestamps = timestampStrings.map( dateString => new Date(dateString))
     
     return timestamps
-    
   }
-    
 }
