@@ -4,12 +4,12 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 
 const PostExcerpt = ({post, lines = 3, className}: {
-  post: PostsList,
+  post: PostsList | SunshinePostsList,
   lines?: number,
   className?: string,
 }) => {
   const {postContents, loading, error} = usePostContents({
-    post,
+    post: post as PostsList,
     fragmentName: "PostsList",
   });
 
