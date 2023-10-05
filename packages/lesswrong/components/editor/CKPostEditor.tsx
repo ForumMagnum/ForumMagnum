@@ -191,7 +191,7 @@ const CKPostEditor = ({
   const { query } = useLocation();
   const { flash } = useMessages();
   const post = (document as PostsEdit);
-  const isBlockOwnershipMode = isCollaborative && (query.blockOwnership || post.collabEditorDialogue);
+  const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
   const { EditorTopBar, DialogueEditorUI } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();

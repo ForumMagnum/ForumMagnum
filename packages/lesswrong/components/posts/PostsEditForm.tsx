@@ -112,10 +112,11 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   let removedFields = []
-  // old debate style, probably deprecated
-  if (query.blockOwnership) {
-    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance')
+  if (document.collabEditorDialogue) {
+    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
   }
+
+  console.log("Collab Editor Ben and Ray!", document.collabEditorDialogue)
 
   return (
     <DynamicTableOfContents title={document.title}>
@@ -176,7 +177,7 @@ const PostsEditForm = ({ documentId, classes }: {
             * "edits" the tag list via indirect operations (upvoting/downvoting
             * relevance scores).
             */
-            addFields={document.isEvent ? [] : ['tagRelevance']}
+            addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
           />
         </NoSSR>
       </div>
