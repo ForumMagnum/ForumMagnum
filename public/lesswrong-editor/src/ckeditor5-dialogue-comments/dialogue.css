@@ -1,11 +1,12 @@
 .dialogue-message-input {
   border: 2px solid;
   padding: 12px 8px 0px 8px;
+  position: relative;
 }
 
 .dialogue-message-input-header {
   position: absolute;
-  top: 2px;
+  top: -14px;
   background-color: white;
   padding: 4px;
 }
