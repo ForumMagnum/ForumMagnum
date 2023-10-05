@@ -82,7 +82,7 @@ augmentFieldsDict(Posts, {
       }
     }
   },
-  unreadDialogueResponseCount: {
+  unreadDebateResponseCount: {
     resolveAs: {
       type: 'Int',
       resolver: async (post, _, context) => {

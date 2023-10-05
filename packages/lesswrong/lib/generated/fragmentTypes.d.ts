@@ -703,6 +703,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly totalDialogueResponseCount: number,
+  readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
