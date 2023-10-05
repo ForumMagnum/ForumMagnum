@@ -4,21 +4,15 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { usePostContents } from "../../hooks/useForeignCrosspost";
 import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
+import type { CommonExcerptProps } from "./ContentExcerpt";
 
 const PostExcerpt = ({
   post,
-  lines = 3,
-  hideMoreLink,
-  smallText,
   hash,
-  className,
-}: {
+  ...commonExcerptProps
+}: CommonExcerptProps & {
   post: PostsList | SunshinePostsList,
-  lines?: number,
-  hideMoreLink?: boolean,
-  smallText?: boolean,
   hash?: string | null,
-  className?: string,
 }) => {
   // Get the post body, accounting for whether or not this is a crosspost
   const {postContents, loading, error} = usePostContents({
@@ -67,11 +61,8 @@ const PostExcerpt = ({
     <ContentExcerpt
       contentHtml={contentHtml}
       moreLink={postGetPageUrl(post)}
-      hideMoreLink={hideMoreLink}
-      smallText={smallText}
       contentType="postHighlight"
-      lines={lines}
-      className={className}
+      {...commonExcerptProps}
     />
   );
 }

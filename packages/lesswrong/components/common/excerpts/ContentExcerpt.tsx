@@ -53,7 +53,14 @@ const styles = (theme: ThemeType) => ({
     "& h4": smallHeading,
     "& h5": smallHeading,
     "& h6": smallHeading,
-    "& p": {fontSize: "13px !important"},
+    "& p": {
+      fontSize: "13px !important",
+    },
+  },
+  contentNoLinkStyling: {
+    "& a": {
+      color: `${theme.palette.text.normal} !important`,
+    },
   },
   continueReading: {
     cursor: "pointer",
@@ -70,25 +77,30 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export type CommonExcerptProps = {
+  lines?: number,
+  hideMoreLink?: boolean,
+  smallText?: boolean,
+  noLinkStyling?: boolean,
+  className?: string,
+}
+
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
   hideMoreLink,
   smallText,
+  noLinkStyling,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
   className,
   classes,
-}: {
+}: CommonExcerptProps & {
   contentHtml: string,
   moreLink: string,
-  hideMoreLink?: boolean,
-  smallText?: boolean,
   contentType: ContentStyleType,
-  lines?: number,
   alwaysExpandInPlace?: boolean,
-  className?: string,
   classes: ClassesType,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -112,6 +124,7 @@ const ContentExcerpt = ({
           className={classNames({
             [classes.contentNormalText]: !smallText,
             [classes.contentSmallText]: smallText,
+            [classes.contentNoLinkStyling]: noLinkStyling,
           })}
         />
       </ContentStyles>
