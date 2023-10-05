@@ -249,9 +249,6 @@ getCollectionHooks("Posts").editAsync.add(async function newDialogueSubscribersN
     // Handle debate participants
     // const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
     // await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'post', documentId: newPost._id });
-
-    // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
-    notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
     
 
   }
