@@ -85,7 +85,6 @@ const DialogueSubmit = ({
 
   const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
   
-  [...document.coauthors.map((coauthor: UsersMinimumInfo) => ({userId: coauthor._id, displayName: coauthor.displayName, signedOff: false}));
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,9 +103,6 @@ const DialogueSubmit = ({
 
   return (
     <React.Fragment>
-      <p>
-        {Object.keys(coauthorSignoffs).(coauthorSignoff => <SectionFooterCheckbox key={coauthorSignoff.userId} label={coauthorSignoff.displayName} value={coauthorSignoff.signedOff} onClick={(coauthorSignoff.userId)}/>)}
-      </p>
       <Row justifyContent="flex-end">
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
