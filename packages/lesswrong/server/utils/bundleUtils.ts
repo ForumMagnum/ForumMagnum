@@ -49,8 +49,7 @@ let serverBundleHash: string|null = null;
 export const getServerBundleHash = (): string => {
   if (!serverBundleHash) {
     const serverBundlePath = path.join(__dirname, "../../server/js/serverBundle.js");
-    const serverBundleText = fs.readFileSync(serverBundlePath, 'utf8');
-    const serverBundleBuffer = Buffer.from(serverBundleText, 'utf8');
+    const serverBundleBuffer = fs.readFileSync(serverBundlePath);
     serverBundleHash = crypto.createHash('sha256').update(serverBundleBuffer).digest('hex');
   }
   return serverBundleHash;
