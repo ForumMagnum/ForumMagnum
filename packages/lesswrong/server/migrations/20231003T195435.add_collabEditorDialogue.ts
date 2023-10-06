@@ -36,16 +36,17 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "819db4e73eb75d36dad4ede02eb17c1e";
+export const acceptsSchemaHash = "2e10471e3641d01fe309198fb9ecff32";
 
 import { Posts } from "../../lib/collections/posts/collection"
-import { addField } from "./meta/utils"
+import { updateDefaultValue, addField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
   if (!Posts.isPostgres()) {
     return
   }
   await addField(db, Posts, "collabEditorDialogue");
+  await updateDefaultValue(db, Posts, "shareWithUsers");
 }
 
 export const down = async ({db}: MigrationContext) => {

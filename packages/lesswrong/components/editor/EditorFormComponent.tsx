@@ -34,7 +34,7 @@ const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
 
-  if (post.debate) return debateEditorPlaceholder;
+  if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
   return defaultEditorPlaceholder;

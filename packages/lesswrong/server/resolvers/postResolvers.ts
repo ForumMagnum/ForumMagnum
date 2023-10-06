@@ -14,7 +14,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
-import { getDefaultPostLocationFields, getDialogueResponseCount, getDialogueMessageTimestamps } from "../posts/utils";
+import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -77,7 +77,7 @@ augmentFieldsDict(Posts, {
       type: 'Int', 
       resolver: (post, _, context) => {
         if (!post.debate) return 0;
-        return getDialogueResponseCount(post)
+        return getDialogueResponseIds(post).length
       }
     }
   },
@@ -85,7 +85,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Int',
       resolver: async (post, _, context) => {
-        if (!post.debate) return 0;
+        if (!post.collabEditorDialogue) return 0;
 
         const lastReadStatus = await getLastReadStatus(post, context);
         if (!lastReadStatus) return 0;
@@ -95,7 +95,7 @@ augmentFieldsDict(Posts, {
 
         return newMessageTimestamps.length ?? 0
       }
-  }
+    }
   },
   sideComments: {
     resolveAs: {

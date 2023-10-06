@@ -191,10 +191,6 @@ const UsersMenu = ({classes}: {
                     title={preferredHeadingCase("New Dialogue")}
                     onClick={() => openDialog({componentName:"NewDialogueDialog"})}
                   />
-                  /*<DropdownItem
-                    title={preferredHeadingCase("New Dialogue")}
-                    to="/newpost?debate=true"
-                  />*/
                 }
               </div>
               {/*

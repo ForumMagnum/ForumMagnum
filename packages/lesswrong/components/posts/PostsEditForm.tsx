@@ -62,7 +62,6 @@ const PostsEditForm = ({ documentId, classes }: {
     extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
-    
   
   if (!document && loading) {
     return <Components.Loading/>
@@ -110,7 +109,7 @@ const PostsEditForm = ({ documentId, classes }: {
     </div>
   }
   
-  let removedFields = []
+  const removedFields = []
   if (document.collabEditorDialogue) {
     removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
   }

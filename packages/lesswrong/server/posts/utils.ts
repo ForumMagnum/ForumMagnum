@@ -11,23 +11,28 @@ export async function getDefaultPostLocationFields(post: DbPost) {
   return {}
 }
 
-export const getDialogueResponseCount = (post:DbPost) => {
+export const getDialogueResponseIds = (post:DbPost) => {
   const html = post.contents.originalContents.data;
-  const parsedHtml= cheerioParse(html);
+  const $ = cheerioParse(html);
   
-  const blocksWithId = parsedHtml('block[message-id]');
-  const ids : string[] = blocksWithId.map( (i, block) => parsedHtml(block).attr('message-id')).get();
+  const messageIds: string[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const messageId = $(element).attr('message-id');
+    if (messageId) messageIds.push(messageId);
+  });
   
-  return ids.length;
+  return messageIds;
 }
 
 export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
   const html = post.contents.originalContents.data;
-  const parsedHtml= cheerioParse(html);
-  
-  const blocksWithId = parsedHtml('block[message-id]');
-  const timestampStrings = blocksWithId.map( (i, block) => (parsedHtml(block).attr('submitted-at'))).get();
-  const timestamps = timestampStrings.map( dateString => new Date(dateString))
+  const $ = cheerioParse(html);
+    
+  const timestamps: Date[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const timestampString = $(element).attr('submitted-date');
+    if (timestampString) timestamps.push(new Date(timestampString));
+  }); 
   
   return timestamps
 }
