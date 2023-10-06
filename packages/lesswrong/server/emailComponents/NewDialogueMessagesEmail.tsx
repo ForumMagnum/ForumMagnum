@@ -7,7 +7,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 const NewDialogueMessagesEmail = ({documentId, userId}: {
   documentId: string,
   userId: string,
-  classes: any,
 }) => {
   const { document: post } = useSingle({
     documentId,
