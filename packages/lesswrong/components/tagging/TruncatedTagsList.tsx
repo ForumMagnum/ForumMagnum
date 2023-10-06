@@ -11,6 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     maxWidth: "100%",
     fontSize: 13,
+    fontWeight: 450,
   },
   item: {},
   placeholder: {},
