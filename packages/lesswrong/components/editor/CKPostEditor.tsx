@@ -287,7 +287,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
-  const { EditorTopBar, DialogueEditorUI } = Components;
+  const { EditorTopBar, DialogueEditorGuidelines } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -361,7 +361,7 @@ const CKPostEditor = ({
 
   return <div>
     {isBlockOwnershipMode && <>
-     <DialogueEditorUI />
+     <DialogueEditorGuidelines />
      <style>
       {
       `.dialogue-message-input button {
