@@ -223,9 +223,9 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   }
 });
 
-export async function notifyDialogueParticipantsNewMessage(message: AnyBecauseTodo, post: DbPost) {
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
-  const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [message.userId]);
+  const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
   await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id, extraData: { message } });
 }
 
