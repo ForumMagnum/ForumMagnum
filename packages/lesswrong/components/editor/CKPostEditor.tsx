@@ -111,7 +111,7 @@ function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedC
     }
 
     const messageUserOrder = message.getAttribute('user-order');
-    if (userOrder !== messageUserOrder) {
+    if (userOrder !== Number.parseInt(messageUserOrder as string)) {
       writer.setAttribute('user-order', userOrder, message);
       return true;
     }
