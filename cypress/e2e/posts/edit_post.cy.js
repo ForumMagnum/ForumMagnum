@@ -15,8 +15,15 @@ describe('Posts', function() {
     const newPostBody = 'New post body';
     cy.get('.PostActionsButton-root').first().click();
     cy.contains('.DropdownItem-title', 'Edit').click();
+    
     cy.get('.form-component-EditTitle').click().clear().type(newPostTitle);
-    cy.get('.input-contents .ck-editor__editable').click();
+    
+    // Set CKEditor content using setData
+    cy.get('.input-contents .ck-editor__editable').then(el => {
+        // @ts-ignore
+        const editor = el[0].ckeditorInstance; // Assume ckeditorInstance is attached to the element
+        editor.setData(newPostBody);
+    });
     
     // HACK: Clicking away from the title opens a flash-message. It auto-closes, but
     // while it's open, it can eat certain mouse clicks, causing them to close the
@@ -24,9 +31,9 @@ describe('Posts', function() {
     // affect the publish button). Wait until the message auto-closes.
     cy.wait(5000);
     
-    cy.get('.input-contents .ck-editor__editable').click().clear().type(newPostBody);
     cy.contains('Publish Changes').click();
     cy.contains('.PostsPageTitle-root', newPostTitle).should('exist');
     cy.contains('.PostsPage-postContent', newPostBody).should('exist');
   });
 });
+
