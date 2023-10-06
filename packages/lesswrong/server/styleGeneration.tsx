@@ -15,7 +15,6 @@ import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../th
 import type { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
-import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import { spawn, exec } from "child_process";
 import { promisify } from "util";
