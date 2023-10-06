@@ -11,14 +11,14 @@ export async function getDefaultPostLocationFields(post: DbPost) {
   return {}
 }
 
-export const getDialogueResponseCount = (post:DbPost) => {
+export const getDialogueResponseIds = (post:DbPost) => {
   const html = post.contents.originalContents.data;
   const parsedHtml= cheerioParse(html);
   
   const blocksWithId = parsedHtml('block[message-id]');
   const ids : string[] = blocksWithId.map( (i, block) => parsedHtml(block).attr('message-id')).get();
   
-  return ids.length;
+  return ids
 }
 
 export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
