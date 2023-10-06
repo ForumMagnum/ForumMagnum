@@ -244,7 +244,8 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const jssStylePreload = renderJssSheetPreloads(themeOptions);
+    const renderResultPromise = renderWithCache(request, response, user);
+    const jssStylePreload = await renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
@@ -273,7 +274,7 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    const renderResult = await renderWithCache(request, response, user);
+    const renderResult = await renderResultPromise;
     
     const {
       ssrBody,

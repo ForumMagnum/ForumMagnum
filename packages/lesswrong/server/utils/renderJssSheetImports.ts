@@ -1,17 +1,19 @@
 import { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
-import { getMergedStylesheet } from '../styleGeneration';
+import { getMergedStylesheet, MergedStylesheet } from '../styleGeneration';
 
 const stylesId = "main-styles";
 
 const stylesheetUrls = new class {
-  private cache: Record<string, string> = {};
+  private cache: Record<string, Promise<MergedStylesheet>> = {};
 
-  getStylesheetUrl(themeOptions: ThemeOptions) {
+  async getStylesheetUrl(themeOptions: ThemeOptions) {
     const cacheKey = JSON.stringify(themeOptions);
+    console.log(`Getting stylesheet ${cacheKey}`);
     if (!this.cache[cacheKey]) {
-      this.cache[cacheKey] = getMergedStylesheet(themeOptions).url;
+      console.log(`Cache miss`);
+      this.cache[cacheKey] = getMergedStylesheet(themeOptions);
     }
-    return this.cache[cacheKey];
+    return (await this.cache[cacheKey]).url;
   }
 }
 
@@ -27,9 +29,9 @@ const renderImportForColorScheme = (url: string, colorScheme: string): string =>
 const renderImportForPrint = (url: string): string =>
   `@import url("${url}") print;\n`;
 
-export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => {
-  const lightSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "default"})
-  const darkSheet = stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "dark"})
+const renderAutoStyleImport = async (siteThemeOverride?: SiteThemeOverride) => {
+  const lightSheet = await stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "default"})
+  const darkSheet = await stylesheetUrls.getStylesheetUrl({siteThemeOverride, name: "dark"})
 
   const light = renderImportForColorScheme(lightSheet, "light");
   const dark = renderImportForColorScheme(darkSheet, "dark");
@@ -37,19 +39,19 @@ export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => 
   return `<style id="${stylesId}">${light}${dark}${print}</style>`;
 }
 
-export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): string => {
+export const renderJssSheetImports = async (themeOptions: AbstractThemeOptions): Promise<string> => {
   const prefix = '<style id="jss-insertion-point"></style>';
   if (themeOptionsAreConcrete(themeOptions)) {
-    return `${prefix}${renderLinkMainSheet(stylesheetUrls.getStylesheetUrl(themeOptions))}`;
+    return `${prefix}${renderLinkMainSheet(await stylesheetUrls.getStylesheetUrl(themeOptions))}`;
   }
   return `${prefix}${renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
 }
 
-export const renderJssSheetPreloads = (themeOptions: AbstractThemeOptions) => {
+export const renderJssSheetPreloads = async (themeOptions: AbstractThemeOptions) => {
   if (themeOptionsAreConcrete(themeOptions)) {
-    return renderPreloadSheet(stylesheetUrls.getStylesheetUrl(themeOptions));
+    return renderPreloadSheet(await stylesheetUrls.getStylesheetUrl(themeOptions));
   }
-  const lightSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
-  const darkSheet = renderPreloadSheet(stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
+  const lightSheet = renderPreloadSheet(await stylesheetUrls.getStylesheetUrl({...themeOptions, name: "default"}))
+  const darkSheet = renderPreloadSheet(await stylesheetUrls.getStylesheetUrl({...themeOptions, name: "dark"}))
   return lightSheet + darkSheet;
 }
