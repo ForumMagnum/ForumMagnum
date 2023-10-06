@@ -206,7 +206,6 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     'margin-left': 'auto',
     'margin-right': -8,
     'margin-bottom': -4,
-    'padding-bottom': 8,
     display: 'block',
     position: 'absolute',
     right: 16,
