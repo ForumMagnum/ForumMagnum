@@ -17,10 +17,9 @@ import Posts from "../../lib/collections/posts/collection";
 export const acceptsSchemaHash = "d42e531dd915561448e15e72551b1d71";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) {
-    await updateDefaultValue(db, Users, "notificationDialogueMessages")
-    await updateDefaultValue(db, Users, "notificationPublishedDialogueMessages")
-  }
+  if (!Users.isPostgres()) return;
+  await updateDefaultValue(db, Users, "notificationDialogueMessages")
+  await updateDefaultValue(db, Users, "notificationPublishedDialogueMessages")
 }
 
 export const down = async ({db}: MigrationContext) => {
