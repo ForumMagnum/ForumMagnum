@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Components, registerComponent, getSiteUrl } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isLW} from "../../../lib/instanceSettings";
-import { forumSelect } from '../../../lib/forumTypeUtils';
+import { isEAForum, isLW} from "../../../lib/instanceSettings";
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -51,8 +50,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   feedback: {
   }
 });
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
 
 export type DialogueSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
