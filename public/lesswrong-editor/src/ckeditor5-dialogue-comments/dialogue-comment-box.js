@@ -327,6 +327,8 @@ class SubmitDialogueMessageCommand extends Command {
             const dialogueMessageInput = Array.from(root.getChildren()).find(node => (
                 node.is('element', 'dialogueMessageInput') && node.getAttribute('user-id') === userId
             ));
+		  
+			const dialogueConfig = this.editor.config.get('dialogues')
 
             if (dialogueMessageInput) {
                 const submittedDate = (new Date()).toUTCString();
@@ -355,8 +357,11 @@ class SubmitDialogueMessageCommand extends Command {
                     writer.insertText(dialogueMessageInput.data, dialogueMessage);
                     writer.append(dialogueMessage, root);
                 }
-
-                writer.setSelection(dialogueMessageInput, 0)
+				
+				writer.setSelection(dialogueMessageInput, 0)
+			    // notificationCallback()
+			  	dialogueConfig.dialogueParticipantNotificationCallback()
+			  
             }
         });
     }

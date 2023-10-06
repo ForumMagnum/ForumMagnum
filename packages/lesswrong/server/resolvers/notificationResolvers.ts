@@ -1,8 +1,10 @@
-import { defineQuery } from '../utils/serverGraphqlUtil';
+import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../lib/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
+import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
+import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -49,3 +51,20 @@ defineQuery({
     }
   }
 });
+
+defineMutation({
+  name: "sendNewDialogueMessageNotification",
+  resultType: "Boolean!",
+  argTypes: "(postId: String!)",
+  fn: async (_, {postId}: { postId: string }, {currentUser, loaders}) => {
+    if (!currentUser) throw new Error("No user was provided")
+    const post = await loaders.Posts.load(postId)
+    if (!post) throw new Error("No post was provided")
+    if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
+    if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
+  
+    await notifyDialogueParticipantsNewMessage(currentUser._id, post)
+    
+    return true
+  }
+})

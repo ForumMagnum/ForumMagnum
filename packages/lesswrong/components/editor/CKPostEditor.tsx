@@ -18,6 +18,7 @@ import Button from '@material-ui/core/Button';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { gql, useMutation } from "@apollo/client";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -304,7 +305,22 @@ const CKPostEditor = ({
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  // To make sure that the refs are populated we have to do two rendering passes
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!) {
+      sendNewDialogueMessageNotification(postId: $postId)
+    }
+  `);
+  const dialogueParticipantNotificationCallback = async () => {
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+    
+    // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
     setLayoutReady(true)
@@ -352,9 +368,9 @@ const CKPostEditor = ({
         display: none;
       }
       
-      .dialogue-message-input[user-id="${currentUser!._id}"] button {
+      ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] button {
         display: block;
-      }
+      }` : ``}
       `}
      </style>
     </>}
@@ -425,7 +441,7 @@ const CKPostEditor = ({
               }
             }
             
-            if (blockOwners.some(blockOwner => blockOwner !== currentUser!._id)) {
+            if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
               changeCollaborationMode("Commenting");
             } else {
               changeCollaborationMode("Editing");
@@ -440,7 +456,7 @@ const CKPostEditor = ({
                   for (let suggestionId of suggestionIds) {
                     const suggestion = (trackChangesPlugin as any).getSuggestion(suggestionId);
                     const suggesterUserId = suggestion.author.id;
-                    if (suggesterUserId === currentUser!._id) {
+                    if (!currentUser || (suggesterUserId === currentUser?._id)) {
                       flash("You cannot accept your own changes");
                       command.stop();
                     }
@@ -509,7 +525,8 @@ const CKPostEditor = ({
         },
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration
+        mention: mentionPluginConfiguration,
+        dialogues: dialogueConfiguration
       }}
     />}
   </div>
