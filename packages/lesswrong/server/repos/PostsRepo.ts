@@ -213,7 +213,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           WHERE "debateResponse" IS TRUE
           GROUP BY "postId"
           ) c ON p."_id" = c."postId"
-      WHERE (p.debate IS TRUE OR p.collabEditorDialogue) AND p.draft IS NOT TRUE
+      WHERE (p.debate IS TRUE OR p."collabEditorDialogue" IS TRUE) AND p.draft IS NOT TRUE
       ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt") DESC
       LIMIT $1
     `, [limit]);
