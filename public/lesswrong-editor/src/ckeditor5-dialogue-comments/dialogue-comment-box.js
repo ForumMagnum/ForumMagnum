@@ -2,7 +2,6 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
-import './dialogue.css';
 
 export default class DialogueCommentBox extends Plugin {
     static get requires() {

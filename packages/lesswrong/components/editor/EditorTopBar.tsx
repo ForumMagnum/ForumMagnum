@@ -57,10 +57,11 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   
   const canCommentOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "comment");
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
+  const alwaysShownUserIds = [post.userId, ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
 
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList}>
-      <PresenceList connectedUsers={connectedUsers} alwaysShownUserIds={post.coauthorStatuses?.map(u=>u.userId) ?? []}/>
+      <PresenceList connectedUsers={connectedUsers} alwaysShownUserIds={alwaysShownUserIds}/>
     </div>
     <span>
       <Select
