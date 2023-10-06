@@ -1,17 +1,15 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useCurrentUser } from '../common/withUser';
-import { useMulti } from '../../lib/crud/withMulti';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const DialoguesList = ({limit=20, hideLoadMore=false}: {
   limit?: number,
   hideLoadMore?: boolean,
 }) => {
-  const currentUser = useCurrentUser();
-  const { PostsItem, LoadMore } = Components
+  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
 
   const {
     results: dialoguePosts
@@ -21,15 +19,24 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
     limit: 3,
   }); 
 
+  const dialoguesTooltip = <div>
+    Beta feature: dialogues between a small group of users. Click for more info
+  </div>
+
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
-    <div>
-      {dialoguePosts && dialoguePosts.map((post: PostsListWithVotes, i: number) =>
+    <SingleColumnSection>
+      <LWTooltip placement="top-start" title={dialoguesTooltip}>
+        <Link to="/posts/y8aCB8z2QpJWBdwtA/announcing-dialogues">
+          <SectionTitle title="Dialogues"/>
+        </Link>
+      </LWTooltip>
+      {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
-   </div>
+   </SingleColumnSection>
   </AnalyticsContext>
 }
 

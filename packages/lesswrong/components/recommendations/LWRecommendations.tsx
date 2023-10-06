@@ -166,14 +166,10 @@ const LWRecommendations = ({
       <div><em>(Click to see all)</em></div>
     </div>
 
-    const dialoguesTooltip = <div>
-      <div>Beta feature: dialogues between a small group of users. Click for more info</div>
-    </div>
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
-    const dialoguesLimit = 3
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
-    const renderDialogues = true // !settings.hideDialogues   TODO: Add hideDialogues to settings
+
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
@@ -235,23 +231,6 @@ const LWRecommendations = ({
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
-            </AnalyticsContext>
-          </div>
-        )}
-
-        {renderDialogues && (
-          <div className={classes.subsection}>
-            <AnalyticsContext
-              pageSubSectionContext="frontpageDialoguesList"
-              listContext={"frontpageDialoguesList"}
-              capturePostItemOnMount
-            >
-              <LWTooltip placement="top-start" title={dialoguesTooltip}>
-                <Link to="/posts/y8aCB8z2QpJWBdwtA/announcing-dialogues">
-                  <SectionSubtitle>Dialogues</SectionSubtitle>
-                </Link>
-              </LWTooltip>
-              <DialoguesList limit={dialoguesLimit} hideLoadMore={true} />
             </AnalyticsContext>
           </div>
         )}
