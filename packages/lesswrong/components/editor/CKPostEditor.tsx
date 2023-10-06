@@ -53,8 +53,8 @@ function areLastElementsAllInputs(lastChildren: Node[]) {
 
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
   return dialogueMessageInputs.every((input, idx) => {
-    const inputDisplayName = input.getAttribute('display-name');
-    return inputDisplayName === sortedCoauthors[idx].displayName;
+    const inputDisplayName = input.getAttribute('user-id');
+    return inputDisplayName === sortedCoauthors[idx]._id;
   });
 }
 
@@ -150,9 +150,16 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     // We check that we have an input element for every author
     const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
     createMissingInputs(authorsWithoutInputs, writer, root);
+    if (authorsWithoutInputs.length > 0) {
+      return true;
+    }
 
     const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, sortedCoauthors);
-    if (inputsWithoutAuthors.length > 0 || authorsWithoutInputs.length > 0) {
+    if (inputsWithoutAuthors.length > 0) {
+      //Remove any inputs without authors
+      inputsWithoutAuthors.forEach(input => {
+        writer.remove(input);
+      });
       return true;
     }
 
@@ -164,12 +171,25 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
 
     if (incorrectOrder || !lastElementsAreAllInputs) {
-      const sortedInputs = sortBy(dialogueMessageInputs, (i) => i.getAttribute('display-name'));
+      const sortedInputs = sortBy(dialogueMessageInputs, (i) => sortedCoauthors.findIndex(author => author._id === i.getAttribute('user-id')))
       sortedInputs.forEach(sortedInput => {
         writer.append(sortedInput, root);
       });
       return true;
     }
+
+    // We remove all messages that don't have a corresponding author
+    const messagesWithoutAuthors = dialogueMessages.filter(message => {
+      const messageUserId = message.getAttribute('user-id');
+      return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
+    });
+    if (messagesWithoutAuthors.length > 0) {
+      messagesWithoutAuthors.forEach(message => {
+        writer.remove(message);
+      });
+      return true;
+    }
+
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
     dialogueMessageInputs.forEach(input => {
@@ -374,10 +394,8 @@ const CKPostEditor = ({
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
         const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
         const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
-
-        const sortedCoauthors = sortBy(coauthors, (coauthor) => coauthor.displayName);
         
-        editor.model.document.registerPostFixer( createDialoguePostFixer(editor, sortedCoauthors) );
+        editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
         // This is just to trigger the postFixer when the editor is initialized
         editor.model.change(writer => {
