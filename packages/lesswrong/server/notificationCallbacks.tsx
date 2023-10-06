@@ -226,7 +226,7 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
 export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
   const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
-  await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id, extraData: { message } });
+  await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id });
 }
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {

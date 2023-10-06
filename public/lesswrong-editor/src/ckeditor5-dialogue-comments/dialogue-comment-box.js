@@ -329,8 +329,8 @@ class SubmitDialogueMessageCommand extends Command {
                 node.is('element', 'dialogueMessageInput') && node.getAttribute('user-id') === userId
             ));
 		  
-			const notificationCallback = this.editor.config.get('dialogues.dialogueParticipantNotificationCallback')
-		    console.log({notificationCallback})
+			const dialogueConfig = this.editor.config.get('dialogues')
+		    console.log({dialogueConfig})
 
             if (dialogueMessageInput) {
                 const submittedDate = (new Date()).toUTCString();
@@ -361,7 +361,8 @@ class SubmitDialogueMessageCommand extends Command {
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0)
-			    notificationCallback()
+			    // notificationCallback()
+			  	dialogueConfig.dialogueParticipantNotificationCallback()
 			    console.log('time to call callback!')
 			  
 			  
