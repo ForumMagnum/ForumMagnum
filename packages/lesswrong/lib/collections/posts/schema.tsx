@@ -107,7 +107,7 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
-async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
   if (!currentUser) return null;
 
@@ -2584,35 +2584,20 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false)
   },
 
-  unreadDebateResponseCount: resolverOnlyField({
+  totalDialogueResponseCount: {
     type: Number,
-    nullable: true,
+    optional: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (!post.debate) return 0;
-      const { Comments, currentUser } = context;
+    // Implementation in postResolvers.ts
+  },
 
-      const lastReadStatus = await getLastReadStatus(post, context);
-      if (!lastReadStatus) return null;
-
-      const comments = await Comments.find({
-        ...getDefaultViewSelector("Comments"),
-        postId: post._id,
-        // This actually forces `deleted: false` by combining with the default view selector
-        deletedPublic: false,
-        debateResponse: true,
-        postedAt: { $gt: lastReadStatus.lastUpdated },
-      }, {
-        sort: { postedAt: 1 }
-      }).fetch();
-
-      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
-      const count = filteredComments.length;
-
-      return count;
-    }
-  }),
-
+  unreadDebateResponseCount: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
   emojiReactors: resolverOnlyField({
     type: Object,
     graphQLtype: GraphQLJSON,
