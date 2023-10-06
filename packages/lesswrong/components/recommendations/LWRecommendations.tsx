@@ -117,7 +117,7 @@ const LWRecommendations = ({
   const render = () => {
     const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
       RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
-      ContinueReadingList, BookmarksList, DialoguesList } = Components;
+      ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {

@@ -20,16 +20,17 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
   }); 
 
   const dialoguesTooltip = <div>
-    Beta feature: dialogues between a small group of users. Click for more info
+    <p>Beta feature:</p>
+    <p>dialogues between a small group of users. Click for more info.</p>
   </div>
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
-      <LWTooltip placement="top-start" title={dialoguesTooltip}>
-        <Link to="/posts/y8aCB8z2QpJWBdwtA/announcing-dialogues">
-          <SectionTitle title="Dialogues"/>
-        </Link>
-      </LWTooltip>
+      <SectionTitle href="/posts/y8aCB8z2QpJWBdwtA/announcing-dialogues"
+        title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
+          Dialogues
+        </LWTooltip>}
+      />
       {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post}
