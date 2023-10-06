@@ -1,3 +1,4 @@
+// @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
@@ -53,6 +54,37 @@ class SimpleBoxEditing extends Plugin {
 
         this.editor.commands.add( 'insertSimpleBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
+
+        const viewDocument = this.editor.editing.view.document;
+		const editor = this.editor;
+
+        this.listenTo( viewDocument, 'delete', (evt, data) => {
+            const doc = editor.model.document;
+            const selectedBlocks = Array.from(doc.selection.getSelectedBlocks());
+            const deletedElement = selectedBlocks[0];
+            if (!deletedElement || !deletedElement.parent) return;
+
+            const messageParent = deletedElement.getAncestors().find(ancestor => ancestor.is('element', 'dialogueMessage'));
+            if (!messageParent) return;
+
+            const isFirstChild = messageParent.getChildIndex(deletedElement) === 0;
+            const selectionStartPos = doc.selection.getFirstPosition();
+
+            if (!selectionStartPos) return;
+
+            const isAtStart = selectionStartPos.isAtStart;
+            const zeroSelectionRange = doc.selection.isCollapsed;
+            const startParagraph = selectionStartPos.findAncestor('paragraph');
+
+            if (!startParagraph) return;
+
+            const messageIsEmpty = startParagraph.maxOffset === 0;
+            
+            if (isFirstChild && zeroSelectionRange && isAtStart && !messageIsEmpty) {
+                data.preventDefault();
+                evt.stop();
+            }
+        });
     }
 
     _defineSchema() {
