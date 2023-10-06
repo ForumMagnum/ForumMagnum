@@ -222,6 +222,8 @@ registerFragment(`
       ...TagPreviewFragment
     }
 
+    feedId
+    totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
   }

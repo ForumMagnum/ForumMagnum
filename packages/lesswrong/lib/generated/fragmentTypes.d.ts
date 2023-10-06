@@ -703,6 +703,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly totalDialogueResponseCount: number,
+  readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
@@ -1044,6 +1046,8 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly feedId: string,
+  readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string,
 }
