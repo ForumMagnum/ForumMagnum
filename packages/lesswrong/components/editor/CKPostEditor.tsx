@@ -18,6 +18,7 @@ import Button from '@material-ui/core/Button';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { gql, useMutation } from "@apollo/client";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -304,7 +305,22 @@ const CKPostEditor = ({
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  // To make sure that the refs are populated we have to do two rendering passes
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!) {
+      sendNewDialogueMessageNotification(postId: $postId)
+    }
+  `);
+  const dialogueParticipantNotificationCallback = async () => {
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+    
+    // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
     setLayoutReady(true)
@@ -509,7 +525,8 @@ const CKPostEditor = ({
         },
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration
+        mention: mentionPluginConfiguration,
+        dialogues: dialogueConfiguration
       }}
     />}
   </div>
