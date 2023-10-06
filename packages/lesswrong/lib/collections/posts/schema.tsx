@@ -1361,13 +1361,14 @@ const schema: SchemaType<DbPost> = {
     nullable: true,
     label: "Co-Authors",
     control: "CoauthorsListEditor",
-    group: formGroups.coauthors,
+    group: formGroups.coauthors
   },
   'coauthorStatuses.$': {
     type: new SimpleSchema({
       userId: String,
       confirmed: Boolean,
       requested: Boolean,
+
     }),
     optional: true,
   },

@@ -30,8 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const placeholders: Record<PostCategory, string> = {
   "post": "Post title",
   "question": "Question title",
-  "linkpost": "Linkpost title",
-  "dialogue": "Dialogue title",
+  "linkpost": "Linkpost title"
 }
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {

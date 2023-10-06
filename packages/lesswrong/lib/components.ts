@@ -410,7 +410,7 @@ importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require
 importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
-importComponent("DialogueEditorUI", () => require('../components/posts/dialogues/DialogueEditorUI'));
+importComponent("DialogueEditorGuidelines", () => require('../components/posts/dialogues/DialogueEditorGuidelines'));
 importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 

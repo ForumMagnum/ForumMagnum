@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const DialogueEditorUI = ({classes}: {
+export const DialogueEditorGuidelines = ({classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classes.root}>
@@ -33,10 +33,10 @@ export const DialogueEditorUI = ({classes}: {
   </div>;
 }
 
-const DialogueEditorUIComponent = registerComponent('DialogueEditorUI', DialogueEditorUI, {styles});
+const DialogueEditorGuidelinesComponent = registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
 
 declare global {
   interface ComponentTypes {
-    DialogueEditorUI: typeof DialogueEditorUIComponent
+    DialogueEditorGuidelines: typeof DialogueEditorGuidelinesComponent
   }
 }
