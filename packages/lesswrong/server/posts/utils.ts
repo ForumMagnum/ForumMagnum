@@ -15,8 +15,6 @@ export const getDialogueResponseIds = (post:DbPost) => {
   const html = post.contents.originalContents.data;
   const $ = cheerioParse(html);
   
-  $('.dialogue-message-input').remove();
-  
   const messageIds: string[] = [];
   $('.dialogue-message').each((idx, element) => {
     const messageId = $(element).attr('message-id');
@@ -29,9 +27,7 @@ export const getDialogueResponseIds = (post:DbPost) => {
 export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
   const html = post.contents.originalContents.data;
   const $ = cheerioParse(html);
-  
-  $('.dialogue-message-input').remove();
-  
+    
   const timestamps: Date[] = [];
   $('.dialogue-message').each((idx, element) => {
     const timestampString = $(element).attr('submitted-date');
