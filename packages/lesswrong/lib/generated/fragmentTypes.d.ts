@@ -216,13 +216,13 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
-  readonly notificationDebateCommentsOnSubscribedPost: {
+  readonly notificationDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
-  readonly notificationDebateReplies: {
+  readonly notificationPublishedDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -2450,7 +2450,7 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments",
+  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface SubscriptionState { // fragment on Subscriptions
@@ -2461,7 +2461,7 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments",
+  readonly type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface PodcastsDefaultFragment { // fragment on Podcasts

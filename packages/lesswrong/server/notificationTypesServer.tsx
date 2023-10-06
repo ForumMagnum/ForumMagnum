@@ -147,6 +147,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
+      
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
     }
   }
@@ -209,49 +210,32 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
   },
 });
 
-export const NewDebateCommentNotification = serverRegisterNotificationType({
-  name: "newDebateComment",
+export const NewDialogueMessageNotification = serverRegisterNotificationType({
+  name: "newDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    if (notifications.length > 1) {
-      return `${notifications.length} dialogue replies on dialogues you subscribed to`;
-    } else {
-      const comment = await Comments.findOne(notifications[0].documentId);
-      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
-      const author = await Users.findOne(comment.userId);
-      if (!author) throw Error(`Can't find author for new dialogue comment notification: ${notifications[0]}`)
-      return `${author.displayName} replied in a dialogue you subscribed to`;
-    }
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `New content in the dialogue you are participating in, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const commentIds = notifications.map(n => n.documentId);
-    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
-    
-    return <Components.EmailCommentBatch comments={comments}/>;
+    const postId = notifications[0].documentId;
+    return <Components.NewDialogueMessages documentId={postId} userId={user._id}/>;
   },
 });
 
-export const NewDebateReplyNotification = serverRegisterNotificationType({
-  name: "newDebateReply",
+//subscriber notification for dialogues
+export const NewPublishedDialogueMessageNotification = serverRegisterNotificationType({
+  name: "newPublishedDialogueMessages",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    if (notifications.length > 1) {
-      return `${notifications.length} replies on dialogues you're participanting in'`;
-    } else {
-      const comment = await Comments.findOne(notifications[0].documentId);
-      if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
-      const author = await Users.findOne(comment.userId);
-      if (!author) throw Error(`Can't find author for new dialogue comment notification: ${notifications[0]}`)
-      return `${author.displayName} replied in a dialogue you're participanting in`;
-    }
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `New content in the dialogue you are subscribed to, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const commentIds = notifications.map(n => n.documentId);
-    const commentsRaw = await Comments.find({_id: {$in: commentIds}}).fetch();
-    const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
-    
-    return <Components.EmailCommentBatch comments={comments}/>;
+    const postId = notifications[0].documentId;
+    return <Components.NewDialogueMessages documentId={postId} userId={user._id}/>;
   },
 });
 

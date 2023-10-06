@@ -941,7 +941,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1291,13 +1291,13 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
-  notificationDebateCommentsOnSubscribedPost: {
+  notificationDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
-  notificationDebateReplies: {
+  notificationPublishedDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

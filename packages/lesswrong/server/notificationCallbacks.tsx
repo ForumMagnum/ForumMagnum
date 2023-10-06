@@ -34,6 +34,7 @@ import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
+import { getDialogueResponseIds } from "./posts/utils";
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -222,6 +223,35 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   }
 });
 
+getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
+  if (newPost.debate) {
+  
+    const oldIds = getDialogueResponseIds(oldPost)
+    const newIds = getDialogueResponseIds(newPost);
+    const uniqueNewIds = _.difference(newIds, oldIds);
+    
+    if (uniqueNewIds.length > 0) {
+  
+      const debateParticipantIds = [newPost.userId, ...(newPost.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]
+      const debateSubscribers = await getSubscribedUsers({
+        documentId: newPost._id,
+        collectionName: "Posts",
+        type: subscriptionTypes.newPublishedDialogueMessages,
+      });
+  
+      const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+      const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, debateParticipantIds);
+      await createNotifications({
+        userIds: debateSubscriberIdsToNotify,
+        notificationType: 'newPublishedDialogueMessages',
+        documentType: 'post',
+        documentId: newPost._id
+      });
+    }
+
+  }
+});
+
 getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
@@ -389,6 +419,12 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   }
 }
 
+export async function notifyDialogueParticipantsNewMessage(message: AnyBecauseTodo, post: DbPost) {
+  // Get all the debate participants, but exclude the comment author if they're a debate participant
+  const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [message.userId]);
+  await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id, extraData: { message } });
+}
+
 // This may have been sending out duplicate notifications in previous years, maybe just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on.
 getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
   const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
@@ -438,35 +474,8 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
       }
     }
   }
-
-  // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
-  if (post && comment.debateResponse) {
-    // Get all the debate participants, but exclude the comment author if they're a debate participant
-    const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
-
-    const debateSubscribers = await getSubscribedUsers({
-      documentId: comment.postId,
-      collectionName: "Posts",
-      type: subscriptionTypes.newDebateComments,
-      potentiallyDefaultSubscribedUserIds: debateParticipantIds
-    });
-
-    const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
-    // Handle debate readers
-    // Filter out debate participants, since they get a different notification type
-    // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
-    const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
-    await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
-
-    // Handle debate participants
-    const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
-    await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
-
-    // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
-    notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
-  }
   
-  // 3. Notify users who are subscribed to the post (which may or may not include the post's author)
+  // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
   let userIdsSubscribedToPost: Array<string> = [];
   const usersSubscribedToPost = await getSubscribedUsers({
     documentId: comment.postId,
