@@ -391,18 +391,19 @@ const CKPostEditor = ({
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
         }
 
-        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
-        const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
-        const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
-        
-        editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
+        if (post.collabEditorDialogue) {
+          const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
+          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
+          const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+          editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
-        // This is just to trigger the postFixer when the editor is initialized
-        editor.model.change(writer => {
-          const dummyParagraph = writer.createElement('paragraph');
-          writer.append(dummyParagraph, editor.model.document.getRoot()!);
-          writer.remove(dummyParagraph);
-        });
+          // This is just to trigger the postFixer when the editor is initialized
+          editor.model.change(writer => {
+            const dummyParagraph = writer.createElement('paragraph');
+            writer.append(dummyParagraph, editor.model.document.getRoot()!);
+            writer.remove(dummyParagraph);
+          });
+        }
 
         if (isBlockOwnershipMode) {
           editor.model.on('_afterChanges', (change) => {
@@ -476,6 +477,15 @@ const CKPostEditor = ({
         if (onInit) onInit(editor)
       }}
       config={{
+        ...(post.collabEditorDialogue ? {blockToolbar: [
+          'imageUpload',
+          'insertTable',
+          'horizontalLine',
+          'mathDisplay',
+          'mediaEmbed',
+          'footnote',
+          'dialogueMessageInput'
+        ]} : {}),
         autosave: {
           save (editor: any) {
             return onSave && onSave(editor.getData())
