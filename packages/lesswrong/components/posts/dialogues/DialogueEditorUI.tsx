@@ -28,7 +28,7 @@ export const DialogueEditorUI = ({classes}: {
     <ul className={classes.info}>
       <li>You can edit your responses afterwards.</li>
       <li>You can see each other's responses as you type them.</li>
-      <li>Default etiquette is that it's fine to draft your message before the other person finishes.</li>
+      <li>Default etiquette: It's okay to start drafting your message before the other person finishes theirs.</li>
     </ul>
   </div>;
 }
