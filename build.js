@@ -139,7 +139,7 @@ build({
   },
 });
 
-let serverCli = ["node", "--cpu-prof", "--enable-source-maps", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
+let serverCli = ["node", "--enable-source-maps", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");
 if (opts.command) {
