@@ -140,7 +140,7 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
   $('.dialogue-message-input').remove();
 
   const userIds: string[] = [];
-  $('.dialogue-message-header').each((idx, element) => {
+  $('.dialogue-message').each((idx, element) => {
     const userId = $(element).attr('user-id');
     if (userId) userIds.push(userId);
   });
@@ -149,10 +149,10 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
 
   const userDisplayNamesById = Object.fromEntries(users.map((user) => [user._id, user.displayName]));
 
-  $('.dialogue-message-header').each((idx, element) => {
+  $('.dialogue-message').each((idx, element) => {
     const userId = $(element).attr('user-id');
     if (userId && userDisplayNamesById[userId]) {
-      $(element).text(userDisplayNamesById[userId]);
+      $(element).append(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor">${userDisplayNamesById[userId]}</section>`)
     }
   });
 

@@ -108,8 +108,7 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote',
-		'dialogueMessageInput'
+		'footnote'
 	],
 	toolbar: {
 		items: [
