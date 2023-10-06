@@ -62,7 +62,6 @@ const PostsEditForm = ({ documentId, classes }: {
     extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
-    
   
   if (!document && loading) {
     return <Components.Loading/>
