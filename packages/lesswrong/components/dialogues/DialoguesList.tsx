@@ -11,9 +11,7 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
 }) => {
   const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
 
-  const {
-    results: dialoguePosts
-  } = usePaginatedResolver({
+  const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
