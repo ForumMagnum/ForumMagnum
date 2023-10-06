@@ -96,7 +96,6 @@ export default class MongoStore extends session.Store {
     switch (this.options.autoRemove) {
       case 'native':
         debug('Creating MongoDB TTL index');
-        await collection._ensureIndex({ expires: 1 });
         break;
       case 'interval':
         debug('create Timer to remove expired sessions');
