@@ -380,6 +380,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.question,
   });
 
+  // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
+  // we're leaving it for now to keep supporting the few debates that were made with it, but
+  // may want to migrate them at some point.
   const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
@@ -406,7 +409,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000}
 
-  const { results: nonDebateComments } = useMulti({
+  // these are the replies to the debate responses (see earlier comment about deprecated feature)
+  const { results: debateReplies } = useMulti({
     terms: {...commentTerms, postId: post._id},
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -472,7 +476,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
