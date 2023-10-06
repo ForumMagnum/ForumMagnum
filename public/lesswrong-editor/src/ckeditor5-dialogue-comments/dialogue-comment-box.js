@@ -330,7 +330,6 @@ class SubmitDialogueMessageCommand extends Command {
             ));
 		  
 			const dialogueConfig = this.editor.config.get('dialogues')
-		    console.log({dialogueConfig})
 
             if (dialogueMessageInput) {
                 const submittedDate = (new Date()).toUTCString();
@@ -363,8 +362,6 @@ class SubmitDialogueMessageCommand extends Command {
 				writer.setSelection(dialogueMessageInput, 0)
 			    // notificationCallback()
 			  	dialogueConfig.dialogueParticipantNotificationCallback()
-			    console.log('time to call callback!')
-			  
 			  
             }
         });

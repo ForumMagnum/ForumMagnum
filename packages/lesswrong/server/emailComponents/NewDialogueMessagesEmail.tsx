@@ -1,5 +1,5 @@
 import React from 'react';
-import { postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 
@@ -18,9 +18,9 @@ const NewDialogueMessagesEmail = ({documentId, userId}: {
     }
   });
   if (!post) return null;
-  if (!post.debate) return null;
+  if (!post.collabEditorDialogue) return null;
   
-  const dialogueParticipantIds = [post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]
+  const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
   
   if (dialogueParticipantIds.includes(userId)) {
     const editUrl = postGetEditUrl(post._id)

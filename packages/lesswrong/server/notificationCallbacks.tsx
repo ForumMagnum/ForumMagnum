@@ -237,18 +237,17 @@ getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMes
     const uniqueNewIds = _.difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
-      
-      const debateParticipantIds = [newPost.userId, ...(newPost.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]
-      const debateSubscribers = await getSubscribedUsers({
+      const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
+      const dialogueSubscribers = await getSubscribedUsers({
         documentId: newPost._id,
         collectionName: "Posts",
         type: subscriptionTypes.newPublishedDialogueMessages,
       });
       
-      const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
-      const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, debateParticipantIds);
+      const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
+      const dialogueSubscriberIdsToNotify = _.difference(dialogueSubscriberIds, dialogueParticipantIds);
       await createNotifications({
-        userIds: debateSubscriberIdsToNotify,
+        userIds: dialogueSubscriberIdsToNotify,
         notificationType: 'newPublishedDialogueMessages',
         documentType: 'post',
         documentId: newPost._id

@@ -320,7 +320,6 @@ const CKPostEditor = ({
   
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
     
-    
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
