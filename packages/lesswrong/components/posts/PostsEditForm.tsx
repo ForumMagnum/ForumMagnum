@@ -109,7 +109,7 @@ const PostsEditForm = ({ documentId, classes }: {
     </div>
   }
   
-  let removedFields = []
+  const removedFields = []
   if (document.collabEditorDialogue) {
     removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
   }
