@@ -549,7 +549,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
-  readonly postCategory: "post" | "linkpost" | "question",
+  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -703,6 +703,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
   readonly debate: boolean | null,
+  readonly collabEditorDialogue: boolean | null,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
@@ -902,6 +903,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
   readonly debate: boolean | null,
+  readonly collabEditorDialogue: boolean | null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -921,7 +923,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
-  readonly postCategory: "post" | "linkpost" | "question",
+  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -1258,6 +1260,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
+  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -1289,6 +1292,9 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   },
   readonly socialPreviewData: any,
   readonly criticismTipsDismissed: boolean,
+  readonly user: UsersMinimumInfo|null,
+  readonly usersSharedWith: Array<UsersMinimumInfo>,
+  readonly coauthors: Array<UsersMinimumInfo>,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts

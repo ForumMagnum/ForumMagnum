@@ -55,7 +55,7 @@ const CKCommentEditor = ({
           // or `documentId` is provided.
           tokenUrl: generateTokenRequest(collectionName, fieldName),
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
-          bundleVersion: ckEditorBundleVersion,
+         // bundleVersion: ckEditorBundleVersion,
         } : undefined,
         autosave: {
           save (editor: any) {

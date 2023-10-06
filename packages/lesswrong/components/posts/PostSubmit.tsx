@@ -92,7 +92,7 @@ const PostSubmit = ({
   const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
-
+ 
   return (
     <React.Fragment>
       {!!cancelCallback &&

@@ -588,7 +588,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
-  postCategory: "post" | "linkpost" | "question"
+  postCategory: "post" | "linkpost" | "question" | "dialogue"
   title: string
   slug: string
   viewCount: number
@@ -738,6 +738,7 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string

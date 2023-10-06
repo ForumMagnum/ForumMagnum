@@ -315,6 +315,8 @@
     "@babel/preset-env": "7.11.5",
     "@babel/preset-react": "7.10.4",
     "@babel/preset-typescript": "^7.12.1",
+    "@ckeditor/ckeditor5-core": "^39.0.2",
+    "@ckeditor/ckeditor5-real-time-collaboration": "^39.0.2",
     "@graphql-codegen/cli": "^1.9.1",
     "@graphql-codegen/fragment-matcher": "^1.9.0",
     "@graphql-codegen/introspection": "^1.9.0",

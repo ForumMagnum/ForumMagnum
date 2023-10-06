@@ -21,7 +21,7 @@ const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
   classes: ClassesType,
 }) => {
-  const { location, query } = useLocation();
+  const { query, params } = useLocation();
   const { history } = useNavigation();
   const { flash } = useMessages();
   const { document, loading } = useSingle({
@@ -31,7 +31,6 @@ const PostsEditForm = ({ documentId, classes }: {
   });
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const { params } = location; // From withLocation
   const isDraft = document && document.draft;
 
   const wasEverDraft = useRef(isDraft);
@@ -41,8 +40,7 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
-    RateLimitWarning, DynamicTableOfContents } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
   
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
@@ -65,6 +63,7 @@ const PostsEditForm = ({ documentId, classes }: {
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
     
+  
   if (!document && loading) {
     return <Components.Loading/>
   }
@@ -111,6 +110,11 @@ const PostsEditForm = ({ documentId, classes }: {
     </div>
   }
   
+  let removedFields = []
+  if (document.collabEditorDialogue) {
+    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
+  }
+
   return (
     <DynamicTableOfContents title={document.title}>
       <div className={classes.postForm}>
@@ -120,7 +124,7 @@ const PostsEditForm = ({ documentId, classes }: {
         <NoSSR>
           <WrappedSmartForm
             collectionName="Posts"
-            removeFields={document.debate ? ['debate'] : []}
+            removeFields={removedFields}
             documentId={documentId}
             queryFragment={getFragment('PostsEditQueryFragment')}
             mutationFragment={getFragment('PostsEditMutationFragment')}
@@ -154,8 +158,9 @@ const PostsEditForm = ({ documentId, classes }: {
               // this.context.events.track("post deleted", {_id: documentId});
             }}
             showRemove={true}
+            collabEditorDialogue={!!document.collabEditorDialogue}
             submitLabel={isDraft ? "Publish" : "Publish Changes"}
-            formComponents={{FormSubmit:EditPostsSubmit}}
+            formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
             extraVariables={{
               version: 'String'
             }}
@@ -169,7 +174,7 @@ const PostsEditForm = ({ documentId, classes }: {
             * "edits" the tag list via indirect operations (upvoting/downvoting
             * relevance scores).
             */
-            addFields={document.isEvent ? [] : ['tagRelevance']}
+            addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
           />
         </NoSSR>
       </div>

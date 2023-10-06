@@ -108,7 +108,8 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote'
+		'footnote',
+		'dialogueMessageInput'
 	],
 	toolbar: {
 		items: [
@@ -185,4 +186,3 @@ export const commentEditorConfig = {
 	math: mathConfig,
 	mediaEmbed: embedConfig,
 };
-
