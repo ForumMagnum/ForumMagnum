@@ -34,6 +34,7 @@ import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
+import { getDialogueResponseIds } from "./posts/utils";
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -219,6 +220,41 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
       const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
       await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
     }
+  }
+});
+
+export async function notifyDialogueParticipantsNewMessage(message: AnyBecauseTodo, post: DbPost) {
+  // Get all the debate participants, but exclude the comment author if they're a debate participant
+  const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [message.userId]);
+  await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id, extraData: { message } });
+}
+
+getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
+  if (newPost.collabEditorDialogue) {
+    
+    const oldIds = getDialogueResponseIds(oldPost)
+    const newIds = getDialogueResponseIds(newPost);
+    const uniqueNewIds = _.difference(newIds, oldIds);
+    
+    if (uniqueNewIds.length > 0) {
+      
+      const debateParticipantIds = [newPost.userId, ...(newPost.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]
+      const debateSubscribers = await getSubscribedUsers({
+        documentId: newPost._id,
+        collectionName: "Posts",
+        type: subscriptionTypes.newPublishedDialogueMessages,
+      });
+      
+      const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+      const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, debateParticipantIds);
+      await createNotifications({
+        userIds: debateSubscriberIdsToNotify,
+        notificationType: 'newPublishedDialogueMessages',
+        documentType: 'post',
+        documentId: newPost._id
+      });
+    }
+    
   }
 });
 
