@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { FC, ReactNode } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -32,6 +32,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     color: theme.palette.text.alwaysWhite,
     borderRadius: "50%",
+    minWidth: ICON_WIDTH,
     width: ICON_WIDTH,
     height: ICON_WIDTH,
     "& svg": {
@@ -48,8 +49,25 @@ const styles = (theme: ThemeType) => ({
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
+  mainIcon: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  smallScreenIcon: {
+    [theme.breakpoints.up("sm")]: {
+      display: "none",
+    },
+  },
   container: {
     width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+    },
+  },
+  metaWrapper: {
+    display: "flex",
+    gap: "8px",
   },
   meta: {
     marginBottom: 12,
@@ -74,14 +92,41 @@ type EARecentDiscussionItemDocument = {
   tag: TagPreviewFragment,
 };
 
-export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
+type EARecentDiscussionItemIcon = {
   icon: ForumIconName,
   iconVariant: "primary" | "grey" | "green",
-  user?: UsersMinimumInfo | null,
-  action: string,
-  postTitleOverride?: string,
-  postUrlOverride?: string,
-  timestamp: Date,
+}
+
+export type EARecentDiscussionItemProps =
+  EARecentDiscussionItemDocument &
+  EARecentDiscussionItemIcon &
+  {
+    user?: UsersMinimumInfo | null,
+    action: string,
+    postTitleOverride?: string,
+    postUrlOverride?: string,
+    timestamp: Date,
+  }
+
+const Icon: FC<EARecentDiscussionItemIcon & {
+  className?: string,
+  classes: ClassesType,
+}> = ({
+  icon,
+  iconVariant,
+  className,
+  classes,
+}) => {
+  const {ForumIcon} = Components;
+  return (
+    <div className={classNames(classes.iconContainer, className, {
+      [classes.iconPrimary]: iconVariant === "primary",
+      [classes.iconGrey]: iconVariant === "grey",
+      [classes.iconGreen]: iconVariant === "green",
+    })}>
+      <ForumIcon icon={icon} />
+    </div>
+  );
 }
 
 const EARecentDiscussionItem = ({
@@ -101,43 +146,49 @@ const EARecentDiscussionItem = ({
   classes: ClassesType,
 }) => {
   const {
-    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagTooltipWrapper,
+    UsersNameDisplay, FormatDate, PostsItemTooltipWrapper, TagTooltipWrapper,
   } = Components;
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.iconContainer, {
-        [classes.iconPrimary]: iconVariant === "primary",
-        [classes.iconGrey]: iconVariant === "grey",
-        [classes.iconGreen]: iconVariant === "green",
-      })}>
-        <ForumIcon icon={icon} />
-      </div>
+      <Icon
+        icon={icon}
+        iconVariant={iconVariant}
+        className={classes.mainIcon}
+        classes={classes}
+      />
       <div className={classes.container}>
-        <div className={classes.meta}>
-          <UsersNameDisplay user={user} className={classes.primaryText} />
-          {" "}
-          {action}
-          {" "}
-          {post &&
-            <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-              <Link
-                to={postUrlOverride ?? postGetPageUrl(post)}
-                className={classes.primaryText}
-              >
-                {postTitleOverride ?? post.title}
-              </Link>
-            </PostsItemTooltipWrapper>
-          }
-          {tag &&
-            <TagTooltipWrapper tag={tag} As="span">
-              <Link to={tagGetUrl(tag)} className={classes.primaryText}>
-                {tag.name}
-              </Link>
-            </TagTooltipWrapper>
-          }
-          {" "}
-          <FormatDate date={timestamp} includeAgo />
+        <div className={classes.metaWrapper}>
+          <Icon
+            icon={icon}
+            iconVariant={iconVariant}
+            className={classes.smallScreenIcon}
+            classes={classes}
+          />
+          <div className={classes.meta}>
+            <UsersNameDisplay user={user} className={classes.primaryText} />
+            {" "}
+            {action}
+            {" "}
+            {post &&
+              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
+                <Link
+                  to={postUrlOverride ?? postGetPageUrl(post)}
+                  className={classes.primaryText}
+                >
+                  {postTitleOverride ?? post.title}
+                </Link>
+              </PostsItemTooltipWrapper>
+            }
+            {tag &&
+              <TagTooltipWrapper tag={tag} As="span">
+                <Link to={tagGetUrl(tag)} className={classes.primaryText}>
+                  {tag.name}
+                </Link>
+              </TagTooltipWrapper>
+            }
+            {" "}
+            <FormatDate date={timestamp} includeAgo />
+          </div>
         </div>
         <div className={classes.content}>
           {children}
