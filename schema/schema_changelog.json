@@ -323,5 +323,10 @@
     "acceptsSchemaHash": "ab02d7ee110cc11f4df3b0f16a24905d",
     "acceptedByMigration": "20231006T193146.dialogue_notifications_and_post_sharing_default.ts",
     "timestamp": "2023-10-06T19:31:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d42e531dd915561448e15e72551b1d71",
+    "acceptedByMigration": "20231006T214457.update_dialogue_notification_defaults.ts",
+    "timestamp": "2023-10-06T21:44:57.000Z"
   }
 ]

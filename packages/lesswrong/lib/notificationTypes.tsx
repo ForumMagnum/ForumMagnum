@@ -276,7 +276,7 @@ export const NewDialogueMessagesNotification = registerNotificationType({
   userSettingField: "notificationDialogueMessages",
   async getMessage({documentType, documentId}: GetMessageProps) {
     let post = await getDocument(documentType, documentId) as DbPost;
-    return await  'New response in your dialogue, ' + post.title;
+    return `New response in your dialogue "${post.title}"`;
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
@@ -296,7 +296,7 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
   userSettingField: "notificationPublishedDialogueMessages",
   async getMessage({documentType, documentId}: GetMessageProps) {
     let post = await getDocument(documentType, documentId) as DbPost;
-    return await  'New content in the dialogue, ' + post.title;
+    return `New content in the dialogue "${post.title}"`;
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

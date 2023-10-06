@@ -26,7 +26,7 @@ const NewDialogueMessagesEmail = ({documentId, userId}: {
     const editUrl = postGetEditUrl(post._id)
     
     return (<React.Fragment>
-      <p>There are new responses in your dialogue, <a href={editUrl}>{post.title}</a>.</p>
+      <p>There are new responses in your dialogue "<a href={editUrl}>{post.title}</a>".</p>
       <p><a href={editUrl}>Click here</a>to respond!</p>
     </React.Fragment>);
   }
