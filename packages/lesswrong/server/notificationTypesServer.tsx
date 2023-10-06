@@ -147,6 +147,7 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     const {documentId, documentType} = notifications[0]
     const tagRel = await TagRels.findOne({_id: documentId})
     if (tagRel) {
+      
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
     }
   }
@@ -206,6 +207,35 @@ export const NewSubforumCommentNotification = serverRegisterNotificationType({
     const comments = await accessFilterMultiple(user, Comments, commentsRaw, null);
     
     return <Components.EmailCommentBatch comments={comments}/>;
+  },
+});
+
+export const NewDialogueMessageNotification = serverRegisterNotificationType({
+  name: "newDialogueMessages",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `New content in the dialogue you are participating in, ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    return <Components.NewDialogueMessages documentId={postId} userId={user._id}/>;
+  },
+});
+
+//subscriber notification for dialogues
+export const NewPublishedDialogueMessageNotification = serverRegisterNotificationType({
+  name: "newPublishedDialogueMessages",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `New content in the dialogue you are subscribed to, ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    return <Components.NewDialogueMessages documentId={postId} userId={user._id}/>;
   },
 });
 

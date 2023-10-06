@@ -1371,6 +1371,15 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
+  notificationDialogueMessages: {
+    label: "New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField()
+  },
+  notificationPublishedDialogueMessages: {
+    label: "New dialogue content in a dialogue I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+  },
+  //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })

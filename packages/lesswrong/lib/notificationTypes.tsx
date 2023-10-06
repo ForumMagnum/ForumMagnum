@@ -269,6 +269,45 @@ export const NewSubforumCommentNotification = registerNotificationType({
   },
 });
 
+// New message in a dialogue which you are a participant
+// (Notifications for regular comments are handled through the `newComment` notification.)
+export const NewDialogueMessagesNotification = registerNotificationType({
+  name: "newDialogueMessages",
+  userSettingField: "notificationDialogueMessages",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let post = await getDocument(documentType, documentId) as DbPost;
+    return await  'New response in your dialogue, ' + post.title;
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink: ({documentId}: {
+    documentId: string|null,
+  }): string => {
+    return `/editPost?postId=${documentId}`;
+  },
+  causesRedBadge: true,
+});
+
+// New published dialogue message(s) on a dialogue post you're subscribed to. 
+// (Notifications for regular comments are still handled through the `newComment` notification.)
+export const NewPublishedDialogueMessagesNotification = registerNotificationType({
+  name: "newPublishedDialogueMessages",
+  userSettingField: "notificationPublishedDialogueMessages",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let post = await getDocument(documentType, documentId) as DbPost;
+    return await  'New content in the dialogue, ' + post.title;
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  causesRedBadge: false,
+});
+
+
+//TODO: Remove
+//Vestigial from Old Dialogue Style
+
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
 // (Notifications for regular comments are still handled through the `newComment` notification.)
 export const NewDebateCommentNotification = registerNotificationType({
@@ -282,9 +321,7 @@ export const NewDebateCommentNotification = registerNotificationType({
     return <CommentsIcon style={iconStyles}/>
   },
 });
-
-// New debate comment on a debate post you're subscribed to.  For debate participants implicitly subscribed to the debate.
-// (Notifications for regular comments are still handled through the `newComment` notification.)
+// New debate comment on a debate post you're subscribed to. 
 export const NewDebateReplyNotification = registerNotificationType({
   name: "newDebateReply",
   userSettingField: "notificationDebateReplies",

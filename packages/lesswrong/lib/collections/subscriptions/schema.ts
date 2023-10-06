@@ -10,6 +10,8 @@ export const subscriptionTypes = {
   newEvents: 'newEvents',
   newReplies: 'newReplies',
   newTagPosts: 'newTagPosts',
+  newDialogueMessages: 'newDialogueMessages',
+  newPublishedDialogueMessages: 'newPublishedDialogueMessages',
   newDebateComments: 'newDebateComments'
 } as const
 
