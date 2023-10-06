@@ -1379,6 +1379,15 @@ const schema: SchemaType<DbUser> = {
     label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
+  //TODO: clean up old dialogue implementation notifications
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "New dialogue content in a dialogue I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+  },
+  notificationDebateReplies: {
+    label: "New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField()
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {

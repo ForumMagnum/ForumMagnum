@@ -304,6 +304,37 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
   causesRedBadge: false,
 });
 
+
+//TODO: Remove
+//Vestigial from Old Dialogue Style
+
+// New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
+// (Notifications for regular comments are still handled through the `newComment` notification.)
+export const NewDebateCommentNotification = registerNotificationType({
+  name: "newDebateComment",
+  userSettingField: "notificationDebateCommentsOnSubscribedPost",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+});
+// New debate comment on a debate post you're subscribed to. 
+export const NewDebateReplyNotification = registerNotificationType({
+  name: "newDebateReply",
+  userSettingField: "notificationDebateReplies",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new reply on the dialogue "' + await getCommentParentTitle(document) + '"';
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  causesRedBadge: true,
+});
+
 export const NewShortformNotification = registerNotificationType({
   name: "newShortform",
   userSettingField: "notificationShortformContent",
