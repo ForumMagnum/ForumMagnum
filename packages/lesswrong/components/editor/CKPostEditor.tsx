@@ -368,9 +368,9 @@ const CKPostEditor = ({
         display: none;
       }
       
-      .dialogue-message-input[user-id="${currentUser!._id}"] button {
+      ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] button {
         display: block;
-      }
+      }` : ``}
       `}
      </style>
     </>}
@@ -441,7 +441,7 @@ const CKPostEditor = ({
               }
             }
             
-            if (blockOwners.some(blockOwner => blockOwner !== currentUser!._id)) {
+            if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
               changeCollaborationMode("Commenting");
             } else {
               changeCollaborationMode("Editing");
@@ -456,7 +456,7 @@ const CKPostEditor = ({
                   for (let suggestionId of suggestionIds) {
                     const suggestion = (trackChangesPlugin as any).getSuggestion(suggestionId);
                     const suggesterUserId = suggestion.author.id;
-                    if (suggesterUserId === currentUser!._id) {
+                    if (!currentUser || (suggesterUserId === currentUser?._id)) {
                       flash("You cannot accept your own changes");
                       command.stop();
                     }
