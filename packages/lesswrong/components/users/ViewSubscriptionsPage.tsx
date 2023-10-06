@@ -142,7 +142,7 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(post: PostsList) => post.title}
       noSubscriptionsMessage="You are not subscribed to comments on any posts."
     />
-  
+
     <SubscriptionsList
       title="Subscribed to Dialogues (as a reader)"
       collectionName="Posts"
@@ -151,7 +151,7 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(post: PostsList) => post.title}
       noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
     />
-  
+
     <SubscriptionsList
       title="Subscribed to Dialogues (as a participant)"
       collectionName="Posts"
