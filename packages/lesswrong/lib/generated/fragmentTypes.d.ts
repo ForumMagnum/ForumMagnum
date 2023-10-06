@@ -648,6 +648,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly defaultRecommendation: boolean,
   readonly hideFromPopularComments: boolean,
   readonly draft: boolean,
+  readonly wasEverUndrafted: boolean,
   readonly meta: boolean,
   readonly hideFrontpageComments: boolean,
   readonly maxBaseScore: number,

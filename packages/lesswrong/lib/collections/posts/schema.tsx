@@ -1789,6 +1789,17 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
   },
 
+  // If the post has ever been undrafted and published
+  wasEverUndrafted: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: true,
+  },
 
   // meta: The post is published to the meta section of the page
   meta: {
