@@ -1373,19 +1373,19 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField()
+    ...notificationTypeSettingsField({ channel: "both"})
   },
   notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+    ...notificationTypeSettingsField()
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
-    label: "New dialogue content in a dialogue I'm subscribed to",
+    label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New dialogue content in a dialogue I'm participating in",
+    label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField()
   },
 
