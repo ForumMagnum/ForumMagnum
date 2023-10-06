@@ -496,7 +496,7 @@ const CKPostEditor = ({
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),
-         // bundleVersion: ckEditorBundleVersion,
+         bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
           channelId: getCKEditorDocumentId(documentId, userId, formType)
