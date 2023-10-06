@@ -69,6 +69,12 @@ const NewDialogueDialog = ({onClose, classes}: {
           anyoneWithLinkCan: "none",
           explicitlySharedUsersCan: "edit",
         },
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: ""
+          }
+        } as AnyBecauseHard
       },
     });
     if (createResult?.data?.createPost?.data) {
