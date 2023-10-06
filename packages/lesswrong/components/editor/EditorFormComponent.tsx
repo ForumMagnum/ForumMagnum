@@ -284,7 +284,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       });
       const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        if (editorRef.current && !submitOptions?.redirectToEditor) {
+        if (editorRef.current && !submitOptions?.redirectToEditor && !isCollabEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,

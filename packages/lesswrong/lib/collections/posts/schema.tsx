@@ -95,7 +95,7 @@ addGraphQLSchema(`
   }
 `)
 
-const MINIMUM_COAUTHOR_KARMA = 1;
+export const MINIMUM_COAUTHOR_KARMA = 1;
 
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
@@ -2578,8 +2578,8 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    canCreate: ['debaters', 'sunshineRegiment', 'admins'],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
     hidden: true,
     ...schemaDefaultValue(false)
   },
