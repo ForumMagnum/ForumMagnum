@@ -1368,7 +1368,6 @@ const schema: SchemaType<DbPost> = {
       userId: String,
       confirmed: Boolean,
       requested: Boolean,
-
     }),
     optional: true,
   },
