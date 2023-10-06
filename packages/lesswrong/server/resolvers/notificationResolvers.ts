@@ -56,7 +56,7 @@ defineMutation({
   name: "sendNewDialogueMessageNotification",
   resultType: "Boolean!",
   argTypes: "(postId: String!)",
-  fn: async (_, {postId}, {currentUser, loaders}) => {
+  fn: async (_, {postId}: { postId: string }, {currentUser, loaders}) => {
     if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(postId)
     if (!post) throw new Error("No post was provided")
