@@ -15,8 +15,7 @@ const DialoguesList = () => {
   }); 
 
   const dialoguesTooltip = <div>
-    <p>Beta feature:</p>
-    <p>dialogues between a small group of users. Click for more info.</p>
+    <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
   </div>
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
