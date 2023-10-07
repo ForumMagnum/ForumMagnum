@@ -348,7 +348,6 @@ class SubmitDialogueMessageCommand extends Command {
                     }
 
                     Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
-                        console.log({ userInput });
                         writer.append(userInput, dialogueMessage);
                     });
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
@@ -359,7 +358,6 @@ class SubmitDialogueMessageCommand extends Command {
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0)
-			    // notificationCallback()
 			  	dialogueConfig.dialogueParticipantNotificationCallback()
 			  
             }
