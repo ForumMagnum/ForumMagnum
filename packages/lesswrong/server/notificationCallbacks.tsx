@@ -226,7 +226,19 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
 export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
   const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
-  await createNotifications({ userIds: debateParticipantIds, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id });
+  const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
+  const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
+
+  const notifications = await Notifications.find({userId: {$in: debateParticipantIds}, documentId: post._id, documentType: 'post', type: 'newDialogueMessages', createdAt: {$gt: earliestLastNotificationsCheck }}).fetch();
+
+  // Only notify users who haven't checked their notifications since the last message was posted. For each user, compare their lastNotificationsCheck to the notifications with their userId.
+  const userIdsToNotify = debateParticipants.filter(user => {
+    const userNotifications = notifications.filter(notification => notification.userId === user._id);
+    const userLastNotificationCreatedAt = _.max(userNotifications.map(notification => notification.createdAt));
+    return moment(userLastNotificationCreatedAt).isBefore(moment(user.lastNotificationsCheck));
+  }).map(user => user._id);
+
+  await createNotifications({ userIds: userIdsToNotify, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id });
 }
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
