@@ -54,11 +54,14 @@ class SimpleBoxEditing extends Plugin {
         this.editor.commands.add( 'insertSimpleBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 		
-	  	this.editor.keystrokes.set( 'Ctrl+Enter', () => {
+	  	this.editor.keystrokes.set( 'Ctrl+Enter', (event, cancel) => {
 			const selection = editor.model.document.selection;
 			const selectedBlocks = Array.from(selection.getSelectedBlocks())
 			const cursorOnCommentBox = selectedBlocks.some( block => block.is('element', 'dialogueMessageInput') || block.getAncestors().some( ancestor => ancestor.is('element', 'dialogueMessageInput')))
-			if (cursorOnCommentBox) this.editor.execute( 'submitDialogueMessage' )
+			if (cursorOnCommentBox) {
+			  this.editor.execute('submitDialogueMessage')
+			  cancel()
+			}
 		})
 
 
