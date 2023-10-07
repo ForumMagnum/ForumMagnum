@@ -20,7 +20,6 @@ import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
@@ -29,6 +28,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -265,6 +265,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
+  },
+  subscribeToDialogue: {
+    marginBottom: 40,
+    marginTop: 40,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
   }
 })
 
@@ -424,7 +432,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
-    PostBottomRecommendations,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row
   } = Components
 
   useEffect(() => {
@@ -603,6 +611,19 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>}
+
+        {post.collabEditorDialogue && <Row justifyContent="center">
+          <div className={classes.subscribeToDialogue}>
+            <NotifyMeDropdownItem
+              document={post}
+              enabled={!!post.collabEditorDialogue}
+              subscribeMessage="Subscribe to dialogue"
+              unsubscribeMessage="Unsubscribe from dialogue"
+              subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
+              tooltip="Notifies you when there is new activity in the dialogue"
+            />
+          </div>
+        </Row>}
 
         {post.debate && debateResponses && debateResponseReplies &&
           <DebateBody
