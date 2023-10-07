@@ -474,10 +474,18 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
             </PostsItem2MetaInfo>}
 
+            {/* This has been deprecated in favor of unreadDialogueResponseCount, but a few posts are still using it. */}
             {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
               <div className={classes.unreadDebateResponseCount} onClick={toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
+              </div>
+            </PostsItem2MetaInfo>}
+
+            {!!post.unreadDialogueResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
+              <div className={classes.unreadDebateResponseCount} onClick={toggleComments}>
+                <DebateIcon className={classes.unreadDebateResponsesIcon}/>
+                {post.unreadDialogueResponseCount}
               </div>
             </PostsItem2MetaInfo>}
 

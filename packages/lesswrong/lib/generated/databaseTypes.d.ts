@@ -588,7 +588,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
-  postCategory: "post" | "linkpost" | "question" | "dialogue"
+  postCategory: "post" | "linkpost" | "question"
   title: string
   slug: string
   viewCount: number

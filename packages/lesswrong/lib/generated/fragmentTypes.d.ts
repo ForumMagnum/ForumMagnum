@@ -561,7 +561,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -718,6 +718,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly collabEditorDialogue: boolean | null,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
+  readonly unreadDialogueResponseCount: number,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
@@ -935,7 +936,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -1063,6 +1064,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
+  readonly unreadDialogueResponseCount: number,
   readonly dialogTooltipPreview: string,
 }
 
@@ -1272,7 +1274,6 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts

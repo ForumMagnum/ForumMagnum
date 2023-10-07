@@ -2590,8 +2590,16 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
-
+  // This is now deprecated in favor of unreadDialogueResponseCount
+  // but we have a couple existing posts that still need it,
+  // until we create/run some kind of migration.
   unreadDebateResponseCount: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  unreadDialogueResponseCount: {
     type: Number,
     optional: true,
     canRead: ['guests'],

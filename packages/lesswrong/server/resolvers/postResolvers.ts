@@ -85,6 +85,22 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Int',
       resolver: async (post, _, context) => {
+        if (!post.debate) return 0;
+
+        const lastReadStatus = await getLastReadStatus(post, context);
+        if (!lastReadStatus) return 0;
+
+        const messageTimestamps = getDialogueMessageTimestamps(post)
+        const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
+
+        return newMessageTimestamps.length ?? 0
+      }
+    }
+  },
+  unreadDialogueResponseCount: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post, _, context) => {
         if (!post.collabEditorDialogue) return 0;
 
         const lastReadStatus = await getLastReadStatus(post, context);

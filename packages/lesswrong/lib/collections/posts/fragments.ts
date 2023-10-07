@@ -226,6 +226,7 @@ registerFragment(`
     feedId
     totalDialogueResponseCount
     unreadDebateResponseCount
+    unreadDialogueResponseCount
     dialogTooltipPreview
   }
 `);
