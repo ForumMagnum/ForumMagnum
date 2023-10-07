@@ -9,7 +9,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: 270,
     overflowY: "auto",
     padding: 0,
   },
@@ -22,12 +21,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   loadMoreButton: {
     fontSize: "14px",
     padding: 0,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
   },
-  loadMoreLabel: {
+  seeAllLabel: {
     padding: 16,
     textAlign: "center",
-    width: "100%",
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.palette.fonts.sansSerifStack
   },
 });
 
@@ -36,12 +37,14 @@ const NotificationsList = ({ terms, currentUser, classes }: {
   currentUser: UsersCurrent,
   classes: ClassesType,
 }) => {
+  const { NotificationsItem, Row, Loading, LoadMore } = Components;
 
-  const { results, loading, loadMore } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
     limit: 20,
+    itemsPerPage: 100,
     enableTotal: false
   });
   const [lastNotificationsCheck] = useState(
@@ -52,7 +55,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     return (
       <List className={classes.root}>
         {results.map(notification =>
-          <Components.NotificationsItem
+          <NotificationsItem
             notification={notification}
             lastNotificationsCheck={lastNotificationsCheck}
             currentUser={currentUser}
@@ -61,17 +64,17 @@ const NotificationsList = ({ terms, currentUser, classes }: {
         )}
         {results.length >= 20 &&
           <ListItem
-            button={true}
             className={classes.loadMoreButton}
           >
-            <Link to={"/notifications"} className={classes.loadMoreLabel}>
+            <LoadMore {...loadMoreProps}/>
+            <Link to={"/notifications"} className={classes.seeAllLabel}>
               {preferredHeadingCase("View All")}
             </Link>
           </ListItem>}
       </List>
     )
   } else if (loading) {
-    return <Components.Loading/>
+    return <Loading/>
   } else {
     const modifier =
         (terms.type === undefined) ? (<></>)

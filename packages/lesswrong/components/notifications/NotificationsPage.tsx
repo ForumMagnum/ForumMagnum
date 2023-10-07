@@ -8,6 +8,7 @@ import PostsIcon from '@material-ui/icons/Description';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 import MailIcon from '@material-ui/icons/Mail';
 import { useMulti } from '../../lib/crud/withMulti';
+import moment from 'moment';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -22,7 +23,7 @@ export const NotificationsPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { NotificationsPageItem, ErrorAccessDenied, SingleColumnSection, SectionTitle, SectionFooterCheckbox } = Components
+  const { NotificationsPageItem, ErrorAccessDenied, SingleColumnSection, SectionTitle, SectionFooterCheckbox, LoadMore } = Components
   const currentUser = useCurrentUser();
   const { unreadPrivateMessages } = useUnreadNotifications();
   const [tab,setTab] = useState(0);
@@ -59,7 +60,7 @@ export const NotificationsPage = ({classes}: {
   const category = notificationCategoryTabs[tab];
   const notificationTerms = category.terms;
 
-  const { results, loading, loadMore } = useMulti({
+  const { results, loading, loadMoreProps } = useMulti({
     terms: {...notificationTerms, userId: currentUser?._id},
     collectionName: "Notifications",
     fragmentName: 'NotificationsList',
@@ -68,6 +69,43 @@ export const NotificationsPage = ({classes}: {
     enableTotal: false,
     skip: !currentUser
   });
+
+  function groupResultsByTimeframes(results: NotificationsList[]) { 
+    // group results by today, yesterday, this week, this month, this year, and older, using moment.js
+    const today = moment().startOf('day');
+    const yesterday = moment().subtract(1, 'days').startOf('day');
+    const thisWeek = moment().subtract(2, 'days').startOf('week');
+    const thisMonth = moment().subtract(1, 'weeks').startOf('month');
+    const thisYear = moment().subtract(1, 'months').startOf('year');
+    const older = moment().subtract(1, 'years').startOf('year');
+
+    const groupedResults: Record<string, NotificationsList[]> = {
+      today: [],
+      yesterday: [],
+      thisWeek: [],
+      thisMonth: [],
+      thisYear: [],
+      older: [],
+    }
+    
+    results.forEach((result: NotificationsList) => {
+      const createdAt = moment(result.createdAt);
+      if (createdAt.isAfter(today)) {
+        groupedResults.today.push(result);
+      } else if (createdAt.isAfter(yesterday)) {
+        groupedResults.yesterday.push(result);
+      } else if (createdAt.isAfter(thisWeek)) {
+        groupedResults.thisWeek.push(result);
+      } else if (createdAt.isAfter(thisMonth)) {
+        groupedResults.thisMonth.push(result);
+      } else if (createdAt.isAfter(thisYear)) {
+        groupedResults.thisYear.push(result);
+      } else {
+        groupedResults.older.push(result);
+      }
+    })
+    return groupedResults;
+  }
 
   if (!currentUser) { return <ErrorAccessDenied /> }
 
@@ -78,6 +116,7 @@ export const NotificationsPage = ({classes}: {
       notification={notification} 
       currentUser={currentUser} 
     />)}
+    <LoadMore {...loadMoreProps} />
   </div>;
 }
 
