@@ -421,6 +421,28 @@ const CKPostEditor = ({
           });
         }
 
+        const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
+        if (sessionsPlugin) {
+          const connectedUsers = sessionsPlugin.allConnectedUsers
+          const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
+            const newUsersArr = [...usersCollection];
+            setConnectedUsers(newUsersArr.map(u => ({
+              _id: u.id,
+              name: u.name,
+            })));
+          }
+          connectedUsers.on('add', (change: AnyBecauseHard) => {
+            if (change.source) {
+              updateConnectedUsers(change.source);
+            }
+          });
+          connectedUsers.on('remove', (change: AnyBecauseHard) => {
+            if (change.source) {
+              updateConnectedUsers(change.source);
+            }
+          });
+        }
+
         if (isBlockOwnershipMode) {
           editor.model.on('_afterChanges', (change) => {
             const currentSelection: Selection = (change?.source as AnyBecauseHard)?.document?.selection;
@@ -467,27 +489,6 @@ const CKPostEditor = ({
               });
             }
           });
-          const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
-          if (sessionsPlugin) {
-            const connectedUsers = sessionsPlugin.allConnectedUsers
-            const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
-              const newUsersArr = [...usersCollection];
-              setConnectedUsers(newUsersArr.map(u => ({
-                _id: u.id,
-                name: u.name,
-              })));
-            }
-            connectedUsers.on('add', (change: AnyBecauseHard) => {
-              if (change.source) {
-                updateConnectedUsers(change.source);
-              }
-            });
-            connectedUsers.on('remove', (change: AnyBecauseHard) => {
-              if (change.source) {
-                updateConnectedUsers(change.source);
-              }
-            });
-          }
         }
 
         if (onInit) onInit(editor)
