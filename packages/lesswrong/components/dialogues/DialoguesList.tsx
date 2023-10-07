@@ -24,7 +24,7 @@ const DialoguesList = ({limit=20, hideLoadMore=false}: {
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
-      <SectionTitle href="/posts/y8aCB8z2QpJWBdwtA/announcing-dialogues"
+      <SectionTitle href="/posts/kQuSZG8ibfW6fJYmo/announcing-dialogues-1"
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
           Dialogues
         </LWTooltip>}
