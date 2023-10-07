@@ -54,6 +54,13 @@ class SimpleBoxEditing extends Plugin {
         this.editor.commands.add( 'insertSimpleBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 
+        this.editor.keystrokes.set( 'Ctrl+Enter', (evt, cancel) => {
+			const selection = editor.model.document.selection;
+			const selectedBlocks = Array.from(selection.getSelectedBlocks())
+			const cursorOnCommentBox = selectedBlocks.some( block => block.is('element', 'dialogueMessageInput') || block.getAncestors().some( ancestor => ancestor.is('element', 'dialogueMessageInput')))
+			if (cursorOnCommentBox) this.editor.execute( 'submitDialogueMessage' )
+		})
+
         const viewDocument = this.editor.editing.view.document;
 		const editor = this.editor;
 
@@ -157,11 +164,7 @@ class SimpleBoxEditing extends Plugin {
                     const domElement = this.toDomElement(domDocument);
                     domElement.contentEditable = 'false';
                     domElement.innerHTML = 'Submit';
-                    domElement.addEventListener('click', () => {
-                        const userId = modelElement.getAttribute('user-id');
-                        const displayName = modelElement.getAttribute('display-name');
-                        editor.execute('submitDialogueMessage', { userId, displayName });
-                    });
+                    domElement.addEventListener('click', () => editor.execute('submitDialogueMessage') );
 
                     return domElement;
                 });
@@ -316,8 +319,10 @@ class InsertRootParagraphBoxCommand extends Command {
 }
 
 class SubmitDialogueMessageCommand extends Command {
-    execute( { userId, displayName } ) {
-        if (!userId || !displayName) return
+    execute() {
+        const me = this.editor.plugins.get( 'Users' ).me;
+	    const { id: userId, name: displayName } = me
+	    if (!userId || !displayName) return
         const model = this.editor.model;
 
         model.change(writer => {
@@ -359,7 +364,6 @@ class SubmitDialogueMessageCommand extends Command {
 				
 				writer.setSelection(dialogueMessageInput, 0)
 			  	dialogueConfig.dialogueParticipantNotificationCallback()
-			  
             }
         });
     }
