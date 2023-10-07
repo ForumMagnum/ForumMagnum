@@ -5,6 +5,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const ICON_WIDTH = 24;
 const GAP = 12;
@@ -82,6 +83,7 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   postTitleOverride?: string,
   postUrlOverride?: string,
   timestamp: Date,
+  pageSubSectionContext?: string,
 }
 
 const EARecentDiscussionItem = ({
@@ -94,6 +96,7 @@ const EARecentDiscussionItem = ({
   post,
   tag,
   timestamp,
+  pageSubSectionContext = "recentDiscussionThread",
   children,
   classes,
 }: EARecentDiscussionItemProps & {
@@ -105,45 +108,47 @@ const EARecentDiscussionItem = ({
     TagTooltipWrapper,
   } = Components;
   return (
-    <div className={classes.root}>
-      <div className={classNames(classes.iconContainer, {
-        [classes.iconPrimary]: iconVariant === "primary",
-        [classes.iconGrey]: iconVariant === "grey",
-        [classes.iconGreen]: iconVariant === "green",
-      })}>
-        <ForumIcon icon={icon} />
-      </div>
-      <div className={classes.container}>
-        <div className={classes.meta}>
-          <UsersNameDisplay user={user} className={classes.primaryText} />
-          {" "}
-          {action}
-          {" "}
-          {post &&
-            <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-              <Link
-                to={postUrlOverride ?? postGetPageUrl(post)}
-                className={classes.primaryText}
-              >
-                {postTitleOverride ?? post.title}
-              </Link>
-            </PostsItemTooltipWrapper>
-          }
-          {tag &&
-            <TagTooltipWrapper tag={tag} As="span">
-              <Link to={tagGetUrl(tag)} className={classes.primaryText}>
-                {tag.name}
-              </Link>
-            </TagTooltipWrapper>
-          }
-          {" "}
-          <FormatDate date={timestamp} includeAgo />
+    <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
+      <div className={classes.root}>
+        <div className={classNames(classes.iconContainer, {
+          [classes.iconPrimary]: iconVariant === "primary",
+          [classes.iconGrey]: iconVariant === "grey",
+          [classes.iconGreen]: iconVariant === "green",
+        })}>
+          <ForumIcon icon={icon} />
         </div>
-        <div className={classes.content}>
-          {children}
+        <div className={classes.container}>
+          <div className={classes.meta}>
+            <UsersNameDisplay user={user} className={classes.primaryText} />
+            {" "}
+            {action}
+            {" "}
+            {post &&
+              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
+                <Link
+                  to={postUrlOverride ?? postGetPageUrl(post)}
+                  className={classes.primaryText}
+                >
+                  {postTitleOverride ?? post.title}
+                </Link>
+              </PostsItemTooltipWrapper>
+            }
+            {tag &&
+              <TagTooltipWrapper tag={tag} As="span">
+                <Link to={tagGetUrl(tag)} className={classes.primaryText}>
+                  {tag.name}
+                </Link>
+              </TagTooltipWrapper>
+            }
+            {" "}
+            <FormatDate date={timestamp} includeAgo />
+          </div>
+          <div className={classes.content}>
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 

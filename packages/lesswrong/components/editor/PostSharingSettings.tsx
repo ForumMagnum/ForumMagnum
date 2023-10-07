@@ -101,7 +101,7 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
     openDialog({
       componentName: "PostSharingSettingsDialog",
       componentProps: {
-        postId: document._id,
+        post: document,
         linkSharingKey: document.linkSharingKey ?? undefined,
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
@@ -148,8 +148,9 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
 };
 
 
-const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
-  postId: string,
+const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
+  // postId: string,
+  post: PostsEditQueryFragment,
   // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
   linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
@@ -173,7 +174,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(postId, true, linkSharingKey)
+  const collabEditorLink = getPostCollaborateUrl(post._id, true, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 
@@ -200,7 +201,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
             updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
           }}
         >
-          <MenuItem value="none">None</MenuItem>
+          <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
           <MenuItem value="read">Read</MenuItem>
           {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
           <MenuItem value="comment">
@@ -238,7 +239,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
       </p>
 
       <div className={classes.buttonRow}>
-        {(sharingSettings.anyoneWithLinkCan!=="none" && postId)
+        {(sharingSettings.anyoneWithLinkCan!=="none" && post._id)
           ? <CopyToClipboard
               text={collabEditorLink}
               onCopy={(text,result) => {

@@ -36,17 +36,16 @@ const PostCollaborationEditor = ({ classes }: {
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm } = Components
   const currentUser = useCurrentUser();
-  const [editorLoaded, setEditorLoaded] = useState(false)
 
   const { query: { postId, key } } = useLocation();
 
   const { data, loading, error } = useQuery(gql`
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
-        ...PostsPage
+        ...PostsEdit
       }
     }
-    ${fragmentTextForQuery("PostsPage")}
+    ${fragmentTextForQuery("PostsEdit")}
   `, {
     variables: {
       postId,
@@ -107,6 +106,7 @@ const PostCollaborationEditor = ({ classes }: {
           userId={currentUser?._id}
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+          document={post}
         />
         <Components.PostVersionHistoryButton
           post={post}
