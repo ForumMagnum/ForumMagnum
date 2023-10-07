@@ -65,6 +65,21 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     this.table = Table.fromCollection<T>(this as unknown as CollectionBase<T>);
   }
 
+  clearCrossRequestCache(selector: string | MongoSelector<T>) {
+    const {crossRequestCache} = this as unknown as CollectionBase<T>;
+    if (!crossRequestCache) {
+      return;
+    }
+
+    if (typeof selector === "string") {
+      crossRequestCache.del(selector);
+    } else if (typeof selector?._id === "string") {
+      crossRequestCache.del(selector._id);
+    } else {
+      crossRequestCache.reset();
+    }
+  }
+
   /**
    * Execute the given query
    * The `data` parameter is completely optional and is only used to improve
@@ -198,6 +213,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     }
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeWriteQuery(update, {selector, modifier, options});
+    this.clearCrossRequestCache(selector);
     return result.length;
   }
 
@@ -208,6 +224,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   ) => {
     const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
     const result = await this.executeWriteQuery(update, {selector, modifier, options});
+    this.clearCrossRequestCache(selector);
     return result.length;
   }
 
@@ -215,6 +232,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     options = Object.assign({noSafetyHarness: true}, options);
     const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
     const result = await this.executeWriteQuery(query, {selector, options});
+    this.clearCrossRequestCache(selector);
     return {deletedCount: result.length};
   }
 
@@ -267,6 +285,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     ) => {
       const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
       const result = await this.executeWriteQuery(update, {selector, modifier, options});
+      this.clearCrossRequestCache(selector);
       return {
         ok: 1,
         value: result[0],
@@ -285,6 +304,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       options: MongoUpdateOptions<T>,
     ) => {
       const result = await this.rawUpdateOne(selector, modifier, options);
+      this.clearCrossRequestCache(selector);
       return {
         acknowledged: true,
         matchedCount: result,
@@ -297,6 +317,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       options: MongoUpdateOptions<T>,
     ) => {
       await this.rawUpdateMany(selector, modifier, options);
+      this.clearCrossRequestCache(selector);
       return {
         ok: 1,
         value: null,
