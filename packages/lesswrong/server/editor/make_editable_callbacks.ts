@@ -343,10 +343,10 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
     const isPostContentsContext = collectionName === 'Posts' && fieldName === 'contents';
-    const hasChanged = (oldDoc as DbPost).contents?.html !== (doc as DbPost).contents?.html;
+    const hasChanged = (oldDoc as DbPost)?.contents?.html !== (doc as DbPost)?.contents?.html;
     
     if (isPostContentsContext && !hasChanged) return;
-    
+
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
