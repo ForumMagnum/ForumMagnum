@@ -443,3 +443,8 @@ async function checkEditorBundle(bundleVersion: string): Promise<void> {
   console.log(result);
 }
 Globals.checkEditorBundle = checkEditorBundle;
+
+async function flushAllCkEditorCollaborations() {
+  await fetchCkEditorRestAPI("DELETE", `/collaborations?force=true`);
+}
+Globals.flushAllCkEditorCollaborations = flushAllCkEditorCollaborations;
