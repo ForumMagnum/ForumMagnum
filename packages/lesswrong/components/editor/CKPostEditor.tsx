@@ -10,15 +10,14 @@ import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import type { Editor } from "@ckeditor/ckeditor5-core";
-import type { Element as CKElement, Selection, Node, Writer, RootElement } from "@ckeditor/ckeditor5-engine";
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
-import Button from '@material-ui/core/Button';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
+import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
