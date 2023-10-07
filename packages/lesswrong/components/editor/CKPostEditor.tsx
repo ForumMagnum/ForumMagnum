@@ -421,26 +421,29 @@ const CKPostEditor = ({
           });
         }
 
-        const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
-        if (sessionsPlugin) {
-          const connectedUsers = sessionsPlugin.allConnectedUsers
-          const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
-            const newUsersArr = [...usersCollection];
-            setConnectedUsers(newUsersArr.map(u => ({
-              _id: u.id,
-              name: u.name,
-            })));
+        // Not checking for the plugin's existence causes an error which causes integration tests to fail
+        if (editor.plugins.has('Sessions')) {
+          const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
+          if (sessionsPlugin) {
+            const connectedUsers = sessionsPlugin.allConnectedUsers
+            const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
+              const newUsersArr = [...usersCollection];
+              setConnectedUsers(newUsersArr.map(u => ({
+                _id: u.id,
+                name: u.name,
+              })));
+            }
+            connectedUsers.on('add', (change: AnyBecauseHard) => {
+              if (change.source) {
+                updateConnectedUsers(change.source);
+              }
+            });
+            connectedUsers.on('remove', (change: AnyBecauseHard) => {
+              if (change.source) {
+                updateConnectedUsers(change.source);
+              }
+            });
           }
-          connectedUsers.on('add', (change: AnyBecauseHard) => {
-            if (change.source) {
-              updateConnectedUsers(change.source);
-            }
-          });
-          connectedUsers.on('remove', (change: AnyBecauseHard) => {
-            if (change.source) {
-              updateConnectedUsers(change.source);
-            }
-          });
         }
 
         if (isBlockOwnershipMode) {
@@ -471,6 +474,7 @@ const CKPostEditor = ({
 
             const acceptCommand = editor.commands.get('acceptSuggestion');
             if (acceptCommand) {
+              // TODO: maybe restrict accepting suggestions to only the user who owns the block, not just any user other than the one that made the suggestion
               // Don't let users accept changes in blocks they don't own
               acceptCommand.on("execute", (command: any, suggestionIds: string[]) => {
                 const trackChangesPlugin = editor.plugins.get( 'TrackChanges' );
