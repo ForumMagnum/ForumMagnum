@@ -267,9 +267,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   subscribeToDialogue: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    maxWidth: 240,
     marginBottom: 40,
     marginTop: 40,
     border: theme.palette.border.commentBorder,
