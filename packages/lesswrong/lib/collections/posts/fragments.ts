@@ -21,6 +21,7 @@ registerFragment(`
     hasCoauthorPermission
     rejected
     debate
+    collabEditorDialogue
   }
 `);
 
@@ -502,6 +503,15 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    user {
+      ...UsersMinimumInfo
+    }
+    usersSharedWith {
+      ...UsersMinimumInfo
+    }
+    coauthors {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
