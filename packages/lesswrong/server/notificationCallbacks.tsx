@@ -231,10 +231,10 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
 
   const notifications = await Notifications.find({userId: {$in: debateParticipantIds}, documentId: post._id, documentType: 'post', type: 'newDialogueMessages', createdAt: {$gt: earliestLastNotificationsCheck }}).fetch();
 
-  // Only notify users who haven't checked their notifications since the last message was posted. For each user, compare their lastNotificationsCheck to the notifications with their userId.
+  // Only notify users who haven't checked their notifications since the last message was posted.
   const userIdsToNotify = debateParticipants.filter(user => {
     const userNotifications = notifications.filter(notification => notification.userId === user._id);
-    const userLastNotificationCreatedAt = _.max(userNotifications.map(notification => notification.createdAt));
+    const userLastNotificationCreatedAt = _.max([...userNotifications.map(notification => notification.createdAt), post.createdAt]);
     return moment(userLastNotificationCreatedAt).isBefore(moment(user.lastNotificationsCheck));
   }).map(user => user._id);
 
