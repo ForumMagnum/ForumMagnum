@@ -25,7 +25,7 @@ const DialoguesPage = () => {
     <p>Beta feature: Dialogues between a small group of users.</p>
   </div>
 
-  return <AnalyticsContext pageSubSectionContext="DialoguesPage">
+  return <AnalyticsContext pageContext="DialoguesPage">
     <SingleColumnSection>
       <SectionTitle
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
