@@ -134,6 +134,9 @@ USE THIS CONVENTION FOR TRACKING EVENT LOCATION
     -use when wanting to mark where within a section something occurs
 * listContext is historical. Now just use pageSection.
 
+When adding a new prop simply add it to the list in the type of the `props` argument here.
+Arguments can be of any type that can be handled by JSON.stringify. It's fine to have a low
+barrier for adding new props here.
 
 Also, context labels and their values should be camelCase, e.g. `pageSectionContext="fromTheArchives"`, 
 and *not* `page_section_context="From the Archives" or the like.
