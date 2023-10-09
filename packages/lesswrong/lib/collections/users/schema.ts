@@ -1372,12 +1372,21 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
-  notificationDebateCommentsOnSubscribedPost: {
+  notificationDialogueMessages: {
+    label: "New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField({ channel: "both"})
+  },
+  notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
+    ...notificationTypeSettingsField()
+  },
+  //TODO: clean up old dialogue implementation notifications
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New dialogue content in a dialogue I'm participating in",
+    label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },

@@ -1,7 +1,7 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
@@ -17,7 +17,7 @@ import { useHover } from '../common/withHover'
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
-import postSchema from '../../lib/collections/posts/schema';
+import postSchema, { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
@@ -145,6 +145,10 @@ const UsersMenu = ({classes}: {
     icon="Email"
     iconClassName={classes.icon}
   />
+  
+  const canCreateDialogue = userCanPost(currentUser)
+    && dialoguesEnabled
+    && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -182,12 +186,10 @@ const UsersMenu = ({classes}: {
                     to="/newPost"
                   />
                 }
-                {userCanPost(currentUser) &&
-                    dialoguesEnabled &&
-                    userCanCreateField(currentUser, postSchema['debate']) &&
+                {canCreateDialogue &&
                   <DropdownItem
                     title={preferredHeadingCase("New Dialogue")}
-                    to="/newpost?debate=true"
+                    onClick={() => openDialog({componentName:"NewDialogueDialog"})}
                   />
                 }
               </div>
