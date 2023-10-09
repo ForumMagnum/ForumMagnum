@@ -59,6 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
   content: {
     flexGrow: 1,
+    minWidth: 0,
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: theme.borderRadius.default,
