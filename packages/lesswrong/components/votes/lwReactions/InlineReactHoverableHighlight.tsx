@@ -19,8 +19,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   // Comment hovered
   "@global": {
     ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight": {
-      borderBottom: theme.palette.border.dashed500,
-    },
+      textDecorationLine: 'underline',
+      textDecorationStyle: 'dashed',
+      textDecorationColor: theme.palette.border.dashed500,
+  }
   }
 })
 
