@@ -12,13 +12,45 @@ import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
-import type { ForumTypeString } from '../lib/instanceSettings';
+import { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
 import { requestedCssVarsToString } from '../themes/cssVars';
-import { spawn, exec } from "child_process";
-import { promisify } from "util";
+import { isGithubActions } from '../lib/executionEnvironment';
+import { exec } from "child_process";
 import { Stream } from 'stream';
+import CleanCSS from "clean-css";
+
+/**
+ * Minify the CSS bundle,
+ * Ordinarily, we do this by invoking cleancss as a separate cli process to
+ * maximise the amount of parallelism we can get during server startup.
+ * When we're running in Github CI, we instead do the conversion in-process as
+ * we can't run multiple processes simultaneously.
+ */
+const minifyCss = (css: string): Promise<string> | string =>
+  isGithubActions ? minifyCssSync(css) : minifyCssAsync(css);
+
+const minifyCssSync = (css: string): string => new CleanCSS().minify(css).styles;
+
+const minifyCssAsync = async (css: string): Promise<string> => {
+  const command = 'yarn --silent cleancss';
+  try {
+    return await new Promise((resolve) => {
+      const stdin = new Stream.Readable();
+      stdin.push(css);
+      stdin.push(null);
+      const process = exec(command, {}, (_err,stdout,_stderr) => {
+        resolve(stdout);
+      });
+      stdin.pipe(process.stdin!);
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error in cleancss CSS minifier:', error);
+    return css;
+  }
+}
 
 const generateMergedStylesheet = async (themeOptions: ThemeOptions): Promise<Buffer> => {
   importAllComponents();
@@ -58,28 +90,8 @@ const generateMergedStylesheet = async (themeOptions: ThemeOptions): Promise<Buf
     cssVars,
   ].join("\n");
 
-  const minifiedCSS = await minifyCSS(mergedCSS);
+  const minifiedCSS = await minifyCss(mergedCSS);
   return Buffer.from(minifiedCSS, "utf8");
-}
-
-async function minifyCSS(css: string): Promise<string> {
-  let command = 'yarn --silent cleancss';
-  
-  try {
-    return await new Promise((resolve) => {
-      const stdin = new Stream.Readable();
-      stdin.push(css);
-      stdin.push(null);
-      const process = exec(command, {}, (_err,stdout,_stderr) => {
-        resolve(stdout);
-      });
-      stdin.pipe(process.stdin!);
-    });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log('Error in cleancss CSS minifier:', error);
-    return css;
-  }
 }
 
 type StylesheetAndHash = {

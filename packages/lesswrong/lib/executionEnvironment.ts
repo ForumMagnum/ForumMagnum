@@ -18,6 +18,7 @@ export const isProduction = bundleIsProduction
 export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
 export const isPackageTest = bundleIsTest
+export const isGithubActions = !!process.env.GITHUB_ACTIONS
 
 export interface CommandLineArguments {
   postgresUrl: string
