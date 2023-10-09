@@ -73,6 +73,14 @@ const PostSharingIcon: FC<{
     );
 }
 
+const shareTooltip = isEAForum
+  ? "Share this post"
+  : "Share this document";
+
+const noSharePermissionTooltip = isEAForum
+  ? "You need at least 1 karma or to be approved by a moderator to share this post"
+  : "You need at least 1 karma or to be approved by a mod to share";
+
 const PostSharingSettings = ({document, formType, value, classes}: {
   formType: "edit"|"new",
   document: PostsEditQueryFragment,
@@ -147,13 +155,13 @@ const PostSharingSettings = ({document, formType, value, classes}: {
   const {LWTooltip} = Components;
   if (!userCanUseSharing(currentUser)) {
     return (
-      <LWTooltip title="You need at least 1 karma or to be approved by a mod to share">
+      <LWTooltip title={noSharePermissionTooltip}>
         <PostSharingIcon className={classes.disabledIcon}/>
       </LWTooltip>
     )
   };
   return (
-    <LWTooltip title="Share this document">
+    <LWTooltip title={shareTooltip}>
       <PostSharingIcon className={classes.buttonIcon} onClick={onClickShare}/>
     </LWTooltip>
   );
