@@ -14,6 +14,11 @@ const styles = (theme: ThemeType) => ({
       marginRight: 5,
     },
   },
+  date: {
+    "@media screen and (max-width: 280px)": {
+      display: "none",
+    },
+  },
   readTime: {
     "@media screen and (max-width: 350px)": {
       display: "none",
@@ -73,8 +78,10 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
         />
       </InteractionWrapper>
       <div>
-        {" · "}
-        <PostsItemDate post={post} noStyles includeAgo />
+        <span className={classes.date}>
+          {" · "}
+          <PostsItemDate post={post} noStyles includeAgo />
+        </span>
         {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) &&
           <span className={classes.readTime}>
           {" · "}{post.readTimeMinutes || 1}m read
