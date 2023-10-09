@@ -8,9 +8,7 @@ const stylesheetUrls = new class {
 
   async getStylesheetUrl(themeOptions: ThemeOptions) {
     const cacheKey = JSON.stringify(themeOptions);
-    console.log(`Getting stylesheet ${cacheKey}`);
     if (!this.cache[cacheKey]) {
-      console.log(`Cache miss`);
       this.cache[cacheKey] = getMergedStylesheet(themeOptions);
     }
     return (await this.cache[cacheKey]).url;
