@@ -21,23 +21,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: !isEAForum && theme.palette.border.normal,
     "& textarea": {
       overflowY: "hidden",
     },
-  },
-  question: {
-    fontSize: theme.typography.display1.fontSize,
-    minHeight: 65,
-    paddingTop: theme.spacing.unit*1.5,
-    lineHeight: '1.2em',
-  },
+  }
 })
 
 const placeholders: Record<PostCategory, string> = {
   "post": "Post title",
   "question": "Question title",
-  "linkpost": "Linkpost title",
+  "linkpost": "Linkpost title"
 }
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
@@ -57,7 +50,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const { question, postCategory } = document;
 
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
-  const displayPlaceholder = isEAForum ? placeholders[effectiveCategory] : placeholder;
+  const displayPlaceholder = placeholders[effectiveCategory];
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
@@ -70,7 +63,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
-    className={classNames(classes.root, {[classes.question]: question && !isEAForum})}
+    className={classes.root}
     placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {

@@ -8,13 +8,11 @@ import classNames from "classnames";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const ICON_WIDTH = 24;
-const GAP = 12;
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
-    flexDirection: "row",
-    gap: "8px",
+    flexDirection: "column",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
@@ -33,6 +31,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     color: theme.palette.text.alwaysWhite,
     borderRadius: "50%",
+    minWidth: ICON_WIDTH,
     width: ICON_WIDTH,
     height: ICON_WIDTH,
     "& svg": {
@@ -50,7 +49,8 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
   container: {
-    width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
+    display: "flex",
+    gap: "8px",
   },
   meta: {
     marginBottom: 12,
@@ -59,11 +59,17 @@ const styles = (theme: ThemeType) => ({
   },
   content: {
     flexGrow: 1,
+    minWidth: 0,
     background: theme.palette.grey[0],
     border: `1px solid ${theme.palette.grey[200]}`,
     borderRadius: theme.borderRadius.default,
     color: theme.palette.grey[1000],
     padding: 12,
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
 });
 
@@ -110,14 +116,14 @@ const EARecentDiscussionItem = ({
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
-        <div className={classNames(classes.iconContainer, {
-          [classes.iconPrimary]: iconVariant === "primary",
-          [classes.iconGrey]: iconVariant === "grey",
-          [classes.iconGreen]: iconVariant === "green",
-        })}>
-          <ForumIcon icon={icon} />
-        </div>
         <div className={classes.container}>
+          <div className={classNames(classes.iconContainer, {
+            [classes.iconPrimary]: iconVariant === "primary",
+            [classes.iconGrey]: iconVariant === "grey",
+            [classes.iconGreen]: iconVariant === "green",
+          })}>
+            <ForumIcon icon={icon} />
+          </div>
           <div className={classes.meta}>
             <UsersNameDisplay user={user} className={classes.primaryText} />
             {" "}
@@ -143,6 +149,9 @@ const EARecentDiscussionItem = ({
             {" "}
             <FormatDate date={timestamp} includeAgo />
           </div>
+        </div>
+        <div className={classes.container}>
+          <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
           <div className={classes.content}>
             {children}
           </div>
