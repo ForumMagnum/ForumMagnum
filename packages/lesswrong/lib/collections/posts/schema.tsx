@@ -1798,7 +1798,7 @@ const schema: SchemaType<DbPost> = {
     ...schemaDefaultValue(false),
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['members'],
     hidden: true,
   },
 
