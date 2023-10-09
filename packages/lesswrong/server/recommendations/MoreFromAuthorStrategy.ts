@@ -24,7 +24,10 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       WHERE
         ${postFilter.filter}
         p."_id" <> $(postId) AND
-        (p."userId" = src."userId" OR coauthor."status"->>'userId' = src."userId")
+        (p."userId" = src."userId" OR (
+          coauthor."status"->>'userId' = src."userId" AND
+          (coauthor."status"->'confirmed' = TO_JSONB(TRUE) OR p."hasCoauthorPermission")
+        ))
       ORDER BY coauthor."status"->>'userId' = src."userId" DESC, p."score" DESC
       LIMIT $(count)
     `, {
