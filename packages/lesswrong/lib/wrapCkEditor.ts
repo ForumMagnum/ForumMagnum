@@ -6,5 +6,5 @@ export const getCkEditor = () => {
   return { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
 }
 
-export const ckEditorBundleVersion = "31.0.1";
+export const ckEditorBundleVersion = "31.0.3";
 

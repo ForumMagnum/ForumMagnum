@@ -1,19 +1,18 @@
-import React, { FC, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { ForumIconName } from "../common/ForumIcon";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import classNames from "classnames";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const ICON_WIDTH = 24;
-const GAP = 12;
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
-    flexDirection: "row",
-    gap: "8px",
+    flexDirection: "column",
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
     fontWeight: 500,
@@ -49,23 +48,7 @@ const styles = (theme: ThemeType) => ({
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
-  mainIcon: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
-  smallScreenIcon: {
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
-  },
   container: {
-    width: `calc(100% - ${ICON_WIDTH + GAP}px)`,
-    [theme.breakpoints.down("xs")]: {
-      width: "100%",
-    },
-  },
-  metaWrapper: {
     display: "flex",
     gap: "8px",
   },
@@ -82,6 +65,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     padding: 12,
   },
+  hideOnMobile: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
 });
 
 type EARecentDiscussionItemDocument = {
@@ -92,41 +80,15 @@ type EARecentDiscussionItemDocument = {
   tag: TagPreviewFragment,
 };
 
-type EARecentDiscussionItemIcon = {
+export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
   iconVariant: "primary" | "grey" | "green",
-}
-
-export type EARecentDiscussionItemProps =
-  EARecentDiscussionItemDocument &
-  EARecentDiscussionItemIcon &
-  {
-    user?: UsersMinimumInfo | null,
-    action: string,
-    postTitleOverride?: string,
-    postUrlOverride?: string,
-    timestamp: Date,
-  }
-
-const Icon: FC<EARecentDiscussionItemIcon & {
-  className?: string,
-  classes: ClassesType,
-}> = ({
-  icon,
-  iconVariant,
-  className,
-  classes,
-}) => {
-  const {ForumIcon} = Components;
-  return (
-    <div className={classNames(classes.iconContainer, className, {
-      [classes.iconPrimary]: iconVariant === "primary",
-      [classes.iconGrey]: iconVariant === "grey",
-      [classes.iconGreen]: iconVariant === "green",
-    })}>
-      <ForumIcon icon={icon} />
-    </div>
-  );
+  user?: UsersMinimumInfo | null,
+  action: string,
+  postTitleOverride?: string,
+  postUrlOverride?: string,
+  timestamp: Date,
+  pageSubSectionContext?: string,
 }
 
 const EARecentDiscussionItem = ({
@@ -139,6 +101,7 @@ const EARecentDiscussionItem = ({
   post,
   tag,
   timestamp,
+  pageSubSectionContext = "recentDiscussionThread",
   children,
   classes,
 }: EARecentDiscussionItemProps & {
@@ -146,24 +109,20 @@ const EARecentDiscussionItem = ({
   classes: ClassesType,
 }) => {
   const {
-    UsersNameDisplay, FormatDate, PostsItemTooltipWrapper, TagTooltipWrapper,
+    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
+    TagTooltipWrapper,
   } = Components;
   return (
-    <div className={classes.root}>
-      <Icon
-        icon={icon}
-        iconVariant={iconVariant}
-        className={classes.mainIcon}
-        classes={classes}
-      />
-      <div className={classes.container}>
-        <div className={classes.metaWrapper}>
-          <Icon
-            icon={icon}
-            iconVariant={iconVariant}
-            className={classes.smallScreenIcon}
-            classes={classes}
-          />
+    <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
+      <div className={classes.root}>
+        <div className={classes.container}>
+          <div className={classNames(classes.iconContainer, {
+            [classes.iconPrimary]: iconVariant === "primary",
+            [classes.iconGrey]: iconVariant === "grey",
+            [classes.iconGreen]: iconVariant === "green",
+          })}>
+            <ForumIcon icon={icon} />
+          </div>
           <div className={classes.meta}>
             <UsersNameDisplay user={user} className={classes.primaryText} />
             {" "}
@@ -190,11 +149,14 @@ const EARecentDiscussionItem = ({
             <FormatDate date={timestamp} includeAgo />
           </div>
         </div>
-        <div className={classes.content}>
-          {children}
+        <div className={classes.container}>
+          <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
+          <div className={classes.content}>
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 

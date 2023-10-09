@@ -16,6 +16,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
+import Users from '../../lib/vulcan-users';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -133,6 +134,34 @@ function wrapSpoilerTags(html: string): string {
   return $.html()
 }
 
+const handleDialogueHtml = async (html: string): Promise<string> => {
+  const $ = cheerioParse(html);
+
+  $('.dialogue-message-input').remove();
+
+  const userIds: string[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const userId = $(element).attr('user-id');
+    if (userId) userIds.push(userId);
+  });
+
+  const users = await Users.find({ _id: { $in: userIds } }, { projection: { _id: 1, displayName: 1 } }).fetch();
+
+  const userDisplayNamesById = Object.fromEntries(users.map((user) => [user._id, user.displayName]));
+
+  $('.dialogue-message').each((idx, element) => {
+    const userId = $(element).attr('user-id');
+    if (userId && userDisplayNamesById[userId]) {
+      $(element)
+        .append(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"></section>`)
+        .find('.dialogue-message-header')
+        .text(userDisplayNamesById[userId]);
+    }
+  });
+
+  return $.html();
+};
+
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerioParse(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()
@@ -194,8 +223,9 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   // Sanitized CKEditor markup is just html
   const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
+  const hydratedHtml = await handleDialogueHtml(trimmedHtml)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
+  return await mjPagePromise(hydratedHtml, trimLatexAndAddCSS)
 }
 
 export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
