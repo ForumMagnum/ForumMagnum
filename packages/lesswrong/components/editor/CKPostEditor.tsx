@@ -179,17 +179,17 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    // We remove all messages that don't have a corresponding author
-    const messagesWithoutAuthors = dialogueMessages.filter(message => {
-      const messageUserId = message.getAttribute('user-id');
-      return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
-    });
-    if (messagesWithoutAuthors.length > 0) {
-      messagesWithoutAuthors.forEach(message => {
-        writer.remove(message);
-      });
-      return true;
-    }
+    // // We remove all messages that don't have a corresponding author
+    // const messagesWithoutAuthors = dialogueMessages.filter(message => {
+    //   const messageUserId = message.getAttribute('user-id');
+    //   return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
+    // });
+    // if (messagesWithoutAuthors.length > 0) {
+    //   messagesWithoutAuthors.forEach(message => {
+    //     writer.remove(message);
+    //   });
+    //   return true;
+    // }
 
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
