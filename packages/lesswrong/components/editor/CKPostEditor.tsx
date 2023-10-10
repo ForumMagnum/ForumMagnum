@@ -158,6 +158,7 @@ function createDialoguePostFixer(editor: Editor, getSortedCoauthors: () => Users
     }
 
     const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, sortedCoauthors);
+    console.log({dialogueMessageInputs, sortedCoauthors, inputsWithoutAuthors})
     if (inputsWithoutAuthors.length > 0) {
       //Remove any inputs without authors
       inputsWithoutAuthors.forEach(input => {
@@ -334,16 +335,21 @@ const CKPostEditor = ({
   const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)];
   const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])])
   const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
-  const getCoauthors = () => coauthors
+  const getCoauthors = () => {
+    console.log("getCoauthors:", {postCoauthorInfo})
+    return coauthors
+  }
   
-  const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
+  const updateConnectedUsers = async (usersCollection: AnyBecauseHard) => {
+    console.log("before", {state: "before", connectedUsers, initialLoad, postCoauthorInfo, coauthors})
     const newUsersArr = [...usersCollection];
     setConnectedUsers(newUsersArr.map(u => ({
       _id: u.id,
       name: u.name,
     })));
     setInitialLoad(false)
-    refetchCoauthors()
+    await refetchCoauthors()
+    console.log("after", {state: "after", connectedUsers, initialLoad, postCoauthorInfo, coauthors})
   }
   
   // To make sure that the refs are populated we have to do two rendering passes
