@@ -18,6 +18,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import { useSingle } from "../../lib/crud/withSingle";
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -318,6 +319,14 @@ const CKPostEditor = ({
   }
   
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+  
+  const [initialLoad, setInitialLoad ] = useState(true)
+  const { document: postCoauthorInfo, refetch: refetchCoauthors } = useSingle({
+      documentId: post._id,
+      collectionName: "Posts",
+      fragmentName: "PostsListBase",
+      skip: initialLoad
+    })
     
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
@@ -407,8 +416,8 @@ const CKPostEditor = ({
         }
 
         if (post.collabEditorDialogue) {
-          const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
-          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
+          const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)];
+          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])])
           const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
           editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
@@ -431,6 +440,8 @@ const CKPostEditor = ({
                 _id: u.id,
                 name: u.name,
               })));
+              setInitialLoad(false)
+              refetchCoauthors()
             }
             connectedUsers.on('add', (change: AnyBecauseHard) => {
               if (change.source) {
