@@ -76,8 +76,8 @@ const EAPostsPreviewTooltip = ({
             {showSubheaderInfo &&
               <EAPostMeta post={post} useEventStyles={post.isEvent} />
             }
-            {!showSubheaderInfo &&
-              <div ref={tagsRef} >
+            {!showSubheaderInfo && post.tags?.length > 0 &&
+              <div ref={tagsRef}>
                 <TruncatedTagsList post={post} expandContainer={tagsRef} />
               </div>
             }
