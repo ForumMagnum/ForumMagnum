@@ -158,14 +158,9 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     if (inputsWithoutAuthors.length > 0) {
       //Remove any inputs without authors
       inputsWithoutAuthors.forEach(input => {
-        const inputChildren = Array.from(input.getChildren());
-        const inputIsCompletelyEmpty = inputChildren.length === 0 ;
-        const inputIsDefault =  inputChildren.length === 1 && inputChildren[0].is("element", "paragraph")
-        const inputIsEmpty = inputIsCompletelyEmpty || inputIsDefault;
-        if (inputIsEmpty) console.log({inputIsCompletelyEmpty, inputIsDefault, inputChildren})
-        // writer.remove(input);
+        writer.remove(input);
       });
-      // return true;
+      return true;
     }
 
     // We check that the inputs are in lexical order by author displayName
