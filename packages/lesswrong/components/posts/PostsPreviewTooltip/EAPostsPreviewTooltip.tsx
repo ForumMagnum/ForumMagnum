@@ -34,6 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: "130%",
     color: theme.palette.grey.A400,
   },
+  meta: {
+    fontWeight: 450,
+  },
   image: {
     width: "auto",
     minWidth: "100%",
@@ -74,7 +77,11 @@ const EAPostsPreviewTooltip = ({
               {post.title}
             </div>
             {showSubheaderInfo &&
-              <EAPostMeta post={post} useEventStyles={post.isEvent} />
+              <EAPostMeta
+                post={post}
+                useEventStyles={post.isEvent}
+                className={classes.meta}
+              />
             }
             {!showSubheaderInfo && post.tags?.length > 0 &&
               <div ref={tagsRef}>

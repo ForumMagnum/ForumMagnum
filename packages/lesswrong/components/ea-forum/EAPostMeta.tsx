@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,9 +38,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAPostMeta = ({post, useEventStyles, classes}: {
+const EAPostMeta = ({post, useEventStyles, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const authorExpandContainer = useRef(null);
@@ -50,7 +52,7 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
 
   if (useEventStyles && post.isEvent) {
     return (
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)}>
         <ForumIcon icon="Calendar" className={classes.icon} />
         {post.startTime
           ? (
@@ -70,7 +72,10 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
   }
 
   return (
-    <div className={classes.root} ref={authorExpandContainer}>
+    <div
+      className={classNames(classes.root, className)}
+      ref={authorExpandContainer}
+    >
       <InteractionWrapper className={classes.interactionWrapper}>
         <TruncatedAuthorsList
           post={post}
@@ -94,7 +99,7 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
 const EAPostMetaComponent = registerComponent(
   "EAPostMeta",
   EAPostMeta,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {
