@@ -332,13 +332,14 @@ const CKPostEditor = ({
     })
   
   // const [] = useState<UsersMinimumInfo[]>([])
-  const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)];
-  const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])])
-  const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
-  const getCoauthors = () => {
-    console.log("getCoauthors:", {postCoauthorInfo})
+  const userIds = useMemo(()=> formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)], [postCoauthorInfo, post, formType, userId])
+  const rawAuthors = useMemo(()=> formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])]), [postCoauthorInfo, post, formType, currentUser])
+  const coauthors = useMemo(()=> rawAuthors.filter(coauthor => userIds.includes(coauthor._id)), [rawAuthors, userIds])
+  const getCoauthors = useCallback(() => {
+    console.log("getCoauthors:", {postCoauthorInfo, coauthors})
     return coauthors
-  }
+  }, [postCoauthorInfo, coauthors])
+  
   
   const updateConnectedUsers = async (usersCollection: AnyBecauseHard) => {
     console.log("before", {state: "before", connectedUsers, initialLoad, postCoauthorInfo, coauthors})
