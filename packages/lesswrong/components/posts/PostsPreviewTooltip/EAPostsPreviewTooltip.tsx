@@ -103,7 +103,6 @@ const EAPostsPreviewTooltip = ({
                 lines={3.5}
                 hideMoreLink
                 smallText
-                noLinkStyling
               />
             )
           }
