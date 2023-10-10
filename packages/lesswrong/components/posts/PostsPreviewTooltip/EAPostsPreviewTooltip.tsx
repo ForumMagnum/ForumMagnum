@@ -36,6 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   meta: {
     fontWeight: 450,
+    marginTop: -4,
   },
   image: {
     width: "auto",
