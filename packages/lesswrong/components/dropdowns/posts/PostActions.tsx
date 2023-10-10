@@ -77,10 +77,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       />
       <NotifyMeDropdownItem
         document={post}
-        enabled={!!post.debate}
+        enabled={!!post.collabEditorDialogue}
         subscribeMessage="Subscribe to dialogue"
         unsubscribeMessage="Unsubscribe from dialogue"
-        subscriptionType={subscriptionTypes.newDebateComments}
+        subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
         tooltip="Notifies you when there is new activity in the dialogue"
       />
       <NotifyMeDropdownItem

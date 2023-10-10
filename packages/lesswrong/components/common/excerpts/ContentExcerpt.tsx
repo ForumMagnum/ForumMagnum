@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
+import { truncate } from "../../../lib/editor/ellipsize";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -27,16 +28,11 @@ const smallHeading = {
 };
 
 const styles = (theme: ThemeType) => ({
-  root: {
-  },
+  root: {},
   excerpt: {
     position: "relative",
     fontSize: "1.1rem",
     lineHeight: "1.5em",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
   },
   contentNormalText: {
     "& h1": normalHeading,
@@ -111,6 +107,16 @@ const ContentExcerpt = ({
   const expandInPlace = alwaysExpandInPlace ||
     contentHtml.length < HTML_CHARS_PER_LINE_HEURISTIC * EXPAND_IN_PLACE_LINES;
 
+  // We use `truncate` here rather than webkit-box overflow shenanigans
+  // because of bugs in certain versions of ios safari
+  const truncatedHtml = truncate(
+    contentHtml,
+    lines * HTML_CHARS_PER_LINE_HEURISTIC,
+    "characters",
+    "...",
+    false,
+  );
+
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
@@ -120,7 +126,7 @@ const ContentExcerpt = ({
         style={expanded ? undefined : {WebkitLineClamp: lines}}
       >
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: contentHtml}}
+          dangerouslySetInnerHTML={{__html: truncatedHtml}}
           className={classNames({
             [classes.contentNormalText]: !smallText,
             [classes.contentSmallText]: smallText,

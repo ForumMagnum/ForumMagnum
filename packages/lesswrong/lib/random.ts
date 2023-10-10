@@ -13,9 +13,9 @@ export const ID_LENGTH = 17;
 // A random 17-digit string, using characters that are hard to confuse with each
 // other. If run on the server, cryptographically secure; if run on the client,
 // not.
-export const randomId = () => {
+export const randomId = (length=ID_LENGTH) => {
   if (bundleIsServer) {
-    const bytes = crypto.randomBytes(ID_LENGTH);
+    const bytes = crypto.randomBytes(length);
     const result: Array<string> = [];
     for (let byte of bytes) {
       // Discards part of each byte and has modulo bias. Doesn't matter in
@@ -25,7 +25,7 @@ export const randomId = () => {
     return result.join('');
   } else {
     const result: Array<string> = [];
-    for (let i=0; i<ID_LENGTH; i++)
+    for (let i=0; i<length; i++)
       result.push(unmistakableChars[randInt(unmistakableChars.length)]);
     return result.join('');
   }
