@@ -125,12 +125,14 @@ function getBlockUserId(modelElement: CKElement) {
   return (modelElement.getAttribute('user-id') || '').toString();
 }
 
-function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumInfo[]) {
+function createDialoguePostFixer(editor: Editor, getSortedCoauthors: () => UsersMinimumInfo[]) {
   return (writer: Writer) => {
     const root = editor.model.document.getRoot()!;
     const children = Array.from(root.getChildren());
     const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput"; } => child.is('element', 'dialogueMessageInput'));
     const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage"; } => child.is('element', 'dialogueMessage'));
+    
+    const sortedCoauthors = getSortedCoauthors()
 
     const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyIncorrectInputUserOrders) {
@@ -327,8 +329,24 @@ const CKPostEditor = ({
       fragmentName: "PostsListBase",
       skip: initialLoad
     })
-    
-    // To make sure that the refs are populated we have to do two rendering passes
+  
+  // const [] = useState<UsersMinimumInfo[]>([])
+  const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)];
+  const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])])
+  const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+  const getCoauthors = () => coauthors
+  
+  const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
+    const newUsersArr = [...usersCollection];
+    setConnectedUsers(newUsersArr.map(u => ({
+      _id: u.id,
+      name: u.name,
+    })));
+    setInitialLoad(false)
+    refetchCoauthors()
+  }
+  
+  // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
     setLayoutReady(true)
@@ -416,10 +434,7 @@ const CKPostEditor = ({
         }
 
         if (post.collabEditorDialogue) {
-          const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(postCoauthorInfo ?? post)];
-          const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(postCoauthorInfo?.coauthors ?? post.coauthors ?? [])])
-          const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
-          editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
+          editor.model.document.registerPostFixer( createDialoguePostFixer(editor, getCoauthors) );
 
           // This is just to trigger the postFixer when the editor is initialized
           editor.model.change(writer => {
@@ -434,15 +449,6 @@ const CKPostEditor = ({
           const sessionsPlugin = editor.plugins.get('Sessions') as AnyBecauseHard;
           if (sessionsPlugin) {
             const connectedUsers = sessionsPlugin.allConnectedUsers
-            const updateConnectedUsers = (usersCollection: AnyBecauseHard) => {
-              const newUsersArr = [...usersCollection];
-              setConnectedUsers(newUsersArr.map(u => ({
-                _id: u.id,
-                name: u.name,
-              })));
-              setInitialLoad(false)
-              refetchCoauthors()
-            }
             connectedUsers.on('add', (change: AnyBecauseHard) => {
               if (change.source) {
                 updateConnectedUsers(change.source);
