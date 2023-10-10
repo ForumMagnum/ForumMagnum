@@ -65,7 +65,6 @@ const EAPostsPreviewTooltip = ({
   }
 
   const showSubheaderInfo = !postsList;
-  const renderedComment = comment || post.bestAnswer;
   const {imageUrl} = post.socialPreviewData ?? {};
 
   const {PostExcerpt, EAPostMeta, TruncatedTagsList, CommentsNode} = Components;
@@ -90,7 +89,7 @@ const EAPostsPreviewTooltip = ({
               </div>
             }
           </div>
-          {renderedComment
+          {comment
             ? (
               <CommentsNode
                 treeOptions={{
@@ -98,7 +97,7 @@ const EAPostsPreviewTooltip = ({
                   hideReply: true,
                   forceNotSingleLine: true,
                 }}
-                comment={renderedComment}
+                comment={comment}
                 truncated
                 hoverPreview
                 forceUnCollapsed
