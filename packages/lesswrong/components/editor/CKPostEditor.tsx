@@ -110,15 +110,23 @@ function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
 function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
   return dialogueMessages.map(message => {
     const messageUserId = message.getAttribute('user-id');
+    const messageUserOrderAttribute = message.getAttribute('user-order');
+    const messageUserOrder = Number.parseInt((messageUserOrderAttribute ?? '0') as string);
     let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
-    console.log("userOrder", {userOrder, messageUserId, sortedCoauthors, message})
-    if (!userOrder || userOrder < 1) {
-      userOrder = getMaxUserOrder(dialogueMessages) + 1;
+
+    console.log("userOrder", {messageUserOrderAttribute, messageUserOrder, userOrder, messageUserId, sortedCoauthors, messageAttributes: Array.from(message.getAttributes())});
+    if (userOrder < 1) {
+      if (messageUserOrder) {
+        console.log('setting userOrder from messageUserOrder', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
+        userOrder = messageUserOrder;
+      } else {
+        console.log('setting userOrder from max user order', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
+        userOrder = getMaxUserOrder(dialogueMessages) + 1;
+      }
     }
 
-    const messageUserOrder = message.getAttribute('user-order');
-    console.log({messageUserOrder})
-    if (userOrder !== Number.parseInt(messageUserOrder as string)) {
+    if (userOrder !== messageUserOrder) {
+      console.log('writing userOrder back to element', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
       writer.setAttribute('user-order', userOrder, message);
       return true;
     }
