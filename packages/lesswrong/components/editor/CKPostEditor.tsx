@@ -103,13 +103,23 @@ function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
   });
 }
 
+function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
+  return dialogueElements.reduce((maxUserOrder, element) => {
+    const userOrder = Number.parseInt(element.getAttribute('user-order') as string);
+    if (userOrder && userOrder > maxUserOrder) {
+      return userOrder;
+    }
+    return maxUserOrder;
+  }, 0);
+}
+
 function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
   return dialogueMessages.map(message => {
     const messageUserId = message.getAttribute('user-id');
     let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
     console.log("userOrder", {userOrder, messageUserId, sortedCoauthors, message})
     if (!userOrder || userOrder < 1) {
-      userOrder = 1;
+      userOrder = getMaxUserOrder(dialogueMessages) + 1;
     }
 
     const messageUserOrder = message.getAttribute('user-order');
@@ -174,7 +184,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
 
     if (incorrectOrder || !lastElementsAreAllInputs) {
-      const sortedInputs = sortBy(dialogueMessageInputs, (i) => sortedCoauthors.findIndex(author => author._id === i.getAttribute('user-id')))
+      const sortedInputs = sortBy(dialogueMessageInputs, (i) => Number.parseInt(i.getAttribute('user-order') as string))
       console.log({sortedInputs, dialogueMessageInputs, sortedCoauthors})
       sortedInputs.forEach(sortedInput => {
         writer.append(sortedInput, root);
