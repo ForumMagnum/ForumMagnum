@@ -111,7 +111,7 @@ const ContentExcerpt = ({
   // because of bugs in certain versions of ios safari
   const truncatedHtml = truncate(
     contentHtml,
-    lines * HTML_CHARS_PER_LINE_HEURISTIC,
+    Math.floor(lines * HTML_CHARS_PER_LINE_HEURISTIC),
     "characters",
     "...",
     false,
@@ -123,10 +123,9 @@ const ContentExcerpt = ({
       <ContentStyles
         contentType={contentType}
         className={classes.excerpt}
-        style={expanded ? undefined : {WebkitLineClamp: lines}}
       >
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: truncatedHtml}}
+          dangerouslySetInnerHTML={{__html: expanded ? contentHtml : truncatedHtml}}
           className={classNames({
             [classes.contentNormalText]: !smallText,
             [classes.contentSmallText]: smallText,
