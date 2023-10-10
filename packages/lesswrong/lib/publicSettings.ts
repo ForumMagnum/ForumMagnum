@@ -53,7 +53,7 @@ export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>(
 // Algolia Search Settings
 export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
 export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
-export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('algolia.indexPrefix', null)
+export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '')
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
