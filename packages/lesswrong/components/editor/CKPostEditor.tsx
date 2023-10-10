@@ -65,7 +65,7 @@ function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: W
   });
 }
 
-function getInputsWithoutAuthors(dialogueMessageInputs: Node[], coauthors: UsersMinimumInfo[]) {
+function getInputsWithoutAuthors<T extends Node>(dialogueMessageInputs: T[], coauthors: UsersMinimumInfo[]) {
   return dialogueMessageInputs.filter(input => {
     return !coauthors.some(coauthor => {
       const inputUserId = input.getAttribute('user-id') as string | undefined;
@@ -158,9 +158,14 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     if (inputsWithoutAuthors.length > 0) {
       //Remove any inputs without authors
       inputsWithoutAuthors.forEach(input => {
-        writer.remove(input);
+        const inputChildren = Array.from(input.getChildren());
+        const inputIsCompletelyEmpty = inputChildren.length === 0 ;
+        const inputIsDefault =  inputChildren.length === 1 && inputChildren[0].is("element", "paragraph")
+        const inputIsEmpty = inputIsCompletelyEmpty || inputIsDefault;
+        if (inputIsEmpty) console.log({inputIsCompletelyEmpty, inputIsDefault, inputChildren})
+        // writer.remove(input);
       });
-      return true;
+      // return true;
     }
 
     // We check that the inputs are in lexical order by author displayName
@@ -178,17 +183,17 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    // We remove all messages that don't have a corresponding author
-    const messagesWithoutAuthors = dialogueMessages.filter(message => {
-      const messageUserId = message.getAttribute('user-id');
-      return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
-    });
-    if (messagesWithoutAuthors.length > 0) {
-      messagesWithoutAuthors.forEach(message => {
-        writer.remove(message);
-      });
-      return true;
-    }
+    // // We remove all messages that don't have a corresponding author
+    // const messagesWithoutAuthors = dialogueMessages.filter(message => {
+    //   const messageUserId = message.getAttribute('user-id');
+    //   return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
+    // });
+    // if (messagesWithoutAuthors.length > 0) {
+    //   messagesWithoutAuthors.forEach(message => {
+    //     writer.remove(message);
+    //   });
+    //   return true;
+    // }
 
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
