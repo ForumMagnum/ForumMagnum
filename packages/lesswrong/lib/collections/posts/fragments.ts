@@ -223,7 +223,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
     socialPreviewData {
-      imageId
+      imageUrl
     }
 
     feedId
