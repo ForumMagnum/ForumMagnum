@@ -104,13 +104,7 @@ function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
 }
 
 function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
-  return dialogueElements.reduce((maxUserOrder, element) => {
-    const userOrder = Number.parseInt(element.getAttribute('user-order') as string);
-    if (userOrder && userOrder > maxUserOrder) {
-      return userOrder;
-    }
-    return maxUserOrder;
-  }, 0);
+  return Math.max(...dialogueElements.map(element => Number.parseInt(element.getAttribute('user-order') as string)))
 }
 
 function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
