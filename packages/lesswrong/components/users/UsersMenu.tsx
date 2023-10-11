@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
-import { userHasThemePicker } from '../../lib/betas';
+import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
@@ -147,7 +147,7 @@ const UsersMenu = ({classes}: {
   />
   
   const canCreateDialogue = userCanPost(currentUser)
-    && !isEAForum
+    && dialoguesEnabled
     && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
   return (

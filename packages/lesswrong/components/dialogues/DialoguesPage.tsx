@@ -4,43 +4,56 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useSingle } from '../../lib/crud/withSingle';
 
-const DialoguesList = () => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
+const DialoguesPage = () => {
+  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
 
-  const { results: dialoguePosts } = usePaginatedResolver({
+  const { results: dialoguePosts, loadMoreProps } = usePaginatedResolver({
     fragmentName: "PostsPage",
     resolverName: "RecentlyActiveDialogues",
-    limit: 3,
+    limit: 20,
   }); 
 
+  const { document: announcementPost } = useSingle({
+    documentId: "kQuSZG8ibfW6fJYmo",
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+  });
+
   const dialoguesTooltip = <div>
-    <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
+    <p>Beta feature: Dialogues between a small group of users.</p>
   </div>
 
-  return <AnalyticsContext pageSubSectionContext="dialoguesList">
+  return <AnalyticsContext pageContext="DialoguesPage">
     <SingleColumnSection>
-      <SectionTitle href="/dialogues"
+      <SectionTitle
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
           Dialogues
         </LWTooltip>}
       />
+      {announcementPost && <PostsItem
+        key={"kQuSZG8ibfW6fJYmo"} post={announcementPost} forceSticky
+      />}
       {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
+      <SectionFooter>
+        <LoadMore {...loadMoreProps}/>
+      </SectionFooter>
    </SingleColumnSection>
   </AnalyticsContext>
 }
 
-const DialoguesListComponent = registerComponent('DialoguesList', DialoguesList, {
+const DialoguesPageComponent = registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
 
 declare global {
   interface ComponentTypes {
-    DialoguesList: typeof DialoguesListComponent
+    DialoguesPage: typeof DialoguesPageComponent
   }
 }

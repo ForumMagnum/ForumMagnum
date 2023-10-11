@@ -583,7 +583,7 @@ importComponent("DebateBody", () => require('../components/comments/DebateBody')
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
-
+importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));

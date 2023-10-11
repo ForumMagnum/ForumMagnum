@@ -4,7 +4,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
+import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 
@@ -42,17 +42,16 @@ const PostBottomRecommendations = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const {
-    results: moreFromAuthorPosts,
-    loading: moreFromAuthorLoading,
-  } = useMulti({
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    terms: {
-      userId: post.userId,
-      notPostIds: [post._id],
-      sortedBy: "topAdjusted",
-      limit: 3,
+    recommendationsLoading: moreFromAuthorLoading,
+    recommendations: moreFromAuthorPosts,
+  } = useRecommendations({
+    strategy: {
+      name: "moreFromAuthor",
+      postId: post._id,
+      context: "post-footer",
     },
+    count: 3,
+    disableFallbacks: true,
   });
 
   const {
