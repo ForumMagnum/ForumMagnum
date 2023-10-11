@@ -1,5 +1,5 @@
-import React from "react";
-import { registerComponent, Components } from "../../../lib/vulcan-lib";
+import React, { FC } from "react";
+import { Components } from "../../../lib/vulcan-lib";
 import { isEAForum } from "../../../lib/instanceSettings";
 
 export type PostsPreviewTooltipProps = {
@@ -9,18 +9,7 @@ export type PostsPreviewTooltipProps = {
   comment?: CommentsList,
 }
 
-const PostsPreviewTooltip = (props: PostsPreviewTooltipProps) =>
+export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>
   isEAForum
     ? <Components.EAPostsPreviewTooltip {...props} />
     : <Components.LWPostsPreviewTooltip {...props} />;
-
-const PostsPreviewTooltipComponent = registerComponent(
-  "PostsPreviewTooltip",
-  PostsPreviewTooltip,
-);
-
-declare global {
-  interface ComponentTypes {
-    PostsPreviewTooltip: typeof PostsPreviewTooltipComponent
-  }
-}

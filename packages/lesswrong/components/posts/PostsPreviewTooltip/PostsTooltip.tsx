@@ -1,6 +1,12 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
+import { PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import {
+  PostsPreviewTooltipSingle,
+  PostsPreviewTooltipSingleWithComment,
+  TaggedPostTooltipSingle,
+} from "./PostsPreviewTooltipSingle";
 
 const PostsTooltip = ({
   post,
@@ -34,12 +40,6 @@ const PostsTooltip = ({
   pageElementSubContext?: string,
 }) => {
   const renderTitle = useCallback(() => {
-    const {
-      TaggedPostTooltipSingle,
-      PostsPreviewTooltip,
-      PostsPreviewTooltipSingle,
-      PostsPreviewTooltipSingleWithComment,
-    } = Components;
     if (tagRelId) {
       return (
         <TaggedPostTooltipSingle tagRelId={tagRelId} />

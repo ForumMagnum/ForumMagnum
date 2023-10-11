@@ -1,8 +1,9 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components } from '../../../lib/vulcan-lib';
+import { PostsPreviewTooltip } from './PostsPreviewTooltip';
 
-const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
+export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
   postsList?: boolean
 }) => {
@@ -13,7 +14,7 @@ const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
     documentId: postId,
   });
 
-  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  const {PostsPreviewLoading} = Components;
   if (postLoading) {
     return <PostsPreviewLoading />
   }
@@ -23,12 +24,7 @@ const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
-const PostsPreviewTooltipSingleComponent = registerComponent(
-  'PostsPreviewTooltipSingle',
-  PostsPreviewTooltipSingle,
-);
-
-const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
+export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   postId: string,
   commentId: string,
 }) => {
@@ -46,7 +42,7 @@ const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
     documentId: commentId,
   });
 
-  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  const {PostsPreviewLoading} = Components;
   if (postLoading || commentLoading) {
     return <PostsPreviewLoading />
   }
@@ -61,12 +57,7 @@ const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   );
 }
 
-const PostsPreviewTooltipSingleWithCommentComponent = registerComponent(
-  'PostsPreviewTooltipSingleWithComment',
-  PostsPreviewTooltipSingleWithComment,
-);
-
-const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
+export const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   const { document: tagRel, loading: tagRelLoading } = useSingle({
     collectionName: "TagRels",
     fragmentName: 'TagRelFragment',
@@ -74,7 +65,7 @@ const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
     documentId: tagRelId,
   });
 
-  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  const {PostsPreviewLoading} = Components;
   if (tagRelLoading) {
     return <PostsPreviewLoading />
   }
@@ -82,17 +73,4 @@ const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   if (!tagRel) {return null;}
 
   return <PostsPreviewTooltip post={tagRel.post} />
-}
-
-const TaggedPostTooltipSingleComponent = registerComponent(
-  'TaggedPostTooltipSingle',
-  TaggedPostTooltipSingle,
-);
-
-declare global {
-  interface ComponentTypes {
-    PostsPreviewTooltipSingle: typeof PostsPreviewTooltipSingleComponent
-    PostsPreviewTooltipSingleWithComment: typeof PostsPreviewTooltipSingleWithCommentComponent
-    TaggedPostTooltipSingle: typeof TaggedPostTooltipSingleComponent
-  }
 }
