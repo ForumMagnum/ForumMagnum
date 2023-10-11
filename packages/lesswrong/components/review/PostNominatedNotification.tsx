@@ -4,7 +4,7 @@ import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
-import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewTooltipSingle';
+import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

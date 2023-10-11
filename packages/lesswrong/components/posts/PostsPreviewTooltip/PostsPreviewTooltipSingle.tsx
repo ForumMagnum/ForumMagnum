@@ -1,103 +1,93 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { POST_PREVIEW_WIDTH } from './helpers';
 
-export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
-  width: POST_PREVIEW_WIDTH,
-  paddingTop: theme.spacing.unit,
-  paddingBottom: theme.spacing.unit
-})
-
-const styles = (theme: ThemeType): JssStyles => ({
-  loading: {
-    ...notificationLoadingStyles(theme)
-  }
-})
-
-const PostsPreviewTooltipSingle = ({ classes, postId, truncateLimit=600, postsList=false }: {
-  classes: ClassesType,
+const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
-  truncateLimit?: number,
   postsList?: boolean
 }) => {
-  const { Loading, PostsPreviewTooltip  } = Components
-
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: postId
+    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    documentId: postId,
   });
 
-  if (postLoading) return <div className={classes.loading}>
-      <Loading/>
-    </div>
+  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  if (postLoading) {
+    return <PostsPreviewLoading />
+  }
 
   if (!post) {return null;}
 
   return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
-const PostsPreviewTooltipSingleComponent = registerComponent('PostsPreviewTooltipSingle', PostsPreviewTooltipSingle, {styles});
+const PostsPreviewTooltipSingleComponent = registerComponent(
+  'PostsPreviewTooltipSingle',
+  PostsPreviewTooltipSingle,
+);
 
-const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, truncateLimit=600 }: {
-  classes: ClassesType,
+const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   postId: string,
   commentId: string,
-  truncateLimit?: number,
 }) => {
-  const { Loading, PostsPreviewTooltip  } = Components
-
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
-    documentId: postId
+    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    documentId: postId,
   });
 
   const { document: comment, loading: commentLoading } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: commentId,
   });
 
-  if (postLoading || commentLoading) return <div className={classes.loading}>
-      <Loading/>
-    </div>
+  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  if (postLoading || commentLoading) {
+    return <PostsPreviewLoading />
+  }
 
   if (!post) {return null;}
-  
-  return <PostsPreviewTooltip post={post} comment={commentId ? comment : undefined} />
+
+  return (
+    <PostsPreviewTooltip
+      post={post}
+      comment={commentId ? comment : undefined}
+    />
+  );
 }
 
 const PostsPreviewTooltipSingleWithCommentComponent = registerComponent(
-  'PostsPreviewTooltipSingleWithComment', PostsPreviewTooltipSingleWithComment, {
-    styles
-  }
+  'PostsPreviewTooltipSingleWithComment',
+  PostsPreviewTooltipSingleWithComment,
 );
 
-const TaggedPostTooltipSingle = ({tagRelId, classes}:{
-    tagRelId:string,
-    classes: ClassesType
-  }) => {
+const TaggedPostTooltipSingle = ({tagRelId}: {tagRelId: string}) => {
   const { document: tagRel, loading: tagRelLoading } = useSingle({
     collectionName: "TagRels",
     fragmentName: 'TagRelFragment',
-    fetchPolicy: 'cache-then-network' as any, //TODO
+    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
     documentId: tagRelId,
   });
 
-  const { PostsPreviewTooltip, Loading } = Components
-  if (tagRelLoading) return <div className={classes.loading}>
-    <Loading/>
-  </div>
+  const {PostsPreviewLoading, PostsPreviewTooltip} = Components;
+  if (tagRelLoading) {
+    return <PostsPreviewLoading />
+  }
+
   if (!tagRel) {return null;}
+
   return <PostsPreviewTooltip post={tagRel.post} />
 }
 
-const TaggedPostTooltipSingleComponent = registerComponent('TaggedPostTooltipSingle', TaggedPostTooltipSingle, {styles})
+const TaggedPostTooltipSingleComponent = registerComponent(
+  'TaggedPostTooltipSingle',
+  TaggedPostTooltipSingle,
+);
 
 declare global {
   interface ComponentTypes {
@@ -106,4 +96,3 @@ declare global {
     TaggedPostTooltipSingle: typeof TaggedPostTooltipSingleComponent
   }
 }
-
