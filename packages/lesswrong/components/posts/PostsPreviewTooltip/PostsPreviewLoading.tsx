@@ -10,7 +10,11 @@ export const notificationLoadingStyles = (theme: ThemeType): JssStyles => ({
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
-    ...notificationLoadingStyles(theme)
+    ...notificationLoadingStyles(theme),
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
+    border: `1px solid ${theme.palette.grey[120]}`,
+    boxShadow: theme.palette.boxShadow.eaCard,
   },
 });
 
