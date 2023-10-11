@@ -1,9 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useCurrentUser } from '../common/withUser';
 
 const WakingUpHome = () => {
-  const { HomeLatestPosts, AnalyticsInViewTracker } = Components
+  const currentUser = useCurrentUser();
+  const { HomeLatestPosts, AnalyticsInViewTracker, WULoginForm } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -12,7 +14,8 @@ const WakingUpHome = () => {
               eventProps={{inViewType: "latestPosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <HomeLatestPosts />
+            {currentUser && <HomeLatestPosts />}
+            {!currentUser && <WULoginForm />}
           </AnalyticsInViewTracker>
         </React.Fragment>
       </AnalyticsContext>

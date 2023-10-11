@@ -37,7 +37,7 @@ const MigrationsDashboard = ({classes}: {
   const { data, loading } = useQuery(migrationsQuery, { ssr: true });
   
   if (!userIsAdmin(currentUser)) {
-    return <SingleColumnSection>Sorry, you need to be logged in as an admin to use this page.</SingleColumnSection>;
+    return <Components.Error404 />
   }
   
   return <SingleColumnSection>

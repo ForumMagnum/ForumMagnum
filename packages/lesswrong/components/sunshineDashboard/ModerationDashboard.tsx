@@ -142,7 +142,7 @@ const ModerationDashboard = ({ classes }: {
   });
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    return null;
+    return <Components.Error404 />
   }
 
   return (

@@ -2758,7 +2758,79 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true,
     optional: true
-  }
+  },
+
+  wu_uuid: {
+    type: String,
+    nullable: true,
+    canRead: ownsOrIsAdmin,
+    hidden: true,
+    optional: true
+  },
+
+  first_name: {
+    type: String,
+    nullable: true,
+    canRead: 'guests',
+    hidden: true,
+    optional: true
+  },
+
+  last_name: {
+    type: String,
+    nullable: true,
+    canRead: 'guests',
+    hidden: true,
+    optional: true
+  },
+
+  avatar: {
+    type: String,
+    nullable: true,
+    canRead: 'guests',
+    hidden: true,
+    optional: true
+  },
+
+  wu_created_at: {
+    type: Date,
+    nullable: true,
+    canRead: 'guests',
+    hidden: true,
+    optional: true
+  },
+
+  wu_forum_access: {
+    type: Boolean,
+    nullable: true,
+    canRead: ownsOrIsMod,
+    hidden: true,
+    optional: true
+  },
+
+  wu_has_ever_been_paid_subscriber: {
+    type: Boolean,
+    nullable: true,
+    canRead: ownsOrIsMod,
+    hidden: true,
+    optional: true
+  },
+
+  wu_subscription_expires_at: {
+    type: Date,
+    nullable: true,
+    canRead: ownsOrIsMod,
+    hidden: true,
+    optional: true
+  },
+
+  wu_subscription_active: {
+    type: Boolean,
+    nullable: true,
+    canRead: ownsOrIsMod,
+    hidden: true,
+    optional: true
+  },
 };
 
 export default schema;

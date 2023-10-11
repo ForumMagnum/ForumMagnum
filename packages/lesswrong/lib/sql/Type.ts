@@ -7,6 +7,8 @@ import { ForumTypeString } from "../instanceSettings";
 
 const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
 
+export const UUID = String;
+
 export const isResolverOnly =
   <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
     schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
@@ -72,8 +74,8 @@ export abstract class Type {
 
     switch (schema.type) {
       case String:
-        return typeof schema.foreignKey === "string"
-          ? new IdType(getCollection(schema.foreignKey as CollectionNameString))
+        return fieldName === "wu_uuid" ? new UuidType
+          : typeof schema.foreignKey === "string" ? new IdType(getCollection(schema.foreignKey as CollectionNameString))
           : new StringType(typeof schema.max === "number" ? schema.max : undefined);
       case Boolean:
         return new BoolType();
@@ -98,6 +100,8 @@ export abstract class Type {
           return new VectorType(schema.vectorSize);
         }
         return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema, undefined, forumType));
+      case UUID:
+        return new UuidType();
     }
 
     if (schema.type instanceof SimpleSchema) {
@@ -180,6 +184,12 @@ export class VectorType extends Type {
 
   toString() {
     return `VECTOR(${this.size})`;
+  }
+}
+
+export class UuidType extends Type {
+  toString() {
+    return "UUID";
   }
 }
 

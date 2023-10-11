@@ -15,6 +15,7 @@ import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasLogoSetting } from '../../lib/publicSettings';
+import { isProduction } from '../../lib/executionEnvironment';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -327,10 +328,12 @@ const Header = ({
                 </div>
               </Typography>
               <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+                {currentUser && <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
                   <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-                </NoSSR>
+                </NoSSR>}
                 {!isFriendlyUI && usersMenuNode}
+                {/* TODO: restrict this in production */}
+                {/* {!currentUser && !isProduction && <UsersAccountMenu />} */}
                 {!currentUser && <UsersAccountMenu />}
                 {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
                   unreadNotifications={unreadNotifications}

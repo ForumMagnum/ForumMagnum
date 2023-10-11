@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 
 export const EmailHistoryPage = () => {
   const currentUser = useCurrentUser();
-  if (!currentUser) return <div/>
+  if (!currentUser) return <Components.Error404 />
   
   return <Components.EmailHistory
     terms={{view: "emailHistory", userId: currentUser._id}}

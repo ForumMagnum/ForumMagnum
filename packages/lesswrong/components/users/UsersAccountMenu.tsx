@@ -29,6 +29,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     }
   },
+  devMessage: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    margin: "16px 16px -10px",
+    color: theme.palette.error.main
+  },
 })
 
 interface UsersAccountMenuProps extends WithStylesProps {
@@ -85,7 +90,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
         </> : <>
           <Button onClick={this.handleClick}>
             <span className={classes.userButton}>
-              Login
+              Login (dev)
             </span>
           </Button>
           <Popover
@@ -94,6 +99,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
             onClose={this.handleRequestClose}
           >
+            <div className={classes.devMessage}>(Non-Waking Up app logins are<br />still available in development for<br />easier testing)</div>
             {this.state.open && <WrappedLoginForm />}
           </Popover>
         </>}

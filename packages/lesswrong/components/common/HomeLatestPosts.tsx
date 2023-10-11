@@ -19,7 +19,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import type { Option } from '../common/InlineSelect';
-import { getPostViewOptions } from '../../lib/PostViewOptions';
+import { getPostViewOptions } from '../../lib/postViewOptions';
 import qs from 'qs'
 
 const titleWrapper = isLW ? {

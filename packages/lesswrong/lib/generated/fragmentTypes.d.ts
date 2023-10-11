@@ -352,6 +352,15 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
+  readonly wu_uuid: string | null,
+  readonly first_name: string | null,
+  readonly last_name: string | null,
+  readonly avatar: string | null,
+  readonly wu_created_at: Date | null,
+  readonly wu_forum_access: boolean | null,
+  readonly wu_has_ever_been_paid_subscriber: boolean | null,
+  readonly wu_subscription_expires_at: Date | null,
+  readonly wu_subscription_active: boolean | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments

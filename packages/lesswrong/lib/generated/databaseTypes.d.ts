@@ -1419,6 +1419,15 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string
   afApplicationText: string
   afSubmittedApplication: boolean
+  wu_uuid: string | null
+  first_name: string | null
+  last_name: string | null
+  avatar: string | null
+  wu_created_at: Date | null
+  wu_forum_access: boolean | null
+  wu_has_ever_been_paid_subscriber: boolean | null
+  wu_subscription_expires_at: Date | null
+  wu_subscription_active: boolean | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents
