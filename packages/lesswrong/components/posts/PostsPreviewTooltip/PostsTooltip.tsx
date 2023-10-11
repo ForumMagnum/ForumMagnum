@@ -1,26 +1,32 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 
-const PostsTooltip = ({postId, children}: {
+const PostsTooltip = ({post, postId, children}: {
+  post?: PostsList | SunshinePostsList | null,
   postId?: string,
   children?: ReactNode,
 }) => {
-  const {LWTooltip, PostsPreviewTooltip, PostsPreviewTooltipSingle} = Components;
-
   const renderTitle = useCallback(() => {
+    const {PostsPreviewTooltip, PostsPreviewTooltipSingle} = Components;
+    if (post) {
+      return (
+        <PostsPreviewTooltip post={post} />
+      );
+    }
     if (postId) {
       return (
         <PostsPreviewTooltipSingle postId={postId} />
       );
-    } else {
-      return null;
     }
-  }, [postId]);
+    return null;
+  }, [post, postId]);
 
+  const {LWTooltip} = Components;
   return (
     <LWTooltip
       title={renderTitle()}
       tooltip={false}
+      hideOnTouchScreens
     >
       {children}
     </LWTooltip>
