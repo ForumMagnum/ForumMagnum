@@ -109,8 +109,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
 
   const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
     const {
-      TaggedPostTooltipSingle, PostsTooltip, ConversationPreview,
-      PostNominatedNotification,
+      PostsTooltip, ConversationPreview, PostNominatedNotification,
     } = Components;
 
     if (notificationType.onsiteHoverView) {
@@ -139,16 +138,15 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     switch (notification.documentType) {
       case "tagRel":
         return (
-          <TooltipWrapper
-            title={<TaggedPostTooltipSingle tagRelId={notification.documentId} />}
-            classes={classes}
-          >
+          <PostsTooltip tagRelId={notification.documentId} {...tooltipProps}>
             {children}
-          </TooltipWrapper>
+          </PostsTooltip>
         );
       case "post":
         return (
-          <PostsTooltip postId={notification.documentId} {...tooltipProps} />
+          <PostsTooltip postId={notification.documentId} {...tooltipProps}>
+            {children}
+          </PostsTooltip>
         );
       case "comment":
         const postId = parsedPath?.params?._id;
@@ -158,7 +156,9 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
               postId={postId}
               commentId={notification.documentId}
               {...tooltipProps}
-            />
+            >
+              {children}
+            </PostsTooltip>
           )
           : null;
       case "message":

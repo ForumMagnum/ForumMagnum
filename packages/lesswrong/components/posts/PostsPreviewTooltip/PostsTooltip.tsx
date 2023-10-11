@@ -7,6 +7,7 @@ const PostsTooltip = ({
   postId,
   comment,
   commentId,
+  tagRelId,
   hash,
   postsList,
   inlineBlock,
@@ -21,6 +22,7 @@ const PostsTooltip = ({
   postId?: string,
   comment?: CommentsList,
   commentId?: string,
+  tagRelId?: string,
   hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
@@ -33,10 +35,16 @@ const PostsTooltip = ({
 }) => {
   const renderTitle = useCallback(() => {
     const {
+      TaggedPostTooltipSingle,
       PostsPreviewTooltip,
       PostsPreviewTooltipSingle,
       PostsPreviewTooltipSingleWithComment,
     } = Components;
+    if (tagRelId) {
+      return (
+        <TaggedPostTooltipSingle tagRelId={tagRelId} />
+      );
+    }
     if (post) {
       return (
         <PostsPreviewTooltip
@@ -64,7 +72,7 @@ const PostsTooltip = ({
         );
     }
     return null;
-  }, [post, postId, postsList, comment, commentId, hash]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, hash]);
 
   const {LWTooltip} = Components;
   return (
