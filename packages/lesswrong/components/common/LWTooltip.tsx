@@ -4,7 +4,7 @@ import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
@@ -28,6 +28,7 @@ const LWTooltip = ({
   className,
   pageElementContext,
   pageElementSubContext,
+  analyticsProps,
   titleClassName,
   popperClassName,
 }: {
@@ -44,6 +45,7 @@ const LWTooltip = ({
   className?: string,
   pageElementContext?: string,
   pageElementSubContext?: string,
+  analyticsProps?: Record<string, unknown>,
   titleClassName?: string
   popperClassName?: string,
 }) => {
@@ -52,6 +54,7 @@ const LWTooltip = ({
     pageElementContext: pageElementContext ?? "tooltipHovered",
     pageElementSubContext,
     title: typeof title === "string" ? title : undefined,
+    ...analyticsProps,
   });
 
   if (!title) return <>{children}</>

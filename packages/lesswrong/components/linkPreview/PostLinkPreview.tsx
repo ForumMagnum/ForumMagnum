@@ -264,7 +264,7 @@ const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithP
   styles
 });
 
-const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, id, error}: {
+const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, id}: {
   classes: ClassesType,
   href: string,
   innerHTML: string,
@@ -273,27 +273,20 @@ const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post,
   id: string,
   error: any,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { eventHandlers, anchorEl, hover } = useHover();
-
   if (!comment) {
-    return <span {...eventHandlers}>
-      <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
-    </span>
+    return (
+      <span>
+        <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
+      </span>
+    );
   }
+
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post} comment={comment} />
-      </LWPopper>
+    <PostsTooltip post={post} comment={comment} placement="bottom-start">
       <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
-    </span>
-  )
+    </PostsTooltip>
+  );
 }
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,

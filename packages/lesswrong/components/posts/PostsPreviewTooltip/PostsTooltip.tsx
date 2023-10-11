@@ -86,6 +86,7 @@ const PostsTooltip = ({
       flip={flip}
       pageElementContext={pageElementContext}
       pageElementSubContext={pageElementSubContext}
+      analyticsProps={{postId: postId ?? post?._id}}
     >
       {children}
     </LWTooltip>

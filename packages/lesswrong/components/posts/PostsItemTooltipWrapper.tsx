@@ -1,7 +1,6 @@
-import { PopperPlacementType } from '@material-ui/core/Popper';
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useHover } from "../common/withHover";
+import type { PopperPlacementType } from '@material-ui/core/Popper';
 
 const PostsItemTooltipWrapper = ({
   children,
@@ -16,22 +15,17 @@ const PostsItemTooltipWrapper = ({
   As?: keyof JSX.IntrinsicElements,
   className?: string,
 }) => {
-  const { LWPopper, PostsPreviewTooltip } = Components
-  const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "postItemTooltip",
-    postId: post?._id
-  });
+  const {PostsTooltip} = Components;
   return (
-    <As {...eventHandlers} className={className}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        clickable={false}
+    <As className={className}>
+      <PostsTooltip
+        post={post}
+        postsList
         placement={placement}
+        pageElementContext="postItemTooltip"
       >
-        <PostsPreviewTooltip post={post} postsList />
-      </LWPopper>
-      { children }
+        {children}
+      </PostsTooltip>
     </As>
   );
 }
