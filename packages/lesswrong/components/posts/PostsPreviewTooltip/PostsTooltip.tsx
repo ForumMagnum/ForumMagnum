@@ -8,6 +8,7 @@ const PostsTooltip = ({
   postsList,
   inlineBlock,
   clickable,
+  flip,
   placement,
   children,
 }: {
@@ -16,6 +17,7 @@ const PostsTooltip = ({
   postsList?: boolean,
   inlineBlock?: boolean,
   clickable?: boolean,
+  flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
 }) => {
@@ -43,6 +45,7 @@ const PostsTooltip = ({
       hideOnTouchScreens
       inlineBlock={inlineBlock}
       clickable={clickable}
+      flip={flip}
     >
       {children}
     </LWTooltip>

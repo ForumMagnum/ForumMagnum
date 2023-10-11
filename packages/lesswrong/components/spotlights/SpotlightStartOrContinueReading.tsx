@@ -37,7 +37,6 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   classes: ClassesType,
   className?: string,
 }) => {
-  const { LWTooltip, PostsPreviewTooltip} = Components
   const chapters = spotlight.sequenceChapters;
   
   const { postsRead: clientPostsRead } = useItemsRead();
@@ -58,20 +57,25 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
     default: preferredHeadingCase("First Post: ")
   });
 
+  const {PostsTooltip} = Components;
   if (firstPost) {
     return <div className={classNames(classes.firstPost, className)}>
-      {prefix}<LWTooltip title={<PostsPreviewTooltip post={firstPost}/>} tooltip={false}>
+      {prefix}<PostsTooltip post={firstPost}>
         <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
-      </LWTooltip>
+      </PostsTooltip>
     </div>
   } else {
     return <div className={classNames(classes.boxesRoot, className)}>
     {posts.map(post => (
-      <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+      <PostsTooltip
+        key={`${spotlight._id}-${post._id}`}
+        post={post}
+        flip={false}
+      >
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
           <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
         </Link>
-      </LWTooltip>
+      </PostsTooltip>
      ))}
   </div>
   }
