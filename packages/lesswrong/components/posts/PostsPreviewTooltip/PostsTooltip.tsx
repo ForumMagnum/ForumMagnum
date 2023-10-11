@@ -1,32 +1,48 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 
-const PostsTooltip = ({post, postId, children}: {
+const PostsTooltip = ({
+  post,
+  postId,
+  postsList,
+  inlineBlock,
+  clickable,
+  placement,
+  children,
+}: {
   post?: PostsList | SunshinePostsList | null,
   postId?: string,
+  postsList?: boolean,
+  inlineBlock?: boolean,
+  clickable?: boolean,
+  placement?: PopperPlacementType,
   children?: ReactNode,
 }) => {
   const renderTitle = useCallback(() => {
     const {PostsPreviewTooltip, PostsPreviewTooltipSingle} = Components;
     if (post) {
       return (
-        <PostsPreviewTooltip post={post} />
+        <PostsPreviewTooltip post={post} postsList={postsList} />
       );
     }
     if (postId) {
       return (
-        <PostsPreviewTooltipSingle postId={postId} />
+        <PostsPreviewTooltipSingle postId={postId} postsList={postsList} />
       );
     }
     return null;
-  }, [post, postId]);
+  }, [post, postId, postsList]);
 
   const {LWTooltip} = Components;
   return (
     <LWTooltip
       title={renderTitle()}
+      placement={placement}
       tooltip={false}
       hideOnTouchScreens
+      inlineBlock={inlineBlock}
+      clickable={clickable}
     >
       {children}
     </LWTooltip>
