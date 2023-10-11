@@ -7,6 +7,7 @@ const PostsTooltip = ({
   postId,
   comment,
   commentId,
+  hash,
   postsList,
   inlineBlock,
   clickable,
@@ -18,6 +19,7 @@ const PostsTooltip = ({
   postId?: string,
   comment?: CommentsList,
   commentId?: string,
+  hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
   clickable?: boolean,
@@ -33,7 +35,12 @@ const PostsTooltip = ({
     } = Components;
     if (post) {
       return (
-        <PostsPreviewTooltip post={post} postsList={postsList} />
+        <PostsPreviewTooltip
+          post={post}
+          postsList={postsList}
+          comment={comment}
+          hash={hash}
+        />
       );
     }
     if (postId) {
@@ -46,11 +53,14 @@ const PostsTooltip = ({
           />
         )
         : (
-          <PostsPreviewTooltipSingle postId={postId} postsList={postsList} />
+          <PostsPreviewTooltipSingle
+            postId={postId}
+            postsList={postsList}
+          />
         );
     }
     return null;
-  }, [post, postId, postsList]);
+  }, [post, postId, postsList, comment, commentId, hash]);
 
   const {LWTooltip} = Components;
   return (

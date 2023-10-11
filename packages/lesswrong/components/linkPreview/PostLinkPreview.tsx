@@ -10,6 +10,7 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -226,7 +227,7 @@ const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
+const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id}: {
   classes: ClassesType,
   href: string,
   innerHTML: string,
@@ -234,28 +235,29 @@ const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
   id: string,
   error: any,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { anchorEl, hover, eventHandlers } = useHover();
-  
-  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
-
   if (!post) {
-    return <span {...eventHandlers}>
-      <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    return <span>
+      <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} />
     </span>
   }
+
+  const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post} hash={hash} />
-      </LWPopper>
-      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
-    </span>
+    <PostsTooltip
+      post={post}
+      hash={hash}
+      placement="bottom-start"
+      clickable={!isEAForum}
+    >
+      <Link
+        className={classes.link}
+        to={href}
+        dangerouslySetInnerHTML={{__html: innerHTML}}
+        id={id}
+        smooth
+      />
+    </PostsTooltip>
   );
 }
 const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, {
