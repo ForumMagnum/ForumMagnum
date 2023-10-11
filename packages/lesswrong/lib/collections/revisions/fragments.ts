@@ -79,6 +79,15 @@ registerFragment(`
   fragment RevisionTagFragment on Revision {
     ...RevisionHistoryEntry
     tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment RecentDiscussionRevisionTagFragment on Revision {
+    ...RevisionHistoryEntry
+    tag {
       ...TagRecentDiscussion
     }
   }
