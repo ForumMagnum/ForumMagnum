@@ -14,6 +14,8 @@ const PostsTooltip = ({
   flip,
   placement,
   children,
+  pageElementContext,
+  pageElementSubContext,
 }: {
   post?: PostsList | SunshinePostsList | null,
   postId?: string,
@@ -26,6 +28,8 @@ const PostsTooltip = ({
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
+  pageElementContext?: string,
+  pageElementSubContext?: string,
 }) => {
   const renderTitle = useCallback(() => {
     const {
@@ -72,6 +76,8 @@ const PostsTooltip = ({
       inlineBlock={inlineBlock}
       clickable={clickable}
       flip={flip}
+      pageElementContext={pageElementContext}
+      pageElementSubContext={pageElementSubContext}
     >
       {children}
     </LWTooltip>

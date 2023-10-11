@@ -26,6 +26,8 @@ const LWTooltip = ({
   hideOnTouchScreens=false,
   classes,
   className,
+  pageElementContext,
+  pageElementSubContext,
   titleClassName,
   popperClassName,
 }: {
@@ -40,15 +42,18 @@ const LWTooltip = ({
   hideOnTouchScreens?: boolean,
   classes: ClassesType,
   className?: string,
+  pageElementContext?: string,
+  pageElementSubContext?: string,
   titleClassName?: string
   popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tooltipHovered",
-    title: typeof title=="string" ? title : undefined
+    pageElementContext: pageElementContext ?? "tooltipHovered",
+    pageElementSubContext,
+    title: typeof title === "string" ? title : undefined,
   });
-  
+
   if (!title) return <>{children}</>
 
   return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
