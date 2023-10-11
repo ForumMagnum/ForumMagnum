@@ -69,7 +69,7 @@ const PostsPreviewTooltipSingleWithComment = ({ classes, postId, commentId, trun
 
   if (!post) {return null;}
   
-  return <PostsPreviewTooltip post={post} comment={commentId && comment} />
+  return <PostsPreviewTooltip post={post} comment={commentId ? comment : undefined} />
 }
 
 const PostsPreviewTooltipSingleWithCommentComponent = registerComponent(

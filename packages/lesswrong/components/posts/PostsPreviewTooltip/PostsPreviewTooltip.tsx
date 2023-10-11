@@ -6,7 +6,7 @@ export type PostsPreviewTooltipProps = {
   postsList?: boolean,
   hash?: string|null,
   post: PostsList|SunshinePostsList|null,
-  comment?: AnyBecauseTodo,
+  comment?: CommentsList,
 }
 
 const PostsPreviewTooltip = (props: PostsPreviewTooltipProps) =>

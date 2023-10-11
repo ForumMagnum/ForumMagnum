@@ -5,6 +5,8 @@ import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 const PostsTooltip = ({
   post,
   postId,
+  comment,
+  commentId,
   postsList,
   inlineBlock,
   clickable,
@@ -14,6 +16,8 @@ const PostsTooltip = ({
 }: {
   post?: PostsList | SunshinePostsList | null,
   postId?: string,
+  comment?: CommentsList,
+  commentId?: string,
   postsList?: boolean,
   inlineBlock?: boolean,
   clickable?: boolean,
@@ -22,16 +26,28 @@ const PostsTooltip = ({
   children?: ReactNode,
 }) => {
   const renderTitle = useCallback(() => {
-    const {PostsPreviewTooltip, PostsPreviewTooltipSingle} = Components;
+    const {
+      PostsPreviewTooltip,
+      PostsPreviewTooltipSingle,
+      PostsPreviewTooltipSingleWithComment,
+    } = Components;
     if (post) {
       return (
         <PostsPreviewTooltip post={post} postsList={postsList} />
       );
     }
     if (postId) {
-      return (
-        <PostsPreviewTooltipSingle postId={postId} postsList={postsList} />
-      );
+      const actualCommentId = commentId ?? comment?._id;
+      return actualCommentId
+        ? (
+          <PostsPreviewTooltipSingleWithComment
+            postId={postId}
+            commentId={actualCommentId}
+          />
+        )
+        : (
+          <PostsPreviewTooltipSingle postId={postId} postsList={postsList} />
+        );
     }
     return null;
   }, [post, postId, postsList]);
