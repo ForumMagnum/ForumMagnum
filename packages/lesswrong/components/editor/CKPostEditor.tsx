@@ -66,15 +66,6 @@ function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: W
   });
 }
 
-function getInputsWithoutAuthors(dialogueMessageInputs: Node[], coauthors: UsersMinimumInfo[]) {
-  return dialogueMessageInputs.filter(input => {
-    return !coauthors.some(coauthor => {
-      const inputUserId = input.getAttribute('user-id') as string | undefined;
-      return coauthor._id === inputUserId;
-    });
-  });
-}
-
 function getAuthorsWithoutInputs(sortedCoauthors: UsersMinimumInfo[], dialogueMessageInputs: Node[]) {
   return sortedCoauthors.filter(coauthor => {
     return !dialogueMessageInputs.some(input => {
@@ -114,19 +105,15 @@ function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedC
     const messageUserOrder = Number.parseInt((messageUserOrderAttribute ?? '0') as string);
     let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
 
-    console.log("userOrder", {messageUserOrderAttribute, messageUserOrder, userOrder, messageUserId, sortedCoauthors, messageAttributes: Array.from(message.getAttributes())});
     if (userOrder < 1) {
       if (messageUserOrder) {
-        console.log('setting userOrder from messageUserOrder', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
         userOrder = messageUserOrder;
       } else {
-        console.log('setting userOrder from max user order', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
         userOrder = getMaxUserOrder(dialogueMessages) + 1;
       }
     }
 
     if (userOrder !== messageUserOrder) {
-      console.log('writing userOrder back to element', { userOrder, messageUserOrder, messageUserOrderAttribute, messageUserId });
       writer.setAttribute('user-order', userOrder, message);
       return true;
     }
@@ -169,15 +156,6 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    // const inputsWithoutAuthors = getInputsWithoutAuthors(dialogueMessageInputs, sortedCoauthors);
-    // if (inputsWithoutAuthors.length > 0) {
-    //   //Remove any inputs without authors
-    //   inputsWithoutAuthors.forEach(input => {
-    //     writer.remove(input);
-    //   });
-    //   return true;
-    // }
-
     // We check that the inputs are in lexical order by author displayName
     const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
 
@@ -187,25 +165,11 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 
     if (incorrectOrder || !lastElementsAreAllInputs) {
       const sortedInputs = sortBy(dialogueMessageInputs, (i) => Number.parseInt(i.getAttribute('user-order') as string))
-      console.log({sortedInputs, dialogueMessageInputs, sortedCoauthors})
       sortedInputs.forEach(sortedInput => {
         writer.append(sortedInput, root);
       });
       return true;
     }
-
-    // // We remove all messages that don't have a corresponding author
-    // const messagesWithoutAuthors = dialogueMessages.filter(message => {
-    //   const messageUserId = message.getAttribute('user-id');
-    //   return !sortedCoauthors.some(coauthor => coauthor._id === messageUserId);
-    // });
-    // if (messagesWithoutAuthors.length > 0) {
-    //   messagesWithoutAuthors.forEach(message => {
-    //     writer.remove(message);
-    //   });
-    //   return true;
-    // }
-
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
     dialogueMessageInputs.forEach(input => {
@@ -422,8 +386,8 @@ const CKPostEditor = ({
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
         }
 
+        const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
         if (post.collabEditorDialogue) {
-          const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
           const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
           editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
@@ -474,7 +438,7 @@ const CKPostEditor = ({
                 })
                 if (parentDialogueElement) {
                   const owner = getBlockUserId(parentDialogueElement);  
-                  if (owner) {
+                  if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
                 }
