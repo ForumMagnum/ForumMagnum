@@ -11,21 +11,21 @@ const options: MutationOptions<DbMessage> = {
   newCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
-    return conversation && conversation.participantIds.includes(user._id) ?
+    return conversation && conversation.participantIds?.includes(user._id) ?
       userCanDo(user, 'messages.new.own') : userCanDo(user, `messages.new.all`)
   },
 
   editCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
-    return conversation && conversation.participantIds.includes(user._id) ?
+    return conversation && conversation.participantIds?.includes(user._id) ?
     userCanDo(user, 'messages.edit.own') : userCanDo(user, `messages.edit.all`)
   },
 
   removeCheck: async (user: DbUser|null, document: DbMessage|null) => {
     if (!user || !document) return false;
     const conversation = await Conversations.findOne({_id: document.conversationId})
-    return conversation && conversation.participantIds.includes(user._id) ?
+    return conversation && conversation.participantIds?.includes(user._id) ?
     userCanDo(user, 'messages.remove.own') : userCanDo(user, `messages.remove.all`)
   },
 }

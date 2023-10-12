@@ -8,22 +8,27 @@ import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
+import { areFieldsNotNull } from '../../utils/typeGuardUtils';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
   var user = await mongoFindOne("Users", comment.userId);
-  return user ? userGetDisplayName(user) : comment.author;
+  return user ? userGetDisplayName(user) : (comment.author ?? '');
 };
+
+
 
 // Get URL of a comment page.
 export async function commentGetPageUrlFromDB(comment: DbComment, context: ResolverContext, isAbsolute: boolean): Promise<string> {
   if (comment.postId) {
     const post = await context.loaders.Posts.load(comment.postId);
-    if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
+    if (!post || !areFieldsNotNull(post, 'slug', 'isEvent', 'groupId')) throw Error(`Unable to find post for comment: ${comment._id}`)
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const tag = await context.loaders.Tags.load(comment.tagId);
-    if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
+    if (!tag || !areFieldsNotNull(tag, 'slug') || !areFieldsNotNull(comment, 'tagCommentType')) {
+      throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
+    }
 
     return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
@@ -102,7 +107,7 @@ export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, pare
  */
 export const commentIsHidden = (comment: CommentsList|DbComment) => {
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()
-  const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt) 
+  const postedAfterGrandfatherDate = hideSince && new Date(hideSince) < new Date(comment.postedAt!) // TODO: we know comments always have a postedAt, need to update database schema 
   // hide unreviewed comments which were posted after we implmemented a "all comments need to be reviewed" date
   return postedAfterGrandfatherDate && comment.authorIsUnreviewed
 }

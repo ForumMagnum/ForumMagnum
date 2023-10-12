@@ -39,7 +39,7 @@ export function getModeratorRateLimit(userId: string) {
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {
-  const runningContentKarma = content.reduce((prev, curr) => prev + curr.baseScore, 0);
+  const runningContentKarma = content.reduce((prev, curr) => prev + (curr.baseScore ?? 0), 0);
   return runningContentKarma / content.length;
 }
 
@@ -86,8 +86,8 @@ export function isLowAverageKarmaContent(content: ModeratableContent[], contentT
 }
 
 export interface UserContentCountPartial {
-  postCount?: number,
-  commentCount?: number
+  postCount?: number | null,
+  commentCount?: number | null
 }
 
 export function getCurrentContentCount(user: UserContentCountPartial) {
@@ -124,7 +124,7 @@ export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonFor
     if (user.mapLocation && isEAForum) return {needsReview: true, reason: 'mapLocation'};
     if (user.postCount) return {needsReview: true, reason: 'firstPost'};
     if (user.commentCount) return {needsReview: true, reason: 'firstComment'};
-    if (user.usersContactedBeforeReview?.length > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) {
+    if ((user.usersContactedBeforeReview?.length ?? 0) > MAX_ALLOWED_CONTACTS_BEFORE_FLAG) {
       return {needsReview: true, reason: 'contactedTooManyUsers'};
     }
     // Depends on whether this is DbUser or SunshineUsersList

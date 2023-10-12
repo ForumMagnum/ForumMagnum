@@ -8,7 +8,7 @@ import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicS
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
-import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import { FieldsNotNull, TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -20,11 +20,11 @@ export const isPostCategory = (tab: string): tab is PostCategory => postCategori
 //////////////////
 
 // Return a post's link if it has one, else return its post page URL
-export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
+export const postGetLink = function (post: PostsBase | DbPost, isAbsolute=false, isRedirected=true): string {
   const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
     ? post.fmCrosspost.foreignPostId
     : undefined;
-  const url = isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
+  const url = isRedirected ? getOutgoingUrl(post.url ?? '', foreignId ?? undefined) : post.url ?? '';
   return !!post.url ? url : postGetPageUrl(post, isAbsolute);
 };
 
@@ -66,7 +66,7 @@ export const postIsApproved = function (post: DbPost): boolean {
 
 // Get URL for sharing on Twitter.
 export const postGetTwitterShareUrl = (post: DbPost): string => {
-  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
+  return `https://twitter.com/intent/tweet?text=${ encodeURIComponent(post.title!) }%20${ encodeURIComponent(postGetLink(post, true)) }`;
 };
 
 // Get URL for sharing on Facebook.
@@ -103,9 +103,9 @@ export const getSocialPreviewImage = (post: DbPost): string => {
 // either a fragment or a DbPost.
 export interface PostsMinimumForGetPageUrl {
   _id: string
-  slug: string
-  isEvent?: boolean
-  groupId?: string|undefined
+  slug: string | null
+  isEvent?: boolean | null
+  groupId?: string | undefined | null
 }
 
 // Get URL of a post page.
@@ -181,7 +181,7 @@ export const postGetAnswerCountStr = (count: number): string => {
   }
 }
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {
@@ -209,7 +209,7 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
   const group = context
     ? await context.loaders.Localgroups.load(groupId)
     : await Localgroups.findOne({_id: groupId});
-  return !!group && group.organizerIds.some(id => id === user._id);
+  return group?.organizerIds?.some(id => id === user._id) ?? false;
 }
 
 /**
@@ -385,10 +385,10 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
 
     return (
-      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
+      (new Date(post.postedAt!) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get() ||
-        post.forceAllowType3Audio) &&
+        (post.baseScore ?? 0) > type3KarmaCutoffSetting.get() ||
+        !!post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&

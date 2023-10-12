@@ -248,7 +248,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     canRead: ['guests'],
     onInsert: async (post) => {
-      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
+      return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title!))
     },
     onEdit: async (modifier, post) => {
       if (modifier.$set.title) {
@@ -439,7 +439,7 @@ const schema: SchemaType<DbPost> = {
   domain: resolverOnlyField({
     type: String,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url),
+    resolver: (post: DbPost, args: void, context: ResolverContext) => getDomain(post.url!),
   }),
 
   pageUrl: resolverOnlyField({
@@ -771,7 +771,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "ReviewVotes",
       foreignTypeName: "reviewVote",
       foreignFieldName: "postId",
-      filterFn: vote => vote.qualitativeScore > DEFAULT_QUALITATIVE_VOTE || vote.quadraticScore > 0
+      filterFn: vote => (vote.qualitativeScore ?? 0) > DEFAULT_QUALITATIVE_VOTE || (vote.quadraticScore ?? 0) > 0
     }),
     canRead: ['guests'],
   },
@@ -1280,7 +1280,7 @@ const schema: SchemaType<DbPost> = {
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
-        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+        const users = await Promise.all(_.map(post.suggestForCuratedUserIds ?? [],
           async userId => {
             const user = await context.loaders.Users.load(userId)
             return user.displayName;
@@ -1313,15 +1313,15 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     ...(isEAForum && {
       onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
-        isEvent,
-        submitToFrontpage,
-        draft,
+        isEvent ?? undefined,
+        submitToFrontpage ?? undefined,
+        draft ?? undefined,
       ),
       onUpdate: ({data, oldDocument}) => {
         if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
           return eaFrontpageDateDefault(
-            data.isEvent ?? oldDocument.isEvent,
-            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
+            data.isEvent ?? oldDocument.isEvent ?? undefined,
+            data.submitToFrontpage ?? oldDocument.submitToFrontpage ?? undefined,
             false,
           );
         }
@@ -1840,7 +1840,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 2 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 2 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 30
   scoreExceeded30Date: {
@@ -1848,7 +1848,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 30 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 30 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 45
   scoreExceeded45Date: {
@@ -1856,7 +1856,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 45 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 45 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 75
   scoreExceeded75Date: {
@@ -1864,7 +1864,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 75 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 75 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 125
   scoreExceeded125Date: {
@@ -1872,7 +1872,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 125 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 125 ? new Date() : null
   },
   // The timestamp when the post's maxBaseScore first exceeded 200
   scoreExceeded200Date: {
@@ -1880,7 +1880,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: true,
     canRead: ['guests'],
-    onInsert: document => document.baseScore >= 200 ? new Date() : null
+    onInsert: document => (document.baseScore ?? 0) >= 200 ? new Date() : null
   },
   bannedUserIds: {
     type: Array,

@@ -491,7 +491,7 @@ function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, 
 
     if (ageInMinutes > rateLimit.periodInMinutes)
       return false;
-    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId!)) // TODO: userId should never be undefined, see above
       return false;
 
     const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");

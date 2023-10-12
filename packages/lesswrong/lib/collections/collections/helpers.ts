@@ -15,7 +15,7 @@ export const collectionGetAllPostIDs = async (collectionID: string, context: Res
   
   const posts = _.flatten(books.map(book => {
     const postsInSequencesInBook = _.flatten(
-      _.map(book.sequenceIds, sequenceId => postsBySequence[sequenceId])
+      _.map(book.sequenceIds ?? [], sequenceId => postsBySequence[sequenceId])
     );
     if (book.postIds)
       return _.union(book.postIds, postsInSequencesInBook);

@@ -57,10 +57,18 @@ export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
 }
 
 //type for filterWhereFieldsNotNull that is the same field as T but no nullable values in the specified fields
-type FilterWhereFieldsNotNull<T, K extends keyof T> = Omit<T, K> & {
+export type FieldsNotNull<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>> & {
   [P in K]-?: NonNullable<T[P]>;
 }; 
 
-export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: Array<K>): FilterWhereFieldsNotNull<T, K>[] {
-  return arr.filter(x=>fields.some((field) => x[field] !== null && x[field] !== undefined)) as FilterWhereFieldsNotNull<T, K>[];
+export function areFieldsNotNull<T, K extends keyof T>(item: T, ...fields: [K, ...K[]]): item is T & FieldsNotNull<T, K> {
+  return fields.some((field) => item[field] !== null && item[field] !== undefined);
+}
+
+function areFieldsNotNullCurry<T, K extends keyof T>(...fields: [K, ...K[]]): (item: T) => item is T & FieldsNotNull<T, K> {
+  return ((item) => fields.some((field) => item[field] !== null && item[field] !== undefined)) as (item: T) => item is T & FieldsNotNull<T, K>;
+}
+
+export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: [K, ...K[]]): FieldsNotNull<T, K>[] {
+  return arr.filter(areFieldsNotNullCurry(...fields));
 }
