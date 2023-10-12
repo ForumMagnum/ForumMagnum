@@ -17,16 +17,17 @@ const PostsItemTooltipWrapper = ({
 }) => {
   const {PostsTooltip} = Components;
   return (
-    <As className={className}>
-      <PostsTooltip
-        post={post}
-        postsList
-        placement={placement}
-        pageElementContext="postItemTooltip"
-      >
-        {children}
-      </PostsTooltip>
-    </As>
+    <PostsTooltip
+      post={post}
+      postsList
+      placement={placement}
+      pageElementContext="postItemTooltip"
+      As={As}
+      className={className}
+      inlineBlock={false}
+    >
+      {children}
+    </PostsTooltip>
   );
 }
 

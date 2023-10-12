@@ -22,6 +22,7 @@ const LWTooltip = ({
   flip=true,
   clickable=false,
   inlineBlock=true,
+  As="span",
   disabled=false,
   hideOnTouchScreens=false,
   classes,
@@ -39,6 +40,7 @@ const LWTooltip = ({
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
   disabled?: boolean,
   hideOnTouchScreens?: boolean,
   classes: ClassesType,
@@ -59,7 +61,7 @@ const LWTooltip = ({
 
   if (!title) return <>{children}</>
 
-  return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
+  return <As className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -75,9 +77,9 @@ const LWTooltip = ({
     >
       <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}
-    
+
     {children}
-  </span>
+  </As>
 }
 
 const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {

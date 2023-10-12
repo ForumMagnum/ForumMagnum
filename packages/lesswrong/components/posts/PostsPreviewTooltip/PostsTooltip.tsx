@@ -17,12 +17,14 @@ const PostsTooltip = ({
   hash,
   postsList,
   inlineBlock,
+  As,
   clickable,
   flip,
   placement,
   children,
   pageElementContext,
   pageElementSubContext,
+  className,
 }: {
   post?: PostsList | SunshinePostsList | null,
   postId?: string,
@@ -32,12 +34,14 @@ const PostsTooltip = ({
   hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
   clickable?: boolean,
   flip?: boolean,
   placement?: PopperPlacementType,
   children?: ReactNode,
   pageElementContext?: string,
   pageElementSubContext?: string,
+  className?: string,
 }) => {
   const renderTitle = useCallback(() => {
     if (tagRelId) {
@@ -82,11 +86,13 @@ const PostsTooltip = ({
       tooltip={false}
       hideOnTouchScreens
       inlineBlock={inlineBlock}
+      As={As}
       clickable={clickable}
       flip={flip}
       pageElementContext={pageElementContext}
       pageElementSubContext={pageElementSubContext}
       analyticsProps={{postId: postId ?? post?._id}}
+      className={className}
     >
       {children}
     </LWTooltip>
