@@ -58,6 +58,11 @@ const styles = (theme: ThemeType) => ({
       color: `${theme.palette.text.normal} !important`,
     },
   },
+  contentHideMultimedia: {
+    "& iframe, & img, & video": {
+      display: "none",
+    },
+  },
   continueReading: {
     cursor: "pointer",
     display: "block",
@@ -78,6 +83,7 @@ export type CommonExcerptProps = {
   hideMoreLink?: boolean,
   smallText?: boolean,
   noLinkStyling?: boolean,
+  hideMultimedia?: boolean,
   className?: string,
 }
 
@@ -87,6 +93,7 @@ const ContentExcerpt = ({
   hideMoreLink,
   smallText,
   noLinkStyling,
+  hideMultimedia,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
@@ -130,6 +137,7 @@ const ContentExcerpt = ({
             [classes.contentNormalText]: !smallText,
             [classes.contentSmallText]: smallText,
             [classes.contentNoLinkStyling]: noLinkStyling,
+            [classes.contentHideMultimedia]: hideMultimedia,
           })}
         />
       </ContentStyles>
