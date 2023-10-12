@@ -23,9 +23,18 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",
+    backgroundColor: "white", //todo what is a good color to refer to from the theme?
+    borderRadius: "6px",
 
     [theme.breakpoints.down('xs')]: {
       width: "100%",
+    },
+    
+    "& .form-section-unicode": { 
+      padding: 0,
+    },
+    "& .ck.ck-content" : {
+      marginLeft: 0,
     },
 
     "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
@@ -94,12 +103,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .form-input.input-contents": {
       marginTop: 0,
+      marginBottom: 0,
+    },
+    "& .form-input.input-title": {
+      paddingLeft: "1.5em",
     },
   },
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
-    marginTop: 20
+    paddingTop: "1em",
+    backgroundColor: theme.palette.background.default,    
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
