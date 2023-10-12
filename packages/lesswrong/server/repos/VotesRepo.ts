@@ -232,6 +232,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             SELECT _id FROM "Comments" 
             WHERE
               "Comments"."userId" = $1
+              AND
+              "Comments"."debateResponse" IS NOT true
             ORDER by "Comments"."postedAt" DESC
             LIMIT ${RECENT_CONTENT_COUNT}
           )

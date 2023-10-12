@@ -26,6 +26,29 @@ import { VotingProps } from '../../votes/votingProps';
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
+export const lwReactStyles = (theme: ThemeType): JssStyles => ({
+    '&:hover .react-hover-style': {
+      filter: "opacity(0.8)",
+    },
+    // mark.js applies a default highlight of yellow background and black text. 
+    // we need to override to apply our own themes, and avoid being unreadable in dark mode
+    [`& .${faintHighlightClassName}`]: {
+      backgroundColor: "unset",
+      color: "unset",
+    },
+    [`& .${highlightSelectorClassName}`]: {
+      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
+      color: "unset",
+    },
+    [`& .${dimHighlightClassName}`]: {
+      backgroundColor: theme.palette.grey[200],
+      color: "unset",
+    },
+    [`&:hover .${faintHighlightClassName}`]: {
+      borderBottom: theme.palette.border.dashed500,
+      color: "unset",
+    },
+  })
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -154,29 +177,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  lwReactStyling: {
-    '&:hover .react-hover-style': {
-      filter: "opacity(0.8)",
-    },
-    // mark.js applies a default highlight of yellow background and black text. 
-    // we need to override to apply our own themes, and avoid being unreadable in dark mode
-    [`& .${faintHighlightClassName}`]: {
-      backgroundColor: "unset",
-      color: "unset",
-    },
-    [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
-      color: "unset",
-    },
-    [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200],
-      color: "unset",
-    },
-    [`&:hover .${faintHighlightClassName}`]: {
-      borderBottom: theme.palette.border.dashed500,
-      color: "unset",
-    },
-  }
+  lwReactStyling: lwReactStyles(theme),
+  excerpt: {
+    marginBottom: 8,
+  },
 });
 
 /**
@@ -184,7 +188,25 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, truncated, showPinnedOnProfile, parentAnswerId, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({
+  treeOptions,
+  comment,
+  nestingLevel=1,
+  isChild,
+  collapsed,
+  isParentComment,
+  parentCommentId,
+  scrollIntoView,
+  toggleCollapse,
+  truncated,
+  showPinnedOnProfile,
+  parentAnswerId,
+  showParentDefault=false,
+  displayTagIcon=false,
+  excerptLines,
+  className,
+  classes,
+}: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -199,6 +221,8 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   parentAnswerId?: string,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
+  excerptLines?: number,
+  className?: string,
   classes: ClassesType,
 }) => {
   const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
@@ -213,7 +237,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   const {
     postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId, disableGuidelines
+    moderatedCommentId, disableGuidelines, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
@@ -265,11 +289,29 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         cancelCallback={editCancelCallback}
       />
     } else {
-      return (<div ref={commentItemRef}>
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
-          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef} voteProps={voteProps}
-        />
-      </div>
+      return (
+        <div ref={commentItemRef}>
+          {excerptLines
+            ? (
+              <Components.CommentExcerpt
+                comment={comment}
+                lines={excerptLines}
+                className={classes.excerpt}
+              />
+            )
+            : (
+              <Components.CommentBody
+                truncated={truncated}
+                collapsed={collapsed}
+                comment={comment}
+                postPage={postPage}
+                commentBodyHighlights={commentBodyHighlights}
+                commentItemRef={commentItemRef}
+                voteProps={voteProps}
+              />
+            )
+          }
+        </div>
       );
     }
   }
@@ -363,6 +405,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
     <DontInheritCommentPool>
       <div className={classNames(
         classes.root,
+        className,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
@@ -378,6 +421,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
               key={comment.parentCommentId}
+              treeOptions={{
+                hideParentCommentToggleForTopLevel,
+              }}
             />
           </div> 
         )}
@@ -446,7 +492,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary],
+    styles,
+    stylePriority: -1,
+    hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",
     },

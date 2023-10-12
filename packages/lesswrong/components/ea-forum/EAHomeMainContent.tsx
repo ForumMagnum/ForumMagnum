@@ -117,11 +117,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[1000],
     },
   },
+  spotlightMargin: {
+    marginBottom: 24,
+  },
   learnMoreLink: {
     fontSize: 14,
     color: theme.palette.grey[600],
     fontWeight: 600
-  }
+  },
 })
 
 type TopicsBarTab = {
@@ -185,7 +188,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const { results: coreTopics } = useMulti({
     terms: {view: "coreTags"},
     collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
+    fragmentName: 'TagDetailsFragment',
     limit: 40
   })
   let allTabs: TopicsBarTab[] = useMemo(() => {
@@ -208,6 +211,22 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const { history } = useNavigation()
   const { location, query } = useLocation()
   const { captureEvent } = useTracking()
+  const activeCoreTopic = useMemo(
+    () => coreTopics?.find(t => t._id === activeTab._id),
+    [coreTopics, activeTab]
+  );
+  
+  const { results: spotLightResults } = useMulti({
+    collectionName: 'Spotlights',
+    fragmentName: 'SpotlightDisplay',
+    terms: {
+      view: 'spotlightForSequence',
+      sequenceId: activeCoreTopic?.sequence?._id,
+      limit: 1
+    },
+    skip: !activeCoreTopic?.sequence?._id,
+  });
+  const spotlight = spotLightResults?.[0]
   
   useEffect(() => {
     if (coreTopics) {
@@ -280,7 +299,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   
-  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2 } = Components
+  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2, DismissibleSpotlightItem } = Components
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
@@ -321,6 +340,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
 
       {activeTab.name === 'Frontpage' ? <FrontpageNode /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
+          {spotlight && <DismissibleSpotlightItem
+            spotlight={spotlight}
+            className={classes.spotlightMargin}
+          />}
           <SectionTitle title="New & upvoted" noTopMargin>
             <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
           </SectionTitle>

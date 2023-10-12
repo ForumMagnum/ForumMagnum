@@ -44,9 +44,9 @@ export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
 
-export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
+export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
-export const userHasPopularCommentsSection = isEAForum ? adminOrBeta : disabled;
+export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 export const userHasCommentPoolInRecentDiscussion = isEAForum ? disabled : adminOnly;
 

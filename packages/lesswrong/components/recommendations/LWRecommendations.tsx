@@ -115,7 +115,7 @@ const LWRecommendations = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
+    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
       RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
@@ -181,7 +181,7 @@ const LWRecommendations = ({
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
         {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CurrentSpotlightItem />
+          <DismissibleSpotlightItem current />
         </AnalyticsContext>}
 
         <div className={classes.subsection}>

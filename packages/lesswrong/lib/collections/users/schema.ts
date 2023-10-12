@@ -474,7 +474,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     order: 48,
     group: formGroups.adminOptions,
     label: "No Index",

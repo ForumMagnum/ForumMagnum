@@ -25,6 +25,7 @@ export type QueryFilter = {
 } & ({
   type: "facet",
   value: boolean | string,
+  negated: boolean,
 } | {
   type: "numeric",
   value: number,
@@ -46,6 +47,9 @@ export type Fuzziness = "AUTO" | number;
 
 type CompiledQuery = {
   searchQuery: QueryDslQueryContainer,
+  snippetName: string,
+  snippetQuery?: QueryDslQueryContainer,
+  highlightName?: string,
   highlightQuery?: QueryDslQueryContainer,
 }
 
@@ -59,19 +63,12 @@ class ElasticQuery {
     this.config = indexNameToConfig(queryData.index);
   }
 
-  private getHighlightTags() {
-    const {preTag, postTag} = this.queryData;
-    return {
-      pre_tags: [preTag ?? "<em>"],
-      post_tags: [postTag ?? "</em>"],
-    };
-  }
-
   compileRanking({field, order, weight, scoring}: Ranking): string {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
-      expr = `saturation(Math.max(1, doc['${field}'].value), ${scoring.pivot}L)`;
+      const min = scoring.min ?? 1;
+      expr = `saturation(Math.max(${min}, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
       const start = SEARCH_ORIGIN_DATE;
@@ -103,11 +100,21 @@ class ElasticQuery {
     for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        terms.push({
+        const term: QueryDslQueryContainer = {
           term: {
             [filter.field]: filter.value,
           },
-        });
+        };
+        terms.push(
+          filter.negated
+            ? {
+              bool: {
+                should: [],
+                must_not: [term],
+              },
+            }
+            : term,
+        );
         break;
       case "numeric":
         terms.push({
@@ -134,14 +141,14 @@ class ElasticQuery {
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
-        minimum_should_match: "50%",
+        minimum_should_match: "75%",
         operator: "or",
       },
     };
   }
 
   private compileSimpleQuery(): CompiledQuery {
-    const {fields} = this.config;
+    const {fields, snippet, highlight} = this.config;
     const {search} = this.queryData;
     const mainField = this.textFieldToExactField(fields[0], false);
     return {
@@ -162,20 +169,22 @@ class ElasticQuery {
                 fields,
                 type: "phrase",
                 slop: 2,
-                boost: 2,
+                boost: 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: 20,
+                  boost: 1000,
                 },
               },
             },
           ],
         },
       },
+      snippetName: snippet,
+      highlightName: highlight,
     };
   }
 
@@ -190,8 +199,32 @@ class ElasticQuery {
       : exactField;
   }
 
+  private getAdvancedHighlightQuery(
+    mustToken: string,
+  ): Omit<CompiledQuery, "searchQuery"> {
+    const {snippet, highlight} = this.config;
+    const snippetName = `${snippet}.exact`;
+    const highlightName = `${highlight}.exact`;
+    const buildQuery = (fieldName: string) => ({
+      match_phrase: {
+        [fieldName]: {
+          query: mustToken,
+          analyzer: "simple",
+        },
+      },
+    });
+    return {
+      snippetName,
+      snippetQuery: buildQuery(snippetName),
+      ...(highlight && {
+        highlightName,
+        highlightQuery: buildQuery(highlightName),
+      }),
+    };
+  }
+
   private compileAdvancedQuery(tokens: QueryToken[]): CompiledQuery {
-    const {fields} = this.config;
+    const {fields, snippet, highlight} = this.config;
 
     const must: QueryDslQueryContainer[] = [];
     const must_not: QueryDslQueryContainer[] = [];
@@ -222,22 +255,33 @@ class ElasticQuery {
       }
     }
 
-    // Using nested `bool` queries breaks highlighting, so we add in a simple
-    // generic query to highlight the results in a separate pass
-    const highlightQuery = this.getDefaultQuery(
-      this.queryData.search,
-      this.config.fields,
-    );
+    const searchQuery: QueryDslQueryContainer = {
+      bool: {
+        must,
+        must_not,
+        should,
+      },
+    };
+
+    if (must.length) {
+      return {
+        searchQuery,
+        ...this.getAdvancedHighlightQuery(must[0].multi_match!.query),
+      };
+    }
 
     return {
-      searchQuery: {
-        bool: {
-          must,
-          must_not,
-          should,
-        },
-      },
-      highlightQuery,
+      searchQuery,
+      snippetName: snippet,
+      snippetQuery: this.getDefaultQuery(
+        this.queryData.search,
+        this.config.fields,
+      ),
+      highlightName: highlight,
+      highlightQuery: this.getDefaultQuery(
+        this.queryData.search,
+        this.config.fields,
+      ),
     };
   }
 
@@ -246,6 +290,7 @@ class ElasticQuery {
       searchQuery: {
         match_all: {},
       },
+      snippetName: "",
     };
   }
 
@@ -288,16 +333,32 @@ class ElasticQuery {
 
   compile(): SearchRequestInfo | SearchRequestBody {
     const {
+      preTag,
+      postTag,
       index,
       sorting,
       offset = 0,
       limit = 10,
     } = this.queryData;
-    const {snippet, highlight, privateFields} = this.config;
-    const {searchQuery, highlightQuery} = this.compileQuery();
-    const highlightConfig = {
-      ...this.getHighlightTags(),
-      highlight_query: highlightQuery,
+    const {privateFields} = this.config;
+    const {
+      searchQuery,
+      snippetName,
+      snippetQuery,
+      highlightName,
+      highlightQuery,
+    } = this.compileQuery();
+    const highlightConfig =  {
+      type: "plain",
+      pre_tags: [preTag ?? "<em>"],
+      post_tags: [postTag ?? "</em>"],
+
+      // This is the default value for index.highlight.max_analyzed_offset
+      // which we haven't customized. If this wasn't set here or was set
+      // larger than the corresponding setting on the index, then search
+      // would fail entirely when results contain a poss where the
+      // plain-text version of the body is larger than this.
+      max_analyzed_offset: 1000000,
     };
     return {
       index,
@@ -308,9 +369,18 @@ class ElasticQuery {
         track_total_hits: true,
         highlight: {
           fields: {
-            [snippet]: highlightConfig,
-            ...(highlight && {[highlight]: highlightConfig}),
+            [snippetName]: {
+              ...highlightConfig,
+              highlight_query: snippetQuery,
+            },
+            ...(highlightName && {
+              [highlightName]: {
+                ...highlightConfig,
+                highlight_query: highlightQuery,
+              },
+            }),
           },
+          number_of_fragments: 1,
           fragment_size: 140,
           no_match_size: 140,
         },

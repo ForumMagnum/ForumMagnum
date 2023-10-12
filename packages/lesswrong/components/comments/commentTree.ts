@@ -189,4 +189,10 @@ export interface CommentTreeOptions {
    * (as in comment-pools).
    */
   hiddenCommentIconColor?: "faint"|"dark"
+
+  /**
+   * If set, hide the `ShowParentComment` toggle when we reach the top level comment
+   * Used to prevent us displaying quick takes multiple times
+   */
+  hideParentCommentToggleForTopLevel?: boolean,
 }

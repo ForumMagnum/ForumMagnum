@@ -159,6 +159,33 @@ const schema: SchemaType<DbSpotlight> = {
     optional: true,
     nullable: true
   },
+  headerTitle: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 65,
+    optional: true,
+    nullable: true,
+  },
+  headerTitleLeftColor: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 66,
+    optional: true,
+    nullable: true,
+  },
+  headerTitleRightColor: {
+    type: String,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 67,
+    optional: true,
+    nullable: true,
+  },
   lastPromotedAt: {
     type: Date,
     control: "datetime",
@@ -193,9 +220,13 @@ const schema: SchemaType<DbSpotlight> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     order: 86,
-    ...schemaDefaultValue(isEAForum ? true : false),
     optional: true,
     nullable: false,
+    // we're not using schemaDefaultValue because we can't use forumType
+    // conditionals without breaking schema hash logic
+    defaultValue: true,
+    onCreate: ({document}) => document.imageFade ?? (isEAForum ? true : false),
+    canAutofillDefault: true,
   },
   spotlightImageId: {
     type: String,

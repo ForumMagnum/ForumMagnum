@@ -152,6 +152,7 @@ declare global {
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
+      contentHeader?: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -176,6 +177,7 @@ declare global {
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
       visited: ColorString
+      visitedHover?: ColorString,
     },
     icon: {
       normal: ColorString,
@@ -205,7 +207,9 @@ declare global {
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
       yellow: ColorString,
-      
+      recentDiscussionGreen: ColorString,
+      recentDiscussionGrey: ColorString,
+
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,

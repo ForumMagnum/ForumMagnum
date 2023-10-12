@@ -55,6 +55,7 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
+    notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
     excludeContents?: boolean,
@@ -188,6 +189,8 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       rejected: { $ne: true },
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
+      ...(terms.postIds && {_id: {$in: terms.postIds}}),
+      ...(terms.notPostIds && {_id: {$nin: terms.notPostIds}}),
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum
@@ -1416,7 +1419,6 @@ Posts.addView("stickied", (terms: PostsViewTerms, _, context?: ResolverContext) 
 Posts.addView("nominatablePostsByVote", (terms: PostsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
-      _id: {$in: terms.postIds},
       userId: {$ne: context?.currentUser?._id,},
       isEvent: false
     },

@@ -1,7 +1,7 @@
 import keyBy from 'lodash/keyBy';
 import type { CommentPoolContextType } from '../../components/comments/CommentPool';
 
-interface ThreadableCommentType {
+export interface ThreadableCommentType {
   _id: string
   parentCommentId: string|null
   topLevelCommentId: string
@@ -10,6 +10,12 @@ export interface CommentTreeNode<T extends ThreadableCommentType> {
   _id: string
   item: T|null,
   children: Array<CommentTreeNode<T>>
+}
+
+export interface NonnullCommentTreeNode<T extends ThreadableCommentType> extends CommentTreeNode<T> {
+  _id: string
+  item: T,
+  children: Array<NonnullCommentTreeNode<T>>
 }
 
 type UnflattenOptions = {

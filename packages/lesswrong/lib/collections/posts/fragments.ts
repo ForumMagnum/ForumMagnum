@@ -20,6 +20,7 @@ registerFragment(`
     coauthorStatuses
     hasCoauthorPermission
     rejected
+    debate
   }
 `);
 
@@ -47,6 +48,7 @@ registerFragment(`
     voteCount
     baseScore
     extendedScore
+    emojiReactors
     unlisted
     score
     lastVisitedAt
@@ -112,6 +114,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
+    onlyVisibleToEstablishedAccounts
 
     reviewCount
     reviewVoteCount
@@ -124,6 +127,7 @@ registerFragment(`
     }
 
     podcastEpisodeId
+    forceAllowType3Audio
 
     # deprecated
     nominationCount2019
@@ -218,6 +222,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
 
+    feedId
     unreadDebateResponseCount
     dialogTooltipPreview
   }
@@ -536,6 +541,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ShortformRecentDiscussion on Post {
+    ...PostsList
+    topLevelCommentCount
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...RecentDiscussionCommentsList
+    }
+  }
+`);
+
+registerFragment(`
   fragment UsersBannedFromPostsModerationLog on Post {
     user {
       ...UsersMinimumInfo
@@ -632,5 +647,26 @@ registerFragment(`
   fragment PostsEditCriticismTips on Post {
     _id
     criticismTipsDismissed
+  }
+`);
+
+registerFragment(`
+  fragment PostsBestOfList on Post {
+    ...PostsListWithVotes
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+    socialPreviewData {
+      text
+      imageUrl
+    }
   }
 `);

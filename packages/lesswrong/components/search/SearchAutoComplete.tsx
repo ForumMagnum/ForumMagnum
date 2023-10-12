@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
 import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
+import { getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
@@ -24,7 +24,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, classes, renderInputComponent, filters }: {
+export const formatFacetFilters = (
+  facetFilters?: Record<string, boolean | string>,
+): string[][] | undefined =>
+  facetFilters
+    ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
+    : undefined;
+
+const SearchAutoComplete = ({
+  clickAction,
+  placeholder,
+  noSearchPlaceholder,
+  renderSuggestion,
+  hitsPerPage=7,
+  indexName,
+  classes,
+  renderInputComponent,
+  facetFilters,
+}: {
   clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
@@ -33,9 +50,9 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
   indexName: string,
   classes: ClassesType,
   renderInputComponent?: any,
-  filters?: string,
+  facetFilters?: Record<string, boolean>,
 }) => {
-  if (!isAlgoliaEnabled()) {
+  if (!isSearchEnabled()) {
     // Fallback for when Algolia is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
@@ -60,7 +77,10 @@ const SearchAutoComplete = ({ clickAction, placeholder, noSearchPlaceholder, ren
     <div className={classes.autoComplete}>
       { /* @ts-ignore */ }
       <AutocompleteTextbox onSuggestionSelected={onSuggestionSelected} placeholder={placeholder} renderSuggestion={renderSuggestion} renderInputComponent={renderInputComponent}/>
-      <Configure hitsPerPage={hitsPerPage} filters={filters}/>
+      <Configure
+        hitsPerPage={hitsPerPage}
+        facetFilters={formatFacetFilters(facetFilters)}
+      />
     </div>
   </InstantSearch>
 }

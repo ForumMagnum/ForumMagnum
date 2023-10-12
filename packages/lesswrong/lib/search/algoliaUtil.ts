@@ -1,10 +1,8 @@
 import type { Client } from "algoliasearch/lite";
 import NativeSearchClient from "./NativeSearchClient";
-import {
-  algoliaAppIdSetting,
-  algoliaSearchKeySetting,
-  algoliaPrefixSetting,
-} from '../publicSettings';
+import { algoliaAppIdSetting, algoliaSearchKeySetting, algoliaPrefixSetting } from '../publicSettings';
+import { isEAForum } from "../instanceSettings";
+import { isAnyTest } from "../executionEnvironment";
 
 export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
@@ -27,7 +25,10 @@ export const collectionIsAlgoliaIndexed = (collectionName: CollectionNameString)
   return (algoliaIndexedCollectionNames as unknown as string[]).includes(collectionName)
 }
 
-export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get();
+export const isAlgoliaEnabled = () => !!algoliaAppIdSetting.get() && !!algoliaSearchKeySetting.get() && !isAnyTest && !isEAForum
+
+// TODO: Hide search-UI if neither Elastic nor Algolia is configured
+export const isSearchEnabled = () => true;
 
 let searchClient: Client | null = null;
 

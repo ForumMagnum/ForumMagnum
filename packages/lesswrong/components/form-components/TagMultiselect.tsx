@@ -80,7 +80,7 @@ const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCoun
             clickAction={(id: string, tag: AlgoliaTag | null) => addTag(id, tag)}
             placeholder={placeholder}
             hidePostCount={hidePostCount}
-            filters="wikiOnly:false"
+            facetFilters={{wikiOnly: false}}
             isVotingContext={isVotingContext}
           />
         </div>

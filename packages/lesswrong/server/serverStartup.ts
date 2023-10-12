@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 import './datadog/tracer';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection } from '../lib/mongoCollection';
 import { createSqlConnection } from './sqlConnection';
 import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
@@ -59,30 +57,6 @@ const initConsole = () => {
   });
 }
 
-const connectToMongo = async (connectionString: string) => {
-  if (isEAForum || !connectionString) {
-    return;
-  }
-  try {
-    // eslint-disable-next-line no-console
-    console.log("Connecting to mongodb");
-    const client = new MongoClient(connectionString, {
-      // See https://mongodb.github.io/node-mongodb-native/3.6/api/MongoClient.html
-      // for various options that could be tuned here
-
-      // A deprecation warning says to use this option 
-      useUnifiedTopology: true,
-    });
-    await client.connect();
-    const db = client.db();
-    setDatabaseConnection(client, db);
-  } catch(err) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to connect to mongodb: ", err);
-    process.exit(1);
-  }
-}
-
 const connectToPostgres = async (connectionString: string, target: DbTarget = "write") => {
   try {
     if (connectionString) {
@@ -110,8 +84,6 @@ const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   ]);
 
 const initSettings = () => {
-  // eslint-disable-next-line no-console
-  console.log("Loading settings");
   return refreshSettingsCaches();
 }
 
@@ -119,8 +91,6 @@ const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
     await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
 
-    // eslint-disable-next-line no-console
-    console.log("Building postgres tables");
     for (const collection of Collections) {
       if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
         collection.buildPostgresTable();
@@ -128,8 +98,6 @@ const initPostgres = async () => {
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.log("Initializing switching collections from lock table");
   const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
@@ -153,8 +121,6 @@ const initPostgres = async () => {
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
-  // eslint-disable-next-line no-console
-  console.log("Running onStartup functions");
   await runStartupFunctions();
 
   // define executableSchema
@@ -171,8 +137,6 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
     process.kill(estrellaPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
-    // eslint-disable-next-line no-console
-    console.log("Starting webserver");
     startWebserver();
   }
 }
@@ -193,7 +157,6 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
 export const serverStartup = async () => {
   // Run server directly if not in cluster mode
   if (!clusterSetting.get()) {
-    console.log(`Running in non-cluster mode`);
     await serverStartupWorker();
     return;
   }
@@ -227,7 +190,6 @@ export const serverStartup = async () => {
 }
 
 export const serverStartupWorker = async () => {
-  console.log("Starting server");
   const commandLineArguments = await initServer();
   await executeServerWithArgs(commandLineArguments);
 }
