@@ -89,9 +89,11 @@ const PostsTooltip = ({
       As={As}
       clickable={clickable}
       flip={flip}
-      pageElementContext={pageElementContext}
-      pageElementSubContext={pageElementSubContext}
-      analyticsProps={{postId: postId ?? post?._id}}
+      analyticsProps={{
+        pageElementContext,
+        pageElementSubContext,
+        postId: postId ?? post?._id,
+      }}
       className={className}
     >
       {children}

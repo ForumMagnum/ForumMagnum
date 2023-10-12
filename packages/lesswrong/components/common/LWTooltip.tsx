@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { AnalyticsProps } from '../../lib/analyticsEvents';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
@@ -27,8 +28,6 @@ const LWTooltip = ({
   hideOnTouchScreens=false,
   classes,
   className,
-  pageElementContext,
-  pageElementSubContext,
   analyticsProps,
   titleClassName,
   popperClassName,
@@ -45,16 +44,13 @@ const LWTooltip = ({
   hideOnTouchScreens?: boolean,
   classes: ClassesType,
   className?: string,
-  pageElementContext?: string,
-  pageElementSubContext?: string,
-  analyticsProps?: Record<string, unknown>,
+  analyticsProps?: AnalyticsProps,
   titleClassName?: string
   popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: pageElementContext ?? "tooltipHovered",
-    pageElementSubContext,
+    pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
     title: typeof title === "string" ? title : undefined,
     ...analyticsProps,
   });
