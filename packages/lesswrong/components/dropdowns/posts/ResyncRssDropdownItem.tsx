@@ -94,6 +94,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: "PostsEdit",
+    skipCacheUpdate: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   

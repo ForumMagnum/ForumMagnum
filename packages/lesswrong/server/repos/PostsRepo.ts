@@ -1,4 +1,5 @@
 import Posts from "../../lib/collections/posts/collection";
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
@@ -202,6 +203,22 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [limit]);
   }
 
+  getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*, c."mostRecentCommentAt"
+      FROM "Posts" p
+      JOIN (
+          SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
+          FROM "Comments"
+          WHERE "debateResponse" IS TRUE
+          GROUP BY "postId"
+          ) c ON p."_id" = c."postId"
+      WHERE (p.debate IS TRUE OR p."collabEditorDialogue" IS TRUE) AND p.draft IS NOT TRUE
+      ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt") DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"
@@ -348,3 +365,5 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return count;
   }
 }
+
+ensureIndex(Posts, {debate:-1})
