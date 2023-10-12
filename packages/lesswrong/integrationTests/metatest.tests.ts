@@ -24,7 +24,7 @@ describe('Utils', () => {
   describe('createDummyPost', () => {
     it('generates a default title and slug', async () => {
       const post = await createDummyPost();
-      (post.title.toLowerCase() as any).should.equal(post.slug)
+      ((post.title ?? '').toLowerCase() as any).should.equal(post.slug)
     });
   });
 
