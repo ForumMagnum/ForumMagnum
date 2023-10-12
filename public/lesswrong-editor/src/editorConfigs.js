@@ -102,14 +102,6 @@ const embedConfig = {
 }
 
 export const postEditorConfig = {
-	blockToolbar: [
-		'imageUpload',
-		'insertTable',
-		'horizontalLine',
-		'mathDisplay',
-		'mediaEmbed',
-		'footnote'
-	],
 	toolbar: {
 		items: [
 			'|',
