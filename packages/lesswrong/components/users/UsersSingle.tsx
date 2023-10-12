@@ -4,6 +4,7 @@ import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useCurrentUser } from '../common/withUser';
 
 /**
  * Build structured data for a user to help with SEO.
@@ -48,6 +49,10 @@ export const getUserStructuredData = (user: UsersProfile) => {
 const UsersSingle = () => {
   const { params, pathname } = useLocation();
   
+  const currentUser = useCurrentUser()
+
+  if(!currentUser) return <Components.Error404 />
+
   const slug = slugify(params.slug);
   const canonicalUrl = userGetProfileUrlFromSlug(slug);
   if (pathname !== canonicalUrl) {

@@ -203,6 +203,7 @@ const PostsNewForm = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+
   const templateId = query && query.templateId;
   
   // if we are trying to create an event in a group,
@@ -271,9 +272,7 @@ const PostsNewForm = ({classes}: {
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
-  if (!currentUser) {
-    return (<WrappedLoginForm />);
-  }
+  if (!currentUser) return <Components.Error404 />
 
   if (!userCanPost(currentUser)) {
     return (<SingleColumnSection>

@@ -7,9 +7,8 @@ const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   
-  if (!currentUser) {
-    return <div>Log in to access private messages.</div>
-  }
+  if (!currentUser) return <Components.Error404 />
+
   const showArchive = query.showArchive === "true"
   const terms: ConversationsViewTerms = {view: 'userConversations', userId: currentUser._id, showArchive};
   return <Components.InboxNavigation terms={terms} currentUser={currentUser}/>
