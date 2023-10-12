@@ -72,7 +72,7 @@ const AllPostsList = ({
     return (
       <AnalyticsContext
         listContext={"allPostsPage"}
-        terms={{view: "allTime", ...baseTerms}}
+        terms={{view: "allTime" as PostsViewName, ...baseTerms}}
       >
         <PostsList2
           terms={{

@@ -13,7 +13,7 @@ import fs from 'fs';
 import * as _ from 'underscore';
 import moment from 'moment';
 
-const bundleVersion = "31.0.1";
+const bundleVersion = "31.0.3";
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -443,3 +443,8 @@ async function checkEditorBundle(bundleVersion: string): Promise<void> {
   console.log(result);
 }
 Globals.checkEditorBundle = checkEditorBundle;
+
+async function flushAllCkEditorCollaborations() {
+  await fetchCkEditorRestAPI("DELETE", `/collaborations?force=true`);
+}
+Globals.flushAllCkEditorCollaborations = flushAllCkEditorCollaborations;

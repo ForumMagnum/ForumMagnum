@@ -18,7 +18,13 @@ export const highlightFromHTML = (html: string): string => {
   });
 };
 
-export const truncate = (html: string|null|undefined, truncateLength: number, truncateBy?: string, suffix?: string) => {
+export const truncate = (
+  html: string|null|undefined,
+  truncateLength: number,
+  truncateBy?: "words" | "characters" | "paragraphs",
+  suffix?: string,
+  allowTruncationMidWord = true,
+) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
@@ -30,6 +36,7 @@ export const truncate = (html: string|null|undefined, truncateLength: number, tr
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
+    Strict: allowTruncationMidWord,
   });
   return styles + truncatedHtml;
 }

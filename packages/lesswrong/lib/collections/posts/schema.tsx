@@ -95,7 +95,7 @@ addGraphQLSchema(`
   }
 `)
 
-const MINIMUM_COAUTHOR_KARMA = 1;
+export const MINIMUM_COAUTHOR_KARMA = 1;
 
 export const EVENT_TYPES = [
   {value: 'presentation', label: 'Presentation'},
@@ -107,7 +107,7 @@ export const EVENT_TYPES = [
   {value: 'conference', label: 'Conference'},
 ]
 
-async function getLastReadStatus(post: DbPost, context: ResolverContext) {
+export async function getLastReadStatus(post: DbPost, context: ResolverContext) {
   const { currentUser, ReadStatuses } = context;
   if (!currentUser) return null;
 
@@ -203,7 +203,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
+    control: 'EditLinkpostUrl',
     order: 12,
     form: {
       labels: {
@@ -213,7 +213,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm,
+    hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
   },
   // Category (post, linkpost, or question)
   postCategory: {
@@ -226,7 +226,7 @@ const schema: SchemaType<DbPost> = {
     order: 9,
     group: formGroups.category,
     control: 'EditPostCategory',
-    hidden: (props) => !isEAForum || props.eventForm || props.debateForm,
+    hidden: (props) => props.eventForm || props.debateForm || props.collabEditorDialogue,
     ...schemaDefaultValue(postDefaultCategory),
   },
   // Title
@@ -1089,8 +1089,8 @@ const schema: SchemaType<DbPost> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwnsAndOnLW, 'admins', 'sunshineRegiment'],
-    group: isLW ? formGroups.reactExperiment : formGroups.adminOptions,
+    canUpdate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
     control: "select",
     form: {
       options: ({currentUser}:{currentUser: UsersCurrent}) => {
@@ -1368,6 +1368,7 @@ const schema: SchemaType<DbPost> = {
       userId: String,
       confirmed: Boolean,
       requested: Boolean,
+
     }),
     optional: true,
   },
@@ -1789,6 +1790,17 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
   },
 
+  // If the post has ever been undrafted and published
+  wasEverUndrafted: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
+    hidden: true,
+  },
 
   // meta: The post is published to the meta section of the page
   meta: {
@@ -2264,19 +2276,25 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: isEAForum ? formGroups.title : formGroups.options,
+    group: formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
   
   shareWithUsers: {
-    type: Array,
     order: 15,
     canRead: [documentIsNotDeleted],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true, 
+    
+    ...arrayOfForeignKeysField({
+      idFieldName: "shareWithUsers",
+      resolverName: "usersSharedWith",
+      collectionName: "Users",
+      type: "User"
+    }),
   },
 
   'shareWithUsers.$': {
@@ -2367,12 +2385,14 @@ const schema: SchemaType<DbPost> = {
     optional: true, nullable: true, hidden: true,
   },
   
+  // This is basically deprecated. We now have them enabled by default
+  // for all users. Leaving this field for legacy reasons.
   sideCommentVisibility: {
     type: String,
     optional: true,
     control: "select",
     group: formGroups.advancedOptions,
-    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    hidden: true,
     
     label: "Replies in sidebar",
     canRead: ['guests'],
@@ -2549,6 +2569,8 @@ const schema: SchemaType<DbPost> = {
     // Implementation in postSummaryResolver.ts
   },
 
+  // This flag corresponds to the comments-in-the-post debate mode, not to be
+  // confused with collab-editor debates.
   debate: {
     type: Boolean,
     optional: true,
@@ -2559,36 +2581,34 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     ...schemaDefaultValue(false)
   },
-
-  unreadDebateResponseCount: resolverOnlyField({
-    type: Number,
+  
+  // This flag corresponds to the collab-editor dialogue type, not to be confused
+  // with comments-in-the-post style dialogues (which is the `debate`) flag.
+  collabEditorDialogue: {
+    type: Boolean,
+    optional: true,
     nullable: true,
     canRead: ['guests'],
-    resolver: async (post, _, context) => {
-      if (!post.debate) return 0;
-      const { Comments, currentUser } = context;
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false)
+  },
 
-      const lastReadStatus = await getLastReadStatus(post, context);
-      if (!lastReadStatus) return null;
+  totalDialogueResponseCount: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
 
-      const comments = await Comments.find({
-        ...getDefaultViewSelector("Comments"),
-        postId: post._id,
-        // This actually forces `deleted: false` by combining with the default view selector
-        deletedPublic: false,
-        debateResponse: true,
-        postedAt: { $gt: lastReadStatus.lastUpdated },
-      }, {
-        sort: { postedAt: 1 }
-      }).fetch();
-
-      const filteredComments = await accessFilterMultiple(currentUser, Comments, comments, context);
-      const count = filteredComments.length;
-
-      return count;
-    }
-  }),
-
+  unreadDebateResponseCount: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
   emojiReactors: resolverOnlyField({
     type: Object,
     graphQLtype: GraphQLJSON,
@@ -2721,7 +2741,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['alignmentForum'],
     canCreate: ['alignmentForum'],
     control: 'checkbox',
-    group: formGroups.options,
+    group: formGroups.advancedOptions,
   },
 
   afDate: {
@@ -2733,7 +2753,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum'],
     canCreate: ['alignmentForum'],
-    group: formGroups.options,
+    group: formGroups.advancedOptions,
   },
 
   afCommentCount: {

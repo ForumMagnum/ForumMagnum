@@ -103,6 +103,7 @@ importComponent("EditLinkpostUrl", () => require('../components/editor/EditLinkp
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
+importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 
 // Generic dropdown menus and items
 importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownMenu'));
@@ -164,8 +165,9 @@ importComponent("QuickTakesListItem", () => require('../components/quickTakes/Qu
 importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
 
 // RSS Feed Integration
-importComponent("newFeedButton", () => require('../components/feeds/newFeedButton'));
-//importComponent("editFeedButton", () => require('../components/feeds/editFeedButton'));
+importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/posts/ResyncRssDropdownItem'));
+importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'));
+//importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
@@ -409,6 +411,10 @@ importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require
 importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
+importComponent("DialogueEditorGuidelines", () => require('../components/posts/dialogues/DialogueEditorGuidelines'));
+importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
+importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
+
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
@@ -584,7 +590,8 @@ importComponent("DebateResponse", () => require('../components/comments/DebateRe
 importComponent("DebateBody", () => require('../components/comments/DebateBody'));
 importComponent("DebateCommentsListSection", () => require('../components/comments/DebateCommentsListSection'));
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
-
+importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
+importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
@@ -851,7 +858,7 @@ importComponent("FormSubmit", () => require('../components/form-components/FormS
 importComponent("BasicFormStyles", () => require('../components/form-components/BasicFormStyles'));
 importComponent("SingleUsersItem", () => require('../components/form-components/SingleUsersItem'));
 importComponent("SingleTagItem", () => require('../components/form-components/SingleTagItem'));
-importComponent("UsersListEditor", () => require('../components/form-components/UsersListEditor'));
+importComponent(["FormUsersListEditor","UsersListEditor"], () => require('../components/form-components/UsersListEditor'));
 importComponent("SearchSingleUser", () => require('../components/form-components/SearchSingleUser'));
 importComponent("TagMultiselect", () => require('../components/form-components/TagMultiselect'));
 importComponent("TagSelect", () => require('../components/form-components/TagSelect'));
