@@ -112,7 +112,6 @@ export const postEditorConfig = {
 	],
 	toolbar: {
 		items: [
-			'restyledCommentButton',
 			'|',
 			'heading',
 			'|',
@@ -125,11 +124,6 @@ export const postEditorConfig = {
 			'blockQuote',
 			'bulletedList',
 			'numberedList',
-			'codeBlock',
-			'|',
-			'trackChanges',
-			'math',
-			'footnote',
 			'|',
 			'imageUpload',
 		],
