@@ -12,7 +12,6 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -221,7 +220,7 @@ const PostsNewForm = ({classes}: {
   });
 
   const {
-    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    PostSubmit, WrappedSmartForm, WrappedLoginForm,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
@@ -287,9 +286,8 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
+  const NewPostsSubmit = (props: PostSubmitProps) => {
     return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
