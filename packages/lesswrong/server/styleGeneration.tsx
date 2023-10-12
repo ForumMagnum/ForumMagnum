@@ -31,7 +31,14 @@ import CleanCSS from "clean-css";
 const minifyCss = (css: string): Promise<string> | string =>
   isGithubActions ? minifyCssSync(css) : minifyCssAsync(css);
 
-const minifyCssSync = (css: string): string => new CleanCSS().minify(css).styles;
+const minifyCssSync = (css: string): string => {
+  const startTime = new Date().getTime();
+  const minifiedStyles = new CleanCSS().minify(css).styles;
+  const endTime = new Date().getTime();
+  //eslint-disable-next-line no-console
+  console.log(`Minified CSS with clean-css in ${endTime-startTime}ms`);
+  return minifiedStyles;
+}
 
 const minifyCssAsync = async (css: string): Promise<string> => {
   const command = 'yarn --silent cleancss';
