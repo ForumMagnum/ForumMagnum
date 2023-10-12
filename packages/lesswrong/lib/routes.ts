@@ -808,6 +808,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       sunshineSidebar: true
     },
     {
+      name: 'dialogues',
+      path: '/dialogues',
+      componentName: 'DialoguesPage',
+      title: "All Dialogues",
+    },
+    {
       name: 'about',
       path: '/about',
       componentName: 'PostsSingleRoute',

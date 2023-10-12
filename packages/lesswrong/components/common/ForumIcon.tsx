@@ -396,7 +396,7 @@ const ForumIcon = ({
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
   styles,
-  stylePriority: -1,
+  stylePriority: -2,
 });
 
 declare global {

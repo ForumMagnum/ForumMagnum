@@ -105,9 +105,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: {
-    fontSize: 12
-  },
+  pinnedIcon: isEAForum
+    ? {
+      width: 16,
+      height: 16,
+      padding: 1.5,
+    }
+    : {
+      fontSize: 12
+    },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
