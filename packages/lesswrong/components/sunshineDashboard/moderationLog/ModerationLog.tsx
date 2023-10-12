@@ -204,6 +204,7 @@ const ModerationLog = ({classes}: {
     shouldShowEndUserModerationToNonMods
   const { SingleColumnSection, RejectedPostsList, RejectedCommentsList, SectionTitle, ToCColumn, TableOfContents } = Components;
   
+  if(!currentUser) return <Components.Error404 />
 
   const sectionData = {
     html: "",

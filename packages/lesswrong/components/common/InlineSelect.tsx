@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import Menu from "@material-ui/core/Menu";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -9,6 +10,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   link: {
     color: theme.palette.lwTertiary.main,
   },
+  dropdownIcon: {
+    width: '0.7em',
+    height: '0.7em',
+    verticalAlign: 'text-top',
+  }
 });
 
 export interface Option {
@@ -16,19 +22,23 @@ export interface Option {
   label: string;
 }
 
-function InlineSelect({
+const InlineSelect = ({
   options,
   selected,
   handleSelect,
   classes,
+  displayStyle,
+  appendChevron
 }: {
   options: Option[];
   selected: Option;
   handleSelect: (opt: Option) => void;
   classes: ClassesType;
-}) {
+  displayStyle?: React.CSSProperties | string;
+  appendChevron?: boolean;
+}) => {
   const [anchorEl, setAnchorEl] = useState<any>(null);
-  const { MenuItem } = Components;
+  const { MenuItem, ForumIcon } = Components;
 
   const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);
@@ -38,10 +48,19 @@ function InlineSelect({
     setAnchorEl(null);
   };
 
+  let titleClassName;
+  if (displayStyle) {
+    titleClassName = classNames(classes.link, displayStyle)
+  } else {
+    titleClassName = classes.link
+  }
+
+  const optionalChevron = appendChevron ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : null
+
   return (
     <div className={classes.root}>
-      <a className={classes.link} onClick={handleClick}>
-        {selected.label}
+      <a className={titleClassName} onClick={handleClick}>
+        {selected.label}{optionalChevron}
       </a>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         {options.map((option: Option) => {

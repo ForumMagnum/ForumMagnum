@@ -43,9 +43,7 @@ export const SpotlightsPage = ({classes}: {
   const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
-    return <SingleColumnSection>
-      <ErrorAccessDenied/>
-    </SingleColumnSection>;
+    return <Components.Error404 />
   }
 
   const totalUpcomingDuration = upcomingSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);

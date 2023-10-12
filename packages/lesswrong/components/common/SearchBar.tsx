@@ -162,6 +162,8 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     }
   }, [currentQuery, captureSearch])
 
+  if(!currentUser || !currentUser.isAdmin) return <Components.Error404 />
+
   const { SearchBarResults, ForumIcon } = Components
 
   if (!isSearchEnabled()) {

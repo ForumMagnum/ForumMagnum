@@ -313,5 +313,10 @@
     "acceptsSchemaHash": "c7d6d21198c4725672bcea289b5c32ff",
     "acceptedByMigration": "20230915T224433.create_typing_indicator_table.ts",
     "timestamp": "2023-09-15T22:44:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "fc67979155ff8529d2207d6cbbe433a1",
+    "acceptedByMigration": "20231006T071853.add_waking_up_user_fields.ts",
+    "timestamp": "2023-10-06T07:18:53.000Z"
   }
 ]

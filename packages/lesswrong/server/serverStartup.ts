@@ -252,10 +252,10 @@ const watchForShellCommands = () => {
       const func = compileWithGlobals(fileContents);
       const result = await func();
       // eslint-disable-next-line no-console
-      console.log("Finished. Result: ", result);
+      console.log("Shell command finished. Result: ", result);
     } catch(e) {
       // eslint-disable-next-line no-console
-      console.log("Failed.");
+      console.log("Shell command failed.");
       // eslint-disable-next-line no-console
       console.log(e);
     } finally {
