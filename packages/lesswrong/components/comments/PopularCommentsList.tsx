@@ -25,7 +25,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
 
   const {LoadMore, PopularComment} = Components;
   return (
-    <AnalyticsContext pageSection="popularCommentsList">
+    <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
         {results?.map((comment) =>
           <PopularComment
