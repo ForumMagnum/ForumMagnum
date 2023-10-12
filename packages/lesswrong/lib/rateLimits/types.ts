@@ -90,7 +90,8 @@ export interface UserKarmaInfoWindow {
   previousUserKarmaInfo: DbUser & { recentKarmaInfo: RecentKarmaInfo };
 }
 
-export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"documentId"|"collectionName"|"votedAt"> & {
+export type RecentVoteInfo = Pick<DbVote, "_id"|"userId"|"power"|"collectionName"|"votedAt"> & {
+  documentId: Exclude<DbVote['documentId'], null>,
   collectionName: 'Posts' | 'Comments',
   postedAt: Date,
   totalDocumentKarma: number

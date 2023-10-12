@@ -10,19 +10,19 @@ import { forumTypeSetting } from '../../instanceSettings';
 const options: MutationOptions<DbLocalgroup> = {
   newCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.new.own')
+    return document.organizerIds?.includes(user._id) ? userCanDo(user, 'localgroups.new.own')
      : userCanDo(user, `localgroups.new.all`)
   },
 
   editCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.edit.own')
+    return document.organizerIds?.includes(user._id) ? userCanDo(user, 'localgroups.edit.own')
     : userCanDo(user, `localgroups.edit.all`)
   },
 
   removeCheck: (user: DbUser|null, document: DbLocalgroup|null) => {
     if (!user || !document) return false;
-    return document.organizerIds.includes(user._id) ? userCanDo(user, 'localgroups.remove.own')
+    return document.organizerIds?.includes(user._id) ? userCanDo(user, 'localgroups.remove.own')
     : userCanDo(user, `localgroups.remove.all`)
   },
 }

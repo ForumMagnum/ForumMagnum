@@ -80,11 +80,11 @@ export const getDocument = async (documentType: NotificationDocument | null, doc
   (await getDocumentSummary(documentType, documentId))?.document
 
 type DocumentSummary =
-  | { type: 'post'; associatedUserName: string; displayName: string; document: DbPost }
-  | { type: 'comment'; associatedUserName: string; displayName: string | undefined; document: DbComment }
+  | { type: 'post'; associatedUserName: string | null; displayName: string | null; document: DbPost }
+  | { type: 'comment'; associatedUserName: string; displayName: string | null | undefined; document: DbComment }
   | { type: 'user'; associatedUserName: string; displayName: string; document: DbUser }
-  | { type: 'message'; associatedUserName: string; displayName: string | undefined; document: DbMessage }
-  | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
+  | { type: 'message'; associatedUserName: string; displayName: string | null | undefined; document: DbMessage }
+  | { type: 'localgroup'; displayName: string | null; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
@@ -262,7 +262,7 @@ export const NewSubforumCommentNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
+    return await `${startCase(await getCommentParentTitle(document) ?? '')}: ${await commentGetAuthorName(document)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

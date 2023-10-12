@@ -28,7 +28,7 @@ const schema: SchemaType<DbTagFlag> = {
     optional: true,
     canRead: ['guests'],
     onInsert: async (tagFlag) => {
-      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
+      return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name!)) // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
     },
     onEdit: async (modifier, tagFlag) => {
       if (modifier.$set.name) {

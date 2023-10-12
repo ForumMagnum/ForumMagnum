@@ -38,7 +38,7 @@ describe("syncDocumentWithLatestRevision", () => {
 
     const revisions = await Revisions.find({documentId: post._id}, {sort: {editedAt: 1}}).fetch()
     const lastRevision = revisions[revisions.length-1]
-    expect(lastRevision?.originalContents.data).toMatch(/version 3/)
+    expect(lastRevision?.originalContents?.data).toMatch(/version 3/)
     await Revisions.rawRemove({_id: lastRevision._id})
     
     // Function we're actually testing
@@ -48,6 +48,6 @@ describe("syncDocumentWithLatestRevision", () => {
     if (!postAfterSync) {
       throw new Error("Lost post")
     }
-    expect(postAfterSync.contents.originalContents.data).toMatch(/version 2/);
+    expect(postAfterSync.contents.originalContents?.data).toMatch(/version 2/);
   });
 });

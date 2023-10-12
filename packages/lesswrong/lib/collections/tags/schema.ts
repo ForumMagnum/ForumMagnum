@@ -69,7 +69,7 @@ const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     onInsert: async (tag) => {
-      const basicSlug = slugify(tag.name);
+      const basicSlug = slugify(tag.name!); // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
       return await Utils.getUnusedSlugByCollectionName('Tags', basicSlug, true);
     },
     onUpdate: async ({data, oldDocument}) => {

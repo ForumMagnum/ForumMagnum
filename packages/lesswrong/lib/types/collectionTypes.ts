@@ -184,18 +184,18 @@ interface HasIdType {
 
 // Common base type for everything with a userId field
 interface HasUserIdType {
-  userId: string
+  userId: string | null
 }
 
 interface VoteableType extends HasIdType {
-  score: number
-  baseScore: number
+  score: number | null
+  baseScore: number | null
   extendedScore: any,
-  voteCount: number
-  af?: boolean
-  afBaseScore?: number
+  voteCount: number | null
+  af?: boolean | null
+  afBaseScore?: number | null
   afExtendedScore?: any,
-  afVoteCount?: number
+  afVoteCount?: number | null
 }
 
 interface VoteableTypeClient extends VoteableType {

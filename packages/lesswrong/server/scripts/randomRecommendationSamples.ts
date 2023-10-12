@@ -47,7 +47,7 @@ const randomRecommendationSamples = async () => {
       const title = post.title.replace(/,/g, " ");
       for (let j = 0; j < count; j++) {
         const rec = recommendations[i][j];
-        const recTitle = rec.title.replace(/,/g, " ");
+        const recTitle = rec.title!.replace(/,/g, " "); // TODO: coercion to handle database having technically nullable fields that aren't null in practice
         const srcLink = "https://forum.effectivealtruism.org" + postGetPageUrl(post);
         const targetLink = "https://forum.effectivealtruism.org" + postGetPageUrl(rec);
         result += `"${title}",${srcLink},"${recTitle}",${targetLink}\n`;

@@ -775,7 +775,8 @@ const schema: SchemaType<DbComment> = {
         !isEAForum ||
         !extendedScore ||
         Object.keys(extendedScore).length < 1 ||
-        "agreement" in extendedScore
+        "agreement" in extendedScore ||
+        !comment.postId
       ) {
         return {};
       }

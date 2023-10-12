@@ -73,7 +73,7 @@ const schema: SchemaType<DbGardenCode> = {
     optional: true,
     canRead: ['guests'],
     onInsert: async (gardenCode) => {
-      return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
+      return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title!)) // TODO: title has a default value, in theory can be null anyways, need to update db schema
     },
   },
   startTime: {

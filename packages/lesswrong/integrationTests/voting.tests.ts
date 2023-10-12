@@ -49,8 +49,8 @@ describe('Voting', function() {
       const updatedFrontpagePost = await Posts.find({_id: frontpagePost._id}).fetch();
       const updatedCuratedPost = await Posts.find({_id: curatedPost._id}).fetch();
 
-      (updatedFrontpagePost[0].score as any).should.be.above(updatedNormalPost[0].score + 1);
-      (updatedCuratedPost[0].score as any).should.be.above(updatedFrontpagePost[0].score + 1);
+      (updatedFrontpagePost[0].score as any).should.be.above((updatedNormalPost[0].score ?? 0) + 1);
+      (updatedCuratedPost[0].score as any).should.be.above((updatedFrontpagePost[0].score ?? 0) + 1);
     });
     it('produces the same result as `recalculateScore`', async () => {
       const user = await createDummyUser();
@@ -298,7 +298,7 @@ describe('Voting', function() {
         collectionName: "Posts",
         scoreChange: 1,
         title: post.title,
-        slug: slugify(post.title),
+        slug: slugify(post.title ?? ''),
       });
     });
     it('includes co-authored posts in the selected date range', async () => {
@@ -336,7 +336,7 @@ describe('Voting', function() {
         collectionName: "Posts",
         scoreChange: 2,
         title: post.title,
-        slug: slugify(post.title),
+        slug: slugify(post.title ?? ''),
       });
     });
     /*it('does not include posts outside the selected date range', async () => {
