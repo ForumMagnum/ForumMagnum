@@ -8,9 +8,7 @@ const stylesheetUrls = new class {
 
   async getStylesheetUrl(themeOptions: ThemeOptions) {
     const cacheKey = JSON.stringify(themeOptions);
-    console.log(`Getting stylesheet ${cacheKey}`);
     if (!this.cache[cacheKey]) {
-      console.log(`Cache miss`);
       this.cache[cacheKey] = getMergedStylesheet(themeOptions);
     }
     return (await this.cache[cacheKey]).url;
@@ -44,7 +42,7 @@ export const renderJssSheetImports = async (themeOptions: AbstractThemeOptions):
   if (themeOptionsAreConcrete(themeOptions)) {
     return `${prefix}${renderLinkMainSheet(await stylesheetUrls.getStylesheetUrl(themeOptions))}`;
   }
-  return `${prefix}${renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
+  return `${prefix}${await renderAutoStyleImport(themeOptions.siteThemeOverride)}`;
 }
 
 export const renderJssSheetPreloads = async (themeOptions: AbstractThemeOptions) => {

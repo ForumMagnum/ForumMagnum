@@ -101,6 +101,7 @@
     "@types/chai-as-promised": "^7.1.2",
     "@types/cheerio": "^0.22.28",
     "@types/classnames": "^2.2.9",
+    "@types/clean-css": "^4.2.7",
     "@types/cookie-parser": "^1.4.2",
     "@types/crypto-js": "^3.1.44",
     "@types/draft-convert": "^2.1.1",
