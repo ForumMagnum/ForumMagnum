@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isEAForum } from '../../../lib/instanceSettings';
+import { CommentTreeNode } from '../../../lib/utils/unflatten';
+import { ToCSection } from '../../../lib/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,6 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& a:focus, & a:hover": {
       opacity: "initial",
     }
+  },
+  dense: {
+    paddingBottom: "0 !important",
   },
   link: {
     display: "block",
@@ -100,7 +105,7 @@ const levelToClassName = (level: number, classes: ClassesType) => {
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense=false
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -111,6 +116,7 @@ const TableOfContentsRow = ({
   title?: boolean,
   divider?: boolean,
   answer?: boolean,
+  dense?: boolean,
 }) => {
   if (divider) return <div className={classes.divider} />
 
@@ -118,12 +124,15 @@ const TableOfContentsRow = ({
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
-      { [classes.highlighted]: highlighted }
+      {
+        [classes.highlighted]: highlighted,
+      }
     )}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
       [classes.highlightDot]: !answer,
+      [classes.dense]: dense,
     })}>
       {children}
     </a>

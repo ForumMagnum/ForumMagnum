@@ -281,6 +281,7 @@
     "react-map-gl": "^5.2.9",
     "react-no-ssr": "^1.1.0",
     "react-popper": "^2.3.0",
+    "react-range-slider-input": "^3.0.7",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-sortable-hoc": "^1.10.1",

@@ -13,6 +13,7 @@ export interface ToCSection {
   anchor: string,
   level: number,
   divider?: boolean,
+  hide?: boolean,
 }
 
 export interface ToCData {

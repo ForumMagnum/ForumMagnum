@@ -544,6 +544,7 @@ importComponent("CommentBottomCaveats", () => require('../components/comments/Co
 importComponent("AllComments", () => require('../components/comments/AllComments'));
 importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));
 
+importComponent("CommentsTableOfContents", () => require('../components/comments/CommentsTableOfContents'));
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentPool", () => require('../components/comments/CommentPool'));
 importComponent("CommentPlaceholder", () => require('../components/comments/CommentPlaceholder'));

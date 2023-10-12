@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -15,6 +15,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { AllCommentsContext } from '../posts/PostsPage/PostsPage';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -109,6 +110,10 @@ const CommentsListSection = ({
 }) => {
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
+  const commentTreeContext = useContext(AllCommentsContext);
+  if (commentTreeContext) {
+    commentTreeContext.comments = commentTree;
+  }
   const {
     LWTooltip, CommentThreads, PostsPageCrosspostComments, MetaInfo, Row,
     CommentsNewForm, QuickTakesEntry

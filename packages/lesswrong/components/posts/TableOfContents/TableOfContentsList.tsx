@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -7,6 +7,8 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
+import { AllCommentsContext } from '../PostsPage/PostsPage';
+import { CommentTreeNode } from '../../../lib/utils/unflatten';
 
 export interface ToCDisplayOptions {
   /**
@@ -47,6 +49,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
+  const commentTree = useContext(AllCommentsContext)?.comments;
 
   useEffect(() => {
     window.addEventListener('scroll', updateHighlightedSection);
@@ -113,7 +116,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     }
   }
 
-  const { TableOfContentsRow, AnswerTocRow } = Components;
+  const { CommentsTableOfContents, TableOfContentsRow, AnswerTocRow } = Components;
 
   if (!sectionData)
     return <div/>
@@ -124,6 +127,10 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
+  }
+  
+  if (commentTree) {
+    filteredSections = [...filteredSections, ...commentTreeToToCSections(commentTree, 1)];
   }
 
   const getCurrentSection = (): string|null => {
@@ -203,6 +210,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     </TableOfContentsRow>
     
     {filteredSections.map((section, index) => {
+      if (section.hide) return null;
       return (
         <TableOfContentsRow
           key={section.anchor}
@@ -226,6 +234,10 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
         </TableOfContentsRow>
       )
     })}
+    
+    {commentTree &&
+      <CommentsTableOfContents commentTree={commentTree} highlightedSection={currentSection}/>
+    }
   </div>
 }
 
@@ -265,6 +277,22 @@ const sectionsWithAnswersSorted = (
   }
   return sortedSections;
 };
+
+function commentTreeToToCSections (commentTree: CommentTreeNode<CommentsList>[], level: number): ToCSection[] {
+  let result: ToCSection[] = [];
+  for (let comment of commentTree) {
+    result.push({
+      anchor: comment._id,
+      level,
+      hide: true,
+    });
+    if (comment.children) {
+      result = [...result, ...commentTreeToToCSections(comment.children, level+1)];
+    }
+  }
+  return result;
+}
+
 
 function downcaseIfAllCaps(text: string) {
   // If already mixed-case, don't do anything

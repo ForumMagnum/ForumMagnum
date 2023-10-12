@@ -29,6 +29,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { CommentTreeNode } from '../../../lib/utils/unflatten';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -278,6 +279,8 @@ export type EagerPostComments = {
   queryResponse: UseMultiResult<'CommentsList'>,
 }
 
+export const AllCommentsContext = React.createContext<{comments: CommentTreeNode<CommentsList>[]|null}>({comments: null});
+
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
@@ -289,6 +292,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
+  const allCommentsContextValue = useRef({comments: null});
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -570,6 +574,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
+    <AllCommentsContext.Provider value={allCommentsContextValue.current}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     <ToCColumn
@@ -649,6 +654,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </ToCColumn>
     {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
+    </AllCommentsContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
 }
