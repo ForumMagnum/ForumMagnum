@@ -86,10 +86,6 @@ const OTPInput = ({
       if (placeholder.length === numInputs) {
         return placeholder;
       }
-
-      if (placeholder.length > 0) {
-        console.error('Length of the placeholder should be equal to the number of inputs.');
-      }
     }
     return undefined;
   };

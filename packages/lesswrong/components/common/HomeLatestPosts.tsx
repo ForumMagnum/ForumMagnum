@@ -73,6 +73,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: "450",
     lineHeight: "1.5em",
     fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  selectTitle: {
+    margin: 0,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "14px",
+    lineHeight: "21px",
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    color: `${theme.palette.grey[600]} !important`,
+    textTransform: "uppercase",
   }
 })
 
@@ -154,7 +164,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
           component='span'
           className={classes.inline}
         >
-          Sorted by <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick} />
+          <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick} displayStyle={classes.selectTitle} appendChevron={true} />
         </Typography>
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
