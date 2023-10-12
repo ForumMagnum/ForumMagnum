@@ -3,7 +3,6 @@
 
 while ! curl --silent -o /dev/null http://localhost:3000/robots.txt
 do
+  echo "No server found, retrying..."
   sleep 1
 done
-
-
