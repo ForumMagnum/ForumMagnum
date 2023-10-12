@@ -49,19 +49,19 @@ const getItemProps = (
   post: PostsRecentDiscussion,
   comments: CommentsList[] = [],
 ): EARecentDiscussionItemProps => {
-  if (post.isEvent) {
-    // It's a new event
-    return {
-      icon: "Calendar",
-      iconVariant: "grey",
-      user: post.user,
-      action: "scheduled",
-      post,
-      timestamp: post.postedAt,
-    };
-  }
-
   if (!comments?.length) {
+    // It's a new event
+    if (post.isEvent) {
+      return {
+        icon: "Calendar",
+        iconVariant: "grey",
+        user: post.user,
+        action: "scheduled",
+        post,
+        timestamp: post.postedAt,
+      };
+    }
+
     // We're displaying the post as a new post
     return {
       icon: post.question ? "Q" : "DocumentFilled",

@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,15 +25,17 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
 
   const {LoadMore, PopularComment} = Components;
   return (
-    <div className={classes.root}>
-      {results?.map((comment) =>
-        <PopularComment
-          key={comment._id}
-          comment={comment}
-        />
-      )}
-      <LoadMore {...loadMoreProps} />
-    </div>
+    <AnalyticsContext pageSection="popularCommentsList">
+      <div className={classes.root}>
+        {results?.map((comment) =>
+          <PopularComment
+            key={comment._id}
+            comment={comment}
+          />
+        )}
+        <LoadMore {...loadMoreProps} />
+      </div>
+    </AnalyticsContext>
   );
 }
 
