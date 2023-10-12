@@ -4,7 +4,7 @@
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
  */
 
-import BalloonBlockEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
+import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor'
 import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
@@ -68,9 +68,9 @@ import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 
-export class CommentEditor extends BalloonBlockEditorBase {}
-export class PostEditor extends BalloonBlockEditorBase {}
-export class PostEditorCollaboration extends BalloonBlockEditorBase {}
+export class CommentEditor extends ClassicEditor {}
+export class PostEditor extends ClassicEditor {}
+export class PostEditorCollaboration extends ClassicEditor {}
 
 // NOTE: If you make changes to this file, you must then run:
 // `yarn run rebuild-ckeditor`

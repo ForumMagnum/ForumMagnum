@@ -130,6 +130,8 @@ export const postEditorConfig = {
 			'trackChanges',
 			'math',
 			'footnote',
+			'|',
+			'imageUpload',
 		],
 		shouldNotGroupWhenFull: true,
 	},
