@@ -32,11 +32,13 @@ const credentialsPath = (forumType) => {
   const memorizedBases = {
     lw: "..",
     ea: "..",
+    wu: "..",
   };
   const base = process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType] ?? ".";
   const memorizedRepoNames = {
     lw: 'LessWrong-Credentials',
     ea: 'ForumCredentials',
+    wu: 'ForumCredentials',
   };
   const repoName = memorizedRepoNames[forumType];
   if (!repoName) {
@@ -53,6 +55,7 @@ const databaseConfig = (mode, forumType) => {
   if (!mode) {
     return {};
   }
+  console.log({mode, forumType})
   const memorizedConfigPaths = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
@@ -60,10 +63,14 @@ const databaseConfig = (mode, forumType) => {
     ea: {
       postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
     },
+    wu: {
+      postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
+    },
   };
   const configPath = memorizedConfigPaths[forumType] || {
     postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
   };
+  console.log({configPath})
   return getDatabaseConfig(configPath);
 };
 
@@ -100,7 +107,7 @@ const settingsFileName = (mode, forumType) => {
   }
 
   const forumType = process.argv[4];
-  const forumTypeIsSpecified = ['lw', 'ea'].includes(forumType)
+  const forumTypeIsSpecified = ['lw', 'ea', 'wu'].includes(forumType)
 
   const dbConf = databaseConfig(mode, forumType);
   if (dbConf.postgresUrl) {
