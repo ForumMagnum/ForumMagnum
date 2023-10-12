@@ -15,18 +15,18 @@ import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
+export const userGetDisplayName = (user: { username: string|null, fullName?: string|null, displayName: string|null } | null): string => {
   if (!user) {
     return "";
   } else {
     return forumTypeSetting.get() === 'AlignmentForum' ? 
-      (user.fullName || user.displayName) :
-      (user.displayName || getUserName(user)) || ""
+      (user.fullName || user.displayName) ?? "" :
+      (user.displayName || getUserName(user)) ?? ""
   }
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: {username: string} | null): string|null {
+export const getUserName = function(user: {username: string | null} | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
