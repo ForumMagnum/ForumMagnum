@@ -186,6 +186,14 @@
   dependencies:
     ckeditor5 "^31.1.0"
 
+"@ckeditor/ckeditor5-editor-balloon@^31.0.0":
+  version "31.1.0"
+  resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-editor-balloon/-/ckeditor5-editor-balloon-31.1.0.tgz#4ae512a7a2843dd5a867948c69c450af4ee43f5e"
+  integrity sha512-vL9l/BranIZp/ZcQ9iN6JirXW5gcxuOTP+wM8QsXvpihtq+Gt5a8w2TPGtF+d4BoJYbXpqnA3fR+OBtu86dEvA==
+  dependencies:
+    ckeditor5 "^31.1.0"
+    lodash-es "^4.17.15"
+
 "@ckeditor/ckeditor5-editor-classic@^31.0.0":
   version "31.1.0"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-editor-classic/-/ckeditor5-editor-classic-31.1.0.tgz#82b10d6f4d15c9186029aabd1dbb157c7cd97b5f"
