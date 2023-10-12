@@ -14,6 +14,7 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { htmlToTextDefault } from '../lib/htmlToText';
+import { filterWhereFieldsNotNull } from '../lib/utils/typeGuardUtils';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -227,8 +228,9 @@ async function getTocAnswers (document: DbPost) {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     answersTerms.af = true
   }
-  const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
-  const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
+  const rawAnswers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
+  const answers = filterWhereFieldsNotNull(rawAnswers, "baseScore", "author", "postedAt", "voteCount")
+  const answerSections: ToCSection[] = answers.map((answer): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
     let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));

@@ -3,6 +3,8 @@ import { Users } from '../../lib/collections/users/collection';
 import { Votes } from "../../lib/collections/votes";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
 import { Globals } from "../vulcan-lib";
+import { filter } from "underscore";
+import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 type UserVoteFields = {
   voteReceivedCount: number;
@@ -37,12 +39,14 @@ async function recalculateReceivedVoteCounts() {
       const userIds = users.map(user => user._id)
       // get all the votes on the given batch of users,
       // ignoring votes on collections that don't affect karma
-      const userVotes = await Votes.find({
+      const rawUserVotes = await Votes.find({
         authorIds: { $in: userIds },
         cancelled: { $ne: true },
         voteType: { $ne: 'neutral' },
         collectionName: { $in: collectionsThatAffectKarma }
       }).fetch();
+      const userVotes = filterWhereFieldsNotNull(rawUserVotes, "authorIds", "userId");
+
       // filter out votes that are self votes
       const filteredUserVotes = userVotes.filter(vote => !vote.authorIds.includes(vote.userId));
       const userIdSet = new Set(userIds);

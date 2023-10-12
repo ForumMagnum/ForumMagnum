@@ -8,6 +8,7 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
+import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -30,7 +31,8 @@ export async function updatePostDenormalizedTags(postId: string) {
     return;
   }
 
-  const tagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
+  const rawTagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
+  const tagRels = filterWhereFieldsNotNull(rawTagRels, "baseScore", "tagId");
   const tagRelDict: Partial<Record<string,number>> = {};
   
   for (let tagRel of tagRels) {

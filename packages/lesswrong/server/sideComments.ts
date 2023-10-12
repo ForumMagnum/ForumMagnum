@@ -363,7 +363,7 @@ export async function getSideComments(context: ResolverContext, postId: string, 
   });
   
   const minKarma = 10;
-  const highKarmaComments: DbComment[] = comments.filter(comment => comment.baseScore >= minKarma)
+  const highKarmaComments: DbComment[] = comments.filter(comment => (comment.baseScore ?? 0) >= minKarma)
   const highKarmaCommentIds: Set<string> = new Set(highKarmaComments.map(c => c._id));
   
   let highKarmaCommentsByBlock: Record<string,string[]> = {};

@@ -8,6 +8,7 @@ import moment from 'moment';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
+import { filterWhereFieldsNotNull } from '../lib/utils/typeGuardUtils';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -87,11 +88,13 @@ async function checkForNotifications() {
     return;
   }
 
-  const newNotifications = await Notifications.find({
+  const rawNewNotifications = await Notifications.find({
     createdAt: {$gt: lastNotificationCheck}
   }, {
     projection: {userId:1, createdAt:1}
   }).fetch();
+
+  const newNotifications = filterWhereFieldsNotNull(rawNewNotifications, "userId", "createdAt");
   
   // TODO: Handle waitingForBatch
   // If a notification is batched, then delivering the batch means clearing the

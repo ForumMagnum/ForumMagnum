@@ -1,4 +1,5 @@
 import Spotlights from '../lib/collections/spotlights/collection';
+import { filterWhereFieldsNotNull } from '../lib/utils/typeGuardUtils';
 import { addCronJob } from './cronUtil';
 
 const MS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -7,7 +8,8 @@ addCronJob({
   name: 'updatePromotedSpotlightItem',
   interval: `every 30 minutes`,
   async job() {
-    const spotlights = await Spotlights.find({ draft: false }).fetch();
+    const rawSpotlights = await Spotlights.find({ draft: false }).fetch();
+    const spotlights = filterWhereFieldsNotNull(rawSpotlights, "lastPromotedAt", "duration", "position");
     if (!spotlights.length) return;
 
     // Ascending order

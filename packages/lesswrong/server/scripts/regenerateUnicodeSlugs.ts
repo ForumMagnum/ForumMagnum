@@ -1,13 +1,15 @@
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { Globals, Utils, slugify } from "../vulcan-lib";
 
 Globals.regenerateUnicodeSlugs = async () => {
   const db = getSqlClientOrThrow();
-  const posts: Pick<DbPost, "_id" | "title" | "slug">[] = await db.any(`
+  const rawPosts: Pick<DbPost, "_id" | "title" | "slug">[] = await db.any(`
     SELECT "_id", "title", "slug"
     FROM "Posts"
     WHERE "slug" LIKE 'unicode-%' OR "slug" = '{}'
   `);
+  const posts = filterWhereFieldsNotNull(rawPosts, "title")
 
   for (const {_id, title, slug} of posts) {
     const newSlug = slugify(title);

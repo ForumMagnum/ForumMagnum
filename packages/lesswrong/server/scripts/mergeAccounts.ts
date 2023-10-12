@@ -10,6 +10,7 @@ import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
+import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -113,7 +114,8 @@ const mergeReadStatus = async ({sourceUserId, targetUserId, postOrTagSelector}: 
 }) => {
   const sourceUserStatus = await ReadStatuses.findOne({userId: sourceUserId, ...postOrTagSelector})
   const targetUserStatus = await ReadStatuses.findOne({userId: targetUserId, ...postOrTagSelector})
-  const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated) > new Date(targetUserStatus.lastUpdated)) : !!sourceUserStatus
+  // TODO: coercion to handle database having technically nullable fields that aren't null in practice
+  const sourceMostRecentlyUpdated = (sourceUserStatus && targetUserStatus) ? (new Date(sourceUserStatus.lastUpdated!) > new Date(targetUserStatus.lastUpdated!)) : !!sourceUserStatus
   const readStatus = sourceMostRecentlyUpdated ? sourceUserStatus?.isRead : targetUserStatus?.isRead
   const lastUpdated = sourceMostRecentlyUpdated ? sourceUserStatus?.lastUpdated : targetUserStatus?.lastUpdated
   if (targetUserStatus) {
@@ -172,6 +174,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   const sourceUser = await Users.findOne({_id: sourceUserId})
   const targetUser = await Users.findOne({_id: targetUserId})
   if (!sourceUser) throw Error(`Can't find sourceUser with Id: ${sourceUserId}`)
+  if (!sourceUser.afKarma) throw Error(`Can't find sourceUser with afKarma: ${sourceUserId}`)
   if (!targetUser) throw Error(`Can't find targetUser with Id: ${targetUserId}`)
 
   // DO NOT transfer LWEvents, there are way too many and they're probably not important after the fact
@@ -245,7 +248,8 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
   await transferCollection({sourceUserId, targetUserId, collectionName: "Notifications", dryRun})
 
   try {
-    const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
+    const rawReadStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
+    const readStatuses = filterWhereFieldsNotNull(rawReadStatuses, "postId", "tagId")
     const readPostIds = readStatuses.map((status) => status.postId).filter(postId => !!postId)
     const readTagIds = readStatuses.map((status) => status.tagId).filter(tagId => !!tagId)
     // eslint-disable-next-line no-console
@@ -330,7 +334,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           karma: newKarma, 
           // We only recalculate the karma for non-af karma, because recalculating
           // af karma is a lot more complicated
-          afKarma: sourceUser.afKarma + targetUser.afKarma 
+          afKarma: (sourceUser?.afKarma ?? 0) + (targetUser?.afKarma ?? 0)
         },
         validate: false
       })
