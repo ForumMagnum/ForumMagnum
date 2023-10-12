@@ -55,3 +55,12 @@ export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
 export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
   return arr.filter(x=>x!=null && x!==undefined) as T[];
 }
+
+//type for filterWhereFieldsNotNull that is the same field as T but no nullable values in the specified fields
+type FilterWhereFieldsNotNull<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]-?: NonNullable<T[P]>;
+}; 
+
+export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: Array<K>): FilterWhereFieldsNotNull<T, K>[] {
+  return arr.filter(x=>fields.some((field) => x[field] !== null && x[field] !== undefined)) as FilterWhereFieldsNotNull<T, K>[];
+}

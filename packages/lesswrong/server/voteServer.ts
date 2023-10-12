@@ -13,7 +13,7 @@ import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
 import { ModeratorActions } from '../lib/collections/moderatorActions/collection';
 import { RECEIVED_VOTING_PATTERN_WARNING, POTENTIAL_TARGETED_DOWNVOTING } from '../lib/collections/moderatorActions/schema';
 import { loadByIds } from '../lib/loaders';
-import { filterNonnull } from '../lib/utils/typeGuardUtils';
+import { filterNonnull, filterWhereFieldsNotNull } from '../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
@@ -330,7 +330,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
@@ -486,7 +486,7 @@ function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, 
   const now = new Date().getTime();
 
   return votes.filter(vote => {
-    const ageInMS = now - vote.votedAt.getTime();
+    const ageInMS = now - vote.votedAt!.getTime(); // TODO: votedAt should never be null but not captured in Postgres, so !, should be fixed by database schema being made non-nullable on votedAt 
     const ageInMinutes = ageInMS / (1000 * 60);
 
     if (ageInMinutes > rateLimit.periodInMinutes)
@@ -519,12 +519,14 @@ function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean)
 }
 
 export const recalculateDocumentScores = async (document: VoteableType, context: ResolverContext) => {
-  const votes = await Votes.find(
+  const rawVotes = await Votes.find(
     {
       documentId: document._id,
       cancelled: false
     }
   ).fetch() || [];
+
+  const votes = filterWhereFieldsNotNull(rawVotes, "userId", "power", "afPower");
   
   const userIdsThatVoted = uniq(votes.map(v=>v.userId));
   // make sure that votes associated with users that no longer exist get ignored for the AF score
