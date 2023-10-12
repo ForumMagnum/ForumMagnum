@@ -72,7 +72,7 @@ const getSurroundingSequencePostIdTuples = async function (sequenceId: string, c
   const books = await getSequenceCollectionBooks(sequenceId);
   if (!books) return;
 
-  const allSequenceIds = books.flatMap(book => book.sequenceIds);
+  const allSequenceIds = books.flatMap(book => book.sequenceIds ?? []);
 
   const currentSequenceIndex = allSequenceIds.indexOf(sequenceId);
 

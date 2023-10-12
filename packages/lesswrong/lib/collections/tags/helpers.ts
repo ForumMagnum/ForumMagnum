@@ -90,6 +90,6 @@ export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag:
 }
 
 export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
-  if (!user || !tag) return false;
-  return tag.subforumModeratorIds?.includes(user._id);
+  if (!user || !tag?.subforumModeratorIds) return false;
+  return tag.subforumModeratorIds.includes(user._id);
 }

@@ -45,9 +45,9 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // case, this will hit in the cache 100% of the time. If we don't have a
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
-  const { major: majorVersion } = extractVersionsFromSemver(revision.version)
+  const { major: majorVersion } = extractVersionsFromSemver(revision.version!) // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
   const collection = getCollection(collectionName);
-  const documentId = revision.documentId;
+  const documentId = revision.documentId!; // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
   const document = context
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);

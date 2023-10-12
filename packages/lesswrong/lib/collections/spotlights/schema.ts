@@ -98,11 +98,11 @@ const schema: SchemaType<DbSpotlight> = {
 
       // If we didn't specify a position, by default we probably want to be inserting it right after the currently-active spotlight
       // If we're instead putting the created spotlight somewhere before the last spotlight, shift everything at and after the desired position back
-      const startBound = typeof newDocument.position !== 'number' ? currentSpotlight.position + 1 : newDocument.position;
-      const endBound = lastSpotlightByPosition.position + 1;
+      const startBound = typeof newDocument.position !== 'number' ? currentSpotlight.position! + 1 : newDocument.position;
+      const endBound = lastSpotlightByPosition.position! + 1;
 
       // Don't let us create a new spotlight with an arbitrarily large position
-      if (newDocument.position > endBound) {
+      if (newDocument.position! > endBound) {
         return endBound;
       }
 
@@ -115,11 +115,11 @@ const schema: SchemaType<DbSpotlight> = {
     onUpdate: async ({ data, oldDocument, context }) => {
       if (typeof data.position === 'number' && data.position !== oldDocument.position) {
         // Figure out whether we're moving an existing spotlight item to an earlier position or a later position
-        const pullingSpotlightForward = data.position < oldDocument.position;
+        const pullingSpotlightForward = data.position < oldDocument.position!;
 
         // Use that to determine which other spotlight items we need to move, and whether we correspondingly push them back or pull them forward
-        const startBound = pullingSpotlightForward ? data.position : oldDocument.position + 1;
-        const endBound = pullingSpotlightForward ? oldDocument.position : data.position + 1;
+        const startBound = pullingSpotlightForward ? data.position : oldDocument.position! + 1;
+        const endBound = pullingSpotlightForward ? oldDocument.position! : data.position + 1;
         const offset = pullingSpotlightForward ? 1 : -1;
 
         // Set the to-be-updated spotlight's position to something far out to avoid conflict with the spotlights we'll need to shift back

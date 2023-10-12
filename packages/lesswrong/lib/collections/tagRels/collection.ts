@@ -59,7 +59,7 @@ const schema: SchemaType<DbTagRel> = {
     resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
       // Return true for a null user so we can show them a login/signup prompt
       return context.currentUser
-        ? !(await canVoteOnTagAsync(context.currentUser, document.tagId, document.postId, context, 'smallUpvote')).fail
+        ? !(await canVoteOnTagAsync(context.currentUser, document.tagId!, document.postId!, context, 'smallUpvote')).fail // TODO: technically nullable fields, even though in practice they're not.  Need to update db schema.
         : true;
     },
   }),
@@ -116,7 +116,7 @@ makeVoteable(TagRels, {
     voteType: string|null,
     _extendedVote: any,
     context: ResolverContext,
-  ) => canVoteOnTagAsync(user, document.tagId, document.postId, context, voteType ?? 'neutral'),
+  ) => canVoteOnTagAsync(user, document.tagId!, document.postId!, context, voteType ?? 'neutral'), // TODO: technically nullable fields, even though in practice they're not.  Need to update db schema.
 });
 
 export default TagRels;

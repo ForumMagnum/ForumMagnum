@@ -43,7 +43,7 @@ addGraphQLResolvers({
       const { currentUser } = context;
       if (!currentUser) return null;
       const settings = currentUser.karmaChangeNotifierSettings
-      return settings.updateFrequency;
+      return settings?.updateFrequency;
     },
   }
 })

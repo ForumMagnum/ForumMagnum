@@ -1532,7 +1532,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => sequence.draft && !sequence.isDeleted
+      filterFn: sequence => !!sequence.draft && !sequence.isDeleted
     }),
     canRead: ['guests'],
   },
@@ -1832,7 +1832,8 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
-      const { karma, signUpReCaptchaRating } = user;
+      let { karma, signUpReCaptchaRating } = user;
+      karma ??= 0;
 
       if (user.deleteContent && user.banned) return 0.0;
       else if (userIsAdmin(user)) return 1.0;
@@ -2673,7 +2674,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Posts",
       foreignTypeName: "post",
       foreignFieldName: "userId",
-      filterFn: (post: DbPost) => (post.af && !post.draft && post.status===postStatuses.STATUS_APPROVED),
+      filterFn: (post: DbPost) => (!!post.af && !post.draft && post.status===postStatuses.STATUS_APPROVED),
     }),
     canRead: ['guests'],
   },
@@ -2688,7 +2689,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: (comment: DbComment) => comment.af,
+      filterFn: (comment: DbComment) => !!comment.af,
     }),
     canRead: ['guests'],
   },
@@ -2700,7 +2701,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: (sequence: DbSequence) => sequence.af && !sequence.draft && !sequence.isDeleted
+      filterFn: (sequence: DbSequence) => !!sequence.af && !sequence.draft && !sequence.isDeleted
     }),
     canRead: ['guests'],
   },
@@ -2712,7 +2713,7 @@ const schema: SchemaType<DbUser> = {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: (sequence: DbSequence) => sequence.af && sequence.draft && !sequence.isDeleted
+      filterFn: (sequence: DbSequence) => !!sequence.af && !!sequence.draft && !sequence.isDeleted
     }),
     canRead: ['guests'],
   },

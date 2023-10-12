@@ -2427,7 +2427,7 @@ const schema: SchemaType<DbPost> = {
           }
           const sort = {sort:{createdAt:-1}}
           const event = await LWEvents.findOne(query, sort);
-          const author = await context.loaders.Users.load(post.userId);
+          const author = await context.loaders.Users.load(post.userId!); // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
           if (event) {
             return !!(event.properties && event.properties.targetState)
           } else {
@@ -2763,7 +2763,7 @@ const schema: SchemaType<DbPost> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: (comment: DbComment) => comment.af && !comment.deleted && !comment.debateResponse,
+      filterFn: (comment: DbComment) => !!comment.af && !comment.deleted && !comment.debateResponse,
     }),
     label: "Alignment Comment Count",
     canRead: ['guests'],

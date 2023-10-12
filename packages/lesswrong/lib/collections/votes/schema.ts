@@ -59,7 +59,7 @@ const schema: SchemaType<DbVote> = {
     type: String,
     graphQLtype: 'String',
     canRead: ['guests'],
-    resolver: (vote: DbVote): string => vote.authorIds[0],
+    resolver: (vote: DbVote): string | null | undefined => vote.authorIds?.[0],
   }),
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
@@ -153,7 +153,7 @@ const schema: SchemaType<DbVote> = {
     canRead: ['guests'],
     resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
       if (vote.collectionName === "Comments") {
-        return await context.loaders.Comments.load(vote.documentId);
+        return await context.loaders.Comments.load(vote.documentId!); // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
       } else {
         return null;
       }
@@ -166,7 +166,7 @@ const schema: SchemaType<DbVote> = {
     canRead: ['guests'],
     resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
       if (vote.collectionName === "Posts") {
-        return await context.loaders.Posts.load(vote.documentId);
+        return await context.loaders.Posts.load(vote.documentId!); // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
       } else {
         return null;
       }

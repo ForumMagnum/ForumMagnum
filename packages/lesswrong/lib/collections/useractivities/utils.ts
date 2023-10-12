@@ -27,7 +27,7 @@ function expandActivityInfluence(input: number[], influenceHours: number): numbe
  * means the user was active 3 hours ago and 5 hours ago
  * @param halfLifeHours The number of hours after which the influence of a visit is halved
  */
-export const calculateActivityFactor = (activityArray: number[] | undefined, halfLifeHours: number): number => {
+export const calculateActivityFactor = (activityArray: number[] | null |undefined, halfLifeHours: number): number => {
   if (!activityArray) return 0; // if user has not visited recently, activity factor is 0
 
   const expandedActivityArray: number[] = expandActivityInfluence(activityArray, 11);

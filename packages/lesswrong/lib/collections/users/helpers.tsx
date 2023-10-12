@@ -88,7 +88,7 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
     return (
       document.sharingSettings?.anyoneWithLinkCan
       && document.sharingSettings.anyoneWithLinkCan !== "none"
-      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+      && _.contains((document as DbPost).linkSharingKeyUsedBy ?? [], currentUser._id)
     )
   }
 }
@@ -228,7 +228,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
     if (post.rejected) {
       return false
     }
-    if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt) {
+    if ((post.commentsLockedToAccountsCreatedAfter ?? new Date()) < user.createdAt!) { // TODO: technically nullable field, even though in practice it's not.  Need to update db schema.
       return false
     }
   
@@ -314,8 +314,9 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
   return {
     id: user._id,
     email: getUserEmail(user),
-    name: user.displayName,
-    slug: user.slug,
+    // TODO: technically nullable fields, even though in practice they're not.  Need to update db schema.
+    name: user.displayName!,
+    slug: user.slug!,
   }
 }
 
@@ -501,7 +502,7 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
   return {...locationData, setLocationData}
 }
 
-export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
+export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number | null => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return user.afPostCount;
   } else {
@@ -509,7 +510,7 @@ export const userGetPostCount = (user: UsersMinimumInfo|DbUser): number => {
   }
 }
 
-export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
+export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number | null => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return user.afCommentCount;
   } else {
@@ -518,7 +519,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
 }
 
 export const isMod = (user: UsersProfile|DbUser): boolean => {
-  return user.isAdmin || user.groups?.includes('sunshineRegiment')
+  return user.isAdmin || (user.groups?.includes('sunshineRegiment') ?? false)
 }
 
 // TODO: I (JP) think this should be configurable in the function parameters
@@ -587,8 +588,8 @@ export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResul
   }
 
   // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
-  const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
-  const userKarmaAtOrAboveThreshold = user.karma >= lowKarmaUserVotingCutoffKarmaSetting.get();
+  const userCreatedAfterCutoff = new Date(user.createdAt!) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
+  const userKarmaAtOrAboveThreshold = (user.karma ?? 0) >= lowKarmaUserVotingCutoffKarmaSetting.get();
 
   if(!userCreatedAfterCutoff || userKarmaAtOrAboveThreshold) {
     return { fail: false }
