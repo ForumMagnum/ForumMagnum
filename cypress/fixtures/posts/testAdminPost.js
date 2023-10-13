@@ -3,6 +3,7 @@ module.exports = {
     title: "Test Seeded Admin Post Title",
     submitToFrontpage: true,
     draft: false,
+    wasEverUndrafted: true,
     meta: false,
     isEvent: false,
     createdAt: new Date(),

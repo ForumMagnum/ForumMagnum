@@ -588,7 +588,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
-  postCategory: "post" | "linkpost" | "question"
+  postCategory: "post" | "linkpost" | "question" | "dialogue"
   title: string
   slug: string
   viewCount: number
@@ -687,6 +687,7 @@ interface DbPost extends DbObject {
   defaultRecommendation: boolean
   hideFromPopularComments: boolean
   draft: boolean
+  wasEverUndrafted: boolean
   meta: boolean
   hideFrontpageComments: boolean
   maxBaseScore: number
@@ -738,6 +739,7 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -941,7 +943,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1286,6 +1288,18 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationPublishedDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
