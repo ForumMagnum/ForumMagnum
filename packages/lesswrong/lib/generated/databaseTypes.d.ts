@@ -588,7 +588,7 @@ interface DbPost extends DbObject {
   postedAt: Date
   modifiedAt: Date
   url: string
-  postCategory: "post" | "linkpost" | "question" | "dialogue"
+  postCategory: "post" | "linkpost" | "question"
   title: string
   slug: string
   viewCount: number
@@ -1152,6 +1152,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean

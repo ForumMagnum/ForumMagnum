@@ -76,6 +76,7 @@ interface UsersDefaultFragment { // fragment on Users
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
@@ -428,42 +429,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly agentFoundationsId: string,
 }
 
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
-  readonly postId: string,
-  readonly postHash: string,
-  readonly lastGeneratedAt: Date,
-  readonly model: string,
-  readonly embeddings: Array<number>,
-}
-
-interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
-  readonly userId: string | null,
-  readonly clientId: string | null,
-  readonly postId: string,
-  readonly strategyName: string,
-  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly recommendationCount: number,
-  readonly lastRecommendedAt: Date,
-  readonly clickedAt: Date | null,
-}
-
-interface PostRelationsDefaultFragment { // fragment on PostRelations
-  readonly type: string,
-  readonly sourcePostId: string,
-  readonly targetPostId: string,
-  readonly order: number,
-}
-
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly tagId: string,
   readonly userId: string,
@@ -518,6 +483,42 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly noindex: boolean,
 }
 
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
+  readonly postId: string,
+  readonly postHash: string,
+  readonly lastGeneratedAt: Date,
+  readonly model: string,
+  readonly embeddings: Array<number>,
+}
+
+interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
+  readonly userId: string | null,
+  readonly clientId: string | null,
+  readonly postId: string,
+  readonly strategyName: string,
+  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly recommendationCount: number,
+  readonly lastRecommendedAt: Date,
+  readonly clickedAt: Date | null,
+}
+
+interface PostRelationsDefaultFragment { // fragment on PostRelations
+  readonly type: string,
+  readonly sourcePostId: string,
+  readonly targetPostId: string,
+  readonly order: number,
+}
+
 interface TagRelsDefaultFragment { // fragment on TagRels
   readonly tagId: string,
   readonly postId: string,
@@ -561,7 +562,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -936,7 +937,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -1273,7 +1274,6 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -2603,6 +2603,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null,
   readonly hidePostsRecommendations: boolean,
@@ -3263,12 +3264,12 @@ interface FragmentTypes {
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
+  UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
-  UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
-  TagsDefaultFragment: TagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -3470,12 +3471,12 @@ interface CollectionNamesByFragmentName {
   LocalgroupsDefaultFragment: "Localgroups"
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
+  UserTagRelsDefaultFragment: "UserTagRels"
+  TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
-  UserTagRelsDefaultFragment: "UserTagRels"
-  TagsDefaultFragment: "Tags"
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"

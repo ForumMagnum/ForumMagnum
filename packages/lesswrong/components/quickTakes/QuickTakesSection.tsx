@@ -1,11 +1,13 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
+import Checkbox from "@material-ui/core/Checkbox";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
-import { useTracking } from "../../lib/analyticsEvents";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
-import { SHOW_QUICK_TAKES_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { userCanComment } from "../../lib/vulcan-users";
-import Checkbox from "@material-ui/core/Checkbox";
+import {
+  SHOW_QUICK_TAKES_SECTION_COOKIE,
+  SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
+} from "../../lib/cookies/cookies";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -30,8 +32,6 @@ const QuickTakesSection = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {captureEvent} = useTracking();
-  const [showCommunity, setShowCommunity] = useState(false);
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "quickTakes",
@@ -41,15 +41,19 @@ const QuickTakesSection = ({classes}: {
     cookieName: SHOW_QUICK_TAKES_SECTION_COOKIE,
   });
 
-  const onToggleCommunity = useCallback((ev) => {
-    const newValue = ev.target.tagName === "INPUT"
-      ? !!ev.target.checked
-      : !showCommunity;
-    setShowCommunity(newValue);
-    captureEvent("toggleQuickTakesSectionCommunity", {
-      showCommunity: newValue,
-    });
-  }, [showCommunity, captureEvent]);
+  const {
+    expanded: showCommunity,
+    toggleExpanded: toggleShowCommunity,
+  } = useExpandedFrontpageSection({
+    section: "quickTakesCommunity",
+    defaultExpanded: (currentUser: UsersCurrent | null) =>
+      currentUser?.hideCommunitySection
+        ? false
+        : !!currentUser?.expandedFrontpageSections?.community,
+    onExpandEvent: "quickTakesSectionShowCommunity",
+    onCollapseEvent: "quickTakesSectionHideCommunity",
+    cookieName: SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
+  });
 
   const {
     ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
@@ -68,8 +72,8 @@ const QuickTakesSection = ({classes}: {
           hideOnTouchScreens
         >
           <div className={classes.communityToggle}>
-            <Checkbox checked={showCommunity} onChange={onToggleCommunity} />
-            <span onClick={onToggleCommunity}>Show community</span>
+            <Checkbox checked={showCommunity} onChange={toggleShowCommunity} />
+            <span onClick={toggleShowCommunity}>Show community</span>
           </div>
         </LWTooltip>
       )}
