@@ -413,7 +413,7 @@ const SpreadsheetPage = ({classes}:{
   const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
   const linkCell = (url: string, link: string, domain: string, type: string) => <div>
-      <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
+      <div className={classes.link}><HoverPreviewLink href={url}>{link}</HoverPreviewLink></div>
       {domain && <div className={classes.domain}>{domain} {type && <span>• {type}</span>}</div>}
     </div>
 
@@ -499,7 +499,7 @@ const SpreadsheetPage = ({classes}:{
               Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
-              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"}>{"our tag page"}</HoverPreviewLink>.
             </p>
           </div>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
@@ -611,7 +611,7 @@ const SpreadsheetPage = ({classes}:{
                 <TableCell classes={{root: classes.cellTitle}}>
                   <div>{title}</div>
                   {foundVia && <div className={classes.source}>
-                    Found via <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
+                    Found via <HoverPreviewLink href={sourceLink}>{foundVia}</HoverPreviewLink>
                   </div>}
                 </TableCell>
               </TableRow>

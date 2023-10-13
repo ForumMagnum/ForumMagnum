@@ -13,6 +13,8 @@ import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
 import sortBy from 'lodash/sortBy';
 import { isLW } from '../instanceSettings';
+import { ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import type { VotingProps } from '../../components/votes/votingProps';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
@@ -147,6 +149,51 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   isNonblankExtendedVote: (vote: DbVote) => {
     return (vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral")
       || (vote?.extendedVoteType?.reacts && vote.extendedVoteType.reacts.length>0);
+  },
+  
+  getCommentHighlights: ({comment, voteProps}: {
+    comment: CommentsList
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    if (!comment.extendedScore) {
+      return {};
+    }
+    const extendedScore = comment.extendedScore as NamesAttachedReactionsScore;
+    const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
+    
+    for (let reactionType of Object.keys(extendedScore.reacts)) {
+      const userReactions = extendedScore.reacts[reactionType]
+      if (!userReactions) {
+        continue;
+      }
+      for (let userReaction of userReactions) {
+        if (userReaction.quotes) {
+          for (let quote of userReaction.quotes) {
+            if (!reactionsByQuote[quote]) {
+              reactionsByQuote[quote] = {};
+            }
+            if (!reactionsByQuote[quote][reactionType]) {
+              reactionsByQuote[quote][reactionType] = [];
+            }
+            reactionsByQuote[quote][reactionType]!.push(userReaction);
+          }
+        }
+      }
+    }
+    
+    const result: Record<string, ContentReplacedSubstringComponent> = {};
+    const { InlineReactHoverableHighlight } = Components;
+    for (let quote of Object.keys(reactionsByQuote)) {
+      result[quote] = ({children}: {
+        children: React.ReactNode
+      }) => <InlineReactHoverableHighlight
+        reactions={reactionsByQuote[quote]}
+        voteProps={voteProps}
+      >
+        {children}
+      </InlineReactHoverableHighlight>
+    }
+    return result;
   },
 });
 
