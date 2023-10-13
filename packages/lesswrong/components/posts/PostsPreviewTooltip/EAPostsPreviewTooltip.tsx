@@ -38,6 +38,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 450,
     marginTop: -4,
   },
+  excerptContainer: {
+    maxHeight: 200,
+    overflow: "hidden",
+    maskImage: `linear-gradient(to bottom, ${theme.palette.grey[0]} 170px, transparent 100%)`,
+    "-webkit-mask-image": `linear-gradient(to bottom, ${theme.palette.grey[0]} 170px, transparent 100%)`,
+  },
   image: {
     width: "auto",
     minWidth: "100%",
@@ -104,14 +110,16 @@ const EAPostsPreviewTooltip = ({
               />
             )
             : (
-              <PostExcerpt
-                post={post}
-                hash={hash}
-                lines={3.5}
-                hideMoreLink
-                smallText
-                hideMultimedia
-              />
+              <div className={classes.excerptContainer}>
+                <PostExcerpt
+                  post={post}
+                  hash={hash}
+                  lines={3.5}
+                  hideMoreLink
+                  smallText
+                  hideMultimedia
+                />
+              </div>
             )
           }
         </div>
