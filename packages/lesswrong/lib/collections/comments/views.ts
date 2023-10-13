@@ -25,6 +25,7 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    showCommunity?: boolean,
   }
   
   /**
@@ -509,8 +510,10 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
       createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      ...(!terms.showCommunity && {
+        relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+      }),
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
