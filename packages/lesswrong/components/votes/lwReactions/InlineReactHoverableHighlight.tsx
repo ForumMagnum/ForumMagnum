@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',
       textDecorationColor: theme.palette.border.dashed500,
-  }
+    }
   }
 })
 
