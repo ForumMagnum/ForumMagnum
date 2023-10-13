@@ -22,6 +22,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',
       textDecorationColor: theme.palette.border.dashed500,
+    },
+    ".PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight": {
+      textDecorationLine: 'underline',
+      textDecorationStyle: 'dashed',
+      textDecorationColor: theme.palette.border.dashed500,
     }
   }
 })

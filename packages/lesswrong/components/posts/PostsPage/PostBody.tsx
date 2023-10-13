@@ -7,8 +7,9 @@ import type { SideCommentMode } from '../../dropdowns/posts/SetSideCommentVisibi
 import { useVote } from '../../votes/withVote';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../common/ContentItemBody';
+import { inlineReactsHoverEnabled } from '../../../lib/betas';
 
-const enableInlineReactsOnPosts = true; //TODO
+const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
 const PostBody = ({post, html, sideCommentMode}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
@@ -55,7 +56,7 @@ const PostBody = ({post, html, sideCommentMode}: {
       idInsertions={sideCommentsMap}
     />
   } else {
-    let content = <ContentItemBody
+    content = <ContentItemBody
       dangerouslySetInnerHTML={{__html: html}}
       ref={contentRef}
       description={`post ${post._id}`}
