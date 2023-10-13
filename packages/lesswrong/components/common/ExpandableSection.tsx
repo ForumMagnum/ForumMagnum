@@ -7,8 +7,22 @@ import { Link } from "../../lib/reactRouterWrapper";
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    alignItems: "center",
     columnGap: 10
+  },
+  afterContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    fontWeight: 600,
+    "& a:hover": {
+      color: theme.palette.grey[1000],
+      opacity: 1,
+    },
+    "@media (max-width: 350px)": {
+      display: "none",
+    },
   },
   expandIcon: {
     position: "relative",
@@ -19,18 +33,6 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
     }
   },
-  afterTitleLink: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    fontWeight: 600,
-    "&:hover": {
-      color: theme.palette.grey[1000],
-      opacity: 1,
-    },
-    "@media (max-width: 350px)": {
-      display: "none",
-    },
-  },
 });
 
 type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
@@ -39,6 +41,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   toggleExpanded: () => void,
   afterTitleText?: string,
   afterTitleTo?: string,
+  AfterTitleComponent?: ComponentType,
   Content: ComponentType,
 }
 
@@ -49,6 +52,7 @@ const ExpandableSection = ({
   title,
   afterTitleText = "View more",
   afterTitleTo,
+  AfterTitleComponent,
   Content,
   classes,
   ...sectionTitleProps
@@ -75,10 +79,17 @@ const ExpandableSection = ({
             </div>
           }
         >
-          {expanded && afterTitleTo &&
-            <Link to={afterTitleTo} className={classes.afterTitleLink}>
-              {afterTitleText}
-            </Link>
+          {expanded && (AfterTitleComponent || afterTitleTo) &&
+            <div className={classes.afterContainer}>
+              {AfterTitleComponent &&
+                <AfterTitleComponent />
+              }
+              {afterTitleTo &&
+                <Link to={afterTitleTo}>
+                  {afterTitleText}
+                </Link>
+              }
+            </div>
           }
         </SectionTitle>
         {expanded && <Content />}
