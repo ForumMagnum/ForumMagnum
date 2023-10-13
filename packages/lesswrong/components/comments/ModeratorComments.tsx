@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { sectionTitleStyle } from '../common/SectionTitle';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
@@ -31,10 +30,6 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: false,
   });
-
-  const currentUser = useCurrentUser()
-
-  if(!currentUser) return <Components.Error404 />
 
   if (!loadingInitial && results && !results.length) {
     return (<Typography variant="body2">{noResultsMessage}</Typography>)

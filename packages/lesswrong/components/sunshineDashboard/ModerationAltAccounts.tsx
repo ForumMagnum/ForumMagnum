@@ -66,9 +66,11 @@ const ModerationAltAccounts = ({classes}: {
   const [startingIdentifier,setStartingIdentifier] = useState(initialAccountIdentifier);
 
   if(!currentUser || !currentUser.isAdmin) {
-    return <Components.Error404 />
+    return <SingleColumnSection>
+      You must be logged in as an admin to use this page.
+    </SingleColumnSection>
   }
-
+  
   return <SingleColumnSection>
     <SectionTitle title="Alt-Accounts Finder" />
 

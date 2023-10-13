@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isEAForum } from '../../lib/instanceSettings';
-import { useCurrentUser } from './withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,13 +12,7 @@ const styles = (theme: ThemeType) => ({
 const Error404 = ({classes}: {classes: ClassesType}) => {
   const { SingleColumnSection } = Components;
   const serverRequestStatus = useServerRequestStatus()
-  const currentUser = useCurrentUser()
   if (serverRequestStatus) serverRequestStatus.status = 404
-
-  if (!currentUser) {
-    window.location.href = '/';
-    return null;
-  }
 
   return <SingleColumnSection className={classes.root}>
     <h2>404 Not Found</h2>

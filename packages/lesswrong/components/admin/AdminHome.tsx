@@ -36,7 +36,9 @@ const AdminHome = ({ classes }: {
   const currentUser = useCurrentUser();
   
   if (!userIsAdmin(currentUser)) {
-    return <Components.Error404 />
+    return <SingleColumnSection>
+      <p>Sorry, you do not have permission to do this at this time.</p>
+    </SingleColumnSection>
   }
 
   return <SingleColumnSection>

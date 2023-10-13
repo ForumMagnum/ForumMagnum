@@ -28,7 +28,7 @@ const DraftsPage = ({classes}: {
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   
-  if (!currentUser) return <Components.Error404 />
+  if (!currentUser) return <span>You must sign in to view your drafts.</span>
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>

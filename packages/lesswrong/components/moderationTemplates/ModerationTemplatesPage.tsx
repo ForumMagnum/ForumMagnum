@@ -47,10 +47,7 @@ export const ModerationTemplatesPage = ({classes}: {
     }
   });
   
-  if (!userCanDo(currentUser, 'moderationTemplates.edit.all')) {
-    window.location.href = '/';
-    return null;
-  }
+  if (!userCanDo(currentUser, 'moderationTemplates.edit.all')) return null
   
   const filteredTemplates = moderationTemplates.filter(template => {
     return template.collectionName === filter || !filter

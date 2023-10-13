@@ -203,8 +203,6 @@ const ModerationLog = ({classes}: {
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) ||
     shouldShowEndUserModerationToNonMods
   const { SingleColumnSection, RejectedPostsList, RejectedCommentsList, SectionTitle, ToCColumn, TableOfContents } = Components;
-  
-  if(!currentUser) return <Components.Error404 />
 
   const sectionData = {
     html: "",

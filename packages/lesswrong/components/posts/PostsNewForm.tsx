@@ -272,7 +272,9 @@ const PostsNewForm = ({classes}: {
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
-  if (!currentUser) return <Components.Error404 />
+  if (!currentUser) {
+    return (<WrappedLoginForm />);
+  }
 
   if (!userCanPost(currentUser)) {
     return (<SingleColumnSection>

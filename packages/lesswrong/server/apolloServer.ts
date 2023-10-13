@@ -111,7 +111,7 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-  
+
   // create server
   // given options contains the schema
   const apolloServer = new ApolloServer({

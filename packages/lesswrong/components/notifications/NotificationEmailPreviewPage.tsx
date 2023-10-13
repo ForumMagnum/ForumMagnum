@@ -24,7 +24,8 @@ const NotificationEmailPreviewPage = () => {
     ssr: true
   });
   
-  if (!userIsAdmin(currentUser)) return <Components.Error404 />
+  if (!userIsAdmin(currentUser))
+    return <div>You must be logged in as an admin to use this page.</div>;
 
   const emails = data?.EmailPreview;
   

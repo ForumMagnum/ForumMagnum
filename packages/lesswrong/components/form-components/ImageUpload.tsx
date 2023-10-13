@@ -208,8 +208,6 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
     return ''
   })
 
-  if(!currentUser) return <Components.Error404 />
-
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 

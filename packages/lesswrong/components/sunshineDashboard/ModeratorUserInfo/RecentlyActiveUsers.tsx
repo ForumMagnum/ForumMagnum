@@ -210,7 +210,6 @@ const RecentlyActiveUsers = ({ classes }: {
   sortedUsers = ignoreLowKarma ? sortedUsers.filter(user => user.karma >= 5) : sortedUsers;
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
-    window.location.href = '/';
     return null;
   }
 
