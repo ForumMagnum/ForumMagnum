@@ -207,14 +207,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return this.any(`
       SELECT p.*, c."mostRecentCommentAt"
       FROM "Posts" p
-      JOIN (
+      LEFT JOIN (
           SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
           FROM "Comments"
-          WHERE "debateResponse" IS TRUE
           GROUP BY "postId"
           ) c ON p."_id" = c."postId"
       WHERE (p.debate IS TRUE OR p."collabEditorDialogue" IS TRUE) AND p.draft IS NOT TRUE
-      ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt") DESC
+      ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt", p."mostRecentPublishedDialogueResponseDate") DESC
       LIMIT $1
     `, [limit]);
   }
