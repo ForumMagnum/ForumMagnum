@@ -155,14 +155,14 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
-    return getDocumentHighlights(voteProps.document.extendedScore, voteProps);
+    return getDocumentHighlights(voteProps.document?.extendedScore, voteProps);
   },
   
   getPostHighlights: ({post, voteProps}: {
     post: PostsBase
     voteProps: VotingProps<VoteableTypeClient>
   }) => {
-    return getDocumentHighlights(voteProps.document.extendedScore, voteProps);
+    return getDocumentHighlights(voteProps.document?.extendedScore, voteProps);
   }
 });
 

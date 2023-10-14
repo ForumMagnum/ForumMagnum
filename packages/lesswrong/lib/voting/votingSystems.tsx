@@ -64,11 +64,11 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   isNonblankExtendedVote: (vote: DbVote) => boolean,
   getCommentHighlights?: (props: {
     comment: CommentsList
-    voteProps?: VotingProps<VoteableTypeClient>
+    voteProps: VotingProps<VoteableTypeClient>
   }) => Record<string, ContentReplacedSubstringComponent>
   getPostHighlights?: (props: {
     post: PostsBase
-    voteProps?: VotingProps<VoteableTypeClient>
+    voteProps: VotingProps<VoteableTypeClient>
   }) => Record<string, ContentReplacedSubstringComponent>
 }
 
