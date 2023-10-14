@@ -266,7 +266,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
           GiveWell
         </a>'s first Senior Malaria Researcher will be responsible for strengthening the quality of the research
         and cost-effectiveness modeling guiding GiveWell's investments in <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")} innerHTML="malaria"/>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")}>
+            {"malaria"}
+          </Components.HoverPreviewLink>
         </span> interventions.
       </div>
       <div className={classes.description}>
@@ -411,7 +413,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, c
           <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
             {adData.role}
           </a> at{adData.insertThe ? ' the' : ''} <span className={classes.link}>
-            <HoverPreviewLink href={adData.orgLink} innerHTML={adData.org} />
+            <HoverPreviewLink href={adData.orgLink}>
+              {adData.org}
+            </HoverPreviewLink>
           </span>
         </h2>
         <div className={classes.metadataRow}>
