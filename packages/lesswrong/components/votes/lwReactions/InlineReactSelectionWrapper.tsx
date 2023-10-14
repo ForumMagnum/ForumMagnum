@@ -20,11 +20,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const InlineReactSelectionWrapper = ({classes, children, commentBodyRef, voteProps}: {
-  classes: ClassesType,
-  children: React.ReactNode,
+export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling, children, classes}: {
   commentBodyRef?: React.RefObject<ContentItemBody>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
+  styling: "comment"|"post",
+  children: React.ReactNode,
+  classes: ClassesType,
 }) => {
   const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
@@ -79,6 +80,9 @@ export const InlineReactSelectionWrapper = ({classes, children, commentBodyRef, 
       document.removeEventListener('selectionchange', detectSelection);
     };
   }, [detectSelection, commentBodyRef]);
+  
+  const buttonOffsetLeft = (styling==="comment") ? 12 : 30;
+  const buttonOffsetTop = (styling==="comment") ? 0 : 6;
 
   return (
     <div className={classes.root} ref={commentTextRef}>
@@ -87,8 +91,8 @@ export const InlineReactSelectionWrapper = ({classes, children, commentBodyRef, 
         placement="right"
         allowOverflow={true}
       >
-        <span ref={popupRef} className={classes.button} 
-          style={{position:"relative", top: yOffset, marginLeft: 12}}
+        <span ref={popupRef} className={classes.button}
+          style={{position:"relative", top: yOffset+buttonOffsetTop, marginLeft: buttonOffsetLeft}}
         >
           <AddInlineReactionButton quote={quote} voteProps={voteProps} disabled={disabledButton}/>
         </span> 
