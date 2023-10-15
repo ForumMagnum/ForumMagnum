@@ -1,3 +1,7 @@
+// Waking Up fork note: despite the name, this file is for the WU reacts. Because we'll keep
+// up with the upstream code, renaming or duplicating it isn't worthwhile. The only change is
+// the use of WUEmojiPalette rather than EAEmojiPalette.
+
 import React, { FC, MouseEvent, useState, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type {
@@ -106,6 +110,11 @@ const getCurrentReactions = <T extends VoteableTypeClient>(
 ) => {
   const extendedScore = voteProps.document?.extendedScore;
   const result = [];
+  // Note for Waking Up fork: the WU emojis are a subset of the EA emojis,
+  // so this code works, even though it's checking the emoji options of
+  // the EA palettes, not the WU palettes. This is hacky but it works as
+  // is, so let's not drift further from the upstream code that we intend
+  // to keep up with.
   for (const emojiOption of eaAnonymousEmojiPalette) {
     result.push({
       emojiOption,
@@ -246,7 +255,7 @@ const EAReactsSection: FC<{
 
   const reactions = getCurrentReactions(voteProps);
 
-  const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
+  const {WUEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, anonymous, score}) => {
@@ -328,7 +337,7 @@ const EAReactsSection: FC<{
         }}
         className={classes.menu}
       >
-        {everOpened && <EAEmojiPalette onSelectEmoji={onSelectEmoji} />}
+        {everOpened && <WUEmojiPalette onSelectEmoji={onSelectEmoji} />}
       </Menu>
     </>
   );

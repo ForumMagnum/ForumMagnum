@@ -1,7 +1,4 @@
 import type { ComponentType } from "react";
-import { TickReactionIcon } from "../../components/icons/reactions/TickReactionIcon";
-import { CrossReactionIcon } from "../../components/icons/reactions/CrossReactionIcon";
-import { HeartReactionIcon } from "../../components/icons/reactions/HeartReactionIcon";
 import { HandshakeReactionIcon } from "../../components/icons/reactions/HandshakeReactionIcon";
 import { LightbulbReactionIcon } from "../../components/icons/reactions/LightbulbReactionIcon";
 import { DeltaReactionIcon } from "../../components/icons/reactions/DeltaReactionIcon";
@@ -12,14 +9,7 @@ export type EmojiOption = {
   label: string,
 }
 
-export const eaAnonymousEmojiPalette: EmojiOption[] = [];
-
-export const eaEmojiPalette: EmojiOption[] = [
-  {
-    Component: HeartReactionIcon,
-    name: "love",
-    label: "Heart",
-  },
+export const wuEmojiPalette: EmojiOption[] = [
   {
     Component: HandshakeReactionIcon,
     name: "helpful",
@@ -37,9 +27,4 @@ export const eaEmojiPalette: EmojiOption[] = [
   },
 ];
 
-export const eaEmojiNames = [
-  ...eaAnonymousEmojiPalette,
-  ...eaEmojiPalette,
-].map(({name}) => name);
-
-export const eaPublicEmojiNames = eaEmojiPalette.map(({name}) => name);
+export const wuEmojiNames = wuEmojiPalette.map(({name}) => name);
