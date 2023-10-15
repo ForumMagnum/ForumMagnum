@@ -75,7 +75,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   selectTitle: {
-    margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: "14px",
     lineHeight: "21px",
@@ -83,6 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     letterSpacing: "0.03em",
     color: `${theme.palette.grey[600]} !important`,
     textTransform: "uppercase",
+  },
+  selectTitleContainer: {
+    marginBottom: 8,
   }
 })
 
@@ -162,11 +164,10 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
         <Typography
           variant="body2"
           component='span'
-          className={classes.inline}
+          className={classNames(classes.inline, classes.selectTitleContainer)}
         >
           <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick} displayStyle={classes.selectTitle} appendChevron={true} />
         </Typography>
-        {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
