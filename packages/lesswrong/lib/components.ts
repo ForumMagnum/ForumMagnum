@@ -170,7 +170,10 @@ importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'
 //importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
 
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
+importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
+importComponent("NotificationsPreview", () => require('../components/notifications/NotificationsPreview'));
+importComponent("NotificationsPageItem", () => require('../components/notifications/NotificationsPageItem'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
