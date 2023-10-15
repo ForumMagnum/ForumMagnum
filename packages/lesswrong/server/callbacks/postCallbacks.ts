@@ -158,7 +158,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
  const {modifiedDocument: votedPost} = await performVoteServer({
    document: post,
-   voteType: 'bigUpvote',
+   voteType: 'smallUpvote',
    collection: Posts,
    user: postAuthor,
    skipRateLimits: true,

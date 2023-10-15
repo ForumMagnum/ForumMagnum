@@ -38,53 +38,24 @@ const VoteButton = ({
       vote(strength);
   }
 
-  const handleMouseDown = () => { // This handler is only used on desktop
-    if(!isMobile()) {
-      setBigVotingTransition(true);
-      setVotingTransition(setTimeout(() => {
-        setBigVoteCompleted(true);
-      }, strongVoteDelay))
-    }
-  }
-
   const clearState = () => {
     clearTimeout(votingTransition);
     setBigVotingTransition(false);
     setBigVoteCompleted(false);
   }
 
-  const handleMouseUp = () => { // This handler is only used on desktop
-    if(!isMobile()) {
-      if (bigVoteCompleted) {
-        wrappedVote("big")
-      } else {
-        wrappedVote("small")
-      }
-      clearState()
-    }
-  }
-
   const voted = currentStrength !== "neutral";
   const bigVoted = currentStrength === "big";
   
   const handleClick = () => { // This handler is only used for mobile
-    if(isMobile()) {
-      // This causes the following behavior (repeating after 3rd click):
-      // 1st Click: small upvote; 2nd Click: big upvote; 3rd Click: cancel big upvote (i.e. going back to no vote)
-      if (voted) {
-        wrappedVote("big")
-      } else {
-        wrappedVote("small")
-      }
-      clearState()
-    }
+    wrappedVote("small")
   }
 
   const voteArrowProps = {
     solidArrow, strongVoteDelay, orientation, enabled, color, voted,
     bigVotingTransition, bigVoted,
     bigVoteCompleted, theme,
-    eventHandlers: {handleMouseDown, handleMouseUp, handleClick, clearState},
+    eventHandlers: {handleClick, clearState},
     alwaysColored: false,
   };
   return <VoteIconComponent {...voteArrowProps} />
