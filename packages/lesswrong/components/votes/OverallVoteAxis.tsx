@@ -56,15 +56,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     transform: isFriendlyUI ? "translateY(-10px)" : undefined,
   },
-  verticalArrows: {
-    "& .LWTooltip-root": {
-      transform: "translateY(1px)",
-    },
-    "& $voteScore": {
-      transform: "translateY(-2px)",
-      display: "block",
-    },
-  },
 })
 
 const OverallVoteAxis = ({
@@ -149,10 +140,7 @@ const OverallVoteAxis = ({
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
   // TODO: In the fullness of time
-  const verticalArrows = false;
-  if (verticalArrows) {
-    buttonProps.solidArrow = true;
-  }
+  const verticalArrows = true;
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
@@ -190,19 +178,14 @@ const OverallVoteAxis = ({
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,
         })}>
-          <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement={tooltipPlacement}
-          >
-            <OverallVoteButton
-              orientation={verticalArrows ? "down" : "left"}
-              color="error"
-              upOrDown="Downvote"
-              enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
-            />
-          </TooltipIfEnabled>
+          <OverallVoteButton
+            orientation={verticalArrows ? "up" : "right"}
+            color="secondary"
+            upOrDown="Upvote"
+            enabled={canVote}
+            {...voteProps}
+            {...buttonProps}
+          />
           <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
             {hideKarma
               ? <span>{' '}</span>
@@ -211,19 +194,14 @@ const OverallVoteAxis = ({
                 </span>
             }
           </TooltipIfEnabled>
-          <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement={tooltipPlacement}
-          >
-            <OverallVoteButton
-              orientation={verticalArrows ? "up" : "right"}
-              color="secondary"
-              upOrDown="Upvote"
-              enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
-            />
-          </TooltipIfEnabled>
+          <OverallVoteButton
+            orientation={verticalArrows ? "down" : "left"}
+            color="error"
+            upOrDown="Downvote"
+            enabled={canVote}
+            {...voteProps}
+            {...buttonProps}
+          />
         </span>
       }
     </span>

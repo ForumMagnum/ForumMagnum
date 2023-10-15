@@ -9,9 +9,6 @@ const styles = (_theme: ThemeType): JssStyles => ({
     marginRight: 1,
     "&.OverallVoteAxis-overallSection": {
       height: 22,
-      "& > *": {
-        transform: "translateY(-1px)",
-      },
       "& > *:nth-child(2)": {
         transform: "translateY(-2px)",
       },
