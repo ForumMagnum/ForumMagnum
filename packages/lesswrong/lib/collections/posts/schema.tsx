@@ -48,6 +48,7 @@ function getDefaultVotingSystem() {
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
     AlignmentForum: "namesAttachedReactions",
+    WakingUp: "wuEmojis",
     default: "default",
   })
 }

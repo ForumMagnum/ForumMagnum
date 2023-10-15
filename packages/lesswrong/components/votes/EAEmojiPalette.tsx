@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PaletteSection: FC<{
+export const PaletteSection: FC<{
   title: string,
   options: EmojiOption[],
   onSelectEmoji: (emojiOption: EmojiOption) => void,
@@ -56,11 +56,11 @@ const PaletteSection: FC<{
   const {SectionTitle} = Components;
   return (
     <>
-      <SectionTitle
+      {title && <SectionTitle
         title={title}
         className={classes.title}
         noTopMargin
-      />
+      />}
       <div>
         {options.map((emojiOption) =>
           <div

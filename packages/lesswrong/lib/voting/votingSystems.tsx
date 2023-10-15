@@ -10,6 +10,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
+import { wuEmojiNames } from './wuEmojiPalette';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -296,6 +297,69 @@ registerVotingSystem({
     return {
       ...filterZeroes({...emojiReactCounts}),
       approvalVoteCount: oldApprovalVoteCount + (newVoteIncludesApproval ? 1 : 0),
+    };
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+  }): Record<string, number> => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map((reaction) => {
+      const oldVote = !!cancelledExtendedVote?.[reaction];
+      const oldScore = oldExtendedScore?.[reaction] ?? 0;
+      return [reaction, oldScore - (oldVote ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts});
+  },
+  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+    const emojiReactCounts = fromPairs(eaEmojiNames.map(reaction => {
+      return [reaction, sumBy(votes, (v) => v?.extendedVoteType?.[reaction] ? 1 : 0)];
+    }));
+    return filterZeroes({...emojiReactCounts });
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    if (!vote.extendedVoteType) {
+      return false;
+    }
+    for (let key of Object.keys(vote.extendedVoteType)) {
+      if (vote.extendedVoteType[key] && vote.extendedVoteType[key] !== "neutral") {
+        return true;
+      }
+    }
+    return false;
+  },
+});
+
+// Note: despite this being the Waking Up voting system, it'll still use EA components
+// like EAEmojisVoteOnComment and EAEmojisVoteOnPost. It'll be easier to merge with
+// upstream changes if we don't rename or duplicate them.
+// Apart from the name, the two differences between this registerVotingSystem call
+// and the eaEmojis one are:
+// * The use of wuEmojiNames rather than eaEmojiNames
+// * addVoteClient doesn't include the approvalVoteCount line
+registerVotingSystem({
+  name: "wuEmojis",
+  description: "WU Forum emoji reactions (no approval voting)",
+  getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
+  getPostBottomVotingComponent: () => Components.EAEmojisVoteOnPost,
+  addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: Record<string, boolean>,
+    currentUser: UsersCurrent,
+    document: VoteableType,
+    voteType: string | null,
+  }): Record<string, number> => {
+    const oldApprovalVoteCount =
+      oldExtendedScore && "approvalVoteCount" in oldExtendedScore
+        ? oldExtendedScore.approvalVoteCount
+        : document.voteCount;
+    const newVoteIncludesApproval = (voteType && voteType !== "neutral");
+    const emojiReactCounts = fromPairs(wuEmojiNames.map((reaction) => {
+      const power = getEmojiReactionPower(extendedVote?.[reaction]);
+      return [reaction, (oldExtendedScore?.[reaction] || 0) + power];
+    }));
+    return {
+      ...filterZeroes({...emojiReactCounts}),
     };
   },
   cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
