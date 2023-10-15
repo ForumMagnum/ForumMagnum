@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
@@ -87,10 +86,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   }
 })
-
-const advancedSortingText = isFriendlyUI
-  ? "Advanced sorting & filtering"
-  : "Advanced Sorting/Filtering";
 
 const defaultLimit = isFriendlyUI ? 11 : 13;
 
@@ -178,7 +173,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
               >
-                <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
