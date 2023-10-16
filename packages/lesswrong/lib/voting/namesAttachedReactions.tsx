@@ -167,7 +167,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
 });
 
 function getDocumentHighlights(extendedScore: NamesAttachedReactionsScore, voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponent> {
-  if (!extendedScore) {
+  if (!extendedScore?.reacts) {
     return {};
   }
   const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
