@@ -2,6 +2,7 @@ import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } fr
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
+import { schemaDefaultValue } from './collectionUtils';
 
 export type PermissionResult = {
   fail: false,
@@ -133,12 +134,9 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     baseScore: {
       type: Number,
       optional: true,
-      defaultValue: 0,
+      nullable: false,
       canRead: customBaseScoreReadAccess || ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
-        // default to 0 if empty
-        return document.baseScore || 0;
-      }
+      ...schemaDefaultValue(0),
     },
     extendedScore: {
       type: GraphQLJSON,
@@ -149,19 +147,16 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     score: {
       type: Number,
       optional: true,
-      defaultValue: 0,
+      nullable: false,
       canRead: ['guests'],
-      onInsert: (document: DbInsertion<T>): number => {
-        // default to 0 if empty
-        return document.score || 0;
-      }
+      ...schemaDefaultValue(0),
     },
     // Whether the document is inactive. Inactive documents see their score
     // recalculated less often
     inactive: {
       type: Boolean,
       optional: true,
-      onInsert: () => false
+      ...schemaDefaultValue(false),
     },
     afBaseScore: {
       type: Number,

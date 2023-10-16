@@ -79,6 +79,7 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
     onCreate: fillIfMissing,
     onUpdate: throwIfSetToNull,
     canAutofillDefault: true,
+    nullable: false
   }
 }
 

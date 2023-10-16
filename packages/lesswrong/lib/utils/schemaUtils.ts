@@ -361,6 +361,7 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   return {
     type: Number,
     optional: true,
+    nullable: false,
     defaultValue: 0,
     
     denormalized: true,
