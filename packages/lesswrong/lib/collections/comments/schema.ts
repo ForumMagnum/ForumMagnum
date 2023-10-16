@@ -65,6 +65,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     onInsert: (document, currentUser) => new Date(),
+    nullable: false
   },
   // The comment author's name
   author: {
@@ -141,6 +142,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
@@ -454,7 +456,7 @@ const schema: SchemaType<DbComment> = {
     type: Boolean,
     optional: true,
     hidden: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],

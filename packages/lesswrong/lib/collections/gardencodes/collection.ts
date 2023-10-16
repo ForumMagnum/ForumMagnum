@@ -35,6 +35,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: (gardenCode) => {
       return generateCode(4)
     },
@@ -46,6 +47,7 @@ const schema: SchemaType<DbGardenCode> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
     defaultValue: "Guest Day Pass",
+    nullable: false,
     order: 10
   },
   userId: {
@@ -58,7 +60,8 @@ const schema: SchemaType<DbGardenCode> = {
     }),
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: ['guests'],
-    optional: true
+    optional: true,
+    nullable: false,
   },
   // gatherTownUsername: {
   //   optional: true,
@@ -72,6 +75,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: async (gardenCode) => {
       return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
@@ -95,6 +99,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "End Time",
     optional: true,
+    nullable: false,
     order: 25,
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()

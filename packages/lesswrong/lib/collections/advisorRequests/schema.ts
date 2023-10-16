@@ -31,6 +31,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      // TODO not-null: is this collection being used at all?
       nullable: true,
     }),
     hidden: true,
@@ -41,6 +42,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
   interestedInMetaculus: {
     type: Boolean,
     optional: true,
+    // TODO not-null: is this collection being used at all?
     hidden: true,
     canCreate: ['members', 'admins'],
     canRead: [userOwns, 'admins'],
@@ -50,6 +52,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
   jobAds: {
     type: Object,
     optional: true,
+    // TODO not-null: is this collection being used at all?
     hidden: true,
     blackbox: true,
     canCreate: ['members', 'admins'],

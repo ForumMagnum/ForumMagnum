@@ -8,6 +8,7 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
+import { schemaDefaultValue } from '../collectionUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -94,6 +95,10 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
+ * 
+ * @param {Object=} params
+ * @param {boolean} params.nullable
+ * whether the resolver field is nullable, not the original database field
  */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
@@ -133,7 +138,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   
   return {
     type: Array,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,
