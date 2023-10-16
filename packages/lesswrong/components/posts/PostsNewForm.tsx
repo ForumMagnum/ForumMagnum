@@ -35,6 +35,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .ck.ck-content" : {
       marginLeft: 0,
+      paddingLeft: "1.5rem",
+      paddingTop: "1rem",
+      borderWidth: "0",
+    },
+    "& .ck.ck-toolbar" : {
+      borderRightWidth: "0",
+      borderLeftWidth: "0",
+      paddingLeft: "1rem",
     },
 
     "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
@@ -106,7 +114,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
     },
     "& .form-input.input-title": {
-      paddingLeft: "1.5em",
+      paddingLeft: "1.5rem",
     },
   },
   formSubmit: {
