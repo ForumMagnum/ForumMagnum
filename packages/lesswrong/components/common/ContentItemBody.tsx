@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
-import domAnchorTextQuote from 'dom-anchor-text-quote';
+import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 
 interface ExternalProps {
@@ -359,7 +359,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         // We're using the dom-anchor-text-quote library for this search,
         // which is a thin wrapper around diff-match-patch, which is a diffing
         // library with a full suite of fuzzy matching heuristics.
-        const range: Range|null = domAnchorTextQuote.toRange(
+        const range: Range|null = toRange(
           element,
           { exact: str },
           { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
