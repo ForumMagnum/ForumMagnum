@@ -11,7 +11,7 @@ import {
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
-    height: 22,
+    height: 21,
     userSelect: "none",
     cursor: "pointer",
     "& .MuiIconButton-root": {
