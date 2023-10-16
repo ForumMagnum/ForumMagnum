@@ -81,3 +81,8 @@ declare module "passport-auth0/lib/Profile" {
   const Profile: AnyBecauseTodo
   export default Profile;
 }
+
+declare module "dom-anchor-text-quote" {
+  const DomAnchorTextQuote: AnyBecauseTodo
+  export default DomAnchorTextQuote;
+}

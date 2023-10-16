@@ -27,13 +27,13 @@ function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6, noPrefetch}: {
+const TagHoverPreview = ({href, targetLocation, classes, postCount=6, noPrefetch, children}: {
   href: string,
   targetLocation: RouterLocation,
-  innerHTML: string,
   classes: ClassesType,
   postCount?: number,
   noPrefetch?: boolean,
+  children: React.ReactNode,
 }) => {
   const { params: {slug}, hash } = targetLocation;
   const { hover, anchorEl, eventHandlers, everHovered } = useHover();
@@ -56,8 +56,9 @@ const TagHoverPreview = ({href, targetLocation, innerHTML, classes, postCount=6,
     <Link
       className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
       to={linkTarget}
-      dangerouslySetInnerHTML={{__html: tagName ?? innerHTML}}
-    />
+    >
+      {tagName ?? children}
+    </Link>
     {!!(showPostCount && tag?.postCount) && <span className={classes.count}>({tag?.postCount})</span>}
   </span>;
 }

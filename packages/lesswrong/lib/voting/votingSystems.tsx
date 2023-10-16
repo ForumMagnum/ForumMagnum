@@ -10,6 +10,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
+import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -18,7 +19,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }
@@ -61,6 +62,14 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
   isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
+  getCommentHighlights?: (props: {
+    comment: CommentsList
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
+  getPostHighlights?: (props: {
+    post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};

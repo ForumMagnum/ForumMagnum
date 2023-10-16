@@ -207,7 +207,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return this.any(`
       SELECT p.*, c."mostRecentCommentAt"
       FROM "Posts" p
-      JOIN (
+      LEFT JOIN (
           SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
           FROM "Comments"
           WHERE "debateResponse" IS TRUE
