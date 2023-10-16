@@ -23,8 +23,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
     maxWidth: 715,
     margin: "0 auto",
-    backgroundColor: "white", //todo what is a good color to refer to from the theme?
-    borderRadius: "6px",
 
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -115,6 +113,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .form-input.input-title": {
       paddingLeft: "1.5rem",
+      backgroundColor: theme.palette.text.alwaysWhite,
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+    },
+    "& .localstorage-check": {
+      marginBottom: 0,
     },
   },
   formSubmit: {

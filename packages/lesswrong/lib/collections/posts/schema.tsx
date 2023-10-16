@@ -201,8 +201,8 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     max: 500,
     canRead: ['guests'],
-    canCreate: [],
-    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
     control: isEAForum ? 'EditLinkpostUrl' : 'EditUrl',
     order: 12,
     form: {
@@ -213,7 +213,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm,
+    hidden: true,
   },
   // Category (post, linkpost, or question)
   postCategory: {
@@ -1125,6 +1125,7 @@ const schema: SchemaType<DbPost> = {
     }
   }),
   podcastEpisodeId: {
+    hidden: true,
     ...foreignKeyField({
       idFieldName: 'podcastEpisodeId',
       resolverName: 'podcastEpisode',
@@ -1345,6 +1346,7 @@ const schema: SchemaType<DbPost> = {
 
   coauthorStatuses: {
     type: Array,
+    hidden: true,
     resolveAs: {
       fieldName: 'coauthors',
       type: '[User!]',
@@ -2261,14 +2263,14 @@ const schema: SchemaType<DbPost> = {
     type: Object,
     order: 15,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: [],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members'],
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
     group: isEAForum ? formGroups.title : formGroups.options,
     blackbox: true,
-    hidden: (props) => !!props.debateForm
+    hidden: true,
   },
   
   shareWithUsers: {
@@ -2374,12 +2376,12 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "select",
     group: formGroups.advancedOptions,
-    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    hidden: true,
     
     label: "Replies in sidebar",
     canRead: ['guests'],
-    canUpdate: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     form: {
       options: () => {
