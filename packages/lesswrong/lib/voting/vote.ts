@@ -26,9 +26,9 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }) => {
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
 
   const newDocument = {
     ...document,
@@ -76,9 +76,9 @@ const cancelVoteClient = ({document, collection, user, votingSystem}: {
   // points based on the user's new vote weight, which will then be corrected
   // when the server responds.
   const voteType = document.currentUserVote;
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
   
   const newDocument = {
     ...document,
