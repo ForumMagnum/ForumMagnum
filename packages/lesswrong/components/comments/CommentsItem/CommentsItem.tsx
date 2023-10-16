@@ -21,33 +21,11 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import type { ContentItemBody } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
-export const lwReactStyles = (theme: ThemeType): JssStyles => ({
-    '&:hover .react-hover-style': {
-      filter: "opacity(0.8)",
-    },
-    // mark.js applies a default highlight of yellow background and black text. 
-    // we need to override to apply our own themes, and avoid being unreadable in dark mode
-    [`& .${faintHighlightClassName}`]: {
-      backgroundColor: "unset",
-      color: "unset",
-    },
-    [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
-      color: "unset",
-    },
-    [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200],
-      color: "unset",
-    },
-    [`&:hover .${faintHighlightClassName}`]: {
-      borderBottom: theme.palette.border.dashed500,
-      color: "unset",
-    },
-  })
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -183,7 +161,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  lwReactStyling: lwReactStyles(theme),
   excerpt: {
     marginBottom: 8,
   },
@@ -235,11 +212,10 @@ export const CommentsItem = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
-  const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
@@ -293,31 +269,21 @@ export const CommentsItem = ({
         successCallback={editSuccessCallback}
         cancelCallback={editCancelCallback}
       />
+    } else if (excerptLines) {
+      return <Components.CommentExcerpt
+        comment={comment}
+        lines={excerptLines}
+        className={classes.excerpt}
+      />
     } else {
-      return (
-        <div ref={commentItemRef}>
-          {excerptLines
-            ? (
-              <Components.CommentExcerpt
-                comment={comment}
-                lines={excerptLines}
-                className={classes.excerpt}
-              />
-            )
-            : (
-              <Components.CommentBody
-                truncated={truncated}
-                collapsed={collapsed}
-                comment={comment}
-                postPage={postPage}
-                commentBodyHighlights={commentBodyHighlights}
-                commentItemRef={commentItemRef}
-                voteProps={voteProps}
-              />
-            )
-          }
-        </div>
-      );
+      return <Components.CommentBody
+        commentBodyRef={commentBodyRef}
+        truncated={truncated}
+        collapsed={collapsed}
+        comment={comment}
+        postPage={postPage}
+        voteProps={voteProps}
+      />
     }
   }
 
@@ -359,7 +325,7 @@ export const CommentsItem = ({
           hideKarma={post?.hideCommentKarma}
           collection={Comments}
           votingSystem={votingSystem}
-          commentItemRef={commentItemRef}
+          commentBodyRef={commentBodyRef}
           voteProps={voteProps}
         />}
       </div>
@@ -389,7 +355,8 @@ export const CommentsItem = ({
 
   const {
     CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
+    HoveredReactionContextProvider,
   } = Components;
 
   const votingSystemName = comment.votingSystem || "default";
@@ -408,6 +375,7 @@ export const CommentsItem = ({
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+    <HoveredReactionContextProvider>
       <div className={classNames(
         classes.root,
         className,
@@ -448,7 +416,7 @@ export const CommentsItem = ({
             {startCase(comment.tag.name)}
           </Link>}
         </div>
-        <div className={classNames(classes.body, classes.lwReactStyling)}>
+        <div className={classNames(classes.body)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
               <CoreTagIcon tag={tag} />
@@ -492,6 +460,7 @@ export const CommentsItem = ({
         </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
+    </HoveredReactionContextProvider>
     </AnalyticsContext>
   )
 }

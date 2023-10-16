@@ -59,6 +59,7 @@ importComponent("SmallpoxBanner", () => require('../components/ea-forum/Smallpox
 importComponent("EventBanner", () => require('../components/ea-forum/EventBanner'));
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
+importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
@@ -229,7 +230,7 @@ importComponent("ContentItemTruncated", () => require('../components/common/Cont
 importComponent("SingleLineFeedEvent", () => require('../components/common/SingleLineFeedEvent'));
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
-importComponent("StrawPollLoggedOut", () => require('../components/common/StrawPollLoggedOut'));
+importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -465,7 +466,14 @@ importComponent("ReactionsPalette", () => require('../components/votes/Reactions
 importComponent("ReactionIcon", () => require('../components/votes/ReactionIcon'));
 importComponent("AddInlineReactionButton", () => require('../components/votes/lwReactions/AddInlineReactionButton'));
 importComponent("InlineReactSelectionWrapper", () => require('../components/votes/lwReactions/InlineReactSelectionWrapper'));
+importComponent("InlineReactHoverableHighlight", () => require('../components/votes/lwReactions/InlineReactHoverableHighlight'));
+importComponent("InlineReactHoverInfo", () => require('../components/votes/lwReactions/InlineReactHoverInfo'));
+importComponent("ReactionDescription", () => require('../components/votes/lwReactions/ReactionDescription'));
 importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
+importComponent("HoveredReactionContextProvider", () => require('../components/votes/lwReactions/HoveredReactionContextProvider'));
+importComponent("HoverBallotReactionRow", () => require('../components/votes/lwReactions/HoverBallotReactionRow'));
+importComponent("ReactOrAntireactVote", () => require('../components/votes/lwReactions/ReactOrAntireactVote'));
+importComponent("UsersWhoReacted", () => require('../components/votes/lwReactions/UsersWhoReacted'));
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));

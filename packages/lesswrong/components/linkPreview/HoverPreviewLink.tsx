@@ -40,35 +40,40 @@ export const linkIsExcludedFromPreview = (url: string): boolean => {
 // A link, which will have a hover preview auto-selected and attached. Used from
 // ContentItemBody as a replacement for <a> tags in user-provided content.
 // Props
-//   innerHTML: The contents of the original <a> tag, which get wrapped in a
-//     new link and preview.
 //   href: The link destination, the href attribute on the original <a> tag.
 //   contentSourceDescription: (Optional) A human-readabe string describing
 //     where this content came from. Used in error logging only, not displayed
 //     to users.
-const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, noPrefetch }: {
-  innerHTML: string,
+const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch, children }: {
   href: string,
   contentSourceDescription?: string,
   id?: string,
   rel?: string,
   // Only Implemented for Tag Hover Previews
   noPrefetch?: boolean,
+  
+  children: React.ReactNode,
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+    return <a href={href} id={id} rel={rel}>
+      {children}
+    </a>
   }
 
   // Within-page relative link?
   if (href.startsWith("#")) {
     if (locationHashIsFootnote(href) && !isMobile()){
-      return <Components.FootnotePreview href={href} innerHTML={innerHTML} id={id} rel={rel}/>
+      return <Components.FootnotePreview href={href} id={id} rel={rel}>
+        {children}
+      </Components.FootnotePreview>
     }
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel} />
+    return <a href={href} id={id} rel={rel}>
+      {children}
+    </a>
   }
 
   try {
@@ -86,41 +91,65 @@ const HoverPreviewLink = ({ innerHTML, href, contentSourceDescription, id, rel, 
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={parsedUrl.currentRoute.previewComponentName} onsite>
-            <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} innerHTML={innerHTML} id={id} noPrefetch={noPrefetch}/>
+            <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id} noPrefetch={noPrefetch}>
+              {children}
+            </PreviewComponent>
           </AnalyticsContext>
         } else {
-          return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} rel={rel} />
+          return <Components.DefaultPreview href={href} id={id} rel={rel}>
+            {children}
+          </Components.DefaultPreview>
         }
       }
     } else {
       if (linkTargetAbsolute.host === "hubs.mozilla.com") {
-        return <Components.MozillaHubPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.MozillaHubPreview href={href} id={id}>
+          {children}
+        </Components.MozillaHubPreview>
       }
       if (linkTargetAbsolute.host === "metaculus.com" || linkTargetAbsolute.host === "www.metaculus.com") {
-        return <Components.MetaculusPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.MetaculusPreview href={href} id={id}>
+          {children}
+        </Components.MetaculusPreview>
       }
       if (linkTargetAbsolute.host === "manifold.markets" || linkTargetAbsolute.host === "www.manifold.markets") {
-        return <Components.ManifoldPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.ManifoldPreview href={href} id={id}>
+          {children}
+        </Components.ManifoldPreview>
       }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
-        return <Components.MetaforecastPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.MetaforecastPreview href={href} id={id}>
+          {children}
+        </Components.MetaforecastPreview>
       }
       if (linkTargetAbsolute.host === "ourworldindata.org") {
-        return <Components.OWIDPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.OWIDPreview href={href} id={id}>
+          {children}
+        </Components.OWIDPreview>
       }
       if (linkTargetAbsolute.host === "arbital.com" || linkTargetAbsolute.host === "www.arbital.com") {
-        return <Components.ArbitalPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.ArbitalPreview href={href} id={id}>
+          {children}
+        </Components.ArbitalPreview>
       }
       if (linkTargetAbsolute.host === "estimaker.app" || linkTargetAbsolute.host === "www.estimaker.app") {
-        return <Components.EstimakerPreview href={href} innerHTML={innerHTML} id={id} />
+        return <Components.EstimakerPreview href={href} id={id}>
+          {children}
+        </Components.EstimakerPreview>
       }
-      return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} rel={rel} />
+      return <Components.DefaultPreview href={href} id={id} rel={rel}>
+        {children}
+      </Components.DefaultPreview>
     }
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel} />
+    return <a href={href} id={id} rel={rel}>
+      {children}
+    </a>
   } catch (err) {
     console.error(err) // eslint-disable-line
-    console.error(href, innerHTML) // eslint-disable-line
-    return <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+    console.error(href) // eslint-disable-line
+    return <a href={href} id={id} rel={rel}>
+      {children}
+    </a>
   }
 
 }
