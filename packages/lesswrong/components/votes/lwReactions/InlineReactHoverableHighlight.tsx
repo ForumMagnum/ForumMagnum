@@ -21,12 +21,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight": {
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.border.dashed500,
+      textDecorationColor: theme.palette.text.dim4,
+      textUnderlineOffset: '3px'
     },
     ".PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight": {
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.border.dashed500,
+      textDecorationColor: theme.palette.text.dim4,
+      textUnderlineOffset: '3px'
     }
   }
 })
