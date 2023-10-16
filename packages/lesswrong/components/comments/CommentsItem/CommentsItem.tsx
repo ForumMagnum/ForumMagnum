@@ -354,11 +354,11 @@ export const CommentsItem = ({
   }
 
   const {
-    CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
+    CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
     LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
-    HoveredReactionContextProvider
-  } = Components
-  
+    HoveredReactionContextProvider,
+  } = Components;
+
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
@@ -406,12 +406,12 @@ export const CommentsItem = ({
             <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <PostsTooltip postId={comment.postId}>
               <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                 {comment.post.draft && "[Draft] "}
                 {comment.post.title}
               </Link>
-            </LWTooltip>}
+            </PostsTooltip>}
           {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
             {startCase(comment.tag.name)}
           </Link>}

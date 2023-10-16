@@ -129,7 +129,7 @@ const EARecentDiscussionThread = ({
           <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         }
         <div className={classes.postInfo}>
-          <PostsItemTooltipWrapper post={post}>
+          <PostsItemTooltipWrapper post={post} placement="bottom-start">
             <PostsTitle
               post={post}
               read={post.isRead}
