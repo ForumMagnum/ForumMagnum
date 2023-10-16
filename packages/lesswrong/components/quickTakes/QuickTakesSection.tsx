@@ -67,7 +67,7 @@ const QuickTakesSection = ({classes}: {
       afterTitleTo="/quicktakes"
       AfterTitleComponent={() => (
         <LWTooltip
-          title='Quick takes tagged "Community"'
+          title='Show Quick takes tagged "Community"'
           placement="left"
           hideOnTouchScreens
         >
