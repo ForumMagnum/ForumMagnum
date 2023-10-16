@@ -166,33 +166,6 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              <div onClick={(ev) => {
-                if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
-                  ev.preventDefault()
-                }
-              }}>
-                {userCanPost(currentUser) &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Question")}
-                    to="/newPost?question=true"
-                  />
-                }
-                {userCanPost(currentUser) &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Post")}
-                    to="/newPost"
-                  />
-                }
-                {userCanPost(currentUser) &&
-                    // TODO: make hasDialogs beta setting
-                    !isLWorAF &&
-                    userCanCreateField(currentUser, postSchema['debate']) &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Dialogue")}
-                    to="/newpost?debate=true"
-                  />
-                }
-              </div>
               {/*
                 * This is currently disabled for unreviewed users on the EA forum
                 * as there's issues with the new quick takes entry for such users.
@@ -219,8 +192,6 @@ const UsersMenu = ({classes}: {
                   to="/sequencesnew"
                 />
               }
-  
-              <DropdownDivider />
   
               {isAF && !isAfMember &&
                 <DropdownItem

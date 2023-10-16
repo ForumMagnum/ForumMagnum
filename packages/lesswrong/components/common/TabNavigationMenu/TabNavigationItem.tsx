@@ -85,6 +85,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       top: -1,
     }
   },
+  pencilSquareIcon: {
+    '& svg': {
+      height: 24,
+      position: "relative",
+      top: 1,
+      left: 2,
+    }
+  },
   tooltip: {
     maxWidth: isFriendlyUI ? 190 : undefined,
   },
@@ -140,6 +148,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       {hasIcon && <span className={classNames(classes.icon, {
         [classes.selectedIcon]: isSelected,
         [classes.homeIcon]: tab.id === 'home',
+        [classes.pencilSquareIcon]: tab.id === 'newPostLink',
       })}>
         {IconComponent && <IconComponent />}
         {tab.icon && tab.icon}

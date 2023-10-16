@@ -19,7 +19,9 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import type { Option } from '../common/InlineSelect';
 import { getPostViewOptions } from '../../lib/postViewOptions';
+import Button from '@material-ui/core/Button';
 import qs from 'qs'
+import { Link } from '../../lib/reactRouterWrapper';
 
 const titleWrapper = isLW ? {
   marginBottom: 8
@@ -84,7 +86,43 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   selectTitleContainer: {
     marginBottom: 8,
-  }
+  },
+  noHoverLink: {
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  createPostContainer: {
+    borderRadius: '6px',
+    backgroundColor: '#fff',
+    marginBottom: '8px',
+    height: 62,
+    cursor: 'text',
+  },
+  createPostPlaceholder: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    position: 'absolute',
+    left: 15,
+    top: 21,
+    color: theme.palette.grey[400],
+    fontWeight: 600,
+    fontSize: 16,
+  },
+  createPostButton: {
+    fontFamily: theme.typography.fontFamily,
+    marginLeft: "5px",
+    fontSize: 14,
+    fontWeight: 500,
+    textTransform: "none",
+    background: theme.palette.primary.main,
+    position: 'absolute',
+    top: 13,
+    right: 15,
+    color: "#fff",
+    "&:hover": {
+      background: theme.palette.primary.light,
+    },
+  },
 })
 
 const defaultLimit = isFriendlyUI ? 11 : 13;
@@ -156,6 +194,19 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
+        <Link to={{pathname:"/newPost"}} className={classes.noHoverLink}>
+          <div className={classes.createPostContainer}>
+            <span className={classes.createPostPlaceholder}>
+              Create Post
+            </span>
+            <Button
+              type="button"
+              className={classes.createPostButton}
+            >
+              Create Post
+            </Button>
+          </div>
+        </Link>
         <Typography
           variant="body2"
           component='span'

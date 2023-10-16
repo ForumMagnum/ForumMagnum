@@ -35,6 +35,7 @@ import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
+import PencilSquareIcon from '@heroicons/react/24/outline/PencilSquareIcon';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -353,6 +354,14 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/',
       iconComponent: Home,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'newPostLink',
+      title: 'Create Post',
+      mobileTitle: 'Create Post',
+      link: '/newPost',
+      iconComponent: PencilSquareIcon,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
