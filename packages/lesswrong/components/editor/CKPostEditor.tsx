@@ -238,14 +238,7 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
   
-  if ( window.innerWidth < 1000 ) {
-    sidebarElement.classList.remove( 'narrow' );
-    sidebarElement.classList.add( 'hidden' );
-    
-    annotationsUIs.deactivateAll();
-    annotationsUIs.activate('inline');
-  }
-  else if ( window.innerWidth < 1400 ) {
+  if ( window.innerWidth < 1400 ) {
     sidebarElement.classList.remove( 'hidden' );
     sidebarElement.classList.add( 'narrow' );
     
