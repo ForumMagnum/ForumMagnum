@@ -275,7 +275,7 @@ export async function pushRevisionToCkEditor(postId: string, html: string) {
     document_id: ckEditorId,
     bundle_version: bundleVersion,
     data: html,
-    use_initial_data: false,
+    use_initial_data: true,
   });
 }
 

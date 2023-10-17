@@ -44,12 +44,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
+const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
+const DIALOGUE_MESSAGE = 'dialogueMessage';
 
-function areLastElementsAllInputs(lastChildren: Node[]) {
-  return lastChildren.every(child => {
-    return child.is('element', 'dialogueMessageInput');
-  });
+function isElementOfType<T extends string>(type: T) {
+  return function(node: Node | undefined): node is (RootElement | CKElement) & { name: T } {
+    return !!(node?.is('element', type));
+  }
 }
+
+const isInputWrapper = isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER);
 
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
   if (dialogueMessageInputs.length > sortedCoauthors.length) return true //handles case when postfixer doesn't have up to date list of coauthors, up-to-date post fixer for another user can fix the sorting
@@ -59,9 +64,9 @@ function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors:
   });
 }
 
-function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, root: RootElement) {
+function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, root: (RootElement | CKElement) & { name: "dialogueMessageInputWrapper" }) {
   authorsWithoutInputs.forEach(author => {
-    const newUserMessageInput = writer.createElement('dialogueMessageInput', { 'user-id': author._id, 'display-name': author.displayName });
+    const newUserMessageInput = writer.createElement(DIALOGUE_MESSAGE_INPUT, { 'user-id': author._id, 'display-name': author.displayName });
     writer.append(newUserMessageInput, root);
   });
 }
@@ -91,6 +96,12 @@ function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
 
     inputsForAuthor.set(inputUserId, input);
     return false;
+  });
+}
+
+function removeDuplicateInputWrappers(dialogueMessageInputWrappers: Node[], writer: Writer) {
+  dialogueMessageInputWrappers.slice(-1).forEach(inputWrapper => {
+    writer.remove(inputWrapper);
   });
 }
 
@@ -130,29 +141,60 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
   return (writer: Writer) => {
     const root = editor.model.document.getRoot()!;
     const children = Array.from(root.getChildren());
-    const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput"; } => child.is('element', 'dialogueMessageInput'));
-    const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage"; } => child.is('element', 'dialogueMessage'));
+    const dialogueMessages = children.filter(isElementOfType(DIALOGUE_MESSAGE));
+
+    const inputWrappers = children.filter(isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER));
+    
+    // We check that we have a wrapper div for the inputs
+    if (inputWrappers.length === 0) {
+      console.log('no input wrappers found at all');
+      writer.appendElement(DIALOGUE_MESSAGE_INPUT_WRAPPER, root);
+      return true;
+    }
+
+    // We check that we don't have multiple input wrappers, somehow
+    if (inputWrappers.length > 1) {
+      console.log('too many input wrappers found');
+      removeDuplicateInputWrappers(inputWrappers, writer);
+      return true;
+    }
+
+    const lastChild = children.at(-1);
+    const inputWrapper = inputWrappers[0];
+
+    // We check that the input wrapper is the last child of the root
+    if (!isInputWrapper(lastChild)) {
+      writer.append(inputWrapper, root);
+      return true;
+    }
+
+    const inputWrapperChildren = Array.from(inputWrapper.getChildren());
+    const dialogueMessageInputs = [...children, ...inputWrapperChildren].filter(isElementOfType(DIALOGUE_MESSAGE_INPUT));
 
     const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyIncorrectInputUserOrders) {
+      console.log('assigned correct input user-orders');
       return true;
     }
 
     const anyIncorrectMessageUserOrders = assignUserOrders(dialogueMessages, sortedCoauthors, writer);
     if (anyIncorrectMessageUserOrders) {
+      console.log('assigned correct message user-orders');
       return true;
     }
 
     // We check that we don't have any _duplicate_ input elements
     const anyExtraRemoved = removeDuplicateInputs(dialogueMessageInputs, writer);
     if (anyExtraRemoved) {
+      console.log('removed extra inputs', { dialogueMessageInputs });
       return true;
     }
 
     // We check that we have an input element for every author
     const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
-    createMissingInputs(authorsWithoutInputs, writer, root);
+    createMissingInputs(authorsWithoutInputs, writer, inputWrapper);
     if (authorsWithoutInputs.length > 0) {
+      console.log('created missing inputs', { authorsWithoutInputs, dialogueMessageInputs });
       return true;
     }
 
@@ -160,14 +202,15 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
 
     // We check that the inputs are the last elements of the document
-    const lastChildren = children.slice(-dialogueMessageInputs.length);
-    const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
+    // const lastChildren = children.slice(-dialogueMessageInputs.length);
+    // const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
 
-    if (incorrectOrder || !lastElementsAreAllInputs) {
+    if (incorrectOrder) {
       const sortedInputs = sortBy(dialogueMessageInputs, (i) => Number.parseInt(i.getAttribute('user-order') as string))
       sortedInputs.forEach(sortedInput => {
-        writer.append(sortedInput, root);
+        writer.append(sortedInput, inputWrapper);
       });
+      console.log('sorted and appended inputs to inputWrapper');
       return true;
     }
 
@@ -175,17 +218,19 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     dialogueMessageInputs.forEach(input => {
       const inputIsEmpty = Array.from(input.getChildren()).length === 0;
       if (inputIsEmpty) {
+        console.log('input is empty, appending paragraph');
         writer.appendElement('paragraph', input);
         return true;
       }
     });
 
     // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
-    const hasSpuriousLeadingParagraph = children.length === dialogueMessageInputs.length + 1
+    const hasSpuriousLeadingParagraph = children.length === 2
       && children[0].is('element', 'paragraph')
       && Array.from(children[0].getChildren()).length === 0;
 
     if (hasSpuriousLeadingParagraph) {
+      console.log('removed spurious leading paragraph');
       writer.remove(children[0]);
       return true;
     }
@@ -346,6 +391,10 @@ const CKPostEditor = ({
       `.dialogue-message-input button {
         display: none;
       }
+
+      ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] {
+        order: 1;
+      }` : ``}
       
       ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] button {
         display: block;
@@ -434,7 +483,7 @@ const CKPostEditor = ({
               for (let block of blocks) {
                 const ancestors = block.getAncestors({ includeSelf: true });
                 const parentDialogueElement = ancestors.find((ancestor): ancestor is CKElement => {
-                  return ancestor.is('element', 'dialogueMessage') || ancestor.is('element', 'dialogueMessageInput');
+                  return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
                   const owner = getBlockUserId(parentDialogueElement);  
@@ -496,7 +545,7 @@ const CKPostEditor = ({
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),
-          bundleVersion: ckEditorBundleVersion,
+          // bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
           channelId: getCKEditorDocumentId(documentId, userId, formType)
@@ -507,7 +556,7 @@ const CKPostEditor = ({
         presenceList: {
           container: hiddenPresenceListRef.current
         },
-        initialData: initData,
+        // initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
         dialogues: dialogueConfiguration
