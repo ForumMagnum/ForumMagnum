@@ -129,15 +129,12 @@ const EARecentDiscussionItem = ({
             {" "}
             {action}
             {" "}
-            {post &&
-              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-                <Link
-                  to={postUrlOverride ?? postGetPageUrl(post)}
-                  className={classes.primaryText}
-                >
-                  {postTitleOverride ?? post.title}
-                </Link>
-              </PostsItemTooltipWrapper>
+            {post && <Link
+                to={postUrlOverride ?? postGetPageUrl(post)}
+                className={classes.primaryText}
+              >
+                {postTitleOverride ?? post.title}
+              </Link>
             }
             {tag &&
               <TagTooltipWrapper tag={tag} As="span">
