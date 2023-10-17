@@ -378,6 +378,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
             }
           }
         } catch {
+          // eslint-disable-next-line no-console
           console.error(`Error highlighting string ${str} in ${this.props.description ?? "content block"}`);
         }
       }
