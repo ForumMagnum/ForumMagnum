@@ -10,6 +10,7 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -251,7 +252,7 @@ const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const PostLinkPreviewWithPost = ({href, post, id, error, children, classes}: {
+const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
   href: string,
   post: PostsList|null,
   id: string,
@@ -259,39 +260,35 @@ const PostLinkPreviewWithPost = ({href, post, id, error, children, classes}: {
   children: ReactNode,
   classes: ClassesType,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { anchorEl, hover, eventHandlers } = useHover();
-  
-  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
-
   if (!post) {
-    return <span {...eventHandlers}>
+    return <span>
       <Link to={href}>
         {children}
       </Link>
     </span>
   }
+
+  const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post} hash={hash} />
-      </LWPopper>
+    <PostsTooltip
+      post={post}
+      hash={hash}
+      placement="bottom-start"
+      clickable={!isEAForum}
+      As="span"
+    >
       <Link className={classes.link} to={href} id={id} smooth>
         {children}
       </Link>
-    </span>
+    </PostsTooltip>
   );
 }
 const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, {
   styles
 });
 
-const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, error, children}: {
+const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, children}: {
   classes: ClassesType,
   href: string,
   comment: any,
@@ -300,31 +297,27 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, error,
   error: any,
   children: ReactNode,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { eventHandlers, anchorEl, hover } = useHover();
-
   if (!comment) {
-    return <span {...eventHandlers}>
+    return <span>
       <Link to={href}>
         {children}
       </Link>
     </span>
   }
+
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post} comment={comment} />
-      </LWPopper>
+    <PostsTooltip
+      post={post}
+      comment={comment}
+      placement="bottom-start"
+      As="span"
+    >
       <Link className={classes.link} to={href} id={id}>
         {children}
       </Link>
-    </span>
-  )
+    </PostsTooltip>
+  );
 }
 const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
   styles,
