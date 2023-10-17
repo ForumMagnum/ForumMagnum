@@ -110,8 +110,7 @@ const EARecentDiscussionItem = ({
   classes: ClassesType,
 }) => {
   const {
-    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagTooltipWrapper,
+    ForumIcon, UsersNameDisplay, FormatDate, TagTooltipWrapper,
   } = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
