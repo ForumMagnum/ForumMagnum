@@ -276,6 +276,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
       hash={hash}
       placement="bottom-start"
       clickable={!isEAForum}
+      As="span"
     >
       <Link className={classes.link} to={href} id={id} smooth>
         {children}
@@ -306,7 +307,12 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, childr
 
   const {PostsTooltip} = Components;
   return (
-    <PostsTooltip post={post} comment={comment} placement="bottom-start">
+    <PostsTooltip
+      post={post}
+      comment={comment}
+      placement="bottom-start"
+      As="span"
+    >
       <Link className={classes.link} to={href} id={id}>
         {children}
       </Link>
