@@ -110,7 +110,7 @@ const PostsEditForm = ({ documentId, classes }: {
   }
   
   return (
-    <DynamicTableOfContents title={document.title}>
+    <DynamicTableOfContents title={document.title} displayToc={false}>
       <div className={classes.postForm}>
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}

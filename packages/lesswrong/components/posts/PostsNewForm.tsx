@@ -323,7 +323,7 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)} displayToc={false}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
