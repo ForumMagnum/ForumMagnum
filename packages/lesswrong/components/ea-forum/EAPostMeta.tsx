@@ -34,7 +34,13 @@ const styles = (theme: ThemeType) => ({
     width: 16,
   },
   eventOrganizer: {
-    marginLeft: 4,
+    display: "flex",
+    // Unfortunately this !important is necessary because the root class in TruncatedAuthorsList overrides
+    // with a 13px font size even if you pass in a className directly
+    fontSize: "14px !important",
+  },
+  dot: {
+    margin: "0 4px",
   },
 });
 
@@ -52,21 +58,23 @@ const EAPostMeta = ({post, useEventStyles, className, classes}: {
 
   if (useEventStyles && post.isEvent) {
     return (
-      <div className={classNames(classes.root, className)}>
+      <div className={classNames(classes.root, className)} ref={authorExpandContainer}>
         <ForumIcon icon="Calendar" className={classes.icon} />
-        {post.startTime
-          ? (
-            <LWTooltip title={<EventTime post={post} />}>
-              <DateWithoutTime date={post.startTime} />
-            </LWTooltip>
-          )
-          : (
-            <LWTooltip title={<span>To be determined</span>}>
-              <span>TBD</span>
-            </LWTooltip>
-          )
-        }
-        <span className={classes.eventOrganizer}>· Group organizer</span>
+        {post.startTime ? (
+          <LWTooltip title={<EventTime post={post} />}>
+            <DateWithoutTime date={post.startTime} />
+          </LWTooltip>
+        ) : (
+          <LWTooltip title={<span>To be determined</span>}>
+            <span>TBD</span>
+          </LWTooltip>
+        )}
+        <span className={classes.eventOrganizer}>
+          <span className={classes.dot}>·</span>
+          <InteractionWrapper className={classes.interactionWrapper}>
+            <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} />
+          </InteractionWrapper>
+        </span>
       </div>
     );
   }
