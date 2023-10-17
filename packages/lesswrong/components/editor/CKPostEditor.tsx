@@ -208,13 +208,13 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     }
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
-    dialogueMessageInputs.forEach(input => {
+    for (const input of dialogueMessageInputs) {
       const inputIsEmpty = Array.from(input.getChildren()).length === 0;
       if (inputIsEmpty) {
         writer.appendElement('paragraph', input);
         return true;
       }
-    });
+    }
 
     // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
     const hasSpuriousLeadingParagraph = children.length === 2
