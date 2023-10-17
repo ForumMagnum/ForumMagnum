@@ -147,14 +147,12 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     
     // We check that we have a wrapper div for the inputs
     if (inputWrappers.length === 0) {
-      console.log('no input wrappers found at all');
       writer.appendElement(DIALOGUE_MESSAGE_INPUT_WRAPPER, root);
       return true;
     }
 
     // We check that we don't have multiple input wrappers, somehow
     if (inputWrappers.length > 1) {
-      console.log('too many input wrappers found');
       removeDuplicateInputWrappers(inputWrappers, writer);
       return true;
     }
@@ -173,20 +171,17 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 
     const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyIncorrectInputUserOrders) {
-      console.log('assigned correct input user-orders');
       return true;
     }
 
     const anyIncorrectMessageUserOrders = assignUserOrders(dialogueMessages, sortedCoauthors, writer);
     if (anyIncorrectMessageUserOrders) {
-      console.log('assigned correct message user-orders');
       return true;
     }
 
     // We check that we don't have any _duplicate_ input elements
     const anyExtraRemoved = removeDuplicateInputs(dialogueMessageInputs, writer);
     if (anyExtraRemoved) {
-      console.log('removed extra inputs', { dialogueMessageInputs });
       return true;
     }
 
@@ -194,7 +189,6 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
     createMissingInputs(authorsWithoutInputs, writer, inputWrapper);
     if (authorsWithoutInputs.length > 0) {
-      console.log('created missing inputs', { authorsWithoutInputs, dialogueMessageInputs });
       return true;
     }
 
@@ -210,7 +204,6 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       sortedInputs.forEach(sortedInput => {
         writer.append(sortedInput, inputWrapper);
       });
-      console.log('sorted and appended inputs to inputWrapper');
       return true;
     }
 
@@ -218,7 +211,6 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     dialogueMessageInputs.forEach(input => {
       const inputIsEmpty = Array.from(input.getChildren()).length === 0;
       if (inputIsEmpty) {
-        console.log('input is empty, appending paragraph');
         writer.appendElement('paragraph', input);
         return true;
       }
@@ -230,7 +222,6 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       && Array.from(children[0].getChildren()).length === 0;
 
     if (hasSpuriousLeadingParagraph) {
-      console.log('removed spurious leading paragraph');
       writer.remove(children[0]);
       return true;
     }
