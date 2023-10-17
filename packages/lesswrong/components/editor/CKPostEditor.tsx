@@ -536,7 +536,7 @@ const CKPostEditor = ({
           uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
           webSocketUrl: webSocketUrl,
           documentId: getCKEditorDocumentId(documentId, userId, formType),
-          // bundleVersion: ckEditorBundleVersion,
+          bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
           channelId: getCKEditorDocumentId(documentId, userId, formType)
@@ -547,7 +547,7 @@ const CKPostEditor = ({
         presenceList: {
           container: hiddenPresenceListRef.current
         },
-        // initialData: initData,
+        initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
         dialogues: dialogueConfiguration
