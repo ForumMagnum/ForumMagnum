@@ -9,6 +9,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "tagId",
       resolverName: "tag",
@@ -20,6 +21,7 @@ const schema: SchemaType<DbTagRel> = {
     canCreate: ['members'],
   },
   postId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",

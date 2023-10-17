@@ -3,6 +3,7 @@ const schema: SchemaType<DbPetrovDayLaunch> = {
   launchCode: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],

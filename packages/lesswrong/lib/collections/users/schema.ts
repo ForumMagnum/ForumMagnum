@@ -333,6 +333,7 @@ const schema: SchemaType<DbUser> = {
     label: 'Admin',
     input: 'checkbox',
     optional: true,
+    nullable: false,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
@@ -473,6 +474,7 @@ const schema: SchemaType<DbUser> = {
   noindex: {
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -597,6 +599,7 @@ const schema: SchemaType<DbUser> = {
   legacy: {
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     hidden: true,
     canRead: [userOwns, 'admins'],
@@ -643,6 +646,7 @@ const schema: SchemaType<DbUser> = {
   reactPaletteStyle: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
     label: "React Palette Style",
@@ -707,6 +711,7 @@ const schema: SchemaType<DbUser> = {
     order: 71,
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -722,6 +727,7 @@ const schema: SchemaType<DbUser> = {
     order: 72,
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -734,6 +740,7 @@ const schema: SchemaType<DbUser> = {
     order: 80,
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: [userOwns],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -746,6 +753,7 @@ const schema: SchemaType<DbUser> = {
     order: 90,
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: [userOwns],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -759,6 +767,7 @@ const schema: SchemaType<DbUser> = {
     order: 91,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -772,6 +781,7 @@ const schema: SchemaType<DbUser> = {
     order: 92,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -785,6 +795,7 @@ const schema: SchemaType<DbUser> = {
     order: 93,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -798,6 +809,7 @@ const schema: SchemaType<DbUser> = {
     order: 93,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
     defaultValue: false,
@@ -823,6 +835,7 @@ const schema: SchemaType<DbUser> = {
     order: 94,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: forumTypeSetting.get() !== 'EAForum',
     group: formGroups.siteCustomizations,
     defaultValue: false,
@@ -837,6 +850,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
     defaultValue: false,
@@ -851,7 +865,7 @@ const schema: SchemaType<DbUser> = {
     order: 96,
     type: Boolean,
     optional: true,
-    nullable: true,
+    nullable: true,//TODO not-null – examine this
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
@@ -868,7 +882,7 @@ const schema: SchemaType<DbUser> = {
   acceptedTos: {
     type: Boolean,
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null, I assume intentional?
     hidden: true,
     defaultValue: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1101,6 +1115,7 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.bookmarkedPostsMetadata) {
@@ -1137,6 +1152,7 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.hiddenPostsMetadata) {
@@ -1176,6 +1192,7 @@ const schema: SchemaType<DbUser> = {
   deleted: {
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['members', 'admins'],
@@ -2109,6 +2126,7 @@ const schema: SchemaType<DbUser> = {
   noExpandUnreadCommentsReview: {
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     hidden: true,
     canRead: ['guests'],
@@ -2428,6 +2446,7 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
+    nullable: false, //TODO not-null: check this one
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -2455,6 +2474,7 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -2654,7 +2674,7 @@ const schema: SchemaType<DbUser> = {
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null: I assume intentional
     hidden: forumTypeSetting.get() !== 'EAForum',
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],

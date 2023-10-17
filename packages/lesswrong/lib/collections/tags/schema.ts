@@ -38,6 +38,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
 const schema: SchemaType<DbTag> = {
   name: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -64,6 +65,7 @@ const schema: SchemaType<DbTag> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -548,6 +550,7 @@ const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
+    nullable: false,
     control: "UsersListEditor",
     label: "Subforum Moderators",
   },
@@ -618,6 +621,7 @@ const schema: SchemaType<DbTag> = {
       type: "Tag"
     }),
     optional: true,
+    nullable: false,
     // To edit this, you have to edit the parent tag of the tag you are adding, and this will be automatically updated. It's like this for
     // largely historical reasons, we didn't used to materialise the sub tag ids at all, but this had performance issues
     hidden: true,
@@ -654,6 +658,7 @@ const schema: SchemaType<DbTag> = {
   noindex: {
     type: Boolean,
     optional: true,
+    nullable:false,
     defaultValue: false,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],

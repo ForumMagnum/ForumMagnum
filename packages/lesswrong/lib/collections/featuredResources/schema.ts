@@ -1,6 +1,7 @@
 const schema: SchemaType<DbFeaturedResource> = {
   title: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -8,6 +9,7 @@ const schema: SchemaType<DbFeaturedResource> = {
   },
   body: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -15,6 +17,7 @@ const schema: SchemaType<DbFeaturedResource> = {
   },
   ctaText: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -22,6 +25,7 @@ const schema: SchemaType<DbFeaturedResource> = {
   },
   ctaUrl: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -33,6 +37,7 @@ const schema: SchemaType<DbFeaturedResource> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     control: 'datetime',
   },
 }

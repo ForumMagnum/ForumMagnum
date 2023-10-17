@@ -27,9 +27,11 @@ const schema: SchemaType<DbCommentModeratorAction> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
   },
   type: {
     type: String,
+    nullable: false,
     control: 'select',
     allowedValues: Object.keys(COMMENT_MODERATOR_ACTION_TYPES),
     options: () => Object.entries(COMMENT_MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),

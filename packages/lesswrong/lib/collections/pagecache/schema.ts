@@ -65,27 +65,34 @@ const RenderResultSchemaType = new SimpleSchema({
 const schema: SchemaType<DbPageCacheEntry> = {
   path: {
     type: String,
+    nullable: false,
   },
   abTestGroups: {
     // This is always a Record<string, string>
     type: Object,
     blackbox: true,
+    nullable: false,
   },
   bundleHash: {
     type: String,
+    nullable: false,
   },
   renderedAt: {
     type: Date,
+    nullable: false,
   },
   expiresAt: {
     type: Date,
+    nullable: false,
   },
   ttlMs: {
     // This can be inferred from renderedAt and expiresAt, but it's useful to have for debugging
     type: Number,
+    nullable: false,
   },
   renderResult: {
     type: RenderResultSchemaType,
+    nullable: false,
   },
 };
 

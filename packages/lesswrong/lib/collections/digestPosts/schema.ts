@@ -17,6 +17,7 @@ const schema: SchemaType<DbDigestPost> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     hidden: true,
+    nullable: false
   },
   postId: {
     ...foreignKeyField({
@@ -30,12 +31,13 @@ const schema: SchemaType<DbDigestPost> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     hidden: true,
+    nullable: false,
   },
   // is this post in the email digest?
   emailDigestStatus: {
     type: String,
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null – intentionally nullable?
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -44,7 +46,7 @@ const schema: SchemaType<DbDigestPost> = {
   onsiteDigestStatus: {
     type: String,
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null – intentionally nullable?
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],

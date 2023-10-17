@@ -10,6 +10,7 @@ const DOCUMENT_TYPES = ['Sequence', 'Post'];
 const SpotlightDocumentType = new SimpleSchema({
   documentType: {
     type: String,
+    nullable: false,
     allowedValues: DOCUMENT_TYPES,
   }
 });
@@ -42,6 +43,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 const schema: SchemaType<DbSpotlight> = {
   documentId: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -85,6 +87,7 @@ const schema: SchemaType<DbSpotlight> = {
     canCreate: ['admins', 'sunshineRegiment'],
     order: 30,
     optional: true,
+    nullable: false,
     onCreate: async ({ newDocument, context }) => {
       const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
         context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),

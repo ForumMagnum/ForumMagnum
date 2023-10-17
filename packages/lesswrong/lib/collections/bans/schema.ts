@@ -4,7 +4,8 @@ import { foreignKeyField } from '../../utils/schemaUtils'
 const schema: SchemaType<DbBan> = {
   expirationDate: {
     type: Date,
-    optional: true,
+    optional: false,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -22,6 +23,7 @@ const schema: SchemaType<DbBan> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
   },
   ip: {
@@ -43,6 +45,7 @@ const schema: SchemaType<DbBan> = {
   comment: {
     type: String,
     optional:true,
+    nullable: false, //TODO not-null: should this really not be nullable?
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],

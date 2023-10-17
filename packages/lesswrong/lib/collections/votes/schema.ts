@@ -25,6 +25,7 @@ const schema: SchemaType<DbVote> = {
   // The id of the document that was voted on
   documentId: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     // No explicit foreign-key relation because which collection this is depends on collectionName
   },
@@ -32,6 +33,7 @@ const schema: SchemaType<DbVote> = {
   // The name of the collection the document belongs to
   collectionName: {
     type: String,
+    nullable: false,
     typescriptType: "CollectionNameString",
     canRead: ['guests'],
   },
@@ -39,6 +41,7 @@ const schema: SchemaType<DbVote> = {
   // The id of the user that voted
   userId: {
     type: String,
+    nullable: false,
     canRead: [userOwns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
@@ -70,6 +73,7 @@ const schema: SchemaType<DbVote> = {
   // neutral if it doesn't.
   voteType: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
   },
   
@@ -93,6 +97,7 @@ const schema: SchemaType<DbVote> = {
   power: {
     type: Number,
     optional: true,
+    nullable: false,    
     canRead: [userOwns, docIsTagRel, 'admins'],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
@@ -131,6 +136,7 @@ const schema: SchemaType<DbVote> = {
   votedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: [userOwns, docIsTagRel, 'admins'],
   },
 

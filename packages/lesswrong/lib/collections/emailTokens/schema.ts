@@ -3,9 +3,11 @@ import { foreignKeyField } from '../../../lib/utils/schemaUtils';
 const schema: SchemaType<DbEmailTokens> = {
   token: {
     type: String,
+    nullable: false,
   },
   tokenType: {
     type: String,
+    nullable: false,
   },
   userId: {
     ...foreignKeyField({
@@ -14,7 +16,8 @@ const schema: SchemaType<DbEmailTokens> = {
       collectionName: "Users",
       type: "User",
       nullable: false,
-    })
+    }),
+    nullable: false,
   },
   usedAt: {
     type: Date,

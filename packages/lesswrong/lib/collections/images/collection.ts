@@ -1,14 +1,15 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
 
 const schema: SchemaType<DbImages> = {
   originalUrl: {
     type: String,
+    nullable: false,
   },
   cdnHostedUrl: {
     type: String,
+    nullable: false,
   },
 };
 

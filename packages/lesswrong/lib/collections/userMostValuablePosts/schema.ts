@@ -4,6 +4,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbUserMostValuablePost> = {
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
@@ -16,6 +17,7 @@ const schema: SchemaType<DbUserMostValuablePost> = {
     canUpdate: [userOwns, 'admins'],
   },
   postId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",

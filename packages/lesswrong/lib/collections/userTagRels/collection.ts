@@ -16,6 +16,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canCreate: ['members'],
   },
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
@@ -57,6 +58,7 @@ const schema: SchemaType<DbUserTagRel> = {
   subforumHideIntroPost: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: true,
     label: "Don't show the intro post at the top of topic feeds",
     canRead: [userOwns, 'admins'],
