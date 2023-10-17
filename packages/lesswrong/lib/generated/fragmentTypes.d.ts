@@ -561,7 +561,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly postedAt: Date,
   readonly modifiedAt: Date,
   readonly url: string,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly title: string,
   readonly slug: string,
   readonly viewCount: number,
@@ -936,7 +936,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly frontpageDate: Date,
   readonly meta: boolean,
   readonly deletedDraft: boolean,
-  readonly postCategory: "post" | "linkpost" | "question" | "dialogue",
+  readonly postCategory: "post" | "linkpost" | "question",
   readonly shareWithUsers: Array<string>,
   readonly sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly commentCount: number,
@@ -1061,6 +1061,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly socialPreviewData: any,
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
@@ -1273,7 +1274,6 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly usersSharedWith: Array<UsersMinimumInfo>,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -1643,6 +1643,10 @@ interface RevisionHistoryEntry extends RevisionMetadata { // fragment on Revisio
 }
 
 interface RevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
+  readonly tag: TagBasicInfo|null,
+}
+
+interface RecentDiscussionRevisionTagFragment extends RevisionHistoryEntry { // fragment on Revisions
   readonly tag: TagRecentDiscussion|null,
 }
 
@@ -3341,6 +3345,7 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionHistoryEntry: RevisionHistoryEntry
   RevisionTagFragment: RevisionTagFragment
+  RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
   messageListFragment: messageListFragment
@@ -3548,6 +3553,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionHistoryEntry: "Revisions"
   RevisionTagFragment: "Revisions"
+  RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
   messageListFragment: "Messages"

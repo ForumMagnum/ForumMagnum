@@ -27,6 +27,7 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (post.shareWithUsers?.length > 0) return true;
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
+  if (post.collabEditorDialogue) return true;
   return false;
 }
 
