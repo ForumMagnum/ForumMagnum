@@ -102,17 +102,8 @@ const embedConfig = {
 }
 
 export const postEditorConfig = {
-	blockToolbar: [
-		'imageUpload',
-		'insertTable',
-		'horizontalLine',
-		'mathDisplay',
-		'mediaEmbed',
-		'footnote'
-	],
 	toolbar: {
 		items: [
-			'restyledCommentButton',
 			'|',
 			'heading',
 			'|',
@@ -125,11 +116,8 @@ export const postEditorConfig = {
 			'blockQuote',
 			'bulletedList',
 			'numberedList',
-			'codeBlock',
 			'|',
-			'trackChanges',
-			'math',
-			'footnote',
+			'imageUpload',
 		],
 		shouldNotGroupWhenFull: true,
 	},

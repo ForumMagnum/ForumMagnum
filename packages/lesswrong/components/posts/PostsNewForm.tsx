@@ -12,7 +12,6 @@ import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -27,6 +26,21 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     [theme.breakpoints.down('xs')]: {
       width: "100%",
+    },
+    
+    "& .form-section-unicode": { 
+      padding: 0,
+    },
+    "& .ck.ck-content" : {
+      marginLeft: 0,
+      paddingLeft: "1.5rem",
+      paddingTop: "1rem",
+      borderWidth: "0",
+    },
+    "& .ck.ck-toolbar" : {
+      borderRightWidth: "0",
+      borderLeftWidth: "0",
+      paddingLeft: "1rem",
     },
 
     "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
@@ -95,12 +109,23 @@ export const styles = (theme: ThemeType): JssStyles => ({
     },
     "& .form-input.input-contents": {
       marginTop: 0,
+      marginBottom: 0,
+    },
+    "& .form-input.input-title": {
+      paddingLeft: "1.5rem",
+      backgroundColor: theme.palette.text.alwaysWhite,
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+    },
+    "& .localstorage-check": {
+      marginBottom: 0,
     },
   },
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
-    marginTop: 20
+    paddingTop: "1em",
+    backgroundColor: theme.palette.background.default,    
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
@@ -222,7 +247,7 @@ const PostsNewForm = ({classes}: {
   });
 
   const {
-    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    PostSubmit, WrappedSmartForm, WrappedLoginForm,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
@@ -288,9 +313,8 @@ const PostsNewForm = ({classes}: {
     return <Loading />
   }
 
-  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
+  const NewPostsSubmit = (props: PostSubmitProps) => {
     return <div className={classes.formSubmit}>
-      {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }

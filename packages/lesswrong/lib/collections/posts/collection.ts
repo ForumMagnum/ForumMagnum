@@ -90,7 +90,7 @@ makeEditable({
     fieldName: "moderationGuidelines",
     permissions: {
       canRead: ['guests'],
-      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: [userHasModerationGuidelines]
     },
   }

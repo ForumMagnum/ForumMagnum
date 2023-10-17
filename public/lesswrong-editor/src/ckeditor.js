@@ -4,6 +4,7 @@
  * This file is licensed under the terms of the MIT License (see LICENSE.md).
  */
 
+import ClassicEditor from '@ckeditor/ckeditor5-editor-classic/src/classiceditor'
 import BalloonBlockEditorBase from '@ckeditor/ckeditor5-editor-balloon/src/ballooneditor';
 import Alignment from '@ckeditor/ckeditor5-alignment/src/alignment';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
@@ -53,7 +54,6 @@ import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
 import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import UploadAdapter from '@ckeditor/ckeditor5-adapter-ckfinder/src/uploadadapter';
-import BlockToolbar from '@ckeditor/ckeditor5-ui/src/toolbar/block/blocktoolbar';
 import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
@@ -69,8 +69,8 @@ import { SanitizeTags } from './clean-styles-plugin'
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
 
 export class CommentEditor extends BalloonBlockEditorBase {}
-export class PostEditor extends BalloonBlockEditorBase {}
-export class PostEditorCollaboration extends BalloonBlockEditorBase {}
+export class PostEditor extends ClassicEditor {}
+export class PostEditorCollaboration extends ClassicEditor {}
 
 // NOTE: If you make changes to this file, you must then run:
 // `yarn run rebuild-ckeditor`
@@ -124,7 +124,6 @@ const sharedPlugins = [
 
 const postEditorPlugins = [
 	...sharedPlugins,
-	BlockToolbar,
 	FontFamily,
 	FontSize,
 	// FontColor,

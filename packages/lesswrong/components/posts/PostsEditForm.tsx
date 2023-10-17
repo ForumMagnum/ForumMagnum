@@ -10,7 +10,6 @@ import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
@@ -41,7 +40,7 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm,
+  const { WrappedSmartForm, PostSubmit, HeadTags, ForeignCrosspostEditForm,
     RateLimitWarning, DynamicTableOfContents } = Components
   
   const saveDraftLabel: string = ((post) => {
@@ -100,9 +99,8 @@ const PostsEditForm = ({ documentId, classes }: {
     return <ForeignCrosspostEditForm post={document} />;
   }
   
-  const EditPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
+  const EditPostsSubmit = (props: PostSubmitProps) => {
     return <div className={classes.formSubmit}>
-      {!document.isEvent && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit
         saveDraftLabel={saveDraftLabel}
         feedbackLabel={"Get Feedback"}

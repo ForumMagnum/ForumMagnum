@@ -83,7 +83,7 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
   if (!restorableState)
     return null;
   
-  return <div className={classes.root}>
+  return <div className={classes.root + " localstorage-check"}>
     <div>
       You have autosaved text.{" "}
       <a className={classes.restoreLink} onClick={() => {

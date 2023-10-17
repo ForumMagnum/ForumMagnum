@@ -358,7 +358,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

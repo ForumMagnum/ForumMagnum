@@ -214,7 +214,7 @@ const schema: SchemaType<DbPost> = {
       hintText: urlHintText
     },
     group: formGroups.options,
-    hidden: (props) => props.eventForm || props.debateForm,
+    hidden: true,
   },
   // Category (post, linkpost, or question)
   postCategory: {
@@ -1126,6 +1126,7 @@ const schema: SchemaType<DbPost> = {
     }
   }),
   podcastEpisodeId: {
+    hidden: true,
     ...foreignKeyField({
       idFieldName: 'podcastEpisodeId',
       resolverName: 'podcastEpisode',
@@ -1346,6 +1347,7 @@ const schema: SchemaType<DbPost> = {
 
   coauthorStatuses: {
     type: Array,
+    hidden: true,
     resolveAs: {
       fieldName: 'coauthors',
       type: '[User!]',
@@ -1393,8 +1395,8 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     label: "Social Preview Image",
     canRead: ['guests'],
-    canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     group: formGroups.socialPreview,
     order: 4,
   },
@@ -1441,8 +1443,8 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     label: "Social Preview Image",
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
@@ -2269,7 +2271,7 @@ const schema: SchemaType<DbPost> = {
     label: "Sharing Settings",
     group: isEAForum ? formGroups.title : formGroups.options,
     blackbox: true,
-    hidden: (props) => !!props.debateForm
+    hidden: true,
   },
   
   shareWithUsers: {
@@ -2375,7 +2377,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     control: "select",
     group: formGroups.advancedOptions,
-    hidden: (props) => props.eventForm || !userHasSideComments(props.currentUser),
+    hidden: true,
     
     label: "Replies in sidebar",
     canRead: ['guests'],
@@ -2431,8 +2433,8 @@ const schema: SchemaType<DbPost> = {
     group: formGroups.moderationGroup,
     label: "Style",
     canRead: ['guests'],
-    canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
     form: {
@@ -2455,8 +2457,8 @@ const schema: SchemaType<DbPost> = {
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
-    canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    canCreate: ['members', 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     order: 60
   },
   

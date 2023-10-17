@@ -221,13 +221,11 @@ addRoute(
     path: '/newPost',
     componentName: 'PostsNewForm',
     title: "New Post",
-    background: "white"
   },
   {
     name: 'editPost',
     path: '/editPost',
     componentName: 'PostsEditPage',
-    background: "white"
   },
   {
     name: 'postAnalytics',
