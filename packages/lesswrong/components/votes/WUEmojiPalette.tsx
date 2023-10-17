@@ -62,7 +62,7 @@ const WUEmojiPalette = ({onSelectEmoji, classes}: {
   );
 }
 
-const EAEmojiPaletteComponent = registerComponent(
+const WUEmojiPaletteComponent = registerComponent(
   "WUEmojiPalette",
   WUEmojiPalette,
   {styles},
@@ -70,6 +70,6 @@ const EAEmojiPaletteComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    WUEmojiPalette: typeof EAEmojiPaletteComponent
+    WUEmojiPalette: typeof WUEmojiPaletteComponent
   }
 }
