@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal.light,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
-    zIndex: 10,
+    zIndex: 2,
   },
   date: {
     color: theme.palette.grey[1000],
@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: -18,
     right: "40%",
-    zIndex: 30,
+    zIndex: 6,
   },
   span: {
     backgroundColor: theme.palette.givingPortal.main,
@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     height: "100%",
-    zIndex: 20,
+    zIndex: 4,
   },
   currentMarker: {
     backgroundColor: theme.palette.givingPortal.dark,
@@ -86,7 +86,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     height: "100%",
-    zIndex: 40,
+    zIndex: 8,
   },
   youAreHere: {
     color: theme.palette.givingPortal.dark,
