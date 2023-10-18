@@ -34,6 +34,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
       // TODO not-null: is this collection being used at all?
       nullable: true,
     }),
+    nullable: false,
     hidden: true,
     canCreate: ['members', 'admins'],
     canRead: [userOwns, 'admins'],
@@ -52,6 +53,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
   jobAds: {
     type: Object,
     optional: true,
+    nullable: false,
     // TODO not-null: is this collection being used at all?
     hidden: true,
     blackbox: true,
