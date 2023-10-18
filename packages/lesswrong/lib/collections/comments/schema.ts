@@ -799,6 +799,7 @@ const schema: SchemaType<DbComment> = {
   },
 
   suggestForAlignmentUserIds: {
+    nullable: false,
     ...arrayOfForeignKeysField({
       idFieldName: "suggestForAlignmentUserIds",
       resolverName: "suggestForAlignmentUsers",

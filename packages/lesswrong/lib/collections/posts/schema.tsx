@@ -166,6 +166,7 @@ const schema: SchemaType<DbPost> = {
   postedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -246,6 +247,7 @@ const schema: SchemaType<DbPost> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: async (post) => {
       return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
@@ -260,6 +262,7 @@ const schema: SchemaType<DbPost> = {
   viewCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
     defaultValue: 0
   },
@@ -276,6 +279,7 @@ const schema: SchemaType<DbPost> = {
   clickCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
     defaultValue: 0
   },
@@ -299,6 +303,7 @@ const schema: SchemaType<DbPost> = {
   status: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -321,6 +326,7 @@ const schema: SchemaType<DbPost> = {
   isFuture: {
     type: Boolean,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: (post) => {
       // Set the post's isFuture to true if necessary
@@ -425,6 +431,7 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
+    nullable: false,
     control: 'text',
     canRead: [documentIsNotDeleted],
     canUpdate: ['admins'],
@@ -780,12 +787,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
   reviewVotesAF: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -797,6 +806,7 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
@@ -804,6 +814,7 @@ const schema: SchemaType<DbPost> = {
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -815,6 +826,7 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
@@ -822,6 +834,7 @@ const schema: SchemaType<DbPost> = {
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -834,12 +847,14 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
   finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -851,12 +866,14 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
   finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -868,12 +885,14 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
+    nullable: false,
     defaultValue: 0,
     canRead: ['guests']
   },
   finalReviewVotesAF: {
     type: Array,
     optional: true,
+    nullable: false,
     defaultValue: [],
     canRead: ['guests']
   },
@@ -1144,6 +1163,7 @@ const schema: SchemaType<DbPost> = {
   forceAllowType3Audio: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
     defaultValue: false,
     canRead: ['guests'],
@@ -1157,6 +1177,7 @@ const schema: SchemaType<DbPost> = {
   legacy: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
     defaultValue: false,
     canRead: ['guests'],
@@ -1182,6 +1203,7 @@ const schema: SchemaType<DbPost> = {
   legacySpam: {
     type: Boolean,
     optional: true,
+    nullable: false,
     defaultValue: false,
     hidden: true,
     canRead: ['guests'],
@@ -1453,7 +1475,7 @@ const schema: SchemaType<DbPost> = {
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null, why explicitly set?
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
@@ -1830,6 +1852,7 @@ const schema: SchemaType<DbPost> = {
   maxBaseScore: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     hidden: true,
     onInsert: (document) => document.baseScore || 0,
@@ -1931,6 +1954,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
     control: "UsersListEditor",
     group: formGroups.event,
@@ -2287,6 +2311,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true, 
     
     ...arrayOfForeignKeysField({
@@ -2812,6 +2837,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
+    nullable: false,
     hidden: true,
     label: "Suggested for Alignment by",
     control: "UsersListEditor",

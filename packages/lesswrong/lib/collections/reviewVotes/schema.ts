@@ -16,7 +16,8 @@ const schema: SchemaType<DbReviewVote> = {
     }),
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: ['guests'],
-    optional: true
+    optional: true,
+    nullable: false,
   },
   postId: {
     ...foreignKeyField({
@@ -27,6 +28,7 @@ const schema: SchemaType<DbReviewVote> = {
       nullable: true,
     }),
     canRead: ['guests'],
+    nullable: false,
   },
   qualitativeScore: {
     type: SimpleSchema.Integer, 

@@ -13,6 +13,7 @@ const schema: SchemaType<DbMessage> = {
     canRead: ['members'],
     canCreate: ['admins'],
     optional: true,
+    nullable: false,
     hidden: true,
   },
   conversationId: {
@@ -25,6 +26,7 @@ const schema: SchemaType<DbMessage> = {
     }),
     canRead: ['members'],
     canCreate: ['members'],
+    nullable: false,
     hidden: true,
   },
   noEmail: {

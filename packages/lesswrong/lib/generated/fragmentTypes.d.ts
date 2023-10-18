@@ -54,7 +54,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
-  } | null,
+  },
   readonly lastUsedTimezone: string,
   readonly whenConfirmationEmailSent: Date,
   readonly legacy: boolean,
@@ -353,7 +353,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -619,7 +619,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly nextDayReminderSent: boolean,
   readonly onlyVisibleToLoggedIn: boolean,
   readonly onlyVisibleToEstablishedAccounts: boolean,
-  readonly hideFromRecentDiscussions: boolean | null,
+  readonly hideFromRecentDiscussions: boolean,
   readonly votingSystem: string,
   readonly podcastEpisodeId: string | null,
   readonly forceAllowType3Audio: boolean,
@@ -649,7 +649,7 @@ interface PostsDefaultFragment { // fragment on Posts
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null,
+  },
   readonly canonicalSequenceId: string,
   readonly canonicalCollectionSlug: string,
   readonly canonicalBookId: string,
@@ -715,8 +715,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly topLevelCommentCount: number,
   readonly criticismTipsDismissed: boolean,
   readonly languageModelSummary: string,
-  readonly debate: boolean | null,
-  readonly collabEditorDialogue: boolean | null,
+  readonly debate: boolean,
+  readonly collabEditorDialogue: boolean,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
@@ -915,8 +915,8 @@ interface PostsMinimumInfo { // fragment on Posts
   }> | null,
   readonly hasCoauthorPermission: boolean,
   readonly rejected: boolean,
-  readonly debate: boolean | null,
-  readonly collabEditorDialogue: boolean | null,
+  readonly debate: boolean,
+  readonly collabEditorDialogue: boolean,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -955,7 +955,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly curatedDate: Date,
   readonly commentsLocked: boolean,
   readonly commentsLockedToAccountsCreatedAfter: Date,
-  readonly debate: boolean | null,
+  readonly debate: boolean,
   readonly question: boolean,
   readonly hiddenRelatedQuestion: boolean,
   readonly originalPostRelationSourceId: string,
@@ -1090,7 +1090,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null,
+  },
 }
 
 interface PostsList_contents { // fragment on Revisions
@@ -1147,7 +1147,7 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null,
+  },
 }
 
 interface PostsDetails_canonicalSequence { // fragment on Sequences
@@ -1290,8 +1290,8 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null,
-  readonly hideFromRecentDiscussions: boolean | null,
+  },
+  readonly hideFromRecentDiscussions: boolean,
   readonly hideFromPopularComments: boolean,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly customHighlight: RevisionEdit|null,
@@ -1346,7 +1346,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null,
+  },
   readonly rejectedReason: string | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly user: SunshinePostsList_user|null,
@@ -2703,7 +2703,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
-  } | null,
+  },
   readonly bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly auto_subscribe_to_my_posts: boolean,
@@ -2734,7 +2734,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly hideFrontpageBook2020Ad: boolean,
 }
 
@@ -2862,7 +2862,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
-  } | null,
+  },
   readonly email: string,
   readonly whenConfirmationEmailSent: Date,
   readonly emailSubscribedToCurated: boolean,
@@ -2886,7 +2886,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,

@@ -646,7 +646,7 @@ interface DbPost extends DbObject {
   nextDayReminderSent: boolean
   onlyVisibleToLoggedIn: boolean
   onlyVisibleToEstablishedAccounts: boolean
-  hideFromRecentDiscussions: boolean | null
+  hideFromRecentDiscussions: boolean
   votingSystem: string
   podcastEpisodeId: string | null
   forceAllowType3Audio: boolean
@@ -676,7 +676,7 @@ interface DbPost extends DbObject {
     isCrosspost: boolean,
     hostedHere: boolean | null,
     foreignPostId: string | null,
-  } | null
+  }
   canonicalSequenceId: string
   canonicalCollectionSlug: string
   canonicalBookId: string
@@ -738,8 +738,8 @@ interface DbPost extends DbObject {
   commentCount: number
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
-  debate: boolean | null
-  collabEditorDialogue: boolean | null
+  debate: boolean
+  collabEditorDialogue: boolean
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -1059,11 +1059,11 @@ interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserA
 
 interface DbUserActivity extends DbObject {
   __collectionName?: "UserActivities"
-  visitorId: string
-  type: "userId" | "clientId"
-  startDate: Date
-  endDate: Date
-  activityArray: Array<number>
+  visitorId: string | null
+  type: "userId" | "clientId" | null
+  startDate: Date | null
+  endDate: Date | null
+  activityArray: Array<number> | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1130,7 +1130,7 @@ interface DbUser extends DbObject {
   theme: {
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
-  } | null
+  }
   lastUsedTimezone: string
   whenConfirmationEmailSent: Date
   legacy: boolean
@@ -1428,7 +1428,7 @@ interface DbUser extends DbObject {
   subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
-  allowDatadogSessionReplay: boolean | null
+  allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number

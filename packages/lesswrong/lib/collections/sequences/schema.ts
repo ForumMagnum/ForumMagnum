@@ -12,6 +12,7 @@ const schema: SchemaType<DbSequence> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -219,6 +220,7 @@ const schema: SchemaType<DbSequence> = {
   af: {
     type: Boolean,
     optional: true,
+    nullable: false,
     label: "Alignment Forum",
     defaultValue: false,
     canRead: ['guests'],

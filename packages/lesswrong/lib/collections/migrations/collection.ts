@@ -16,17 +16,21 @@ import { addUniversalFields } from '../../collectionUtils'
 const schema: SchemaType<DbMigration> = {
   name: {
     type: String,
+    nullable: false,
   },
   started: {
     type: Date,
+    nullable: false,
   },
   finished: {
     type: Boolean,
     defaultValue: false,
+    nullable: false,
   },
   succeeded: {
     type: Boolean,
     defaultValue: false,
+    nullable: false,
   },
 };
 

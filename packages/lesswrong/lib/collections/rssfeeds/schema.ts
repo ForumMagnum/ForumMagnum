@@ -15,6 +15,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
   },
   ownedByUser: {
     type: Boolean,
@@ -23,6 +24,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canUpdate: ['admins'],
     control: "checkbox",
     optional: true,
+    nullable: false,
     order: 30,
     defaultValue: false,
   },
@@ -33,6 +35,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canUpdate: ['admins'],
     control: "checkbox",
     optional: true,
+    nullable: false,
     order: 40,
     defaultValue: false,
   },
@@ -42,6 +45,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     order: 10,
   },
   url: {
@@ -50,6 +54,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     order: 20,
   },
   // Set to 'inactive' to prevent posting
@@ -66,6 +71,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     logChanges: false,
   },
   setCanonicalUrl: {

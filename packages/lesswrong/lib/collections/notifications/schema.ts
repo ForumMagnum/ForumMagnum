@@ -6,6 +6,7 @@ const schema: SchemaType<DbNotification> = {
     type: String,
     foreignKey: "Users",
     optional: true,
+    nullable: false,
     canRead: userOwns,
   },
   documentId: {
@@ -38,11 +39,13 @@ const schema: SchemaType<DbNotification> = {
   message: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: userOwns,
   },
   type: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: userOwns,
   },
   deleted: {

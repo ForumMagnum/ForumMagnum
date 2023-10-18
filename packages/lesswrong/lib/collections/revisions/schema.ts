@@ -102,6 +102,7 @@ const schema: SchemaType<DbRevision> = {
   version: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests']
   },
   commitMessage: {
@@ -185,6 +186,7 @@ const schema: SchemaType<DbRevision> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
+    nullable: false,
     // resolveAs defined in resolvers.js
   },
   htmlHighlight: {
@@ -209,6 +211,7 @@ const schema: SchemaType<DbRevision> = {
   },
   changeMetrics: {
     type: Object,
+    nullable: false,
     blackbox: true,
     canRead: ['guests']
   },
