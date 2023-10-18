@@ -118,6 +118,15 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     },
   },
+  primaryLoadMore: {
+    "& .LoadMore-root": {
+      color: theme.palette.givingPortal.dark,
+    },
+  },
+  verticalMargin: {
+    marginTop: 60,
+    marginBottom: 80,
+  },
 });
 
 const useAmountRaised = () => {
@@ -131,6 +140,7 @@ const votingOpensDate = new Date("2023-12-01");
 
 const donationTarget = 15000;
 
+const donationElectionTagId = "L6NqHZkLc4xZ7YtDr"; // TODO: This tag doesn't exist yet
 const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
 const timelineSpec: TimelineSpec = {
@@ -161,6 +171,23 @@ const timelineSpec: TimelineSpec = {
   ],
 };
 
+const getListTerms = (
+  tagId: string,
+  sortedBy: string,
+  limit: number,
+) => ({
+  filterSettings: {
+    tags: [
+      {
+        tagId,
+        filterMode: "Required",
+      },
+    ],
+  },
+  sortedBy,
+  limit,
+});
+
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const amountRaised = useAmountRaised();
 
@@ -176,18 +203,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     console.log("Clicked notify when voting opens");
   }, []);
 
-  const classicPostsTerms = {
-    filterSettings: {
-      tags: [
-        {
-          tagId: effectiveGivingTagId,
-          filterMode: "Required",
-        },
-      ],
-    },
-    sortedBy: "topAdjusted",
-    limit: 5,
-  } as const;
+  const onContribute = useCallback(() => {
+    // TODO: Hook up notifications
+    // eslint-disable-next-line no-console
+    console.log("Clicked contribute to the discussion");
+  }, []);
+
+  const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
+  const classicPostsTerms = getListTerms(effectiveGivingTagId, "topAdjusted", 5);
 
   const {HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2} = Components;
   return (
@@ -254,8 +277,24 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
         </div>
         <div className={classes.sectionLight}>
           <div className={classes.content}>
-            <div className={classes.h4}>
-              Recent posts tagged Donation Election 2023
+            <div className={classNames(classes.column, classes.verticalMargin)}>
+              <div className={classes.h4}>
+                Recent posts tagged Donation Election 2023
+              </div>
+              <div className={classNames(
+                classes.postsList,
+                classes.primaryLoadMore,
+              )}>
+                <PostsList2
+                  terms={electionPostsTerms}
+                  loadMoreMessage="View more"
+                />
+              </div>
+              <div>
+                <button onClick={onContribute} className={classes.button}>
+                  Contribute to the discussion
+                </button>
+              </div>
             </div>
           </div>
         </div>
