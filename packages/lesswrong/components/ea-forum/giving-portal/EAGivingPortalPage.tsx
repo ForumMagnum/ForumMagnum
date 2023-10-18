@@ -2,8 +2,9 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
-import classNames from "classnames";
+import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import type { TimelineSpec } from "./Timeline";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,6 +46,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "20px",
+    margin: "0 auto",
   },
   bold: {
     fontWeight: "bold",
@@ -110,6 +112,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.7,
     },
   },
+  postsList: {
+    width: SECTION_WIDTH,
+    "& .LoadMore-root": {
+      color: theme.palette.grey[600],
+    },
+  },
 });
 
 const useAmountRaised = () => {
@@ -122,6 +130,8 @@ const donationElectionLink = "#"; // TODO
 const votingOpensDate = new Date("2023-12-01");
 
 const donationTarget = 15000;
+
+const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
 const timelineSpec: TimelineSpec = {
   start: new Date("2023-11-15"),
@@ -166,7 +176,20 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     console.log("Clicked notify when voting opens");
   }, []);
 
-  const {HeadTags, Timeline, ElectionFundCTA, ForumIcon} = Components;
+  const classicPostsTerms = {
+    filterSettings: {
+      tags: [
+        {
+          tagId: effectiveGivingTagId,
+          filterMode: "Required",
+        },
+      ],
+    },
+    sortedBy: "topAdjusted",
+    limit: 5,
+  } as const;
+
+  const {HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2} = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -244,8 +267,16 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           </div>
         </div>
         <div className={classes.content}>
-          <div className={classes.h3}>
-            Classic writing about effective giving
+          <div className={classes.column}>
+            <div className={classes.h3}>
+              Classic writing about effective giving
+            </div>
+            <div className={classes.postsList}>
+              <PostsList2
+                terms={classicPostsTerms}
+                loadMoreMessage="View more"
+              />
+            </div>
           </div>
         </div>
       </div>
