@@ -7,9 +7,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
-import { taglineSetting } from '../../common/HeadTags';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting } from '../../../lib/instanceSettings';
+import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
 import { PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
@@ -111,6 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
+    overflowWrap: "break-word",
   },
   deletedUsername: {
     textDecoration: 'line-through'

@@ -32,7 +32,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem, SharePostSubmenu
+    ApproveNewUserDropdownItem, SharePostSubmenu, ResyncRssDropdownItem
   } = Components;
 
 
@@ -52,6 +52,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
+      <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
       {!isEAForum && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
@@ -76,10 +77,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       />
       <NotifyMeDropdownItem
         document={post}
-        enabled={!!post.debate}
+        enabled={!!post.collabEditorDialogue}
         subscribeMessage="Subscribe to dialogue"
         unsubscribeMessage="Unsubscribe from dialogue"
-        subscriptionType={subscriptionTypes.newDebateComments}
+        subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
         tooltip="Notifies you when there is new activity in the dialogue"
       />
       <NotifyMeDropdownItem

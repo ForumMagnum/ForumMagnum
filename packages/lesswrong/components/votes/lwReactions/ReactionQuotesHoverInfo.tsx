@@ -2,11 +2,12 @@ import React from 'react';
 import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../../lib/voting/namesAttachedReactions';
 import { useCurrentUser } from '../../common/withUser';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { clearHighlights, markHighlights, useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
+import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
 import { dimHighlightClassName, highlightSelectorClassName } from '../../comments/CommentsItem/CommentsItem';
 import type { VotingProps } from '../votingProps';
+import { ContentItemBody } from '../../common/ContentItemBody';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -61,10 +62,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ReactionQuotesHoverInfo = ({react, voteProps, commentItemRef, classes}:{
+const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
   react: string, 
   voteProps: VotingProps<VoteableTypeClient>,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody>|null,
   classes: ClassesType
 }) => {
   const { LWTooltip } = Components;
@@ -86,14 +87,11 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentItemRef, classes}:{
   const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function handleHoverQuote (quote: string) {
-    clearHighlights(commentItemRef)
-    markHighlights(allQuotes, dimHighlightClassName, commentItemRef)
-    markHighlights([quote], highlightSelectorClassName, commentItemRef)
+    // TODO
   }
 
   function handleLeaveQuote () {
-    clearHighlights(commentItemRef)
-    markHighlights(allQuotes, highlightSelectorClassName, commentItemRef)
+    // TODO
   }
 
   if (!allQuotes.length) return null

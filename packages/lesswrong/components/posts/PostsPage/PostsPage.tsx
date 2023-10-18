@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -14,13 +14,12 @@ import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postRecsPositionABTest, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
@@ -28,6 +27,8 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
+import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -42,6 +43,8 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /acknowledgements/i
 ];
 
+const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
+
 /** Get a og:description-appropriate description for a post */
 export const getPostDescription = (post: {
   contents?: { plaintextDescription: string | null } | null;
@@ -50,7 +53,7 @@ export const getPostDescription = (post: {
   shortform: boolean;
   user: { displayName: string } | null;
 }) => {
-  if (post?.socialPreviewData?.text) {
+  if (post.socialPreviewData?.text) {
     return post.socialPreviewData.text;
   }
 
@@ -200,7 +203,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: 'calc(70vh - 100px)',
+    minHeight: isEAForum ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -209,6 +212,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
     paddingTop: isEAForum ? 16 : undefined
+  },
+  noCommentsPlaceholder: {
+    marginTop: 60,
+    color: theme.palette.grey[600],
+    textAlign: "center",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -253,6 +265,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
+  },
+  subscribeToDialogue: {
+    marginBottom: 40,
+    marginTop: 40,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
   }
 })
 
@@ -368,7 +388,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.question,
   });
 
-  const { results: debateResponses } = useMulti({
+  // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
+  // we're leaving it for now to keep supporting the few debates that were made with it, but
+  // may want to migrate them at some point.
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
       postId: post._id,
@@ -378,6 +401,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.debate,
     limit: 1000
   });
+  
+  useOnNotificationsChanged(currentUser, (message) => {
+    if (message.eventType === 'notificationCheck') {
+      if (currentUser && isDialogueParticipant(currentUser._id, post)) {
+        refetchDebateResponses();
+      }
+    }
+  });
 
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
@@ -386,7 +417,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000}
 
-  const { results: nonDebateComments } = useMulti({
+  // these are the replies to the debate responses (see earlier comment about deprecated feature)
+  const { results: debateReplies } = useMulti({
     terms: {...commentTerms, postId: post._id},
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -399,7 +431,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations,
+    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row
   } = Components
 
   useEffect(() => {
@@ -412,7 +445,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = query?.revision && post.contents;
+  const isOldVersion = query.revision && post.contents;
   
   const defaultSideCommentVisibility = userHasSideComments(currentUser)
     ? (post.sideCommentVisibility ?? "highKarma")
@@ -437,7 +470,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     !post.isEvent &&
     !sequenceId &&
     (post.contents?.wordCount ?? 0) >= 500;
-  const recommendationsPosition = useABTest(postRecsPositionABTest);
+  const recommendationsPosition = getRecommendationsPosition();
 
   const commentId = query.commentId || params.commentId
 
@@ -451,7 +484,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
@@ -548,9 +581,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <Helmet>
-      {allowTypeIIIPlayer && <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>}
-    </Helmet>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -565,10 +595,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
           <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
         </div>}
-        {/* The embedded player for posts with audio auto generated by Type 3. Note: Type 3 apply some
-            custom styling on prod so this may look different locally */}
-        {/* @ts-ignore */}
-        {allowTypeIIIPlayer && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} ><type-3-player analytics="custom"></type-3-player></div>}
+        {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
         { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
         {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
           <PostBodyPrefix post={post} query={query}/>
@@ -584,6 +611,19 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             </CommentOnSelectionContentWrapper>
           </AnalyticsContext>
         </ContentStyles>}
+
+        {post.collabEditorDialogue && <Row justifyContent="center">
+          <div className={classes.subscribeToDialogue}>
+            <NotifyMeDropdownItem
+              document={post}
+              enabled={!!post.collabEditorDialogue}
+              subscribeMessage="Subscribe to dialogue"
+              unsubscribeMessage="Unsubscribe from dialogue"
+              subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
+              tooltip="Notifies you when there is new activity in the dialogue"
+            />
+          </div>
+        </Row>}
 
         {post.debate && debateResponses && debateResponseReplies &&
           <DebateBody
@@ -623,14 +663,28 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
+          {isEAForum && post.commentCount < 1 &&
+            <div className={classes.noCommentsPlaceholder}>
+              <div>No comments on this post yet.</div>
+              <div>Be the first to respond.</div>
+            </div>
+          }
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+    {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
 }
 
+export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
+
+export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+  if (post.userId === userId) return true 
+  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  return false
+}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",

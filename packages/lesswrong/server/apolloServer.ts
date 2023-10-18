@@ -32,7 +32,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -107,9 +107,6 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-
-  //eslint-disable-next-line no-console
-  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema
@@ -184,11 +181,7 @@ export function startWebserver() {
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
@@ -256,6 +249,8 @@ export function startWebserver() {
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
     
+    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+    
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -268,6 +263,7 @@ export function startWebserver() {
         + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
+        + faviconHeader
         + clientScript
     );
     

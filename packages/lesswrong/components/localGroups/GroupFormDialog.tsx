@@ -93,7 +93,7 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
 const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   onClose: ()=>void,
   classes: ClassesType,
-  documentId: string,
+  documentId?: string,
   isOnline?: boolean
 }) => {
   const { WrappedSmartForm, LWDialog } = Components

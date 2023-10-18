@@ -84,7 +84,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVote: {
+      PostsVoteDefault: {
         voteScores: {
           margin: "25% 15% 15% 15%"
         }
@@ -108,7 +108,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
           fontFamily: sansSerifStack,
           color: palette.grey[800],
           fontSize: "1.1rem",
-          lineHeight: "1em"
+          lineHeight: "1.1em"
         }
       },
       MuiListItem: {

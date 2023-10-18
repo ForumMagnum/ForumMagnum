@@ -18,6 +18,8 @@ const adminActions= [
 ]
 adminsGroup.can(adminActions);
 
+export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
+
 Sequences.checkAccess = async (user, document) => {
   if (!document) {
     return false;

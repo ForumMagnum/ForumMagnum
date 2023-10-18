@@ -1,9 +1,11 @@
 import Posts from "../../lib/collections/posts/collection";
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
-import { postStatuses } from "../../lib/collections/posts/constants";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
+import { getViewablePostsSelector } from "./helpers";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
 export type MeanPostKarma = {
   _id: number,
@@ -12,9 +14,18 @@ export type MeanPostKarma = {
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
 
-type EmojiReactors = Record<string, Record<string, string[]>>;
+// Map from emoji names to an array of user display names
+type PostEmojiReactors = Record<string, string[]>;
 
-const emojiReactorCache = new LRU<string, Promise<EmojiReactors>>({
+const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
+  maxAge: 30 * 1000, // 30 second TTL
+  updateAgeOnGet: false,
+});
+
+// Map from comment ids to maps from emoji names to an array of user display names
+type CommentEmojiReactors = Record<string, Record<string, string[]>>;
+
+const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
 });
@@ -24,24 +35,10 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     super(Posts);
   }
 
-  private getKarmaInflationSelector(): string {
-    return `
-      "status" = ${postStatuses.STATUS_APPROVED} AND
-      "draft" = FALSE AND
-      "isFuture" = FALSE AND
-      "unlisted" = FALSE AND
-      "shortform" = FALSE AND
-      "authorIsUnreviewed" = FALSE AND
-      "hiddenRelatedQuestion" = FALSE AND
-      "isEvent" = FALSE AND
-      "postedAt" IS NOT NULL
-    `;
-  }
-
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       SELECT "postedAt" FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
       ORDER BY "postedAt" ASC
       LIMIT 1
     `);
@@ -56,7 +53,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           FLOOR(EXTRACT(EPOCH FROM "postedAt" - $1) / ($2 / 1000)) AS "_id",
           "baseScore"
         FROM "Posts"
-        WHERE ${this.getKarmaInflationSelector()}
+        WHERE ${getViewablePostsSelector()}
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
@@ -69,7 +66,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
-      WHERE ${this.getKarmaInflationSelector()}
+      WHERE ${getViewablePostsSelector()}
     `), "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
@@ -104,7 +101,47 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [digestId, startDate, end]), "getEligiblePostsForDigest");
   }
 
-  async getEmojiReactors(postId: string): Promise<EmojiReactors> {
+  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
+    const {emojiReactors} = await this.getRawDb().one(`
+      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
+      FROM (
+        SELECT
+          "key",
+          (ARRAY_AGG(
+            "displayName" ORDER BY "createdAt" ASC)
+          ) AS "displayNames"
+        FROM (
+          SELECT
+            u."displayName",
+            v."createdAt",
+            (JSONB_EACH(v."extendedVoteType")).*
+          FROM "Votes" v
+          JOIN "Users" u ON u."_id" = v."userId"
+          WHERE
+            v."collectionName" = 'Posts' AND
+            v."documentId" = $1 AND
+            v."cancelled" IS NOT TRUE AND
+            v."isUnvote" IS NOT TRUE AND
+            v."extendedVoteType" IS NOT NULL
+        ) q
+        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
+        GROUP BY "key"
+      ) q
+    `, [postId, eaPublicEmojiNames]);
+    return emojiReactors;
+  }
+
+  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
+    const cached = postEmojiReactorCache.get(postId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const emojiReactors = this.getPostEmojiReactors(postId);
+    postEmojiReactorCache.set(postId, emojiReactors);
+    return emojiReactors;
+  }
+
+  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
@@ -118,13 +155,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
             "commentId",
             "key",
             (ARRAY_AGG(
-              "displayName" ORDER BY COALESCE("karma", 0) DESC)
+              "displayName" ORDER BY "createdAt" ASC)
             ) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
               u."displayName",
-              u."karma",
+              v."createdAt",
               (JSONB_EACH(v."extendedVoteType")).*
             FROM "Comments" c
             JOIN "Votes" v ON
@@ -145,14 +182,41 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
-  async getEmojiReactorsWithCache(postId: string): Promise<EmojiReactors> {
-    const cached = emojiReactorCache.get(postId);
+  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
+    const cached = commentEmojiReactorCache.get(postId);
     if (cached !== undefined) {
       return cached;
     }
-    const emojiReactors = this.getEmojiReactors(postId);
-    emojiReactorCache.set(postId, emojiReactors);
+    const emojiReactors = this.getCommentEmojiReactors(postId);
+    commentEmojiReactorCache.set(postId, emojiReactors);
     return emojiReactors;
+  }
+
+  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+      JOIN "Digests" d ON d."_id" = dp."digestId"
+      ORDER BY d."num" DESC, p."baseScore" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
+  getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*, c."mostRecentCommentAt"
+      FROM "Posts" p
+      LEFT JOIN (
+          SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
+          FROM "Comments"
+          WHERE "debateResponse" IS TRUE
+          GROUP BY "postId"
+          ) c ON p."_id" = c."postId"
+      WHERE (p.debate IS TRUE OR p."collabEditorDialogue" IS TRUE) AND p.draft IS NOT TRUE
+      ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt") DESC
+      LIMIT $1
+    `, [limit]);
   }
 
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
@@ -165,6 +229,80 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
+  }
+
+  getDigestHighlights({
+    maxAgeInDays = 31,
+    numPostsPerDigest = 2,
+    limit = 10,
+  }): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM (
+        SELECT
+          p."_id",
+          d."num" AS "digestNum",
+          ROW_NUMBER() OVER(
+            PARTITION BY dp."digestId" ORDER BY p."baseScore" DESC
+          ) AS "rowNum"
+        FROM "Posts" p
+        JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+        JOIN "Digests" d ON
+          dp."digestId" = d."_id" AND
+          FLOOR(EXTRACT(EPOCH FROM NOW() - d."startDate") / 86400) <= $1
+      ) q
+      JOIN "Posts" p ON q."_id" = p."_id"
+      WHERE q."rowNum" <= $2
+      ORDER BY q."digestNum" DESC, q."rowNum" ASC
+      LIMIT $3
+    `, [maxAgeInDays, numPostsPerDigest, limit]);
+  }
+
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+    currentUser?: DbUser | null,
+    days?: number,
+    limit?: number,
+  } = {}) {
+    const postFilter = getViewablePostsSelector("p");
+    const readFilter = currentUser
+      ? {
+        join: `
+          LEFT JOIN "ReadStatuses" rs ON
+            p."_id" = rs."postId" AND
+            rs."userId" = $3
+        `,
+        filter: `rs."isRead" IS NOT TRUE AND`,
+      }
+      : {join: "", filter: ""};
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      ${readFilter.join}
+      WHERE
+        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      UNION
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Users" u ON p."userId" = u."_id"
+      ${readFilter.join}
+      WHERE
+        p."curatedDate" IS NULL AND
+        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        COALESCE(
+          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
+          0
+        ) < 1 AND
+        p."groupId" IS NULL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        u."deleted" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
+      LIMIT $2
+    `, [String(days), limit, currentUser?._id]);
   }
 
   private getSearchDocumentQuery(): string {
@@ -227,3 +365,5 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return count;
   }
 }
+
+ensureIndex(Posts, {debate:-1})

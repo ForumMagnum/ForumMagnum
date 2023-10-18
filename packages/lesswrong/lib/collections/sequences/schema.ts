@@ -1,5 +1,6 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
+import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<DbSequence> = {
   userId: {
@@ -159,6 +160,59 @@ const schema: SchemaType<DbSequence> = {
     canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
+
+  noindex: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+  },
+
+  postsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequencePostsCount",
+        sequence._id,
+        (sequenceIds): Promise<number[]> => {
+          return context.repos.sequences.postsCount(sequenceIds);
+        }
+      );
+
+      return count;
+    }
+  }),
+
+  readPostsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const currentUser = context.currentUser;
+      
+      if (!currentUser) return 0;
+
+      const createCompositeId = (sequenceId: string, userId: string) => `${sequenceId}-${userId}`;
+      const splitCompositeId = (compositeId: string) => {
+        const [sequenceId, userId] = compositeId.split('-')
+        return {sequenceId, userId};
+      };
+
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequenceReadPostsCount",
+        createCompositeId(sequence._id, currentUser._id),
+        (compositeIds): Promise<number[]> => {
+          return context.repos.sequences.readPostsCount(compositeIds.map(splitCompositeId));
+        }
+      );
+
+      return count;
+    }
+  }),
 
   /* Alignment Forum fields */
 

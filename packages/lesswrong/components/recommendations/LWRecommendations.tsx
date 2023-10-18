@@ -115,8 +115,9 @@ const LWRecommendations = ({
   }, [showSettings, captureEvent, setShowSettings]);
 
   const render = () => {
-    const { CurrentSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
+    const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
+      ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -132,7 +133,7 @@ const LWRecommendations = ({
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
-    
+
     const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
 
     const titleText = "Recommendations"
@@ -165,9 +166,10 @@ const LWRecommendations = ({
       <div><em>(Click to see all)</em></div>
     </div>
 
-    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
@@ -181,7 +183,7 @@ const LWRecommendations = ({
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
         {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
-          <CurrentSpotlightItem />
+          <DismissibleSpotlightItem current />
         </AnalyticsContext>}
 
         <div className={classes.subsection}>

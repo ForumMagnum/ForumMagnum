@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   sidebar: {
@@ -35,10 +36,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NavigationStandalone = (
-  {sidebarHidden, unspacedGridLayout, className, classes}:
-  {sidebarHidden: boolean, unspacedGridLayout?: boolean, className: string, classes: ClassesType}
-) => {
+const NavigationStandalone = ({
+  sidebarHidden,
+  unspacedGridLayout,
+  noTopMargin,
+  className,
+  classes,
+}: {
+  sidebarHidden: boolean,
+  unspacedGridLayout?: boolean,
+  noTopMargin?: boolean,
+  className?: string,
+  classes: ClassesType,
+}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 
@@ -54,12 +64,15 @@ const NavigationStandalone = (
         unmountOnExit
       >
         {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-        <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
+        <TabNavigationMenu
+          transparentBackground={unspacedGridLayout}
+          noTopMargin={noTopMargin}
+        />
       </Slide>
     </div>
-    <div className={classNames(classes.footerBar, className)}>
+    {!isEAForum && <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
-    </div>
+    </div>}
   </>
 }
 

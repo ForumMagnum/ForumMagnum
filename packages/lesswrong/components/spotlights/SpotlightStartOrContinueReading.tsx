@@ -1,20 +1,19 @@
 import classNames from 'classnames';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
+import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   boxesRoot: {
-    marginTop: 4,
   },
   firstPost: {
-    marginTop: 4,
     ...theme.typography.body2,
-    fontSize: "1.1rem",
+    fontSize: isEAForum ? 13 : "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
@@ -33,11 +32,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
+export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
   spotlight: SpotlightDisplay,
   classes: ClassesType,
+  className?: string,
 }) => {
-  const { LWTooltip, PostsPreviewTooltip} = Components
   const chapters = spotlight.sequenceChapters;
   
   const { postsRead: clientPostsRead } = useItemsRead();
@@ -53,27 +52,40 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight}: {
   const firstPostSequenceId = spotlight.documentType === "Sequence" ? spotlight.documentId : undefined
   
   if (spotlight.documentType !== "Sequence" || !posts.length) return null;
+  const prefix = forumSelect({
+    EAForum: preferredHeadingCase("Start with: "),
+    default: preferredHeadingCase("First Post: ")
+  });
 
+  const {PostsTooltip} = Components;
   if (firstPost) {
-    return <div className={classes.firstPost}>
-      First Post: <LWTooltip title={<PostsPreviewTooltip post={firstPost}/>} tooltip={false}>
+    return <div className={classNames(classes.firstPost, className)}>
+      {prefix}<PostsTooltip post={firstPost}>
         <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
-      </LWTooltip>
+      </PostsTooltip>
     </div>
   } else {
-    return <div className={classes.boxesRoot}>
+    return <div className={classNames(classes.boxesRoot, className)}>
     {posts.map(post => (
-      <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+      <PostsTooltip
+        key={`${spotlight._id}-${post._id}`}
+        post={post}
+        flip={false}
+      >
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
           <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
         </Link>
-      </LWTooltip>
+      </PostsTooltip>
      ))}
   </div>
   }
 }
 
-const SpotlightStartOrContinueReadingComponent = registerComponent('SpotlightStartOrContinueReading', SpotlightStartOrContinueReading, {styles});
+const SpotlightStartOrContinueReadingComponent = registerComponent(
+  'SpotlightStartOrContinueReading',
+  SpotlightStartOrContinueReading,
+  {styles, stylePriority: -2}
+);
 
 declare global {
   interface ComponentTypes {

@@ -1,9 +1,9 @@
-import { isAnyTest, onStartup } from '../lib/executionEnvironment';
+import { isAnyTest, isDevelopment, onStartup } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
 
 SyncedCron.options = {
-  log: true,
+  log: !isDevelopment,
   collectionName: 'cronHistory',
   utc: false,
   collectionTTL: 172800

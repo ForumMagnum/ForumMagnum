@@ -28,8 +28,7 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   typeName: string,
   fragmentName: FragmentName,
   extraVariablesString: string,
-}) =>
-`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+}) => `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
       ...${fragmentName}
@@ -243,9 +242,9 @@ export type LoadMoreCallback = (limitOverride?: number) => void
 export type LoadMoreProps = {
   loadMore: LoadMoreCallback
   count: number,
-  totalCount: number,
+  totalCount?: number,
   loading: boolean,
-  hidden: boolean,
+  hidden?: boolean,
 }
 
 export type UseMultiResult<

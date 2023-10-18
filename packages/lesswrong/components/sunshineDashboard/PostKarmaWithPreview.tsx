@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { useHover } from '../common/withHover';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -34,37 +33,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-
 const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,
   classes: ClassesType,
   displayTitle: boolean,
   reviewedAt: Date
 }) => {
-  const { hover, anchorEl, eventHandlers } = useHover();
-  const { LWPopper, PostsPreviewTooltip, FormatDate } = Components
-
-  return <span className={classNames(classes.root, {[classes.titleDisplay]: displayTitle})} {...eventHandlers}>
-    <Link className={classNames({[classes.highlight]: post.postedAt > reviewedAt, [classes.draft]: post.draft, [classes.default]: !post.draft})}
-      to={postGetPageUrl(post)}>
-      {displayTitle && <span className={classes.scoreTitleFormat}>
-        <FormatDate date={post.postedAt} />
-      </span>}
-      <span className={displayTitle ? classes.scoreTitleFormat : null}>
-        {post.baseScore} 
+  const {PostsTooltip, FormatDate} = Components;
+  return (
+    <PostsTooltip
+      post={post}
+      placement={displayTitle ? "right-start" : "bottom-start"}
+      clickable
+    >
+      <span className={classNames(classes.root, {
+        [classes.titleDisplay]: displayTitle,
+      })}>
+        <Link
+          className={classNames({
+            [classes.highlight]: post.postedAt > reviewedAt,
+            [classes.draft]: post.draft,
+            [classes.default]: !post.draft,
+          })}
+          to={postGetPageUrl(post)}
+        >
+          {displayTitle && <span className={classes.scoreTitleFormat}>
+            <FormatDate date={post.postedAt} />
+          </span>}
+          <span className={displayTitle ? classes.scoreTitleFormat : null}>
+            {post.baseScore}
+          </span>
+          {displayTitle && post.title}
+        </Link>
       </span>
-      {displayTitle && post.title}
-    </Link>
-    <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement={displayTitle ? "right-start" : "bottom-start"}
-      >
-      <div>
-        <PostsPreviewTooltip post={post}/>
-      </div>
-    </LWPopper>
-  </span>
+    </PostsTooltip>
+  );
 }
 
 const PostKarmaWithPreviewComponent = registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
@@ -74,4 +77,3 @@ declare global {
     PostKarmaWithPreview: typeof PostKarmaWithPreviewComponent
   }
 }
-

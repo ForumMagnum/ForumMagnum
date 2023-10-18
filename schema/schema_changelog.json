@@ -288,5 +288,55 @@
     "acceptsSchemaHash": "87520014b627c9ee151523bd05e7bdae",
     "acceptedByMigration": "20230818T215451.post_embeddings_have_vector_type.ts",
     "timestamp": "2023-08-18T21:54:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4acff74195e36da33248763ab681bfd7",
+    "acceptedByMigration": "20230824T155436.add_imageFade.ts",
+    "timestamp": "2023-08-24T15:54:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7d3553d2dcd4a5e47968398dfee076f2",
+    "acceptedByMigration": "20230829T170631.add_hideFromPopularComments_column.ts",
+    "timestamp": "2023-08-29T17:06:31.000Z"
+  },
+  {
+    "acceptsSchemaHash": "695076fb79e84a853f06b96943835ff2",
+    "acceptedByMigration": "20230830T094148.add_noindex_SequencesCollections.ts",
+    "timestamp": "2023-08-30T09:41:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1688c0a0ffbebf808f0ad26c4ba8d073",
+    "acceptedByMigration": "20230914T094148.add_forceAllowType3Audio.ts",
+    "timestamp": "2023-09-14T09:41:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c7d6d21198c4725672bcea289b5c32ff",
+    "acceptedByMigration": "20230915T224433.create_typing_indicator_table.ts",
+    "timestamp": "2023-09-15T22:44:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "498e064c609716f4a0b3dd145dab50b2",
+    "acceptedByMigration": "20230926T142421.add_headertitle_to_spotlights.ts",
+    "timestamp": "2023-09-26T14:24:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2e10471e3641d01fe309198fb9ecff32",
+    "acceptedByMigration": "20231003T195435.add_collabEditorDialogue.ts",
+    "timestamp": "2023-10-03T19:54:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ab02d7ee110cc11f4df3b0f16a24905d",
+    "acceptedByMigration": "20231006T193146.dialogue_notifications_and_post_sharing_default.ts",
+    "timestamp": "2023-10-06T19:31:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d42e531dd915561448e15e72551b1d71",
+    "acceptedByMigration": "20231006T214457.update_dialogue_notification_defaults.ts",
+    "timestamp": "2023-10-06T21:44:57.000Z"
+  },
+  {
+    "acceptsSchemaHash": "881c509060130982ab7f20a92a5c9602",
+    "acceptedByMigration": "20231009T101621.add_wasEverUndrafted_to_posts.ts",
+    "timestamp": "2023-10-09T10:16:21.000Z"
   }
 ]

@@ -15,6 +15,7 @@ import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import { preferredHeadingCase } from '../../forumTypeUtils';
 import { permissionGroups } from '../../permissions';
+import type { TagCommentType } from '../comments/types';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -271,11 +272,20 @@ const schema: SchemaType<DbTag> = {
     graphQLtype: "[Comment]",
     canRead: ['guests'],
     graphqlArguments: 'tagCommentsLimit: Int, maxAgeHours: Int, af: Boolean, tagCommentType: String',
-    resolver: async (tag, { tagCommentsLimit=5, maxAgeHours=18, af=false, tagCommentType = "DISCUSSION" }, context: ResolverContext) => {
+    resolver: async (tag, args: { tagCommentsLimit?: number|null, maxAgeHours?: number, af?: boolean, tagCommentType?: TagCommentType }, context: ResolverContext) => {
+      // assuming this might have the same issue as `recentComments` on the posts schema, w.r.t. tagCommentsLimit being null vs. undefined
+      const { tagCommentsLimit, maxAgeHours=18, af=false, tagCommentType='DISCUSSION' } = args;
+    
       const { currentUser, Comments } = context;
-      const lastCommentTime = tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt
-      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+      // `lastCommentTime` can be `null`, which produces <Invalid Date> when passed through moment, rather than the desired Date.now() default
+      const lastCommentTime = (
+        tagCommentType === "SUBFORUM"
+          ? tag.lastSubforumCommentAt
+          : tag.lastCommentedAt
+        ) ?? undefined;
 
+      const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, 'hours').toDate();
+      
       const comments = await Comments.find({
         ...getDefaultViewSelector("Comments"),
         tagId: tag._id,
@@ -285,7 +295,7 @@ const schema: SchemaType<DbTag> = {
         tagCommentType: tagCommentType,
         ...(af ? {af:true} : {}),
       }, {
-        limit: tagCommentsLimit,
+        limit: tagCommentsLimit ?? 5,
         sort: {postedAt:-1}
       }).fetch();
       return await accessFilterMultiple(currentUser, Comments, comments, context);
@@ -646,7 +656,7 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: ['admins'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     label: "No Index",
     tooltip: `Hide this ${taggingNameSetting.get()} from search engines`,

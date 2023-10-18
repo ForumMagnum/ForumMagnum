@@ -341,12 +341,22 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
    * See: https://app.asana.com/0/628521446211730/1203311932993130/f
    * It's fine to leave it here just in case though
    */
-  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
+  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
+    const isPostContentsContext = collectionName === 'Posts' && fieldName === 'contents';
+    const hasChanged = (oldDoc as DbPost)?.contents?.html !== (doc as DbPost)?.contents?.html;
+    
+    if (isPostContentsContext && !hasChanged) return;
+
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
   })
+  if (collectionName === 'Posts') {
+    getCollectionHooks(collectionName).newAsync.add(async (doc: DbPost) => {
+      await Globals.rehostPostMetaImages(doc);
+    })
+  }
 }
 
 export function addAllEditableCallbacks() {

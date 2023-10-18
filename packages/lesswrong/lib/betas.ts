@@ -6,8 +6,8 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum } from "./instanceSettings";
-import { userOverNKarmaOrApproved } from "./vulcan-users";
+import { testServerSetting, isEAForum, isLWorAF } from "./instanceSettings";
+import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -16,6 +16,7 @@ const optInOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.beta; // 
 const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // eslint-disable-line no-unused-vars
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
+const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
@@ -42,8 +43,14 @@ export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
-export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
-export const userHasPopularCommentsSection = isEAForum ? adminOnly : disabled;
+
+export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
+
+export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
+
+// Non-user-specific features
+export const dialoguesEnabled = isLWorAF;
+export const inlineReactsHoverEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

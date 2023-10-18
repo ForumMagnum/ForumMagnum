@@ -238,6 +238,10 @@ import './collections/postRecommendations/collection';
 import './collections/cronHistories';
 import './collections/sessions';
 
+// dialogue typing indicators
+import './collections/typingIndicators/collection';
+import './collections/typingIndicators/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

@@ -3,7 +3,7 @@ import Spotlights from "./collection";
 
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
-
+    sequenceId?: string;
   }
 }
 
@@ -11,7 +11,8 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
     selector: {
-      draft: false
+      draft: false,
+      lastPromotedAt: { $lt: new Date() },
     },
     options: {
       sort: { lastPromotedAt: -1, position: 1 },
@@ -33,3 +34,14 @@ Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
   }
 });
 
+Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
+  return {
+    selector: {
+      documentId: terms.sequenceId,
+      draft: false
+    },
+    options: {
+      sort: { position: 1 }
+    }
+  }
+});

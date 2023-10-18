@@ -108,8 +108,8 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       </LWTooltip>
     </span>}
 
-    {post.debate && <span className={classes.postIcon}>
-      <LWTooltip title="Dialog" placement="right">
+    {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
+      <LWTooltip title="Dialogue" placement="right">
         <DebateIcon className={classes.icon} />
       </LWTooltip>
     </span>}

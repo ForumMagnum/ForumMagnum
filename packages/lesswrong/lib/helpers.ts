@@ -1,5 +1,6 @@
 import { Utils, getCollection } from './vulcan-lib';
 import moment from 'moment';
+import { randomId } from './random';
 
 // Get relative link to conversation (used only in session)
 export const conversationGetLink = (conversation: HasIdType): string => {
@@ -32,26 +33,43 @@ export function constantTimeCompare({ correctValue, unknownValue }: { correctVal
   }
 }
 
-// LESSWRONG version of getting unused slug. Modified to also include "oldSlugs" array
+// Get an unused slug. If `slug` is already unused, returns it as-is. If it's
+// used, finds a suffix such that slug-{suffix} is unused.
+//
+// Slugs are sequential up to 10, then jump to 4-char IDs, then 8-char IDs.
+//
+// If useOldSlugs is true, then the slugs that renamed documents used to have
+// count as used. If a documentId is provided, that document doesn't count as
+// a collision.
 Utils.getUnusedSlug = async function <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs = false, documentId?: string): Promise<string> {
   let suffix = '';
   let index = 0;
   
-  let existingDocuments = await getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
-  // test if slug is already in use
-  while (!!existingDocuments?.length) {
+  //eslint-disable-next-line no-constant-condition
+  while(true) {
+    // Test if slug is already in use
+    const existingDocuments = await getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
     // Filter out our own document (i.e. don't change the slug if the only conflict is with ourselves)
     const conflictingDocuments = existingDocuments.filter((doc) => doc._id !== documentId)
+
+    // If no conflict, we're done
+    if (!conflictingDocuments.length) {
+      return slug+suffix;
+    }
+
     // If there are other documents we conflict with, change the index and slug, then check again
-    if (!!conflictingDocuments.length) {
-      index++
+    index++;
+    
+    // Count up indexes sequentially up to 10. After that, randomly generate an ID. This
+    // avoids making it so that creating n documents with the same base string is O(n^2).
+    // (This came up in development with posts named "test", which there are hundreds of.)
+    if (index <= 10) {
       suffix = '-'+index;
-      existingDocuments = await getDocumentsBySlug({slug, suffix, useOldSlugs, collection})
     } else {
-      break
+      const randomIndex = randomId(index<20 ? 4 : 8);
+      suffix = '-'+randomIndex;
     }
   }
-  return slug+suffix;
 };
 
 const getDocumentsBySlug = async <T extends HasSlugType>({slug, suffix, useOldSlugs, collection}: {
@@ -119,3 +137,48 @@ export const generateDateSeries = (startDate: moment.Moment | Date, endDate: mom
   }
   return dateSeries;
 };
+
+/**
+ * Given an arbitrary object and a path into that object, where the result is presumed to exist and
+ * be a string, recurse through that object getting the value at the given path. Eg
+ *
+ *     getAtPath({
+ *       x: {
+ *         y: {
+ *           z: "asdf"
+ *         },
+ *       }
+ *     }, ["x","y","z"])
+ *
+ * is "asdf". This is not as strong a typecheck as would be ideal; it might be possible to make
+ * something stronger by replacing ThemePath with a type that manipulates T to assert that the path
+ * exists as a string, but I (Jim) gave it a shot and didn't find a way to do that that worked.
+ */
+export const getAtPath = <T extends {}, V extends AnyBecauseHard>(
+  data: T,
+  path: (string | number)[],
+): V | undefined => {
+  if (!data) {
+    return undefined;
+  }
+  return path.length < 2
+    ? data[path[0] as keyof T] as V | undefined
+    : getAtPath(data[path[0] as keyof T] as AnyBecauseHard, path.slice(1));
+}
+
+/**
+ * Similar to `getAtPath`, but acts as a setter rather than a getter. See
+ * `getAtPath` for details.
+ */
+export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
+  data: T,
+  path: (string | number)[],
+  value: V,
+): V => {
+  if (path.length < 2) {
+    (data[path[0] as keyof T] as V) = value;
+  } else {
+    setAtPath(data[path[0] as keyof T] as AnyBecauseHard, path.slice(1), value);
+  }
+  return value;
+}

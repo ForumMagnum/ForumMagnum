@@ -43,14 +43,19 @@ const getStructuredData = () => ({
   }),
 })
 
+const styles = (theme: ThemeType): JssStyles => ({
+  spotlightMargin: {
+    marginBottom: 24,
+  },
+});
 
-const EAHome = () => {
+const EAHome = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
     SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection, BotSiteBanner
+    EAPopularCommentsSection, BotSiteBanner, DismissibleSpotlightItem
   } = Components
 
   const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
@@ -71,16 +76,13 @@ const EAHome = () => {
       {shouldRenderEventBanner && <EventBanner />}
       {shouldRenderBotSiteBanner && <BotSiteBanner />}
 
-      {/* <SingleColumnSection>
-        <CurrentSpotlightItem />
-      </SingleColumnSection> */}
-
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
       <EAHomeMainContent FrontpageNode={
         () => <>
+          <DismissibleSpotlightItem current className={classes.spotlightMargin} />
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
@@ -97,7 +99,7 @@ const EAHome = () => {
   )
 }
 
-const EAHomeComponent = registerComponent('EAHome', EAHome)
+const EAHomeComponent = registerComponent('EAHome', EAHome, {styles});
 
 declare global {
   interface ComponentTypes {

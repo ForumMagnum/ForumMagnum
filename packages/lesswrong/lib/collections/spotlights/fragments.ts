@@ -12,8 +12,12 @@ registerFragment(`
     lastPromotedAt
     customTitle
     customSubtitle
+    headerTitle
+    headerTitleLeftColor
+    headerTitleRightColor
     duration
     showAuthor
+    imageFade
   }
 `)
 

@@ -15,9 +15,8 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
-import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -275,8 +274,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                     actions={[]}
                     trigger={<a>Register RSS</a>}
                   >
-                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                    <div><Components.newFeedButton user={user} /></div>
+                    <div><Components.NewFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }

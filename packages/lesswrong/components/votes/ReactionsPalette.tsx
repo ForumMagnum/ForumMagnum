@@ -145,7 +145,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   quote?: string,
   classes: ClassesType,
 }) => {
-  const { ReactionIcon, LWTooltip, Row, MetaInfo } = Components;
+  const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const reactPaletteStyle = currentUser?.reactPaletteStyle ?? "listView";
@@ -181,7 +181,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
       </div>
       <div>
         <span className={classes.tooltipLabel}>{reaction.label}</span>
-        <ReactionDescription reaction={reaction} classes={classes}/>
+        <ReactionDescription reaction={reaction} />
       </div>
     </div>
   }
@@ -330,23 +330,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
       </a>}
     </div>
   </div>
-  
-}   
-   
-const ReactionDescription = ({reaction, classes}: {
-reaction: NamesAttachedReactionType,
-classes: ClassesType,
-  }) => {
-    if (!reaction.description) {
-      return null;
-    } else if (typeof reaction.description === "string") {
-      return <div>{reaction.description}</div>
-    } else if (typeof reaction.description === "function") {
-      return <div>{reaction.description("comment")}</div>
-    } else {
-      return <div>{reaction.description}</div>
-    }
-  }
+}
 
 function reactionsSearch(candidates: NamesAttachedReactionType[], searchText: string): NamesAttachedReactionType[] {
   if (!searchText || !searchText.length)

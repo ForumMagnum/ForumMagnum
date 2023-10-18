@@ -37,13 +37,29 @@ const overrideFields = [
   "readTimeMinutes",
 ] as const;
 
+const getCrosspostQuery = gql`
+  query GetCrosspostQuery($args: JSON) {
+    getCrosspost(args: $args)
+  }
+`;
+
+/**
+ * These queries can be slow (and the timing is unpredictable), so use
+ * `batchKey: "crosspost"` to make sure it doesn't get batched together with
+ * other queries and block them
+ */
+const crosspostBatchKey = "crosspost";
+
+type PostFetchProps<FragmentTypeName extends PostFragments> =
+  Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">;
+
 type PostFragments = 'PostsWithNavigation' | 'PostsWithNavigationAndRevision' | 'PostsList';
 /**
  * Load foreign crosspost data from the foreign site
  */
 export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends PostFragments>(
   localPost: Post,
-  fetchProps: Omit<UseSingleProps<FragmentTypeName>, "documentId" | "apolloClient">,
+  fetchProps: PostFetchProps<FragmentTypeName>,
 ): {
   loading: boolean,
   error?: ApolloError,
@@ -58,20 +74,15 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     throw new Error("Crosspost has not been created yet");
   }
 
-  const getCrosspostQuery = gql`
-    query GetCrosspostQuery($args: JSON) {
-      getCrosspost(args: $args)
-    }
-  `;
-
-  const args = {
-    ...fetchProps,
-    documentId: localPost.fmCrosspost.foreignPostId
-  };
-
-  // This query can be slow (and the timing is unpredictable), so use `batchKey: "crosspost"` to make sure it
-  // doesn't get batched together with other queries and block them
-  const { data, loading, error } = useQuery(getCrosspostQuery, { variables: { args, batchKey: "crosspost" } });
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
+    variables: {
+      args: {
+        ...fetchProps,
+        documentId: localPost.fmCrosspost.foreignPostId,
+      },
+      batchKey: crosspostBatchKey,
+    },
+  });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
@@ -100,5 +111,58 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     localPost,
     foreignPost,
     combinedPost,
+  };
+}
+
+/**
+ * Returns the post contents for any post, abstracting over whether or not the
+ * post is a crosspost. If the post is a crosspost then a request will be made
+ * to fetch the body from the foreign site, and it it's not a crosspost then
+ * the body will be returned directly from the input post.
+ */
+export const usePostContents = <FragmentTypeName extends PostFragments>({
+  post,
+  fragmentName,
+  fetchProps,
+  skip,
+}: {
+  post: FragmentTypes[FragmentTypeName],
+  fragmentName: FragmentTypeName,
+  fetchProps?: PostFetchProps<FragmentTypeName>,
+  skip?: boolean,
+}): {
+  postContents?: FragmentTypes[FragmentTypeName]["contents"],
+  loading: boolean,
+  error?: ApolloError,
+} => {
+  const isCrosspost = isPostWithForeignId(post);
+  const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;
+
+  const {data, loading, error} = useQuery(getCrosspostQuery, {
+    variables: {
+      args: {
+        ...fetchProps,
+        collectionName: "Posts",
+        fragmentName,
+        documentId: post.fmCrosspost?.foreignPostId,
+      },
+      batchKey: crosspostBatchKey,
+    },
+    skip: !isForeign || skip,
+  });
+
+  if (isForeign) {
+    const foreignPost: FragmentTypes[FragmentTypeName] | undefined = data?.getCrosspost;
+    return {
+      postContents: foreignPost?.contents,
+      loading,
+      error,
+    };
+  }
+
+  return {
+    postContents: post.contents,
+    loading: false,
+    error: undefined,
   };
 }

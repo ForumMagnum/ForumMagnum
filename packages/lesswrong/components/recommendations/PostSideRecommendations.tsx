@@ -12,6 +12,9 @@ const WIDTH = 250;
 const styles = (theme: ThemeType) => ({
   root: {
     marginTop: "100vh",
+    background: theme.palette.grey[55],
+    padding: 16,
+    borderRadius: theme.borderRadius.default,
     width: WIDTH,
     minWidth: WIDTH,
     maxWidth: WIDTH,
@@ -26,7 +29,6 @@ const styles = (theme: ThemeType) => ({
   },
   list: {
     margin: "12px 0",
-    paddingLeft: "1em",
     "& li": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 13,
@@ -36,11 +38,6 @@ const styles = (theme: ThemeType) => ({
     },
     "& a": {
       color: theme.palette.primary.main,
-    },
-  },
-  numberedList: {
-    "& li": {
-      marginBottom: 14,
     },
   },
   buttons: {
@@ -60,7 +57,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-
 const PostSideRecommendations = ({post, className, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   className?: string,
@@ -71,7 +67,7 @@ const PostSideRecommendations = ({post, className, classes}: {
   const {
     loading,
     title,
-    numbered,
+    Container = "div",
     items,
     hideCookieName,
   } = usePostSideRecommendations(currentUser, post);
@@ -100,17 +96,14 @@ const PostSideRecommendations = ({post, className, classes}: {
   }
 
   const {Loading, IntercomFeedbackButton} = Components;
-  const List = numbered ? "ol" : "ul";
   return (
     <AnalyticsContext pageSectionContext="postSideRecommendations">
       <div className={classNames(classes.root, className)}>
         <div className={classes.title}>{title}</div>
         {loading && <Loading />}
-        <List className={classNames(classes.list, {
-          [classes.numberedList]: numbered,
-        })}>
+        <Container className={classes.list}>
           {items.map((Item, i) => <Item key={i} />)}
-        </List>
+        </Container>
         <div className={classes.buttons}>
           <IntercomFeedbackButton eventName="postSideRecommendationsFeedback" />
           {hideCookieName &&

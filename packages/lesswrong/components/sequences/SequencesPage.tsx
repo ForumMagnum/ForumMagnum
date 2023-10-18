@@ -11,6 +11,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -137,9 +138,24 @@ const SequencesPage = ({ documentId, classes }: {
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
+
+  const socialImageId = document.gridImageId || document.bannerImageId;
+  const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
+    c: "fill",
+    dpr: "auto",
+    q: "auto",
+    f: "auto",
+    g: "auto:faces",
+  }) : undefined;
     
   return <div className={classes.root}>
-    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title} description={plaintextDescription || undefined}/>
+    <HeadTags
+      canonicalUrl={sequenceGetPageUrl(document, true)}
+      title={document.title}
+      description={plaintextDescription || undefined}
+      image={socialImageUrl}
+      noIndex={document.noindex}
+    />
     <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>

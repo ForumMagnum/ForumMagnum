@@ -3,15 +3,8 @@ import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
-
-export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
-export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
-const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
-const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
-
-const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -64,8 +57,15 @@ const HeadTags = ({
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
-          {/* twitter */}
-          <meta name='twitter:card' content={useSmallImage ? 'summary' : 'summary_large_image'}/>
+          {/* Twitter link-card
+           * Note 2023-10-05: Twitter's "summary_large_image" card currently shows only
+           * an image with no title/description/etc, so we only ever use "summary". Before
+           * Twitter made this change, we switched between "summary" and "summary_large_image"
+           * based on the `useSmallImage` prop. Twitter is getting backlash about this, so
+           * they might revert (in which case we might also revert).
+           * See: https://news.ycombinator.com/item?id=37782945
+           */}
+          <meta name='twitter:card' content={'summary'}/>
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
@@ -79,7 +79,6 @@ const HeadTags = ({
 
           {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
-          <link rel='shortcut icon' href={faviconUrlSetting.get()}/>
 
           <link rel="alternate" type="application/rss+xml" href={rssUrl} />
 

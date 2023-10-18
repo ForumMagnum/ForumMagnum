@@ -685,6 +685,7 @@ const schema: SchemaType<DbComment> = {
   debateResponse: {
     type: Boolean,
     optional: true,
+    label: "Dialogue Response",
     nullable: true,
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -778,7 +779,7 @@ const schema: SchemaType<DbComment> = {
       ) {
         return {};
       }
-      const reactors = await context.repos.posts.getEmojiReactorsWithCache(comment.postId);
+      const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
       return reactors[comment._id] ?? {};
     },
   }),

@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
+import {forumTitleSetting, forumTypeSetting, isLW} from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -72,12 +72,26 @@ const PostSubmit = ({
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
   cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues }: any) => {
+}: PostSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
   const { LWTooltip } = Components;
+
+  const submitWithConfirmation = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
+      collectionName === "Posts" && await updateCurrentValues({draft: false});
+      await submitForm();
+    }
+  };
+
+  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+
+  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+
+  const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
 
   return (
     <React.Fragment>
@@ -105,12 +119,14 @@ const PostSubmit = ({
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
                 updateCurrentValues({draft: true});
-                // eslint-disable-next-line
-                window.Intercom(
-                  'trackEvent',
-                  'requested-feedback',
-                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-                )
+                addToSuccessForm((createdPost: DbPost) => {
+                  // eslint-disable-next-line
+                  window.Intercom(
+                    'trackEvent',
+                    'requested-feedback',
+                    {title: createdPost.title, _id: createdPost._id, url: getSiteUrl() + "posts/" + createdPost._id}
+                  );
+                });
               }
             }}
           >
@@ -125,7 +141,7 @@ const PostSubmit = ({
         </Button>
         <Button
           type="submit"
-          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+          onClick={onSubmitClick}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
           {...(isEAForum ? {
             variant: "contained",
@@ -152,6 +168,7 @@ PostSubmit.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
+  submitForm: PropTypes.func
 }
 
 

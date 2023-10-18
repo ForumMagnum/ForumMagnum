@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useMulti } from "../../lib/crud/withMulti";
+import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,25 +16,26 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
-  const {loadMoreProps, results} = useMulti({
-    terms: {view: "frontpagePopular"},
-    collectionName: "Comments",
+  const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
-    enableTotal: false,
+    resolverName: "PopularComments",
     limit: 3,
+    itemsPerPage: 5,
   });
 
   const {LoadMore, PopularComment} = Components;
   return (
-    <div className={classes.root}>
-      {results?.map((comment) =>
-        <PopularComment
-          key={comment._id}
-          comment={comment}
-        />
-      )}
-      <LoadMore {...loadMoreProps} />
-    </div>
+    <AnalyticsContext pageSectionContext="popularCommentsList">
+      <div className={classes.root}>
+        {results?.map((comment) =>
+          <PopularComment
+            key={comment._id}
+            comment={comment}
+          />
+        )}
+        <LoadMore {...loadMoreProps} />
+      </div>
+    </AnalyticsContext>
   );
 }
 

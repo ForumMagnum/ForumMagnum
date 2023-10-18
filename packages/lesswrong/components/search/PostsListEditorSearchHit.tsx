@@ -3,7 +3,6 @@ import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useHover } from '../common/withHover';
 import type { Hit } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -29,46 +28,35 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const PostsListEditorSearchHit = ({hit, classes}: {
-  hit: Hit<any>,
+  hit: Hit<AnyBecauseTodo>,
   classes: ClassesType,
 }) => {
-  const post = (hit as AlgoliaPost);
-  const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "postListEditorSearchHit",
-  });
-  const { LWPopper, PostsPreviewTooltipSingle, PostsTitle, MetaInfo, FormatDate} = Components
-
+  const post = hit as AlgoliaPost;
+  const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;
   return (
-    <div className={classes.root} {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="left"
-        allowOverflow
-      >
-        <PostsPreviewTooltipSingle postId={post._id} postsList/>
-      </LWPopper>
-      <div className={classes.titleRow}>
-        <PostsTitle post={post as unknown as PostsListBase} isLink={false}/>
+    <PostsTooltip postId={post._id} postsList placement="left">
+      <div className={classes.root}>
+        <div className={classes.titleRow}>
+          <PostsTitle post={post as unknown as PostsListBase} isLink={false} />
+        </div>
+        <div className={classes.metadataRow}>
+          {post.authorDisplayName && <MetaInfo>
+            {post.authorDisplayName}
+          </MetaInfo>}
+          <MetaInfo>
+            {post.baseScore} karma
+          </MetaInfo>
+          {post.postedAt && <MetaInfo>
+            <FormatDate date={post.postedAt} />
+          </MetaInfo>}
+          <Link to={postGetPageUrl(post)} className={classes.postLink}>
+            (Link)
+          </Link>
+        </div>
       </div>
-      <div className={classes.metadataRow}>
-        {post.authorDisplayName && <MetaInfo>
-          {post.authorDisplayName}
-        </MetaInfo>}
-        <MetaInfo>
-          {post.baseScore} karma
-        </MetaInfo>
-        {post.postedAt && <MetaInfo>
-          <FormatDate date={post.postedAt}/>
-        </MetaInfo>}
-        <Link to={postGetPageUrl(post)} className={classes.postLink}>
-          (Link)
-        </Link>
-      </div>
-    </div>
-  )
+    </PostsTooltip>
+  );
 }
-
 
 const PostsListEditorSearchHitComponent = registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
 
@@ -77,4 +65,3 @@ declare global {
     PostsListEditorSearchHit: typeof PostsListEditorSearchHitComponent
   }
 }
-

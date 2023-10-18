@@ -322,6 +322,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   unreadDebateResponseCount: {
     paddingLeft: 4,
     color: theme.palette.primary.main
+  }, 
+  unreadDebateResponseContainer: {
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
   }
 })
 
@@ -370,6 +376,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
+    className,
   } = usePostsItem(props);
 
   if (isRepeated) {
@@ -394,6 +401,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
         </div>}
         <div className={classNames(
           classes.root,
+          className,
           {
             [classes.background]: !translucentBackground,
             [classes.checkboxWidth]: showReadCheckbox,
@@ -466,8 +474,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
             </PostsItem2MetaInfo>}
 
-            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo>
-              <div className={classes.unreadDebateResponseCount}>
+            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
+              <div className={classes.unreadDebateResponseCount} onClick={toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
               </div>

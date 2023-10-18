@@ -25,7 +25,7 @@ export const collectionGetAllPostIDs = async (collectionID: string, context: Res
   return posts;
 };
 
-export const collectionGetPageUrl = (collection: CollectionsPageFragment|DbCollection, isAbsolute?: boolean): string => {
+export const collectionGetPageUrl = (collection: { slug: string }, isAbsolute?: boolean): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/${collection.slug}`;
 }

@@ -324,7 +324,6 @@ addRoute(
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"
@@ -647,6 +646,8 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/best-of',
       componentName: 'EABestOfPage',
       title: 'Best of the Forum',
+      subtitle: 'Best of the Forum',
+      subtitleLink: '/best-of',
     },
     {
       name: 'BestOfCamelCase',
@@ -819,6 +820,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true
+    },
+    {
+      name: 'dialogues',
+      path: '/dialogues',
+      componentName: 'DialoguesPage',
+      title: "All Dialogues",
     },
     {
       name: 'about',
@@ -1036,6 +1043,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'editor',
       path: '/editor',
       redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    },
+    {
+      name: 'petrovDayPoll',
+      path: '/petrovDayPoll',
+      componentName: "PetrovDayPoll",
+    },
+    {
+      name: 'petroyDayPoll',
+      path: '/petroyDayPoll',
+      componentName: "PetrovDayPoll",
+      title: "Petrov Day Poll",
     }
   ],
   AlignmentForum: [
@@ -1329,20 +1347,20 @@ addRoute(
     path:'/posts/:_id/:slug?',
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name:'posts.slug.single',
     path:'/posts/slug/:slug?',
     componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name: 'posts.revisioncompare',
@@ -1458,7 +1476,6 @@ addRoute(
     name: 'comment.greaterwrong',
     componentName: "PostsSingle",
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
     // TODO: Handle pingbacks leading to comments.

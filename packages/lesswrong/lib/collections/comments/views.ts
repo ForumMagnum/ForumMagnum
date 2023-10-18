@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
-import { excludeFromFrontpagePopularSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
@@ -702,20 +702,3 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
-
-Comments.addView("frontpagePopular", (_terms: CommentsViewTerms) => ({
-  selector: {
-    baseScore: {$gte: 20},
-    shortform: {$ne: true},
-    postedAt: {$gte: moment().subtract(1, "week").toDate()},
-    ...(excludeFromFrontpagePopularSetting.get().length && {
-      postId: {$not: {$in: excludeFromFrontpagePopularSetting.get()}},
-    }),
-  },
-  options: {
-    sort: {
-      score: -1,
-      parentCommentId: 1,
-    },
-  },
-}));

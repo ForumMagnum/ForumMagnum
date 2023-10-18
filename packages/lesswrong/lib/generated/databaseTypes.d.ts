@@ -96,6 +96,7 @@ interface DbCollection extends DbObject {
   gridImageId: string
   firstPageLink: string
   hideStartReadingButton: boolean
+  noindex: boolean
   contents: EditableFieldContents
   contents_latest: string
   createdAt: Date
@@ -648,6 +649,7 @@ interface DbPost extends DbObject {
   hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
+  forceAllowType3Audio: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -683,7 +685,9 @@ interface DbPost extends DbObject {
   unlisted: boolean
   disableRecommendation: boolean
   defaultRecommendation: boolean
+  hideFromPopularComments: boolean
   draft: boolean
+  wasEverUndrafted: boolean
   meta: boolean
   hideFrontpageComments: boolean
   maxBaseScore: number
@@ -735,6 +739,7 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -884,6 +889,7 @@ interface DbSequence extends DbObject {
   canonicalCollectionSlug: string
   hidden: boolean
   hideFromAuthorPage: boolean
+  noindex: boolean
   af: boolean
   contents: EditableFieldContents
   contents_latest: string
@@ -912,9 +918,13 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  headerTitle: string | null
+  headerTitleLeftColor: string | null
+  headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
+  imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
@@ -933,7 +943,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1030,6 +1040,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface TypingIndicatorsCollection extends CollectionBase<DbTypingIndicator, "TypingIndicators"> {
+}
+
+interface DbTypingIndicator extends DbObject {
+  __collectionName?: "TypingIndicators"
+  userId: string
+  documentId: string
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
@@ -1266,6 +1288,18 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationNewMention: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationPublishedDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1514,6 +1548,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1569,6 +1604,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit

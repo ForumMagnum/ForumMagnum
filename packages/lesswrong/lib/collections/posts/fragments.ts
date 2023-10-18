@@ -20,6 +20,8 @@ registerFragment(`
     coauthorStatuses
     hasCoauthorPermission
     rejected
+    debate
+    collabEditorDialogue
   }
 `);
 
@@ -47,6 +49,7 @@ registerFragment(`
     voteCount
     baseScore
     extendedScore
+    emojiReactors
     unlisted
     score
     lastVisitedAt
@@ -112,6 +115,7 @@ registerFragment(`
     submitToFrontpage
     shortform
     onlyVisibleToLoggedIn
+    onlyVisibleToEstablishedAccounts
 
     reviewCount
     reviewVoteCount
@@ -124,6 +128,7 @@ registerFragment(`
     }
 
     podcastEpisodeId
+    forceAllowType3Audio
 
     # deprecated
     nominationCount2019
@@ -217,7 +222,12 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageUrl
+    }
 
+    feedId
+    totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
   }
@@ -479,6 +489,7 @@ registerFragment(`
     readTimeMinutesOverride
     fmCrosspost
     hideFromRecentDiscussions
+    hideFromPopularComments
     moderationGuidelines {
       ...RevisionEdit
     }
@@ -495,6 +506,15 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    user {
+      ...UsersMinimumInfo
+    }
+    usersSharedWith {
+      ...UsersMinimumInfo
+    }
+    coauthors {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
@@ -529,6 +549,15 @@ registerFragment(`
     ...PostsList
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment ShortformRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsListWithTopLevelComment
     }
   }
 `);
@@ -630,5 +659,26 @@ registerFragment(`
   fragment PostsEditCriticismTips on Post {
     _id
     criticismTipsDismissed
+  }
+`);
+
+registerFragment(`
+  fragment PostsBestOfList on Post {
+    ...PostsListWithVotes
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
+    socialPreviewData {
+      text
+      imageUrl
+    }
   }
 `);
