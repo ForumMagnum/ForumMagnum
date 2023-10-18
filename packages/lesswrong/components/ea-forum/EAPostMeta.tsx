@@ -35,13 +35,14 @@ const styles = (theme: ThemeType) => ({
   },
   eventOrganizer: {
     display: "flex",
-    // Unfortunately this !important is necessary because the root class in TruncatedAuthorsList overrides
-    // with a 13px font size even if you pass in a className directly
-    fontSize: "14px !important",
+    fontSize: "14px",
   },
   dot: {
     margin: "0 4px",
   },
+  authorsList: {
+    fontSize: 14,
+  }
 });
 
 const EAPostMeta = ({post, useEventStyles, className, classes}: {
@@ -72,7 +73,7 @@ const EAPostMeta = ({post, useEventStyles, className, classes}: {
         <span className={classes.eventOrganizer}>
           <span className={classes.dot}>·</span>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} />
+            <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} className={classes.authorsList} />
           </InteractionWrapper>
         </span>
       </div>
