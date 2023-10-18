@@ -1059,11 +1059,11 @@ interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserA
 
 interface DbUserActivity extends DbObject {
   __collectionName?: "UserActivities"
-  visitorId: string | null
-  type: "userId" | "clientId" | null
-  startDate: Date | null
-  endDate: Date | null
-  activityArray: Array<number> | null
+  visitorId: string
+  type: "userId" | "clientId"
+  startDate: Date
+  endDate: Date
+  activityArray: Array<number>
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1428,7 +1428,7 @@ interface DbUser extends DbObject {
   subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
-  allowDatadogSessionReplay: boolean
+  allowDatadogSessionReplay: boolean | null
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number

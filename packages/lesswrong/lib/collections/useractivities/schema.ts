@@ -1,24 +1,24 @@
 const schema: SchemaType<DbUserActivity> = {
   visitorId: {
     type: String,
-    nullable: true
+    nullable: false
   },
   type: {
     type: String,
     allowedValues: ["userId", "clientId"],
-    nullable: true
+    nullable: false
   },
   startDate: {
     type: Date,
-    nullable: true
+    nullable: false
   },
   endDate: {
     type: Date,
-    nullable: true //TODO not-null, confirm that this should be nullable
+    nullable: false
   },
   activityArray: {
     type: Array,
-    nullable: true
+    nullable: false
   },
   'activityArray.$': {
     // In practice this is currently a boolean, but we could support weighting by how long exactly they were active for
