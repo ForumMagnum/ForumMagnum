@@ -1,5 +1,5 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
-import type { IResult } from "pg-promise/typescript/pg-subset";
+import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
 import { queryWithLock } from "./queryWithLock";
 import { isAnyTest } from "../lib/executionEnvironment";
@@ -9,25 +9,32 @@ import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
-let vectorTypeOid: number | null = null;
+let vectorTypeOidPromise: Promise<number | null> | null = null;
+
+const getVectorTypeOid = async (client: IClient): Promise<number | null> => {
+  const result: IResult<{oid: number}> = await client.query(
+    "SELECT oid FROM pg_type WHERE typname = 'vector'",
+  );
+  if (result.rowCount < 1) {
+    // eslint-disable-next-line no-console
+    console.warn("vector type not found in the database");
+    return null;
+  }
+  return result.rows[0].oid;
+}
 
 export const pgPromiseLib = pgp({
   noWarnings: isAnyTest,
   connect: async ({client}) => {
-    if (typeof vectorTypeOid !== "number") {
-      const result: IResult<{oid: number}> = await client.query(
-        "SELECT oid FROM pg_type WHERE typname = 'vector'",
-      );
-      if (result.rowCount < 1) {
-        // eslint-disable-next-line no-console
-        console.warn("vector type not found in the database");
-        return;
-      }
-      vectorTypeOid = result.rows[0].oid;
+    if (!vectorTypeOidPromise) {
+      vectorTypeOidPromise = getVectorTypeOid(client);
     }
-    (client as AnyBecauseHard).setTypeParser(vectorTypeOid, "text", (value: string) => {
-      return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
-    });
+    const oid = await vectorTypeOidPromise;
+    if (typeof oid === "number") {
+      (client as AnyBecauseHard).setTypeParser(oid, "text", (value: string) => {
+        return value.substring(1, value.length - 1).split(",").map((v) => parseFloat(v));
+      });
+    }
   },
   error: (err, ctx) => {
     // If it's a syntax error, print the bad query for debugging
