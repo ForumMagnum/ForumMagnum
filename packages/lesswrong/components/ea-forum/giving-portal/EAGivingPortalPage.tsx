@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -17,12 +17,30 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal.dark,
     color: theme.palette.grey[0],
   },
+  sectionSplit: {
+    background: `linear-gradient(
+      to top,
+      ${theme.palette.givingPortal.dark} 100px,
+      ${theme.palette.givingPortal.light} 100px
+    )`,
+  },
   content: {
     display: "flex",
     flexDirection: "column",
     gap: "20px",
     maxWidth: 1252,
     padding: 40,
+    margin: "0 auto",
+  },
+  row: {
+    display: "flex",
+    gap: "20px",
+    marginTop: 80,
+  },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
   bold: {
     fontWeight: "bold",
@@ -71,19 +89,23 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const donationElectionLink = "#"; // TODO
-
 const useAmountRaised = () => {
   // TODO: Query GWWC for the actual amount
   return 3720;
 }
+
+const donationElectionLink = "#"; // TODO
+
+const votingOpensDate = new Date("2023-12-01");
+
+const donationTarget = 15000;
 
 const timelineSpec: TimelineSpec = {
   start: new Date("2023-11-15"),
   end: new Date("2023-12-31"),
   points: [
     {date: new Date("2023-11-28"), description: "Giving Tuesday"},
-    {date: new Date("2023-12-01"), description: "Voting starts"},
+    {date: votingOpensDate, description: "Voting starts"},
     {date: new Date("2023-12-15"), description: "Voting ends"},
     {date: new Date("2023-12-20"), description: "Election winner announced"},
   ],
@@ -108,7 +130,14 @@ const timelineSpec: TimelineSpec = {
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const amountRaised = useAmountRaised();
-  const {HeadTags, Timeline} = Components;
+
+  const onDonate = useCallback(() => {
+    // TODO: Hook up donation
+    // eslint-disable-next-line no-console
+    console.log("Clicked donate!");
+  }, []);
+
+  const {HeadTags, Timeline, ElectionFundCTA} = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -125,25 +154,35 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           <div className={classes.h2}>Timeline</div>
           <Timeline {...timelineSpec} />
         </div>
-        <div className={classes.sectionLight}>
+        <div className={classes.sectionSplit}>
           <div className={classes.content}>
-            <div className={classNames(classes.h1, classes.primaryText)}>
-              Donation election 2023
-            </div>
-            <div className={classes.text}>
-              There is currently ${amountRaised} in the Election fund. On{" "}
-              <span className={classes.bold}>December 15</span>, a winning
-              Fundraiser will get everything in the Donation Election Fund,
-              based on Forum users’ vote. Voting opens on{" "}
-              <span className={classes.bold}>December 1st</span>.
-            </div>
-            <div>
-              <Link
-                to={donationElectionLink}
-                className={classNames(classes.text, classes.primaryText)}
-              >
-                -&gt; Read more about the Donation Election.
-              </Link>
+            <div className={classes.row}>
+              <div className={classes.column}>
+                <div className={classNames(classes.h1, classes.primaryText)}>
+                  Donation election 2023
+                </div>
+                <div className={classes.text}>
+                  There is currently ${amountRaised} in the Election fund. On{" "}
+                  <span className={classes.bold}>December 15</span>, a winning
+                  Fundraiser will get everything in the Donation Election Fund,
+                  based on Forum users’ vote. Voting opens on{" "}
+                  <span className={classes.bold}>December 1st</span>.
+                </div>
+                <div>
+                  <Link
+                    to={donationElectionLink}
+                    className={classNames(classes.text, classes.primaryText)}
+                  >
+                    -&gt; Read more about the Donation Election.
+                  </Link>
+                </div>
+              </div>
+              <ElectionFundCTA
+                amountRaised={amountRaised}
+                donationTarget={donationTarget}
+                votingOpensDate={votingOpensDate}
+                onDonate={onDonate}
+              />
             </div>
           </div>
         </div>
