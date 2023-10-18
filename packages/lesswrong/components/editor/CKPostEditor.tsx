@@ -59,8 +59,8 @@ const isInputWrapper = isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER);
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
   if (dialogueMessageInputs.length > sortedCoauthors.length) return true //handles case when postfixer doesn't have up to date list of coauthors, up-to-date post fixer for another user can fix the sorting
   return dialogueMessageInputs.every((input, idx) => {
-    const inputDisplayName = input.getAttribute('user-id');
-    return inputDisplayName === sortedCoauthors[idx]._id;
+    const inputUserId = input.getAttribute('user-id');
+    return inputUserId === sortedCoauthors[idx]._id;
   });
 }
 
@@ -196,13 +196,8 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    // We check that the inputs are in lexical order by author displayName
+    // We check that the inputs are in lexical order by author userId
     const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
-
-    // We check that the inputs are the last elements of the document
-    // const lastChildren = children.slice(-dialogueMessageInputs.length);
-    // const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
-
     if (incorrectOrder) {
       const sortedInputs = sortBy(dialogueMessageInputs, (i) => getElementUserOrder(i))
       sortedInputs.forEach(sortedInput => {
