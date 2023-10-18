@@ -11,6 +11,7 @@ import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { sendgridBatchingSetting } from './emails/sendEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -46,8 +47,13 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   ).fetch();
   
   if (notificationsToEmail.length) {
+    const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
+    if (sendgridBatchingSetting.get()) {
+      // TODO;
+      return
+    }
     const emails = await notificationBatchToEmails({
-      user, notifications: notificationsToEmail
+      user, notifications: groupedNotifications
     });
     
     for (let email of emails) {
@@ -56,7 +62,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   }
 }
 
-const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
+const groupNotifications = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
@@ -65,9 +71,18 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   const groupedNotifications = notificationTypeRenderer.canCombineEmails ? [notifications] : notifications.map((notification) => [notification])
 
   const shouldSkip = await Promise.all(groupedNotifications.map(async notifications => notificationTypeRenderer.skip({ user, notifications })));
+  const nonSkippedNotifications = groupedNotifications
+    .filter((_, idx) => !shouldSkip[idx])
+  
+  return nonSkippedNotifications;
+}
+
+const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<Array<DbNotification>>}) => {
+  const notificationType = notifications[0][0].type;
+  const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
+
   return await Promise.all(
-    groupedNotifications
-      .filter((_, idx) => !shouldSkip[idx])
+    notifications
       .map(async (notifications: DbNotification[]) => ({
         user,
         to: getUserEmail(user),
@@ -98,9 +113,10 @@ addGraphQLResolvers({
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }
         ).fetch();
+        const groupedNotifications = await groupNotifications({user: currentUser, notifications});
         emails = await notificationBatchToEmails({
           user: currentUser,
-          notifications
+          notifications: groupedNotifications
         });
       }
       if (postId) {
