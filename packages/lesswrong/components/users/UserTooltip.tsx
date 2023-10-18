@@ -3,42 +3,41 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { isEAForum } from "../../lib/instanceSettings";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 
-const styles = (theme: ThemeType) => ({
-  tooltip: isEAForum
-    ? {
-      background: theme.palette.grey[0],
-      borderRadius: theme.borderRadius.default,
-      border: `1px solid ${theme.palette.grey[120]}`,
-      boxShadow: theme.palette.boxShadow.eaCard,
-      padding: 12,
-      top: 2,
-    }
-    : {},
-});
-
-const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
+type UserTooltipProps = {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   children: ReactNode,
-  classes: ClassesType,
-}) => {
-  const {LWTooltip, EAUserTooltipContent, LWUserTooltipContent} = Components;
-  const Main = isEAForum ? EAUserTooltipContent : LWUserTooltipContent;
-
-  return (
-    <LWTooltip
-      title={<Main user={user} />}
-      placement={placement}
-      inlineBlock={inlineBlock}
-      popperClassName={classes.tooltip}
-    >
-      {children}
-    </LWTooltip>
-  );
 }
 
-const UserTooltipComponent = registerComponent("UserTooltip", UserTooltip, {styles});
+const UserTooltip =
+  isEAForum
+    ? ({user, placement, inlineBlock, children}: UserTooltipProps) => {
+      const {EAHoverOver, EAUserTooltipContent} = Components;
+      return (
+        <EAHoverOver
+          hoverOver={<EAUserTooltipContent user={user} />}
+          placement={placement}
+          inlineBlock={inlineBlock}
+        >
+          {children}
+        </EAHoverOver>
+      );
+    }
+    : ({user, placement, inlineBlock, children}: UserTooltipProps) => {
+      const {LWTooltip, LWUserTooltipContent} = Components;
+      return (
+        <LWTooltip
+          title={<LWUserTooltipContent user={user} />}
+          placement={placement}
+          inlineBlock={inlineBlock}
+        >
+          {children}
+        </LWTooltip>
+      );
+    }
+
+const UserTooltipComponent = registerComponent("UserTooltip", UserTooltip);
 
 declare global {
   interface ComponentTypes {
