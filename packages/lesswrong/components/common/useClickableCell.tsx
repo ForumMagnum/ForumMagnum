@@ -30,7 +30,7 @@ export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
       captureEvent();
       history.push(href);
     }
-  }, [href, onClick, history]);
+  }, [href, onClick, history, captureEvent]);
 
   return {
     onClick: wrappedOnClick,
