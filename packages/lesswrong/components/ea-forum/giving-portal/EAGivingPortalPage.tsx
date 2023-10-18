@@ -47,6 +47,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "20px",
     margin: "0 auto",
+    maxWidth: "100%",
   },
   bold: {
     fontWeight: "bold",
@@ -114,6 +115,7 @@ const styles = (theme: ThemeType) => ({
   },
   postsList: {
     width: SECTION_WIDTH,
+    maxWidth: "100%",
     "& .LoadMore-root": {
       color: theme.palette.grey[600],
     },
