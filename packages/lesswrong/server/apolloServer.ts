@@ -226,6 +226,16 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
 
+  app.get('/node_modules/*', (req, res) => {
+    // Under some circumstances (I'm not sure exactly what the trigger is), the
+    // Chrome JS debugger tries to load a bunch of /node_modules/... paths
+    // (presumably for some sort of source mapping). If these were treated as
+    // normal pageloads, this would produce a ton of console-log spam, which is
+    // disruptive. So instead just serve a minimal 404.
+    res.status(404);
+    res.end("");
+  });
+
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
