@@ -93,6 +93,9 @@ registerFragment(`
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    first_name
+    last_name
+    wu_created_at
   }
 `);
 

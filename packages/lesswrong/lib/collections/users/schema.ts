@@ -2,7 +2,12 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import {
+  userGroups,
+  userOwns,
+  userIsAdmin,
+  userIsAdminOrMod,
+} from '../../vulcan-users/permissions'
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -376,7 +381,7 @@ const schema: SchemaType<DbUser> = {
     type: String,
     optional: true,
     input: 'text',
-    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
@@ -406,7 +411,7 @@ const schema: SchemaType<DbUser> = {
     regEx: SimpleSchema.RegEx.Email,
     input: 'text',
     canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     canRead: ownsOrIsMod,
     order: 20,
     group: formGroups.default,
@@ -560,8 +565,8 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: true,
     ...schemaDefaultValue(defaultThemeOptions),
-    canCreate: ['members'],
-    canUpdate: ownsOrIsAdmin,
+    canCreate: userIsAdminOrMod,
+    canUpdate: userIsAdminOrMod,
     canRead: ownsOrIsAdmin,
     hidden: isLWorAF,
     control: "ThemeSelect",
@@ -608,8 +613,8 @@ const schema: SchemaType<DbUser> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: userIsAdminOrMod,
+    canUpdate: userIsAdminOrMod,
     order: 43,
     group: formGroups.siteCustomizations,
     control: "select",
@@ -626,7 +631,7 @@ const schema: SchemaType<DbUser> = {
     type: String,
     optional: true,
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
+    canUpdate: userIsAdminOrMod,
     label: "Sort Drafts by",
     order: 43,
     group: formGroups.siteCustomizations,
@@ -644,7 +649,7 @@ const schema: SchemaType<DbUser> = {
     type: String,
     optional: true,
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
+    canUpdate: userIsAdminOrMod,
     label: "React Palette Style",
     group: formGroups.siteCustomizations,
     allowedValues: ['listView', 'gridView'],
@@ -668,8 +673,8 @@ const schema: SchemaType<DbUser> = {
     label: "Hide author names until I hover over them",
     tooltip: "For if you want to not be biased. Adds an option to the user menu to temporarily disable. Does not work well on mobile",
     canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members', 'admins'],
+    canUpdate: userIsAdminOrMod,
+    canCreate: userIsAdminOrMod,
     group: formGroups.siteCustomizations,
     order: 68,
   },
@@ -706,6 +711,7 @@ const schema: SchemaType<DbUser> = {
   hideIntercom: {
     order: 71,
     type: Boolean,
+    hidden: true,
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
@@ -721,6 +727,7 @@ const schema: SchemaType<DbUser> = {
   markDownPostEditor: {
     order: 72,
     type: Boolean,
+    hidden: true,
     optional: true,
     defaultValue: false,
     canRead: ['guests'],
@@ -733,6 +740,7 @@ const schema: SchemaType<DbUser> = {
   hideElicitPredictions: {
     order: 80,
     type: Boolean,
+    hidden: true,
     optional: true,
     defaultValue: false,
     canRead: [userOwns],
@@ -762,8 +770,8 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
+    canUpdate: userIsAdminOrMod,
+    canCreate: userIsAdminOrMod,
     control: 'checkbox',
     label: "Do not collapse comments to Single Line"
   },
@@ -775,8 +783,8 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
+    canUpdate: userIsAdminOrMod,
+    canCreate: userIsAdminOrMod,
     control: 'checkbox',
     label: "Do not truncate comments (in large threads on Post Pages)"
   },
@@ -788,8 +796,8 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
+    canUpdate: userIsAdminOrMod,
+    canCreate: userIsAdminOrMod,
     control: 'checkbox',
     label: "Do not truncate comments (on home page)"
   },
@@ -1018,6 +1026,7 @@ const schema: SchemaType<DbUser> = {
   moderationStyle: {
     type: String,
     optional: true,
+    hidden: true,
     control: "select",
     group: formGroups.moderationGroup,
     label: "Style",
@@ -1041,6 +1050,7 @@ const schema: SchemaType<DbUser> = {
   moderatorAssistance: {
     type: Boolean,
     optional: true,
+    hidden: true,
     group: formGroups.moderationGroup,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
@@ -1053,6 +1063,7 @@ const schema: SchemaType<DbUser> = {
   collapseModerationGuidelines: {
     type: Boolean,
     optional: true,
+    hidden: true,
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
     canRead: ['guests'],
@@ -1583,13 +1594,12 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
-    order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
+    group: formGroups.default,
+    order: 20,
     label: "Public map location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
-    hidden: isEAForum
   },
 
   mapLocationSet: {
@@ -1728,6 +1738,7 @@ const schema: SchemaType<DbUser> = {
 
   hideFrontpageBook2020Ad: {
     type: Boolean,
+    hidden: true,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -2000,7 +2011,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.siteCustomizations,
     label: "Opt into experimental features",
@@ -2771,17 +2782,24 @@ const schema: SchemaType<DbUser> = {
   first_name: {
     type: String,
     nullable: true,
-    canRead: 'guests',
-    hidden: true,
-    optional: true
+    input: 'text',
+    canRead: ['guests'],
+    canUpdate: ownsOrIsMod,
+    canCreate: ['members'],
+    optional: true,
+    order: 10,
+    group: formGroups.default,
   },
 
   last_name: {
     type: String,
     nullable: true,
-    canRead: 'guests',
-    hidden: true,
-    optional: true
+    canRead: ['guests'],
+    canUpdate: ownsOrIsMod,
+    canCreate: ['members'],
+    optional: true,
+    order: 10,
+    group: formGroups.default,
   },
 
   avatar: {
