@@ -496,6 +496,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   givingPortal: {
     light: "#e2e1f2",
     main: "#d5d8f2",
+    secondary: "#5f43bc",
     dark: "#391bb1",
   },
   

@@ -123,15 +123,55 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.givingPortal.dark,
     },
   },
+  electionCandidates: {
+    maxWidth: 1120,
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "16px",
+    rowGap: "12px",
+  },
   verticalMargin: {
     marginTop: 60,
     marginBottom: 80,
+  },
+  bottomMargin: {
+    marginBottom: 100,
   },
 });
 
 const useAmountRaised = () => {
   // TODO: Query GWWC for the actual amount
   return 3720;
+}
+
+const useElectionCandidates = () => {
+  // TODO: Fetch this from the backend
+  return [
+    {
+      name: "Rethink Priorities",
+      logoSrc: "https://images.squarespace-cdn.com/content/v1/5d0026086571b00001028877/1600883588358-CT8GRXPV0OBEPV0BTTAG/83473139_110918283816707_8043830058659348480_n.png?format=120w",
+      href: "https://rethinkpriorities.org/",
+      preVoteCount: 43,
+    },
+    {
+      name: "Charity Entrepreneurship",
+      logoSrc: "https://scontent-lhr8-1.xx.fbcdn.net/v/t39.30808-6/266335298_1795843907292437_3163044476636653261_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=5f2048&_nc_ohc=AiG-Q9rhFt8AX-gPsDZ&_nc_ht=scontent-lhr8-1.xx&oh=00_AfCdt1pBmMu5Eid4EcZ5xs4NuhPpckccRgstZf_xa9LMMg&oe=6535FF65",
+      href: "https://www.charityentrepreneurship.com/",
+      preVoteCount: 3,
+    },
+    {
+      name: "The Humane League",
+      logoSrc: "https://cdn.sanity.io/images/4rsg7ofo/production/eba5552ff1fab9dda018e95b195aa4adbec14c59-1000x1000.jpg",
+      href: "https://thehumaneleague.org/",
+      preVoteCount: 1,
+    },
+    {
+      name: "GiveDirectly",
+      logoSrc: "https://cdn.sanity.io/images/4rsg7ofo/production/e757f11bc42968f513edb9ecb1844e67431e16d9-1000x1000.jpg",
+      href: "https://www.givedirectly.org/",
+      preVoteCount: 0,
+    },
+  ];
 }
 
 const donationElectionLink = "#"; // TODO
@@ -190,6 +230,7 @@ const getListTerms = (
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const amountRaised = useAmountRaised();
+  const electionCandidates = useElectionCandidates();
 
   const onDonate = useCallback(() => {
     // TODO: Hook up donation
@@ -203,6 +244,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     console.log("Clicked notify when voting opens");
   }, []);
 
+  const onAddCandidate = useCallback(() => {
+    // TODO: Hook up notifications
+    // eslint-disable-next-line no-console
+    console.log("Clicked add candidate");
+  }, []);
+
   const onContribute = useCallback(() => {
     // TODO: Hook up notifications
     // eslint-disable-next-line no-console
@@ -212,7 +259,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
   const classicPostsTerms = getListTerms(effectiveGivingTagId, "topAdjusted", 5);
 
-  const {HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2} = Components;
+  const {
+    HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
+    ElectionCandidate,
+  } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -272,7 +322,20 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
         </div>
         <div className={classes.sectionDark}>
           <div className={classes.content}>
-            <div className={classes.h2}>Candidates in the Election</div>
+            <div className={classes.column}>
+              <div className={classes.h2}>Candidates in the Election</div>
+              <div className={classes.electionCandidates}>
+                {electionCandidates.map((candidate) => (
+                  <ElectionCandidate {...candidate} key={candidate.name} />
+                ))}
+              </div>
+              <div className={classes.bottomMargin}>
+                <button onClick={onAddCandidate} className={classes.button}>
+                  <ForumIcon icon="Plus" />
+                  Add candidate
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div className={classes.sectionLight}>

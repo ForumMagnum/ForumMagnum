@@ -454,6 +454,7 @@ declare global {
     givingPortal: {
       light: ColorString,
       main: ColorString,
+      secondary: ColorString,
       dark: ColorString,
     },
   };
