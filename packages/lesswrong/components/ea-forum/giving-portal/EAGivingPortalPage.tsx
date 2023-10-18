@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import type { TimelineSpec } from "./Timeline";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -77,9 +78,37 @@ const useAmountRaised = () => {
   return 3720;
 }
 
+const timelineSpec: TimelineSpec = {
+  start: new Date("2023-11-15"),
+  end: new Date("2023-12-31"),
+  points: [
+    {date: new Date("2023-11-28"), description: "Giving Tuesday"},
+    {date: new Date("2023-12-01"), description: "Voting starts"},
+    {date: new Date("2023-12-15"), description: "Voting ends"},
+    {date: new Date("2023-12-20"), description: "Election winner announced"},
+  ],
+  spans: [
+    {
+      start: new Date("2023-11-21"),
+      end: new Date("2023-11-28"),
+      description: "Effective giving spotlight Week",
+    },
+    {
+      start: new Date("2023-11-30"),
+      end: new Date("2023-12-07"),
+      description: "Marginal Funding Week",
+    },
+    {
+      start: new Date("2023-12-08"),
+      end: new Date("2023-12-16"),
+      description: "Forum BOTEC-a-thon Week",
+    },
+  ],
+};
+
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const amountRaised = useAmountRaised();
-  const {HeadTags} = Components;
+  const {HeadTags, Timeline} = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -94,6 +123,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             with weekly themes throughout November and December.
           </div>
           <div className={classes.h2}>Timeline</div>
+          <Timeline {...timelineSpec} />
         </div>
         <div className={classes.sectionLight}>
           <div className={classes.content}>
