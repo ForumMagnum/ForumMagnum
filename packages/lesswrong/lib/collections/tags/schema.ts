@@ -550,7 +550,6 @@ const schema: SchemaType<DbTag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
-    nullable: false,
     control: "FormUsersListEditor",
     label: "Subforum Moderators",
   },
