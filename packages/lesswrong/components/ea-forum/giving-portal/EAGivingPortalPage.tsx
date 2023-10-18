@@ -1,7 +1,7 @@
 import React from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from "../../lib/reactRouterWrapper";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
