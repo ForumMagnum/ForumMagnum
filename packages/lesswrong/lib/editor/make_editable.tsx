@@ -44,7 +44,7 @@ export interface MakeEditableOptions {
 }
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
-`Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
+`Share your thoughts...` :  
   
 `Text goes here! See lesswrong.com/editor for info about everything the editor can do.
 
