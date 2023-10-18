@@ -492,6 +492,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
+
+  givingPortal: {
+    light: "#e2e1f2",
+    main: "#d5d8f2",
+    dark: "#391bb1",
+  },
   
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',

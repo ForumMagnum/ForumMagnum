@@ -450,6 +450,12 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
+
+    givingPortal: {
+      light: ColorString,
+      main: ColorString,
+      dark: ColorString,
+    },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
