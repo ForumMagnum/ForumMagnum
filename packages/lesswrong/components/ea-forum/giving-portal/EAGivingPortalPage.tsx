@@ -36,6 +36,10 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "20px",
     marginTop: 80,
+    "@media screen and (max-width: 1000px)": {
+      flexDirection: "column",
+      alignItems: "center",
+    },
   },
   column: {
     display: "flex",
@@ -87,6 +91,25 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 700,
     },
   },
+  button: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    fontSize: 16,
+    fontWeight: 600,
+    background: theme.palette.grey[0],
+    color: theme.palette.givingPortal.dark,
+    borderRadius: theme.borderRadius.small,
+    padding: "12px 16px",
+    border: "none",
+    outline: "none",
+    "&:hover": {
+      opacity: 0.85,
+    },
+    "&:active": {
+      opacity: 0.7,
+    },
+  },
 });
 
 const useAmountRaised = () => {
@@ -134,10 +157,16 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const onDonate = useCallback(() => {
     // TODO: Hook up donation
     // eslint-disable-next-line no-console
-    console.log("Clicked donate!");
+    console.log("Clicked donate");
   }, []);
 
-  const {HeadTags, Timeline, ElectionFundCTA} = Components;
+  const onNotifyWhenVotingOpens = useCallback(() => {
+    // TODO: Hook up notifications
+    // eslint-disable-next-line no-console
+    console.log("Clicked notify when voting opens");
+  }, []);
+
+  const {HeadTags, Timeline, ElectionFundCTA, ForumIcon} = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -175,6 +204,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   >
                     -&gt; Read more about the Donation Election.
                   </Link>
+                </div>
+                <div>
+                  <button
+                    onClick={onNotifyWhenVotingOpens}
+                    className={classes.button}
+                  >
+                    <ForumIcon icon="BellAlert" />
+                    Get notified when the voting opens
+                  </button>
                 </div>
               </div>
               <ElectionFundCTA
