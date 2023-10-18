@@ -194,7 +194,7 @@ const schema: SchemaType<DbTag> = {
     optional: true,
     label: "Restrict to these authors",
     tooltip: "Only these authors will be able to edit the topic",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.advancedOptions,
   },
   'canEditUserIds.$': {
@@ -551,7 +551,7 @@ const schema: SchemaType<DbTag> = {
     group: formGroups.advancedOptions,
     optional: true,
     nullable: false,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     label: "Subforum Moderators",
   },
   'subforumModeratorIds.$': {

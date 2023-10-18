@@ -23,7 +23,7 @@ const schema: SchemaType<DbConversation> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     optional: true,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     label: "Participants",
   },
   'participantIds.$': {

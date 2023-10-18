@@ -1292,7 +1292,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
@@ -1914,7 +1914,7 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
-    // control: "UsersListEditor",
+    // control: "FormUsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1956,7 +1956,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: false,
     hidden: true,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.event,
   },
 
@@ -2840,7 +2840,7 @@ const schema: SchemaType<DbPost> = {
     nullable: false,
     hidden: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
   },
   'suggestForAlignmentUserIds.$': {

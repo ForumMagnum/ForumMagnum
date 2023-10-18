@@ -152,7 +152,7 @@ const ContentExcerpt = ({
             )
         )
         : (
-          <Link to={moreLink} className={classes.continueReading}>
+          <Link to={moreLink} className={classes.continueReading} eventProps={{intent: 'expandPost'}}>
             {isTruncated
               ? "Continue reading"
               : `View ${contentTypeMap[contentType]}`
