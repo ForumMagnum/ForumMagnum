@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
+import { formatStat } from "../../users/EAUserTooltipContent";
 import type { TimelineSpec } from "./Timeline";
 import classNames from "classnames";
 
@@ -139,11 +140,21 @@ const styles = (theme: ThemeType) => ({
   bottomMargin: {
     marginBottom: 100,
   },
+  totalRaised: {
+    fontSize: 24,
+    fontWeight: 700,
+    letterSpacing: "-0.24px",
+    lineHeight: "140%",
+  },
 });
 
 const useAmountRaised = () => {
-  // TODO: Query GWWC for the actual amount
-  return 3720;
+  // TODO: Query for the actual amount
+  return {
+    raisedForElectionFund: 3720,
+    donationTarget: 15000,
+    totalRaised: 10250,
+  };
 }
 
 const useElectionCandidates = () => {
@@ -179,8 +190,6 @@ const useElectionCandidates = () => {
 const donationElectionLink = "#"; // TODO
 
 const votingOpensDate = new Date("2023-12-01");
-
-const donationTarget = 15000;
 
 const donationElectionTagId = "L6NqHZkLc4xZ7YtDr"; // TODO: This tag doesn't exist yet
 const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
@@ -230,8 +239,14 @@ const getListTerms = (
   limit,
 });
 
+const formatDollars = (amount: number) => "$" + formatStat(amount);
+
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
-  const amountRaised = useAmountRaised();
+  const {
+    raisedForElectionFund,
+    donationTarget,
+    totalRaised,
+  } = useAmountRaised();
   const electionCandidates = useElectionCandidates();
 
   const onDonate = useCallback(() => {
@@ -261,6 +276,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
   const classicPostsTerms = getListTerms(effectiveGivingTagId, "topAdjusted", 5);
 
+  const fundAmount = formatDollars(raisedForElectionFund);
+  const totalAmount = formatDollars(totalRaised);
+
   const {
     HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
     ElectionCandidate,
@@ -289,7 +307,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   Donation election 2023
                 </div>
                 <div className={classes.text}>
-                  There is currently ${amountRaised} in the Election fund. On{" "}
+                  There is currently {fundAmount} in the Election fund. On{" "}
                   <span className={classes.bold}>December 15</span>, a winning
                   Fundraiser will get everything in the Donation Election Fund,
                   based on Forum users’ vote. Voting opens on{" "}
@@ -314,7 +332,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 </div>
               </div>
               <ElectionFundCTA
-                amountRaised={amountRaised}
+                amountRaised={raisedForElectionFund}
                 donationTarget={donationTarget}
                 votingOpensDate={votingOpensDate}
                 onDonate={onDonate}
@@ -363,11 +381,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <div className={classes.content}>
+        <div className={classNames(classes.content, classes.verticalMargin)}>
           <div className={classes.h3}>Other donation opportunities</div>
           <div className={classes.text}>
             If you don’t want to donate to the Election Fund but still want to
             participate, you can donate directly to effective charities.
+          </div>
+          <div className={classes.text}>
+            Total donations raised through the Forum:{" "}
+            <span className={classes.totalRaised}>{totalAmount}</span>
           </div>
         </div>
         <div className={classes.content}>
