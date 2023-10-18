@@ -7,6 +7,7 @@ import {
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 const PostsTooltip = ({
   post,
@@ -78,9 +79,10 @@ const PostsTooltip = ({
     return null;
   }, [tagRelId, post, postId, postsList, comment, commentId, hash]);
 
-  const {LWTooltip} = Components;
+  const {EAHoverOver, LWTooltip} = Components;
+  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
   return (
-    <LWTooltip
+    <Tooltip
       title={renderTitle()}
       placement={placement}
       tooltip={false}
@@ -97,7 +99,7 @@ const PostsTooltip = ({
       className={className}
     >
       {children}
-    </LWTooltip>
+    </Tooltip>
   );
 }
 
