@@ -2837,7 +2837,6 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
-    nullable: false,
     hidden: true,
     label: "Suggested for Alignment by",
     control: "FormUsersListEditor",

@@ -11,7 +11,7 @@ const schema: SchemaType<DbDigestPost> = {
       resolverName: "digest",
       collectionName: "Digests",
       type: "Digest",
-      nullable: false,
+      nullable: false, //TODO not-null – EA Forum check that this makes sense for your collection
     }),
     canRead: ['guests'],
     canCreate: ['admins'],

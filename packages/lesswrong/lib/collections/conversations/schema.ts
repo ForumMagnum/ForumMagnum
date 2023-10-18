@@ -12,7 +12,6 @@ const schema: SchemaType<DbConversation> = {
     label: "Conversation Title"
   },
   participantIds: {
-    nullable: false,
     ...arrayOfForeignKeysField({
       idFieldName: "participantIds",
       resolverName: "participants",
@@ -74,7 +73,6 @@ const schema: SchemaType<DbConversation> = {
       type: "User"
     }),
     optional: true,
-    nullable: false,
     hidden: true,
     canRead: ['guests'],
     canCreate: ['members'],

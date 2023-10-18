@@ -646,7 +646,6 @@ const schema: SchemaType<DbUser> = {
   reactPaletteStyle: {
     type: String,
     optional: true,
-    nullable: false,
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
     label: "React Palette Style",
@@ -1115,7 +1114,6 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    nullable: false,
     hidden: true,
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.bookmarkedPostsMetadata) {
@@ -2446,7 +2444,6 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    nullable: false, //TODO not-null: check this one
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -2474,7 +2471,6 @@ const schema: SchemaType<DbUser> = {
     }),
     hidden: true,
     optional: true,
-    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
