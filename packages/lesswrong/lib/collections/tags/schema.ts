@@ -621,7 +621,6 @@ const schema: SchemaType<DbTag> = {
       type: "Tag"
     }),
     optional: true,
-    nullable: false,
     // To edit this, you have to edit the parent tag of the tag you are adding, and this will be automatically updated. It's like this for
     // largely historical reasons, we didn't used to materialise the sub tag ids at all, but this had performance issues
     hidden: true,

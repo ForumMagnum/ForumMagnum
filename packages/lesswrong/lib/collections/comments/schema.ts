@@ -455,8 +455,9 @@ const schema: SchemaType<DbComment> = {
   legacyPoll: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: true,
-    ...schemaDefaultValue(false),
+    defaultValue: false,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -799,7 +800,6 @@ const schema: SchemaType<DbComment> = {
   },
 
   suggestForAlignmentUserIds: {
-    nullable: false,
     ...arrayOfForeignKeysField({
       idFieldName: "suggestForAlignmentUserIds",
       resolverName: "suggestForAlignmentUsers",

@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-10-18T21:41:15.383Z by `yarn makemigrations`
+ * Generated on 2023-10-18T22:37:24.782Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
@@ -12,8 +12,6 @@
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 // export const acceptsSchemaHash = "e1a0256be4f29b89da1777967e01519b";
-
-// Fill in Null Values with Defaults Commands
 
 const fillInNullWithDefaultCommands = `
   UPDATE "AdvisorRequests"
@@ -623,7 +621,6 @@ const setNotnullCommands = `
     ALTER COLUMN "noindex" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "firstPageLink" SET NOT NULL,
-    ALTER COLUMN "contents" SET NOT NULL;
 
 
   ALTER TABLE "Comments"
@@ -686,7 +683,6 @@ const setNotnullCommands = `
     ALTER COLUMN "noEmail" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "conversationId" SET NOT NULL,
-    ALTER COLUMN "contents" SET NOT NULL;
 
 
   ALTER TABLE "Migrations"
@@ -700,8 +696,6 @@ const setNotnullCommands = `
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "order" SET NOT NULL,
     ALTER COLUMN "name" SET NOT NULL,
-    ALTER COLUMN "contents_latest" SET NOT NULL,
-    ALTER COLUMN "contents" SET NOT NULL,
     ALTER COLUMN "collectionName" SET NOT NULL;
 
 
@@ -856,8 +850,6 @@ const setNotnullCommands = `
     ALTER COLUMN "slug" SET NOT NULL,
     ALTER COLUMN "order" SET NOT NULL,
     ALTER COLUMN "name" SET NOT NULL,
-    ALTER COLUMN "contents_latest" SET NOT NULL,
-    ALTER COLUMN "contents" SET NOT NULL;
 
 
   ALTER TABLE "TagRels"
@@ -1109,7 +1101,6 @@ const setNotnullCommands = `
   ALTER TABLE "UserRateLimits"
     ALTER COLUMN "endedAt" SET NOT NULL;
 `
-
 
 export const up = async ({db}: MigrationContext) => {
   await db.none(fillInNullWithDefaultCommands);
