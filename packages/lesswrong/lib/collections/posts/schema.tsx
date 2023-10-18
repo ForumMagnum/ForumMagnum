@@ -1954,7 +1954,6 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    nullable: false,
     hidden: true,
     control: "FormUsersListEditor",
     group: formGroups.event,
@@ -2311,7 +2310,6 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
-    nullable: false,
     hidden: true, 
     
     ...arrayOfForeignKeysField({

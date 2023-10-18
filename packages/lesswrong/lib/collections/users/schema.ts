@@ -1150,7 +1150,6 @@ const schema: SchemaType<DbUser> = {
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
-    nullable: false,
     hidden: true,
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.hiddenPostsMetadata) {
