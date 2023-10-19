@@ -42,6 +42,12 @@ export class DatabasePublicSetting<SettingValueType> {
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
   }
+  
+  getOrThrow(): SettingValueType {
+    const value = this.get()
+    if (value === null || value === undefined) throw Error(`Tried to access public setting ${this.settingName} but it was not set`)
+    return value
+  }
 }
 
 /*

@@ -66,7 +66,8 @@ import RemoveRedirect from './remove-redirect-plugin';
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
-import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import {commentEditorConfig, postEditorConfig} from './editorConfigs'
+import {CloudinaryAdapterPlugin} from "./cloudinary"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends ClassicEditor {}
@@ -106,6 +107,7 @@ const sharedPlugins = [
 	PasteFromOffice,
 	RemoveFormat,
 	Strikethrough,
+	CloudinaryAdapterPlugin,
 	Table,
 	TableToolbar,
 	TableProperties,

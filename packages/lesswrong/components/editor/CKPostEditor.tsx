@@ -10,6 +10,7 @@ import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
+import {getCloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -202,7 +203,8 @@ const CKPostEditor = ({
         },
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration
+        mention: mentionPluginConfiguration,
+        ...getCloudinaryConfig(),
       }}
     />}
   </div>

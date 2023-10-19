@@ -7,6 +7,7 @@ import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
+import {getCloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -64,7 +65,8 @@ const CKCommentEditor = ({
         },
         initialData: data || "",
         placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration
+        mention: mentionPluginConfiguration,
+        ...getCloudinaryConfig(),
       }}
       data={data}
     />
