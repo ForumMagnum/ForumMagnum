@@ -157,7 +157,7 @@ const ConversationWidget = ({
           </Typography>
         )}
       </div>
-      <ConversationDetails conversation={conversation} />
+      <ConversationDetails conversation={conversation} hideOptions />
       {renderMessages()}
       <div className={classes.editor}>
         <NewMessageForm

@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
-import stringify from "json-stringify-deterministic";
 import classNames from "classnames";
 import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
@@ -104,6 +103,10 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       componentProps: {}
     })
   }, [openDialog])
+
+  useEffect(() => {
+    openNewConversationDialog();
+  }, [openNewConversationDialog])
 
   const { InboxNavigation2, ConversationWidget, ForumIcon } = Components;
 

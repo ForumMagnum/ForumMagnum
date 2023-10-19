@@ -13,13 +13,15 @@ import InfoIcon from "@material-ui/icons/Info";
 import type { ExpandedSearchState } from "../search/SearchPageTabbed";
 import { useCurrentUser } from "../common/withUser";
 
-// const firstCommentAcknowledgeMessageCommentIdSetting = new DatabasePublicSetting<string>('firstCommentAcknowledgeMessageCommentId', '')
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    padding: 16,
-    width: 600,
-    height: "100%",
+    maxWidth: 600,
+    width: 'min(600px, 80vw)',
+    maxHeight: 600,
+    flex: 1,
+    minHeight: 0,
+    display: "flex",
+    flexDirection: "column",
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -28,12 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     padding: 16,
   },
-  searchBoxWrapper: {
-    width: 100,
-    height: 100,
-  },
   resultsColumn: {
-    flex: "1 1 0",
+    display: "flex",
+    flex: "1",
+    flexDirection: "column",
+    minHeight: 0,
   },
   searchIcon: {
     marginLeft: 12,
@@ -43,6 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginBottom: 15,
     gap: "16px",
+    padding: "0px 16px",
     [theme.breakpoints.down("xs")]: {
       marginBottom: 12,
     },
@@ -106,6 +108,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.small,
     width: "100%",
   },
+  usersList: {
+    height: 1200,
+    overflowY: "auto",
+  },
+  hit: {
+    paddingLeft: 16,
+    paddingRight: 16,
+  }
 });
 
 const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onClose: () => void }) => {
@@ -134,8 +144,8 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
                 <div className={classes.searchInputArea}>
                   <ForumIcon icon="Search" className={classes.searchIcon} />
                   {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-                  * null is the only option that actually suppresses the extra X button.
-                // @ts-ignore */}
+                    * null is the only option that actually suppresses the extra X button.
+                  // @ts-ignore */}
                   <SearchBox defaultRefinement={searchState} reset={null} focusShortcuts={[]} autoFocus={true} />
                 </div>
                 <LWTooltip title={`"Quotes" and -minus signs are supported.`} className={classes.searchHelp}>
@@ -144,12 +154,18 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
               </div>
 
               <ErrorBoundary>
-                <Configure hitsPerPage={200} />
-                {/* <CustomStats className={classes.resultCount} /> */}
-                {/* <CustomScrollTo targetRef={scrollToRef}> */}
-                <Hits hitComponent={(props) => <ExpandedUsersConversationSearchHit {...props} currentUser={currentUser} onClose={onClose} />} />
-                {/* </CustomScrollTo> */}
-                {/* <Pagination showLast className={classes.pagination} /> */}
+                <div className={classes.usersList}>
+                  <Configure hitsPerPage={200} />
+                  {/* <CustomStats className={classes.resultCount} /> */}
+                  {/* <CustomScrollTo targetRef={scrollToRef}> */}
+                  <Hits
+                    hitComponent={(props) => (
+                      <ExpandedUsersConversationSearchHit {...props} currentUser={currentUser} onClose={onClose} className={classes.hit} />
+                    )}
+                  />
+                  {/* </CustomScrollTo> */}
+                  {/* <Pagination showLast className={classes.pagination} /> */}
+                </div>
               </ErrorBoundary>
             </div>
           </InstantSearch>

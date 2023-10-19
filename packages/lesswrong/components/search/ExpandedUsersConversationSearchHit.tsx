@@ -9,6 +9,7 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
 import { useNavigation } from '../../lib/routeUtil';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -70,10 +71,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classes}: {
+const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, className, classes}: {
   hit: Hit<any>,
   currentUser: UsersCurrent,
   onClose: () => void,
+  className?: string,
   classes: ClassesType,
 }) => {
   const {FormatDate, UsersProfileImage, ForumIcon} = Components;
@@ -115,7 +117,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classes}
     onClose()
   }
 
-  return <div className={classes.root}>
+  return <div className={classNames(className, classes.root)}>
     <div onClick={() => openConversation(currentUser)} className={classes.link}>
       {isEAForum && <div className={classes.profilePhotoCol}>
         <UsersProfileImage user={user} size={36} />
