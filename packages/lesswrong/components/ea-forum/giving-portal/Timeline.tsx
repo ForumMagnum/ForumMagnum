@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: HEIGHT,
     borderRadius: theme.borderRadius.default,
-    backgroundColor: theme.palette.givingPortal.light,
+    backgroundColor: theme.palette.givingPortal[200],
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
     zIndex: 2,
@@ -49,14 +49,14 @@ const styles = (theme: ThemeType) => ({
     top: HEIGHT + 8,
   },
   dateDescription: {
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
     fontSize: 14,
     fontWeight: 600,
     whiteSpace: "break-spaces",
     maxWidth: 80,
   },
   dateMarker: {
-    backgroundColor: theme.palette.givingPortal.dark,
+    backgroundColor: theme.palette.givingPortal[1000],
     borderRadius: "50%",
     width: 12,
     height: 12,
@@ -66,8 +66,8 @@ const styles = (theme: ThemeType) => ({
     zIndex: 6,
   },
   span: {
-    backgroundColor: theme.palette.givingPortal.main,
-    color: theme.palette.givingPortal.dark,
+    backgroundColor: theme.palette.givingPortal[500],
+    color: theme.palette.givingPortal[1000],
     fontSize: 14,
     fontWeight: 600,
     display: "flex",
@@ -80,7 +80,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: 4,
   },
   currentMarker: {
-    backgroundColor: theme.palette.givingPortal.dark,
+    backgroundColor: theme.palette.givingPortal[1000],
     borderTopLeftRadius: theme.borderRadius.default,
     borderBottomLeftRadius: theme.borderRadius.default,
     position: "absolute",
@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: 8,
   },
   youAreHere: {
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
     fontSize: 14,
     fontWeight: 600,
     whiteSpace: "nowrap",
@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
     top: HEIGHT + 40,
   },
   arrow: {
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
     position: "absolute",
     top: HEIGHT + 6,
     right: -8,

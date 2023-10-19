@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: 280,
     height: 265,
-    backgroundColor: theme.palette.grey[0],
+    backgroundColor: theme.palette.givingPortal[0],
     boxShadow: `0px 2px 6px 0px ${theme.palette.greyAlpha(0.1)}`,
     borderRadius: theme.borderRadius.default,
     padding: 16,
@@ -71,11 +71,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   buttonPrimary: {
-    backgroundColor: theme.palette.givingPortal.dark,
+    backgroundColor: theme.palette.givingPortal[1000],
     color: theme.palette.grey[0],
   },
   buttonGrey: {
     backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[1000],
   },
 });
 

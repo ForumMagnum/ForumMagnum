@@ -8,7 +8,7 @@ const imageSize = 52;
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    backgroundColor: theme.palette.givingPortal.secondary,
+    backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.default,
     padding: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     border: "1px solid transparent",
     "&:hover": {
       opacity: 0.9,
-      border: `1px solid ${theme.palette.givingPortal.dark}`,
+      border: `1px solid ${theme.palette.givingPortal[1000]}`,
     },
   },
   imageContainer: {

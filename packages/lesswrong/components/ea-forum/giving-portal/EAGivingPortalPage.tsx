@@ -14,17 +14,17 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   sectionLight: {
-    backgroundColor: theme.palette.givingPortal.light,
+    backgroundColor: theme.palette.givingPortal[100],
   },
   sectionDark: {
-    backgroundColor: theme.palette.givingPortal.dark,
+    backgroundColor: theme.palette.givingPortal[1000],
     color: theme.palette.grey[0],
   },
   sectionSplit: {
     background: `linear-gradient(
       to top,
-      ${theme.palette.givingPortal.dark} 100px,
-      ${theme.palette.givingPortal.light} 100px
+      ${theme.palette.givingPortal[1000]} 100px,
+      ${theme.palette.givingPortal[100]} 100px
     )`,
   },
   content: {
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     alignSelf: "center",
   },
   primaryText: {
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
   },
   h1: {
     fontSize: 60,
@@ -102,7 +102,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.grey[0],
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
     borderRadius: theme.borderRadius.small,
     padding: "12px 16px",
     border: "none",
@@ -123,7 +123,7 @@ const styles = (theme: ThemeType) => ({
   },
   primaryLoadMore: {
     "& .LoadMore-root": {
-      color: theme.palette.givingPortal.dark,
+      color: theme.palette.givingPortal[1000],
     },
   },
   electionCandidates: {
@@ -150,7 +150,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 4,
   },
   loadMore: {
-    color: theme.palette.givingPortal.dark,
+    color: theme.palette.givingPortal[1000],
     fontSize: 16,
     fontWeight: 700,
     letterSpacing: "-0.16px",
