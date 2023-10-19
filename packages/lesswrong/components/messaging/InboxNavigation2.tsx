@@ -54,7 +54,8 @@ const InboxNavigation2 = ({
     LoadMore,
   } = Components;
 
-  const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute.name !== "moderatorInbox";
+  // TODO support
+  const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute?.name !== "moderatorInbox";
 
   return <>
       {nonEmptyConversations?.length ? (

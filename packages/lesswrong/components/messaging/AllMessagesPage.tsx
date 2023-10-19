@@ -51,8 +51,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columnHeader: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    border: theme.palette.border.grey200,
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
     fontSize: 20,
@@ -60,13 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
   },
   columnHeaderLeft: {
-    border: theme.palette.border.grey200,
     borderTopLeftRadius: theme.borderRadius.default,
-    display: "flex",
-    justifyContent: "space-between",
   },
   columnHeaderRight: {
-    border: theme.palette.border.grey200,
     borderLeft: "none",
     borderTopRightRadius: theme.borderRadius.default,
   },
@@ -76,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
   },
-  newMessageIcon: {
+  actionIcon: {
     color: theme.palette.grey[600],
     width: 24,
     height: 24,
@@ -122,13 +120,22 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
     [conversations, selectedConversationId]
   );
 
+  const openConversationOptions = () => {
+    openDialog({
+      componentName: "ConversationTitleEditForm",
+      componentProps: {
+        documentId: selectedConversationId,
+      }
+    });
+  }
+
   if (!currentUser) {
     return <div>Log in to access private messages.</div>;
   }
 
   // Note: we are removing the ability to archive conversations
   // const showArchive = query.showArchive === "true"
-  
+
   {/* <SectionTitle title={title} noTopMargin> */}
     {/* TODO add mod inbox back in */}
     {/* {showModeratorLink && <Link to={"/moderatorInbox"} className={classes.modInboxLink}>Mod Inbox</Link>} */}
@@ -141,7 +148,7 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       <div className={classNames(classes.column, classes.leftColumn)}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
           <div className={classes.classes.headerText}>All messages</div>
-          <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.newMessageIcon} />
+          <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
         </div>
         <div className={classes.navigation}>
           <InboxNavigation2
@@ -155,7 +162,7 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       <div className={classNames(classes.column, classes.rightColumn)}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
           <div className={classes.headerText}>{title}</div>
-          {/* TODO triple dot menu */}
+          {selectedConversationId && <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />}
         </div>
         <div className={classes.conversation} ref={selectedConversationRef}>
           {selectedConversationId ? (
