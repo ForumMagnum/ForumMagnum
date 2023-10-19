@@ -40,6 +40,7 @@ export const wuMiddleware = (addConnectHandler: AddMiddlewareType) => {
 }
 
 const wakingUpKeySetting = new DatabaseServerSetting<string | null>('wakingUpKey', null)
+const wakingUpEndpointSetting = new DatabaseServerSetting<string | null>('wakingUpEndpoint', null)
 
 function isValidWuUser(wuUser: WuUserData) {
   return (!!wuUser.email)
@@ -64,9 +65,9 @@ function sampleResponse(email: string) {
 
 async function getWakingUpUserData(email: string): Promise<any> {
   const wakingUpKey = wakingUpKeySetting.get()
+  const wakingUpEndpoint = wakingUpEndpointSetting.get()
 
-  // TODO: make this URL configurable
-  const url = `https://api.dev.wakingup.com/community/users/${email}`;
+  const url = `${wakingUpEndpoint}${email}`;
   const headers = {
     'x-community-key': wakingUpKey,
   };
@@ -213,8 +214,12 @@ const authenticationResolvers = {
     
     async codeLogin(root: void, { email, code }: {email: string, code: string}, { req, res }: ResolverContext) {
       const user = await userFindOneByEmail(email);
+      const errorMessage = "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.";
+      if (!user?.wu_subscription_active) throw new Error(errorMessage)
+      if (!user.wu_forum_access) throw new Error(errorMessage)
+
       const validCode = user && code?.length > 0 && user.services?.wakingUp?.oneTimeCode === code;
-      // TODO: restrict this in production (staging server runs in production mode so
+      // TODO: restrict the dev code in production (staging server runs in production mode so
       // checking !isProduction doesn't work)
       // const devCodeOkay = user && !isProduction && code === '1234';
       const devCodeOkay = user && code === '1234';
