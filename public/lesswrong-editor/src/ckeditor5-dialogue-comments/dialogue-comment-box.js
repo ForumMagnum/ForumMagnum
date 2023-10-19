@@ -124,6 +124,12 @@ class SimpleBoxEditing extends Plugin {
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
         });
 
+        const forbiddenMessageChildren = [
+            'dialogueMessage',
+            'dialogueMessage',
+            ...Object.values(FOOTNOTE_ELEMENTS)
+        ];
+
         const forbiddenInputChilden = [
             'dialogueMessage',
             'dialogueMessageHeader',
@@ -135,10 +141,7 @@ class SimpleBoxEditing extends Plugin {
         schema.addChildCheck((context, childDefinition) => {
             // Explicitly forbid some degenerate cases
             // Some of these are doubtless ruled out by the schema definitions above, but they often behave in pretty weird ways
-            if (
-                context.endsWith('dialogueMessage') &&
-                (childDefinition.name === 'dialogueMessage' || childDefinition.name === 'dialogueMessageHeader')
-            ) {
+            if (context.endsWith('dialogueMessage') && forbiddenMessageChildren.includes(childDefinition.name)) {
                 return false;
             }
 
@@ -176,11 +179,18 @@ class SimpleBoxEditing extends Plugin {
         // <dialogueMessageInput> converters
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
-                return modelWriter.createElement('dialogueMessageInput');
+                const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+                console.log({ attributes });
+                return modelWriter.createElement('dialogueMessageInput', attributes);
             },
             view: {
                 name: 'section',
                 classes: 'dialogue-message-input',
+                attributes: {
+                    'user-id': true,
+                    'display-name': true,
+                    'user-order': true
+                }
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
@@ -394,12 +404,13 @@ function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter })
     const button = createButtonElement(viewWriter, buttonAttributes, editor);
 
     const userDisplayName = getUserDisplayName(modelElement);
+    console.log({ modelElement, userDisplayName });
     const headerAttributes = { class: 'dialogue-message-input-header CommentUserName-author UsersNameDisplay-noColor' };
     const headerElement = createHeaderElement(viewWriter, 'div', headerAttributes, userDisplayName);
 
     const userOrder = getUserOrder(modelElement);
     const userId = modelElement.getAttribute('user-id');
-    const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId };
+    const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId, 'display-name': userDisplayName };
     const section = viewWriter.createContainerElement( 'section', sectionAttributes );
 
     viewWriter.insert(viewWriter.createPositionAt(section, 0), button);

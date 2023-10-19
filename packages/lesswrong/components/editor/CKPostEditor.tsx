@@ -142,7 +142,7 @@ function assignUserOrders(messagesOrInputs: (RootElement | CKElement)[], sortedC
 }
 
 function assignUserIds(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
-  return inputs.map((element, idx) => {
+  return inputs.map((element) => {
     const elementUserId = element.getAttribute('user-id');
     if (elementUserId) return false;
 
@@ -153,6 +153,21 @@ function assignUserIds(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], wri
     const userId = sortedCoauthors[elementUserOrder - 1]._id
     writer.setAttribute('user-id', userId, element);
 
+    return true;
+  }).some(e => e);
+}
+
+function assignDisplayNames(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return inputs.map((input) => {
+    const inputUserId = input.getAttribute('user-id')
+    const inputDisplayName = input.getAttribute('display-name');
+    if (!inputUserId || inputDisplayName) return false;
+
+    const inputUser = sortedCoauthors.find((author) => author._id === inputUserId);
+    if (!inputUser) return false;
+
+    const displayName = inputUser.displayName;
+    writer.setAttribute('display-name', displayName, input);
     return true;
   }).some(e => e);
 }
@@ -200,6 +215,11 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 
     const anyMissingInputUserIds = assignUserIds(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyMissingInputUserIds) {
+      return true;
+    }
+
+    const anyMissingDisplayNames = assignDisplayNames(dialogueMessageInputs, sortedCoauthors, writer);
+    if (anyMissingDisplayNames) {
       return true;
     }
 
