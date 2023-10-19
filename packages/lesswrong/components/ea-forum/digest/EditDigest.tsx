@@ -358,7 +358,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
 
 
   const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
-    EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
+    EditDigestActionButtons, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
@@ -465,7 +465,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
 
   // calculate total post counts for email & on-site digests, to display in the column headers
   const emailTotal = posts?.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')?.length ?? 0
-  const onsiteTotal = posts?.filter(p => postStatuses[p._id].onsiteDigestStatus === 'yes')?.length ?? 0
+  // const onsiteTotal = posts?.filter(p => postStatuses[p._id].onsiteDigestStatus === 'yes')?.length ?? 0
   
   return (
     <div className={classes.root}>
@@ -482,25 +482,25 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               className={classes.copyDigestIcon}
               onClick={() => copyDigestToClipboard()} />
           </LWTooltip>
-          <EditDigestPublishBtn digest={digest} />
+          <EditDigestActionButtons digest={digest} />
         </div>
         
         <div className={classes.filters}>
           <FilterIcon className={classes.filterIcon} />
           <div className={classes.filter}>
-            <label className={classes.filterLabel}>In email digest?</label>
+            <label className={classes.filterLabel}>In digest?</label>
             <ForumDropdownMultiselect
               values={emailDigestFilter}
               options={emailDigestOptions}
               onSelect={handleUpdateEmailDigestFilter} />
           </div>
-          <div className={classes.filter}>
+          {/* <div className={classes.filter}>
             <label className={classes.filterLabel}>In on-site digest?</label>
             <ForumDropdownMultiselect
               values={onsiteDigestFilter}
               options={onsiteDigestOptions}
               onSelect={handleUpdateOnsiteDigestFilter} />
-          </div>
+          </div> */}
           <div className={classes.filter}>
             <label className={classes.filterLabel}>Filter by tag</label>
             <ForumDropdown value={tagFilter} options={tagOptions} onSelect={setTagFilter} />
@@ -517,17 +517,17 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         <thead>
           <tr className={classes.headerRow}>
             <th className={classes.centeredColHeader}>
-              Email?
-              <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 10})}>
+              In digest?
+              <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 14})}>
                 {emailTotal}
               </div>
             </th>
-            <th className={classes.centeredColHeader}>
+            {/* <th className={classes.centeredColHeader}>
               On-site?
               <div className={classNames(classes.total, {[classes.totalHigh]: onsiteTotal > 30})}>
                 {onsiteTotal}
               </div>
-            </th>
+            </th> */}
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>

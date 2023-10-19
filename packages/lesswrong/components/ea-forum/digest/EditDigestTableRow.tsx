@@ -235,7 +235,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
   
   return <tr className={classes.row}>
     {getStatusIconCell(post._id, 'emailDigestStatus', postStatus)}
-    {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)}
+    {/* {getStatusIconCell(post._id, 'onsiteDigestStatus', postStatus)} */}
 
     <td className={classes.postTitleCol}>
       <LWTooltip title="Click to copy post link" placement="bottom" className={classes.copyLink}>
