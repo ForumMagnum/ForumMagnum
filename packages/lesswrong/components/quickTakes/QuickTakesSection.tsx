@@ -22,6 +22,9 @@ const styles = (theme: ThemeType) => ({
     "& .MuiIconButton-root.MuiCheckbox-checked": {
       color: theme.palette.primary.main,
     },
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
   list: {
     marginTop: 4,
