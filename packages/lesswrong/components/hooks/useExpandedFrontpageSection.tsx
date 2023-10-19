@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
@@ -20,6 +20,7 @@ export type UseExpandedFrontpageSectionProps = {
   onExpandEvent?: string,
   onCollapseEvent?: string,
   cookieName: string,
+  forceSetCookieIfUndefined?: boolean,
 }
 
 const expandFrontpageSectionMutation = gql`
@@ -70,6 +71,7 @@ export const useExpandedFrontpageSection = ({
   onExpandEvent,
   onCollapseEvent,
   cookieName,
+  forceSetCookieIfUndefined,
 }: UseExpandedFrontpageSectionProps) => {
   const currentUser = useCurrentUser();
   const [expandFrontpageSection] = useMutation(
@@ -82,6 +84,14 @@ export const useExpandedFrontpageSection = ({
     () => isInitialExpanded(section, defaultExpanded, currentUser, cookies, cookieName),
   );
 
+  const saveToCookie = useCallback((value: boolean) => {
+    if (cookieName) {
+      setCookie(cookieName, String(value), {
+        expires: moment().add(10, "years").toDate(),
+      });
+    }
+  }, [setCookie, cookieName]);
+
   const toggleExpanded = useCallback(() => {
     const newExpanded = !expanded;
     setExpanded(newExpanded);
@@ -93,9 +103,7 @@ export const useExpandedFrontpageSection = ({
         },
       });
     }
-    if (cookieName) {
-      setCookie(cookieName, String(newExpanded), {expires: moment().add(10, "years").toDate()});
-    }
+    saveToCookie(newExpanded);
     const event = newExpanded ? onExpandEvent : onCollapseEvent;
     if (event) {
       captureEvent(event);
@@ -104,13 +112,18 @@ export const useExpandedFrontpageSection = ({
     section,
     onExpandEvent,
     onCollapseEvent,
-    cookieName,
     expanded,
     currentUser,
     captureEvent,
     expandFrontpageSection,
-    setCookie,
+    saveToCookie,
   ]);
+
+  useEffect(() => {
+    if (forceSetCookieIfUndefined && !cookies[cookieName]) {
+      saveToCookie(expanded);
+    }
+  }, [forceSetCookieIfUndefined, cookies, cookieName, saveToCookie, expanded]);
 
   return {
     expanded,

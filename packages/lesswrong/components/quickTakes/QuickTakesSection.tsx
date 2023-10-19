@@ -56,6 +56,7 @@ const QuickTakesSection = ({classes}: {
     onExpandEvent: "quickTakesSectionShowCommunity",
     onCollapseEvent: "quickTakesSectionHideCommunity",
     cookieName: SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
+    forceSetCookieIfUndefined: true,
   });
 
   const {
