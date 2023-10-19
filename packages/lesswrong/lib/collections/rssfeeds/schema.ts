@@ -1,5 +1,5 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbRSSFeed> = {
   userId: {

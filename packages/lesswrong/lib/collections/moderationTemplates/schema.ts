@@ -1,4 +1,4 @@
-import {schemaDefaultValue} from "../../collectionUtils";
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 

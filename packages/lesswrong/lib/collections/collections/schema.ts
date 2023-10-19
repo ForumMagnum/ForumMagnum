@@ -1,4 +1,4 @@
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 

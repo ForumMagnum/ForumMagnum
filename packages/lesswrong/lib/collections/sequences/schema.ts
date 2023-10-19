@@ -1,5 +1,5 @@
 import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<DbSequence> = {

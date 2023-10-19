@@ -1,5 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 const schema: SchemaType<DbNotification> = {
   userId: {
