@@ -376,12 +376,12 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
 Globals.fetchCkEditorRestAPI = fetchCkEditorRestAPI;
 
 async function flushCkEditorCollaboration(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}`);
+  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
 }
 Globals.flushCkEditorCollaboration = flushCkEditorCollaboration;
 
 async function deleteCkEditorCloudDocument(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
+  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true&wait=true`);
 }
 Globals.deleteCkEditorCloudDocument = deleteCkEditorCloudDocument;
 
