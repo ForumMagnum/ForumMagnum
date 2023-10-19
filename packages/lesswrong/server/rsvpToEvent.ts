@@ -72,6 +72,9 @@ addGraphQLResolvers({
       if (currentUser?._id !== userId && currentUser?._id !== post.userId) {
         throw new Error("user does not have permission to remove rsvps of this userId")
       }
+      if (!post.rsvps) {
+        throw new Error("There are no RSVPs to cancel on this event")
+      }
 
       const rsvps = post.rsvps.filter(rsvp => rsvp.name !== name)
 

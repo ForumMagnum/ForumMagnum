@@ -32,11 +32,11 @@ Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
       }
       
       // if the user's email is already in emails, skip them because their data is already correct
-      if (user.emails && user.emails.map(email => email.address?.toLowerCase()).includes(user.email.toLowerCase())) {
+      if (user.email && user.emails && user.emails.map(email => email.address?.toLowerCase()).includes(user.email.toLowerCase())) {
         continue;
       }
 
-      if (allEmails.has(user.email.toLowerCase())) {
+      if (user.email && allEmails.has(user.email.toLowerCase())) {
         // eslint-disable-next-line no-console
         console.log("email found in another user's account:", user.email);
       } else {

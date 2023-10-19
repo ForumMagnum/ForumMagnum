@@ -589,7 +589,7 @@ interface DbPost extends DbObject {
   modifiedAt: Date | null
   url: string | null
   postCategory: "post" | "linkpost" | "question"
-  title: string | null
+  title: string
   slug: string
   viewCount: number
   lastCommentedAt: Date | null

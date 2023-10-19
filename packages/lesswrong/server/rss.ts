@@ -111,7 +111,7 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
     feed.item({
      title: 'Comment on ' + parentTitle,
      description: `${comment.contents && comment.contents.html}</br></br><a href='${url}'>Discuss</a>`,
-     author: comment.author,
+     author: comment.author ?? undefined,
      date: comment.postedAt,
      url: url,
      guid: comment._id

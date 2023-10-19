@@ -28,7 +28,7 @@ type Transaction = ITask<{}>;
 // }
 
 const sanitizeNullTerminatingChars = (value: DbRevision['originalContents']) => {
-  if (value.type !== 'markdown') return value;
+  if (value?.type !== 'markdown') return value;
   value.data = value.data.replace(/\0/g, '');
   return value;
 }
@@ -87,7 +87,7 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
       return typeof email === "string"
         ? { address: email, verified: false }
         : email;
-    });
+    }) ?? [];
     return user;
   },
   DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {

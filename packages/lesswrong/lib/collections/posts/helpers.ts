@@ -105,7 +105,7 @@ export interface PostsMinimumForGetPageUrl {
   _id: string
   slug: string
   isEvent?: boolean
-  groupId?: string|undefined
+  groupId?: string | undefined | null
 }
 
 // Get URL of a post page.

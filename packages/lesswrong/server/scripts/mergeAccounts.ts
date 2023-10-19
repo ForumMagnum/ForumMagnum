@@ -10,6 +10,7 @@ import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
+import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -246,8 +247,8 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   try {
     const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
-    const readPostIds = readStatuses.map((status) => status.postId).filter(postId => !!postId)
-    const readTagIds = readStatuses.map((status) => status.tagId).filter(tagId => !!tagId)
+    const readPostIds = filterNonnull(readStatuses.map((status) => status.postId))
+    const readTagIds = filterNonnull(readStatuses.map((status) => status.tagId))
     // eslint-disable-next-line no-console
     console.log(`source readPostIds count: ${readPostIds.length}`)
     // eslint-disable-next-line no-console
@@ -330,7 +331,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           karma: newKarma, 
           // We only recalculate the karma for non-af karma, because recalculating
           // af karma is a lot more complicated
-          afKarma: sourceUser.afKarma + targetUser.afKarma 
+          afKarma: (sourceUser.afKarma ?? 0) + (targetUser.afKarma ?? 0)
         },
         validate: false
       })
@@ -371,7 +372,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       await updateMutator({
         collection: Users,
         documentId: targetUserId,
-        set: {oldSlugs: newOldSlugs}, 
+        set: {oldSlugs: filterNonnull(newOldSlugs)}, 
         validate: false
       })
     }
@@ -384,7 +385,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // if the two accounts share an email address, change the sourceUser email to "+old"
   try {
-    if (!dryRun) {
+    if (!dryRun && !!sourceUser.email && !!targetUser.email) {
       const splitEmail = sourceUser.email.split("@")
       const newEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
       if (sourceUser.email === targetUser.email) {
@@ -396,15 +397,19 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           }}
         );
       }
-      const sourceEmailsEmail = (sourceUser.emails?.length > 0) && sourceUser.emails[0]
-      const targetEmailsEmail = (targetUser.emails?.length > 0) && targetUser.emails[0]
-      if (sourceEmailsEmail === targetEmailsEmail) {
-        await Users.rawUpdateOne(
-          {_id: sourceUserId},
-          {$set: {
-            'emails.0': {address: newEmail, verified: sourceEmailsEmail ? sourceEmailsEmail.verified : false}
-          }}
-        );
+
+      if ((sourceUser?.emails) && (targetUser?.emails)) {
+        const sourceEmailsEmail = sourceUser.emails.length > 0 && sourceUser.emails[0]
+        const targetEmailsEmail = targetUser.email.length > 0 && targetUser.emails[0]
+
+        if (sourceEmailsEmail === targetEmailsEmail) {
+          await Users.rawUpdateOne(
+            {_id: sourceUserId},
+            {$set: {
+              'emails.0': {address: newEmail, verified: sourceEmailsEmail ? sourceEmailsEmail.verified : false}
+            }}
+          );
+        }
       }
     }
   } catch (err) {
@@ -460,7 +465,8 @@ async function recomputeKarma(userId: string) {
     cancelled: false,
     collectionName: {$in: collectionsThatAffectKarma}
   };
-  const allTargetVotes = await Votes.find(selector).fetch()
+  const rawAllTargetVotes = await Votes.find(selector).fetch()
+  const allTargetVotes = filterWhereFieldsNotNull(rawAllTargetVotes, "authorIds")
   const karma = sumBy(allTargetVotes, vote => {
     // a doc author cannot give karma to themselves or any other authors for that doc
     return vote.authorIds.includes(vote.userId) ? 0 : vote.power

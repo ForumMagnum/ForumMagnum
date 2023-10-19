@@ -170,6 +170,10 @@ defineQuery({
       throw new Error("Could not find matching post");
     }
     
+    if (!post.contents.originalContents) { 
+      throw new Error("Post has no original contents.")
+    }
+    
     // Diff the contents between the RSS feed and the LW version
     const newHtml = sanitize(getRssPostContents(matchingPost));
     const oldHtml = sanitize(await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, true));

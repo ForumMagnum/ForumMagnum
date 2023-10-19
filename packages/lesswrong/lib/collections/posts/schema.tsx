@@ -233,6 +233,7 @@ const schema: SchemaType<DbPost> = {
   title: {
     type: String,
     optional: false,
+    nullable: false,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],

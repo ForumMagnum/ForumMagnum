@@ -1938,10 +1938,10 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly postId: string,
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
-  readonly comment: string,
+  readonly comment: string | null,
   readonly year: string,
   readonly dummy: boolean,
-  readonly reactions: Array<string>,
+  readonly reactions: Array<string> | null,
 }
 
 interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on ReviewVotes

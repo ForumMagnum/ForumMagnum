@@ -280,7 +280,7 @@ export const getToCforPost = async ({document, version, context}: {
   let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
-    if (!revision) return null;
+    if (!revision?.html) return null;
     if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
@@ -321,7 +321,7 @@ const getToCforTag = async ({document, version, context}: {
       // eslint-disable-next-line no-console
       console.log(e);
       const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
-      if (!revision) return null;
+      if (!revision?.html) return null;
       if (!await Revisions.checkAccess(context.currentUser, revision, context))
         return null;
       html = revision.html;
