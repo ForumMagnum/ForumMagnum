@@ -16,7 +16,7 @@ const PostsTooltip = ({
   tagRelId,
   hash,
   postsList,
-  inlineBlock,
+  inlineBlock=false,
   As,
   clickable,
   flip,
