@@ -240,4 +240,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT 1;
     `);
   }
+
+  async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
+    // return this.one(`SELECT * FROM "Users" WHERE _id = 'gXeEWGjTWyqgrQTzR'`
+    // )
+    return this.any(`SELECT "Users".*
+      FROM "Users"
+      INNER JOIN "Posts" ON "Users"._id = "Posts"."userId"
+      WHERE "Posts"."collabEditorDialogue" = TRUE
+    `)
+  }
 }

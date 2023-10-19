@@ -135,6 +135,9 @@ addGraphQLSchema(`
     topShortform: Comment,
     karmaChange: Int
   }
+  type SuggestedDialogueUsers {
+    dialogueUsers: [User]
+  }
 `)
 
 addGraphQLResolvers({
@@ -384,6 +387,28 @@ addGraphQLResolvers({
         throw new Error('Invalid user type type')
       }
     },
+    async GetUsersWhoHaveMadeDialogues(): Promise<AnyBecauseTodo> {
+      
+      // dummy dialogues users
+      const dialogueUsers = new UsersRepo().getUsersWhoHaveMadeDialogues()
+      
+      // Your top tags
+
+      // The top authors of your top tags
+
+      // Your top authors
+
+      // The top tags of your top authors
+
+
+      const results: AnyBecauseTodo = {
+        dialogueUsers: dialogueUsers
+
+
+      }
+      
+      return results
+    }
   },
 })
 
@@ -465,3 +490,4 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
+addGraphQLQuery('GetUsersWhoHaveMadeDialogues: SuggestedDialogueUsers')

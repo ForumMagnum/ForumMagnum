@@ -593,6 +593,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueSuggestionsPage", () => require('../components/users/DialogueSuggestionsPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
