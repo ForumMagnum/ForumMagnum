@@ -1,8 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { ensureIndex } from './collectionIndexUtils';
-import { addFieldsDict } from './utils/schemaUtils';
-import { schemaDefaultValue } from './utils/schemaUtils';
+import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
 
@@ -62,6 +61,7 @@ export function addUniversalFields<T extends DbObject>({
   addFieldsDict(collection, {
     _id: {
       optional: true,
+      nullable: false,
       type: String,
       canRead: ['guests'],
     },
@@ -75,6 +75,7 @@ export function addUniversalFields<T extends DbObject>({
     createdAt: {
       type: Date,
       optional: true,
+      nullable: false,
       hidden: true,
       canRead: ['guests'],
       onInsert: () => new Date(),

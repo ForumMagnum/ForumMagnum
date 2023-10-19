@@ -330,7 +330,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
@@ -537,7 +537,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
-  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;

@@ -295,12 +295,12 @@ export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => 
   return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-type UserWithEmail = {
-  email: string
-  emails: UsersCurrent["emails"] 
+type UserMaybeWithEmail = {
+  email: string | null
+  emails: UsersCurrent["emails"] | null
 }
 
-export function getUserEmail (user: UserWithEmail|null): string | undefined {
+export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
@@ -314,8 +314,8 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
   return {
     id: user._id,
     email: getUserEmail(user),
-    name: user.displayName,
-    slug: user.slug,
+    name: user.displayName ?? user.username ?? '[missing displayName and username]', 
+    slug: user.slug ?? 'missing slug',
   }
 }
 

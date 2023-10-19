@@ -1,7 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
@@ -43,6 +42,7 @@ const schema: SchemaType<DbTagRel> = {
   },
   // The user who first tagged the post with this tag
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
