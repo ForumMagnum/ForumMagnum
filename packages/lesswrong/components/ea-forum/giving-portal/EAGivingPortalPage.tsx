@@ -156,6 +156,16 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.24px",
     lineHeight: "140%",
   },
+  loadMore: {
+    color: theme.palette.givingPortal.dark,
+    fontSize: 16,
+    fontWeight: 700,
+    letterSpacing: "-0.16px",
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
 });
 
 const useAmountRaised = () => {
@@ -249,9 +259,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   }, []);
 
   const onContribute = useCallback(() => {
-    // TODO: Hook up notifications
+    // TODO: Hook up contribute button
     // eslint-disable-next-line no-console
     console.log("Clicked contribute to the discussion");
+  }, []);
+
+  const onLoadMoreOpportunities = useCallback(() => {
+    // TODO: Hook up loading more opportunities
+    // eslint-disable-next-line no-console
+    console.log("Clicked load more donation opportunities");
   }, []);
 
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
@@ -376,6 +392,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             {donationOpportunities.map((org) => (
               <DonationOpportunity org={org} key={org.name} />
             ))}
+          </div>
+          <div onClick={onLoadMoreOpportunities} className={classes.loadMore}>
+            Load more
           </div>
         </div>
         <div className={classes.content}>
