@@ -19,6 +19,7 @@ registerMigration({
       try {
         html = await fetchCkEditorCloudStorageDocument(ckEditorId);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log('Error getting remote html of dialogue', { err });
       }
 

@@ -181,18 +181,21 @@ export const backfillDialogueMessageInputAttributes = async (html: string) => {
     const userOrder = $(element).attr('user-order');
 
     if (!userId || !userOrder) {
+      // eslint-disable-next-line no-console
       console.log(`Missing userId or userOrder for message ${element}!`);
       continue;
     }
 
     const userOrderNumber = Number.parseInt(userOrder);
     if (isNaN(userOrderNumber)) {
+      // eslint-disable-next-line no-console
       console.log(`Invalid userOrder value ${userOrder} in message ${element}`);
       continue;
     }
 
     const displayName = $(element).attr('display-name') ?? (await Users.findOne(userId, undefined, { displayName: 1 }))?.displayName;
     if (!displayName) {
+      // eslint-disable-next-line no-console
       console.log(`Missing displayName for message ${element}!`);
       continue;
     }
@@ -210,6 +213,7 @@ export const backfillDialogueMessageInputAttributes = async (html: string) => {
     const userOrder = $(element).attr('user-order');
 
     if (userId) {
+      // eslint-disable-next-line no-console
       console.log(`Element ${element} already has userId ${userId}`);
       continue;
     }
