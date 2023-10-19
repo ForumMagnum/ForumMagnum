@@ -31,10 +31,10 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "c3e1e47f98b00ea1ff4f2dfe2e646604";
+export const acceptsSchemaHash = "c3e1e47f98b00ea1ff4f2dfe2e646604";
 
 import { Posts } from "../../lib/collections/posts/collection"
-import { addField } from "./meta/utils"
+import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {  
   if (!Posts.isPostgres()) {
@@ -44,5 +44,8 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  if (!Posts.isPostgres()) {
+    return
+  }
+  await dropField(db, Posts, "mostRecentPublishedDialogueResponseDate");
 }
