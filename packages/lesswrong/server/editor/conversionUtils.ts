@@ -162,6 +162,53 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
   return $.html();
 };
 
+export const backfillDialogueMessageInputAttributes = (html: string) => {
+  const $ = cheerioParse(html);
+
+  const userIdsWithOrders: [number, string][] = [];
+  for (const element of $('.dialogue-message').toArray()) {
+    const userId = $(element).attr('user-id');
+    const userOrder = $(element).attr('user-order');
+    if (!userId || !userOrder) {
+      console.log(`Missing userId or userOrder for message ${element}!`);
+      continue;
+    }
+
+    const userOrderNumber = Number.parseInt(userOrder);
+    if (isNaN(userOrderNumber)) {
+      console.log(`Invalid userOrder value ${userOrder} in message ${element}`);
+      continue;
+    }
+
+    userIdsWithOrders.push([userOrderNumber, userId]);
+  }
+
+  userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
+  const userIdsByOrder = Object.fromEntries(userIdsWithOrders);
+
+  for (const [idx, element] of Object.entries($('.dialogue-message-input').toArray())) {
+    const userId = $(element).attr('user-id');
+    const userOrder = $(element).attr('user-order');
+
+    if (userId) {
+      console.log(`Element ${element} already has userId ${userId}`);
+      continue;
+    }
+
+    let userIdByOrder;
+    if (userOrder) {
+      userIdByOrder = userIdsByOrder[userOrder];
+    } else {
+      userIdByOrder = userIdsByOrder[idx];
+    }
+
+    $(element).attr('user-id', userIdByOrder);
+    $(element).attr('user-order', idx);
+  }
+
+  return $.html();
+}
+
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerioParse(`<div id="root">${html}</div>`)
   const topLevelElements = $('#root').children().get()

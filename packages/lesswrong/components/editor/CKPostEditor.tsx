@@ -48,8 +48,12 @@ const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
 const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
 const DIALOGUE_MESSAGE = 'dialogueMessage';
 
+type ElementOfType<T extends string> = (RootElement | CKElement) & { name: T };
+type InputWrapper = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT_WRAPPER>;
+type Input = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT>;
+
 function isElementOfType<T extends string>(type: T) {
-  return function(node: Node | undefined): node is (RootElement | CKElement) & { name: T } {
+  return function(node: Node | undefined): node is ElementOfType<T> {
     return !!(node?.is('element', type));
   }
 }
@@ -64,10 +68,10 @@ function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors:
   });
 }
 
-function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, root: (RootElement | CKElement) & { name: "dialogueMessageInputWrapper" }) {
+function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, parent: InputWrapper) {
   authorsWithoutInputs.forEach(author => {
     const newUserMessageInput = writer.createElement(DIALOGUE_MESSAGE_INPUT, { 'user-id': author._id, 'display-name': author.displayName });
-    writer.append(newUserMessageInput, root);
+    writer.append(newUserMessageInput, parent);
   });
 }
 
@@ -114,26 +118,42 @@ function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
   return Math.max(...dialogueElements.map(element => getElementUserOrder(element)))
 }
 
-function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
-  return dialogueMessages.map(message => {
-    const messageUserId = message.getAttribute('user-id');
-    const messageUserOrder = getElementUserOrder(message);
-    let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
+function assignUserOrders(messagesOrInputs: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return messagesOrInputs.map(element => {
+    const elementUserId = element.getAttribute('user-id');
+    const elementUserOrder = getElementUserOrder(element);
+    let userOrder = sortedCoauthors.findIndex((author) => author._id === elementUserId) + 1;
 
     if (userOrder < 1) {
-      if (messageUserOrder) {
-        userOrder = messageUserOrder;
+      if (elementUserOrder) {
+        userOrder = elementUserOrder;
       } else {
-        userOrder = getMaxUserOrder(dialogueMessages) + 1;
+        userOrder = getMaxUserOrder(messagesOrInputs) + 1;
       }
     }
 
-    if (userOrder !== messageUserOrder) {
-      writer.setAttribute('user-order', userOrder, message);
+    if (userOrder !== elementUserOrder) {
+      writer.setAttribute('user-order', userOrder, element);
       return true;
     }
 
     return false;
+  }).some(e => e);
+}
+
+function assignUserIds(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return inputs.map((element, idx) => {
+    const elementUserId = element.getAttribute('user-id');
+    if (elementUserId) return false;
+
+    // Explicitly coalesce on 0, which only happens if there is no user-order on the element
+    const elementUserOrder = getElementUserOrder(element) || (getMaxUserOrder(inputs) + 1);
+
+    // user-order is 1-indexed
+    const userId = sortedCoauthors[elementUserOrder - 1]._id
+    writer.setAttribute('user-id', userId, element);
+
+    return true;
   }).some(e => e);
 }
 
@@ -175,6 +195,11 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 
     const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyIncorrectInputUserOrders) {
+      return true;
+    }
+
+    const anyMissingInputUserIds = assignUserIds(dialogueMessageInputs, sortedCoauthors, writer);
+    if (anyMissingInputUserIds) {
       return true;
     }
 

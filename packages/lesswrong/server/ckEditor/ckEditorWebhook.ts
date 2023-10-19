@@ -12,6 +12,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import * as _ from 'underscore';
 import moment from 'moment';
+import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
 
 const bundleVersion = "31.0.3";
 
@@ -376,7 +377,7 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
 Globals.fetchCkEditorRestAPI = fetchCkEditorRestAPI;
 
 async function flushCkEditorCollaboration(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}`);
+  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true`);
 }
 Globals.flushCkEditorCollaboration = flushCkEditorCollaboration;
 
@@ -384,6 +385,16 @@ async function deleteCkEditorCloudDocument(ckEditorId: string) {
   await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
 }
 Globals.deleteCkEditorCloudDocument = deleteCkEditorCloudDocument;
+
+async function saveRemoteDocumentSession(postId: string) {
+  const ckEditorId = postIdToCkEditorDocumentId(postId);
+  
+  // Check for unsaved changes and save them first
+  const latestHtml = await fetchCkEditorCloudStorageDocument(ckEditorId);
+  const fixedHtml = backfillDialogueMessageInputAttributes(latestHtml)
+  await saveOrUpdateDocumentRevision(postId, fixedHtml);
+}
+Globals.saveRemoteDocumentSession = saveRemoteDocumentSession;
 
 async function debugGetCkEditorCloudInfo() {
   const allCollaborations = await fetchCkEditorRestAPI("GET", "/collaborations");
