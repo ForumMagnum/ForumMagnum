@@ -42,6 +42,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
       borderLeftWidth: "0",
       paddingLeft: "1rem",
     },
+    "& .ck.ck-sticky-panel__content.ck-sticky-panel__content_sticky" : {
+      // Default value is very high, putting the editor toolbar over the site navigation header in some cases
+      zIndex: 1000,
+    },
 
     "& .vulcan-form .input-draft, & .vulcan-form .input-frontpage": {
       margin: 0,
@@ -323,7 +327,7 @@ const PostsNewForm = ({classes}: {
   const postWillBeHidden = isLW && !currentUser.reviewedByUserId
 
   return (
-    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)} displayToc={false}>
       <div className={classes.postForm}>
         <RecaptchaWarning currentUser={currentUser}>
           <PostsAcceptTos currentUser={currentUser} />
