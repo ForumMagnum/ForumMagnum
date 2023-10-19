@@ -34,7 +34,7 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, cl
 
   return (
     <Components.TableOfContentsList
-      sectionData={sectionData}
+      tocSections={sectionData.sections}
       title={title}
       onClickSection={onClickSection}
       displayOptions={displayOptions}

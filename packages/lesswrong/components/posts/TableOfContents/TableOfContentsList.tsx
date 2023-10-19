@@ -37,8 +37,8 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
-const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions}: {
-  sectionData: ToCData,
+const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
+  tocSections: ToCSection[],
   title: string|null,
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
@@ -115,12 +115,12 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
 
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
-  if (!sectionData)
+  if (!tocSections)
     return <div/>
 
   let filteredSections = (displayOptions?.maxHeadingDepth)
-    ? filter(sectionData.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
-    : sectionData.sections;
+    ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : tocSections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];

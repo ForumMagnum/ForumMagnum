@@ -11,6 +11,8 @@ const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
+const TOC_OFFSET_TOP = 92
+const TOC_OFFSET_BOTTOM = 64
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -60,43 +62,24 @@ export const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: MAX_TOC_WIDTH,
     left: -DEFAULT_TOC_MARGIN,
+    marginTop: -TOC_OFFSET_TOP,
+    marginBottom: -TOC_OFFSET_BOTTOM,
   },
   stickyBlockScroller: {
     position: "sticky",
     fontSize: 12,
-    top: 92,
+    top: 0,
     lineHeight: 1.0,
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    height: "80vh",
+    maxHeight: "100vh",
     overflowY: "auto",
-
-    // Moves the scrollbar to the left side. Cancelled out by a matching
-    // direction:ltr on the next div in.
-    direction: "rtl",
-
-    // Nonstandard WebKit-specific scrollbar styling.
-    "&::-webkit-scrollbar": {
-      width: 1,
+    
+    scrollbarWidth: "none", //Firefox-specific
+    "&::-webkit-scrollbar": { //Everything-else
+      width: 0,
     },
-    // Track
-    "&::-webkit-scrollbar-track": {
-      background: "none",
-    },
-
-    // Handle
-    "&::-webkit-scrollbar-thumb": {
-      background: theme.palette.grey[300],
-      "&:hover": {
-        background: theme.palette.grey[700],
-      },
-    },
-
-    // Pre-standard Firefox-specific scrollbar styling. See
-    // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Scrollbars.
-    scrollbarWidth: "thin",
-    scrollbarColor: theme.palette.tocScrollbarColors,
 
     [theme.breakpoints.down('sm')]:{
       display:'none'
@@ -105,6 +88,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
+    
+    paddingTop: TOC_OFFSET_TOP,
+    paddingBottom: TOC_OFFSET_BOTTOM,
   },
   content: { gridArea: 'content' },
   gap1: { gridArea: 'gap1'},

@@ -427,12 +427,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   });
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
+    PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
+    PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row
+    PostBottomRecommendations, NotifyMeDropdownItem, Row, PostsCommentsSection,
+    PostsPageQuestionContent
   } = Components
 
   useEffect(() => {
@@ -631,23 +631,21 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             post={post}
           />}
 
-        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
-      {showRecommendations && recommendationsPosition === "underPost" &&
-        <AnalyticsContext pageSectionContext="postBottomRecommendations">
-          <div className={classes.recommendations}>
-            <PostsPageRecommendationsList
-              strategy="tagWeightedCollabFilter"
-            />
-          </div>
-        </AnalyticsContext>
-      }
     </ToCColumn>
-
-    <ToCColumn
-      tableOfContents={<div>Comments TOC</div>}
-    >
-      <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+    <ToCColumn tableOfContents={<div/>}>
+      <div className={classes.centralColumn}>
+        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+  
+        {showRecommendations && recommendationsPosition === "underPost" &&
+          <AnalyticsContext pageSectionContext="postBottomRecommendations">
+            <div className={classes.recommendations}>
+              <PostsPageRecommendationsList
+                strategy="tagWeightedCollabFilter"
+              />
+            </div>
+          </AnalyticsContext>
+        }
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -655,27 +653,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
           </AnalyticsContext>
         </div>}
-        {/* Comments Section */}
-        <div className={classes.commentsSection}>
-          <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread
-              terms={{...commentTerms, postId: post._id}}
-              eagerPostComments={eagerPostComments}
-              post={post}
-              newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            />
-            {isAF && <AFUnreviewedCommentCount post={post}/>}
-          </AnalyticsContext>
-          {isEAForum && post.commentCount < 1 &&
-            <div className={classes.noCommentsPlaceholder}>
-              <div>No comments on this post yet.</div>
-              <div>Be the first to respond.</div>
-            </div>
-          }
-        </div>
-      </AnalyticsInViewTracker>
+      </div>
     </ToCColumn>
 
+    <PostsCommentsSection
+      post={post}
+      terms={commentTerms}
+      eagerPostComments={eagerPostComments}
+    />
     {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import { ToCSection } from '../../lib/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,6 +65,21 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedSection, classes}
     )}
   </div>
 }
+
+function commentTreeToToCSections (commentTree: CommentTreeNode<CommentsList>[], level: number): ToCSection[] {
+  let result: ToCSection[] = [];
+  for (let comment of commentTree) {
+    result.push({
+      anchor: comment.item._id,
+      level,
+    });
+    if (comment.children) {
+      result = [...result, ...commentTreeToToCSections(comment.children, level+1)];
+    }
+  }
+  return result;
+}
+
 
 const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, {styles});
 

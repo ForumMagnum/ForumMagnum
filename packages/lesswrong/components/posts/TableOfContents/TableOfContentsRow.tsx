@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dense: {
     paddingTop: "0 !important",
-    paddingBottom: "0 !important",
+    paddingBottom: "4px !important",
     fontSize: 12,
   },
   link: {
