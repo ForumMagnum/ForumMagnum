@@ -27,7 +27,7 @@ Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId:
 
   if (dateRange.before) {
     beforeDate = new Date(dateRange.before);
-    if (isNaN(beforeDate.getTime())) throw new Error('Invalid after date provided!');
+    if (isNaN(beforeDate.getTime())) throw new Error('Invalid before date provided!');
   }
 
   const sourceUser = await Users.findOne(sourceUserId);
