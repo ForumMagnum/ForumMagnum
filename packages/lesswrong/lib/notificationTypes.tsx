@@ -637,3 +637,15 @@ export const NewMentionNotification = registerNotificationType({
     return <CommentsIcon style={iconStyles}/>
   },
 })
+
+export const NewReactionNotification = registerNotificationType({
+  name: "newReaction",
+  userSettingField: "notificationNewReaction",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId)
+    return `${summary?.associatedUserName} reacted to your ${summary?.displayName}`
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+})

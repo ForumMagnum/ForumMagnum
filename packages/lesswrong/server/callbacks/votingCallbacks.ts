@@ -1,11 +1,16 @@
+import pick from 'lodash/pick';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { eaPublicEmojiNames } from '../../lib/voting/eaEmojiPalette';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { postPublishedCallback } from '../notificationCallbacks';
+import { createNotifications } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
+import Votes from '../../lib/collections/votes/collection';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 
 /**
  * @summary Update the karma of the item's owner
@@ -82,6 +87,44 @@ voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}
   if (vote.collectionName === 'Comments') {
     void triggerCommentAutomodIfNeeded(newDocument, vote);
   }
+});
+
+voteCallbacks.castVoteAsync.add(async function createReactionNotifications ({newDocument, vote}: VoteDocTuple, collection, user, context) {
+  // Currently, reactions are only relevant to votes on posts and comments
+  if (!['Posts', 'Comments'].includes(vote.collectionName)) return
+  
+  const eaEmojiVotes = pick(vote.extendedVoteType, eaPublicEmojiNames)
+  // Only create a notification if this is the user's first non-anonymous EA reaction on this document
+  if (Object.keys(eaEmojiVotes).length !== 1) return
+  
+  // Only create a notification if this is a vote and not an unvote
+  const reaction = Object.keys(eaEmojiVotes)[0]
+  if (!eaEmojiVotes[reaction]) return
+  
+  // Only create a notification if we haven't already accounted for this reaction
+  const prevVote = await Votes.findOne({
+    documentId: newDocument._id,
+    userId: vote.userId,
+    cancelled: true,
+  }, {
+    sort: {votedAt: -1},
+  })
+  if (prevVote?.extendedVoteType[reaction]) return
+  
+  const coauthorIds = vote.collectionName === 'Posts' ? getConfirmedCoauthorIds(newDocument as DbPost) : []
+  const userIds = [newDocument.userId, ...coauthorIds]
+  // Don't notify the user if they voted on their own document
+  if (userIds.includes(vote.userId)) return
+  
+  const documentType = vote.collectionName === 'Posts' ? 'post' : 'comment'
+  void createNotifications({
+    userIds,
+    notificationType: 'newReaction',
+    documentType,
+    documentId: newDocument._id,
+    noEmail: true,
+    context
+  })
 });
 
 

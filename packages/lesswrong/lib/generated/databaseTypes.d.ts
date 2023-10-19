@@ -1293,6 +1293,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationNewReaction: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   notificationDialogueMessages: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",

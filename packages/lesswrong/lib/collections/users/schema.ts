@@ -1372,6 +1372,10 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
+  notificationNewReaction: {
+    label: "New reactions to my post or comment",
+    ...notificationTypeSettingsField(),
+  },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField({ channel: "both"})

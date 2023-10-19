@@ -472,6 +472,7 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewReaction
 
     hideFrontpageMap
     hideTaggingProgressBar
