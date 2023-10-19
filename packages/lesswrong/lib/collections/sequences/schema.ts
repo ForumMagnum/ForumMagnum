@@ -1,5 +1,4 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<DbSequence> = {

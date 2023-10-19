@@ -1,7 +1,6 @@
 import SimpleSchema from 'simpl-schema';
-import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
-import { schemaDefaultValue } from '../../utils/schemaUtils';
 import { isEAForum } from '../../instanceSettings';
 
 export const GROUP_CATEGORIES = [

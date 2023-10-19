@@ -72,3 +72,4 @@ function areFieldsNotNullCurry<T, K extends keyof T>(...fields: [K, ...K[]]): (i
 export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: [K, ...K[]]): FieldsNotNull<T, K>[] {
   return arr.filter(areFieldsNotNullCurry(...fields));
 }
+

@@ -1,6 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { schemaDefaultValue, resolverOnlyField } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 
 //

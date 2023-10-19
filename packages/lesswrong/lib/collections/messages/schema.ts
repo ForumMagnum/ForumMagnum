@@ -1,5 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbMessage> = {
   userId: {

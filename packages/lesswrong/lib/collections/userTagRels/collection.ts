@@ -1,7 +1,6 @@
 import { userCanUseTags } from "../../betas";
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
-import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
 

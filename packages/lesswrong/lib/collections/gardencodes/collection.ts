@@ -1,14 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
-import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
-import { forumTypeSetting } from '../../instanceSettings';
 
 function generateCode(length: number) {
   let result = '';

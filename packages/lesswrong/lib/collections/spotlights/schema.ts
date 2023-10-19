@@ -1,7 +1,6 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
-import { schemaDefaultValue } from '../../utils/schemaUtils';
-import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
+import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 import { isEAForum } from "../../instanceSettings";
 

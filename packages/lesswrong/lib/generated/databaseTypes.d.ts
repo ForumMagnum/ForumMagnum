@@ -15,7 +15,7 @@ interface DbAdvisorRequest extends DbObject {
   userId: string
   interestedInMetaculus: boolean
   jobAds: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -30,7 +30,7 @@ interface DbBan extends DbObject {
   reason: string | null
   comment: string
   properties: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -52,7 +52,7 @@ interface DbBook extends DbObject {
   showChapters: boolean | null
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -68,7 +68,7 @@ interface DbChapter extends DbObject {
   postIds: Array<string>
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -81,7 +81,7 @@ interface DbClientId extends DbObject {
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -99,7 +99,7 @@ interface DbCollection extends DbObject {
   noindex: boolean
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -111,7 +111,7 @@ interface DbCommentModeratorAction extends DbObject {
   commentId: string
   type: "downvotedCommentAlert"
   endedAt: Date | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -179,7 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date | null
   moveToAlignmentUserId: string | null
   agentFoundationsId: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string | null
@@ -206,7 +206,7 @@ interface DbConversation extends DbObject {
   messageCount: number
   moderator: boolean | null
   archivedByIds: Array<string>
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -229,7 +229,7 @@ interface DbDatabaseMetadata extends DbObject {
   __collectionName?: "DatabaseMetadata"
   name: string
   value: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -246,7 +246,7 @@ interface DbDebouncerEvents extends DbObject {
   upperBoundTime: Date
   key: string
   pendingEvents: Array<string> | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -259,7 +259,7 @@ interface DbDigestPost extends DbObject {
   postId: string
   emailDigestStatus: string | null
   onsiteDigestStatus: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -272,7 +272,7 @@ interface DbDigest extends DbObject {
   startDate: Date | null
   endDate: Date | null
   publishedDate: Date | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -286,7 +286,7 @@ interface DbEmailTokens extends DbObject {
   userId: string
   usedAt: Date | null
   params: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -300,7 +300,7 @@ interface DbFeaturedResource extends DbObject {
   ctaText: string
   ctaUrl: string
   expiresAt: Date
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -320,7 +320,7 @@ interface DbGardenCode extends DbObject {
   hidden: boolean
   deleted: boolean
   afOnly: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string | null
@@ -334,7 +334,7 @@ interface DbImages extends DbObject {
   __collectionName?: "Images"
   originalUrl: string
   cdnHostedUrl: string
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -349,7 +349,7 @@ interface DbLWEvent extends DbObject {
   important: boolean | null
   properties: any /*{"definitions":[{"blackbox":true}]}*/
   intercom: boolean | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -360,7 +360,7 @@ interface DbLegacyData extends DbObject {
   __collectionName?: "LegacyData"
   objectId: string
   collectionName: string
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -391,7 +391,7 @@ interface DbLocalgroup extends DbObject {
   salesforceId: string | null
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -405,7 +405,7 @@ interface DbMessage extends DbObject {
   noEmail: boolean
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -418,7 +418,7 @@ interface DbMigration extends DbObject {
   started: Date
   finished: boolean
   succeeded: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -431,7 +431,7 @@ interface DbModerationTemplate extends DbObject {
   collectionName: "Messages" | "Comments" | "Rejections"
   order: number
   deleted: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string | null
@@ -445,7 +445,7 @@ interface DbModeratorAction extends DbObject {
   userId: string
   type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting"
   endedAt: Date | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -466,7 +466,7 @@ interface DbNotification extends DbObject {
   viewed: boolean
   emailed: boolean
   waitingForBatch: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -495,7 +495,7 @@ interface DbPageCacheEntry extends DbObject {
     renderedAt: Date,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -507,7 +507,7 @@ interface DbPetrovDayLaunch extends DbObject {
   launchCode: string
   hashedLaunchCode: string | null
   userId: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -520,7 +520,7 @@ interface DbPodcastEpisode extends DbObject {
   title: string | null
   episodeLink: string | null
   externalEpisodeId: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -532,7 +532,7 @@ interface DbPodcast extends DbObject {
   title: string | null
   applePodcastLink: string | null
   spotifyPodcastLink: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -546,7 +546,7 @@ interface DbPostEmbedding extends DbObject {
   lastGeneratedAt: Date
   model: string
   embeddings: Array<number>
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -563,7 +563,7 @@ interface DbPostRecommendation extends DbObject {
   recommendationCount: number
   lastRecommendedAt: Date
   clickedAt: Date | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -576,7 +576,7 @@ interface DbPostRelation extends DbObject {
   sourcePostId: string
   targetPostId: string
   order: number | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -752,7 +752,7 @@ interface DbPost extends DbObject {
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string | null
@@ -785,7 +785,7 @@ interface DbRSSFeed extends DbObject {
   rawFeed: any /*{"definitions":[{}]}*/
   setCanonicalUrl: boolean
   importAsDraft: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -799,7 +799,7 @@ interface DbReadStatus extends DbObject {
   userId: string
   isRead: boolean
   lastUpdated: Date
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -818,7 +818,7 @@ interface DbReport extends DbObject {
   closedAt: Date
   markedAsSpam: boolean | null
   reportedAsSpam: boolean | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -835,7 +835,7 @@ interface DbReviewVote extends DbObject {
   year: string
   dummy: boolean
   reactions: Array<string> | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -861,7 +861,7 @@ interface DbRevision extends DbObject {
   html: string | null
   wordCount: number
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
@@ -893,7 +893,7 @@ interface DbSequence extends DbObject {
   af: boolean
   contents: EditableFieldContents
   contents_latest: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -927,7 +927,7 @@ interface DbSpotlight extends DbObject {
   imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
   description_latest: string | null
@@ -944,7 +944,7 @@ interface DbSubscription extends DbObject {
   collectionName: CollectionNameString
   deleted: boolean
   type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -957,7 +957,7 @@ interface DbTagFlag extends DbObject {
   deleted: boolean
   slug: string
   order: number
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
   contents_latest: string | null
@@ -971,9 +971,9 @@ interface DbTagRel extends DbObject {
   tagId: string
   postId: string
   deleted: boolean
-  userId: string | null
+  userId: string
   backfilled: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
   baseScore: number
@@ -1032,7 +1032,7 @@ interface DbTag extends DbObject {
   autoTagModel: string | null
   autoTagPrompt: string | null
   noindex: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents
   description_latest: string | null
@@ -1050,7 +1050,7 @@ interface DbTypingIndicator extends DbObject {
   userId: string
   documentId: string
   lastUpdated: Date
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -1064,7 +1064,7 @@ interface DbUserActivity extends DbObject {
   startDate: Date
   endDate: Date
   activityArray: Array<number>
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -1076,7 +1076,7 @@ interface DbUserMostValuablePost extends DbObject {
   userId: string
   postId: string
   deleted: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -1091,7 +1091,7 @@ interface DbUserRateLimit extends DbObject {
   intervalLength: number
   actionsPerInterval: number
   endedAt: Date | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -1106,7 +1106,7 @@ interface DbUserTagRel extends DbObject {
   subforumShowUnreadInSidebar: boolean
   subforumEmailNotifications: boolean
   subforumHideIntroPost: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
@@ -1436,7 +1436,7 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string | null
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string | null
@@ -1497,7 +1497,7 @@ interface DbVote extends DbObject {
   isUnvote: boolean
   votedAt: Date
   documentIsAf: boolean
-  createdAt: Date | null
+  createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
