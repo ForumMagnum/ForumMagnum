@@ -5,7 +5,6 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
-import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -155,7 +154,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
   const { query } = location;
   const {
@@ -167,7 +165,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const currentSorting = (query.view || currentUser?.allPostsSorting || 'magic') as PostSortingMode;
   const viewOptions = getPostViewOptions();
@@ -180,10 +177,9 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
-  const recentPostsTerms = {
+  const postsTerms = {
     ...query,
     filterSettings: applyConstantFilters(filterSettings),
-    after: dateCutoff,
     view: currentSorting,
     forum: true,
     limit:limit,
@@ -220,7 +216,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
               <PostsList2
-                terms={recentPostsTerms}
+                terms={postsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
               >
