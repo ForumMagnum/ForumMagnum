@@ -137,6 +137,7 @@ function wrapSpoilerTags(html: string): string {
 const handleDialogueHtml = async (html: string): Promise<string> => {
   const $ = cheerioParse(html);
 
+  $('.dialogue-message-input-wrapper').remove();
   $('.dialogue-message-input').remove();
 
   const userIds: string[] = [];
@@ -162,13 +163,23 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
   return $.html();
 };
 
-export const backfillDialogueMessageInputAttributes = (html: string) => {
+interface UserIdAndDisplayName {
+  userId: string;
+  displayName: string;
+}
+
+export const backfillDialogueMessageInputAttributes = async (html: string) => {
   const $ = cheerioParse(html);
 
-  const userIdsWithOrders: [number, string][] = [];
+  if ($('.dialogue-message-input-wrapper').length > 0) {
+    return $.html();
+  }
+
+  const userIdsWithOrders: [number, UserIdAndDisplayName][] = [];
   for (const element of $('.dialogue-message').toArray()) {
     const userId = $(element).attr('user-id');
     const userOrder = $(element).attr('user-order');
+
     if (!userId || !userOrder) {
       console.log(`Missing userId or userOrder for message ${element}!`);
       continue;
@@ -180,13 +191,21 @@ export const backfillDialogueMessageInputAttributes = (html: string) => {
       continue;
     }
 
-    userIdsWithOrders.push([userOrderNumber, userId]);
+    const displayName = $(element).attr('display-name') ?? (await Users.findOne(userId, undefined, { displayName: 1 }))?.displayName;
+    if (!displayName) {
+      console.log(`Missing displayName for message ${element}!`);
+      continue;
+    }
+
+    userIdsWithOrders.push([userOrderNumber, { userId, displayName }]);
   }
 
   userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
   const userIdsByOrder = Object.fromEntries(userIdsWithOrders);
 
-  for (const [idx, element] of Object.entries($('.dialogue-message-input').toArray())) {
+  const messageInputElements = $('.dialogue-message-input').toArray();
+
+  for (const [idx, element] of Object.entries(messageInputElements)) {
     const userId = $(element).attr('user-id');
     const userOrder = $(element).attr('user-order');
 
@@ -195,16 +214,16 @@ export const backfillDialogueMessageInputAttributes = (html: string) => {
       continue;
     }
 
-    let userIdByOrder;
-    if (userOrder) {
-      userIdByOrder = userIdsByOrder[userOrder];
-    } else {
-      userIdByOrder = userIdsByOrder[idx];
-    }
+    const idxDerivedOrder = (Number.parseInt(idx) + 1).toString();
+    const finalUserOrder = userOrder ?? idxDerivedOrder;
+    const { userId: userIdByOrder, displayName } = userIdsByOrder[finalUserOrder];
 
     $(element).attr('user-id', userIdByOrder);
-    $(element).attr('user-order', idx);
+    $(element).attr('user-order', finalUserOrder);
+    $(element).attr('display-name', displayName);
   }
+
+  cheerioWrapAll($('.dialogue-message-input'), '<div class="dialogue-message-input-wrapper" />', $);
 
   return $.html();
 }

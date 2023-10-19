@@ -188,6 +188,7 @@ class SimpleBoxEditing extends Plugin {
             view: getDataDowncastViewGenerator('dialogue-message-input', [
                 'user-id',
                 'user-order',
+                'display-name'
             ])
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {

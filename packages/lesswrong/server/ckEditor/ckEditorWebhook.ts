@@ -147,7 +147,7 @@ function ckEditorDocumentIdToPostId(ckEditorId: string) {
   }
 }
 
-function postIdToCkEditorDocumentId(postId: string) {
+export function postIdToCkEditorDocumentId(postId: string) {
   return `${postId}-edit`;
 }
 
@@ -196,7 +196,7 @@ const autosaveMaxInterval = 10*60*1000;
 
 // If the latest rev is a CkEditor cloud editor autosave within the last
 // hour, update it. Otherwise create a new rev.
-async function saveOrUpdateDocumentRevision(postId: string, html: string) {
+export async function saveOrUpdateDocumentRevision(postId: string, html: string) {
   const fieldName = "contents";
   const previousRev = await getLatestRev(postId, fieldName);
   
@@ -235,7 +235,7 @@ async function saveOrUpdateDocumentRevision(postId: string, html: string) {
   }
 }
 
-async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<string> {
+export async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Promise<string> {
   // First try getting the document from /collaborations, then from /documents.
   // The former corresponds to a running CkEditor process on CkEditor's servers,
   // the latter to data at rest in their cloud saving thing. The former will
@@ -376,13 +376,13 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
 }
 Globals.fetchCkEditorRestAPI = fetchCkEditorRestAPI;
 
-async function flushCkEditorCollaboration(ckEditorId: string) {
+export async function flushCkEditorCollaboration(ckEditorId: string) {
   await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true`);
 }
 Globals.flushCkEditorCollaboration = flushCkEditorCollaboration;
 
 async function deleteCkEditorCloudDocument(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
+  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true`);
 }
 Globals.deleteCkEditorCloudDocument = deleteCkEditorCloudDocument;
 
@@ -391,7 +391,7 @@ async function saveRemoteDocumentSession(postId: string) {
   
   // Check for unsaved changes and save them first
   const latestHtml = await fetchCkEditorCloudStorageDocument(ckEditorId);
-  const fixedHtml = backfillDialogueMessageInputAttributes(latestHtml)
+  const fixedHtml = await backfillDialogueMessageInputAttributes(latestHtml)
   await saveOrUpdateDocumentRevision(postId, fixedHtml);
 }
 Globals.saveRemoteDocumentSession = saveRemoteDocumentSession;
@@ -455,7 +455,7 @@ async function checkEditorBundle(bundleVersion: string): Promise<void> {
 }
 Globals.checkEditorBundle = checkEditorBundle;
 
-async function flushAllCkEditorCollaborations() {
+export async function flushAllCkEditorCollaborations() {
   await fetchCkEditorRestAPI("DELETE", `/collaborations?force=true`);
 }
 Globals.flushAllCkEditorCollaborations = flushAllCkEditorCollaborations;
