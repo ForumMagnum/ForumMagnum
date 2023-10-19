@@ -155,6 +155,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     letterSpacing: "-0.24px",
     lineHeight: "140%",
+    paddingLeft: 4,
   },
   loadMore: {
     color: theme.palette.givingPortal.dark,
