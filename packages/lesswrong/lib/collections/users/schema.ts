@@ -1072,7 +1072,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'UsersListEditor'
+    control: 'FormUsersListEditor'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1089,7 +1089,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'UsersListEditor',
+    control: 'FormUsersListEditor',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {

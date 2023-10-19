@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
-import domAnchorTextQuote from 'dom-anchor-text-quote';
+import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { rawExtractElementChildrenToReactComponent, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 
 interface ExternalProps {
@@ -353,28 +353,33 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       for (let str of Object.keys(this.props.replacedSubstrings)) {
         const replacement: ContentReplacedSubstringComponent = this.props.replacedSubstrings[str]!;
 
-        // Find (the first instance of) the string to replace. This should be
-        // an HTML text node plus an offset into that node.
-        //
-        // We're using the dom-anchor-text-quote library for this search,
-        // which is a thin wrapper around diff-match-patch, which is a diffing
-        // library with a full suite of fuzzy matching heuristics.
-        const range: Range|null = domAnchorTextQuote.toRange(
-          element,
-          { exact: str },
-          { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
-        );
-        
-        // Do surgery on the DOM
-        if (range) {
-          const span = wrapRangeWithSpan(range)
-          if (span) {
-            const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
-            const replacementNode = replacement({
-              children: <InlineReactedSpan/>
-            });
-            this.replaceElement(span, replacementNode);
+        try {
+          // Find (the first instance of) the string to replace. This should be
+          // an HTML text node plus an offset into that node.
+          //
+          // We're using the dom-anchor-text-quote library for this search,
+          // which is a thin wrapper around diff-match-patch, which is a diffing
+          // library with a full suite of fuzzy matching heuristics.
+          const range: Range|null = toRange(
+            element,
+            { exact: str.trim() },
+            { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
+          );
+          
+          // Do surgery on the DOM
+          if (range) {
+            const span = wrapRangeWithSpan(range)
+            if (span) {
+              const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
+              const replacementNode = replacement({
+                children: <InlineReactedSpan/>
+              });
+              this.replaceElement(span, replacementNode);
+            }
           }
+        } catch {
+          // eslint-disable-next-line no-console
+          console.error(`Error highlighting string ${str} in ${this.props.description ?? "content block"}`);
         }
       }
     }

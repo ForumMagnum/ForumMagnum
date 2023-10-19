@@ -222,6 +222,9 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageUrl
+    }
 
     feedId
     totalDialogueResponseCount

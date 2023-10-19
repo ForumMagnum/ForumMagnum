@@ -807,7 +807,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: alignmentOptionsGroup,
     hidden: true
   },
