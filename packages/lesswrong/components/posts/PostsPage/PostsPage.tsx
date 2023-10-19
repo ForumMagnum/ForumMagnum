@@ -633,7 +633,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
         <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
-
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
           <div className={classes.recommendations}>
@@ -643,7 +642,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </div>
         </AnalyticsContext>
       }
+    </ToCColumn>
 
+    <ToCColumn
+      tableOfContents={<div>Comments TOC</div>}
+    >
       <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
@@ -672,6 +675,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
+
     {isEAForum && <PostBottomRecommendations post={post} />}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>

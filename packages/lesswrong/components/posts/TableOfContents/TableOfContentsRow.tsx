@@ -26,6 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: "initial",
     }
   },
+  dense: {
+    paddingTop: "0 !important",
+    paddingBottom: "0 !important",
+    fontSize: 12,
+  },
   link: {
     display: "block",
     paddingTop: 6,
@@ -100,7 +105,7 @@ const levelToClassName = (level: number, classes: ClassesType) => {
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -111,6 +116,7 @@ const TableOfContentsRow = ({
   title?: boolean,
   divider?: boolean,
   answer?: boolean,
+  dense?: boolean,
 }) => {
   if (divider) return <div className={classes.divider} />
 
@@ -124,6 +130,7 @@ const TableOfContentsRow = ({
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
       [classes.highlightDot]: !answer,
+      [classes.dense]: dense,
     })}>
       {children}
     </a>
