@@ -207,7 +207,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return this.any(`
       SELECT p.*
       FROM "Posts" p
-      WHERE p."collabEditorDialogue" IS TRUE AND p.draft IS NOT TRUE AND p.deleted IS NOT TRUE
+      WHERE p."collabEditorDialogue" IS TRUE AND p.draft IS NOT TRUE
       ORDER BY GREATEST(p."postedAt", p."mostRecentPublishedDialogueResponseDate") DESC
       LIMIT $1
     `, [limit]);
