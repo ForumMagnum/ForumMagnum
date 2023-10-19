@@ -1,5 +1,6 @@
 import React, { FC, ReactNode, MouseEvent, useCallback } from "react";
 import { useHistory } from "../../lib/reactRouterWrapper";
+import { useTracking } from "../../lib/analyticsEvents";
 
 export type ClickableCellProps = {
   href: string,
@@ -11,20 +12,25 @@ export type ClickableCellProps = {
 
 export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
   const history = useHistory();
+  // Note that we only trigger this event if an href is provided
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: href}})
 
   // We make the entire "cell" a link. In sub-items need to be separately
   // clickable then wrap them in an `InteractionWrapper`.
   const wrappedOnClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (onClick) {
       onClick(e);
     } else if (e.metaKey || e.ctrlKey) {
+      captureEvent();
       window.open(href, "_blank");
     } else {
+      captureEvent();
       history.push(href);
     }
-  }, [href, onClick, history]);
+  }, [href, onClick, history, captureEvent]);
 
   return {
     onClick: wrappedOnClick,
