@@ -46,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   conversation: {
     overflowY: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    borderRight: theme.palette.border.grey200,
     padding: "0px 32px",
     flex: "1 1 auto",
   },
