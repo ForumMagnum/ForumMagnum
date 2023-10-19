@@ -11,10 +11,10 @@ import {
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
-    height: 21,
     userSelect: "none",
     cursor: "pointer",
     "& .MuiIconButton-root": {
+      height: 0,
       padding: 0,
       color: theme.palette.grey[600],
       transform: "scale(0.7) translate(-2px, -1px)",
