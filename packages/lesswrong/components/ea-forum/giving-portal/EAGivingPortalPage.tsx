@@ -38,7 +38,6 @@ const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     gap: "20px",
-    marginTop: 80,
     "@media screen and (max-width: 1000px)": {
       flexDirection: "column",
       alignItems: "center",
@@ -143,13 +142,6 @@ const styles = (theme: ThemeType) => ({
     rowGap: "16px",
     justifyContent: "center",
   },
-  verticalMargin: {
-    marginTop: 60,
-    marginBottom: 80,
-  },
-  bottomMargin: {
-    marginBottom: 100,
-  },
   totalRaised: {
     fontSize: 24,
     fontWeight: 700,
@@ -167,6 +159,14 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  mt10: { marginTop: 10 },
+  mt20: { marginTop: 20 },
+  mt30: { marginTop: 30 },
+  mt60: { marginTop: 60 },
+  mt80: { marginTop: 80 },
+  mb40: { marginBottom: 40 },
+  mb80: { marginBottom: 80 },
+  mb100: { marginBottom: 100 },
 });
 
 const useAmountRaised = () => {
@@ -285,8 +285,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
         <HeadTags title="Giving portal" />
-        <div className={classes.content}>
-          <div className={classNames(classes.h1, classes.center)}>
+        <div className={classNames(classes.content, classes.mb40)}>
+          <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal 2023
           </div>
           <div className={classNames(classes.text, classes.center)}>
@@ -294,12 +294,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             <Link to={donationElectionLink}>Donation Election</Link> along
             with weekly themes throughout November and December.
           </div>
-          <div className={classes.h2}>Timeline</div>
+          <div className={classNames(classes.h2, classes.mt20)}>Timeline</div>
           <Timeline {...timelineSpec} />
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content}>
-            <div className={classes.row}>
+            <div className={classNames(classes.row, classes.mt80)}>
               <div className={classes.column}>
                 <div className={classNames(classes.h1, classes.primaryText)}>
                   Donation election 2023
@@ -322,7 +322,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <div>
                   <button
                     onClick={onNotifyWhenVotingOpens}
-                    className={classes.button}
+                    className={classNames(classes.button, classes.mt10)}
                   >
                     <ForumIcon icon="BellAlert" />
                     Get notified when the voting opens
@@ -347,8 +347,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   <ElectionCandidate org={org} key={org.name} />
                 ))}
               </div>
-              <div className={classes.bottomMargin}>
-                <button onClick={onAddCandidate} className={classes.button}>
+              <div className={classes.mb100}>
+                <button
+                  onClick={onAddCandidate}
+                  className={classNames(classes.button, classes.mt10)}
+                >
                   <ForumIcon icon="Plus" />
                   Add candidate
                 </button>
@@ -358,7 +361,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
         </div>
         <div className={classes.sectionLight}>
           <div className={classes.content}>
-            <div className={classNames(classes.column, classes.verticalMargin)}>
+            <div className={classNames(
+              classes.column,
+              classes.mt60,
+              classes.mb80,
+            )}>
               <div className={classes.h4}>
                 Recent posts tagged Donation Election 2023
               </div>
@@ -379,7 +386,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <div className={classNames(classes.content, classes.verticalMargin)}>
+        <div className={classNames(
+          classes.content,
+          classes.mt60,
+          classes.mb80,
+        )}>
           <div className={classes.h3}>Other donation opportunities</div>
           <div className={classes.text}>
             If you don’t want to donate to the Election Fund but still want to
@@ -389,7 +400,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             Total donations raised through the Forum:{" "}
             <span className={classes.totalRaised}>{totalAmount}</span>
           </div>
-          <div className={classes.donationOpportunities}>
+          <div className={classNames(classes.donationOpportunities, classes.mt10)}>
             {donationOpportunities.map((org) => (
               <DonationOpportunity org={org} key={org.name} />
             ))}
