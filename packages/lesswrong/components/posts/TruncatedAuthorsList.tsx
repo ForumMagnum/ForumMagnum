@@ -102,7 +102,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, classes}: {
 const TruncatedAuthorsListComponent = registerComponent(
   "TruncatedAuthorsList",
   TruncatedAuthorsList,
-  {styles, stylePriority: -1},
+  {styles, stylePriority: -2},
 );
 
 declare global {
