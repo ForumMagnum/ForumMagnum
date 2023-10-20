@@ -505,7 +505,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
 
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
-
+  
   return <div className={classes.footerReactionHover}>
     <Components.HoverBallotReactionRow
       key={react}
