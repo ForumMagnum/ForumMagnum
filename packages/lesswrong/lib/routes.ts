@@ -139,7 +139,6 @@ addRoute(
     path:'/account',
     componentName: 'UsersAccount',
     title: "Account Settings",
-    background: "white"
   },
   {
     name:'users.drafts',
