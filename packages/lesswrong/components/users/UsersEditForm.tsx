@@ -55,6 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderBottom: 0,
       color: theme.palette.text.normal,
       fontWeight: 600,
+      width: "100%",
     },
     "& .geosuggest__input:focus": {
       borderBottom: 0,
