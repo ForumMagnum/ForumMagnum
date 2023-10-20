@@ -68,4 +68,23 @@ module.exports = {
     clickCount: 3,
     commentCount: 1,
     postCategory: "post",
+    nominationCount2018: 0,
+    nominationCount2019: 0,
+    reviewCount2018: 0,
+    reviewCount2019: 0,
+    reviewCount: 0,
+    reviewVoteCount: 0,
+    positiveReviewVoteCount: 0,
+    reviewVoteScoreAF: 0,
+    reviewVotesAF: [],
+    reviewVoteScoreHighKarma: 0,
+    reviewVotesHighKarma: [],
+    reviewVoteScoreAllKarma: 0,
+    reviewVotesAllKarma: [],
+    finalReviewVoteScoreHighKarma: 0,
+    finalReviewVotesHighKarma: [],
+    finalReviewVoteScoreAllKarma: 0,
+    finalReviewVotesAllKarma: [],
+    finalReviewVotesAF: []
+
 }
