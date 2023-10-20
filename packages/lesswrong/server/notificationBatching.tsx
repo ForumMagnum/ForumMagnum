@@ -11,7 +11,7 @@ import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import { sendgridBatchingSetting } from './emails/sendEmail';
+import { sendgridTemplateSetting } from './emails/sendEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -48,8 +48,41 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   
   if (notificationsToEmail.length) {
     const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
-    if (sendgridBatchingSetting.get()) {
-      // TODO;
+    if (sendgridTemplateSetting.get()) {
+      console.log('sendgridTemplateSetting set', groupedNotifications)
+      /**
+       * [
+    {
+      _id: 'xsLHawAnDK9kBzmza',
+      userId: 'vFmaN5HM4HkJpwgXm',
+      documentId: 'muCkEoteKzeLMLjsa',
+      documentType: 'message',
+      extraData: null,
+      link: '/inbox/NtwCrStHpoWLTkdwq',
+      title: null,
+      message: 'Will Howard sent you a new message!',
+      type: 'newMessage',
+      deleted: false,
+      viewed: false,
+      emailed: true,
+      waitingForBatch: false,
+      schemaVersion: 1,
+      createdAt: 2023-09-12T21:57:19.465Z,
+      legacyData: null
+    }
+  ]
+       */
+      for (let batch of groupedNotifications) {
+        const notificationTypeRenderer = getNotificationTypeByNameServer(batch[0].type)
+        const sendgridData = {
+          user,
+          notificationData: await notificationTypeRenderer.loadData?.({user, notifications: batch}),
+          notifications: batch
+        }
+        // TODO: send to sendgrid
+        console.log('sendgridData', sendgridData)
+      }
+      
       return
     }
     const emails = await notificationBatchToEmails({

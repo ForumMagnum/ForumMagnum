@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
 /** TODO; doc */
-export const sendgridBatchingSetting = new DatabaseServerSetting("sendgridBatching", false);
+export const sendgridTemplateSetting = new DatabaseServerSetting("sendgridTemplate", false);
 export const sendgridApiKeySetting = new DatabaseServerSetting("sendgridApiKey", null);
 
 const getMailUrl = () => {
