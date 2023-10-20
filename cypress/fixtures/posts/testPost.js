@@ -65,6 +65,7 @@ module.exports = {
     socialPreviewImageAutoUrl: "",
     tagRelevance: {},
     viewCount: 10,
+    clickCount: 3,
     commentCount: 1,
     postCategory: "post",
 }
