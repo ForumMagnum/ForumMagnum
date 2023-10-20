@@ -4,6 +4,7 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
@@ -107,11 +108,20 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
-      WHERE p."hideFromPopularComments" IS NOT TRUE
+      WHERE
+        p."hideFromPopularComments" IS NOT TRUE AND
+        COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
       OFFSET $2
       LIMIT $3
-    `, [minScore, offset, limit, recencyFactor, recencyBias]);
+    `, [
+      minScore,
+      offset,
+      limit,
+      recencyFactor,
+      recencyBias,
+      EA_FORUM_COMMUNITY_TOPIC_ID,
+    ]);
   }
 
   private getSearchDocumentQuery(): string {
