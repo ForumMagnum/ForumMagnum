@@ -111,7 +111,7 @@ export const wakingUpTheme: SiteThemeSpecification = {
       // use ems (not rems) to preserve relative height even if font-size is changed
       lineHeight: '1.75em',
       fontWeight: 450,
-      fontFamily: serifStack
+      fontFamily: sansSerifStack,
     }
     return {
       spacing: {
