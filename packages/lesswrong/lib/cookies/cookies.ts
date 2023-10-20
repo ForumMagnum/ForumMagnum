@@ -40,6 +40,12 @@ export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   description: "Whether to show the Quick takes section on the EA Forum home page",
 })
 
+export const SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE = registerCookie({
+  name: 'show_quick_takes_community',
+  type: "necessary",
+  description: "Whether to include Quick takes tagged with community in the home page quick takes section",
+})
+
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
   name: 'show_popular_comments_section',
   type: "necessary",
