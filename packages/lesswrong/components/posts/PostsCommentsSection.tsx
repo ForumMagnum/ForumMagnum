@@ -52,7 +52,7 @@ const PostsCommentsSection = ({post, terms, eagerPostComments, classes}: {
   return <ToCColumn
     tableOfContents={<CommentsTableOfContents
       commentTree={commentTree}
-      highlightedSection={null}
+      post={post}
     />}
   >
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >

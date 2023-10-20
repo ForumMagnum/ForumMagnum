@@ -7,6 +7,7 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
+import { useScrollHighlight } from '../../hooks/useScrollHighlight';
 
 export interface ToCDisplayOptions {
   /**
@@ -43,20 +44,9 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
 }) => {
-  const [currentSection,setCurrentSection] = useState<string|null>(topSection);
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
-
-  useEffect(() => {
-    window.addEventListener('scroll', updateHighlightedSection);
-    updateHighlightedSection();
-    
-    return () => {
-      window.removeEventListener('scroll', updateHighlightedSection);
-    };
-  });
-
 
   // Return the screen-space current section mark - that is, the spot on the
   // screen where the current-post will transition when its heading passes.
@@ -106,53 +96,22 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
     }
   }
 
-  const updateHighlightedSection = () => {
-    let newCurrentSection = getCurrentSection();
-    if(newCurrentSection !== currentSection) {
-      setCurrentSection(newCurrentSection);
-    }
-  }
-
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
-  if (!tocSections)
-    return <div/>
-
-  let filteredSections = (displayOptions?.maxHeadingDepth)
+  let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
   }
+  
+  const { landmarkId: currentSection } = useScrollHighlight(
+    filteredSections.map(section => ({elementId: section.anchor, position: "centerOfElement"}))
+  );
 
-  const getCurrentSection = (): string|null => {
-    if (isServer)
-      return null;
-    if (!filteredSections)
-      return null;
-
-    // The current section is whichever section a spot 1/3 of the way down the
-    // window is inside. So the selected section is the section whose heading's
-    // Y is as close to the 1/3 mark as possible without going over.
-    let currentSectionMark = getCurrentSectionMark();
-
-    let currentSection: string|null = null;
-    for(let i=0; i<filteredSections.length; i++)
-    {
-      let sectionY = getAnchorY(filteredSections[i].anchor);
-
-      if(sectionY && sectionY < currentSectionMark)
-        currentSection = filteredSections[i].anchor;
-    }
-
-    if (currentSection === null) {
-      // Was above all the section headers, so return the special "top" section
-      return topSection;
-    }
-
-    return currentSection;
-  }
+  if (!tocSections)
+    return <div/>
 
   const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
     ev.preventDefault();
