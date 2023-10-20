@@ -82,7 +82,7 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
     return { quote, users: usersWhoReactedToQuote  }
   })
 
-  const { getCurrentUserReactionVote, setCurrentUserReaction, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function handleHoverQuote (quote: string) {
     // TODO
