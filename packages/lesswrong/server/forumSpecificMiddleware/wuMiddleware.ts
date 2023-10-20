@@ -4,7 +4,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { userFindOneByEmail } from "../commonQueries";
 import request from 'request';
-import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, getUserFromReq } from '../vulcan-lib';
+import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from '../vulcan-lib';
 import { isProduction } from '../../lib/executionEnvironment';
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
@@ -13,6 +13,8 @@ import express from 'express'
 // but it also manages authentication with the Waking Up app. This latter thing
 // is not actually middleware, but it's useful to use the forumSpecificMiddleware
 // system to manage it.
+
+const AUTH_ERROR = 'app.authorization_error';
 
 function urlDisallowedForLoggedOutUsers(req: express.Request) {
   if (req.user) return false;
@@ -43,7 +45,10 @@ const wakingUpKeySetting = new DatabaseServerSetting<string | null>('wakingUpKey
 const wakingUpEndpointSetting = new DatabaseServerSetting<string | null>('wakingUpEndpoint', null)
 
 function isValidWuUser(wuUser: WuUserData) {
-  return (!!wuUser.email)
+  return (!!wuUser.email &&
+    wuUser.subscription_status === 'ACTIVE' &&
+    wuUser.forum_access
+  )
 }
 
 function sampleResponse(email: string) {
@@ -119,7 +124,6 @@ type WuUserData = {
 }
 
 async function syncOrCreateWuUser(wuUser: WuUserData): Promise<DbUser> {
-  // base this on createOAuthUserHandler
   let user = await Users.findOne({'wu_uuid': wuUser.uuid})
   if (user) {
     user = await syncWuUser(user, wuUser)
@@ -192,6 +196,16 @@ const loginData = `type LoginReturnData2 {
 addGraphQLSchema(loginData);
 addGraphQLSchema(requestedCodeData);
 
+function updateOneTimeCode(user: DbUser, oneTimeCode: string|null) {
+  return Users.rawUpdateOne(
+    {_id: user._id},
+    {$set: {services: {
+      ...(user.services),
+      "wakingUp": { "oneTimeCode": oneTimeCode }
+    }}}
+  );
+}
+
 const authenticationResolvers = {
   Mutation: {
     async requestLoginCode(root: void, { email }: {email: string}, { req, res }: ResolverContext) {
@@ -205,19 +219,19 @@ const authenticationResolvers = {
 
       if (isValidWuUser(wuUser)) {
         const user = await syncOrCreateWuUser(wuUser)
-        await Users.rawUpdateOne({_id: user._id}, {$addToSet: {"services.wakingUp.oneTimeCode": oneTimeCode}});
+        await updateOneTimeCode(user, oneTimeCode)
         // TODO: send code email
       } else {
-        // TODO: send email saying no account found
+        throw new Error(AUTH_ERROR)
       }
       return { result: "success" }
     },
     
     async codeLogin(root: void, { email, code }: {email: string, code: string}, { req, res }: ResolverContext) {
       const user = await userFindOneByEmail(email);
-      const errorMessage = "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.";
-      if (!user?.wu_subscription_active) throw new Error(errorMessage)
-      if (!user.wu_forum_access) throw new Error(errorMessage)
+
+      if (!user?.wu_subscription_active) throw new Error(AUTH_ERROR)
+      if (!user.wu_forum_access) throw new Error(AUTH_ERROR)
 
       const validCode = user && code?.length > 0 && user.services?.wakingUp?.oneTimeCode === code;
       // TODO: restrict the dev code in production (staging server runs in production mode so
@@ -226,7 +240,8 @@ const authenticationResolvers = {
       const devCodeOkay = user && code === '1234';
 
       if (validCode || devCodeOkay) {
-        await Users.rawUpdateOne({_id: user._id}, {$set: {"services.wakingUp.oneTimeCode": null}});
+        await updateOneTimeCode(user, null)
+
         const token = await createAndSetToken(req, res, user)
         return { token };
       } else {
