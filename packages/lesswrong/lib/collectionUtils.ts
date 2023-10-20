@@ -95,6 +95,7 @@ export function addUniversalFields<T extends DbObject>({
   addFieldsDict(collection, {
     _id: {
       optional: true,
+      nullable: false,
       type: String,
       canRead: ['guests'],
     },
@@ -108,6 +109,7 @@ export function addUniversalFields<T extends DbObject>({
     createdAt: {
       type: Date,
       optional: true,
+      nullable: false,
       hidden: true,
       canRead: ['guests'],
       onInsert: () => new Date(),
