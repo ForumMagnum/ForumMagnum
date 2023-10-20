@@ -89,8 +89,6 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
   const { history } = useNavigation();
 
   const selectedConversationId = params._id;
-
-  // const [selectedConversation, setSelectedConversation] = useState<conversationsListFragment | undefined>();
   const selectedConversationRef = useRef<HTMLDivElement>(null);
 
   const selectConversationCallback = useCallback((conversationId: string | undefined) => {
@@ -103,10 +101,6 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       componentProps: {}
     })
   }, [openDialog])
-
-  useEffect(() => {
-    openNewConversationDialog();
-  }, [openNewConversationDialog])
 
   const { InboxNavigation2, ConversationWidget, ForumIcon } = Components;
 

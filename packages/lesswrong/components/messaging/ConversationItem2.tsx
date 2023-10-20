@@ -47,6 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: '21px',
+    marginLeft: 4,
     marginRight: 4,
   },
   preview: {
@@ -64,20 +65,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ConversationItem2 = ({
   conversation,
-  updateConversation,
   currentUser,
   classes,
   selectedConversationId,
   setSelectedConversationId,
 }: {
   conversation: conversationsListFragment;
-  updateConversation: any;
   currentUser: UsersCurrent;
   classes: ClassesType;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
-  const { UsersProfileImage, FormatDate, PostsItem2MetaInfo, UsersName } = Components;
+  const { UsersProfileImage, FormatDate } = Components;
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id);
   const isSelected = selectedConversationId === conversation._id;
 

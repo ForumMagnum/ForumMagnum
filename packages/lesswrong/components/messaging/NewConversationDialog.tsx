@@ -1,11 +1,6 @@
-import Button from "@material-ui/core/Button";
-import DialogActions from "@material-ui/core/DialogActions";
 import React, { useState } from "react";
-import { useNewEvents } from "../../lib/events/withNewEvents";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isLW } from "../../lib/instanceSettings";
 import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting } from "../../lib/search/elasticUtil";
 import { getSearchClient } from "../../lib/search/algoliaUtil";
@@ -23,12 +18,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
   },
-  title: {
+  titleRow: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
     fontSize: 20,
-    fontWeight: 600,
-    padding: 16,
+    fontWeight: 700,
+    padding: '20px 20px 14px 20px',
+    display: "flex",
+    alignItems: "top",
+    justifyContent: "space-between",
   },
   resultsColumn: {
     display: "flex",
@@ -44,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     marginBottom: 15,
     gap: "16px",
-    padding: "0px 16px",
+    padding: "0px 20px",
     [theme.breakpoints.down("xs")]: {
       marginBottom: 12,
     },
@@ -97,34 +95,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     fill: theme.palette.grey[800],
   },
-  resultCount: {
-    fontFamily: theme.typography.fontFamily,
-    fontWeight: 400,
-    fontSize: 14,
-    color: theme.palette.grey[700],
-    marginBottom: 20,
-  },
-  sort: {
-    borderRadius: theme.borderRadius.small,
-    width: "100%",
-  },
   usersList: {
-    height: 1200,
     overflowY: "auto",
+    // Not the actual height, but makes it fill the space when there are no results
+    height: 1000,
   },
   hit: {
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  closeIcon: {
+    color: theme.palette.grey[600],
+    width: 20,
+    height: 20,
+    cursor: "pointer",
   }
 });
 
 const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onClose: () => void }) => {
   const { LWDialog, ErrorBoundary, ExpandedUsersConversationSearchHit, ForumIcon, LWTooltip } = Components;
   const currentUser = useCurrentUser();
-  const [searchState, setSearchState] = useState<ExpandedSearchState>({
-    query: "",
-    page: 1,
-  });
+  const [query, setQuery] = useState<string>("");
 
   if (!currentUser) return null;
 
@@ -132,12 +123,15 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
     <AnalyticsContext pageSectionContext="newConversationDialog">
       <LWDialog open={true} onClose={onClose}>
         <div className={classes.root}>
-          <div className={classes.title}>New conversation</div>
+          <div className={classes.titleRow}>
+            <div>New conversation</div>
+            <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
+          </div>
           <InstantSearch
             indexName={getElasticIndexNameWithSorting("Users", "relevance")}
             searchClient={getSearchClient()}
-            searchState={searchState}
-            onSearchStateChange={setSearchState}
+            searchState={{ query }}
+            onSearchStateChange={setQuery}
           >
             <div className={classes.resultsColumn}>
               <div className={classes.searchBoxRow}>
@@ -146,25 +140,26 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
                   {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
                     * null is the only option that actually suppresses the extra X button.
                   // @ts-ignore */}
-                  <SearchBox defaultRefinement={searchState} reset={null} focusShortcuts={[]} autoFocus={true} />
+                  <SearchBox defaultRefinement={query} reset={null} focusShortcuts={[]} autoFocus={true} />
                 </div>
                 <LWTooltip title={`"Quotes" and -minus signs are supported.`} className={classes.searchHelp}>
                   <InfoIcon className={classes.infoIcon} />
                 </LWTooltip>
               </div>
-
               <ErrorBoundary>
                 <div className={classes.usersList}>
-                  <Configure hitsPerPage={200} />
-                  {/* <CustomStats className={classes.resultCount} /> */}
-                  {/* <CustomScrollTo targetRef={scrollToRef}> */}
+                  {/* Speed seems to be roughly proportional to hitsPerPage here */}
+                  <Configure hitsPerPage={50} />
                   <Hits
                     hitComponent={(props) => (
-                      <ExpandedUsersConversationSearchHit {...props} currentUser={currentUser} onClose={onClose} className={classes.hit} />
+                      <ExpandedUsersConversationSearchHit
+                        {...props}
+                        currentUser={currentUser}
+                        onClose={onClose}
+                        className={classes.hit}
+                      />
                     )}
                   />
-                  {/* </CustomScrollTo> */}
-                  {/* <Pagination showLast className={classes.pagination} /> */}
                 </div>
               </ErrorBoundary>
             </div>
