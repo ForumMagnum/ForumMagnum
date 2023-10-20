@@ -1,47 +1,13 @@
 import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
-import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
+import keyBy from "lodash/keyBy";
+import groupBy from "lodash/groupBy";
+import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
+import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
 
 export const RECENT_CONTENT_COUNT = 20
-
-export type KarmaChangesArgs = {
-  userId: string,
-  startDate: Date,
-  endDate: Date,
-  af?: boolean,
-  showNegative?: boolean,
-}
-
-export type KarmaChangeBase = {
-  _id: string,
-  collectionName: CollectionNameString,
-  scoreChange: number,
-}
-
-export type CommentKarmaChange = KarmaChangeBase & {
-  description?: string,
-  postId?: string,
-  tagId?: string,
-  tagCommentType?: TagCommentType,
-  
-  // Not filled in by the initial query; added by a followup query in the resolver
-  tagSlug?: string
-}
-
-export type PostKarmaChange = KarmaChangeBase & {
-  title: string,
-  slug: string,
-}
-
-export type TagRevisionKarmaChange = KarmaChangeBase & {
-  tagId: string,
-
-  // Not filled in by the initial query; added by a followup query in the resolver
-  tagSlug?: string
-  tagName?: string
-}
 
 type PostVoteCounts = {
   postId: string,
@@ -93,55 +59,77 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   }> {
     const powerField = af ? "afPower" : "power";
 
-    const allChanges = await logIfSlow(() => this.getRawDb().any(`
-      SELECT
-        v.*,
-        comment."contents"->'html' AS "commentHtml",
-        comment."postId" AS "commentPostId",
-        comment."tagId" AS "commentTagId",
-        comment."tagCommentType" AS "commentTagCommentType",
-        post."title" AS "postTitle",
-        post."slug" AS "postSlug",
-        revision."documentId" AS "revisionTagId"
-      FROM (
+    const [allScoreChanges, allReactionVotes] = await Promise.all([
+      logIfSlow(() => this.getRawDb().any(`
         SELECT
-          "documentId" AS "_id",
-          "Votes"."collectionName" as "collectionName",
-          SUM("${powerField}") AS "scoreChange"
-        FROM "Votes"
+          v.*,
+          comment."contents"->'html' AS "commentHtml",
+          comment."postId" AS "commentPostId",
+          comment."tagId" AS "commentTagId",
+          comment."tagCommentType" AS "commentTagCommentType",
+          post."title" AS "postTitle",
+          post."slug" AS "postSlug",
+          revision."documentId" AS "revisionTagId"
+        FROM (
+          SELECT
+            "documentId" AS "_id",
+            "Votes"."collectionName" as "collectionName",
+            SUM("${powerField}") AS "scoreChange",
+            COUNT(jsonb_array_length("Votes"."extendedVoteType"->'reacts') > 0) AS "reactionVoteCount"
+          FROM "Votes"
+          WHERE
+            ${af ? '"afPower" IS NOT NULL AND' : ''}
+            "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
+            "votedAt" >= $2 AND
+            "votedAt" <= $3 AND
+            "userId" <> $1
+          GROUP BY "Votes"."documentId", "Votes"."collectionName"
+        ) v
+        LEFT JOIN "Comments" comment ON (
+          v."collectionName" = 'Comments'
+          AND comment._id = v._id
+        )
+        LEFT JOIN "Posts" post ON (
+          v."collectionName" = 'Posts'
+          AND post._id = v._id
+        )
+        LEFT JOIN "Revisions" revision ON (
+          v."collectionName" = 'Revisions'
+          AND revision._id = v._id
+        )
         WHERE
-          ${af ? '"afPower" IS NOT NULL AND' : ''}
+          v."scoreChange" ${showNegative ? "<>" : ">"} 0
+          OR "reactionVoteCount" > 0
+      `, [userId, startDate, endDate]),
+        `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
+      ),
+      logIfSlow(() => this.getRawDb().any(`
+        SELECT
+          v.*
+        FROM
+          "Votes" v
+        WHERE
+          jsonb_array_length("extendedVoteType"->'reacts') > 0 AND
           "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
           "votedAt" >= $2 AND
           "votedAt" <= $3 AND
           "userId" <> $1
-        GROUP BY "Votes"."documentId", "Votes"."collectionName"
-      ) v
-      LEFT JOIN "Comments" comment ON (
-        v."collectionName" = 'Comments'
-        AND comment._id = v._id
+      `, [userId, startDate, endDate]),
+        `getKarmaChanges_reacts(${userId}, ${startDate}, ${endDate})`
       )
-      LEFT JOIN "Posts" post ON (
-        v."collectionName" = 'Posts'
-        AND post._id = v._id
-      )
-      LEFT JOIN "Revisions" revision ON (
-        v."collectionName" = 'Revisions'
-        AND revision._id = v._id
-      )
-      WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
-    `, [userId, startDate, endDate]),
-      `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
-    );
+    ]);
+    
+    const reactionVotesByDocument = keyBy(allReactionVotes, v=>v.documentId);
 
     let changedComments: CommentKarmaChange[] = [];
     let changedPosts: PostKarmaChange[] = [];
     let changedTagRevisions: TagRevisionKarmaChange[] = [];
-    for (let votedContent of allChanges) {
+    for (let votedContent of allScoreChanges) {
       let change: KarmaChangeBase = {
         _id: votedContent._id,
         collectionName: votedContent.collectionName,
         scoreChange: votedContent.scoreChange,
+        addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent.documentId]),
       };
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
@@ -165,6 +153,89 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       }
     }
     return {changedComments, changedPosts, changedTagRevisions};
+  }
+  
+  reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
+    const votesByUser = groupBy(votes, v=>v.userId);
+    const reactionChanges: ReactionChange[] = [];
+    
+    type FlattenedReaction = {
+        reactionType: string
+        quote: string|undefined
+        count: number
+      }
+    
+    function addNormalizedReact(flattenedReactions: FlattenedReaction[], reactionType: string, quote: string|undefined, isCancellation?: boolean) {
+      const idx = flattenedReactions.findIndex(r => r.reactionType===reactionType && r.quote===quote);
+      if (idx >= 0) {
+        flattenedReactions[idx].count += isCancellation ? -1 : 1;
+      } else {
+        if (!isCancellation) {
+          flattenedReactions.push({
+            reactionType, quote,
+            count: 1
+          });
+        }
+      }
+    }
+    
+    for (let userId of Object.keys(votesByUser)) {
+      const flattenedReactions: Array<FlattenedReaction> = [];
+      
+      // First pass: normalize to an array of the subset of reactions that aren't in unvotes, unmerge reactions of the same type on different quoted regions
+      for (let vote of votesByUser[userId]) {
+        if (!vote.extendedVoteType)
+          continue;
+        const extendedVote = (vote.extendedVoteType as NamesAttachedReactionsVote);
+        if (!vote.isUnvote && extendedVote.reacts) {
+          for (let react of extendedVote.reacts) {
+            if (react.vote==="disagreed") {
+              continue;
+            }
+            if (react.quotes && react.quotes.length>0) {
+              for (let quote of react.quotes) {
+                addNormalizedReact(flattenedReactions, react.react, quote);
+              }
+            } else {
+              addNormalizedReact(flattenedReactions, react.react, undefined);
+            }
+          }
+        }
+      }
+      
+      // Second pass: find reactions in unvotes, flatten them, cancel reactions that match unvotes
+      for (let vote of votesByUser[userId]) {
+        if (!vote.extendedVoteType)
+          continue;
+        const extendedUnvote = (vote.extendedVoteType as NamesAttachedReactionsVote);
+        
+        if (vote.isUnvote && extendedUnvote.reacts) {
+          for (let react of extendedUnvote.reacts) {
+            if (react.vote==="disagreed") {
+              continue;
+            }
+            if (react.quotes && react.quotes.length>0) {
+              for (let quote of react.quotes) {
+                addNormalizedReact(flattenedReactions, react.react, quote, true);
+              }
+            } else {
+              addNormalizedReact(flattenedReactions, react.react, undefined, true);
+            }
+          }
+        }
+      }
+      
+      for (let reaction of flattenedReactions) {
+        if (reaction.count > 0) {
+          reactionChanges.push({
+            reactionType: reaction.reactionType,
+            userId: userId,
+          });
+        }
+      }
+    }
+    
+    return reactionChanges;
   }
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {

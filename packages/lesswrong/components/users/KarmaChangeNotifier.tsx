@@ -16,6 +16,7 @@ import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -157,6 +158,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
                 </span>
+                <span className={classes.votedItemReacts}>
+                  <NewReactions reactionChanges={postChange.addedReacts}/>
+                </span>
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
                 </div>
@@ -172,6 +176,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
+                <span className={classes.votedItemReacts}>
+                  <NewReactions reactionChanges={commentChange.addedReacts}/>
+                </span>
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
@@ -185,6 +192,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
               >
                 <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
+                </span>
+                <span className={classes.votedItemReacts}>
+                  <NewReactions reactionChanges={tagChange.addedReacts}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {tagChange.tagName}
@@ -295,6 +305,23 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
   }
   
   return render();
+}
+
+const NewReactions = ({reactionChanges}: {
+  reactionChanges: ReactionChange[]
+}) => {
+  const { ReactionIcon } = Components;
+
+  const distinctReactionTypes = new Set<string>();
+  for (let reactionChange of reactionChanges)
+    distinctReactionTypes.add(reactionChange.reactionType);
+  
+  return <span>
+    {[...distinctReactionTypes.keys()].map(reactionType => <ReactionIcon
+      key={reactionType}
+      react={reactionType}
+    />)}
+  </span>
 }
 
 const KarmaChangeNotifierComponent = registerComponent('KarmaChangeNotifier', KarmaChangeNotifier, {
