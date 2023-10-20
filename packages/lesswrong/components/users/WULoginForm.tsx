@@ -1,9 +1,16 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { gql, useMutation, DocumentNode } from '@apollo/client';
+import { gql, useMutation, DocumentNode, ApolloError } from '@apollo/client';
 import classNames from 'classnames';
 import OTPInput from './OTPInput';
 import SimpleSchema from 'simpl-schema';
+
+const badLoginErrorMessage = "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.";
+const unknownErrorMessage = 'An unknown error has occurred. Email community@wakingup.com if this persists.'
+
+const errorMessage = (error: ApolloError | undefined) => {
+  return error?.message === 'app.authorization_error' ? badLoginErrorMessage : unknownErrorMessage;
+}
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -179,7 +186,7 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
         <div>Not a Waking Up app member? <a href="https://www.wakingup.com/">Get the app</a>.</div>
       </div>
       
-      {error && <div className={classes.error}>{error.message}</div>}
+      {error && <div className={classes.error}>{errorMessage(error)}</div>}
     </form>
   </Components.ContentStyles>;
 }
