@@ -133,8 +133,6 @@ async function syncOrCreateWuUser(wuUser: WuUserData): Promise<DbUser> {
 function wuUserFields(wuUser: WuUserData) {
   return {
     email: wuUser.email,
-    first_name: wuUser.first_name,
-    last_name: wuUser.last_name,
     avatar: wuUser.avatar,
     wu_created_at: new Date(wuUser.created_at!),
     wu_forum_access: wuUser.forum_access,
@@ -167,6 +165,9 @@ async function createWuUser(wuUser: WuUserData): Promise<DbUser> {
     collection: Users,
     document: {
       ...wuUserFields(wuUser),
+      wu_uuid: wuUser.uuid,
+      first_name: wuUser.first_name,
+      last_name: wuUser.last_name,
       displayName: wuDisplayName(wuUser),
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(wuDisplayName(wuUser))),
     },
