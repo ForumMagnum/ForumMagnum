@@ -118,9 +118,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 13,
     right: 15,
     color: "#fff",
-    "&:hover": {
-      background: theme.palette.primary.light,
-    },
   },
 })
 
@@ -198,6 +195,8 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             <Button
               type="button"
               className={classes.createPostButton}
+              variant="contained"
+              color="primary"
             >
               Create Post
             </Button>
