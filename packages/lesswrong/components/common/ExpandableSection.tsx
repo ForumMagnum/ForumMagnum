@@ -26,6 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
   expandIcon: {
     verticalAlign: 'middle',
+    transform: "translateY(-1px)",
     fontSize: 16,
     cursor: "pointer",
     "&:hover": {
