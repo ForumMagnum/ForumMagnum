@@ -1,12 +1,26 @@
 import { DatabaseServerSetting } from '../databaseSettings';
 import type { RenderedEmail } from './renderEmail';
 import nodemailer from 'nodemailer';
+import client from '@sendgrid/mail';
+import { getUserEmail } from '../../lib/collections/users/helpers';
 
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
 /** TODO; doc */
 export const sendgridTemplateSetting = new DatabaseServerSetting("sendgridTemplate", false);
+export const sendgridTemplateIdsSetting = new DatabaseServerSetting<Record<string, string>|null>("sendgridTemplateIds", null);
 export const sendgridApiKeySetting = new DatabaseServerSetting("sendgridApiKey", null);
+let sendgridClient: typeof client|null = null
+const getSendgridClient = () => {
+  if (sendgridClient) return sendgridClient;
+  const apiKey = sendgridApiKeySetting.get();
+  if (!apiKey) {
+    throw new Error("Todo");
+  }
+  client.setApiKey(apiKey);
+  sendgridClient = client;
+  return client;
+}
 
 const getMailUrl = () => {
   if (mailUrlSetting.get())
@@ -42,4 +56,37 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
   });
   
   return true;
+}
+
+export const sendEmailSendgridTemplate = async (emailData: AnyBecauseTodo) => {
+  const client = getSendgridClient();
+  const notificationType = emailData.notifications[0].type;
+  const templateId = sendgridTemplateIdsSetting.get()?.[notificationType];
+  if (!templateId) {
+    throw new Error("Todo");
+  }
+  const message = {
+    personalizations: [
+      {
+        to: [
+          {
+            email: getUserEmail(emailData.user),
+          }
+        ]
+      }
+    ],
+    from: emailData.from,
+    subject: emailData.subject,
+    content: [
+      {
+        type: 'text/html',
+        value: ''
+      }
+    ],
+    mailSettings: {
+      sandboxMode: {
+        enable: true, // TODO;
+      }
+    },
+  }
 }

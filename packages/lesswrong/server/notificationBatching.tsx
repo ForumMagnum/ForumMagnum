@@ -76,8 +76,11 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
         const notificationTypeRenderer = getNotificationTypeByNameServer(batch[0].type)
         const sendgridData = {
           user,
+          to: getUserEmail(user),
+          from: notificationTypeRenderer.from,
+          subject: await notificationTypeRenderer.emailSubject({ user, notifications: batch }),
           notificationData: await notificationTypeRenderer.loadData?.({user, notifications: batch}),
-          notifications: batch
+          notifications: batch,
         }
         // TODO: send to sendgrid
         console.log('sendgridData', sendgridData)
