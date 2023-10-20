@@ -186,7 +186,7 @@ const schema: SchemaType<DbRevision> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    nullable: false,
+    // nullable: false,
     // resolveAs defined in resolvers.js
   },
   htmlHighlight: {
