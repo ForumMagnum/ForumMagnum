@@ -19,7 +19,7 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
-    } else if (value === undefined && type instanceof NotNullType && type.getDefaultValueString()) {
+    } else if (value === null && type instanceof NotNullType && type.getDefaultValueString()) {
       this.value = type.getDefaultValueString();
     }
   }
