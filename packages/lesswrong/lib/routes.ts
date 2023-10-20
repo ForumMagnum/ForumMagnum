@@ -160,7 +160,6 @@ addRoute(
     path:'/users/:slug/edit',
     componentName: 'UsersAccount',
     title: "Account Settings",
-    background: "white",
   },
   {
     name:'users.abTestGroups',

@@ -52,6 +52,7 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     listStyle: "none",
     zIndex: 5,
     transition: "max-height 0.2s, border 0.2s",
+    boxShadow: "0px 3px 15px rgba(0,0,0,0.2)",
   },
   "& .geosuggest__suggests--hidden": {
     maxHeight: 0,
