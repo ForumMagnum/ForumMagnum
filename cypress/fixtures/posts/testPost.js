@@ -85,6 +85,7 @@ module.exports = {
     finalReviewVotesHighKarma: [],
     finalReviewVoteScoreAllKarma: 0,
     finalReviewVotesAllKarma: [],
+    finalReviewVoteScoreAF: 0,
     finalReviewVotesAF: []
 
 }
