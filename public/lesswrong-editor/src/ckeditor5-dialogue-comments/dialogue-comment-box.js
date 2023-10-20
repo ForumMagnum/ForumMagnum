@@ -180,7 +180,6 @@ class SimpleBoxEditing extends Plugin {
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
                 const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
-                console.log({ attributes });
                 return modelWriter.createElement('dialogueMessageInput', attributes);
             },
             view: {
@@ -404,7 +403,6 @@ function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter })
     const button = createButtonElement(viewWriter, buttonAttributes, editor);
 
     const userDisplayName = getUserDisplayName(modelElement);
-    console.log({ modelElement, userDisplayName });
     const headerAttributes = { class: 'dialogue-message-input-header CommentUserName-author UsersNameDisplay-noColor' };
     const headerElement = createHeaderElement(viewWriter, 'div', headerAttributes, userDisplayName);
 

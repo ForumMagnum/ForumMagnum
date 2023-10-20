@@ -1,6 +1,6 @@
 import { Posts } from '../../lib/collections/posts';
 import Revisions from '../../lib/collections/revisions/collection';
-import { fetchCkEditorCloudStorageDocument, flushAllCkEditorCollaborations, flushCkEditorCollaboration, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorWebhook';
+import { createCollaborativeSession, deleteCkEditorCloudDocument, fetchCkEditorCloudStorageDocument, flushAllCkEditorCollaborations, flushCkEditorCollaboration, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorWebhook';
 import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
 import { registerMigration } from './migrationUtils';
 
@@ -26,9 +26,24 @@ registerMigration({
       // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
       html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
 
-      const migratedHtml = await backfillDialogueMessageInputAttributes(html);
-
+      const migratedHtml = await backfillDialogueMessageInputAttributes(html, postId);
       await saveOrUpdateDocumentRevision(postId, migratedHtml);
+    
+      try {
+        await flushCkEditorCollaboration(ckEditorId);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log('Failed to delete remote collaborative session', { err });
+      }
+      try {
+        await deleteCkEditorCloudDocument(ckEditorId);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log('Failed to delete remote document from storage', { err });
+      }
+      
+      // Push the selected revision
+      await createCollaborativeSession(ckEditorId, migratedHtml);
     });
 
     await Promise.all(dialogueMigrations);

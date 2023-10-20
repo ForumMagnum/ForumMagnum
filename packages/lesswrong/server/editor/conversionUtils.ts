@@ -17,6 +17,8 @@ import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/vulcan-users';
+import { Posts } from '../../lib/collections/posts';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -168,40 +170,23 @@ interface UserIdAndDisplayName {
   displayName: string;
 }
 
-export const backfillDialogueMessageInputAttributes = async (html: string) => {
+export const backfillDialogueMessageInputAttributes = async (html: string, postId: string) => {
+  const post = await Posts.findOne(postId);
+  if (!post) throw new Error(`Can't find post with id ${postId}!`);
+  
+  const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
+  const usersWithDisplayNames = await Users.find({ _id: { $in: dialogueParticipantIds } }, undefined, { _id: 1, displayName: 1 }).fetch();
+  const displayNamesById = Object.fromEntries(usersWithDisplayNames.map(user => [user._id, user.displayName] as const));
+
   const $ = cheerioParse(html);
 
   if ($('.dialogue-message-input-wrapper').length > 0) {
     return $.html();
   }
 
-  const userIdsWithOrders: [number, UserIdAndDisplayName][] = [];
-  for (const element of $('.dialogue-message').toArray()) {
-    const userId = $(element).attr('user-id');
-    const userOrder = $(element).attr('user-order');
-
-    if (!userId || !userOrder) {
-      // eslint-disable-next-line no-console
-      console.log(`Missing userId or userOrder for message ${element}!`);
-      continue;
-    }
-
-    const userOrderNumber = Number.parseInt(userOrder);
-    if (isNaN(userOrderNumber)) {
-      // eslint-disable-next-line no-console
-      console.log(`Invalid userOrder value ${userOrder} in message ${element}`);
-      continue;
-    }
-
-    const displayName = $(element).attr('display-name') ?? (await Users.findOne(userId, undefined, { displayName: 1 }))?.displayName;
-    if (!displayName) {
-      // eslint-disable-next-line no-console
-      console.log(`Missing displayName for message ${element}!`);
-      continue;
-    }
-
-    userIdsWithOrders.push([userOrderNumber, { userId, displayName }]);
-  }
+  const userIdsWithOrders: [number, UserIdAndDisplayName][] = dialogueParticipantIds.map(
+    (participantId, idx) => ([idx + 1, { userId: participantId, displayName: displayNamesById[participantId] ?? '[Missing displayName]' }])
+  );
 
   userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
   const userIdsByOrder = Object.fromEntries(userIdsWithOrders);

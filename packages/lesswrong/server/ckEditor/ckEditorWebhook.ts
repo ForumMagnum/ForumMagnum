@@ -13,8 +13,7 @@ import fs from 'fs';
 import * as _ from 'underscore';
 import moment from 'moment';
 import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
-
-const bundleVersion = "31.0.3";
+import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -250,6 +249,15 @@ export async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Pro
   }
 }
 
+export function createCollaborativeSession(ckEditorId: string, html: string) {
+  return fetchCkEditorRestAPI("POST", "/collaborations", {
+    document_id: ckEditorId,
+    bundle_version: ckEditorBundleVersion,
+    data: html,
+    use_initial_data: false,
+  });
+}
+
 // Given a state for a document, which may or may not currently have a collaboration
 // open and may or may not be stored yet in CkEditor's cloud, push a revision,
 // overwriting whatever's currently there.
@@ -274,7 +282,7 @@ export async function pushRevisionToCkEditor(postId: string, html: string) {
   // Push the selected revision
   const result = await fetchCkEditorRestAPI("POST", "/collaborations", {
     document_id: ckEditorId,
-    bundle_version: bundleVersion,
+    bundle_version: ckEditorBundleVersion,
     data: html,
     use_initial_data: false,
   });
@@ -377,12 +385,12 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
 Globals.fetchCkEditorRestAPI = fetchCkEditorRestAPI;
 
 export async function flushCkEditorCollaboration(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true`);
+  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
 }
 Globals.flushCkEditorCollaboration = flushCkEditorCollaboration;
 
-async function deleteCkEditorCloudDocument(ckEditorId: string) {
-  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true`);
+export async function deleteCkEditorCloudDocument(ckEditorId: string) {
+  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true&wait=true`);
 }
 Globals.deleteCkEditorCloudDocument = deleteCkEditorCloudDocument;
 
@@ -391,8 +399,29 @@ async function saveRemoteDocumentSession(postId: string) {
   
   // Check for unsaved changes and save them first
   const latestHtml = await fetchCkEditorCloudStorageDocument(ckEditorId);
-  const fixedHtml = await backfillDialogueMessageInputAttributes(latestHtml)
-  await saveOrUpdateDocumentRevision(postId, fixedHtml);
+  const fixedHtml = await backfillDialogueMessageInputAttributes(latestHtml, postId);
+  await saveOrUpdateDocumentRevision(postId, latestHtml);
+
+  try {
+    await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('Failed to delete remote collaborative session', { err });
+  }
+  try {
+    await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true&wait=true`);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('Failed to delete remote document from storage', { err });
+  }
+  
+  // Push the selected revision
+  await fetchCkEditorRestAPI("POST", "/collaborations", {
+    document_id: ckEditorId,
+    bundle_version: ckEditorBundleVersion,
+    data: fixedHtml,
+    use_initial_data: false,
+  });
 }
 Globals.saveRemoteDocumentSession = saveRemoteDocumentSession;
 
