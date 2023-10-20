@@ -57,15 +57,9 @@ const HeadTags = ({
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
-          {/* Twitter link-card
-           * Note 2023-10-05: Twitter's "summary_large_image" card currently shows only
-           * an image with no title/description/etc, so we only ever use "summary". Before
-           * Twitter made this change, we switched between "summary" and "summary_large_image"
-           * based on the `useSmallImage` prop. Twitter is getting backlash about this, so
-           * they might revert (in which case we might also revert).
-           * See: https://news.ycombinator.com/item?id=37782945
-           */}
-          <meta name='twitter:card' content={'summary'}/>
+          {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
+            * instead of here because it involves a user-agent sniffing hack :( */}
+          
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
