@@ -353,7 +353,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'Home',
       link: '/',
       iconComponent: Home,
-      tooltip: 'See recent posts from across the forum',
+      tooltip: 'See recent posts from across the forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
