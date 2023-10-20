@@ -66,4 +66,5 @@ module.exports = {
     tagRelevance: {},
     viewCount: 10,
     commentCount: 1,
+    postCategory: "post",
 }
