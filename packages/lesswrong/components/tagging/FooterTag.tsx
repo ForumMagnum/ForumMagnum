@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
@@ -133,16 +132,8 @@ const FooterTag = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { hover, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tagItem",
-    tagId: tag._id,
-    tagName: tag.name,
-    tagSlug: tag.slug
-  });
-  const { PopperCard, TagRelCard, CoreTagIcon } = Components
+  const currentUser = useCurrentUser();
 
-  const currentUser = useCurrentUser()
-  
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
@@ -151,31 +142,28 @@ const FooterTag = ({
     ? tag.shortName || tag.name
     : tag.name;
 
+  const {TagsTooltip, CoreTagIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 
-  // Fall back to TagRelCard if no popperCard is provided
-  const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
-
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, className, {
-      [classes.core]: !neverCoreStyling && tag.core,
-      [classes.smallText]: smallText,
-    })}>
-      {link ? <Link to={tagGetUrl(tag)}>
-        {renderedTag}
-        {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
-      </Link> : renderedTag}
-      {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
-        <div>
-          {popperCardToRender}
-        </div>
-      </PopperCard>}
-    </span>
-  </AnalyticsContext>);
+  return (
+    <AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
+      <TagsTooltip tag={tag} tagRel={tagRel} popperCard={popperCard}>
+        <span className={classNames(classes.root, className, {
+          [classes.core]: !neverCoreStyling && tag.core,
+          [classes.smallText]: smallText,
+        })}>
+          {link ? <Link to={tagGetUrl(tag)}>
+            {renderedTag}
+            {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
+          </Link> : renderedTag}
+        </span>
+      </TagsTooltip>
+    </AnalyticsContext>
+  );
 }
 
 const FooterTagComponent = registerComponent("FooterTag", FooterTag, {
