@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import Geosuggest, {QueryType} from 'react-geosuggest'
+import Geosuggest from 'react-geosuggest'
 // These imports need to be separate to satisfy eslint, for some reason
-import type { Suggest } from 'react-geosuggest';
+import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import FormLabel from '@material-ui/core/FormLabel';

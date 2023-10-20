@@ -79,6 +79,24 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: "4px",
     },
 
+    "& .input-first_name, & .input-last_name": {
+      display: 'inline-block',
+      width: '49%',
+      marginBottom: "0",
+      [theme.breakpoints.down('sm')]: {
+        display: 'block',
+        width: "100%",
+        margin: "16px 0",
+      },
+    },
+
+    "& .input-last_name": {
+      float: "right",
+      [theme.breakpoints.down('sm')]: {
+        float: "none",
+      },
+    },
+
   },
 
   header: {
