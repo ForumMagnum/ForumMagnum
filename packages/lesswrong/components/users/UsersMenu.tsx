@@ -213,35 +213,13 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isEAForum &&
-                <DropdownItem
-                  title={preferredHeadingCase("My Drafts")}
-                  to="/drafts"
-                  icon="Edit"
-                  iconClassName={classes.icon}
-                />
-              }
               {!currentUser.deleted &&
                 <DropdownItem
-                  title={preferredHeadingCase("User Profile")}
+                  title={preferredHeadingCase("Profile")}
                   to={`/users/${currentUser.slug}`}
                   icon="User"
                   iconClassName={classes.icon}
                 />
-              }
-              {userHasThemePicker(currentUser) &&
-                <ThemePickerMenu>
-                  <DropdownItem
-                    title="Theme"
-                    onClick={(ev) => {
-                      if (isMobile()) {
-                        ev.stopPropagation();
-                      }
-                    }}
-                    icon="Puzzle"
-                    iconClassName={classes.icon}
-                  />
-                </ThemePickerMenu>
               }
               {/* TODO un-admin gate when ready for production use */}
               {isEAForum && userIsAdminOrMod(currentUser) && <DropdownItem
@@ -253,7 +231,7 @@ const UsersMenu = ({classes}: {
               {!isFriendlyUI && accountSettingsNode}
               {!isFriendlyUI && messagesNode}
               <DropdownItem
-                title={isFriendlyUI ? "Saved & read" : "Bookmarks"}
+                title={isFriendlyUI ? "Saved & Read" : "Bookmarks"}
                 to={isFriendlyUI ? "/saved" : "/bookmarks"}
                 icon="Bookmarks"
                 iconClassName={classes.icon}
