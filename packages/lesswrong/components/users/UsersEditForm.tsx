@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
@@ -21,7 +20,83 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 100,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
-    }
+    },
+    
+    "& .form-input": {
+      background: "white",
+      borderRadius: 6,
+      paddingLeft: "1em",
+      paddingRight: "1em",
+      paddingTop: "0.5em",
+      paddingBottom: "0.5em",
+    },
+
+    '& .form-input.form-component-text': {
+      paddingTop: "0.7em",
+      paddingBottom: "0.7em",
+    },
+    
+    "& .form-section-unicode": {
+      padding: 0,
+    },
+    
+    "& .form-submit": {
+      marginTop: "3em",
+      textAlign: "right",
+      
+      "& button": {
+        paddingLeft: "3em",
+        paddingRight: "3em",
+      },
+    },
+
+    "& .geosuggest__input": {
+      border: 0,
+      borderBottom: 0,
+      color: theme.palette.text.normal,
+      fontWeight: 600,
+      width: "100%",
+    },
+    "& .geosuggest__input:focus": {
+      borderBottom: 0,
+    },
+
+    "& .mui-input-label" : {
+      transform: "translate(0,8px) scale(1)",
+    },
+
+    "& .mui-input-label[data-shrink='true']" : {
+      marginTop: '0.2em',
+      transform: 'translate(0,-6px) scale(.75)',
+    },
+    
+    "& .form-input.form-component-text label + .MuiInput-formControl" :{
+      marginTop: 0,
+    },
+    
+    "& .MuiInputBase-input" : {
+      fontWeight: 600,
+      marginTop: "4px",
+    },
+
+    "& .input-first_name, & .input-last_name": {
+      display: 'inline-block',
+      width: '49%',
+      marginBottom: "0",
+      [theme.breakpoints.down('sm')]: {
+        display: 'block',
+        width: "100%",
+        margin: "16px 0",
+      },
+    },
+
+    "& .input-last_name": {
+      float: "right",
+      [theme.breakpoints.down('sm')]: {
+        float: "none",
+      },
+    },
+
   },
 
   header: {
@@ -42,8 +117,9 @@ const passwordResetMutation = gql`
   }
 `
 
-const UsersEditForm = ({terms, classes}: {
+const UsersEditForm = ({terms, classes, enableResetPassword = false}: {
   terms: {slug?: string, documentId?: string},
+  enableResetPassword?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -91,10 +167,10 @@ const UsersEditForm = ({terms, classes}: {
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Account Settings")}
       </Typography>
-      {/* TODO(EA): Need to add a management API call to get the reset password
-          link, but for now users can reset their password from the login
-          screen */}
-      {isCurrentUser && !isEAForum && <Button
+      <Typography variant="body2">
+        {currentUser?.username}
+      </Typography>
+      {isCurrentUser && enableResetPassword && <Button
         color="secondary"
         variant="outlined"
         className={classes.resetButton}
@@ -127,6 +203,7 @@ const UsersEditForm = ({terms, classes}: {
         queryFragment={getFragment('UsersEdit')}
         mutationFragment={getFragment('UsersEdit')}
         showRemove={false}
+        submitLabel="Save"
       />
     </div>
   );

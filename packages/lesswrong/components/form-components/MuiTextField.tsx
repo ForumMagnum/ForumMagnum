@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, classes }: FormComponentProps<string> & {
+const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, inputProps, classes }: FormComponentProps<string> & {
   children?: ReactNode;
   select?: boolean;
   defaultValue?: string | number;
@@ -29,6 +29,7 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
   variant?: "standard" | "outlined" | "filled";
   type?: string;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  inputProps?: TextFieldProps['InputProps'],
   classes: ClassesType;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
@@ -49,9 +50,10 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
     type={type}
     fullWidth={fullWidth}
     InputLabelProps={{
-      className: classes.cssLabel,
+      className: classes.cssLabel + " mui-input-label",
       ...InputLabelProps
     }}
+    InputProps={inputProps}
     className={classnames(
       classes.textField,
       {[classes.fullWidth] :fullWidth}
