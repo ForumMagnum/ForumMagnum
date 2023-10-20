@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ea-new-features-sept-23]
+    branches: [fix-slack-image-preview]
 jobs:
   deploy:
     runs-on: ubuntu-latest
