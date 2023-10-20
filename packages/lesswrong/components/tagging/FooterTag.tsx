@@ -121,8 +121,8 @@ const FooterTag = ({
   className,
   classes,
 }: {
+  tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
-  tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
   popperCard?: React.ReactNode,

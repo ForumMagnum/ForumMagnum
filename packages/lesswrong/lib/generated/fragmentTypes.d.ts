@@ -1441,7 +1441,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
   readonly relevantTagIds: Array<string>,
-  readonly relevantTags: Array<TagBasicInfo>,
+  readonly relevantTags: Array<TagPreviewFragment>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,

@@ -35,10 +35,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagRelCard = ({tagRel, classes, relevance=true}: {
+const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType,
-  relevance?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");

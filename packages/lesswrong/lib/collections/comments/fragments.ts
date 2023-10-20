@@ -10,7 +10,7 @@ registerFragment(`
     }
     relevantTagIds
     relevantTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     tagCommentType
     parentCommentId

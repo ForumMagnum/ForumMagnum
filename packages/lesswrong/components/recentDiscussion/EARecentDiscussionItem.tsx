@@ -111,7 +111,7 @@ const EARecentDiscussionItem = ({
 }) => {
   const {
     ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagTooltipWrapper,
+    TagsTooltip,
   } = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
@@ -141,11 +141,11 @@ const EARecentDiscussionItem = ({
               </PostsItemTooltipWrapper>
             }
             {tag &&
-              <TagTooltipWrapper tag={tag} As="span">
+              <TagsTooltip tag={tag} As="span">
                 <Link to={tagGetUrl(tag)} className={classes.primaryText}>
                   {tag.name}
                 </Link>
-              </TagTooltipWrapper>
+              </TagsTooltip>
             }
             {" "}
             <FormatDate date={timestamp} includeAgo />
