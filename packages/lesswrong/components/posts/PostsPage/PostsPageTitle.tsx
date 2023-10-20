@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   lastWord: {
-    whiteSpace: "nowrap",
+    display: "inline-block",
   },
   linkIcon: {
     color: theme.palette.grey[500],
@@ -91,7 +91,6 @@ const PostsPageTitle = ({classes, post}: {
     </div>
   )
 }
-
 
 const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
 
