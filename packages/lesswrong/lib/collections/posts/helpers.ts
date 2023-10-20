@@ -24,8 +24,10 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, i
   const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
     ? post.fmCrosspost.foreignPostId
     : undefined;
-  const url = isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
-  return !!post.url ? url : postGetPageUrl(post, isAbsolute);
+  if (post.url) {
+    return isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
+  }
+  return postGetPageUrl(post, isAbsolute);
 };
 
 // Whether a post's link should open in a new tab or not
@@ -38,12 +40,12 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost) {
+export const postGetAuthorName = async function (post: DbPost): Promise<string> {
   var user = await mongoFindOne("Users", post.userId);
   if (user) {
     return userGetDisplayName(user);
   } else {
-    return post.author;
+    return post.author ?? "[unknown author]";
   }
 };
 
@@ -186,7 +188,7 @@ export const postGetAnswerCountStr = (count: number): string => {
   }
 }
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (forumTypeSetting.get() === 'AlignmentForum') {
     return post.afLastCommentedAt;
   } else {

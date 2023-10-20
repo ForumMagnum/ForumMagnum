@@ -201,12 +201,12 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
+    if (!currentUser || !currentUser.email){
       res.status(403).send("Not logged in or current user has no email address")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
+    const eagApp = await getEAGApplicationData(currentUser.email) 
     res.send(eagApp)
   })
 

@@ -15,7 +15,7 @@ export const recalculateAFBaseScore = async (document: VoteableType): Promise<nu
     afPower: {$exists: true},
     cancelled: false,
   }).fetch()
-  return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
+  return votes ? votes.reduce((sum, vote) => { return vote.afPower ?? 0 + sum}, 0) : 0
 }
 
 async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {
@@ -24,7 +24,7 @@ async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: Db
   if (!voter) throw Error(`Can't find voter to update Alignment Karma for vote: ${vote}`)
 
   if (userCanDo(voter, "votes.alignment")) {
-    const votePower = calculateVotePower(voter.afKarma, vote.voteType)
+    const votePower = calculateVotePower(voter.afKarma ?? 0, vote.voteType)
 
     await Votes.rawUpdateOne({_id:vote._id, documentId: newDocument._id}, {$set:{afPower: votePower}})
     const newAFBaseScore = await recalculateAFBaseScore(newDocument)
@@ -72,7 +72,7 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
       // Splitting this because $pull isn't implemented in postgres
       if (Users.isPostgres()) {
         // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
-        await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId, Math.abs(karmaUpdate));
+        await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId!, Math.abs(karmaUpdate));
       } else {
         await Users.rawUpdateOne({_id:newDocument.userId}, {
           $set: {afKarma: newAfKarma },
@@ -104,7 +104,7 @@ voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDoc
 async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
-      $inc: {afKarma: document.afBaseScore || 0},
+      $inc: {afKarma: document.afBaseScore ?? 0},
       $addToSet: {groups: 'alignmentVoters'}
     })
     await Votes.rawUpdateMany({documentId: document._id}, {
@@ -113,7 +113,7 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
   } else if (!document.af && oldDocument.af) {
     const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
-    const karmaUpdate = -document.afBaseScore || 0;
+    const karmaUpdate = -(document.afBaseScore ?? 0);
     const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})

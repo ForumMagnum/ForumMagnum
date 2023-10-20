@@ -78,7 +78,7 @@ function isActiveNegativeKarmaUser(user: DbUser, voteableItems: (DbComment | DbP
     // If the user hasn't posted in a while, we don't care if someone's been voting on their old content
     if (voteableItems.every(item => item.postedAt < oneMonthAgo)) return false;
 
-    return user.karma < -5;
+    return (user.karma ?? 0) < -5;
 }
 
 async function triggerModerationAction(userId: string, warningType: DbModeratorAction['type']) {

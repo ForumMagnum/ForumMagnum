@@ -165,14 +165,14 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
-      return (user.karma > n)
+      return ((user.karma ?? 0) > n)
     }
 }
 
 export const userOverNKarmaOrApproved = (n: number) => {
   return (user: UsersMinimumInfo|DbUser|null): boolean => {
     if (!user) return false
-    return (user.karma > n || !!user.reviewedByUserId)
+    return ((user.karma ?? 0) > n || !!user.reviewedByUserId)
   }
 }
 

@@ -74,7 +74,7 @@ registerMigration({
         await ReviewVotes.rawUpdateOne({_id:vote._id}, {$set: {quadraticVote: getValue(vote)}})
         
         updatePost(postsAllUsers, vote)
-        if (user.karma >= 1000) {
+        if (user.karma ?? 0 >= 1000) {
           updatePost(postsHighKarmaUsers, vote)
         }
         if (user.groups?.includes('alignmentForum')) {

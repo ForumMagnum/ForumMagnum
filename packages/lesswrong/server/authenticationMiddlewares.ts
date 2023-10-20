@@ -155,7 +155,7 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   // one given by their OAuth provider. Probably their OAuth provider will only
   // ever report one email, in which case this is over-thought.
   const profileEmails = profile.emails.map(emailObj => emailObj.value)
-  if (!profileEmails.includes(user.email)) {
+  if (user.email && !profileEmails.includes(user.email)) {
     // Attempt to update the email field on the account to match the OAuth-provided
     // email. This will fail if the user has both an OAuth and a non-OAuth account
     // with the same email.

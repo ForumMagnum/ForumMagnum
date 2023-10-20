@@ -22,7 +22,7 @@ async function maybeFixAccount(user: DbUser): Promise<void> {
   // This would have been created by an OAuth bug where the email field was populated
   // but the emails field was not, for GitHub and Facebook logins.
   // Fix them by setting the emails field to [{address: user.email, verified: true}]
-  if (isSensibleEmail(user.email) && JSON.stringify(user.emails)==='{"0":{"verified":true}}') {
+  if (user.email && isSensibleEmail(user.email) && JSON.stringify(user.emails)==='{"0":{"verified":true}}') {
     // eslint-disable-next-line no-console
     console.log(`Fixing emails for ${user.slug}`);
     await Users.rawUpdateOne(

@@ -19,11 +19,11 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
-  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
   }
 
-  if (isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
+  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
@@ -31,7 +31,7 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
   // We expect vote.authorIds here to be the same as the authorIds of the original vote.
-  if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
     void Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: -vote.power}});
   }
 });

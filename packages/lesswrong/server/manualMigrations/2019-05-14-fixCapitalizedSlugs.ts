@@ -20,7 +20,7 @@ registerMigration({
           filter: { _id: user._id },
           update: {
             $set: {
-              slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug))
+              slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(user.slug || ""))
             }
           }
         }

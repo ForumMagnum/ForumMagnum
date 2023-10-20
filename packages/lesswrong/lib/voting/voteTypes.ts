@@ -40,16 +40,16 @@ export const userBigVotePower = (karma: number, multiplier: number) => {
 // Define voting operations
 export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {
   smallUpvote: {
-    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, 1),
+    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma ?? 0, 1),
   },
   smallDownvote: {
-    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma, -1),
+    power: (user: DbUser|UsersCurrent) => userSmallVotePower(user.karma ?? 0, -1),
   },
   bigUpvote: {
-    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, 1),
+    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma ?? 0, 1),
   },
   bigDownvote: {
-    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, -1),
+    power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma ?? 0, -1),
   },
   neutral: {
     power: (user: DbUser|UsersCurrent) => 0,

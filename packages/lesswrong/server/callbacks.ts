@@ -65,7 +65,7 @@ getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallba
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
+  if (user.banned && oldUser.banned && new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
     void userIPBanAndResetLoginTokens(user);
   }
 });
@@ -238,7 +238,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   for (let revision of tagRevisions) {
     const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
     const document = await collection.findOne({_id: revision.documentId})
-    if (document) {
+    if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(
         collection,
         document,

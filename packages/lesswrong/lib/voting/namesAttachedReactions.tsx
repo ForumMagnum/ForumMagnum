@@ -70,8 +70,8 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
       const extendedVote: NamesAttachedReactionsVote|null = vote.extendedVoteType;
       const userInfo = {
         userId: vote.userId,
-        displayName: usersById[vote.userId].displayName,
-        karma: usersById[vote.userId].karma,
+        displayName: usersById[vote.userId].displayName ?? "",
+        karma: usersById[vote.userId].karma ?? 0,
       };
       if (extendedVote?.reacts) {
         for (let reaction of extendedVote.reacts) {
@@ -103,10 +103,11 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
         }
       }
       
+      const userKarma = user.karma ?? 0;
 
       // If the user is disagreeing with a react, they need at least
       // downvoteExistingReactKarmaThreshold karma
-      if (user.karma < downvoteExistingReactKarmaThreshold.get()
+      if (userKarma < downvoteExistingReactKarmaThreshold.get()
         && some(extendedVote.reacts, r=>r.vote==="disagreed"))
       {
         return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to antireact`};
@@ -114,14 +115,14 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
 
       // If the user is using any react at all, they need at least
       // existingReactKarmaThreshold karma for it to be a valid vote.
-      if (user.karma<addNameToExistingReactKarmaThreshold.get()) {
+      if (userKarma<addNameToExistingReactKarmaThreshold.get()) {
         return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
       }
       
       // If the user is using a react which no one else has used on this comment
       // before, they need at least newReactKarmaThreshold karma for it to be a
       // valid vote.
-      if (user.karma<addNewReactKarmaThreshold.get()) {
+      if (userKarma<addNewReactKarmaThreshold.get()) {
         for (let reaction of extendedVote.reacts) {
           if (!(reaction.react in oldExtendedScore.reacts)) {
             return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};

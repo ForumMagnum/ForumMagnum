@@ -106,7 +106,8 @@ augmentFieldsDict(Posts, {
         }
         const cache = post.sideCommentsCache as SideCommentsCache|undefined;
         const cacheIsValid = cache
-          && cache.generatedAt>post.lastCommentedAt
+          && post.lastCommentedAt
+          && cache.generatedAt > post.lastCommentedAt
           && cache.generatedAt > post.contents?.editedAt
           && cache.version === sideCommentCacheVersion;
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;

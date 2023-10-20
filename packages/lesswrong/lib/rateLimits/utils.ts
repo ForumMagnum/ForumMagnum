@@ -232,7 +232,7 @@ export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: R
   // Adjust the user's karma back to what it was before the most recent vote
   // This doesn't always handle the case where the voter is modifying an existing vote's strength correctly, but we don't really care about those
   const mostRecentVotePower = currentVotes[0].power;
-  const previousUserKarma = user.karma - mostRecentVotePower;
+  const previousUserKarma = (user.karma ?? 0) - mostRecentVotePower;
 
   const currentUserKarmaInfo = { ...user, recentKarmaInfo: currentKarmaInfo };
   const previousUserKarmaInfo = { ...user, recentKarmaInfo: previousKarmaInfo, karma: previousUserKarma };

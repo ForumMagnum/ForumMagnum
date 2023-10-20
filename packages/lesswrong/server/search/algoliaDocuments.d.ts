@@ -76,7 +76,7 @@ interface AlgoliaPost {
   userId: string,
   url: string | null,
   title: string | null,
-  slug: string | null,
+  slug: string,
   baseScore: number,
   status: number,
   curated: boolean,

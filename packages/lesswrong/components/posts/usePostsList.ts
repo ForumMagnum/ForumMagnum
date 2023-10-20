@@ -174,8 +174,8 @@ export const usePostsList = ({
   let orderedResults = results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
-      return !post.lastVisitedAt ||
-        (post.lastVisitedAt >=  postGetLastCommentedAt(post));
+      const postLastCommentedAt = postGetLastCommentedAt(post)
+      return !post.lastVisitedAt || !postLastCommentedAt || (post.lastVisitedAt >= postLastCommentedAt);
     })
   }
 

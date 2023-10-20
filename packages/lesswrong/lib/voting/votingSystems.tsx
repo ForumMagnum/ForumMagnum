@@ -146,7 +146,7 @@ export function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUse
   const voteType: string | undefined = vote.extendedVoteType?.[axis];
   if (!voteType) return 0;
   const user = usersById[vote.userId];
-  return calculateVotePower(user.karma, voteType);
+  return calculateVotePower(user.karma ?? 0, voteType);
 }
 
 export type ReactBallotAxis = {
@@ -362,7 +362,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     return "twoAxis";
   }
   if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId);
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
     if (post?.votingSystem) {
       return post.votingSystem;
     }

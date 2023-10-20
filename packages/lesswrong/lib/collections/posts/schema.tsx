@@ -1302,6 +1302,7 @@ const schema: SchemaType<DbPost> = {
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
+        if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
           async userId => {
             const user = await context.loaders.Users.load(userId)

@@ -55,7 +55,7 @@ registerMigration({
                 
         updatePost(postsAllUsers, vote, costTotal)
 
-        if (user.karma >= 1000) {
+        if (user.karma ?? 0 >= 1000) {
           updatePost(postsHighKarmaUsers, vote, costTotal)
         }
         

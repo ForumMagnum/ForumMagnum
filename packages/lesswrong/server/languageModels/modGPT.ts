@@ -103,6 +103,14 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     return
   }
   
+  if (!comment.contents?.originalContents?.data) {
+    if (!isAnyTest) {
+      //eslint-disable-next-line no-console
+      console.log("Skipping ModGPT (no contents on this comment!)")
+    }
+    return
+  }
+
   const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, true)
   const html = sanitizeHtml(data, {
     allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
@@ -221,6 +229,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
 
 getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
   if (!isEAForum || !newDocument.postId || newDocument.deleted) return
+  if (!oldDocument.contents.originalContents?.data || !newDocument.contents.originalContents?.data) return
   
   const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
   if (noChange) return

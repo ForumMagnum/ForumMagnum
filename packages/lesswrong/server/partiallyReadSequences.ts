@@ -26,9 +26,9 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   const collection = sequence?.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   const now = new Date();
   
-  const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,
+  const partiallyReadMinusThis = user.partiallyReadSequences?.filter(
     partiallyRead => partiallyRead.sequenceId !== sequenceId
-      && (!collection || partiallyRead.collectionId !== collection._id));
+      && (!collection || partiallyRead.collectionId !== collection._id)) || [];
   
   // Any unread posts in the sequence?
   if (anyUnread) {
@@ -91,7 +91,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   
   // Done reading! If the user previously had a partiallyReadSequences entry
   // for this sequence, remove it and update the user object.
-  if (_.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId)) {
+  if (user.partiallyReadSequences?.some(s=>s.sequenceId === sequenceId)) {
     await setUserPartiallyReadSequences(userId, partiallyReadMinusThis);
   }
 }
@@ -124,7 +124,7 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
     // Don't add posts to the continue reading section just because a user reads
     // a post. But if the sequence is already there, update their position in
     // the sequence.
-    if (userHasPartiallyReadSequence(user, sequenceId)) {
+    if (userHasPartiallyReadSequence(user, sequenceId) && event.documentId) {
       // Deliberately lacks an await - this runs concurrently in the background
       await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId, context);
     }

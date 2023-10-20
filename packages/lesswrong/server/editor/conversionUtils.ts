@@ -17,6 +17,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/vulcan-users';
+import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -145,7 +146,10 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
     if (userId) userIds.push(userId);
   });
 
-  const users = await Users.find({ _id: { $in: userIds } }, { projection: { _id: 1, displayName: 1 } }).fetch();
+  const rawUsers = await Users.find({ _id: { $in: userIds } }, { projection: { _id: 1, displayName: 1 } }).fetch();
+
+  if (rawUsers.some((user) => !user.displayName)) throw new Error('Some users in dialogue have no display name'); //should never happen, better than filtering out users with no display name
+  const users = filterWhereFieldsNotNull(rawUsers, "displayName"); //shouldn't get to this point if missing displayname, but need to make types happy
 
   const userDisplayNamesById = Object.fromEntries(users.map((user) => [user._id, user.displayName]));
 

@@ -393,7 +393,7 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
   if (userId) {
     const user = await Users.findOne(userId)
     if (user) {
-      return user.email
+      return user.email ?? undefined
     }
   }
 }

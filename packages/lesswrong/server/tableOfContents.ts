@@ -52,7 +52,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML: string)
+export function extractTableOfContents(postHTML: string | null)
 {
   if (!postHTML) return null;
   const postBody = cheerioParse(postHTML);

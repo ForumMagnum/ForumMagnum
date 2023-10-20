@@ -41,9 +41,10 @@ export const sequenceGetAllPostIDs = async (sequenceId: string, context: Resolve
   return accessiblePosts.map(post => post._id);
 }
 
-export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverContext): Promise<Array<DbPost>> => {
+export const sequenceGetAllPosts = async (sequenceId: string | null, context: ResolverContext): Promise<Array<DbPost>> => {
   // Get the set of post IDs in the sequence (by joining against the Chapters
   // table), sorted in reading order
+  if (!sequenceId) return [];
   const allPostIds = await sequenceGetAllPostIDs(sequenceId, context);
   
   // Retrieve those posts

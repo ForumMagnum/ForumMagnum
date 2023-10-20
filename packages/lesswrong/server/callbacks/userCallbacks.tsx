@@ -36,7 +36,7 @@ const TRUSTLEVEL1_THRESHOLD = 2000
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
-  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+  if (user && (user?.karma ?? 0) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
@@ -47,7 +47,7 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
 voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
-  if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+  if ((user.karma ?? 0) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")

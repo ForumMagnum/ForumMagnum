@@ -12,7 +12,7 @@ import { forumSelect } from '../../forumTypeUtils';
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
   var user = await mongoFindOne("Users", comment.userId);
-  return user ? userGetDisplayName(user) : comment.author;
+  return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
 };
 
 // Get URL of a comment page.
@@ -43,7 +43,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 
 // TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
-  postId?: string,
+  postId?: string | null,
   postSlug?: string,
   tagSlug?: string,
   tagCommentType?: TagCommentType,

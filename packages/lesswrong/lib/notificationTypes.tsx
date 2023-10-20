@@ -124,7 +124,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return {
         type: documentType,
         document: message,
-        displayName: conversation?.title,
+        displayName: conversation?.title ?? undefined,
         associatedUserName: userGetDisplayName(author),
       }
     case 'localgroup':
@@ -132,7 +132,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return localgroup && {
         type: documentType,
         document: localgroup,
-        displayName: localgroup.name,
+        displayName: localgroup.name ?? "[missing local group name]",
         associatedUserName: null,
       }
     case 'tagRel':

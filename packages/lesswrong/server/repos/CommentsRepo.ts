@@ -4,6 +4,7 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
+import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
@@ -11,7 +12,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getPromotedCommentsOnPosts(postIds: string[]): Promise<(DbComment|null)[]> {
-    const comments = await this.manyOrNone(`
+    const rawComments = await this.manyOrNone(`
       SELECT c.*
       FROM "Comments" c
       JOIN (
@@ -23,6 +24,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
     `, [postIds]);
     
+    const comments = filterWhereFieldsNotNull(rawComments, "postId");
     const commentsByPost = keyBy(comments, c=>c.postId);
     return postIds.map(postId => commentsByPost[postId] ?? null);
   }
