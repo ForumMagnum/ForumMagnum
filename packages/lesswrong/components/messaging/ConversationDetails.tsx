@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // Component for displaying details about currently selected conversation
 const ConversationDetails = ({conversation, hideOptions = false, classes}: {
-  conversation: conversationsListFragment,
+  conversation: ConversationsList,
   hideOptions?: boolean,
   classes: ClassesType,
 }) => {

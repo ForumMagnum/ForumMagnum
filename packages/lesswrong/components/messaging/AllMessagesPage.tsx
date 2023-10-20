@@ -6,6 +6,8 @@ import classNames from "classnames";
 import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import { useLocation, useNavigation } from "../../lib/routeUtil";
+import type { InboxComponentProps } from "./InboxWrapper";
+import { useSingle } from "../../lib/crud/withSingle";
 
 const MAX_WIDTH = 1050;
 
@@ -82,64 +84,87 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
-  const currentUser = useCurrentUser();
+const AllMessagesPage = ({
+  currentUser,
+  terms,
+  conversationId,
+  classes,
+}: InboxComponentProps & {
+  conversationId?: string;
+}) => {
   const { openDialog } = useDialog();
-  const { location, params } = useLocation();
+  const { location } = useLocation();
   const { history } = useNavigation();
 
-  const selectedConversationId = params._id;
   const selectedConversationRef = useRef<HTMLDivElement>(null);
 
-  const selectConversationCallback = useCallback((conversationId: string | undefined) => {
-    history.replace({...location, pathname: `/inbox2/${conversationId}`})
-  }, [history, location])
+  const selectConversationCallback = useCallback(
+    (conversationId: string | undefined) => {
+      history.replace({ ...location, pathname: `/inbox/${conversationId}` });
+    },
+    [history, location]
+  );
 
   const openNewConversationDialog = useCallback(() => {
     openDialog({
       componentName: "NewConversationDialog",
-      componentProps: {}
-    })
-  }, [openDialog])
+      componentProps: {},
+    });
+  }, [openDialog]);
 
   const { InboxNavigation2, ConversationWidget, ForumIcon } = Components;
 
-  const terms: ConversationsViewTerms = { view: "userConversationsAll", userId: currentUser?._id, showArchive: true };
-  const conversationsResult: UseMultiResult<"conversationsListFragment"> = useMulti({
+  const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: "conversationsListFragment",
+    fragmentName: "ConversationsList",
     limit: 500,
-    skip: !currentUser,
   });
   const { results: conversations } = conversationsResult;
-  const selectedConversation = useMemo(
-    () => conversations?.find((c) => c._id === selectedConversationId),
-    [conversations, selectedConversationId]
-  );
+
+  // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
+  // use the conversation from the list to load the title faster, if not, fetch it directly.
+  const eagerSelectedConversation = useMemo(() => {
+    return conversations?.find((c) => c._id === conversationId);
+  }, [conversations, conversationId]);
+  const { document: fetchedSelectedConversation } = useSingle({
+    documentId: conversationId,
+    collectionName: "Conversations",
+    fragmentName: "ConversationsList",
+    skip: !conversationId,
+  });
+  const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
 
   const openConversationOptions = () => {
+    if (!conversationId) return;
+
     openDialog({
       componentName: "ConversationTitleEditForm",
       componentProps: {
-        documentId: selectedConversationId,
-      }
+        documentId: conversationId,
+      },
     });
-  }
-
-  if (!currentUser) {
-    return <div>Log in to access private messages.</div>;
-  }
+  };
 
   // Note: we are removing the ability to archive conversations
   // const showArchive = query.showArchive === "true"
 
-  {/* <SectionTitle title={title} noTopMargin> */}
-    {/* TODO add mod inbox back in */}
-    {/* {showModeratorLink && <Link to={"/moderatorInbox"} className={classes.modInboxLink}>Mod Inbox</Link>} */}
-  {/* </SectionTitle> */}
+  {
+    /* <SectionTitle title={title} noTopMargin> */
+  }
+  {
+    /* TODO add mod inbox back in */
+  }
+  {
+    /* {showModeratorLink && <Link to={"/moderatorInbox"} className={classes.modInboxLink}>Mod Inbox</Link>} */
+  }
+  {
+    /* </SectionTitle> */
+  }
 
-  const title = selectedConversation ? conversationGetTitle2(selectedConversation, currentUser) : "No conversation selected";
+  const title = selectedConversation
+    ? conversationGetTitle2(selectedConversation, currentUser)
+    : "No conversation selected";
 
   return (
     <div className={classes.root}>
@@ -152,7 +177,7 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
           <InboxNavigation2
             conversationsResult={conversationsResult}
             currentUser={currentUser}
-            selectedConversationId={selectedConversationId}
+            selectedConversationId={conversationId}
             setSelectedConversationId={selectConversationCallback}
           />
         </div>
@@ -160,13 +185,15 @@ const AllMessagesPage = ({ classes }: { classes: ClassesType }) => {
       <div className={classNames(classes.column, classes.rightColumn)}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
           <div className={classes.headerText}>{title}</div>
-          {selectedConversationId && <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />}
+          {conversationId && (
+            <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+          )}
         </div>
         <div className={classes.conversation} ref={selectedConversationRef}>
-          {selectedConversationId ? (
+          {conversationId ? (
             <ConversationWidget
               currentUser={currentUser}
-              conversationId={selectedConversationId}
+              conversationId={conversationId}
               scrollRef={selectedConversationRef}
             />
           ) : (

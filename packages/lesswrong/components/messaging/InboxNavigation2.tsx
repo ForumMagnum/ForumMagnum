@@ -7,44 +7,27 @@ import { userCanDo } from "../../lib/vulcan-users";
 import { preferredHeadingCase } from "../../lib/forumTypeUtils";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    marginTop: 0,
-  },
-  modInboxLink: {
-    color: theme.palette.lwTertiary.main,
-    fontSize: 14,
-    fontWeight: 600,
-    lineHeight: "24px",
-  }
+  root: {}
 })
 
 // The Navigation for the Inbox components
 const InboxNavigation2 = ({
   conversationsResult,
   currentUser,
-  title = preferredHeadingCase("All Messages"),
   selectedConversationId,
   setSelectedConversationId,
   classes,
 }: {
-  conversationsResult: UseMultiResult<"conversationsListFragment">;
+  conversationsResult: UseMultiResult<"ConversationsList">;
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
   classes: ClassesType;
 }) => {
-  const location = useLocation();
-  const { currentRoute, query } = location;
-  const { history } = useNavigation();
+  const { currentRoute } = useLocation();
 
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
-  const nonEmptyConversations = conversations?.filter((c) => c.messageCount > 0);
-
-  const { mutate: updateConversation } = useUpdate({
-    collectionName: "Conversations",
-    fragmentName: "conversationsListFragment",
-  });
 
   const {
     ConversationItem2,
@@ -58,12 +41,11 @@ const InboxNavigation2 = ({
   const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute?.name !== "moderatorInbox";
 
   return <>
-      {nonEmptyConversations?.length ? (
-        nonEmptyConversations.map((conversation, idx) => (
+      {conversations?.length ? (
+        conversations.map((conversation, idx) => (
           <ConversationItem2
             key={conversation._id + idx}
             conversation={conversation}
-            updateConversation={updateConversation}
             currentUser={currentUser}
             selectedConversationId={selectedConversationId}
             setSelectedConversationId={setSelectedConversationId}

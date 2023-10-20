@@ -85,7 +85,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classNam
   const { history } = useNavigation();
   const { create: createConversation } = useCreate({
     collectionName: 'Conversations',
-    fragmentName: 'newConversationFragment',
+    fragmentName: 'ConversationMinimumInfo',
   });
   
   const newConversation = async (initiatingUser: UsersCurrent): Promise<string|null> => {
@@ -113,7 +113,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classNam
 
     // TODO do template params
     // const templateParams = getTemplateParams()
-    history.push({pathname: `/inbox2/${conversationId}`})
+    history.push({pathname: `/inbox/${conversationId}`})
     onClose()
   }
 

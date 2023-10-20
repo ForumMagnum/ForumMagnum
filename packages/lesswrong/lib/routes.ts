@@ -197,38 +197,10 @@ addRoute(
     background: "white"
   },
   {
-    name: 'inbox',
-    path: '/inbox',
-    componentName: 'InboxWrapper',
-    title: "Inbox"
-  },
-  {
-    name: 'inbox2',
-    path: '/inbox2',
-    componentName: 'AllMessagesPage',
-    title: "Inbox",
-    fullscreen: true,
-  },
-  {
-    name: 'inbox2Conversation',
-    path: '/inbox2/:_id',
-    componentName: 'AllMessagesPage',
-    title: "Inbox",
-    fullscreen: true,
-  },
-  {
     name: 'moderatorInbox',
     path: '/moderatorInbox',
     componentName: 'ModeratorInboxWrapper',
     title: "Moderator Inbox"
-  },
-  {
-    name: 'conversation',
-    path: '/inbox/:_id',
-    componentName: 'ConversationWrapper',
-    title: "Private Conversation",
-    background: "white",
-    initialScroll: "bottom",
   },
   {
     name: 'newPost',
@@ -1225,6 +1197,7 @@ addRoute({
   title: "All Comments"
 });
 
+// Routes where just the EA Forum has an override
 addRoute(...forumSelect<Route[]>({
   EAForum: [
     {
@@ -1239,6 +1212,22 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       redirect: () => "/quicktakes",
     },
+    // The inbox components here use the same components but some of the other
+    // parameters are different.
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
   ],
   default: [
     {
@@ -1246,6 +1235,20 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       componentName: 'ShortformPage',
       title: "Shortform"
+    },
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox"
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'InboxWrapper',
+      title: "Private Conversation",
+      background: "white",
+      initialScroll: "bottom",
     },
   ],
 }));

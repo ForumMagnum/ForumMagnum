@@ -39,7 +39,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   const { results } = useMulti({
     terms: {view: "moderatorConversations", userId: user._id},
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true
   });

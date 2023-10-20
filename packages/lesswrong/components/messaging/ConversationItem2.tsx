@@ -70,14 +70,13 @@ const ConversationItem2 = ({
   selectedConversationId,
   setSelectedConversationId,
 }: {
-  conversation: conversationsListFragment;
+  conversation: ConversationsList;
   currentUser: UsersCurrent;
   classes: ClassesType;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
   const { UsersProfileImage, FormatDate } = Components;
-  const isArchived = conversation?.archivedByIds?.includes(currentUser._id);
   const isSelected = selectedConversationId === conversation._id;
 
   const { onClick } = useClickableCell({ onClick: () => setSelectedConversationId(conversation._id) });

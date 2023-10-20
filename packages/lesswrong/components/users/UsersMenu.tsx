@@ -141,7 +141,7 @@ const UsersMenu = ({classes}: {
   />
   const messagesNode = <DropdownItem
     title={preferredHeadingCase("Private Messages")}
-    to="/inbox2"
+    to="/inbox"
     icon="Email"
     iconClassName={classes.icon}
   />

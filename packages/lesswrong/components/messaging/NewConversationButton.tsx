@@ -31,7 +31,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
     collectionName: 'Conversations',
-    fragmentName: 'newConversationFragment',
+    fragmentName: 'ConversationsMinimumInfo',
   });
   
   // Checks if unnamed conversation between the two users exists
@@ -43,7 +43,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   const { results } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'conversationIdFragment',
+    fragmentName: 'ConversationsMinimumInfo',
     fetchPolicy: 'cache-and-network',
     limit: 1,
     skip: !currentUser
@@ -87,7 +87,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       embedConversation(conversationId, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      history.push({pathname: `/inbox2/${conversationId}`, ...templateParams})
+      history.push({pathname: `/inbox/${conversationId}`, ...templateParams})
     }
   }
 

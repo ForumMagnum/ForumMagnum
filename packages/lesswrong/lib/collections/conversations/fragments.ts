@@ -1,5 +1,21 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { registerFragment } from "../../vulcan-lib/fragments";
 
+/**
+ * @deprecated Use ConversationsMinimumInfo
+ * TODO Remove after 2023-11-03
+ * */
+registerFragment(`
+  fragment newConversationFragment on Conversation {
+    _id
+    title
+    participantIds
+  }
+`);
+
+/**
+ * @deprecated Use ConversationsList
+ * TODO Remove after 2023-11-03
+ * */
 registerFragment(`
   fragment conversationsListFragment on Conversation {
     _id
@@ -19,16 +35,37 @@ registerFragment(`
   }
 `);
 
+/**
+ * @deprecated Use ConversationsMinimumInfo
+ * TODO Remove after 2023-11-03
+ * */
 registerFragment(`
-  fragment newConversationFragment on Conversation {
+  fragment conversationIdFragment on Conversation {
     _id
-    title
-    participantIds
   }
 `);
 
 registerFragment(`
-  fragment conversationIdFragment on Conversation {
+  fragment ConversationsMinimumInfo on Conversation {
     _id
+    createdAt
+    latestActivity
+    title
+    participantIds
+    archivedByIds
+    messageCount
+    moderator
+  }
+`);
+
+registerFragment(`
+  fragment ConversationsList on Conversation {
+    ...ConversationsMinimumInfo
+    participants {
+      ...UsersMinimumInfo
+    }
+    latestMessage {
+      ...messageListFragment
+    }
   }
 `);

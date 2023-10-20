@@ -79,7 +79,6 @@ importComponent("EAPopularCommentsSection", () => require('../components/ea-foru
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
-importComponent("ConversationWrapper", () => require('../components/messaging/ConversationWrapper'));
 importComponent("ConversationPage", () => require('../components/messaging/ConversationPage'));
 importComponent("NewMessageForm", () => require('../components/messaging/NewMessageForm'));
 importComponent("ConversationPreview", () => require('../components/messaging/ConversationPreview'));

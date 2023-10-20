@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 /**
  * Page for viewing a private messages conversation. Typically invoked from
- * ConversationWrapper, which takes care of the URL parsing.
+ * InboxWrapper, which takes care of the URL parsing.
  */
 const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
@@ -64,7 +64,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   const { document: conversation, loading: loadingConversation } = useSingle({
     documentId: conversationId,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
   });
   const loading = loadingMessages || loadingConversation;
 
