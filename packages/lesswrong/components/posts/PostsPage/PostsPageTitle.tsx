@@ -61,10 +61,11 @@ const PostsPageTitle = ({classes, post}: {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
   const { Typography, ForumIcon } = Components;
   const showLinkIcon = post.url && isEAForum;
-  
-  const mostOfTitle = post.title.split(" ").slice(0, -1).join(" ");
-  const lastWordOfTitle = post.title.split(" ").slice(-1)[0];
-  
+
+  const words = post.title.trim().split(/\s+/);
+  const mostOfTitle = words.slice(0, -1).join(" ");
+  const lastWordOfTitle = words[words.length - 1];
+
   return (
     <div>
       {post.question && !parentPost && <Typography variant="title">
