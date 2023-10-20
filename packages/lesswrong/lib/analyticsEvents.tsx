@@ -106,6 +106,41 @@ type TrackingContext = Record<string, unknown>;
 
 const ReactTrackingContext = React.createContext<TrackingContext>({});
 
+export type AnalyticsProps = {
+  pageContext?: string,
+  pageSectionContext?: string,
+  pageSubSectionContext?: string,
+  pageElementContext?: string,
+  pageElementSubContext?: string,
+  reviewYear?: string,
+  path?: string,
+  resourceName?: string,
+  resourceUrl?: string,
+  chapter?: string,
+  documentSlug?: string,
+  postId?: string,
+  sequenceId?: string,
+  commentId?: string,
+  tagId?: string,
+  tagName?: string,
+  tagSlug?: string,
+  userIdDisplayed?: string,
+  hoverPreviewType?: string,
+  sortedBy?: string,
+  branch?: string,
+  href?: string,
+  limit?: number,
+  capturePostItemOnMount?: boolean,
+  singleLineComment?: boolean,
+  onsite?: boolean,
+  terms?: PostsViewTerms,
+  /** @deprecated Use `pageSectionContext` instead */
+  listContext?: string,
+  /** @deprecated Use `pageSectionContext` instead */
+  pageSection?: "karmaChangeNotifer",
+  /** @deprecated Use `pageSubSectionContext` instead */
+  pageSubsectionContext?: "latestReview",
+}
 
 /**
 HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
@@ -159,40 +194,8 @@ will likely have to add tracking manually with a captureEvent call. (Search code
 The best way to ensure you are tracking correctly with is to look at the logs
 in the client or server (ensure getShowAnalyticsDebug is returning true).
 */
-export const AnalyticsContext = ({children, ...props}: {
+export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
   children: ReactNode,
-  pageContext?: string,
-  pageSectionContext?: string,
-  pageSubSectionContext?: string,
-  pageElementContext?: string,
-  reviewYear?: string,
-  path?: string,
-  resourceName?: string,
-  resourceUrl?: string,
-  chapter?: string,
-  documentSlug?: string,
-  postId?: string,
-  sequenceId?: string,
-  commentId?: string,
-  tagId?: string,
-  tagName?: string,
-  tagSlug?: string,
-  userIdDisplayed?: string,
-  hoverPreviewType?: string,
-  sortedBy?: string,
-  branch?: string,
-  href?: string,
-  limit?: number,
-  capturePostItemOnMount?: boolean,
-  singleLineComment?: boolean,
-  onsite?: boolean,
-  terms?: PostsViewTerms,
-  /** @deprecated Use `pageSectionContext` instead */
-  listContext?: string,
-  /** @deprecated Use `pageSectionContext` instead */
-  pageSection?: "karmaChangeNotifer",
-  /** @deprecated Use `pageSubSectionContext` instead */
-  pageSubsectionContext?: "latestReview",
 }) => {
   const existingContextData = useContext(ReactTrackingContext)
 

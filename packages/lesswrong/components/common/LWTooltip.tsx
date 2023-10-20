@@ -3,8 +3,9 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { AnalyticsProps } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
@@ -22,10 +23,12 @@ const LWTooltip = ({
   flip=true,
   clickable=false,
   inlineBlock=true,
+  As="span",
   disabled=false,
   hideOnTouchScreens=false,
   classes,
   className,
+  analyticsProps,
   titleClassName,
   popperClassName,
 }: {
@@ -36,22 +39,25 @@ const LWTooltip = ({
   flip?: boolean,
   clickable?: boolean,
   inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
   disabled?: boolean,
   hideOnTouchScreens?: boolean,
   classes: ClassesType,
   className?: string,
+  analyticsProps?: AnalyticsProps,
   titleClassName?: string
   popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tooltipHovered",
-    title: typeof title=="string" ? title : undefined
+    pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
+    title: typeof title === "string" ? title : undefined,
+    ...analyticsProps,
   });
-  
+
   if (!title) return <>{children}</>
 
-  return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
+  return <As className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -67,9 +73,9 @@ const LWTooltip = ({
     >
       <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}
-    
+
     {children}
-  </span>
+  </As>
 }
 
 const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {

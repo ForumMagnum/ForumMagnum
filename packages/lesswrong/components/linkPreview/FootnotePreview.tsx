@@ -18,13 +18,13 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   onsite?: boolean,
   id?: string,
-  rel?: string
+  rel?: string,
+  children: React.ReactNode,
 }) => {
   const { LWPopper } = Components
   
@@ -80,11 +80,12 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
 
       <a
         href={href}
-        dangerouslySetInnerHTML={{__html: innerHTML}}
         id={id}
         rel={rel}
         onClick={() => window.dispatchEvent(new Event(EXPAND_FOOTNOTES_EVENT))}
-      />
+      >
+        {children}
+      </a>
     </span>
   );
 }

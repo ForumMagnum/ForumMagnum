@@ -18,6 +18,15 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   debateResponse: "debate response",
 };
 
+const normalHeading = {
+  fontSize: "16px !important",
+};
+
+const smallHeading = {
+  fontSize: "14px !important",
+  fontWeight: 700,
+};
+
 const styles = (theme: ThemeType) => ({
   root: {},
   excerpt: {
@@ -25,13 +34,34 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.1rem",
     lineHeight: "1.5em",
   },
-  content: {
-    "& h1": {fontSize: "16px !important"},
-    "& h2": {fontSize: "16px !important"},
-    "& h3": {fontSize: "16px !important"},
-    "& h4": {fontSize: "16px !important"},
-    "& h5": {fontSize: "16px !important"},
-    "& h6": {fontSize: "16px !important"},
+  contentNormalText: {
+    "& h1": normalHeading,
+    "& h2": normalHeading,
+    "& h3": normalHeading,
+    "& h4": normalHeading,
+    "& h5": normalHeading,
+    "& h6": normalHeading,
+  },
+  contentSmallText: {
+    "& h1": smallHeading,
+    "& h2": smallHeading,
+    "& h3": smallHeading,
+    "& h4": smallHeading,
+    "& h5": smallHeading,
+    "& h6": smallHeading,
+    "& p": {
+      fontSize: "13px !important",
+    },
+  },
+  contentNoLinkStyling: {
+    "& a": {
+      color: `${theme.palette.text.normal} !important`,
+    },
+  },
+  contentHideMultimedia: {
+    "& iframe, & img, & video": {
+      display: "none",
+    },
   },
   continueReading: {
     cursor: "pointer",
@@ -48,21 +78,32 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export type CommonExcerptProps = {
+  lines?: number,
+  hideMoreLink?: boolean,
+  smallText?: boolean,
+  noLinkStyling?: boolean,
+  hideMultimedia?: boolean,
+  className?: string,
+}
+
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
+  hideMoreLink,
+  smallText,
+  noLinkStyling,
+  hideMultimedia,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
   className,
   classes,
-}: {
+}: CommonExcerptProps & {
   contentHtml: string,
   moreLink: string,
   contentType: ContentStyleType,
-  lines?: number,
   alwaysExpandInPlace?: boolean,
-  className?: string,
   classes: ClassesType,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -77,7 +118,7 @@ const ContentExcerpt = ({
   // because of bugs in certain versions of ios safari
   const truncatedHtml = truncate(
     contentHtml,
-    lines * HTML_CHARS_PER_LINE_HEURISTIC,
+    Math.floor(lines * HTML_CHARS_PER_LINE_HEURISTIC),
     "characters",
     "...",
     false,
@@ -89,14 +130,18 @@ const ContentExcerpt = ({
       <ContentStyles
         contentType={contentType}
         className={classes.excerpt}
-        style={expanded ? undefined : {WebkitLineClamp: lines}}
       >
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: truncatedHtml}}
-          className={classes.content}
+          dangerouslySetInnerHTML={{__html: expanded ? contentHtml : truncatedHtml}}
+          className={classNames({
+            [classes.contentNormalText]: !smallText,
+            [classes.contentSmallText]: smallText,
+            [classes.contentNoLinkStyling]: noLinkStyling,
+            [classes.contentHideMultimedia]: hideMultimedia,
+          })}
         />
       </ContentStyles>
-      {expandInPlace
+      {!hideMoreLink && (expandInPlace
         ? (
           expanded
             ? null
@@ -107,14 +152,14 @@ const ContentExcerpt = ({
             )
         )
         : (
-          <Link to={moreLink} className={classes.continueReading}>
+          <Link to={moreLink} className={classes.continueReading} eventProps={{intent: 'expandPost'}}>
             {isTruncated
               ? "Continue reading"
               : `View ${contentTypeMap[contentType]}`
             }
           </Link>
         )
-      }
+      )}
     </div>
   );
 }
