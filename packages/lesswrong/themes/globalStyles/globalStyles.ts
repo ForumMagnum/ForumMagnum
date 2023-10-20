@@ -187,12 +187,19 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
 });
 
 const dialogueStyle = (theme: ThemeType): JssStyles => ({
+  '.dialogue-message-input-wrapper': {
+    display: 'flex',
+    'flex-direction': 'column',
+    'margin-top': 12
+  },
+
   '.dialogue-message-input': {
     border: '2px solid !important',
     padding: '26px 16px 40px 16px',
     'border-radius': 3,
     position: 'relative',
-    margin: '24px 0',
+    margin: '12px 0',
+    order: 2
   },
   
   '.dialogue-message-input-header': {
