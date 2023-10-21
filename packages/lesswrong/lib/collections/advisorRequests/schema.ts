@@ -52,7 +52,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
   jobAds: {
     type: Object,
     optional: true,
-    nullable: false,
+    nullable: true,
     // TODO not-null: is this collection being used at all?
     hidden: true,
     blackbox: true,

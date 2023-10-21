@@ -43,7 +43,7 @@ const schema: SchemaType<DbTagFlag> = {
   order: {
     type: Number,
     optional: true,
-    nullable: false,
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'], 

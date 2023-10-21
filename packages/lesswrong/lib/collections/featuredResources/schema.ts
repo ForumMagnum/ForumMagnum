@@ -9,7 +9,7 @@ const schema: SchemaType<DbFeaturedResource> = {
   },
   body: {
     type: String,
-    nullable: false,
+    nullable: true, //missing values for EA Forum
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
