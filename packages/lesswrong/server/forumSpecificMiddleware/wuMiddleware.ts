@@ -245,7 +245,7 @@ const authenticationResolvers = {
         const token = await createAndSetToken(req, res, user)
         return { token };
       } else {
-        throw new Error('Invalid one-time code');
+        throw new Error('app.invalid_one_time_code');
       }
     },
   } 
