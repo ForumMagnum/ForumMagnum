@@ -1,11 +1,13 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { CommonExcerptProps } from "./ContentExcerpt";
 
-const TagExcerpt = ({tag, lines = 3, className}: {
+const TagExcerpt = ({
+  tag,
+  ...commonExcerptProps
+}: CommonExcerptProps & {
   tag: TagRecentDiscussion,
-  lines?: number,
-  className?: string,
 }) => {
   const contentHtml = tag.description?.htmlHighlight;
   if (!contentHtml) {
@@ -18,8 +20,7 @@ const TagExcerpt = ({tag, lines = 3, className}: {
       contentHtml={contentHtml}
       moreLink={tagGetUrl(tag)}
       contentType="tag"
-      lines={lines}
-      className={className}
+      {...commonExcerptProps}
     />
   );
 }

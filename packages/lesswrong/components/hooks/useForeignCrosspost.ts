@@ -124,10 +124,12 @@ export const usePostContents = <FragmentTypeName extends PostFragments>({
   post,
   fragmentName,
   fetchProps,
+  skip,
 }: {
   post: FragmentTypes[FragmentTypeName],
   fragmentName: FragmentTypeName,
   fetchProps?: PostFetchProps<FragmentTypeName>,
+  skip?: boolean,
 }): {
   postContents?: FragmentTypes[FragmentTypeName]["contents"],
   loading: boolean,
@@ -146,7 +148,7 @@ export const usePostContents = <FragmentTypeName extends PostFragments>({
       },
       batchKey: crosspostBatchKey,
     },
-    skip: !isForeign,
+    skip: !isForeign || skip,
   });
 
   if (isForeign) {

@@ -20,7 +20,6 @@ import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
@@ -29,6 +28,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -265,6 +265,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
+  },
+  subscribeToDialogue: {
+    marginBottom: 40,
+    marginTop: 40,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
   }
 })
 
@@ -380,6 +388,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.question,
   });
 
+  // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
+  // we're leaving it for now to keep supporting the few debates that were made with it, but
+  // may want to migrate them at some point.
   const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
@@ -406,7 +417,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     ? {...(query as CommentsViewTerms), limit:1000}
     : {view: defaultView, limit: 1000}
 
-  const { results: nonDebateComments } = useMulti({
+  // these are the replies to the debate responses (see earlier comment about deprecated feature)
+  const { results: debateReplies } = useMulti({
     terms: {...commentTerms, postId: post._id},
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -420,7 +432,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
-    PostBottomRecommendations,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row
   } = Components
 
   useEffect(() => {
@@ -472,7 +484,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
@@ -600,6 +612,19 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
+        {post.collabEditorDialogue && <Row justifyContent="center">
+          <div className={classes.subscribeToDialogue}>
+            <NotifyMeDropdownItem
+              document={post}
+              enabled={!!post.collabEditorDialogue}
+              subscribeMessage="Subscribe to dialogue"
+              unsubscribeMessage="Unsubscribe from dialogue"
+              subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
+              tooltip="Notifies you when there is new activity in the dialogue"
+            />
+          </div>
+        </Row>}
+
         {post.debate && debateResponses && debateResponseReplies &&
           <DebateBody
             debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
@@ -647,7 +672,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
-    {isEAForum && <PostBottomRecommendations post={post} />}
+    {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+      <PostBottomRecommendations post={post} />
+    </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);

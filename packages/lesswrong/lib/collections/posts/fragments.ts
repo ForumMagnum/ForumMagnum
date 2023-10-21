@@ -21,6 +21,7 @@ registerFragment(`
     hasCoauthorPermission
     rejected
     debate
+    collabEditorDialogue
   }
 `);
 
@@ -221,8 +222,12 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageUrl
+    }
 
     feedId
+    totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
   }
@@ -501,6 +506,15 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    user {
+      ...UsersMinimumInfo
+    }
+    usersSharedWith {
+      ...UsersMinimumInfo
+    }
+    coauthors {
+      ...UsersMinimumInfo
+    }
   }
 `);
 

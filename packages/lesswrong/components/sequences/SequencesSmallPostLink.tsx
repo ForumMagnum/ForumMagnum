@@ -2,12 +2,9 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-import { useItemsRead } from '../hooks/useRecordPostView';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
-import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -38,19 +35,24 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   post: PostsList,
   sequenceId: string,
   large?: boolean,
-  placement?: PopperPlacementType | undefined
+  placement?: PopperPlacementType,
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, PostReadCheckbox } = Components
-
+  const {PostsTooltip, PostReadCheckbox} = Components;
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
       <PostReadCheckbox post={post} />
     </span>
-    <LWTooltip tooltip={false} clickable={true} title={<PostsPreviewTooltip post={post} postsList/>} placement={placement} inlineBlock={false} flip>
+    <PostsTooltip
+      post={post}
+      postsList={!isEAForum}
+      placement={placement}
+      inlineBlock={false}
+      clickable
+    >
       <Link to={postGetPageUrl(post, false, sequenceId)}>
         {post.title}
       </Link>
-    </LWTooltip>
+    </PostsTooltip>
   </div>
 }
 
@@ -61,4 +63,3 @@ declare global {
     SequencesSmallPostLink: typeof SequencesSmallPostLinkComponent
   }
 }
-

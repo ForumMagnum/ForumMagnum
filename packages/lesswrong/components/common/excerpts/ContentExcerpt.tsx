@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { ContentStyleType } from "../ContentStyles";
 import classNames from "classnames";
+import { truncate } from "../../../lib/editor/ellipsize";
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -17,25 +18,50 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   debateResponse: "debate response",
 };
 
+const normalHeading = {
+  fontSize: "16px !important",
+};
+
+const smallHeading = {
+  fontSize: "14px !important",
+  fontWeight: 700,
+};
+
 const styles = (theme: ThemeType) => ({
-  root: {
-  },
+  root: {},
   excerpt: {
     position: "relative",
     fontSize: "1.1rem",
     lineHeight: "1.5em",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
   },
-  content: {
-    "& h1": {fontSize: "16px !important"},
-    "& h2": {fontSize: "16px !important"},
-    "& h3": {fontSize: "16px !important"},
-    "& h4": {fontSize: "16px !important"},
-    "& h5": {fontSize: "16px !important"},
-    "& h6": {fontSize: "16px !important"},
+  contentNormalText: {
+    "& h1": normalHeading,
+    "& h2": normalHeading,
+    "& h3": normalHeading,
+    "& h4": normalHeading,
+    "& h5": normalHeading,
+    "& h6": normalHeading,
+  },
+  contentSmallText: {
+    "& h1": smallHeading,
+    "& h2": smallHeading,
+    "& h3": smallHeading,
+    "& h4": smallHeading,
+    "& h5": smallHeading,
+    "& h6": smallHeading,
+    "& p": {
+      fontSize: "13px !important",
+    },
+  },
+  contentNoLinkStyling: {
+    "& a": {
+      color: `${theme.palette.text.normal} !important`,
+    },
+  },
+  contentHideMultimedia: {
+    "& iframe, & img, & video": {
+      display: "none",
+    },
   },
   continueReading: {
     cursor: "pointer",
@@ -52,21 +78,32 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export type CommonExcerptProps = {
+  lines?: number,
+  hideMoreLink?: boolean,
+  smallText?: boolean,
+  noLinkStyling?: boolean,
+  hideMultimedia?: boolean,
+  className?: string,
+}
+
 const ContentExcerpt = ({
   contentHtml,
   moreLink,
+  hideMoreLink,
+  smallText,
+  noLinkStyling,
+  hideMultimedia,
   lines = 3,
   alwaysExpandInPlace,
   contentType,
   className,
   classes,
-}: {
+}: CommonExcerptProps & {
   contentHtml: string,
   moreLink: string,
   contentType: ContentStyleType,
-  lines?: number,
   alwaysExpandInPlace?: boolean,
-  className?: string,
   classes: ClassesType,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -77,20 +114,34 @@ const ContentExcerpt = ({
   const expandInPlace = alwaysExpandInPlace ||
     contentHtml.length < HTML_CHARS_PER_LINE_HEURISTIC * EXPAND_IN_PLACE_LINES;
 
+  // We use `truncate` here rather than webkit-box overflow shenanigans
+  // because of bugs in certain versions of ios safari
+  const truncatedHtml = truncate(
+    contentHtml,
+    Math.floor(lines * HTML_CHARS_PER_LINE_HEURISTIC),
+    "characters",
+    "...",
+    false,
+  );
+
   const {ContentStyles, ContentItemBody} = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <ContentStyles
         contentType={contentType}
         className={classes.excerpt}
-        style={expanded ? undefined : {WebkitLineClamp: lines}}
       >
         <ContentItemBody
-          dangerouslySetInnerHTML={{__html: contentHtml}}
-          className={classes.content}
+          dangerouslySetInnerHTML={{__html: expanded ? contentHtml : truncatedHtml}}
+          className={classNames({
+            [classes.contentNormalText]: !smallText,
+            [classes.contentSmallText]: smallText,
+            [classes.contentNoLinkStyling]: noLinkStyling,
+            [classes.contentHideMultimedia]: hideMultimedia,
+          })}
         />
       </ContentStyles>
-      {expandInPlace
+      {!hideMoreLink && (expandInPlace
         ? (
           expanded
             ? null
@@ -101,14 +152,14 @@ const ContentExcerpt = ({
             )
         )
         : (
-          <Link to={moreLink} className={classes.continueReading}>
+          <Link to={moreLink} className={classes.continueReading} eventProps={{intent: 'expandPost'}}>
             {isTruncated
               ? "Continue reading"
               : `View ${contentTypeMap[contentType]}`
             }
           </Link>
         )
-      }
+      )}
     </div>
   );
 }

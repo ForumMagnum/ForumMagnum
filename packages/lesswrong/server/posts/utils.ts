@@ -1,4 +1,5 @@
 import Localgroups from '../../lib/collections/localgroups/collection';
+import { cheerioParse } from "../utils/htmlUtil";
 
 export async function getDefaultPostLocationFields(post: DbPost) {
   if (post.isEvent && post.groupId && !post.location) {
@@ -8,4 +9,30 @@ export async function getDefaultPostLocationFields(post: DbPost) {
     return { location, googleLocation, mongoLocation }
   }
   return {}
+}
+
+export const getDialogueResponseIds = (post:DbPost) => {
+  const html = post.contents.originalContents.data;
+  const $ = cheerioParse(html);
+  
+  const messageIds: string[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const messageId = $(element).attr('message-id');
+    if (messageId) messageIds.push(messageId);
+  });
+  
+  return messageIds;
+}
+
+export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
+  const html = post.contents.originalContents.data;
+  const $ = cheerioParse(html);
+    
+  const timestamps: Date[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const timestampString = $(element).attr('submitted-date');
+    if (timestampString) timestamps.push(new Date(timestampString));
+  }); 
+  
+  return timestamps
 }
