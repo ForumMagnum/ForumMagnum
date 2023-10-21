@@ -12,7 +12,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
       nullable: false,
     }),
     optional: true,
-    nullable: true, //TODO not-null, confirm that this nullability is intended
+    nullable: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],
@@ -27,7 +27,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
   clientId: {
     type: String,
     optional: true,
-    nullable: true, //TODO not-null, confirm that this nullability is intended
+    nullable: true,
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],
@@ -65,7 +65,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
   strategySettings: {
     type: Object,
     optional: true,
-    nullable: true, //TODO not-null, confirm that this nullability is intended
+    nullable: true,
     blackbox: true,
     canRead: ["admins"],
     canUpdate: ["admins"],

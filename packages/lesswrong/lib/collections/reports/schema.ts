@@ -86,7 +86,7 @@ const schema: SchemaType<DbReport> = {
   },
   closedAt: {
     optional: true,
-    nullable: false,
+    nullable: true,
     type: Date,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],

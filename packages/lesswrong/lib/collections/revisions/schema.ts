@@ -186,8 +186,8 @@ const schema: SchemaType<DbRevision> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    nullable: false,
-    // resolveAs defined in resolvers.js
+    nullable: true, //not really used, EA Forum has missing values
+    // resolveAs defined in resolvers.js //does not actually exist
   },
   htmlHighlight: {
     type: String, 
