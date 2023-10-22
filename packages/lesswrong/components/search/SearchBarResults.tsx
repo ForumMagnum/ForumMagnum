@@ -21,7 +21,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      // TODO; this is a correct imo functional change for LWAF
       top: MOBILE_HEADER_HEIGHT,
     },
   },

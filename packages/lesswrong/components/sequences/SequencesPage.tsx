@@ -21,7 +21,6 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-// TODO; update PR description and test
 const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -44,7 +43,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    // TODO; another correct functional change for LWAF
     top: HEADER_HEIGHT,
     width: "100vw",
     height: 380,

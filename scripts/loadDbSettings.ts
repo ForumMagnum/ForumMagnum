@@ -81,7 +81,6 @@ const deleteByName = async (db: Database, name: string) => {
     throw new Error(`Invalid mode: ${mode}`);
   }
   const settingsPath = process.argv[3] // optional
-  console.log('🚀 ~ file: loadDbSettings.ts:84 ~ settingsPath:', settingsPath)
 
   const settings = readSettingsFile(mode, settingsPath);
   const connectionString = process.argv[4] ?? await readPgUrl(mode);
