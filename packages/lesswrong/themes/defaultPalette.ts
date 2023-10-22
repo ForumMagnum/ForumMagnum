@@ -215,10 +215,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
-    currentEventHeader: {
-      start: "#F35B3E",
-      stop: "#D92B08",
-    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -263,7 +259,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     navigationSidebarIcon: shades.greyAlpha(1.0),
     sprout: '#69886e',
     yellow: '#ffc500',
-    
+    recentDiscussionGreen: "#72B065",
+    recentDiscussionGrey: "#757575",
+
     commentsBubble: {
       commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),
@@ -298,11 +296,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
     primaryTranslucent: 'rgba(12,134,155,.7)',
-    debateComment: '#1c912766',
-    debateComment2: '#df1d4566',
-    debateComment3: '#2671ff66',
-    debateComment4: '#eb26ff66',
-    debateComment5: '#efdc0066',
+    debateComment: '#6CDCE7',
+    debateComment2: '#DFC791',
+    debateComment3: '#4E8E6F',
+    debateComment4: '#E5978E',
+    debateComment5: '#739FE7',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
   },

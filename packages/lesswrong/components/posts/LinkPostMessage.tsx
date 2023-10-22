@@ -21,6 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
   },
+  link: {
+    color: theme.palette.primary.main,
+  },
   negativeTopMargin: {
     marginTop: -14,
   }
@@ -36,7 +39,11 @@ const LinkPostMessage = ({post, classes, negativeTopMargin}: {
 
   return (
     <div className={classNames(classes.root, {[classes.negativeTopMargin]: negativeTopMargin})}>
-      This is a linkpost for <a href={postGetLink(post)} target={postGetLinkTarget(post)}>{post.url}</a>
+      This is a linkpost for <a
+        href={postGetLink(post)}
+        target={postGetLinkTarget(post)}
+        className={classes.link}
+      >{post.url}</a>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "flex"
+    display: "flex",
+    alignItems: "center"
   },
   list: {
     display: "flex",
@@ -25,24 +26,18 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UsersListEditor = ({value, path, label, classes}: {
+const UsersListEditor = ({value, setValue, label, classes}: {
   value: string[],
-  path: string,
+  setValue: (newValue: string[])=>void
   label: string,
   classes: ClassesType,
-}, context: any) => {
-  const { updateCurrentValues } = context;
-  
-  const setValue = useCallback((newValue: string[]) => {
-    updateCurrentValues({[path]: newValue});
-  }, [updateCurrentValues, path]);
-  
+}) => {
   return (
     <div className={classes.root}>
       <Components.ErrorBoundary>
         <Components.UsersSearchAutoComplete
           clickAction={(userId: string) => {
-            updateCurrentValues({[path]: [...value, userId]});
+            setValue([...value, userId]);
           }}
           label={label}
         />
@@ -56,16 +51,36 @@ const UsersListEditor = ({value, path, label, classes}: {
       />
     </div>
   )
+}
+
+const FormUsersListEditor = ({value, path, label}: {
+  value: string[],
+  path: string,
+  label: string,
+}, context: any) => {
+  const { updateCurrentValues } = context;
+  
+  const setValue = useCallback((newValue: string[]) => {
+    updateCurrentValues({[path]: newValue});
+  }, [updateCurrentValues, path]);
+  
+  return <Components.UsersListEditor
+    value={value}
+    setValue={setValue}
+    label={label}
+  />
 };
 
-(UsersListEditor as any).contextTypes = {
+(FormUsersListEditor as any).contextTypes = {
   updateCurrentValues: PropTypes.func,
 };
 
 const UsersListEditorComponent = registerComponent("UsersListEditor", UsersListEditor, {styles});
+const FormUsersListEditorComponent = registerComponent("FormUsersListEditor", FormUsersListEditor);
 
 declare global {
   interface ComponentTypes {
     UsersListEditor: typeof UsersListEditorComponent
+    FormUsersListEditor: typeof FormUsersListEditorComponent
   }
 }

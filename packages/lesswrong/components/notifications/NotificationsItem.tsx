@@ -1,11 +1,10 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { FC, ReactNode, useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { getUrlClass, useNavigation } from '../../lib/routeUtil';
-import { useHover } from '../common/withHover';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -58,6 +57,36 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const tooltipProps = {
+  placement: "left-start",
+  pageElementContext: "linkPreview",
+  pageElementSubContext: "notificationItem",
+  clickable: true,
+} as const;
+
+const TooltipWrapper: FC<{
+  title: ReactNode,
+  children: ReactNode,
+  classes: ClassesType,
+}> = ({title, children, classes}) => {
+  const {LWTooltip} = Components;
+  return (
+    <LWTooltip
+      {...tooltipProps}
+      tooltip={false}
+      title={
+        <span className={classes.preview}>
+          <Card>
+            {title}
+          </Card>
+        </span>
+      }
+    >
+      {children}
+    </LWTooltip>
+  );
+}
+
 const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
@@ -65,13 +94,8 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   classes: ClassesType,
 }) => {
   const [clicked,setClicked] = useState(false);
-  const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "linkPreview",
-    pageElementSubContext: "notificationItem",
-  });
   const { captureEvent } = useTracking();
   const { history } = useNavigation();
-  const { LWPopper } = Components
   const notificationType = getNotificationTypeByName(notification.type);
 
   const notificationLink = (notificationType.getLink
@@ -83,35 +107,82 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     : notification.link
   );
 
-  const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview, PostNominatedNotification } = Components
-    const parsedPath = parseRouteWithErrors(notificationLink)
+  const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
+    const {
+      PostsTooltip, ConversationPreview, PostNominatedNotification,
+    } = Components;
 
     if (notificationType.onsiteHoverView) {
-      return <Card>
-        {notificationType.onsiteHoverView({notification})}
-      </Card>
-    } else if (notification.type == "postNominated") {
-      return <Card><PostNominatedNotification postId={notification.documentId}/></Card>
-    } else {
-      switch (notification.documentType) {
-        case 'tagRel':
-          return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
-        case 'post':
-          return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
-        case 'comment':
-          const postId = parsedPath?.params?._id
-          if (!postId) return null
-          return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
-        case 'message':
-          return <Card>
-            <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
-          </Card>
-        default:
-          return null
-      }
+      return (
+        <TooltipWrapper
+          title={notificationType.onsiteHoverView({notification})}
+          classes={classes}
+        >
+          {children}
+        </TooltipWrapper>
+      );
     }
-  }
+
+    if (notification.type == "postNominated") {
+      return (
+        <TooltipWrapper
+          title={<PostNominatedNotification postId={notification.documentId}/>}
+          classes={classes}
+        >
+          {children}
+        </TooltipWrapper>
+      );
+    }
+
+    const parsedPath = parseRouteWithErrors(notificationLink);
+    switch (notification.documentType) {
+      case "tagRel":
+        return (
+          <PostsTooltip tagRelId={notification.documentId} {...tooltipProps}>
+            {children}
+          </PostsTooltip>
+        );
+      case "post":
+        return (
+          <PostsTooltip postId={notification.documentId} {...tooltipProps}>
+            {children}
+          </PostsTooltip>
+        );
+      case "comment":
+        const postId = parsedPath?.params?._id;
+        return postId
+          ? (
+            <PostsTooltip
+              postId={postId}
+              commentId={notification.documentId}
+              {...tooltipProps}
+            >
+              {children}
+            </PostsTooltip>
+          )
+          : null;
+      case "message":
+        return (
+          <TooltipWrapper
+            title={
+              <ConversationPreview
+                conversationId={parsedPath?.params?._id}
+                currentUser={currentUser}
+              />
+            }
+            classes={classes}
+          >
+            {children}
+          </TooltipWrapper>
+        );
+      default:
+        break;
+    }
+
+    return (
+      <>{children}</>
+    );
+  }, [classes, currentUser, notification, notificationLink, notificationType]);
 
   const renderMessage = () => {
     const { TagRelNotificationItem } = Components
@@ -125,15 +196,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
   }
   
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="left-start"
-        allowOverflow
-      >
-        <span className={classes.preview}>{renderPreview()}</span>
-      </LWPopper>
+    <PreviewTooltip>
       <a
         href={notificationLink}
         className={classNames(
@@ -173,13 +236,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           }
         }}
       >
-      {notificationType.getIcon()}
-      <div className={classes.notificationLabel}>
-        {renderMessage()}
-      </div>
-    </a>
-    </span>
-  )
+        {notificationType.getIcon()}
+        <div className={classes.notificationLabel}>
+          {renderMessage()}
+        </div>
+      </a>
+    </PreviewTooltip>
+  );
 }
 
 const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
@@ -192,4 +255,3 @@ declare global {
     NotificationsItem: typeof NotificationsItemComponent
   }
 }
-

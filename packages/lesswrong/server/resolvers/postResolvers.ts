@@ -1,11 +1,10 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
-import { SideCommentsCache, SideCommentsResolverResult, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
+import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
-import { getDefaultPostLocationFields } from '../posts/utils'
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
@@ -13,9 +12,9 @@ import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
-import PostsRepo from '../repos/PostsRepo';
-import VotesRepo from '../repos/VotesRepo';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
+import { createPaginatedResolver } from './paginatedResolver';
+import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -73,6 +72,31 @@ augmentFieldsDict(Posts, {
       },
     }
   },
+  totalDialogueResponseCount: {
+    resolveAs: {
+      type: 'Int', 
+      resolver: (post, _, context) => {
+        if (!post.debate) return 0;
+        return getDialogueResponseIds(post).length
+      }
+    }
+  },
+  unreadDebateResponseCount: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post, _, context) => {
+        if (!post.collabEditorDialogue) return 0;
+
+        const lastReadStatus = await getLastReadStatus(post, context);
+        if (!lastReadStatus) return 0;
+
+        const messageTimestamps = getDialogueMessageTimestamps(post)
+        const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
+
+        return newMessageTimestamps.length ?? 0
+      }
+    }
+  },
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,
@@ -86,13 +110,13 @@ augmentFieldsDict(Posts, {
           && cache.generatedAt > post.contents?.editedAt
           && cache.version === sideCommentCacheVersion;
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
-        
+
         const now = new Date();
         const comments = await Comments.find({
           ...getDefaultViewSelector("Comments"),
           postId: post._id,
         }).fetch();
-        
+
         if (cacheIsValid) {
           unfilteredResult = {annotatedHtml: cache.annotatedHtml, commentsByBlock: cache.commentsByBlock};
         } else {
@@ -103,14 +127,14 @@ augmentFieldsDict(Posts, {
             html: html,
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
           });
-          
+
           const newCacheEntry = {
             version: sideCommentCacheVersion,
             generatedAt: now,
             annotatedHtml: sideCommentMatches.html,
             commentsByBlock: sideCommentMatches.sideCommentsByBlock,
           }
-          
+
           await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
@@ -129,7 +153,7 @@ augmentFieldsDict(Posts, {
         const commentsById = keyBy(comments, comment=>comment._id);
         let highKarmaCommentsByBlock: Record<string,string[]> = {};
         let nonnegativeKarmaCommentsByBlock: Record<string,string[]> = {};
-        
+
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
           const commentIdsHere = unfilteredResult.commentsByBlock[blockID];
           const highKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
@@ -146,7 +170,7 @@ augmentFieldsDict(Posts, {
           if (highKarmaCommentIdsHere.length > 0) {
             highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
           }
-          
+
           const nonnegativeKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
             const comment: DbComment = commentsById[commentId];
             if (!comment)
@@ -162,7 +186,7 @@ augmentFieldsDict(Posts, {
             nonnegativeKarmaCommentsByBlock[blockID] = nonnegativeKarmaCommentIdsHere;
           }
         }
-        
+
         return {
           html: unfilteredResult.annotatedHtml,
           commentsByBlock: nonnegativeKarmaCommentsByBlock,
@@ -183,13 +207,12 @@ export type PostIsCriticismRequest = {
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      const { currentUser } = context
+      const { currentUser, repos } = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read history')
       }
-      
-      const postsRepo = new PostsRepo()
-      const posts = await postsRepo.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
+
+      const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
       return {
         posts: posts,
       }
@@ -199,30 +222,29 @@ addGraphQLResolvers({
       if (!currentUser) {
         throw new Error('Must be logged in to check post')
       }
-            
+
       return await postIsCriticism(args)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
-      const { currentUser } = context
+      const { currentUser, repos } = context
       if (!currentUser || !currentUser.isAdmin) {
         throw new Error('Permission denied')
       }
-      const postsRepo = new PostsRepo()
-      const eligiblePosts = await postsRepo.getEligiblePostsForDigest(digestId, startDate, endDate)
+      const eligiblePosts = await repos.posts.getEligiblePostsForDigest(digestId, startDate, endDate)
       if (!eligiblePosts.length) return []
 
       // TODO: finish implementing this once we figure out what to do with it
       // const votesRepo = new VotesRepo()
       // const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
       // console.log('DigestPlannerData votes', votes)
-      
+
       return eligiblePosts.map(post => {
         // const postVotes = votes.find(v => v.postId === post._id)
         // const rating = postVotes ?
         //   Math.round(
         //     ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
         //   ) : 0
-        
+
         return {
           post,
           digestPost: {
@@ -253,3 +275,45 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+createPaginatedResolver({
+  name: "DigestHighlights",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => context.repos.posts.getDigestHighlights({limit}),
+});
+
+createPaginatedResolver({
+  name: "DigestPostsThisWeek",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => context.repos.posts.getTopWeeklyDigestPosts(limit),
+  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+});
+
+createPaginatedResolver({
+  name: "CuratedAndPopularThisWeek",
+  graphQLType: "Post",
+  callback: async (
+    {repos, currentUser}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => repos.posts.getCuratedAndPopularPosts({
+    currentUser,
+    limit,
+  }),
+  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+});
+
+createPaginatedResolver({
+  name: "RecentlyActiveDialogues",
+  graphQLType: "Post",
+  callback: async (
+    {repos}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => repos.posts.getRecentlyActiveDialogues(limit),
+  cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
+});

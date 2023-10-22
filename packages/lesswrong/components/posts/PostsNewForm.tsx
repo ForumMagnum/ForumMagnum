@@ -91,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
-      ...(isFriendlyUI && {width: "100%"})
+      width: "100%"
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -114,7 +114,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 20
   },
   editorGuideOffset: {
-    paddingTop: 100,
+    paddingTop: isLW ? 80 : 100,
   },
   editorGuide: {
     display: 'flex',
@@ -169,7 +169,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (

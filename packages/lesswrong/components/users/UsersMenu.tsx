@@ -1,9 +1,9 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
-import { userHasThemePicker } from '../../lib/betas';
+import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
@@ -16,7 +16,7 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
-import postSchema from '../../lib/collections/posts/schema';
+import postSchema, { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
@@ -146,6 +146,10 @@ const UsersMenu = ({classes}: {
     icon="Email"
     iconClassName={classes.icon}
   />
+  
+  const canCreateDialogue = userCanPost(currentUser)
+    && dialoguesEnabled
+    && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -183,13 +187,10 @@ const UsersMenu = ({classes}: {
                     to="/newPost"
                   />
                 }
-                {userCanPost(currentUser) &&
-                    // TODO: make hasDialogs beta setting
-                    !isLWorAF &&
-                    userCanCreateField(currentUser, postSchema['debate']) &&
+                {canCreateDialogue &&
                   <DropdownItem
                     title={preferredHeadingCase("New Dialogue")}
-                    to="/newpost?debate=true"
+                    onClick={() => openDialog({componentName:"NewDialogueDialog"})}
                   />
                 }
               </div>

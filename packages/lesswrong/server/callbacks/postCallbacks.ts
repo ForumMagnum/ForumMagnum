@@ -98,17 +98,16 @@ getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(v
 });
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
-  if (data.draft === false && post.draft) {
-    data = postsSetPostedAt(data);
+  // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
+  // If the post has previously been published then moved to drafts, and now
+  // it's being republished then we shouldn't reset the `postedAt` date.
+  const isRepublish = post.wasEverUndrafted || data.wasEverUndrafted;
+  if (data.draft === false && post.draft && !isRepublish) {
+    data.postedAt = new Date();
+    data.wasEverUndrafted = true;
   }
   return data;
 });
-
-// set postedAt when a post is moved out of drafts
-function postsSetPostedAt (data: Partial<DbPost>) {
-  data.postedAt = new Date();
-  return data;
-}
 
 voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {

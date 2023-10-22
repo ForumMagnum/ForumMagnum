@@ -61,7 +61,7 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, LoginToTrack } = Components;
+  const { LWTooltip, PostsTooltip, LoginToTrack } = Components;
 
   const { postsRead: clientPostsRead } = useItemsRead();
 
@@ -84,12 +84,12 @@ const BooksProgressBar = ({ book, classes }: {
     <div className={classes.bookProgress}>
       {
         bookPosts.map(post => (
-          <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+          <PostsTooltip post={post} key={post._id}>
             <Link to={postGetPageUrl(post)}>
               <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
             </Link>
-          </LWTooltip>
-          ))
+          </PostsTooltip>
+        ))
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>

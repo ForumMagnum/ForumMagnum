@@ -21,33 +21,11 @@ import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import type { ContentItemBody } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
 export const faintHighlightClassName = "dashed-highlighted-substring";
-export const lwReactStyles = (theme: ThemeType): JssStyles => ({
-    '&:hover .react-hover-style': {
-      filter: "opacity(0.8)",
-    },
-    // mark.js applies a default highlight of yellow background and black text. 
-    // we need to override to apply our own themes, and avoid being unreadable in dark mode
-    [`& .${faintHighlightClassName}`]: {
-      backgroundColor: "unset",
-      color: "unset",
-    },
-    [`& .${highlightSelectorClassName}`]: {
-      backgroundColor: theme.palette.background.primaryTranslucentHeavy,
-      color: "unset",
-    },
-    [`& .${dimHighlightClassName}`]: {
-      backgroundColor: theme.palette.grey[200],
-      color: "unset",
-    },
-    [`&:hover .${faintHighlightClassName}`]: {
-      borderBottom: theme.palette.border.dashed500,
-      color: "unset",
-    },
-  })
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -127,9 +105,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: {
-    fontSize: 12
-  },
+  pinnedIcon: isEAForum
+    ? {
+      width: 16,
+      height: 16,
+      padding: 1.5,
+    }
+    : {
+      fontSize: 12
+    },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
@@ -177,7 +161,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 3
   },
-  lwReactStyling: lwReactStyles(theme),
+  excerpt: {
+    marginBottom: 8,
+  },
 });
 
 /**
@@ -185,7 +171,27 @@ const styles = (theme: ThemeType): JssStyles => ({
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, collapsed, isParentComment, parentCommentId, scrollIntoView, toggleCollapse, setSingleLine, truncated, showPinnedOnProfile, parentAnswerId, enableGuidelines=true, showParentDefault=false, displayTagIcon=false, classes }: {
+export const CommentsItem = ({
+  treeOptions,
+  comment,
+  nestingLevel=1,
+  isChild,
+  collapsed,
+  isParentComment,
+  parentCommentId,
+  scrollIntoView,
+  toggleCollapse,
+  setSingleLine,
+  truncated,
+  showPinnedOnProfile,
+  parentAnswerId,
+  enableGuidelines=true,
+  showParentDefault=false,
+  displayTagIcon=false,
+  excerptLines,
+  className,
+  classes,
+}: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
   nestingLevel: number,
@@ -202,20 +208,21 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
   displayTagIcon?: boolean,
+  excerptLines?: number,
+  className?: string,
   classes: ClassesType,
 }) => {
-  const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [showReplyState, setShowReplyState] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
-  const [commentBodyHighlights, setCommentBodyHighlights] = useState<string[]>([]);
   const isMinimalist = treeOptions.replyFormStyle === "minimalist"
   const now = useCurrentTime();
   const currentUser = useCurrentUser();
 
   const {
     postPage, tag, post, refetch, hideReply, showPostTitle, hideReviewVoteButtons,
-    moderatedCommentId,
+    moderatedCommentId, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const showCommentTitle = !!(commentAllowTitle(comment) && comment.title && !comment.deleted && !showEditState)
@@ -262,13 +269,21 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         successCallback={editSuccessCallback}
         cancelCallback={editCancelCallback}
       />
+    } else if (excerptLines) {
+      return <Components.CommentExcerpt
+        comment={comment}
+        lines={excerptLines}
+        className={classes.excerpt}
+      />
     } else {
-      return (<div ref={commentItemRef}>
-        <Components.CommentBody truncated={truncated} collapsed={collapsed} comment={comment} postPage={postPage}     
-          commentBodyHighlights={commentBodyHighlights} commentItemRef={commentItemRef} voteProps={voteProps}
-        />
-      </div>
-      );
+      return <Components.CommentBody
+        commentBodyRef={commentBodyRef}
+        truncated={truncated}
+        collapsed={collapsed}
+        comment={comment}
+        postPage={postPage}
+        voteProps={voteProps}
+      />
     }
   }
 
@@ -310,7 +325,7 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
           hideKarma={post?.hideCommentKarma}
           collection={Comments}
           votingSystem={votingSystem}
-          commentItemRef={commentItemRef}
+          commentBodyRef={commentBodyRef}
           voteProps={voteProps}
         />}
       </div>
@@ -339,10 +354,11 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
   }
 
   const {
-    CommentDiscussionIcon, LWTooltip, PostsPreviewTooltipSingle, ReviewVotingWidget,
-    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay
-  } = Components
-  
+    CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
+    LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
+    HoveredReactionContextProvider,
+  } = Components;
+
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
@@ -359,8 +375,10 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
+    <HoveredReactionContextProvider>
       <div className={classNames(
         classes.root,
+        className,
         "recent-comments-node",
         {
           [classes.deleted]: comment.deleted && !comment.deletedPublic,
@@ -376,6 +394,9 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
               nestingLevel={nestingLevel - 1}
               truncated={showParentDefault}
               key={comment.parentCommentId}
+              treeOptions={{
+                hideParentCommentToggleForTopLevel,
+              }}
             />
           </div> 
         )}
@@ -385,17 +406,17 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
             <Components.ForumIcon icon="Pin" className={classes.pinnedIcon} />
           </div>}
           {moderatedCommentId === comment._id && <FlagIcon className={classes.flagIcon} />}
-          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+          {showPostTitle && !isChild && hasPostField(comment) && comment.post && <PostsTooltip inlineBlock postId={comment.postId}>
               <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                 {comment.post.draft && "[Draft] "}
                 {comment.post.title}
               </Link>
-            </LWTooltip>}
+            </PostsTooltip>}
           {showPostTitle && !isChild && hasTagField(comment) && comment.tag && <Link className={classes.postTitle} to={tagGetCommentLink({tagSlug: comment.tag.slug, tagCommentType: comment.tagCommentType})}>
             {startCase(comment.tag.name)}
           </Link>}
         </div>
-        <div className={classNames(classes.body, classes.lwReactStyling)}>
+        <div className={classNames(classes.body)}>
           {showCommentTitle && <div className={classes.title}>
             {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
               <CoreTagIcon tag={tag} />
@@ -439,13 +460,16 @@ export const CommentsItem = ({ treeOptions, comment, nestingLevel=1, isChild, co
         </div>}
         { showReplyState && !collapsed && renderReply() }
       </div>
+    </HoveredReactionContextProvider>
     </AnalyticsContext>
   )
 }
 
 const CommentsItemComponent = registerComponent(
   'CommentsItem', CommentsItem, {
-    styles, hocs: [withErrorBoundary],
+    styles,
+    stylePriority: -1,
+    hocs: [withErrorBoundary],
     areEqual: {
       treeOptions: "shallow",
     },

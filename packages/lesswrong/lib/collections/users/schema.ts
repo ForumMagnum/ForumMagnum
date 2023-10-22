@@ -16,7 +16,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { dialoguesEnabled } from '../../betas';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -167,6 +167,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  quickTakesCommunity: {type: Boolean, optional: true, nullable: true},
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
@@ -1071,7 +1072,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'UsersListEditor'
+    control: 'FormUsersListEditor'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1088,7 +1089,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'UsersListEditor',
+    control: 'FormUsersListEditor',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {
@@ -1372,13 +1373,23 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
-  notificationDebateCommentsOnSubscribedPost: {
+  notificationDialogueMessages: {
+    label: "New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField({ channel: "both"})
+  },
+  notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
+    ...notificationTypeSettingsField()
+  },
+  //TODO: clean up old dialogue implementation notifications
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
   },
   notificationDebateReplies: {
-    label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField()
+    label: "[Old Style] New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
   },
 
   // Karma-change notifier settings

@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
@@ -65,36 +64,31 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
   wrap?: boolean,
   widerSpacing?: boolean
 }) => {
-  const {
-    LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, KarmaDisplay,
-  } = Components;
-  const { eventHandlers, hover, anchorEl } = useHover();
-
-  return <span {...eventHandlers}>
+  const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
+  return (
     <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
-      <LWPopper 
-        open={hover} 
-        anchorEl={anchorEl} 
-        placement="left-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post}/>
-      </LWPopper>
-      <div className={classes.post}>
-        {!hideMeta && <MetaInfo className={classes.karma}>
-          <KarmaDisplay document={post} placement="right" />
-        </MetaInfo>}
-        <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
-          {post.title}
-        </Link>
-        {!hideMeta && post.user && <MetaInfo className={classes.author}>
-          <UsersName user={post.user} />
-        </MetaInfo>}
-
-
-      </div>
+      <PostsTooltip post={post} clickable placement="left-start">
+        <div className={classes.post}>
+          {!hideMeta &&
+            <MetaInfo className={classes.karma}>
+              <KarmaDisplay document={post} placement="right" />
+            </MetaInfo>
+          }
+          <Link
+            to={postGetPageUrl(post)}
+            className={classNames(classes.title, {[classes.wrap]: wrap})}
+          >
+            {post.title}
+          </Link>
+          {!hideMeta && post.user &&
+            <MetaInfo className={classes.author}>
+              <UsersName user={post.user} />
+            </MetaInfo>
+          }
+        </div>
+      </PostsTooltip>
     </div>
-  </span>
+  );
 }
 
 const TagSmallPostLinkComponent = registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
@@ -104,4 +98,3 @@ declare global {
     TagSmallPostLink: typeof TagSmallPostLinkComponent
   }
 }
-

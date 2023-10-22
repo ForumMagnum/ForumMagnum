@@ -33,7 +33,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
-    ApproveNewUserDropdownItem, SharePostSubmenu
+    ApproveNewUserDropdownItem, SharePostSubmenu, ResyncRssDropdownItem
   } = Components;
 
 
@@ -53,7 +53,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   return (
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
-      {isBookUI && shareButtonSetting.get() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
+      <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
+      {isBookUI && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem
@@ -77,10 +78,10 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       />
       <NotifyMeDropdownItem
         document={post}
-        enabled={!!post.debate}
+        enabled={!!post.collabEditorDialogue}
         subscribeMessage="Subscribe to dialogue"
         unsubscribeMessage="Unsubscribe from dialogue"
-        subscriptionType={subscriptionTypes.newDebateComments}
+        subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
         tooltip="Notifies you when there is new activity in the dialogue"
       />
       <NotifyMeDropdownItem

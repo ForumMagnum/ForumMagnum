@@ -79,7 +79,7 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
+const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, showHeading, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
   children: React.ReactNode
   label?: string
   heading: React.ReactNode
@@ -87,6 +87,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
   collapsed: boolean
   hasErrors: boolean
   groupStyling: any
+  showHeading?: boolean,
   paddingStyling: any
   flexStyle: any
   flexAlignTopStyle: any
@@ -103,7 +104,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
       className={classNames(
         {
           [classes.formSectionCollapsed]: collapsed && !hasErrors,
-          [classes.formSectionBody]: groupStyling,
+          [classes.formSectionBody]: groupStyling && showHeading,
           [classes.flex]: flexStyle,
           [classes.flexAlignTop]: flexAlignTopStyle,
           [classes.formSectionPadding]: groupStyling,
@@ -191,17 +192,19 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, hideHeader, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
+    const showHeading = groupStyling && !hideHeader
 
     return (
       <FormComponents.FormGroupLayout
         label={label}
         toggle={this.toggle}
         collapsed={collapsed}
-        heading={groupStyling ? this.renderHeading(FormComponents) : null}
+        heading={showHeading ? this.renderHeading(FormComponents) : null}
+        showHeading={showHeading}
         footer={this.state.footerContent}
         groupStyling={groupStyling}
         paddingStyling={paddingStyle}
