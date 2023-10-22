@@ -5,7 +5,7 @@ import { RefinementListExposed, RefinementListProvided, SearchState } from 'reac
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
 import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -24,7 +24,6 @@ import {
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 import { communityPath } from '../../lib/routes';
-import { showCommunityMapSetting } from '../../lib/publicSettings';
 
 const hitsPerPage = 10
 
@@ -427,7 +426,7 @@ const SearchPageTabbed = ({classes}:{
         />}
         <ClearRefinements />
 
-        {tab === 'Users' && showCommunityMapSetting.get() && <div className={classes.mapLink}>
+        {tab === 'Users' && isEAForum && <div className={classes.mapLink}>
           <Link to={`${communityPath}#individuals`}>View community map</Link>
         </div>}
 

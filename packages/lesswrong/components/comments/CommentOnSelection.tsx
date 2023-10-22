@@ -4,7 +4,7 @@ import CommentIcon from '@material-ui/icons/ModeComment';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
-import { hasCommentOnSelectionSetting } from '../../lib/publicSettings';
+import { hasSideComments } from '../../lib/betas';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
   toolbar: {
@@ -22,7 +22,7 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: hasCommentOnSelectionSetting.get() ? "none" : "initial",
+      display: hasSideComments ? "none" : "initial",
     },
   },
 });
@@ -188,7 +188,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
     }
   }, [onClickComment]);
   
-  if (!hasCommentOnSelectionSetting.get()) {
+  if (!hasSideComments) {
     return <>{children}</>;
   }
   

@@ -14,7 +14,7 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { hasLogoSetting } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -313,7 +313,7 @@ const Header = ({
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -321,7 +321,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

@@ -195,3 +195,11 @@ export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+// TODO; add to PR
+/** Whether this forum verifies user emails */
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+
+// TODO; add to PR
+/** main theme color, needed here for server/emails/renderEmail */
+export const mainThemeColorSetting = new PublicInstanceSetting<string>("mainThemeColor", "#5f9b65", "optional");

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { hasDigestSetting } from '../../lib/publicSettings';
+import { hasDigests } from '../../lib/betas';
 
 // Also used in ModerationLog
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -59,7 +59,7 @@ const AdminHome = ({ classes }: {
 
       <h3>Site Admin</h3>
       <ul>
-        {hasDigestSetting.get() && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
+        {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>

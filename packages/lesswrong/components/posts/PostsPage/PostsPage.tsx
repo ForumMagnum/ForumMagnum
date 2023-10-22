@@ -10,7 +10,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, userHasSideComments } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -448,7 +448,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   
   const isOldVersion = query.revision && post.contents;
   
-  const defaultSideCommentVisibility = userHasSideComments(currentUser)
+  const defaultSideCommentVisibility = hasSideComments
     ? (post.sideCommentVisibility ?? "highKarma")
     : "hidden";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);

@@ -182,7 +182,7 @@ export type ForumIconName =
   "Q" |
   "BarChart";
 
-const ICONS: ForumOptions<Partial<Record<ForumIconName, IconComponent>>> = {
+const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
     VolumeUp: MuiVolumeUpIcon,
     BookOpen: BookOpenIcon,

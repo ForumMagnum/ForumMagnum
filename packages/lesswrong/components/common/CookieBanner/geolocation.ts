@@ -119,7 +119,7 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
 }
 
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
-  if (!hasCookieConsentSetting) return false;
+  if (!hasCookieConsentSetting.get()) return false;
   if (isServer) return "unknown";
 
   const cachedCountryCode = getCachedUserCountryCode();
@@ -130,7 +130,7 @@ export function getExplicitConsentRequiredSync(): boolean | "unknown" {
 }
 
 export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unknown"> {
-  if (!hasCookieConsentSetting) return false;
+  if (!hasCookieConsentSetting.get()) return false;
   if (isServer) return "unknown";
 
   const controller = new AbortController();

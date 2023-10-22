@@ -34,7 +34,7 @@ const ConfigurableRecommendationsList = ({configName}: {
           {archiveRecommendationsName}
         </Link>
       </LWTooltip>}
-    >zzz
+    >
       {isLW && <SettingsButton onClick={toggleSettings}/>}
     </SectionTitle>
     { settingsVisible &&

@@ -7,13 +7,13 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
-import { isEAForum, isLW } from '../../../lib/instanceSettings';
+import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
 import { useCurrentUser } from '../../common/withUser';
 import classNames from 'classnames';
 import { communityPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { communityNameSetting } from '../../../lib/publicSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -193,11 +193,16 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   
   if (!eventCards.length) {
     // link to the Community page when there are no events to show
+    const communityName = forumSelect({
+      EAForum: "EA Community",
+      LessWrong: "LessWrong Community",
+      default: "Community",
+    })
     return <div className={classes.noResults}>
       <div className={classes.noResultsText}>No upcoming events matching your search</div>
       <div className={classes.noResultsCTA}>
         <Link to={communityPath} className={classes.communityLink}>
-          Explore the {communityNameSetting.get()}
+          Explore the {communityName}
         </Link>
       </div>
     </div>

@@ -123,34 +123,10 @@ export type CurrentEventHeader = {
 
 export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader | null>("currentEventHeader", null);
 
-/** TODO; doc */
-export const hasDigestSetting = new DatabasePublicSetting<boolean>("hasDigest", false);
+/** Will we show our logo prominently, such as in the header */
+export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasLogo", false);
 
-/** TODO; doc */
-export const hasCommentOnSelectionSetting = new DatabasePublicSetting<boolean>("hasCommentOnSelection", true);
-
-/** TODO; doc */
-export const hasLogoSetting = new DatabasePublicSetting<boolean>("hasLogo", false);
-
-/** TODO; doc */
-export const communityNameSetting = new DatabasePublicSetting<String>("communityName", 'Community');
-
-/** TODO; doc */
+/** Has curated posts */
 export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurated", false);
-
-/** TODO; doc */
-export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showCommunityMap", false);
-
-/** Whether to include a Share button. (Forums with no public access wouldn't want one.) */
-export const hasShareButtonSetting = new DatabasePublicSetting<boolean>("hasShareButton", true);
-
-// TODO: make this an instance setting if JP confirms that makes sense, because
-// we'd need it in collections/users/schema and server/emails/renderEmail
-/** whether this forum verifies user emails */
-export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEmails", true);
-
-// TODO: make this an instance setting if JP confirms that makes sense
-// /** main theme color, needed here for server/emails/renderEmail */
-// export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)

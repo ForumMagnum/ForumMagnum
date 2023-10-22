@@ -35,8 +35,6 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
-export const userHasSideComments = isEAForum ? disabled : shippedFeature;
-
 export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 
 export const userHasCommentProfileImages = disabled;
@@ -50,7 +48,11 @@ export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabl
 // Non-user-specific features
 export const dialoguesEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = isLWorAF;
+/** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
+/** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
+export const hasDigests = isEAForum;
+export const hasSideComments = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
