@@ -2,11 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useCallback, useState} from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { PostCategory } from '../../lib/collections/posts/helpers';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

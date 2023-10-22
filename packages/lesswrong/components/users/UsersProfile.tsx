@@ -22,8 +22,8 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { getUserStructuredData } from './UsersSingle';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,

@@ -7,7 +7,8 @@ import qs from 'qs'
 import { isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({

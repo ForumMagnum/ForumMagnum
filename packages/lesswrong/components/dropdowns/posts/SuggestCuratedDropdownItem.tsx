@@ -5,7 +5,8 @@ import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions
 import { useCurrentUser } from '../../common/withUser';
 import { clone, without } from 'underscore';
 import { isAF } from '../../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

@@ -10,10 +10,11 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { timeframes as defaultTimeframes } from './AllPostsPage'
-import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 

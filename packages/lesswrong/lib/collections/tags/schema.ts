@@ -13,9 +13,9 @@ import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
-import { preferredHeadingCase } from '../../forumTypeUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 addGraphQLSchema(`
   type TagContributor {

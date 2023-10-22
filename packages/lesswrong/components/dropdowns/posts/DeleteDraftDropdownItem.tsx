@@ -3,7 +3,8 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const DeleteDraftDropdownItem = ({ post }: {
   post: PostsBase

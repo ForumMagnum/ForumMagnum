@@ -2,8 +2,9 @@ import React, { useCallback } from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { useCurrentUser } from "../../common/withUser";
-import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 
 const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();

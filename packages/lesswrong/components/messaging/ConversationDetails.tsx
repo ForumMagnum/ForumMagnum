@@ -1,7 +1,8 @@
 import React from 'react';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -55,4 +56,3 @@ declare global {
     ConversationDetails: typeof ConversationDetailsComponent
   }
 }
-

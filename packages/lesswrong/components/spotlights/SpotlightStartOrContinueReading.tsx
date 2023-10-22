@@ -5,8 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   boxesRoot: {

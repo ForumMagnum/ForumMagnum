@@ -5,9 +5,9 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 

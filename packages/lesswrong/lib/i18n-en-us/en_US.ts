@@ -1,4 +1,5 @@
-import { preferredHeadingCase } from '../forumTypeUtils';
+
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { addStrings } from '../vulcan-lib';
 
 // Example Forum default strings

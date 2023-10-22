@@ -3,7 +3,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import sortBy from 'lodash/sortBy';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -176,4 +177,3 @@ declare global {
     ReviewQuickPage: typeof ReviewQuickPageComponent
   }
 }
-

@@ -9,7 +9,8 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

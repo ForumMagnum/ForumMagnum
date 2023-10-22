@@ -16,7 +16,7 @@ import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 import { communityPath, getAllTagsPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
+
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // EA Forum menu icons
@@ -35,6 +35,8 @@ import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in

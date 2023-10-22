@@ -5,8 +5,8 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

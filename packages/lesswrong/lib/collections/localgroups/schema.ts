@@ -3,8 +3,7 @@ import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocati
 import { localGroupTypeFormOptions } from './groupTypes';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { isEAForum, isLW } from '../../instanceSettings';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { preferredHeadingCase } from '../../forumTypeUtils';
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},

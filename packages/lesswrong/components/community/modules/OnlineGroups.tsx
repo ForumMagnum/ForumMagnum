@@ -6,8 +6,8 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {

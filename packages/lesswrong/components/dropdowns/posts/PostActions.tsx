@@ -4,7 +4,6 @@ import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { shareButtonSetting } from '../../../lib/instanceSettings';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy

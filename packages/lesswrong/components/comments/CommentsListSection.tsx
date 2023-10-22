@@ -14,8 +14,8 @@ import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 

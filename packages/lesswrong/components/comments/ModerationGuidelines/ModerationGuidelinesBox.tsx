@@ -11,7 +11,8 @@ import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

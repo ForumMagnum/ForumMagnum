@@ -21,7 +21,9 @@ import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { forumSelect } from '../../lib/forumTypeUtils';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
@@ -286,7 +288,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { thresholds.map(t => t.toString()).map(threshold =>
+                { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
                   <FormControlLabel
                     control={<Radio />}
                     label={threshold}

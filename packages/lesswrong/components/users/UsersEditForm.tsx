@@ -11,7 +11,8 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

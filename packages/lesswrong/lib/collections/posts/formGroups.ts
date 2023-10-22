@@ -1,4 +1,4 @@
-import { preferredHeadingCase } from "../../forumTypeUtils";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
 const isEAForum = forumTypeSetting.get() === "EAForum";

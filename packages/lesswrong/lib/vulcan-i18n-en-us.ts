@@ -1,4 +1,4 @@
-import { preferredHeadingCase } from './forumTypeUtils';
+import { preferredHeadingCase } from '../themes/forumTheme';
 import { addStrings } from './vulcan-lib';
 
 addStrings('en', {

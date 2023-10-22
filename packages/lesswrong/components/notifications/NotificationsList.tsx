@@ -3,8 +3,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -89,4 +89,3 @@ declare global {
     NotificationsList: typeof NotificationsListComponent
   }
 }
-

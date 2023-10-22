@@ -5,9 +5,9 @@ import classNames from 'classnames';
 import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { withTimezone } from '../common/withTimezone';
 import * as _ from 'underscore';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {

@@ -3,10 +3,10 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+
 import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -89,5 +89,3 @@ declare global {
     SharePostActions: typeof SharePostActionsComponent
   }
 }
-
-

@@ -19,7 +19,8 @@ import qs from 'qs';
 import { Link } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'

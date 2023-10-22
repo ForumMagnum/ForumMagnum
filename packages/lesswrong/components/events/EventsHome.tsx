@@ -21,8 +21,8 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {

@@ -1,5 +1,4 @@
-import { isFriendlyUI } from "../../../themes/forumTheme";
-import { preferredHeadingCase } from "../../forumTypeUtils";
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 
 export const formGroups: Partial<Record<string, FormGroupType>> = {
   default: {

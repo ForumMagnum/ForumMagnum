@@ -8,8 +8,8 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
@@ -50,7 +50,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isEAForum
+      {isFriendlyUI
         ? "Continue reading"
         : `(Continue Reading – ${wordsLeft} more words)`
       }

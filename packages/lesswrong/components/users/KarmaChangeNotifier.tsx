@@ -13,9 +13,9 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

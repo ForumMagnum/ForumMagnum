@@ -16,11 +16,10 @@ import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
-import postSchema, { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
+import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
