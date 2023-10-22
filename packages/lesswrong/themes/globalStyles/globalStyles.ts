@@ -222,9 +222,8 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   },
   
   '.dialogue-message': {
-    'border-left': '2px solid',
     'margin-top': 6,
-    padding: '22px 8px 8px 16px',
+    padding: '22px 8px 8px 0px',
     position: 'relative'
   },
   
@@ -232,29 +231,29 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     'margin-bottom': '0px !important'
   },
   
-  '.dialogue-message[user-order="1"], .dialogue-message-input[user-order="1"]': {
-    'border-color': `${theme.palette.border.debateComment} !important`
+  '.dialogue-message[user-order="1"] .dialogue-message-header, .dialogue-message-input[user-order="1"] .dialogue-message-input-header': {
+    'color': `${theme.palette.text.debateComment} !important`
   },
   
-  '.dialogue-message[user-order="2"], .dialogue-message-input[user-order="2"]': {
-    'border-color': `${theme.palette.border.debateComment2} !important`
+  '.dialogue-message[user-order="2"] .dialogue-message-header, .dialogue-message-input[user-order="2"] .dialogue-message-input-header': {
+    'color': `${theme.palette.text.debateComment2} !important`
   },
   
-  '.dialogue-message[user-order="3"], .dialogue-message-input[user-order="3"]': {
-    'border-color': `${theme.palette.border.debateComment3} !important`
+  '.dialogue-message[user-order="3"] .dialogue-message-header, .dialogue-message-input[user-order="3"] .dialogue-message-input-header': {
+    'color': `${theme.palette.text.debateComment3} !important`
   },
   
-  '.dialogue-message[user-order="4"], .dialogue-message-input[user-order="4"]': {
-    'border-color': `${theme.palette.border.debateComment4} !important`
+  '.dialogue-message[user-order="4"] .dialogue-message-header, .dialogue-message-input[user-order="4"] .dialogue-message-input-header': {
+    'color': `${theme.palette.text.debateComment4} !important`
   },
   
-  '.dialogue-message[user-order="5"], .dialogue-message-input[user-order="5"]': {
-    'border-color': `${theme.palette.border.debateComment5} !important`
+  '.dialogue-message[user-order="5"] .dialogue-message-header, .dialogue-message-input[user-order="5"] .dialogue-message-input-header': {
+    'color': `${theme.palette.text.debateComment5} !important`
   },
   
   '.dialogue-message-header': {
     position: 'absolute',
-    top: 3
+    top: 0
   }
 });
 
