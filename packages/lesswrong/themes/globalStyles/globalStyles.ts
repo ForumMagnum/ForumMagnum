@@ -254,6 +254,10 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   '.dialogue-message-header': {
     position: 'absolute',
     top: 0
+  },
+
+  '.dialogue-message-header b': {
+    fontWeight: 600,
   }
 });
 

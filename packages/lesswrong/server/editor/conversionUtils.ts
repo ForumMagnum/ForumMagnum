@@ -156,9 +156,9 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
     const userId = $(element).attr('user-id');
     if (userId && userDisplayNamesById[userId]) {
       $(element)
-        .append(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"></section>`)
-        .find('.dialogue-message-header')
-        .text(userDisplayNamesById[userId]);
+        .prepend(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"><b></b></section>`)
+        .find('.dialogue-message-header b')
+        .text(userDisplayNamesById[userId])
     }
   });
 
