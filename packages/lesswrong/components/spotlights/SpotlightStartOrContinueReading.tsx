@@ -6,8 +6,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
-import { isEAForum } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: isEAForum ? 13 : "1.1rem",
+    fontSize: isFriendlyUI ? 13 : "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,

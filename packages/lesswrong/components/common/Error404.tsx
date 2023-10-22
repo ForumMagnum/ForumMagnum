@@ -1,11 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : theme.palette.fonts.serifStack,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.palette.fonts.serifStack,
   },
 });
 

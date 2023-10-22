@@ -18,7 +18,7 @@ import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -183,7 +183,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (isEAForum && !userEmailAddressIsVerified(currentUser)) {
+    if (!isLWorAF && !userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -265,7 +265,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         open={open}
         onClose={onClose}
       >
-        {!isEAForum && <Tabs
+        {isLWorAF && <Tabs
           value={method}
           indicatorColor="primary"
           textColor="primary"

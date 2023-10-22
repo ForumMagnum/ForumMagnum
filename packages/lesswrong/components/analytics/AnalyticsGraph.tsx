@@ -8,7 +8,6 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 
 const GRAPH_HEIGHT = 300;

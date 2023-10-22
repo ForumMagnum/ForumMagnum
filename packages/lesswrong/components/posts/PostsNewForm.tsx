@@ -7,7 +7,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -17,7 +17,6 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -315,7 +314,7 @@ const PostsNewForm = ({classes}: {
                     history.push(postGetEditUrl(post._id));
                   } else {
                     // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = isEAForum && !post.draft
+                    const showSharePopup = !isLWorAF && !post.draft
                     const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                     const url  = postGetPageUrl(post);
                     history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})

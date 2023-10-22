@@ -16,7 +16,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { dialoguesEnabled } from '../../betas';
+import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 ///////////////////////////////////////
@@ -839,7 +839,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
-    hidden: !isEAForum,
+    hidden: !hasPostRecommendations,
     group: formGroups.siteCustomizations,
     defaultValue: false,
     canRead: ["guests"],

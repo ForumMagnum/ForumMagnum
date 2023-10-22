@@ -1,4 +1,10 @@
 import React from 'react';
+import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -7,17 +13,12 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-
 import Home from '@material-ui/icons/Home'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
-import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // EA Forum menu icons
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
@@ -34,9 +35,6 @@ import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
-import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
-import { ForumOptions } from '../../../lib/forumTypeUtils';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in

@@ -10,6 +10,7 @@ import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, g
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
+import { hasPostRecommendations } from './betas';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -1336,7 +1337,7 @@ addRoute(
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name:'posts.slug.single',
@@ -1346,7 +1347,7 @@ addRoute(
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name: 'posts.revisioncompare',

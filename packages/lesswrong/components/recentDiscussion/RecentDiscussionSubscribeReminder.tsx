@@ -13,8 +13,9 @@ import MailOutline from '@material-ui/icons/MailOutline'
 import CheckRounded from '@material-ui/icons/CheckRounded'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW } from '../../lib/instanceSettings';
+import { forumTitleSetting, forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@material-ui/core/TextField';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
@@ -23,10 +24,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    backgroundColor: isEAForum
+    backgroundColor: isFriendlyUI
       ? theme.palette.grey[0]
       : theme.palette.panelBackground.recentDiscussionThread,
-    border: isEAForum ? `1px solid ${theme.palette.grey[200]}` : undefined,
+    border: isFriendlyUI ? `1px solid ${theme.palette.grey[200]}` : undefined,
 
     padding: 16,
     ...theme.typography.body2,
@@ -144,7 +145,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     if (adminBranch === -1 && currentUser?.isAdmin) {
       // EA Forum only has 4 branches, LW has 5. Fortunately LW's extra branch
       // is the last one, so we can exclude it easily.
-      setAdminBranch(randInt(isEAForum ? 4 : 5));
+      setAdminBranch(randInt(!isLWorAF ? 4 : 5));
     }
   }, [adminBranch, currentUser?.isAdmin]);
 

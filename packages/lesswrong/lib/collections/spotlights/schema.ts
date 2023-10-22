@@ -3,7 +3,7 @@ import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
-import { isEAForum } from "../../instanceSettings";
+import { isLWorAF } from "../../instanceSettings";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
 
@@ -225,7 +225,7 @@ const schema: SchemaType<DbSpotlight> = {
     // we're not using schemaDefaultValue because we can't use forumType
     // conditionals without breaking schema hash logic
     defaultValue: true,
-    onCreate: ({document}) => document.imageFade ?? (isEAForum ? true : false),
+    onCreate: ({document}) => document.imageFade ?? (isLWorAF ? false : true),
     canAutofillDefault: true,
   },
   spotlightImageId: {

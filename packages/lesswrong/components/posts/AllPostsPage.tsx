@@ -5,7 +5,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 
 import Tooltip from '@material-ui/core/Tooltip';
@@ -92,7 +92,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
           >
             <div className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                {isEAForum ?
+                {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 }

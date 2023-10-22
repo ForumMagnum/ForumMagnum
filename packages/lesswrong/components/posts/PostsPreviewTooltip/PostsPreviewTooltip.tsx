@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Components } from "../../../lib/vulcan-lib";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 
 export type PostsPreviewTooltipProps = {
   postsList?: boolean,
@@ -10,6 +10,6 @@ export type PostsPreviewTooltipProps = {
 }
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>
-  isEAForum
+  isFriendlyUI
     ? <Components.EAPostsPreviewTooltip {...props} />
     : <Components.LWPostsPreviewTooltip {...props} />;

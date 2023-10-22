@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const archiveRecommendationsName = isEAForum ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -108,8 +109,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label={isEAForum ? "Saved posts" : "Bookmarks"}
-          tooltip={`Posts that you have ${isEAForum ? "saved" : "bookmarked"} will appear in Recommendations.`}
+          label={isFriendlyUI ? "Saved posts" : "Bookmarks"}
+          tooltip={`Posts that you have ${isFriendlyUI ? "saved" : "bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}

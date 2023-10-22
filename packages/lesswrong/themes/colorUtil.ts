@@ -1,4 +1,4 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { isLWorAF } from "../lib/instanceSettings";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -63,9 +63,9 @@ export function colorToString(color: ColorTuple): string
 
 // HACK: Gamma here is tuned empirically for a visual result, not based on
 // anything principled.
-const GAMMA = isEAForum ? 1.24 : 1.5;
+const GAMMA = !isLWorAF ? 1.24 : 1.5;
 
-const applyInversionBias = isEAForum
+const applyInversionBias = !isLWorAF
   ? (color: number) => (0.92 * color) + 0.08
   : (color: number) => color;
 

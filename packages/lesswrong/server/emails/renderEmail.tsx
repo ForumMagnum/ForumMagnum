@@ -72,7 +72,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${isEAForum ? '#0C869B' : '#5f9b65' // TODO: make this an instance setting?}
+    color: ${isEAForum ? '#0C869B' : '#5f9b65' // TODO; make this an instance setting?
   }
   blockquote {
     border-left: solid 3px #e0e0e0;

@@ -22,7 +22,6 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
-import { isEAForum } from '../../../lib/instanceSettings';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -106,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: isEAForum
+  pinnedIcon: isFriendlyUI
     ? {
       width: 16,
       height: 16,

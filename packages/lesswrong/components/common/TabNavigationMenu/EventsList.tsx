@@ -1,10 +1,8 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
+import { isEAForum } from '../../../lib/instanceSettings';
 
 const EventsList = ({currentUser, onClick}: {
   currentUser: UsersCurrent | null,

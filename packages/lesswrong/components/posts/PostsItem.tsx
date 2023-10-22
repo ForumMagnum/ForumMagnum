@@ -1,4 +1,3 @@
-import { isEAForum } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { isFriendlyUI } from "../../themes/forumTheme";
 

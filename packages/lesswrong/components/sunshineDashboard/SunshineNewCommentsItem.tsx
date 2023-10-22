@@ -9,7 +9,7 @@ import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 interface SunshineNewCommentsItemProps extends WithHoverProps {
   updateComment: any,
@@ -63,7 +63,7 @@ const SunshineNewCommentsItem = ({comment}: {
               <Components.SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
               </Components.SidebarAction>
-              <Components.SidebarAction title={`Spam${isEAForum ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+              <Components.SidebarAction title={`Spam${!isLWorAF ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
               </Components.SidebarAction>
             </Components.SidebarActionMenu>}

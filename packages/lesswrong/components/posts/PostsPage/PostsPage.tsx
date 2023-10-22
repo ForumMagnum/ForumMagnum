@@ -7,10 +7,10 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { userHasSideComments } from '../../../lib/betas';
+import { hasPostRecommendations, userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -204,7 +204,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: isEAForum ? undefined : 'calc(70vh - 100px)',
+    minHeight: hasPostRecommendations ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -461,7 +461,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  const showRecommendations = isEAForum &&
+  const showRecommendations = hasPostRecommendations &&
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
@@ -663,7 +663,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isEAForum && post.commentCount < 1 &&
+          {isFriendlyUI && post.commentCount < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
@@ -672,7 +672,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </AnalyticsInViewTracker>
     </ToCColumn>
-    {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+    {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations post={post} />
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>

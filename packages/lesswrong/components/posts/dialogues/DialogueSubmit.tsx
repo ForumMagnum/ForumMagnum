@@ -5,14 +5,15 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, isLW} from "../../../lib/instanceSettings";
+import { isLW} from "../../../lib/instanceSettings";
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isEAForum ? 14 : 16,
+    fontSize: isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -23,7 +24,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     })
   },
   secondaryButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
@@ -34,7 +35,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
@@ -111,7 +112,7 @@ const DialogueSubmit = ({
           type="submit"
           onClick={onSubmitClick}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isEAForum ? {
+          {...(isFriendlyUI ? {
             variant: "contained",
             color: "primary",
           } : {})}

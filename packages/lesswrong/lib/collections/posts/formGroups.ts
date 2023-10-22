@@ -1,7 +1,5 @@
-import { preferredHeadingCase } from "../../../themes/forumTheme";
-import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
-
-const isEAForum = forumTypeSetting.get() === "EAForum";
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
+import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
 export const formGroups: Partial<Record<string,FormGroupType>> = {
   default: {
@@ -38,7 +36,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     name: "socialPreview",
     order: 23,
     label: preferredHeadingCase("Edit Link Preview"),
-    startCollapsed: !isEAForum,
+    startCollapsed: !isFriendlyUI,
   },
   highlight: {
     order: 24,

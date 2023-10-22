@@ -14,8 +14,7 @@ import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { isEAForum } from '../../lib/instanceSettings';
-import { DynamicTableOfContentsContext } from './TableOfContents/DynamicTableOfContents';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -135,7 +134,7 @@ const PostsEditForm = ({ documentId, classes }: {
               } else {
                 // If they are publishing a draft, show the share popup
                 // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
+                const showSharePopup = !isLWorAF && wasEverDraft.current && !post.draft
                 const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                 history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 

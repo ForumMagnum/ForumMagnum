@@ -2,8 +2,8 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
-import { isEAForum } from "../../lib/instanceSettings";
 import Card from "@material-ui/core/Card";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
   author: {
     color: theme.palette.text.dim,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

@@ -5,7 +5,7 @@ import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -58,7 +58,7 @@ export type PostsListConfig = {
   hideShortform?: boolean,
 }
 
-const defaultTooltipPlacement = isEAForum
+const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 

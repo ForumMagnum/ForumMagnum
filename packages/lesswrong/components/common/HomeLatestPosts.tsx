@@ -20,7 +20,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 
-const titleWrapper = isLW ? {
+const titleWrapper = isLWorAF ? {
   marginBottom: 8
 } : {
   display: "flex",
