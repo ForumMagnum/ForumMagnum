@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType, NotNullType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType, DefaultValueType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -19,7 +19,7 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
-    } else if (value === null && type instanceof NotNullType && type.getDefaultValueString()) {
+    } else if (value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
       this.value = type.getDefaultValueString();
     }
   }

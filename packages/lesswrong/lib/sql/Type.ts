@@ -282,6 +282,10 @@ export class DefaultValueType extends Type {
   isArray(): this is ArrayType {
     return this.type.isArray();
   }
+
+  isNotNull(): boolean {
+    return this.type instanceof NotNullType;
+  }
 }
 
 /**
