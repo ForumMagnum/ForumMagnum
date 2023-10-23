@@ -138,6 +138,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
         } else if (key === "createdAt" && !(item as AnyBecauseTodo)[key]) {
           (item as AnyBecauseTodo)[key] = new Date();
         }
+        console.log({key})
         this.atoms.push(this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]));
       }
       prefix = ", ";
