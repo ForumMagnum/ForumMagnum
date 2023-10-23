@@ -4,6 +4,7 @@ import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -95,7 +96,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
-      <SuggestCuratedDropdownItem post={post} />
+      {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />

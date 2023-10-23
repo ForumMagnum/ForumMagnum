@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { showCuratedSetting } from '../../lib/publicSettings';
+import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   curated: {
@@ -26,7 +26,7 @@ const RecommendationsPageCuratedList = ({classes}: {
   return (
     <div>
       <AnalyticsContext pageContext={"curatedPage"}>
-        {showCuratedSetting.get() && <SingleColumnSection>
+        {hasCuratedPostsSetting.get() && <SingleColumnSection>
           <AnalyticsContext pageSectionContext={"curatedPosts"} capturePostItemOnMount>
             <SectionTitle title="Curated Posts"/>
             <PostsList2
@@ -37,7 +37,7 @@ const RecommendationsPageCuratedList = ({classes}: {
             />
           </AnalyticsContext>
         </SingleColumnSection>}
-        {showCuratedSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
+        {hasCuratedPostsSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
           <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
         </div>}
       </AnalyticsContext>
@@ -52,4 +52,3 @@ declare global {
     RecommendationsPageCuratedList: typeof RecommendationsPageCuratedListComponent
   }
 }
-

@@ -4,7 +4,7 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
-import { isLWorAF, shareButtonSetting } from '../../../lib/instanceSettings';
+import { isLWorAF, hasShareButtonsSetting } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
@@ -99,7 +99,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
           </div>
           {isFriendlyUI && <div className={classes.secondaryInfoRight}>
             <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-            {shareButtonSetting.get() && <SharePostButton post={post} />}
+            {hasShareButtonsSetting.get() && <SharePostButton post={post} />}
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
                 <PostActionsButton post={post} includeBookmark={!isFriendlyUI} />

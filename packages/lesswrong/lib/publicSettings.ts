@@ -124,9 +124,6 @@ export type CurrentEventHeader = {
 export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader | null>("currentEventHeader", null);
 
 /** Will we show our logo prominently, such as in the header */
-export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasLogo", false);
-
-/** Has curated posts */
-export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurated", false);
+export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)

@@ -7,7 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { shareButtonSetting, isLWorAF } from '../../../lib/instanceSettings';
+import { hasShareButtonsSetting, isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
@@ -376,7 +376,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </div>
       <div className={classes.secondaryInfoRight}>
         <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-        {shareButtonSetting.get() && <SharePostButton post={post} />}
+        {hasShareButtonsSetting.get() && <SharePostButton post={post} />}
         {tripleDotMenuNode}
       </div>
     </div>
