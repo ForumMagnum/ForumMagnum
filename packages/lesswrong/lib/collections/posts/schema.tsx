@@ -2597,6 +2597,14 @@ const schema: SchemaType<DbPost> = {
     // Implementation in postResolvers.ts
   },
 
+  mostRecentPublishedDialogueResponseDate: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+
   unreadDebateResponseCount: {
     type: Number,
     optional: true,
