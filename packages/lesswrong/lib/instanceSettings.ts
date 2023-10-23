@@ -195,3 +195,14 @@ export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+
+// These settings set the name of sorting options for posts and comments. If they're left as null,
+// the name will use the default FriendlyUI/BookUI name.
+export const sortMagicNameSetting = new PublicInstanceSetting<string | null>('sortMagicName', null, "optional");
+export const sortTopPostNameSetting = new PublicInstanceSetting<string | null>('sortTopPostName', null, "optional");
+export const sortTopCommentNameSetting = new PublicInstanceSetting<string | null>('sortTopCommentName', null, "optional");
+export const sortNewNameSetting = new PublicInstanceSetting<string | null>('sortNewName', null, "optional");
+export const sortOldNameSetting = new PublicInstanceSetting<string | null>('sortOldName', null, "optional");
+export const sortRecentRepliesNameSetting = new PublicInstanceSetting<string | null>('sortRecentRepliesName', null, "optional");
+export const sortRecentCommentsNameSetting = new PublicInstanceSetting<string | null>('sortRecentCommentsName', null, "optional");

@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, showTableOfContentsSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -493,7 +493,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
   // rewrite crossposting.
-  const tableOfContents = sectionData && !isCrosspostedQuestion
+  const tableOfContents = showTableOfContentsSetting.get() && sectionData && !isCrosspostedQuestion
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
@@ -595,8 +595,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
             post={post}
           />}
-
-        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
       </div>
 
       {showRecommendations && recommendationsPosition === "underPost" &&

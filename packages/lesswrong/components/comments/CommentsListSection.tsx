@@ -172,12 +172,6 @@ const CommentsListSection = ({
         component='span'
         className={classes.clickToHighlightNewSince}
       >
-        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
-        {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
-        {!highlightDate && `Click to highlight new ${contentType} since: `}
-        <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate || now}/>
-        </a>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -258,7 +252,6 @@ const CommentsListSection = ({
       { totalComments ? renderTitleComponent() : null }
       <CommentsList
         treeOptions={{
-          highlightDate: highlightDate,
           post: post,
           postPage: true,
           showCollapseButtons: true,
@@ -270,13 +263,6 @@ const CommentsListSection = ({
         parentAnswerId={parentAnswerId}
       />
       <PostsPageCrosspostComments />
-      {!isEAForum && <Row justifyContent="flex-end">
-        <LWTooltip title="View deleted comments and banned users">
-          <Link to="/moderation">
-            <MetaInfo>Moderation Log</MetaInfo>
-          </Link>
-        </LWTooltip>
-      </Row>}
     </div>
   );
 }

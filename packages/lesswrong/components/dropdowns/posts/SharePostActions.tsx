@@ -7,6 +7,7 @@ import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
 import Paper from '@material-ui/core/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { showSocialMediaShareLinksSetting } from '../../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -62,22 +63,24 @@ const SharePostActions = ({post, onClick, classes}: {
         icon="Link"
         onClick={copyLink}
       />
-      <DropdownDivider/>
-      <DropdownItem
-        title={isFriendlyUI ? "Share on Twitter" : "Twitter"}
-        icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
-        onClick={shareToTwitter}
-      />
-      <DropdownItem
-        title={isFriendlyUI ? "Share on Facebook" : "Facebook"}
-        icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
-        onClick={shareToFacebook}
-      />
-      <DropdownItem
-        title={isFriendlyUI ? "Share on LinkedIn" : "LinkedIn"}
-        icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
-        onClick={shareToLinkedIn}
-      />
+      {showSocialMediaShareLinksSetting.get() && <>
+        <DropdownDivider/>
+        <DropdownItem
+          title={isFriendlyUI ? "Share on Twitter" : "Twitter"}
+          icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
+          onClick={shareToTwitter}
+        />
+        <DropdownItem
+          title={isFriendlyUI ? "Share on Facebook" : "Facebook"}
+          icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
+          onClick={shareToFacebook}
+        />
+        <DropdownItem
+          title={isFriendlyUI ? "Share on LinkedIn" : "LinkedIn"}
+          icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
+          onClick={shareToLinkedIn}
+        />
+      </>}
     </DropdownMenu>
   </Paper>
 }
