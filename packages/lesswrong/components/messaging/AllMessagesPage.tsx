@@ -9,7 +9,7 @@ import { useLocation, useNavigation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
 
-const MAX_WIDTH = 1050;
+const MAX_WIDTH = 1100;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,20 +22,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: "32px 32px 0px 32px",
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
+    [theme.breakpoints.down('xs')]: {
+      padding: 0,
+      minHeight: "100%",
+      height: "auto",
+    },
   },
   column: {
     display: "flex",
     flexDirection: "column",
   },
   leftColumn: {
-    // TODO maybe defer this sizing to the underlying component
-    width: 341,
-    flex: "0 0 341px",
-    height: "100%",
+    flex: "0 0 360px",
+    [theme.breakpoints.down('sm')]: {
+      flex: "0 0 280px"
+    },
+    [theme.breakpoints.down('xs')]: {
+      flex: "1 1 auto",
+    },
   },
   rightColumn: {
     flex: "1 1 auto",
-    height: "100%",
+  },
+  hideColumnSm: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
   },
   navigation: {
     overflowY: "auto",
@@ -50,6 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRight: theme.palette.border.grey200,
     padding: "0px 32px",
     flex: "1 1 auto",
+    [theme.breakpoints.down('xs')]: {
+      padding: "0px 24px",
+    },
   },
   columnHeader: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
@@ -65,16 +80,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columnHeaderLeft: {
     borderTopLeftRadius: theme.borderRadius.default,
+    [theme.breakpoints.down('xs')]: {
+      borderTopLeftRadius: 0,
+    },
   },
   columnHeaderRight: {
     borderLeft: "none",
     borderTopRightRadius: theme.borderRadius.default,
+    [theme.breakpoints.down('xs')]: {
+      borderTopRightRadius: 0,
+      borderrRight: "none",
+    },
   },
   headerText: {
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
+    [theme.breakpoints.down('xs')]: {
+      "-webkit-line-clamp": 2,
+    }
   },
   actionIcon: {
     color: theme.palette.grey[600],
@@ -100,7 +125,7 @@ const AllMessagesPage = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      history.replace({ ...location, pathname: `/inbox/${conversationId}` });
+      history.push({ ...location, pathname: `/inbox/${conversationId}` });
     },
     [history, location]
   );
@@ -168,7 +193,9 @@ const AllMessagesPage = ({
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.column, classes.leftColumn)}>
+      <div className={classNames(classes.column, classes.leftColumn, {
+        [classes.hideColumnSm]: conversationId,
+      })}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
           <div className={classes.classes.headerText}>All messages</div>
           <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
@@ -182,7 +209,9 @@ const AllMessagesPage = ({
           />
         </div>
       </div>
-      <div className={classNames(classes.column, classes.rightColumn)}>
+      <div className={classNames(classes.column, classes.rightColumn, {
+        [classes.hideColumnSm]: !conversationId,
+      })}>
         <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
           <div className={classes.headerText}>{title}</div>
           {conversationId && (

@@ -85,7 +85,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classNam
   const { history } = useNavigation();
   const { create: createConversation } = useCreate({
     collectionName: 'Conversations',
-    fragmentName: 'ConversationMinimumInfo',
+    fragmentName: 'ConversationsMinimumInfo',
   });
   
   const newConversation = async (initiatingUser: UsersCurrent): Promise<string|null> => {

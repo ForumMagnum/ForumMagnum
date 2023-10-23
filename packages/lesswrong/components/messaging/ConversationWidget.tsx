@@ -21,6 +21,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     margin: '32px 0px',
     position: "relative",
+    '& .form-submit': {
+      // form-submit has display: block by default, which for some reason makes it take up 0 height
+      // on mobile. This fixes that.
+      display: "flex",
+    }
   },
   backButton: {
     color: theme.palette.lwTertiary.main,
@@ -83,11 +88,13 @@ const ConversationWidget = ({
     if (newStateSignature !== stateSignatureRef.current) {
       stateSignatureRef.current = newStateSignature;
       setTimeout(() => {
+        // Always scroll the whole window. This may be a problem in future, but it's here to make
+        // scroll work nicely on both desktop (uses inner div) and mobile (uses whole window)
+        window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
+
+        // Also scroll the exact element we are embedded in, if we have a ref to it
         if (scrollRef?.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        } else {
-          // If there is no scrollRef, scroll the whole window
-          window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
         }
       }, 0);
     }
@@ -109,7 +116,7 @@ const ConversationWidget = ({
     }
   }, [query.from, conversation, currentUser._id]);
 
-  const { ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components;
+  const { NewMessageForm, Error404, Loading, MessageItem } = Components;
 
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
