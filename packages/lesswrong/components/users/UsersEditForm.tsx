@@ -102,9 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   header: {
     margin: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: theme.spacing.unit/2,
-    },
+    marginLeft: 0,
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4
