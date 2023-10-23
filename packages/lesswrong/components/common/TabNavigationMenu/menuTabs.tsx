@@ -407,19 +407,32 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     //   link: '/shortform',
     //   subItem: true,
     // }, {
-      id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
-    }, {
-      id: 'about',
-      title: 'About the Forum',
-      link: '/about',
+    //   id: 'subscribeWidget',
+    //   customComponentName: "SubscribeWidget",
+    // }, {
+      id: 'events',
+      title: 'Retreats & Events',
+      link: '/posts/mTpNWoYjfNAHBfHqq/retreats',
       subItem: true,
-      compressedIconComponent: Info,
-      showOnCompressed: true,
     }, {
-      id: 'contact',
-      title: preferredHeadingCase('Contact Us'),
-      link: '/contact',
+      id: 'ideas',
+      title: 'App Ideas',
+      link: '/posts/bcDq7p4gjBrBCyqSp/app-roadmap-and-requests',
+      subItem: true,
+    }, {
+      id: 'feedback',
+      title: 'Forum Feedback',
+      link: '/posts/KZDshkgYsm22jifCB/forum-feedback',
+      subItem: true,
+    }, {
+      id: 'faq',
+      title: 'Forum FAQ',
+      link: '/posts/A3gtJ9Knhxb3AR3SE/forum-faq-1',
+      subItem: true,
+    }, {
+      id: 'support',
+      title: 'Support',
+      link: '/posts/snn3Y65Aa3eKLyFy6/support',
       subItem: true,
     }
   ]
