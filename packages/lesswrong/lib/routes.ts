@@ -1248,7 +1248,6 @@ addRoute(...forumSelect<Route[]>({
       componentName: 'InboxWrapper',
       title: "Private Conversation",
       background: "white",
-      initialScroll: "bottom",
     },
   ],
 }));

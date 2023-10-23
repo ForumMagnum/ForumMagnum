@@ -13,9 +13,6 @@ import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  conversationSection: {
-    maxWidth: 568,
-  },
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: 8,
@@ -35,14 +32,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ConversationWidget = ({
-  conversationId,
+  conversation,
   currentUser,
   scrollRef,
   classes,
 }: {
-  conversationId: string;
+  conversation: ConversationsList;
   currentUser: UsersCurrent;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement>;
   classes: ClassesType;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `NewMessageForm`
@@ -51,16 +48,16 @@ const ConversationWidget = ({
   // by guaranteeing that it's a fresh set of react components each time.
   const [messageSentCount, setMessageSentCount] = useState(0);
 
-  const stateSignatureRef = useRef(stringify({conversationId, numMessagesShown: 0}));
+  const stateSignatureRef = useRef(stringify({conversationId: conversation._id, numMessagesShown: 0}));
 
   const {
     results,
     refetch,
-    loading: loadingMessages,
+    loading,
   } = useMulti({
     terms: {
       view: "messagesConversation",
-      conversationId,
+      conversationId: conversation._id,
     },
     collectionName: "Messages",
     fragmentName: "messageListFragment",
@@ -68,14 +65,6 @@ const ConversationWidget = ({
     limit: 100000,
     enableTotal: false,
   });
-  const { document: conversation, loading: loadingConversation } = useSingle({
-    documentId: conversationId,
-    collectionName: "Conversations",
-    fragmentName: "ConversationsList",
-  });
-  const loading = loadingMessages || loadingConversation;
-
-  console.log("ConversationWidget", { conversationId, conversation, results, loading })
 
   const { query } = useLocation();
   const { captureEvent } = useTracking();
@@ -90,18 +79,19 @@ const ConversationWidget = ({
   // client/scrollRestoration.ts).
   useEffect(() => {
     const newNumMessages = results?.length ?? 0;
-    const newStateSignature = stringify({conversationId, numMessagesShown: newNumMessages});
+    const newStateSignature = stringify({conversationId: conversation._id, numMessagesShown: newNumMessages});
     if (newStateSignature !== stateSignatureRef.current) {
       stateSignatureRef.current = newStateSignature;
       setTimeout(() => {
-        if (scrollRef.current) {
+        if (scrollRef?.current) {
           scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         } else {
+          // If there is no scrollRef, scroll the whole window
           window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
         }
       }, 0);
     }
-  }, [stateSignatureRef, results?.length, scrollRef, conversationId]);
+  }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
 
   useOnNotificationsChanged(currentUser, () => refetch());
 
@@ -119,8 +109,7 @@ const ConversationWidget = ({
     }
   }, [query.from, conversation, currentUser._id]);
 
-  const { SingleColumnSection, ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } =
-    Components;
+  const { ConversationDetails, NewMessageForm, Error404, Loading, MessageItem, Typography } = Components;
 
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
@@ -141,19 +130,7 @@ const ConversationWidget = ({
   const showModInboxLink = userCanDo(currentUser, "conversations.view.all") && conversation.moderator;
 
   return (
-    <div className={classes.conversationSection}>
-      <div className={classes.row}>
-        {/* TODO add back in on mobile only */}
-        {/* <Typography variant="body2" className={classes.backButton}>
-          <Link to="/inbox"> Go back to Inbox </Link>
-        </Typography> */}
-        {showModInboxLink && (
-          <Typography variant="body2" className={classes.backButton}>
-            <Link to="/moderatorInbox"> Moderator Inbox </Link>
-          </Typography>
-        )}
-      </div>
-      <ConversationDetails conversation={conversation} hideOptions />
+    <>
       {renderMessages()}
       <div className={classes.editor}>
         <NewMessageForm
@@ -172,7 +149,7 @@ const ConversationWidget = ({
           }}
         />
       </div>
-    </div>
+    </>
   );
 };
 

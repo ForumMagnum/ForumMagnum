@@ -58,6 +58,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& img': {
       maxWidth: '100%',
     },
+    // Workaround to make sure links don't overflow the message box
+    '& .LWTooltip-root': {
+      display: 'inline',
+    },
   },
   profileImg: {
     gridArea: 'image',

@@ -112,7 +112,7 @@ const AllMessagesPage = ({
     });
   }, [openDialog]);
 
-  const { InboxNavigation2, ConversationWidget, ForumIcon } = Components;
+  const { InboxNavigation2, ConversationWidget, ForumIcon, ConversationDetails } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
@@ -190,13 +190,14 @@ const AllMessagesPage = ({
           )}
         </div>
         <div className={classes.conversation} ref={selectedConversationRef}>
-          {conversationId ? (
+          {selectedConversation ? <>
+            <ConversationDetails conversation={selectedConversation} hideOptions />
             <ConversationWidget
               currentUser={currentUser}
-              conversationId={conversationId}
+              conversation={selectedConversation}
               scrollRef={selectedConversationRef}
             />
-          ) : (
+          </> : (
             <></>
           )}
         </div>
