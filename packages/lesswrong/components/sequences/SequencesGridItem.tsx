@@ -12,7 +12,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     boxShadow: theme.palette.boxShadow.default,
     paddingBottom: 0,
-    marginBottom: 0,
     display: "flex",
     flexDirection: "column",
 
