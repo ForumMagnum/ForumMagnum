@@ -11,12 +11,12 @@ Globals.nullifyVotesForNullifiedUsers = async () => {
   console.warn(`Nullified votes for ${users.length} users`);
 }
 
-interface DateRange {
+interface DateRangeInput {
   after?: string;
   before?: string;
 }
 
-Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId: string, dateRange: DateRange = {}) => {
+Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId: string, dateRange: DateRangeInput = {}) => {
   let afterDate = undefined;
   let beforeDate = undefined;
 
