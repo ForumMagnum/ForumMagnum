@@ -5,6 +5,7 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@material-ui/core/Checkbox';
+import InputLabel from '@material-ui/core/InputLabel';
 
 export const TosLink: FC = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -15,11 +16,12 @@ export const LicenseLink: FC = ({children}) =>
   </a>
 
 const styles = (theme: ThemeType) => ({
-  root: {
+  checkboxLabel: {
     display: "flex",
     flexDirection: "row",
     rowGap: "15px",
     padding: "30px 5px 20px 5px",
+    cursor: 'pointer',
     "& a": {
       color: theme.palette.primary.main,
     },
@@ -65,7 +67,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
   }
 
   return (
-    <div className={classes.root}>
+    <InputLabel className={classes.checkboxLabel}>
       <Checkbox
         onChange={onAccept}
         checked={loading}
@@ -79,7 +81,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
           your content being available under a <LicenseLink /> license
         </Components.Typography>
       }
-    </div>
+    </InputLabel>
   );
 }
 
