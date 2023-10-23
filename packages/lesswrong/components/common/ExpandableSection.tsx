@@ -7,29 +7,31 @@ import { Link } from "../../lib/reactRouterWrapper";
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    alignItems: "center",
     columnGap: 10
   },
-  expandIcon: {
-    position: "relative",
-    top: 3,
-    fontSize: 16,
-    cursor: "pointer",
-    "&:hover": {
-      color: theme.palette.grey[800],
-    }
-  },
-  afterTitleLink: {
+  afterContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
     fontSize: 14,
     color: theme.palette.grey[600],
     fontWeight: 600,
-    "&:hover": {
+    "& a:hover": {
       color: theme.palette.grey[1000],
       opacity: 1,
     },
     "@media (max-width: 350px)": {
       display: "none",
     },
+  },
+  expandIcon: {
+    verticalAlign: 'middle',
+    transform: "translateY(-1px)",
+    fontSize: 16,
+    cursor: "pointer",
+    "&:hover": {
+      color: theme.palette.grey[800],
+    }
   },
 });
 
@@ -39,6 +41,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   toggleExpanded: () => void,
   afterTitleText?: string,
   afterTitleTo?: string,
+  AfterTitleComponent?: ComponentType,
   Content: ComponentType,
 }
 
@@ -49,6 +52,7 @@ const ExpandableSection = ({
   title,
   afterTitleText = "View more",
   afterTitleTo,
+  AfterTitleComponent,
   Content,
   classes,
   ...sectionTitleProps
@@ -75,10 +79,17 @@ const ExpandableSection = ({
             </div>
           }
         >
-          {expanded && afterTitleTo &&
-            <Link to={afterTitleTo} className={classes.afterTitleLink}>
-              {afterTitleText}
-            </Link>
+          {expanded && (AfterTitleComponent || afterTitleTo) &&
+            <div className={classes.afterContainer}>
+              {AfterTitleComponent &&
+                <AfterTitleComponent />
+              }
+              {afterTitleTo &&
+                <Link to={afterTitleTo}>
+                  {afterTitleText}
+                </Link>
+              }
+            </div>
           }
         </SectionTitle>
         {expanded && <Content />}

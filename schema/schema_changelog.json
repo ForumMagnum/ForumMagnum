@@ -338,5 +338,10 @@
     "acceptsSchemaHash": "881c509060130982ab7f20a92a5c9602",
     "acceptedByMigration": "20231009T101621.add_wasEverUndrafted_to_posts.ts",
     "timestamp": "2023-10-09T10:16:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c3e1e47f98b00ea1ff4f2dfe2e646604",
+    "acceptedByMigration": "20231014T032053.add_mostRecentPublishedDialogueResponseDate.ts",
+    "timestamp": "2023-10-14T03:20:53.000Z"
   }
 ]

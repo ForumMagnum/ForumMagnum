@@ -97,6 +97,17 @@ augmentFieldsDict(Posts, {
       }
     }
   },
+  mostRecentPublishedDialogueResponseDate: {
+    ...denormalizedField({
+      getValue: (post:DbPost) => {
+        if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
+        const messageTimestamps = getDialogueMessageTimestamps(post)
+        if (messageTimestamps.length === 0) { return null } 
+        const lastTimestamp = messageTimestamps[messageTimestamps.length - 1]
+        return lastTimestamp
+      }
+    })
+  },
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,

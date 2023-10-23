@@ -5,6 +5,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 
 declare global {
@@ -24,6 +25,7 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    showCommunity?: boolean,
   }
   
   /**
@@ -509,6 +511,9 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
       createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      ...(!terms.showCommunity && {
+        relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+      }),
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

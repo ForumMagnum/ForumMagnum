@@ -167,6 +167,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  quickTakesCommunity: {type: Boolean, optional: true, nullable: true},
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
