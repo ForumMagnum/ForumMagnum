@@ -160,3 +160,5 @@ export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEma
 // export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
+
+export const frontpagePostsCountSetting = new DatabasePublicSetting<number | null>('frontpagePostsCount', null)
