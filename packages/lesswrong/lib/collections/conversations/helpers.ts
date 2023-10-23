@@ -1,6 +1,9 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import * as _ from 'underscore';
 
+/**
+ * Get the title of a conversation, formatted like e.g. "Conversation with Alice and Bob and Charlie and Dave"
+ */
 export const conversationGetTitle = (conversation: ConversationsList, currentUser: UsersCurrent): string => {
   if (!!conversation.title) {
     return conversation.title
@@ -13,19 +16,28 @@ export const conversationGetTitle = (conversation: ConversationsList, currentUse
   }
 }
 
-// TODO merge with previous
+/**
+ * Get the title of a conversation, formatted like e.g. "Bob, Charlie + 1 more"
+ */
 export const conversationGetTitle2 = (conversation: ConversationsList, currentUser: UsersCurrent): string => {
   if (!!conversation.title) {
     return conversation.title
   }
 
   const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
-  const firstParticipant = otherParticipants[0] ?? conversation.participants[0];
+  const participantNames = otherParticipants.map(participant => participant.displayName);
 
-  if (firstParticipant) {
-    return `${firstParticipant.displayName}${
-      otherParticipants.length > 1 ? ` + ${otherParticipants.length - 1} more` : ""
-    }`;
+  if (participantNames.length > 0) {
+    let title;
+    if (participantNames.length === 2) {
+      title = participantNames.join(' and ');
+    } else {
+      title = participantNames.slice(0, 2).join(', ');
+      if (participantNames.length > 2) {
+        title += ` + ${participantNames.length - 2} more`;
+      }
+    }
+    return title;
   } else {
     return "Conversation";
   }
