@@ -60,37 +60,37 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export type TagPreviewProps = {
-  tag: TagPreviewFragment | TagSectionPreviewFragment | null,
-  loading?: boolean,
-  classes: ClassesType,
+  tag: TagPreviewFragment | TagSectionPreviewFragment,
+  hash?: string,
   showCount?: boolean,
   showRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  hash?: string,
+  classes: ClassesType,
 }
 
-const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false, hash}: TagPreviewProps) => {
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
+const TagPreview = ({
+  tag,
+  hash,
+  showCount=true,
+  showRelatedTags=true,
+  postCount=6,
+  autoApplied=false,
+  classes,
+}: TagPreviewProps) => {
   const showPosts = postCount > 0 && !!(tag?._id)
-  const { results, loading: tagPostsLoading } = useMulti({
+  const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: postCount,
   });
-  
-  // I kinda want the type system to forbid this, but the obvious union approach
-  // didn't work
-  if (!loading && !tag) {
-    return null
-  }
-  
+
   const hasFooter = (showCount || autoApplied);
-  
+
+  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
   return (<div className={classes.card}>
-    {loading && <Loading />}
     {tag && <>
       <TagPreviewDescription tag={tag} hash={hash}/>
       {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
@@ -105,7 +105,7 @@ const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true
       }
       {showPosts && !tag.wikiOnly && <>
         {results ? <div className={classes.posts}>
-          {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
+          {results.map((post) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
         </div> : <Loading />}
         {hasFooter && <div className={classes.footer}>
           {autoApplied && <span className={classes.autoApplied}>

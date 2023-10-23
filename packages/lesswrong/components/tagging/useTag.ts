@@ -38,7 +38,7 @@ type TagPreviewFragmentName = 'TagPreviewFragment' | 'TagSectionPreviewFragment'
 
 export const useTagPreview = (
   slug: string,
-  hash: string,
+  hash?: string,
   queryOptions?: Partial<Omit<UseMultiOptions<TagPreviewFragmentName, "Tags">, 'extraVariables' | 'extraVariablesValues'>>
 ): {
   tag: FragmentTypes[TagPreviewFragmentName]|null,

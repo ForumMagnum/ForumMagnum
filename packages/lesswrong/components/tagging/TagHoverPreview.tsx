@@ -27,40 +27,54 @@ function normalizeTagLink(link: string) {
   return removeUrlParameters(link, ["showPostCount", "useTagName"]);
 }
 
-const TagHoverPreview = ({href, targetLocation, classes, postCount=6, noPrefetch, children}: {
+const TagHoverPreview = ({
+  href,
+  targetLocation,
+  postCount=6,
+  noPrefetch,
+  children,
+  classes,
+}: {
   href: string,
   targetLocation: RouterLocation,
-  classes: ClassesType,
   postCount?: number,
   noPrefetch?: boolean,
   children: React.ReactNode,
+  classes: ClassesType,
 }) => {
   const { params: {slug}, hash } = targetLocation;
-  const { hover, anchorEl, eventHandlers, everHovered } = useHover();
-  // Slice the hash to remove the leading # (which won't be a part of the element ID in the dom)
-  // eg: "Further_reading"
+  // Slice the hash to remove the leading # (which won't be a part of the
+  // element ID in the dom) eg: "Further_reading"
   const hashId = hash.slice(1);
-  const { tag, loading } = useTagPreview(slug, hashId, {skip: noPrefetch && !everHovered})
-  const { PopperCard, TagPreview } = Components;
+
+  const {tag} = useTagPreview(slug, hashId, {skip: noPrefetch});
   const { showPostCount: showPostCountQuery, useTagName: useTagNameQuery } = targetLocation.query
   const showPostCount = showPostCountQuery === "true" // query parameters are strings
   const tagName = useTagNameQuery === "true" ? tag?.name : undefined // query parameters are strings
-  
+
   // Remove showPostCount and useTagName query parameters from the link, if present
   const linkTarget = normalizeTagLink(href);
 
-  return <span {...eventHandlers}>
-    <PopperCard open={hover} anchorEl={anchorEl}>
-      <TagPreview tag={tag} postCount={postCount} loading={loading} hash={hashId}/>
-    </PopperCard>
-    <Link
-      className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
-      to={linkTarget}
+  const {TagsTooltip} = Components;
+  return (
+    <TagsTooltip
+      tagSlug={slug}
+      hash={hashId}
+      As="span"
+      previewPostCount={postCount}
+      noPrefetch={noPrefetch}
     >
-      {tagName ?? children}
-    </Link>
-    {!!(showPostCount && tag?.postCount) && <span className={classes.count}>({tag?.postCount})</span>}
-  </span>;
+      <Link
+        className={showPostCount ? classes.linkWithoutDegreeSymbol : classes.link}
+        to={linkTarget}
+      >
+        {tagName ?? children}
+      </Link>
+      {!!(showPostCount && tag?.postCount) &&
+        <span className={classes.count}>({tag?.postCount})</span>
+      }
+    </TagsTooltip>
+  );
 }
 
 const TagHoverPreviewComponent = registerComponent("TagHoverPreview", TagHoverPreview, {styles});
