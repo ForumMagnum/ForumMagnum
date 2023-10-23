@@ -45,6 +45,7 @@ const TagsTooltip = ({
   tagRel,
   hash,
   previewPostCount=6,
+  hideRelatedTags,
   noPrefetch,
   popperCard,
   As,
@@ -55,6 +56,7 @@ const TagsTooltip = ({
   tagRel?: TagRelMinimumFragment
   hash?: string,
   previewPostCount?: number,
+  hideRelatedTags?: boolean,
   noPrefetch?: boolean,
   popperCard?: ReactNode,
   As?: keyof JSX.IntrinsicElements,
@@ -85,12 +87,17 @@ const TagsTooltip = ({
 
     if (tag) {
       return (
-        <TagPreview tag={tag} hash={hash} postCount={previewPostCount} />
+        <TagPreview
+          tag={tag}
+          hash={hash}
+          postCount={previewPostCount}
+          hideRelatedTags={hideRelatedTags}
+        />
       );
     }
 
     return null;
-  }, [popperCard, loading, tagRel, tag, hash, previewPostCount]);
+  }, [popperCard, loading, tagRel, tag, hash, previewPostCount, hideRelatedTags]);
 
   const {LWTooltip, EAHoverOver} = Components;
   const Tooltip = isEAForum ? EAHoverOver : LWTooltip;

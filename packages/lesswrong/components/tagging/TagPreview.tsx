@@ -63,7 +63,7 @@ export type TagPreviewProps = {
   tag: TagPreviewFragment | TagSectionPreviewFragment,
   hash?: string,
   showCount?: boolean,
-  showRelatedTags?: boolean,
+  hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
   classes: ClassesType,
@@ -73,7 +73,7 @@ const TagPreview = ({
   tag,
   hash,
   showCount=true,
-  showRelatedTags=true,
+  hideRelatedTags,
   postCount=6,
   autoApplied=false,
   classes,
@@ -93,7 +93,7 @@ const TagPreview = ({
   return (<div className={classes.card}>
     {tag && <>
       <TagPreviewDescription tag={tag} hash={hash}/>
-      {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
+      {!hideRelatedTags && (tag.parentTag || tag.subTags.length) ?
         <div className={classes.relatedTags}>
           {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {

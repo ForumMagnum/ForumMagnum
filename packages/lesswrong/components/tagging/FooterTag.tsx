@@ -118,6 +118,7 @@ const FooterTag = ({
   link=true,
   highlightAsAutoApplied=false,
   neverCoreStyling=false,
+  hideRelatedTags,
   className,
   classes,
 }: {
@@ -129,6 +130,7 @@ const FooterTag = ({
   link?: boolean
   highlightAsAutoApplied?: boolean,
   neverCoreStyling?: boolean,
+  hideRelatedTags?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -151,7 +153,12 @@ const FooterTag = ({
 
   return (
     <AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-      <TagsTooltip tag={tag} tagRel={tagRel} popperCard={popperCard}>
+      <TagsTooltip
+        tag={tag}
+        tagRel={tagRel}
+        popperCard={popperCard}
+        hideRelatedTags={hideRelatedTags}
+      >
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,
           [classes.smallText]: smallText,

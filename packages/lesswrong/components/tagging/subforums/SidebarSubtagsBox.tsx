@@ -12,6 +12,7 @@ import { TagPreviewProps } from "../TagPreview";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: "1em 1.5em",
+    borderRadius: theme.borderRadius.default,
   },
   previewWrapperRow: {
     ...theme.typography.body2,
@@ -100,7 +101,7 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
           key={tag._id}
           tag={tag}
           hideScore={true}
-          popperCard={<WrappedTagPreview tag={tag} showRelatedTags={false} />}
+          popperCard={<WrappedTagPreview tag={tag} hideRelatedTags />}
         />
         {visibleSubtags.map((tag) => (
           <FooterTag
