@@ -589,7 +589,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       header={header}
       rightColumnChildren={rightColumnChildren}
     >
-      <div ref={postBodyRef} className={classes.centralColumn}>
+      <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
         {/* Body */}
         {/* The embedded player for posts with a manually uploaded podcast episode */}
         {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>

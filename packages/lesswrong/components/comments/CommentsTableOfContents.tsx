@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { ToCSection } from '../../lib/tableOfContents';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
+import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
+import classNames from 'classnames';
+import { getCurrentSectionMark } from '../posts/TableOfContents/TableOfContentsList';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,6 +19,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentAuthor: {
   },
+  collapseButtonWrapper: {
+    marginLeft: 4,
+    height: 24,
+  },
+  collapseButton: {
+    "&:hover": {
+      background: theme.palette.greyAlpha(0.1),
+      borderRadius: 8,
+    },
+  },
+  collapseButtonExpanded: {
+  },
+  collapseButtonCollapsed: {
+    transform: "rotate(-90deg)",
+  },
+  titleAndCollapseButton: {
+    display: "flex",
+    alignItems: "end",
+  },
+  postTitle: {
+    flexGrow: 1,
+    minHeight: 24,
+    paddingTop: 4,
+  },
 })
 
 const CommentsTableOfContents = ({commentTree, post, classes}: {
@@ -24,9 +51,14 @@ const CommentsTableOfContents = ({commentTree, post, classes}: {
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
+  const [collapsed,setCollapsed] = useState(false);
   const flattenedComments = commentTree ? flattenCommentTree(commentTree) : [];
-  const { landmarkId: highlightedCommentId } = useScrollHighlight(
-    flattenedComments.map(comment => ({elementId: comment._id, position: "topOfElement"}))
+  const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
+    flattenedComments.map(comment => ({
+      landmarkName: comment._id, 
+      elementId: comment._id,
+      position: "topOfElement"
+    }))
   );
   
   return <div className={classes.root}>
@@ -38,16 +70,35 @@ const CommentsTableOfContents = ({commentTree, post, classes}: {
           behavior: "smooth"
         });
       }}
-      highlighted={false}
+      highlighted={highlightedLandmarkName==="above"}
       title
     >
-      {post.title?.trim()}
+      <div className={classes.titleAndCollapseButton}>
+        <div className={classes.postTitle}>
+          {post.title?.trim()}
+        </div>
+        
+        <div
+          className={classes.collapseButtonWrapper}
+          onClick={ev => {
+            setCollapsed(!collapsed);
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+        }>
+          <ArrowDropDown className={classNames(
+            classes.collapseButton, {
+              [classes.collapseButtonExpanded]: !collapsed,
+              [classes.collapseButtonCollapsed]: collapsed,
+          })}/>
+        </div>
+      </div>
     </TableOfContentsRow>
-    {commentTree && commentTree.map(comment => comment.item
+    {!collapsed && commentTree && commentTree.map(comment => comment.item
       ? <ToCCommentBlock
           key={comment.item._id}
           commentTree={comment} indentLevel={1} classes={classes}
-          highlightedCommentId={highlightedCommentId}
+          highlightedCommentId={highlightedLandmarkName}
         />
       : null
     )}
@@ -69,6 +120,16 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
       highlighted={highlightedCommentId===comment._id}
       dense
       href={"#"+comment._id}
+      onClick={ev => {
+        let anchor = window.document.getElementById(comment._id);
+        if (anchor) {
+          let anchorBounds = anchor.getBoundingClientRect();
+          const y = anchorBounds.top + window.scrollY - getCurrentSectionMark();
+          window.scrollTo({ top: y });
+        }
+        ev.stopPropagation();
+        ev.preventDefault();
+      }}
     >
       <span className={classes.comment}>
         <span className={classes.commentKarma}>{comment.baseScore}</span>

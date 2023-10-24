@@ -1,13 +1,23 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { isServer } from "../../lib/executionEnvironment";
 
 export type ScrollHighlightLandmark = {
+  landmarkName: string,
   elementId: string
-  position: "topOfElement"|"centerOfElement",
+  position: "topOfElement"|"centerOfElement"|"bottomOfElement",
 }
 
+/**
+ * Takes a list of element IDs (the ID attributes of DOM nodes), sorted by
+ * Y-position in the page. Attaches event handlers to listen for scroll
+ * events on the page. If `landmarks` is empty, returns null. If the scroll
+ * position is above all of the elements passed, returns "above"; if below
+ * all of the elements passed, returns "below".
+ *
+ * (This is mainly used for table of contents.)
+ */
 export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
-  landmarkId: string|null
+  landmarkName: string|"above"|"below"|null
 } {
   const [currentLandmark,setCurrentSection] = useState<string|null>(null);
 
@@ -17,7 +27,7 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
     return window.innerHeight/3
   }
 
-  const getCurrentSection = (): string|null => {
+  const getCurrentSection = useCallback((): string|null => {
     if (isServer)
       return null;
     if (!landmarks)
@@ -28,7 +38,7 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
     // Y is as close to the 1/3 mark as possible without going over.
     let currentSectionMark = getCurrentSectionMark();
 
-    let current: string|null = null;
+    let current = "above";
     for(let i=0; i<landmarks.length; i++)
     {
       let sectionY = getLandmarkY(landmarks[i]);
@@ -38,14 +48,13 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
     }
 
     return current;
-  }
+  }, [landmarks]);
 
-  const updateHighlightedSection = () => {
+  const updateHighlightedSection = useCallback(() => {
     let newCurrentSection = getCurrentSection();
-    if(newCurrentSection !== currentLandmark) {
-      setCurrentSection(newCurrentSection);
-    }
-  }
+    setCurrentSection(newCurrentSection);
+  }, [getCurrentSection]);
+
   useEffect(() => {
     window.addEventListener('scroll', updateHighlightedSection);
     updateHighlightedSection();
@@ -53,10 +62,10 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
     return () => {
       window.removeEventListener('scroll', updateHighlightedSection);
     };
-  });
+  }, [updateHighlightedSection]);
   
   return {
-    landmarkId: currentLandmark
+    landmarkName: currentLandmark
   };
 }
 
@@ -65,14 +74,17 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
 // position.)
 const getLandmarkY = (landmark: ScrollHighlightLandmark): number|null => {
   let anchor = window.document.getElementById(landmark.elementId);
-  if (anchor) {
-    let anchorBounds = anchor.getBoundingClientRect();
-    if (landmark.position==="topOfElement") {
+  if (!anchor) {
+    return null;
+  }
+  let anchorBounds = anchor.getBoundingClientRect();
+  switch (landmark.position) {
+    default:
+    case "topOfElement":
       return anchorBounds.top;
-    } else {
+    case "centerOfElement":
       return anchorBounds.top + (anchorBounds.height/2);
-    }
-  } else {
-    return null
+    case "bottomOfElement":
+      return anchorBounds.bottom;
   }
 }

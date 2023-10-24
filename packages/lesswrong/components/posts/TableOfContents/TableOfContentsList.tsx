@@ -7,7 +7,7 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
-import { useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 
 export interface ToCDisplayOptions {
   /**
@@ -48,25 +48,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   const location = useLocation();
   const { query } = location;
 
-  // Return the screen-space current section mark - that is, the spot on the
-  // screen where the current-post will transition when its heading passes.
-  const getCurrentSectionMark = () => {
-    return window.innerHeight/3
-  }
-
-  // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
-  // if you've scrolled, the scroll is subtracted from the effective Y
-  // position.)
-  const getAnchorY = (anchorName: string): number|null => {
-    let anchor = window.document.getElementById(anchorName);
-    if (anchor) {
-      let anchorBounds = anchor.getBoundingClientRect();
-      return anchorBounds.top + (anchorBounds.height/2);
-    } else {
-      return null
-    }
-  }
-
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
 
@@ -82,20 +63,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
     }
   }
 
-  const jumpToY = (y: number) => {
-    if (isServer) return;
-
-    try {
-      window.scrollTo({
-        top: y - getCurrentSectionMark() + 1,
-        behavior: "smooth"
-      });
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.warn("scrollTo not supported, using link fallback", e)
-    }
-  }
-
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
@@ -106,9 +73,18 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
   }
   
-  const { landmarkId: currentSection } = useScrollHighlight(
-    filteredSections.map(section => ({elementId: section.anchor, position: "centerOfElement"}))
-  );
+  const { landmarkName: currentSection } = useScrollHighlight([
+    ...filteredSections.map((section): ScrollHighlightLandmark => ({
+      landmarkName: section.anchor,
+      elementId: section.anchor,
+      position: "centerOfElement"
+    })),
+    {
+      landmarkName: "comments",
+      elementId: "postBody",
+      position: "bottomOfElement"
+    },
+  ]);
 
   if (!tocSections)
     return <div/>
@@ -155,7 +131,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
           });
         }
       }}
-      highlighted={currentSection === topSection}
+      highlighted={currentSection === "above"}
       title
     >
       {title?.trim()}
@@ -187,6 +163,45 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
     })}
   </div>
 }
+
+
+/**
+ * Return the screen-space current section mark - that is, the spot on the
+ * screen where the current-post will transition when its heading passes.
+ */
+export const getCurrentSectionMark = () => {
+  return window.innerHeight/3
+}
+
+/**
+ * Return the screen-space Y coordinate of an anchor. (Screen-space meaning
+ * if you've scrolled, the scroll is subtracted from the effective Y
+ * position.)
+ */
+export const getAnchorY = (anchorName: string): number|null => {
+  let anchor = window.document.getElementById(anchorName);
+  if (anchor) {
+    let anchorBounds = anchor.getBoundingClientRect();
+    return anchorBounds.top + (anchorBounds.height/2);
+  } else {
+    return null
+  }
+}
+
+export const jumpToY = (y: number) => {
+  if (isServer) return;
+
+  try {
+    window.scrollTo({
+      top: y - getCurrentSectionMark() + 1,
+      behavior: "smooth"
+    });
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.warn("scrollTo not supported, using link fallback", e)
+  }
+}
+
 
 const TableOfContentsListComponent = registerComponent(
   "TableOfContentsList", TableOfContentsList, {
