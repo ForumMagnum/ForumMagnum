@@ -10,13 +10,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
+    ...(isEAForum && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -76,7 +78,7 @@ const TagPreview = ({
   autoApplied?: boolean,
   classes: ClassesType,
 }) => {
-  const showPosts = postCount > 0 && !!(tag?._id)
+  const showPosts = postCount > 0 && !!tag?._id;
   const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
@@ -85,37 +87,95 @@ const TagPreview = ({
     limit: postCount,
   });
 
-  const hasFooter = (showCount || autoApplied);
+  const hasFooter = showCount || autoApplied;
+  const subTagName = "Sub-" + (
+    tag.subTags.length > 1
+      ? taggingNamePluralCapitalSetting.get()
+      : taggingNameCapitalSetting.get()
+  );
 
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
-  return (<div className={classes.card}>
-    {tag && <>
-      <TagPreviewDescription tag={tag} hash={hash}/>
-      {!hideRelatedTags && (tag.parentTag || tag.subTags.length) ?
-        <div className={classes.relatedTags}>
-          {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-          {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
-            return <Fragment key={idx}>
-              <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
-            </Fragment>
-          })}</span></div> : <></>}
-        </div> : <></>
+  const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
+  return (
+    <div className={classes.card}>
+      {tag &&
+        <>
+          <TagPreviewDescription tag={tag} hash={hash} />
+          {!hideRelatedTags && (tag.parentTag || tag.subTags.length)
+            ? (
+              <div className={classes.relatedTags}>
+                {tag.parentTag &&
+                  <div className={classes.relatedTagWrapper}>
+                    Parent topic:{" "}
+                    <Link
+                      className={classes.relatedTagLink}
+                      to={tagGetUrl(tag.parentTag)}
+                    >
+                      {tag.parentTag.name}
+                    </Link>
+                  </div>
+                }
+                {tag.subTags.length
+                  ? (
+                    <div className={classes.relatedTagWrapper}>
+                      <span>
+                        {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
+                          <Fragment key={idx}>
+                            <Link
+                              className={classes.relatedTagLink}
+                              to={tagGetUrl(subTag)}
+                            >
+                              {subTag.name}
+                            </Link>
+                            {idx < tag.subTags.length - 1 ? ", " : null}
+                          </Fragment>
+                        ))}
+                      </span>
+                    </div>
+                  )
+                  : null
+                }
+              </div>
+            )
+            : null
+          }
+          {showPosts && !tag.wikiOnly &&
+            <>
+              {results
+                ? (
+                  <div className={classes.posts}>
+                    {results.map((post) => post &&
+                      <TagSmallPostLink
+                        key={post._id}
+                        post={post}
+                        widerSpacing={postCount > 3}
+                      />
+                    )}
+                  </div>
+                )
+                : <Loading />
+              }
+              {hasFooter &&
+                <div className={classes.footer}>
+                  {autoApplied &&
+                    <span className={classes.autoApplied}>
+                      Tag was auto-applied
+                    </span>
+                  }
+                  {showCount &&
+                    <span className={classes.footerCount}>
+                      <Link to={tagGetUrl(tag)}>
+                        View all {tag.postCount} posts
+                      </Link>
+                    </span>
+                  }
+                </div>
+              }
+            </>
+          }
+        </>
       }
-      {showPosts && !tag.wikiOnly && <>
-        {results ? <div className={classes.posts}>
-          {results.map((post) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-        </div> : <Loading />}
-        {hasFooter && <div className={classes.footer}>
-          {autoApplied && <span className={classes.autoApplied}>
-            Tag was auto-applied
-          </span>}
-          {showCount && <span className={classes.footerCount}>
-            <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
-          </span>}
-        </div>}
-      </>}
-    </>}
-  </div>)
+    </div>
+  );
 }
 
 const TagPreviewComponent = registerComponent("TagPreview", TagPreview, {styles});
