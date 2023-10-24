@@ -164,7 +164,7 @@ const LWPostsPreviewTooltip = ({
     ? post.dialogTooltipPreview
     : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
 
-  const renderWordCount = !comment && !post.isEvent && (wordCount > 0)
+  const renderWordCount = !comment && !post.isEvent && ((wordCount ?? 0) > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   const renderedComment = comment || post.bestAnswer

@@ -24,7 +24,7 @@ interface BansCollection extends CollectionBase<DbBan, "Bans"> {
 
 interface DbBan extends DbObject {
   __collectionName?: "Bans"
-  expirationDate: Date
+  expirationDate: Date | null
   userId: string
   ip: string | null
   reason: string | null

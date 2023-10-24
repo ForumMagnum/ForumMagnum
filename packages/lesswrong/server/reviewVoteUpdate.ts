@@ -10,10 +10,10 @@ export interface Dictionary<T> {
   [index: string]: T;
 }
 
-const getCost = (vote: reviewVoteFragment): number => {
+const getCost = (vote: DbReviewVote): number => {
   return getCostData({})[vote.qualitativeScore].cost
 } 
-const getValue = (vote: reviewVoteFragment, total: number): number|null => {
+const getValue = (vote: DbReviewVote, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 

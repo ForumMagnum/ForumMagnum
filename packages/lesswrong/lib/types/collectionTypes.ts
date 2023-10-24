@@ -253,7 +253,7 @@ type FragmentName = keyof FragmentTypes;
 type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
 interface EditableFieldContents {
   html: string
-  wordCount: number
+  wordCount: number | null
   originalContents: DbRevision["originalContents"]
   editedAt: Date
   userId: string

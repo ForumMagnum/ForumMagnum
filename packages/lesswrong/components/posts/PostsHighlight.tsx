@@ -102,7 +102,7 @@ const HighlightBody = ({
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
-      rawWordCount={wordCount}
+      rawWordCount={wordCount ?? 0}
       expanded={expanded}
       getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) =>
         <div className={classes.highlightContinue}>

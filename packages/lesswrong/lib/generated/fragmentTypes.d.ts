@@ -1892,7 +1892,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
 }
 
 interface BansDefaultFragment { // fragment on Bans
-  readonly expirationDate: Date,
+  readonly expirationDate: Date | null,
   readonly userId: string,
   readonly ip: string,
   readonly reason: string,
@@ -1903,7 +1903,7 @@ interface BansDefaultFragment { // fragment on Bans
 interface BansAdminPageFragment { // fragment on Bans
   readonly _id: string,
   readonly createdAt: Date,
-  readonly expirationDate: Date,
+  readonly expirationDate: Date | null,
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
   readonly reason: string,
