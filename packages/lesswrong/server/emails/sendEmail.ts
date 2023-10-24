@@ -17,7 +17,6 @@ type SendgridEmailData = {
   user?: DbUser,
   to?: string,
   from?: string,
-  subject: string,
   notificationData: AnyBecauseHard,
   notifications: DbNotification[]
 }
