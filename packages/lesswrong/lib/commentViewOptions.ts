@@ -1,14 +1,14 @@
 import { isFriendlyUI } from "../themes/forumTheme";
 import { preferredHeadingCase } from "./forumTypeUtils";
-import { isAF } from "./instanceSettings";
+import { isAF, sortMagicNameSetting, sortTopCommentNameSetting, sortNewNameSetting, sortOldNameSetting, sortRecentRepliesNameSetting } from "./instanceSettings";
 
 const customViewNames: Partial<Record<CommentsViewName,string>> = {
-  'postCommentsMagic': isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)',
-  'postCommentsTop': isFriendlyUI ? 'Top' : 'top scoring',
-  'postCommentsRecentReplies': preferredHeadingCase('latest reply'),
+  'postCommentsMagic': sortMagicNameSetting.get() ?? (isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)'),
+  'postCommentsTop': sortTopCommentNameSetting.get() ?? (isFriendlyUI ? 'Top' : 'top scoring'),
+  'postCommentsRecentReplies': sortRecentRepliesNameSetting.get() ?? preferredHeadingCase('latest reply'),
   'afPostCommentsTop': preferredHeadingCase('top scoring'),
-  'postCommentsNew': isFriendlyUI ? 'New' : 'newest',
-  'postCommentsOld': isFriendlyUI ? 'Old' : 'oldest',
+  'postCommentsNew': sortNewNameSetting.get() ?? (isFriendlyUI ? 'New' : 'newest'),
+  'postCommentsOld': sortOldNameSetting.get() ?? (isFriendlyUI ? 'Old' : 'oldest'),
   'postCommentsBest': preferredHeadingCase('highest karma'),
   'postCommentsDeleted': preferredHeadingCase('deleted'),
   'postLWComments': preferredHeadingCase('top scoring (include LW)'),

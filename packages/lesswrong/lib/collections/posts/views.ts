@@ -513,6 +513,15 @@ ensureIndex(Posts,{ "tagRelevance.$**" : 1 } )
 Posts.addView("top", (terms: PostsViewTerms) => ({
   options: {sort: setStickies(sortings.top, terms)}
 }))
+
+Posts.addView("topThisWeek", (terms: PostsViewTerms) => {
+  const oneWeekAgo = moment().subtract(7, 'days').toDate();
+
+  return {
+    selector: { createdAt: { $gte: oneWeekAgo } },
+    options: {sort: setStickies(sortings.top, terms)}
+  };
+});
 // unused on LW. If EA forum is also not using we can delete.
 // ensureIndex(Posts,
 //   augmentForDefaultView({ ...stickiesIndexPrefix, baseScore:-1 }),

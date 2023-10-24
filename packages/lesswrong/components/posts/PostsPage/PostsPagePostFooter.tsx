@@ -4,10 +4,9 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
-import { isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF, shareButtonSetting } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { hasShareButtonSetting } from '../../../lib/publicSettings';
 
 const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
@@ -100,7 +99,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
           </div>
           {isFriendlyUI && <div className={classes.secondaryInfoRight}>
             <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-            {hasShareButtonSetting.get() && <SharePostButton post={post} />}
+            {shareButtonSetting.get() && <SharePostButton post={post} />}
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">
                 <PostActionsButton post={post} includeBookmark={!isFriendlyUI} />
