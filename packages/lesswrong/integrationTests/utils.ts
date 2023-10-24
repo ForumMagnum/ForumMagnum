@@ -283,10 +283,14 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
   const defaultData = {
     _id: randomId(),
     documentId: randomId(),
+    collectionName: "Posts" as const,
+    voteType: "smallUpvote",
     userId: user._id,
     authorIds: [],
+    power: 1,
     cancelled: false,
     isUnvote: false,
+    votedAt: new Date()
   };
   return {...defaultData, ...data};
 }
