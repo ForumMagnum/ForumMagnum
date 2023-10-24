@@ -31,6 +31,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderTopLeftRadius: 0,
       borderTopRightRadius: 0,
     },
+    "& .EAUsersProfileLinks-links": {
+      marginTop: "0",
+    },
   },
   sunshineSection: {
     marginBottom: 24
@@ -128,7 +131,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   btns: {
     display: 'flex',
     columnGap: 20,
-    marginTop: 20,
   },
   messageBtn: {
     display: 'block',
