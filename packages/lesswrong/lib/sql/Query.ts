@@ -21,7 +21,11 @@ class Arg {
       }
     } else if (value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
       console.log({type})
-      this.value = type.getDefaultValueString();
+      if (type.isArray()) {
+        this.value = []
+      } else {
+        this.value = type.getDefaultValueString();
+      }
     }
   }
 }
