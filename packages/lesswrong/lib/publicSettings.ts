@@ -158,6 +158,9 @@ export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEma
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false);
 
+export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean>('showPersonalBlogpostIcon', true);
+export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
+
 export const showTableOfContentsSetting = new DatabasePublicSetting<boolean>('showTableOfContents', true);
 export const showReadingTimeSetting = new DatabasePublicSetting<boolean>('showReadingTime', true);
 export const showAudioNodeSetting = new DatabasePublicSetting<boolean>('showAudioNode', true);
