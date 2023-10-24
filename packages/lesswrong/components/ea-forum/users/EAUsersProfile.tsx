@@ -161,8 +161,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EAUsersProfile = ({terms, slug, classes}: {
+const EAUsersProfile = ({terms, slug, subscriptionsEnabled = true, classes}: {
   terms: UsersViewTerms,
+  subscriptionsEnabled?: boolean,
   slug: string,
   classes: ClassesType,
 }) => {
@@ -239,7 +240,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
+    ProfileShortform, EAUsersProfileImage, WUUsersMetaInfo, EAUsersProfileLinks,
   } = Components
 
   if (loading) {
@@ -440,17 +441,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
-          {userCanEditUser(currentUser, user) &&
-            <div className={classes.editProfile}>
-              <Button
-                type="submit"
-                href={`/profile/${user.slug}/edit`}
-                className={classes.editProfileButton}
-              >
-                Edit profile
-              </Button>
-            </div>
-          }
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
@@ -458,7 +448,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}
-          <EAUsersMetaInfo user={user} />
+          <WUUsersMetaInfo user={user} />
           {currentUser?._id != user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
@@ -468,21 +458,23 @@ const EAUsersProfile = ({terms, slug, classes}: {
                 Message
               </a>
             </NewConversationButton>
-            <NotifyMeButton
+            {subscriptionsEnabled && <NotifyMeButton
               document={user}
               className={classes.subscribeBtn}
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe"
               asButton
-            />
+            />}
           </div>}
-          <EAUsersProfileLinks user={user} />
+          <EAUsersProfileLinks user={user} canManageSubscriptions={subscriptionsEnabled} />
         </div>
 
         {userCanDo(currentUser, 'posts.moderate.all') && <div className={classes.sunshineSection}>
           <SunshineNewUsersProfileInfo userId={user._id} />
         </div>}
 
+        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
+        
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
           <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
           <Button color="primary"
@@ -492,8 +484,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
             Click to view drafts
           </Button>
         )}
-
-        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
 
         {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>

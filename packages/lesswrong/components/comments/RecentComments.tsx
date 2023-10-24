@@ -34,7 +34,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   }
   
   return (
-    <div className={classes.root}>
+    <div className={classes.root + " recent-comments-container"}>
       {validResults.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode

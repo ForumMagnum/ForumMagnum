@@ -980,3 +980,4 @@ importComponent("CookieTable", () => require('../components/common/CookieBanner/
 importComponent("WULoginForm", () => require('../components/users/WULoginForm'));
 importComponent("WakingUpHome", () => require('../components/common/WakingUpHome'));
 importComponent("WUEmojiPalette", () => require('../components/votes/WUEmojiPalette'));
+importComponent("WUUsersMetaInfo", () => require('../components/ea-forum/users/WUUsersMetaInfo'))
