@@ -96,7 +96,11 @@ const styles = (theme: ThemeType): JssStyles => ({
         float: "none",
       },
     },
-
+    
+    "& .MuiFormLabel-root, .MuiInputBase-input": {
+      fontSize: theme.typography.body2.fontSize,
+      fontWeight: 600,
+    }
   },
 
   header: {
