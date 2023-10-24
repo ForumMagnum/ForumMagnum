@@ -59,16 +59,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export type TagPreviewProps = {
-  tag: TagPreviewFragment | TagSectionPreviewFragment,
-  hash?: string,
-  showCount?: boolean,
-  hideRelatedTags?: boolean,
-  postCount?: number,
-  autoApplied?: boolean,
-  classes: ClassesType,
-}
-
 const TagPreview = ({
   tag,
   hash,
@@ -77,7 +67,15 @@ const TagPreview = ({
   postCount=6,
   autoApplied=false,
   classes,
-}: TagPreviewProps) => {
+}: {
+  tag: TagPreviewFragment | TagSectionPreviewFragment,
+  hash?: string,
+  showCount?: boolean,
+  hideRelatedTags?: boolean,
+  postCount?: number,
+  autoApplied?: boolean,
+  classes: ClassesType,
+}) => {
   const showPosts = postCount > 0 && !!(tag?._id)
   const {results} = useMulti({
     skip: !showPosts,

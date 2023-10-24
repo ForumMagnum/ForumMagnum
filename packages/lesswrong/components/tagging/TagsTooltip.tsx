@@ -41,15 +41,25 @@ const useTagsTooltipTag = (
   };
 }
 
+export type TagsTooltipPreviewWrapper = FC<{
+  tag: PreviewableTag | null,
+  loading: boolean,
+  children: ReactNode,
+}>;
+
+const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
+  <>{children}</>
+);
+
 const TagsTooltip = ({
   tagRel,
   hash,
-  previewPostCount=6,
+  previewPostCount = 6,
   hideRelatedTags,
   noPrefetch,
-  popperCard,
+  PreviewWrapper = DefaultPreviewWrapper,
   As,
-  inlineBlock=false,
+  inlineBlock = false,
   children,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
@@ -58,7 +68,7 @@ const TagsTooltip = ({
   previewPostCount?: number,
   hideRelatedTags?: boolean,
   noPrefetch?: boolean,
-  popperCard?: ReactNode,
+  PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
   inlineBlock?: boolean,
   children: ReactNode,
@@ -66,12 +76,6 @@ const TagsTooltip = ({
   const {tag, loading} = useTagsTooltipTag(tagsTooltipProps, hash, noPrefetch);
 
   const Title = useCallback<FC>(() => {
-    if (popperCard) {
-      return (
-        <>{popperCard}</>
-      );
-    }
-
     const {Loading, TagRelCard, TagPreview} = Components;
     if (loading) {
       return (
@@ -97,13 +101,17 @@ const TagsTooltip = ({
     }
 
     return null;
-  }, [popperCard, loading, tagRel, tag, hash, previewPostCount, hideRelatedTags]);
+  }, [loading, tagRel, tag, hash, previewPostCount, hideRelatedTags]);
 
   const {LWTooltip, EAHoverOver} = Components;
   const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
   return (
     <Tooltip
-      title={<Title />}
+      title={
+        <PreviewWrapper tag={tag} loading={loading}>
+          <Title />
+        </PreviewWrapper>
+      }
       clickable
       As={As}
       inlineBlock={inlineBlock}

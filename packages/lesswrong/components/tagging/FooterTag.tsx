@@ -9,6 +9,7 @@ import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
 import { isEAForum } from '../../lib/instanceSettings';
 import { coreTagIconMap } from './CoreTagIcon';
+import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
@@ -114,7 +115,7 @@ const FooterTag = ({
   tag,
   hideScore=false,
   smallText,
-  popperCard,
+  PreviewWrapper,
   link=true,
   highlightAsAutoApplied=false,
   neverCoreStyling=false,
@@ -126,7 +127,7 @@ const FooterTag = ({
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
   smallText?: boolean,
-  popperCard?: React.ReactNode,
+  PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
   highlightAsAutoApplied?: boolean,
   neverCoreStyling?: boolean,
@@ -156,7 +157,7 @@ const FooterTag = ({
       <TagsTooltip
         tag={tag}
         tagRel={tagRel}
-        popperCard={popperCard}
+        PreviewWrapper={PreviewWrapper}
         hideRelatedTags={hideRelatedTags}
       >
         <span className={classNames(classes.root, className, {

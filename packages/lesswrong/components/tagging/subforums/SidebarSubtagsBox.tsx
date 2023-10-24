@@ -1,13 +1,13 @@
 import classNames from "classnames";
 import take from "lodash/take";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { sortTags } from "../FooterTagList";
-import { TagPreviewProps } from "../TagPreview";
+import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,8 +33,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment | TagPageWithRevisionFragment; className?: string; classes: ClassesType }) => {
-  const { ContentStyles, FooterTag, AddTagButton, TagPreview, Loading } = Components;
+const SidebarSubtagsBox = ({ tag, className, classes }: {
+  tag: TagPageFragment | TagPageWithRevisionFragment,
+  className?: string,
+  classes: ClassesType,
+}) => {
+  const { ContentStyles, FooterTag, AddTagButton, Loading } = Components;
 
   const [isAwaiting, setIsAwaiting] = useState(false)
   const [showAllSubtags, setShowAllSubtags] = useState(false)
@@ -56,37 +60,58 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
     fragmentName: "TagBasicInfo",
   });
 
-  const setParentTag = async ({ subTagId, parentTagId }: { subTagId: string; parentTagId: string | null }) => {
+  const setParentTag = useCallback(async ({ subTagId, parentTagId }: {
+    subTagId: string,
+    parentTagId: string | null,
+  }) => {
     setIsAwaiting(true)
     await updateTag({ selector: { _id: subTagId }, data: { parentTagId } });
     await refetch();
     setIsAwaiting(false)
-  };
-
-  if (!tagWithSubtags) return null;
+  }, [updateTag, refetch]);
 
   // TODO: open this up to subforum moderators at least. The reason we can't do this at the moment is that subtags can only have one parent,
   // so we don't want people stealing subtags from other subforums.
   const canEditSubtags = !!(currentUser?.isAdmin || currentUser?.groups?.includes("sunshineRegiment"));
-  const subTags = tagWithSubtags?.subTags;
 
-  // still show the box if the user can edit subtags, to expose the add button
-  if (!canEditSubtags && (!subTags || !subTags.length)) return null;
-
-  const WrappedTagPreview = ({ tag: subTag, ...otherProps }: Omit<TagPreviewProps, "classes">) => {
-    if (!subTag) return null;
-
+  const PreviewWrapper = useCallback<TagsTooltipPreviewWrapper>(({
+    tag: subTag,
+    loading,
+    children,
+  }) => {
+    if (!subTag || loading) {
+      return <>{children}</>;
+    }
     return (
       <>
-        {canEditSubtags && <div className={classes.previewWrapperRow}>
-          <a className={classes.removeButton} onClick={() => setParentTag({ subTagId: subTag._id, parentTagId: null })}>
-            Remove {taggingNameSetting.get()}
-          </a>
-        </div>}
-        <TagPreview tag={subTag} {...otherProps} />
+        {canEditSubtags &&
+          <div className={classes.previewWrapperRow}>
+            <a
+              onClick={() => setParentTag({
+                subTagId: subTag._id,
+                parentTagId: null,
+              })}
+              className={classes.removeButton}
+            >
+              Remove {taggingNameSetting.get()}
+            </a>
+          </div>
+        }
+        {children}
       </>
     );
-  };
+  }, [canEditSubtags, classes, setParentTag]);
+
+  if (!tagWithSubtags) {
+    return null;
+  }
+
+  const subTags = tagWithSubtags.subTags;
+
+  // still show the box if the user can edit subtags, to expose the add button
+  if (!canEditSubtags && (!subTags || !subTags.length)) {
+    return null;
+  }
 
   const sortedSubtags = sortTags(subTags, (t) => t)
   const visibleSubtags = showAllSubtags ? sortedSubtags : take(sortedSubtags, 7)
@@ -101,14 +126,15 @@ const SidebarSubtagsBox = ({ tag, className, classes }: { tag: TagPageFragment |
           key={tag._id}
           tag={tag}
           hideScore={true}
-          popperCard={<WrappedTagPreview tag={tag} hideRelatedTags />}
+          hideRelatedTags
+          PreviewWrapper={PreviewWrapper}
         />
         {visibleSubtags.map((tag) => (
           <FooterTag
             key={tag._id}
             tag={tag}
             hideScore={true}
-            popperCard={<WrappedTagPreview tag={tag} />}
+            PreviewWrapper={PreviewWrapper}
           />
         ))}
         {canEditSubtags && <AddTagButton onTagSelected={({ tagId: subTagId }) => setParentTag({ subTagId, parentTagId: tag._id })} />}
