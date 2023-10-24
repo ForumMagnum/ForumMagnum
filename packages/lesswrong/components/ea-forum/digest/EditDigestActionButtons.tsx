@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-const EditDigestPublishBtn = ({digest, classes} : {
+const EditDigestActionButtons = ({digest, classes} : {
   digest: DigestsMinimumInfo,
   classes: ClassesType
 }) => {
@@ -30,10 +30,22 @@ const EditDigestPublishBtn = ({digest, classes} : {
   })
   
   /**
+   * Set the end date for this digest. A callback will automatically create the next digest.
+   */
+  const handleStartNewWeek = () => {
+    void updateDigest({
+      selector: {_id: digest._id},
+      data: {
+        endDate: new Date()
+      }
+    })
+  }
+  
+  /**
    * If the digest has been published before, set or unset the publishedDate.
    * Otherwise, open the publish confirmation dialog.
    */
-  const handleBtnClick = () => {
+  const handlePublish = () => {
     // if the digest has an endDate set, then we know it's already been published
     if (digest.endDate) {
       void updateDigest({
@@ -53,7 +65,14 @@ const EditDigestPublishBtn = ({digest, classes} : {
   const { EAButton, LWTooltip, ForumIcon } = Components
 
   return <>
-    <EAButton variant={isPublished ? 'outlined' : 'contained'} onClick={handleBtnClick}>
+    {!digest.endDate && <LWTooltip title="This sets the cut-off date for this digest and automatically sets up the next digest.">
+      <EAButton variant='outlined' onClick={handleStartNewWeek}>
+        Start new week
+      </EAButton>
+    </LWTooltip>}
+  
+    {/* TODO: Update this if/when we add an on-site version of the digest
+    <EAButton variant={isPublished ? 'outlined' : 'contained'} onClick={handlePublish}>
       {isPublished ? 'Unpublish' : 'Publish'}
     </EAButton>
 
@@ -76,14 +95,14 @@ const EditDigestPublishBtn = ({digest, classes} : {
       className={classes.questionMark}
     >
       <ForumIcon icon="QuestionMarkCircle" className={classes.questionMarkIcon} />
-    </LWTooltip>
+    </LWTooltip> */}
   </>
 }
 
-const EditDigestPublishBtnComponent = registerComponent('EditDigestPublishBtn', EditDigestPublishBtn, {styles});
+const EditDigestActionButtonsComponent = registerComponent('EditDigestActionButtons', EditDigestActionButtons, {styles});
 
 declare global {
   interface ComponentTypes {
-    EditDigestPublishBtn: typeof EditDigestPublishBtnComponent
+    EditDigestActionButtons: typeof EditDigestActionButtonsComponent
   }
 }
