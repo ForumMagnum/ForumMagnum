@@ -47,6 +47,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
   },
   footerCount: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontWeight: 600,
+    margin: "16px 0",
   },
   posts: {
     marginTop: 10,
@@ -78,7 +83,7 @@ const TagPreview = ({
   autoApplied?: boolean,
   classes: ClassesType,
 }) => {
-  const showPosts = postCount > 0 && !!tag?._id;
+  const showPosts = postCount > 0 && !!tag?._id && !isEAForum;
   const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
@@ -86,6 +91,19 @@ const TagPreview = ({
     fragmentName: "PostsList",
     limit: postCount,
   });
+
+  // In theory the type system doesn't allow this, but I'm too scared to
+  // remove it
+  if (!tag) {
+    return (
+      <div className={classes.card} />
+    );
+  }
+
+  const showRelatedTags =
+    !isEAForum &&
+    !hideRelatedTags &&
+    !!(tag.parentTag || tag.subTags.length);
 
   const hasFooter = showCount || autoApplied;
   const subTagName = "Sub-" + (
@@ -97,82 +115,82 @@ const TagPreview = ({
   const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
   return (
     <div className={classes.card}>
-      {tag &&
-        <>
-          <TagPreviewDescription tag={tag} hash={hash} />
-          {!hideRelatedTags && (tag.parentTag || tag.subTags.length)
+      <TagPreviewDescription tag={tag} hash={hash} />
+      {showRelatedTags &&
+        <div className={classes.relatedTags}>
+          {tag.parentTag &&
+            <div className={classes.relatedTagWrapper}>
+              Parent topic:{" "}
+              <Link
+                className={classes.relatedTagLink}
+                to={tagGetUrl(tag.parentTag)}
+              >
+                {tag.parentTag.name}
+              </Link>
+            </div>
+          }
+          {tag.subTags.length
             ? (
-              <div className={classes.relatedTags}>
-                {tag.parentTag &&
-                  <div className={classes.relatedTagWrapper}>
-                    Parent topic:{" "}
-                    <Link
-                      className={classes.relatedTagLink}
-                      to={tagGetUrl(tag.parentTag)}
-                    >
-                      {tag.parentTag.name}
-                    </Link>
-                  </div>
-                }
-                {tag.subTags.length
-                  ? (
-                    <div className={classes.relatedTagWrapper}>
-                      <span>
-                        {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
-                          <Fragment key={idx}>
-                            <Link
-                              className={classes.relatedTagLink}
-                              to={tagGetUrl(subTag)}
-                            >
-                              {subTag.name}
-                            </Link>
-                            {idx < tag.subTags.length - 1 ? ", " : null}
-                          </Fragment>
-                        ))}
-                      </span>
-                    </div>
-                  )
-                  : null
-                }
+              <div className={classes.relatedTagWrapper}>
+                <span>
+                  {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
+                    <Fragment key={idx}>
+                      <Link
+                        className={classes.relatedTagLink}
+                        to={tagGetUrl(subTag)}
+                      >
+                        {subTag.name}
+                      </Link>
+                      {idx < tag.subTags.length - 1 ? ", " : null}
+                    </Fragment>
+                  ))}
+                </span>
               </div>
             )
             : null
           }
-          {showPosts && !tag.wikiOnly &&
-            <>
-              {results
-                ? (
-                  <div className={classes.posts}>
-                    {results.map((post) => post &&
-                      <TagSmallPostLink
-                        key={post._id}
-                        post={post}
-                        widerSpacing={postCount > 3}
-                      />
-                    )}
-                  </div>
-                )
-                : <Loading />
+        </div>
+      }
+      {showPosts && !tag.wikiOnly &&
+        <>
+          {results
+            ? (
+              <div className={classes.posts}>
+                {results.map((post) => post &&
+                  <TagSmallPostLink
+                    key={post._id}
+                    post={post}
+                    widerSpacing={postCount > 3}
+                  />
+                )}
+              </div>
+            )
+            : <Loading />
+          }
+          {hasFooter &&
+            <div className={classes.footer}>
+              {autoApplied &&
+                <span className={classes.autoApplied}>
+                  Tag was auto-applied
+                </span>
               }
-              {hasFooter &&
-                <div className={classes.footer}>
-                  {autoApplied &&
-                    <span className={classes.autoApplied}>
-                      Tag was auto-applied
-                    </span>
-                  }
-                  {showCount &&
-                    <span className={classes.footerCount}>
-                      <Link to={tagGetUrl(tag)}>
-                        View all {tag.postCount} posts
-                      </Link>
-                    </span>
-                  }
-                </div>
+              {showCount &&
+                <span>
+                  <Link to={tagGetUrl(tag)}>
+                    View all {tag.postCount} posts
+                  </Link>
+                </span>
               }
-            </>
+            </div>
           }
         </>
+      }
+      {isEAForum &&
+        <div className={classes.footerCount}>
+          <Link to={tagGetUrl(tag)}>
+            View all {tag.postCount} posts
+          </Link>
+        </div>
       }
     </div>
   );
