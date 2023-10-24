@@ -432,7 +432,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, PostsCommentsSection,
-    PostsPageQuestionContent
+    PostsPageQuestionContent, AnalyticsInViewTracker
   } = Components
 
   useEffect(() => {
@@ -661,7 +661,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       terms={commentTerms}
       eagerPostComments={eagerPostComments}
     />
-    {isEAForum && <PostBottomRecommendations post={post} />}
+    {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+      <PostBottomRecommendations post={post} />
+    </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);

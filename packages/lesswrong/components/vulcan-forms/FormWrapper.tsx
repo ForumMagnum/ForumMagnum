@@ -168,7 +168,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
-  const { extraVariables = {}, extraVariablesValues } = props
+  const { extraVariables = {}, extraVariablesValues = {} } = props
   
   const selector: DocumentIdOrSlug = props.documentId
     ? {documentId: props.documentId}
@@ -178,6 +178,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
     collectionName: props.collectionName,
     fragment: queryFragment,
     extraVariables,
+    extraVariablesValues,
     fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
   });
   const {mutate: updateMutation} = useUpdate({
