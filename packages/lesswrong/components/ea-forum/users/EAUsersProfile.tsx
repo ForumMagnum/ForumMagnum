@@ -161,9 +161,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const EAUsersProfile = ({terms, slug, subscriptionsEnabled = true, classes}: {
+const EAUsersProfile = ({terms, slug, subscriptionsEnabled = true, postSortingEnabled = true, classes}: {
   terms: UsersViewTerms,
   subscriptionsEnabled?: boolean,
+  postSortingEnabled?: boolean,
   slug: string,
   classes: ClassesType,
 }) => {
@@ -490,8 +491,8 @@ const EAUsersProfile = ({terms, slug, subscriptionsEnabled = true, classes}: {
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
             </Typography>
-            <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
-              label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />
+            {postSortingEnabled && <SortButton onClick={() => setShowPostSettings(!showPostSettings)}
+              label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`} />}
           </div>
           {showPostSettings && <PostsListSettings
             hidden={false}
