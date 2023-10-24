@@ -14,7 +14,7 @@ import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from '.
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
-import { formatError } from 'apollo-errors';
+import { ErrorInfo, formatError } from 'apollo-errors';
 
 import * as Sentry from '@sentry/node';
 import express from 'express'
@@ -112,6 +112,29 @@ export function startWebserver() {
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
 
+  // formatErrorShim does two useful things:
+  // 1. It fixes the slight incompatibility between the ErrorInfo type returned
+  // by formatError from apollo-errors, and the GraphQLFormattedError that
+  // apolloServer.formatError needs to return.
+  // 2. It conceals the specific error message of internal server errors that we
+  // don't want to expose to the client. So we replace the error message with
+  // a generic one, unless the code is missing (as in the case of custom errors
+  // made with apollo-errors) or the code is BAD_USER_INPUT (i.e. validation errors
+  // the user should know about).
+  // (To send an error message to the client, use createError from 'apollo-errors'.)
+  const formatErrorShim = (e: GraphQLError) => {
+    const formattedError = formatError(e);
+    let message;
+    if (e?.extensions?.code && e.extensions.code != 'BAD_USER_INPUT') {
+      message = `An unexpected error occurred.`;
+    }
+    return {
+      ...formattedError,
+      path: [formattedError?.path || ""],
+      message: message || formattedError.message,
+    };
+  }
+
   // create server
   // given options contains the schema
   const apolloServer = new ApolloServer({
@@ -122,13 +145,13 @@ export function startWebserver() {
     
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
+      // relevant documentation: https://www.apollographql.com/docs/apollo-server/v2/data/errors
       Sentry.captureException(e);
       const {message, ...properties} = e;
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
-      // TODO: Replace sketchy apollo-errors package with something first-party
-      // and that doesn't require a cast here
-      return formatError(e) as any;
+
+      return formatErrorShim(e);
     },
     //tracing: isDevelopment,
     tracing: false,

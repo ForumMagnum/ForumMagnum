@@ -5,16 +5,6 @@ import classNames from 'classnames';
 import OTPInput from './OTPInput';
 import SimpleSchema from 'simpl-schema';
 
-const badLoginErrorMessage = "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.";
-const invalidCodeMessage = 'Error: The code you entered was invalid or expired.'
-const unknownErrorMessage = 'An unknown error has occurred. Email community@wakingup.com if this persists.'
-
-const errorMessage = (error: ApolloError | undefined) => {
-  if (error?.message === 'app.authorization_error') return badLoginErrorMessage;
-  if (error?.message === 'app.invalid_one_time_code') return invalidCodeMessage;
-  return unknownErrorMessage;
-}
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     wordBreak: "normal",
@@ -196,7 +186,7 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
         <div>Not a Waking Up app member? <a href="https://www.wakingup.com/">Get the app</a>.</div>
       </div>
       
-      {error && <div className={classes.error}>{errorMessage(error)}</div>}
+      {error && <div className={classes.error}>{error.message}</div>}
       {loading && <Loading />}
     </form>
   </Components.ContentStyles>;
