@@ -1,7 +1,7 @@
 // @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
+import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
 
 export default class DialogueCommentBox extends Plugin {
@@ -122,7 +122,14 @@ class SimpleBoxEditing extends Plugin {
             allowContentOf: '$root',
 
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
+            inheritAllFrom: '$blockObject'
         });
+
+        schema.register( 'simpleBox', {
+            // Behaves like a self-contained block object (e.g. a block image)
+            // allowed in places where other blocks are allowed (e.g. directly in the root).
+            inheritAllFrom: '$blockObject'
+        } );
 
         const forbiddenMessageChildren = [
             'dialogueMessage',
@@ -238,6 +245,30 @@ class SimpleBoxEditing extends Plugin {
             model: 'dialogueMessage',
             view: messageEditingDowncastViewGenerator
         } );
+
+        // <simpleBox> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: 'simpleBox',
+            view: {
+                name: 'section',
+                classes: 'simple-box'
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'simpleBox',
+            view: {
+                name: 'section',
+                classes: 'simple-box'
+            }
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'simpleBox',
+            view: ( modelElement, { writer: viewWriter } ) => {
+                const section = viewWriter.createContainerElement( 'section', { class: 'simple-box' } );
+
+                return toWidget( section, viewWriter, { label: 'simple box widget' } );
+            }
+        } );
     }
 }
 
@@ -270,6 +301,21 @@ class InsertRootParagraphBoxCommand extends Command {
 
         this.isEnabled = childOfDialogueMessage;
     }
+}
+
+function createSimpleBox( writer ) {
+    const simpleBox = writer.createElement( 'simpleBox' );
+    // const simpleBoxTitle = writer.createElement( 'simpleBoxTitle' );
+    // const simpleBoxDescription = writer.createElement( 'simpleBoxDescription' );
+
+    // writer.append( simpleBoxTitle, simpleBox );
+    // writer.append( simpleBoxDescription, simpleBox );
+
+    // There must be at least one paragraph for the description to be editable.
+    // See https://github.com/ckeditor/ckeditor5/issues/1464.
+    // writer.appendElement( 'paragraph', simpleBoxDescription );
+
+    return simpleBox;
 }
 
 class SubmitDialogueMessageCommand extends Command {
@@ -314,6 +360,10 @@ class SubmitDialogueMessageCommand extends Command {
 				writer.setSelection(dialogueMessageInput, 0);
 			  	dialogueConfig.dialogueParticipantNotificationCallback();
             }
+            
+            this.editor.model.insertObject( createSimpleBox( writer ) );
+
+
         });
     }
 
@@ -423,7 +473,7 @@ function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter })
 function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter }) {
     const userOrder = getUserOrder(modelElement);
     const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
-    const section = viewWriter.createContainerElement( 'section', sectionAttributes );
+    const section = viewWriter.createEditableElement( 'div', sectionAttributes );
 
     const userDisplayName = getUserDisplayName(modelElement);
     const headerAttributes = {
@@ -433,8 +483,11 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     const headerElement = createHeaderElement(viewWriter, 'section', headerAttributes, userDisplayName);
 
     viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+     
+    const element = toWidget(section, viewWriter, {hasSelectionHandle: true});
+    viewWriter.setAttribute('contenteditable', 'true', element);
 
-    return section;
+    return element
 }
 
 /**
