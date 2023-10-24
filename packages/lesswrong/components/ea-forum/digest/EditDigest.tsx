@@ -465,7 +465,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
 
   // calculate total post counts for email & on-site digests, to display in the column headers
   const emailTotal = posts?.filter(p => postStatuses[p._id].emailDigestStatus === 'yes')?.length ?? 0
-  // const onsiteTotal = posts?.filter(p => postStatuses[p._id].onsiteDigestStatus === 'yes')?.length ?? 0
+  const onsiteTotal = posts?.filter(p => postStatuses[p._id].onsiteDigestStatus === 'yes')?.length ?? 0
   
   return (
     <div className={classes.root}>
@@ -488,7 +488,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         <div className={classes.filters}>
           <FilterIcon className={classes.filterIcon} />
           <div className={classes.filter}>
-            <label className={classes.filterLabel}>In digest?</label>
+            <label className={classes.filterLabel}>In email digest?</label>
             <ForumDropdownMultiselect
               values={emailDigestFilter}
               options={emailDigestOptions}
@@ -517,17 +517,17 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
         <thead>
           <tr className={classes.headerRow}>
             <th className={classes.centeredColHeader}>
-              In digest?
+              Email?
               <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 14})}>
                 {emailTotal}
               </div>
             </th>
-            {/* <th className={classes.centeredColHeader}>
+            <th className={classes.centeredColHeader}>
               On-site?
               <div className={classNames(classes.total, {[classes.totalHigh]: onsiteTotal > 30})}>
                 {onsiteTotal}
               </div>
-            </th> */}
+            </th>
             <th>Post</th>
             <th>Tags</th>
             <th>Suggested curation</th>
