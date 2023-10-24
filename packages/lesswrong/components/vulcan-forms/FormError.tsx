@@ -8,9 +8,11 @@ const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
   error: any,
   errorContext: any,
   getLabel?: (name: string, local: string)=>string,
-}) => {
-  if (error.message) { // A normal string error
-    return error.message;
+}): React.ReactElement | null => {
+  if (error.message) {
+    // error.message might be an error message for humans to read, or it's possibly a code like app.validation_error that
+    // should be internationalized. FormattedMessage will internationalize the code if needed.
+    return <FormattedMessage id={error.message} defaultMessage={error.message} />;
   } else if (error.id) { // An internationalized error
     // in case this is a nested fields, only keep last segment of path
     const errorName = error.properties?.name && error.properties.name.split('.').slice(-1)[0];
@@ -27,11 +29,11 @@ const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
       />
     )
   } else if (error.operationName) {
-    return `Error submitting form: ${error.operationName}`;
+    return <>`Error submitting form: ${error.operationName}`</>;
   } else {
-    return 'Error submitting form';
+    return <>'Error submitting form'</>;
   }
-;};
+};
 
 // TODO: pass getLabel as prop instead for consistency?
 const FormErrorComponent = registerComponent('FormError', FormError, {

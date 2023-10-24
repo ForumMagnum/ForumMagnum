@@ -17,9 +17,10 @@ const FormErrors = ({ errors, classes }: {
       <Components.Alert className="flash-message" variant="danger">
         <ul>
           {errors.map((error, index) => (
-            <li key={index}>
-              <Components.FormError error={error} errorContext="form" />
-            </li>
+            error.message !== 'app.validation_error' &&
+              <li key={index}>
+                <Components.FormError error={error} errorContext="form" />
+              </li>
           ))}
         </ul>
       </Components.Alert>

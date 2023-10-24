@@ -121,8 +121,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
     },
+    "& .form-input.input-title .form-input-errors": {
+      // Validation errors are displayed at the top of the form, and the title is the first field, so we don't
+      // need to display the error again immediately under the title.
+      display: 'none',
+    },
     "& .localstorage-check": {
       marginBottom: 0,
+    },
+    "& .FormErrors-root": {
+      border: "1px solid #e0e0e0",
+      backgroundColor: theme.palette.text.alwaysWhite,
+      marginBottom: 8,
+      borderRadius: 6,
     },
   },
   formSubmit: {

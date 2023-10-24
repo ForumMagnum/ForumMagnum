@@ -160,6 +160,10 @@ select.form-control{
   position: relative;
 }
 
+.input-error {
+  border: 2px solid #bf360c;
+}
+
 .form-group {
   margin-bottom: 0;
 }
