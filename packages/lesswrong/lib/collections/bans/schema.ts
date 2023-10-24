@@ -1,11 +1,12 @@
 import SimpleSchema from 'simpl-schema';
 import { foreignKeyField } from '../../utils/schemaUtils'
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbBan> = {
   expirationDate: {
     type: Date,
     optional: false,
-    nullable: false,
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -45,11 +46,11 @@ const schema: SchemaType<DbBan> = {
   comment: {
     type: String,
     optional:true,
-    nullable: false, //TODO not-null: should this really not be nullable?
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     label: 'Comment (shown to other mods)',
+    ...schemaDefaultValue(""),
   },
   properties: {
     type: Object,

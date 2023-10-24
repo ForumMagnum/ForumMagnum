@@ -333,10 +333,10 @@ const schema: SchemaType<DbUser> = {
     label: 'Admin',
     input: 'checkbox',
     optional: true,
-    nullable: false,
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
+    ...schemaDefaultValue(false),
     group: adminGroup,
   },
   profile: {
