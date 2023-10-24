@@ -1,7 +1,7 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
 import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
-import { sendEmailSmtp } from './sendEmail';
+import { defaultEmailSetting, sendEmailSmtp } from './sendEmail';
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { getDataFromTree } from '@apollo/client/react/ssr';
@@ -126,9 +126,6 @@ function addEmailBoilerplate({ css, title, body }: {
 //   * While any JSS in withStyles will be included in the email, only a very
 //     limited and inconsistent subset is supported by mail clients
 //
-
-const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
-
 export async function generateEmail({user, to, from, subject, bodyComponent, boilerplateGenerator=addEmailBoilerplate}: {
   user: DbUser | null,
   to: string,

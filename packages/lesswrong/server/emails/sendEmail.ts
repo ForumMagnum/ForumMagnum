@@ -3,19 +3,31 @@ import type { RenderedEmail } from './renderEmail';
 import nodemailer from 'nodemailer';
 import client from '@sendgrid/mail';
 import { getUserEmail } from '../../lib/collections/users/helpers';
+import { captureException } from '@sentry/core';
 
+export const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
 /** TODO; doc */
-export const sendgridTemplateSetting = new DatabaseServerSetting("sendgridTemplate", false);
+export const useSendgridTemplatesSetting = new DatabaseServerSetting("useSendgridTemplates", false);
 export const sendgridTemplateIdsSetting = new DatabaseServerSetting<Record<string, string>|null>("sendgridTemplateIds", null);
 export const sendgridApiKeySetting = new DatabaseServerSetting("sendgridApiKey", null);
+
+type SendgridEmailData = {
+  user?: DbUser,
+  to?: string,
+  from?: string,
+  subject: string,
+  notificationData: AnyBecauseHard,
+  notifications: DbNotification[]
+}
+
 let sendgridClient: typeof client|null = null
 const getSendgridClient = () => {
   if (sendgridClient) return sendgridClient;
   const apiKey = sendgridApiKeySetting.get();
   if (!apiKey) {
-    throw new Error("Todo");
+    throw new Error("Attempting to use sendgrid without an API key");
   }
   client.setApiKey(apiKey);
   sendgridClient = client;
@@ -58,35 +70,50 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
   return true;
 }
 
-export const sendEmailSendgridTemplate = async (emailData: AnyBecauseTodo) => {
+export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) => {
   const client = getSendgridClient();
+
   const notificationType = emailData.notifications[0].type;
   const templateId = sendgridTemplateIdsSetting.get()?.[notificationType];
   if (!templateId) {
-    throw new Error("Todo");
+    throw new Error(`Missing sendgrid template id for notification type ${notificationType}`)
   }
+  
+  const fromAddress = 'community@wakingup.com'//emailData.from || defaultEmailSetting.get()
+  if (!fromAddress) {
+    throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
+  }
+  
+  if (!emailData.to && !emailData.user) {
+    throw new Error("No destination email address for logged-out user email");
+  }
+  const destinationAddress = emailData.to || getUserEmail(emailData.user ?? null)
+  if (!destinationAddress) {
+    throw new Error("No destination email address for user email");
+  }
+
   const message = {
+    templateId,
     personalizations: [
       {
         to: [
-          {
-            email: getUserEmail(emailData.user),
-          }
+          {email: destinationAddress}
         ]
       }
     ],
-    from: emailData.from,
-    subject: emailData.subject,
-    content: [
-      {
-        type: 'text/html',
-        value: ''
-      }
-    ],
+    from: {email: fromAddress},
     mailSettings: {
       sandboxMode: {
         enable: true, // TODO;
       }
     },
   }
+  client
+    .send(message)
+    .then((r) => console.log('Mail sent successfully', r))
+    .catch(e => {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      captureException(e);
+    });
 }

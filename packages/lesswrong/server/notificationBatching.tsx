@@ -11,7 +11,7 @@ import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
-import { sendgridTemplateSetting } from './emails/sendEmail';
+import { sendEmailSendgridTemplate, useSendgridTemplatesSetting } from './emails/sendEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -48,8 +48,8 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   
   if (notificationsToEmail.length) {
     const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
-    if (sendgridTemplateSetting.get()) {
-      console.log('sendgridTemplateSetting set', groupedNotifications)
+    if (useSendgridTemplatesSetting.get()) {
+      console.log('useSendgridTemplatesSetting set', groupedNotifications)
       /**
        * [
     {
@@ -84,6 +84,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
         }
         // TODO: send to sendgrid
         console.log('sendgridData', sendgridData)
+        await sendEmailSendgridTemplate(sendgridData)
       }
       
       return
