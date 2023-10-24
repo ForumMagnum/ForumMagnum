@@ -131,7 +131,7 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
             indexName={getElasticIndexNameWithSorting("Users", "relevance")}
             searchClient={getSearchClient()}
             searchState={{ query }}
-            onSearchStateChange={setQuery}
+            onSearchStateChange={(x) => setQuery(x.query)}
           >
             <div className={classes.resultsColumn}>
               <div className={classes.searchBoxRow}>
