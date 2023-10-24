@@ -1,6 +1,6 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
-import { Type } from "./Type";
+import { DefaultValueType, Type } from "./Type";
 import { randomId } from '../random';
 
 export type InsertQueryData<T> = T & Partial<{
@@ -138,12 +138,11 @@ class InsertQuery<T extends DbObject> extends Query<T> {
         } else if (key === "createdAt" && !(item as AnyBecauseTodo)[key]) {
           (item as AnyBecauseTodo)[key] = new Date();
         }
-        console.log({
-          key, 
-          type: fields[key], 
-          arg: this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]), 
-          value: (item as any)[key] ?? null
-        })
+        const type = fields[key];
+        const value = (item as AnyBecauseTodo)[key];
+        if ((value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString())) {
+          console.log({ key, type: fields[key], arg: this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]), value: (item as any)[key] ?? null })
+        }
         this.atoms.push(this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]));
       }
       prefix = ", ";
