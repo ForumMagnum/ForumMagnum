@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles =>  ({
   root: {
@@ -34,7 +35,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
   }
   
   return (
-    <div className={classes.root + " recent-comments-container"}>
+    <div className={classNames(classes.root, "recent-comments-container")}>
       {validResults.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
