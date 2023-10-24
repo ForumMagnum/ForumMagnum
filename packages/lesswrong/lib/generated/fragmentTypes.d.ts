@@ -884,7 +884,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly markdown: string,
   readonly draftJS: any,
   readonly ckEditorMarkup: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
@@ -1096,7 +1096,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
 interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly version: string,
 }
 
@@ -1356,7 +1356,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly version: string,
 }
 
@@ -1501,7 +1501,7 @@ interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
@@ -1596,7 +1596,7 @@ interface RevisionDisplay { // fragment on Revisions
   readonly editedAt: Date,
   readonly userId: string,
   readonly html: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1612,7 +1612,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly markdown: string,
   readonly draftJS: any,
   readonly ckEditorMarkup: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1755,7 +1755,7 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly link: string,
   readonly claimedUserId: string,
   readonly description: string,
-  readonly closedAt: Date,
+  readonly closedAt: Date | null,
   readonly markedAsSpam: boolean,
   readonly reportedAsSpam: boolean,
 }
@@ -1769,7 +1769,7 @@ interface unclaimedReportsList { // fragment on Reports
   readonly postId: string,
   readonly post: unclaimedReportsList_post|null,
   readonly reportedUser: SunshineUsersList|null,
-  readonly closedAt: Date,
+  readonly closedAt: Date | null,
   readonly createdAt: Date,
   readonly claimedUserId: string,
   readonly claimedUser: unclaimedReportsList_claimedUser|null,
@@ -1825,7 +1825,7 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
-  readonly order: number,
+  readonly order: number | null,
   readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
@@ -1844,7 +1844,7 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly name: string,
   readonly deleted: boolean,
   readonly slug: string,
-  readonly order: number,
+  readonly order: number | null,
 }
 
 interface GardenCodeFragment { // fragment on GardenCodes
@@ -1938,10 +1938,10 @@ interface reviewVoteFragment { // fragment on ReviewVotes
   readonly postId: string,
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
-  readonly comment: string | null,
+  readonly comment: string,
   readonly year: string,
   readonly dummy: boolean,
-  readonly reactions: Array<string> | null,
+  readonly reactions: Array<string>,
 }
 
 interface reviewVoteWithUserAndPost extends reviewVoteFragment { // fragment on ReviewVotes
@@ -3070,7 +3070,7 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
 
 interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly title: string,
-  readonly body: string,
+  readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
   readonly expiresAt: Date,
@@ -3079,7 +3079,7 @@ interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
-  readonly body: string,
+  readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
   readonly expiresAt: Date,

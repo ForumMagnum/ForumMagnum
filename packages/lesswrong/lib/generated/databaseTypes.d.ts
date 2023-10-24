@@ -296,7 +296,7 @@ interface FeaturedResourcesCollection extends CollectionBase<DbFeaturedResource,
 interface DbFeaturedResource extends DbObject {
   __collectionName?: "FeaturedResources"
   title: string
-  body: string
+  body: string | null
   ctaText: string
   ctaUrl: string
   expiresAt: Date
@@ -815,7 +815,7 @@ interface DbReport extends DbObject {
   link: string | null
   claimedUserId: string | null
   description: string | null
-  closedAt: Date
+  closedAt: Date | null
   markedAsSpam: boolean | null
   reportedAsSpam: boolean | null
   createdAt: Date
@@ -859,7 +859,7 @@ interface DbRevision extends DbObject {
     data: string,
   } | null
   html: string | null
-  wordCount: number
+  wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -956,7 +956,7 @@ interface DbTagFlag extends DbObject {
   name: string
   deleted: boolean
   slug: string
-  order: number
+  order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
