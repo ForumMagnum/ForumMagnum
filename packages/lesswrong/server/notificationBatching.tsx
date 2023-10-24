@@ -50,7 +50,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
     const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
     if (useSendgridTemplatesSetting.get()) {
       console.log('useSendgridTemplatesSetting set', groupedNotifications)
-      /**
+      /** Example notification data:
        * [
     {
       _id: 'xsLHawAnDK9kBzmza',
@@ -81,7 +81,6 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
           notificationData: await notificationTypeRenderer.loadData?.({user, notifications: batch}),
           notifications: batch,
         }
-        console.log('sendgridData', sendgridData)
         await sendEmailSendgridTemplate(sendgridData)
       }
       

@@ -12,8 +12,8 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import {forumTypeSetting, isEAForum, isLW } from "../../lib/instanceSettings";
-import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, verifyEmailsSetting } from "../../lib/publicSettings";
+import {forumTypeSetting, isEAForum, isLW, isWakingUp } from "../../lib/instanceSettings";
+import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, sendgridDigestListIdSetting, sendgridWelcomeListIdSetting, verifyEmailsSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -30,6 +30,7 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
+import { addToList, removeFromList } from '../emails/sendgridListManagement';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -301,44 +302,63 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     return;
   }
 
-  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
-  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
-  if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
-    return;
-  }
-  if (!newUser.email) {
-    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
-    return;
-  }
-  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
-  
-  const email = getUserEmail(newUser)
-  const emailHash = md5(email!.toLowerCase());
+  if (isEAForum) {
+    const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+    const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+    if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
+      return;
+    }
+    if (!newUser.email) {
+      captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
+      return;
+    }
+    const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
+    const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
+    
+    const email = getUserEmail(newUser)
+    const emailHash = md5(email!.toLowerCase());
 
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      email_address: newUser.email,
-      email_type: 'html', 
-      ...(known && {location: {
-        latitude,
-        longitude,
-      }}),
-      merge_fields: {
-        FNAME: newUser.displayName,
+    void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        email_address: newUser.email,
+        email_type: 'html',
+        ...(known && {location: {
+          latitude,
+          longitude,
+        }}),
+        merge_fields: {
+          FNAME: newUser.displayName,
+        },
+        status,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `API_KEY ${mailchimpAPIKey}`,
       },
-      status,
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `API_KEY ${mailchimpAPIKey}`,
-    },
-  }).catch(e => {
-    captureException(e);
-    // eslint-disable-next-line no-console
-    console.log(e);
-  });
+    }).catch(e => {
+      captureException(e);
+      // eslint-disable-next-line no-console
+      console.log(e);
+    });
+  }
+  
+  else if (isWakingUp) {
+    const sendgridDigestListId = sendgridDigestListIdSetting.get();
+    if (!sendgridDigestListId) {
+      return;
+    }
+    if (!newUser.email) {
+      captureException(new Error(`Adding user to Waking Up list failed: no email for user ${newUser.displayName}`))
+      return;
+    }
+    
+    if (newUser.subscribedToDigest) {
+      void addToList(newUser, sendgridDigestListId)
+    } else {
+      void removeFromList(newUser, sendgridDigestListId)
+    }
+  }
 });
 
 /**
@@ -363,7 +383,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     method: 'POST',
     body: JSON.stringify({
       email_address: user.email,
-      email_type: 'html', 
+      email_type: 'html',
       ...(known && {location: {
         latitude,
         longitude,
@@ -379,6 +399,26 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudien
     // eslint-disable-next-line no-console
     console.log(e);
   });
+});
+
+/**
+ * This callback adds all new Waking Up users to a Sendgrid list that will send them welcome emails.
+ */
+getCollectionHooks("Users").newAsync.add(async function subscribeToWakingUpNewUserList(user: DbUser) {
+  if (isAnyTest || !isWakingUp) {
+    return;
+  }
+  
+  const sendgridWelcomeListId = sendgridWelcomeListIdSetting.get();
+  if (!sendgridWelcomeListId) {
+    return;
+  }
+  if (!user.email) {
+    captureException(new Error(`Adding user to Waking Up list failed: no email for user ${user.displayName}`))
+    return;
+  }
+
+  void addToList(user, sendgridWelcomeListId)
 });
 
 const welcomeMessageDelayer = new EventDebouncer({

@@ -8,10 +8,13 @@ import { captureException } from '@sentry/core';
 export const defaultEmailSetting = new DatabaseServerSetting<string>('defaultEmail', "hello@world.com")
 export const mailUrlSetting = new DatabaseServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
 
-/** TODO; doc */
-export const useSendgridTemplatesSetting = new DatabaseServerSetting("useSendgridTemplates", false);
-export const sendgridTemplateIdsSetting = new DatabaseServerSetting<Record<string, string>|null>("sendgridTemplateIds", null);
-export const sendgridApiKeySetting = new DatabaseServerSetting("sendgridApiKey", null);
+/**
+ * Set "sendgrid.useTemplates" to true if you want to send transactional emails via Sendgrid templates.
+ * Populate "sendgrid.templateIds" like {<notificationType>: <templateId>}.
+*/
+export const useSendgridTemplatesSetting = new DatabaseServerSetting("sendgrid.useTemplates", false);
+export const sendgridTemplateIdsSetting = new DatabaseServerSetting<Record<string, string>|null>("sendgrid.templateIds", null);
+export const sendgridApiKeySetting = new DatabaseServerSetting("sendgrid.apiKey", null);
 
 type SendgridEmailData = {
   user?: DbUser,
@@ -21,15 +24,15 @@ type SendgridEmailData = {
   notifications: DbNotification[]
 }
 
-let sendgridClient: typeof client|null = null
-const getSendgridClient = () => {
-  if (sendgridClient) return sendgridClient;
+let sendgridEmailClient: typeof client|null = null
+const getSendgridEmailClient = () => {
+  if (sendgridEmailClient) return sendgridEmailClient;
   const apiKey = sendgridApiKeySetting.get();
   if (!apiKey) {
     throw new Error("Attempting to use sendgrid without an API key");
   }
   client.setApiKey(apiKey);
-  sendgridClient = client;
+  sendgridEmailClient = client;
   return client;
 }
 
@@ -70,7 +73,7 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
 }
 
 export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) => {
-  const client = getSendgridClient();
+  const client = getSendgridEmailClient();
 
   const notificationType = emailData.notifications[0].type;
   const templateId = sendgridTemplateIdsSetting.get()?.[notificationType];
@@ -78,7 +81,7 @@ export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) =>
     throw new Error(`Missing sendgrid template id for notification type ${notificationType}`)
   }
   
-  const fromAddress = 'community@wakingup.com'//emailData.from || defaultEmailSetting.get()
+  const fromAddress = emailData.from || defaultEmailSetting.get()
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
@@ -103,13 +106,12 @@ export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) =>
     from: {email: fromAddress},
     mailSettings: {
       sandboxMode: {
-        enable: true, // TODO;
+        enable: true, // TODO: Do we want to keep this for dev? It validates the request but doesn't actually send an email so you can't verify that it looks right.
       }
     },
   }
   client
     .send(message)
-    .then((r) => console.log('Mail sent successfully', r))
     .catch(e => {
       // eslint-disable-next-line no-console
       console.error(e);
