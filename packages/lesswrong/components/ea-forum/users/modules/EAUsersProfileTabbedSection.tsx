@@ -15,6 +15,9 @@ export const eaUsersProfileSectionStyles = (theme: ThemeType) => ({
   fontFamily: theme.palette.fonts.sansSerifStack,
   [theme.breakpoints.down('xs')]: {
     padding: 16,
+  },
+  "& .recent-comments-container": {
+    marginRight: 0,
   }
 })
 

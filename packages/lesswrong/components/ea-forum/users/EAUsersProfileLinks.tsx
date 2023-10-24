@@ -37,8 +37,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAUsersProfileLinks = ({user, classes}: {
+const EAUsersProfileLinks = ({user, classes, canManageSubscriptions = true}: {
   user: UsersProfile,
+  canManageSubscriptions?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -79,7 +80,7 @@ const EAUsersProfileLinks = ({user, classes}: {
           </DialogGroup>
         </div>
       }
-      {currentUser && currentUser._id === user._id &&
+      {canManageSubscriptions && currentUser?._id === user._id &&
         <Link to="/manageSubscriptions">
           Manage subscriptions
         </Link>
