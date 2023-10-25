@@ -197,12 +197,6 @@ addRoute(
     background: "white"
   },
   {
-    name: 'moderatorInbox',
-    path: '/moderatorInbox',
-    componentName: 'ModeratorInboxWrapper',
-    title: "Moderator Inbox"
-  },
-  {
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
@@ -1228,6 +1222,20 @@ addRoute(...forumSelect<Route[]>({
       title: "Inbox",
       fullscreen: true,
     },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInboxConversation',
+      path: '/moderatorInbox/:_id',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
   ],
   default: [
     {
@@ -1248,6 +1256,12 @@ addRoute(...forumSelect<Route[]>({
       componentName: 'ConversationWrapper',
       title: "Private Conversation",
       background: "white",
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox"
     },
   ],
 }));

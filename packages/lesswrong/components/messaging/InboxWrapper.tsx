@@ -8,6 +8,7 @@ export type InboxComponentProps = {
   terms: ConversationsViewTerms;
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
+  baseRoute?: string;
   classes: ClassesType;
 };
 
@@ -15,7 +16,7 @@ const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
-  const { InboxNavigation, AllMessagesPage, ConversationPage } = Components
+  const { InboxNavigation, AllMessagesPage } = Components
 
   if (!currentUser) {
     return <div>Log in to access private messages.</div>

@@ -1,10 +1,6 @@
 import React from "react";
-import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useUpdate } from "../../lib/crud/withUpdate";
-import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
-import { userCanDo } from "../../lib/vulcan-users";
-import { preferredHeadingCase } from "../../lib/forumTypeUtils";
+import { UseMultiResult } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {}
@@ -25,8 +21,6 @@ const InboxNavigation2 = ({
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
   classes: ClassesType;
 }) => {
-  const { currentRoute } = useLocation();
-
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
 
   const {
@@ -36,9 +30,6 @@ const InboxNavigation2 = ({
     Typography,
     LoadMore,
   } = Components;
-
-  // TODO support
-  const showModeratorLink = userCanDo(currentUser, "conversations.view.all") && currentRoute?.name !== "moderatorInbox";
 
   return <>
       {conversations?.length ? (

@@ -59,11 +59,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   leftColumn: {
     flex: "0 0 360px",
+    maxWidth: 360,
     [theme.breakpoints.down('sm')]: {
-      flex: "0 0 280px"
+      flex: "0 0 280px",
+      maxWidth: 280,
     },
     [theme.breakpoints.down('xs')]: {
       flex: "1 1 auto",
+      maxWidth: "100%",
     },
   },
   rightColumn: {
@@ -138,6 +141,7 @@ const AllMessagesPage = ({
   currentUser,
   terms,
   conversationId,
+  baseRoute = "/inbox",
   classes,
 }: InboxComponentProps & {
   conversationId?: string;
@@ -150,9 +154,9 @@ const AllMessagesPage = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      history.push({ ...location, pathname: `/inbox/${conversationId}` });
+      history.push({ ...location, pathname: `${baseRoute}/${conversationId}` });
     },
-    [history, location]
+    [baseRoute, history, location]
   );
 
   const openNewConversationDialog = useCallback(() => {
@@ -196,7 +200,7 @@ const AllMessagesPage = ({
     });
   };
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !currentRoute?.name.includes("moderatorInbox")
 
   const title = selectedConversation
     ? conversationGetTitle2(selectedConversation, currentUser)
