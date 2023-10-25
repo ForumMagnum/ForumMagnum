@@ -62,7 +62,6 @@ const LWPopper = ({
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
 }) => {
-  const [everOpened, setEverOpened] = useState(open);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
   const flipModifier = !flip && allowOverflow ? [

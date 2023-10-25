@@ -5,8 +5,23 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, isEAForum } from '../../lib/instanceSettings';
+import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 6,
+    width: isEAForum ? undefined : 500,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    }
+  },
+  rootEAWidth: {
+    width: 340,
+  },
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
@@ -23,16 +38,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
   },
-  card: {
-    paddingTop: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 6,
-    width: 500,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    }
-  },
   footer: {
     borderTop: theme.palette.border.extraFaint,
     paddingTop: 6,
@@ -46,13 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   autoApplied: {
     flexGrow: 1,
   },
-  footerCount: {
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    fontWeight: 600,
-    margin: "16px 0",
-  },
   posts: {
     marginTop: 10,
     paddingTop: 8,
@@ -63,7 +61,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
-  }
+  },
+  footerCount: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontWeight: 600,
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  footerMarginTop: {
+    marginTop: 16,
+  },
 });
 
 const TagPreview = ({
@@ -96,7 +105,7 @@ const TagPreview = ({
   // remove it
   if (!tag) {
     return (
-      <div className={classes.card} />
+      <div className={classes.root} />
     );
   }
 
@@ -112,9 +121,13 @@ const TagPreview = ({
       : taggingNameCapitalSetting.get()
   );
 
+  const hasDescription = !!getTagDescriptionHtml(tag);
+
   const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
   return (
-    <div className={classes.card}>
+    <div className={classNames(classes.root, {
+      [classes.rootEAWidth]: isEAForum && hasDescription,
+    })}>
       <TagPreviewDescription tag={tag} hash={hash} />
       {showRelatedTags &&
         <div className={classes.relatedTags}>
@@ -186,7 +199,9 @@ const TagPreview = ({
         </>
       }
       {isEAForum &&
-        <div className={classes.footerCount}>
+        <div className={classNames(classes.footerCount, {
+          [classes.footerMarginTop]: hasDescription,
+        })}>
           <Link to={tagGetUrl(tag)}>
             View all {tag.postCount} posts
           </Link>

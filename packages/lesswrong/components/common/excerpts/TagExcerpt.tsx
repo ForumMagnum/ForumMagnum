@@ -8,7 +8,7 @@ type ExcerptableTag =
   TagPreviewFragment |
   TagSectionPreviewFragment;
 
-const getTagDescriptionHtmlHighlight = (tag: ExcerptableTag) => {
+export const getTagDescriptionHtml = (tag: ExcerptableTag) => {
   if (!tag.description) {
     return undefined;
   }
@@ -26,7 +26,7 @@ const TagExcerpt = ({
 }: CommonExcerptProps & {
   tag: ExcerptableTag,
 }) => {
-  const contentHtml = getTagDescriptionHtmlHighlight(tag);
+  const contentHtml = getTagDescriptionHtml(tag);
   if (!contentHtml) {
     return null;
   }
