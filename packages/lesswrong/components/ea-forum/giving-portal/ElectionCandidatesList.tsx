@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import classNames from "classnames";
 import { useElectionCandidates } from "./hooks";
+import { isElectionCandidateSort } from "../../../lib/collections/electionCandidates/views";
+import type { SettingsOption } from "../../../lib/collections/posts/dropdownOptions";
+import classNames from "classnames";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -12,14 +14,41 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const sortOptions: Record<ElectionCandidatesSort, SettingsOption> = {
+  mostPreVoted: {
+    label: "Most pre-voted",
+  },
+  name: {
+    label: "Name",
+  },
+  recentlyAdded: {
+    label: "Recently added",
+  },
+};
+
 const ElectionCandidatesList = ({className, classes}: {
   className?: string,
   classes: ClassesType,
 }) => {
-  const {results, loading} = useElectionCandidates();
-  const {Loading, ElectionCandidate} = Components;
+  const [sortBy, setSortBy] = useState<ElectionCandidatesSort>("mostPreVoted");
+  const {results, loading} = useElectionCandidates(sortBy);
+
+  const onSelectSort = useCallback((value: string) => {
+    if (isElectionCandidateSort(value)) {
+      setSortBy(value);
+    }
+  }, []);
+
+  const {Loading, ElectionCandidate, ForumDropdown} = Components;
   return (
     <div className={classNames(classes.root, className)}>
+      <div>
+        <ForumDropdown
+          value={sortBy}
+          options={sortOptions}
+          onSelect={onSelectSort}
+        />
+      </div>
       {loading && <Loading />}
       {results?.map((candidate) => (
         <ElectionCandidate candidate={candidate} key={candidate._id} />
