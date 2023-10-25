@@ -79,10 +79,9 @@ const PostsTooltip = ({
     return null;
   }, [tagRelId, post, postId, postsList, comment, commentId, hash]);
 
-  const {EAHoverOver, LWTooltip} = Components;
-  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+  const {HoverOver} = Components;
   return (
-    <Tooltip
+    <HoverOver
       title={renderTitle()}
       placement={placement}
       tooltip={false}
@@ -99,7 +98,7 @@ const PostsTooltip = ({
       className={className}
     >
       {children}
-    </Tooltip>
+    </HoverOver>
   );
 }
 

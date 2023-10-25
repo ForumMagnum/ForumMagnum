@@ -107,10 +107,9 @@ const TagsTooltip = ({
     return null;
   }, [loading, tagRel, tag, hash, previewPostCount, hideRelatedTags]);
 
-  const {LWTooltip, EAHoverOver} = Components;
-  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+  const {HoverOver} = Components;
   return (
-    <Tooltip
+    <HoverOver
       title={
         <PreviewWrapper tag={tag} loading={loading}>
           <Title />
@@ -129,7 +128,7 @@ const TagsTooltip = ({
       popperClassName={popperClassName}
     >
       {children}
-    </Tooltip>
+    </HoverOver>
   );
 }
 

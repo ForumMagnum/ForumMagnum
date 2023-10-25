@@ -15,6 +15,24 @@ const styles = (_theme: ThemeType): JssStyles => ({
   }
 })
 
+export type LWTooltipProps = {
+  title?: ReactNode,
+  placement?: PopperPlacementType,
+  tooltip?: boolean,
+  flip?: boolean,
+  clickable?: boolean,
+  inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
+  disabled?: boolean,
+  hideOnTouchScreens?: boolean,
+  className?: string,
+  analyticsProps?: AnalyticsProps,
+  titleClassName?: string
+  popperClassName?: string,
+  children?: ReactNode,
+  classes: ClassesType,
+}
+
 const LWTooltip = ({
   children,
   title,
@@ -31,23 +49,7 @@ const LWTooltip = ({
   analyticsProps,
   titleClassName,
   popperClassName,
-}: {
-  children?: ReactNode,
-  title?: ReactNode,
-  placement?: PopperPlacementType,
-  tooltip?: boolean,
-  flip?: boolean,
-  clickable?: boolean,
-  inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
-  disabled?: boolean,
-  hideOnTouchScreens?: boolean,
-  classes: ClassesType,
-  className?: string,
-  analyticsProps?: AnalyticsProps,
-  titleClassName?: string
-  popperClassName?: string,
-}) => {
+}: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps

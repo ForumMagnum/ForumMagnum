@@ -16,25 +16,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAHoverOver = ({
-  title,
-  children,
-  placement,
-  inlineBlock,
-  As,
-  clickable,
-  flip,
-  analyticsProps,
-  className,
-  popperClassName,
-  classes,
-}: {
+export type EAHoverOverProps = {
   /**
    * This is the contents of the hover over, named `title` for compatability
    * with LWTooltip
    */
   title: ReactNode,
-  children: ReactNode,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   As?: keyof JSX.IntrinsicElements,
@@ -43,8 +30,23 @@ const EAHoverOver = ({
   analyticsProps?: AnalyticsProps,
   className?: string,
   popperClassName?: string,
+  children: ReactNode,
   classes: ClassesType,
-}) => {
+}
+
+const EAHoverOver = ({
+  title,
+  placement,
+  inlineBlock,
+  As,
+  clickable,
+  flip,
+  analyticsProps,
+  className,
+  popperClassName,
+  children,
+  classes,
+}: EAHoverOverProps) => {
   const {LWTooltip} = Components;
   return (
     <LWTooltip

@@ -242,6 +242,7 @@ importComponent("RevisionComparisonNotice", () => require('../components/revisio
 importComponent("TagPageRevisionSelect", () => require('../components/revisions/TagPageRevisionSelect'));
 importComponent("LWPopper", () => require('../components/common/LWPopper'));
 importComponent("LWTooltip", () => require('../components/common/LWTooltip'));
+importComponent("HoverOver", () => require('../components/common/HoverOver'));
 importComponent("NewFeatureTooltip", () => require('../components/common/NewFeatureTooltip'));
 importComponent("NewFeaturePulse", () => require('../components/common/NewFeaturePulse'));
 importComponent("Typography", () => require('../components/common/Typography'));

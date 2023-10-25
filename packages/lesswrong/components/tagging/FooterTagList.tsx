@@ -220,10 +220,9 @@ const FooterTagList = ({
     tooltipBody: ReactNode,
     label: string,
   }) => {
-    const {EAHoverOver, LWTooltip, ContentStyles} = Components;
-    const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+    const {HoverOver, ContentStyles} = Components;
     return (
-      <Tooltip
+      <HoverOver
         title={
           <Card className={classes.card}>
             <ContentStyles contentType="comment">
@@ -238,7 +237,7 @@ const FooterTagList = ({
         })}>
           {label}
         </div>
-      </Tooltip>
+      </HoverOver>
     );
   }, [classes, smallText]);
 

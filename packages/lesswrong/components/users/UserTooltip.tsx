@@ -19,20 +19,17 @@ const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
   children: ReactNode,
   classes: ClassesType,
 }) => {
-  const {
-    EAHoverOver, EAUserTooltipContent, LWTooltip, LWUserTooltipContent,
-  } = Components;
-  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+  const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const Content = isEAForum ? EAUserTooltipContent : LWUserTooltipContent;
   return (
-    <Tooltip
+    <HoverOver
       title={<Content user={user} />}
       placement={placement}
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
     >
       {children}
-    </Tooltip>
+    </HoverOver>
   );
 }
 
