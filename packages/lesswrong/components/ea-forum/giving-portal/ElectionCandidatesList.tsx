@@ -8,6 +8,12 @@ import classNames from "classnames";
 const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "16px",
+  },
+  grid: {
+    display: "flex",
     flexWrap: "wrap",
     gap: "16px",
     rowGap: "12px",
@@ -42,17 +48,17 @@ const ElectionCandidatesList = ({className, classes}: {
   const {Loading, ElectionCandidate, ForumDropdown} = Components;
   return (
     <div className={classNames(classes.root, className)}>
-      <div>
-        <ForumDropdown
-          value={sortBy}
-          options={sortOptions}
-          onSelect={onSelectSort}
-        />
+      <ForumDropdown
+        value={sortBy}
+        options={sortOptions}
+        onSelect={onSelectSort}
+      />
+      <div className={classes.grid}>
+        {loading && <Loading />}
+        {results?.map((candidate) => (
+          <ElectionCandidate candidate={candidate} key={candidate._id} />
+        ))}
       </div>
-      {loading && <Loading />}
-      {results?.map((candidate) => (
-        <ElectionCandidate candidate={candidate} key={candidate._id} />
-      ))}
     </div>
   );
 }
