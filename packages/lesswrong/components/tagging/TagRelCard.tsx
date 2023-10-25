@@ -7,7 +7,7 @@ import { useVote } from '../votes/withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relevance: {
-    marginTop: 2,
+    marginTop: isEAForum ? undefined : 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },

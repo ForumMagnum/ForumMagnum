@@ -60,6 +60,8 @@ const TagsTooltip = ({
   PreviewWrapper = DefaultPreviewWrapper,
   As,
   inlineBlock = false,
+  className,
+  popperClassName,
   children,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
@@ -71,6 +73,8 @@ const TagsTooltip = ({
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   As?: keyof JSX.IntrinsicElements,
   inlineBlock?: boolean,
+  className?: string,
+  popperClassName?: string,
   children: ReactNode,
 }) => {
   const {tag, loading} = useTagsTooltipTag(tagsTooltipProps, hash, noPrefetch);
@@ -121,6 +125,8 @@ const TagsTooltip = ({
         tagName: tag?.name,
         tagSlug: tag?.slug
       }}
+      className={className}
+      popperClassName={popperClassName}
     >
       {children}
     </Tooltip>

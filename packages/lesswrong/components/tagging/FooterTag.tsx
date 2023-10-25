@@ -74,6 +74,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       : tagStyle(theme)
     )
   },
+  tooltip: {
+    transform: isEAForum ? "translateY(8px)" : undefined,
+  },
   core: {
     ...coreTagStyle(theme),
   },
@@ -159,6 +162,7 @@ const FooterTag = ({
         tagRel={tagRel}
         PreviewWrapper={PreviewWrapper}
         hideRelatedTags={hideRelatedTags}
+        popperClassName={classes.tooltip}
       >
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,

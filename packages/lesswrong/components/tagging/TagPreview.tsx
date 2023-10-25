@@ -14,8 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 8,
     paddingLeft: 16,
     paddingRight: 16,
-    paddingBottom: 6,
-    width: isEAForum ? undefined : 500,
+    ...(!isEAForum && {
+      width: 500,
+      paddingBottom: 6,
+    }),
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
