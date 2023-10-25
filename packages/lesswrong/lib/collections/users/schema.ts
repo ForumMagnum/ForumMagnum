@@ -1440,7 +1440,7 @@ const schema: SchemaType<DbUser> = {
     label: `Subscribe to ${siteNameWithArticleSetting.get()} Digest emails`,
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: !(isEAForum || isWakingUp),
+    hidden: () => !hasDigestSetting.get(),
     canRead: ['members'],
     ...schemaDefaultValue(false)
   },
