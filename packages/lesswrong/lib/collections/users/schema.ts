@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, isWakingUp, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, isWakingUp, siteNameWithArticleSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -1437,7 +1437,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     group: formGroups.emails,
-    label: "Subscribe to the EA Forum Digest emails",
+    label: `Subscribe to ${siteNameWithArticleSetting.get()} Digest emails`,
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: !(isEAForum || isWakingUp),

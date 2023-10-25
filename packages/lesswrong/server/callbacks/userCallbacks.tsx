@@ -31,6 +31,7 @@ import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { addToList, removeFromList } from '../emails/sendgridListManagement';
+import { sendEmailSendgridTemplate } from '../emails/sendEmail';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -163,6 +164,21 @@ getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview(
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
     void triggerReviewIfNeeded(document._id)
+  }
+})
+
+/**
+ * Waking Up sends a confirmation email to users when they manually deactivate their own account.
+ */
+getCollectionHooks("Users").updateAsync.add(function sendDeactivationConfirmationEmail({oldDocument, newDocument, currentUser}: UpdateCallbackProperties<DbUser>) {
+  if (!isWakingUp) return
+  if (!oldDocument.deleted && newDocument.deleted && currentUser?._id === newDocument._id) {
+    const sendgridData = {
+      user: newDocument,
+      to: getUserEmail(newDocument),
+      templateName: 'deactivateAccount',
+    }
+    void sendEmailSendgridTemplate(sendgridData)
   }
 })
 

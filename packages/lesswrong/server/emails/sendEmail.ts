@@ -20,8 +20,9 @@ type SendgridEmailData = {
   user?: DbUser,
   to?: string,
   from?: string,
-  notificationData: AnyBecauseHard,
-  notifications: DbNotification[]
+  notificationData?: AnyBecauseHard,
+  notifications?: DbNotification[],
+  templateName?: string
 }
 
 let sendgridEmailClient: typeof client|null = null
@@ -75,13 +76,13 @@ export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
 export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) => {
   const client = getSendgridEmailClient();
 
-  const notificationType = emailData.notifications[0].type;
-  const templateId = sendgridTemplateIdsSetting.get()?.[notificationType];
+  const notificationType = emailData.templateName ?? emailData.notifications?.[0].type;
+  const templateId = notificationType && sendgridTemplateIdsSetting.get()?.[notificationType];
   if (!templateId) {
     throw new Error(`Missing sendgrid template id for notification type ${notificationType}`)
   }
   
-  const fromAddress = emailData.from || defaultEmailSetting.get()
+  const fromAddress = emailData.from || defaultEmailSetting.get() // TODO: I believe that this actually *has* to be sent from community@wakingup.com because that's the only email that is verified on Sendgrid
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
@@ -104,11 +105,11 @@ export const sendEmailSendgridTemplate = async (emailData: SendgridEmailData) =>
       }
     ],
     from: {email: fromAddress},
-    mailSettings: {
-      sandboxMode: {
-        enable: true, // TODO: Do we want to keep this for dev? It validates the request but doesn't actually send an email so you can't verify that it looks right.
-      }
-    },
+    // mailSettings: {
+    //   sandboxMode: {
+    //     enable: true, // TODO: Do we want to keep this for dev? It validates the request but doesn't actually send an email so you can't verify that it looks right.
+    //   }
+    // },
   }
   client
     .send(message)
