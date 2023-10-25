@@ -29,6 +29,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
       view: "userGroupUntitledConversations",
       userId: currentUser?._id,
       participantIds,
+      ...moderatorField,
     },
     collectionName: "Conversations",
     fragmentName: "ConversationsMinimumInfo",

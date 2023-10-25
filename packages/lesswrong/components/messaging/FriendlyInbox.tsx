@@ -154,7 +154,7 @@ const FriendlyInbox = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      history.push({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : " inbox"}/${conversationId}` });
+      history.push({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
     },
     [history, isModInbox, location]
   );
