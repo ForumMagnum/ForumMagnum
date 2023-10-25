@@ -31,11 +31,7 @@ const InboxWrapper = () => {
   };
 
   if (conversationId) {
-    return isEAForum ? (
-      <AllMessagesPage terms={terms} currentUser={currentUser} conversationId={conversationId} />
-    ) : (
-      <ConversationPage conversationId={params._id} currentUser={currentUser} />
-    );
+    return <AllMessagesPage terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
   // TODO change to isFriendlyUI when https://github.com/ForumMagnum/ForumMagnum/pull/7908 is merged

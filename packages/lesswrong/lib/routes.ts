@@ -1245,7 +1245,7 @@ addRoute(...forumSelect<Route[]>({
     {
       name: 'conversation',
       path: '/inbox/:_id',
-      componentName: 'InboxWrapper',
+      componentName: 'ConversationWrapper',
       title: "Private Conversation",
       background: "white",
     },
