@@ -181,6 +181,12 @@ class SimpleBoxEditing extends Plugin {
             isObject: true
         });
 
+        schema.register( 'dialogueMessageContent', {
+            allowIn: 'dialogueMessage',
+            allowContentOf: '$root',
+            isLimit: true
+        });
+
         const forbiddenMessageChildren = [
             'dialogueMessage',
             'dialogueMessage',
@@ -234,12 +240,6 @@ class SimpleBoxEditing extends Plugin {
 			// Allow content which is allowed in the root (e.g. paragraphs).
 			allowContentOf: '$root'
 		} );
-
-		// schema.addChildCheck( ( context, childDefinition ) => {
-		// 	if ( context.endsWith( 'simpleBoxDescription' ) && childDefinition.name == 'simpleBox' ) {
-		// 		return false;
-		// 	}
-		// } );
     }
 
     _defineConverters() {
@@ -301,7 +301,6 @@ class SimpleBoxEditing extends Plugin {
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
                 const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
-                console.log({ viewElement, attributes: JSON.stringify(attributes, null, 2) });
                 return modelWriter.createElement('dialogueMessage', attributes);
             },
             view: {
@@ -329,6 +328,24 @@ class SimpleBoxEditing extends Plugin {
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessage',
             view: messageEditingDowncastViewGenerator
+        } );
+
+        // <dialogueMessageContent> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+            }
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: messageContentDowncastViewGenerator
         } );
 
         // <simpleBox> converters
@@ -477,24 +494,47 @@ class SubmitDialogueMessageCommand extends Command {
 
                 if (dialogueMessageInput.is('element')) {
                     writer.append(dialogueMessage, root);
+
+                    const contentDiv = writer.createElement('dialogueMessageContent');
+
                     const inputContents = Array.from(dialogueMessageInput.getChildren());
                     if (inputContents.length === 0) {
-                        const paragraph = writer.createElement('paragraph', { contenteditable: 'true' });
+                        const paragraph = writer.createElement('paragraph');
+                        writer.append(paragraph, contentDiv);
                         writer.append(paragraph, dialogueMessage);
                     }
 
-                    Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
-                        console.log({ userInput, dialogueMessage });
-                        writer.append(userInput, dialogueMessage);
-                        console.log({ dialogueMessage });
+                    inputContents.forEach(userInput => {
+                        const paragraph = writer.createElement('paragraph');
+                        let userInputText = userInput;
+                        let iterations = 0;
+                        while (!userInputText.is('text') && iterations < 5) {
+                            const child = userInputText.getChild(0);
+                            if (child) {
+                                userInputText = child;
+                            } else {
+                                break;
+                            }
+                            iterations++;
+                        }
+
+                        // at this point, userInput should be Text, or something's gone wrong
+                        if (userInputText.is('text')) {
+                            writer.insertText(userInputText.data, paragraph);
+                        }
+                        writer.append(paragraph, contentDiv);
+                        writer.remove(userInput);
                     });
+
+                    writer.append(contentDiv, dialogueMessage);
+
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
                 } else {
                     // const messageChildren = Array.from(dialogueMessage.getChildren());
                     // writer.insertText(dialogueMessageInput.data, messageChildren[0]);
                     console.log(`else block of dialogueMessageInput.is('element')`, { dialogueMessage });
-                    writer.append(dialogueMessage, root);
+                    // writer.append(dialogueMessage, root);
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0);
@@ -559,6 +599,9 @@ function findMessageInputs(root) {
     const rootChildren = Array.from(root.getChildren());
     // For backwards compatibility, when we didn't have a wrapper around the message inputs
     const rootInputs = rootChildren.filter(child => child.is('element', 'dialogueMessageInput'));
+    /**
+     * @type {Element}
+     */
     const dialogueMessageInputWrapper = rootChildren.find(child => child.is('element', 'dialogueMessageInputWrapper'));
 
     if (!dialogueMessageInputWrapper) return rootInputs;
@@ -611,7 +654,6 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     const userOrder = getUserOrder(modelElement);
     const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
     const section = viewWriter.createContainerElement( 'section', sectionAttributes );
-    console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()) });
 
     const userDisplayName = getUserDisplayName(modelElement);
     const headerAttributes = {
@@ -620,43 +662,17 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     };
     const headerElement = createHeaderElement(viewWriter, 'section', headerAttributes, userDisplayName);
 
-    /**
-     * @type {Element[]}
-     */
-    const paragraphChildren = Array.from(modelElement.getChildren()).filter(child => child.is('element', 'paragraph'));
-    
-    const convertedParagraphs = paragraphChildren.map(paragraphChild => {
-        const paragraphElement = viewWriter.createEditableElement('p', { contenteditable: 'true' });
-        /**
-         * @type {Text}
-         */
-        const paragraphText = paragraphChild.getChild(0);
-        console.log({ paragraphChild, paragraphText });
-
-        if (paragraphText) {
-            const convertedText = viewWriter.createText(paragraphText.data);
-            viewWriter.insert(viewWriter.createPositionAt(paragraphElement, 0), convertedText);    
-        }
-
-        console.log({ paragraphElement });
-
-        return paragraphElement;
-    });
-
-
     viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
-    convertedParagraphs.forEach(paragraphChild => {
-        viewWriter.insert(viewWriter.createPositionAt(section, 'end'), paragraphChild);
-        console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()), paragraphChild });
-    });
 
-    console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()) });
+    return toWidget(section, viewWriter, { hasSelectionHandle: true });
+}
 
-    const element = toWidget(section, viewWriter);
-
-    console.log({ element: element.toJSON() });
-
-    return element;
+/**
+ * @type {ContainerElementDefinitionGenerator}
+ */
+function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
+    const contentElement = viewWriter.createEditableElement('div');
+    return toWidgetEditable(contentElement, viewWriter);
 }
 
 /**
