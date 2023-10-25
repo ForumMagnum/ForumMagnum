@@ -47,6 +47,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 12,
     },
   },
+  modWarning: {
+    padding: '0px 20px 12px 20px',
+    color: theme.palette.grey[600],
+    fontSize: 14,
+  },
   searchInputArea: {
     flex: 1,
     display: "flex",
@@ -112,8 +117,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onClose: () => void }) => {
-  const { LWDialog, ErrorBoundary, ExpandedUsersConversationSearchHit, ForumIcon, LWTooltip } = Components;
+const NewConversationDialog = ({
+  isModInbox = false,
+  classes,
+  onClose,
+}: {
+  isModInbox?: boolean;
+  classes: ClassesType;
+  onClose: () => void;
+}) => {
+  const { LWDialog, ErrorBoundary, ExpandedUsersConversationSearchHit, ForumIcon, LWTooltip, Typography } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
 
@@ -146,6 +159,9 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
                   <InfoIcon className={classes.infoIcon} />
                 </LWTooltip>
               </div>
+              {isModInbox && (
+                <Typography variant="body2" className={classes.modWarning}>Moderators will be included in this conversation</Typography>
+              )}
               <ErrorBoundary>
                 <div className={classes.usersList}>
                   {/* Speed seems to be roughly proportional to hitsPerPage here */}
@@ -156,6 +172,7 @@ const NewConversationDialog = ({ classes, onClose }: { classes: ClassesType; onC
                         {...props}
                         currentUser={currentUser}
                         onClose={onClose}
+                        isModInbox={isModInbox}
                         className={classes.hit}
                       />
                     )}

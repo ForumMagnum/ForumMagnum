@@ -68,55 +68,69 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, className, classes}: {
-  hit: Hit<any>,
-  currentUser: UsersCurrent,
-  onClose: () => void,
-  className?: string,
-  classes: ClassesType,
+const ExpandedUsersConversationSearchHit = ({
+  hit,
+  currentUser,
+  onClose,
+  isModInbox = false,
+  className,
+  classes,
+}: {
+  hit: Hit<any>;
+  currentUser: UsersCurrent;
+  onClose: () => void;
+  isModInbox?: boolean;
+  className?: string;
+  classes: ClassesType;
 }) => {
-  const {FormatDate, UsersProfileImage, ForumIcon} = Components;
+  const { FormatDate, UsersProfileImage, ForumIcon } = Components;
   const user = hit as AlgoliaUser;
 
   const { history } = useNavigation();
-  const { conversation, initiateConversation } = useInitiateConversation({})
+  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
 
   useEffect(() => {
     if (conversation) {
       // TODO note lack of ?from= in PR description
-      history.push({pathname: `/inbox/${conversation._id}`})
-      onClose()
+      history.push({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}` });
+      onClose();
     }
-  }, [conversation, history, onClose])
+  }, [conversation, history, isModInbox, onClose]);
 
-  return <div className={classNames(className, classes.root)}>
-    <div onClick={() => initiateConversation(user._id)} className={classes.link}>
-      {isEAForum && <div className={classes.profilePhotoCol}>
-        <UsersProfileImage user={user} size={36} />
-      </div>}
-      <div>
-        <div className={classes.displayNameRow}>
-          <span className={classes.displayName}>
-            {user.displayName}
-          </span>
-          <FormatDate date={user.createdAt} />
-          <span className={classes.metaInfo}>
-            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
-          </span>
-          {user.mapLocationAddress && <span className={classes.metaInfo}>
-            <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}
-          </span>}
-        </div>
-        {(user.jobTitle || user.organization) && <div className={classes.role}>
-          {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
-        </div>}
-        <div className={classes.snippet}>
-          <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
+  return (
+    <div className={classNames(className, classes.root)}>
+      <div onClick={() => initiateConversation(user._id)} className={classes.link}>
+        {isEAForum && (
+          <div className={classes.profilePhotoCol}>
+            <UsersProfileImage user={user} size={36} />
+          </div>
+        )}
+        <div>
+          <div className={classes.displayNameRow}>
+            <span className={classes.displayName}>{user.displayName}</span>
+            <FormatDate date={user.createdAt} />
+            <span className={classes.metaInfo}>
+              <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
+            </span>
+            {user.mapLocationAddress && (
+              <span className={classes.metaInfo}>
+                <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}
+              </span>
+            )}
+          </div>
+          {(user.jobTitle || user.organization) && (
+            <div className={classes.role}>
+              {user.jobTitle} {user.organization ? `@ ${user.organization}` : ""}
+            </div>
+          )}
+          <div className={classes.snippet}>
+            <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
-}
+  );
+};
 
 const ExpandedUsersConversationSearchHitComponent = registerComponent("ExpandedUsersConversationSearchHit", ExpandedUsersConversationSearchHit, {styles});
 

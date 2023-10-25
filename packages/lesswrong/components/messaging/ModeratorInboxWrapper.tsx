@@ -10,7 +10,7 @@ const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
-  const { InboxNavigation, AllMessagesPage } = Components
+  const { InboxNavigation, FriendlyInbox } = Components
 
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
@@ -22,17 +22,17 @@ const ModeratorInboxWrapper = () => {
   const terms: ConversationsViewTerms = { view: "moderatorConversations", showArchive, userId: query.userId };
 
   if (conversationId) {
-    return <AllMessagesPage terms={terms} currentUser={currentUser} conversationId={conversationId} baseRoute='/moderatorInbox' />
+    return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
   }
 
   // TODO change to isFriendlyUI when https://github.com/ForumMagnum/ForumMagnum/pull/7908 is merged
-  const InboxComponent = isEAForum ? AllMessagesPage : InboxNavigation;
+  const InboxComponent = isEAForum ? FriendlyInbox : InboxNavigation;
   return (
     <InboxComponent
       terms={terms}
       currentUser={currentUser}
       title={<Link to="/moderatorInbox">Moderator Conversations</Link>}
-      baseRoute='/moderatorInbox'
+      isModInbox
     />
   );
 }

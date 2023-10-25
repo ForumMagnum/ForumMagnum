@@ -137,11 +137,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AllMessagesPage = ({
+const FriendlyInbox = ({
   currentUser,
   terms,
   conversationId,
-  baseRoute = "/inbox",
+  isModInbox = false,
   classes,
 }: InboxComponentProps & {
   conversationId?: string;
@@ -154,17 +154,19 @@ const AllMessagesPage = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      history.push({ ...location, pathname: `${baseRoute}/${conversationId}` });
+      history.push({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : " inbox"}/${conversationId}` });
     },
-    [baseRoute, history, location]
+    [history, isModInbox, location]
   );
 
   const openNewConversationDialog = useCallback(() => {
     openDialog({
       componentName: "NewConversationDialog",
-      componentProps: {},
+      componentProps: {
+        isModInbox,
+      },
     });
-  }, [openDialog]);
+  }, [isModInbox, openDialog]);
 
   const { InboxNavigation2, ConversationWidget, ForumIcon, ConversationDetails, Typography } = Components;
 
@@ -200,7 +202,7 @@ const AllMessagesPage = ({
     });
   };
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !currentRoute?.name.includes("moderatorInbox")
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !isModInbox;
 
   const title = selectedConversation
     ? conversationGetTitle2(selectedConversation, currentUser)
@@ -264,10 +266,10 @@ const AllMessagesPage = ({
   );
 };
 
-const AllMessagesPageComponent = registerComponent("AllMessagesPage", AllMessagesPage, { styles });
+const FriendlyInboxComponent = registerComponent("FriendlyInbox", FriendlyInbox, { styles });
 
 declare global {
   interface ComponentTypes {
-    AllMessagesPage: typeof AllMessagesPageComponent;
+    FriendlyInbox: typeof FriendlyInboxComponent;
   }
 }

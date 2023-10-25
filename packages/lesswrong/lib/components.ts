@@ -89,7 +89,7 @@ importComponent("InboxWrapper", () => require('../components/messaging/InboxWrap
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 // Redesigned messaging components
-importComponent("AllMessagesPage", () => require('../components/messaging/AllMessagesPage'));
+importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
 importComponent("InboxNavigation2", () => require('../components/messaging/InboxNavigation2'));
 importComponent("ConversationWidget", () => require('../components/messaging/ConversationWidget'));
 importComponent("ConversationItem2", () => require('../components/messaging/ConversationItem2'));

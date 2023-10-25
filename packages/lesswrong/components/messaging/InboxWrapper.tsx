@@ -8,7 +8,7 @@ export type InboxComponentProps = {
   terms: ConversationsViewTerms;
   currentUser: UsersCurrent;
   title?: JSX.Element | String;
-  baseRoute?: string;
+  isModInbox?: boolean;
   classes: ClassesType;
 };
 
@@ -16,7 +16,7 @@ const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
-  const { InboxNavigation, AllMessagesPage } = Components
+  const { InboxNavigation, FriendlyInbox } = Components
 
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
@@ -32,11 +32,11 @@ const InboxWrapper = () => {
   };
 
   if (conversationId) {
-    return <AllMessagesPage terms={terms} currentUser={currentUser} conversationId={conversationId} />
+    return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
   // TODO change to isFriendlyUI when https://github.com/ForumMagnum/ForumMagnum/pull/7908 is merged
-  const InboxComponent = isEAForum ? AllMessagesPage : InboxNavigation;
+  const InboxComponent = isEAForum ? FriendlyInbox : InboxNavigation;
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 
