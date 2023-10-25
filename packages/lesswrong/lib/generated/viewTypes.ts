@@ -68,7 +68,7 @@ interface ViewTermsByCollectionName {
   DebouncerEvents: ViewTermsBase
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
-  ElectionCandidates: ViewTermsBase
+  ElectionCandidates: ElectionCandidatesViewTerms
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms

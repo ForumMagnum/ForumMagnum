@@ -1,10 +1,14 @@
 import { useMulti } from "../../../lib/crud/withMulti";
 
+const givingSeason23ElectionName = "givingSeason23";
+
 export const useElectionCandidates = () => {
   return useMulti({
     collectionName: "ElectionCandidates",
     fragmentName: "ElectionCandidateBasicInfo",
-    terms: {},
+    terms: {
+      electionName: givingSeason23ElectionName,
+    },
   });
 }
 

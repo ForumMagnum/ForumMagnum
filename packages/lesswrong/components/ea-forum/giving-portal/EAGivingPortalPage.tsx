@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
-import { useDonationOpportunities, useElectionCandidates } from "./givingPortalOrgs";
+import { useDonationOpportunities, useElectionCandidates } from "./hooks";
 import type { TimelineSpec } from "./Timeline";
 import classNames from "classnames";
 
