@@ -1,6 +1,5 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
-import type { GivingPortalOrg } from "./givingPortalOrgs";
 import classNames from "classnames";
 
 const imageWidth = 70;
@@ -80,12 +79,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const DonationOpportunity = ({org, classes}: {
-  org: GivingPortalOrg,
+const DonationOpportunity = ({candidate, classes}: {
+  candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
   // TODO: Handle button clicks
-  const {name, logoSrc, description} = org;
+  const {name, logoSrc, description} = candidate;
   return (
     <div className={classes.root}>
       <div className={classes.header}>
