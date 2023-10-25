@@ -3257,6 +3257,17 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly postCount: number,
 }
 
+interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
+  readonly _id: string,
+  readonly electionName: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly description: string,
+  readonly postCount: number,
+  readonly baseScore: number,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3480,6 +3491,7 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
+  ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3689,6 +3701,7 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
+  ElectionCandidateBasicInfo: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
   SuggestAlignmentComment: "Comments"
 }

@@ -236,6 +236,7 @@ import './collections/postRecommendations/collection';
 
 // ElectionCandidates
 import './collections/electionCandidates/collection';
+import './collections/electionCandidates/fragments';
 
 // Collections supporting vendored libraries
 import './collections/cronHistories';
