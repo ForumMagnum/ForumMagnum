@@ -49,7 +49,6 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   if (notificationsToEmail.length) {
     const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
     if (useSendgridTemplatesSetting.get()) {
-      console.log('useSendgridTemplatesSetting set', groupedNotifications)
       /** Example notification data:
        * [
     {
