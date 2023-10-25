@@ -46,6 +46,7 @@ importComponent("EAGivingPortalPage", () => require('../components/ea-forum/givi
 importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
 importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
 importComponent("ElectionCandidate", () => require('../components/ea-forum/giving-portal/ElectionCandidate'));
+importComponent("ElectionCandidatesList", () => require('../components/ea-forum/giving-portal/ElectionCandidatesList'));
 importComponent("DonationOpportunity", () => require('../components/ea-forum/giving-portal/DonationOpportunity'));
 importComponent("EAHoverOver", () => require('../components/ea-forum/EAHoverOver'));
 importComponent("EASequenceOrCollectionCard", () => require('../components/ea-forum/EASequenceOrCollectionCard'));

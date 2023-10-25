@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
-import { useDonationOpportunities, useElectionCandidates } from "./hooks";
+import { useDonationOpportunities } from "./hooks";
 import type { TimelineSpec } from "./Timeline";
 import classNames from "classnames";
 
@@ -129,10 +129,6 @@ const styles = (theme: ThemeType) => ({
   electionCandidates: {
     width: 1120,
     maxWidth: "100%",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "16px",
-    rowGap: "12px",
   },
   donationOpportunities: {
     width: "100%",
@@ -239,10 +235,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     totalRaised,
   } = useAmountRaised();
   const {
-    results: electionCandidates,
-    loading: electionCandidatesLoading,
-  } = useElectionCandidates();
-  const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
   } = useDonationOpportunities();
@@ -285,7 +277,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {
     Loading, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
-    ElectionCandidate, DonationOpportunity,
+    ElectionCandidatesList, DonationOpportunity,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -348,12 +340,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           <div className={classes.content}>
             <div className={classes.column}>
               <div className={classes.h2}>Candidates in the Election</div>
-              <div className={classes.electionCandidates}>
-                {electionCandidatesLoading && <Loading />}
-                {electionCandidates?.map((candidate) => (
-                  <ElectionCandidate candidate={candidate} key={candidate._id} />
-                ))}
-              </div>
+              <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classes.mb100}>
                 <button
                   onClick={onAddCandidate}
