@@ -2,6 +2,7 @@ import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferen
 import * as _ from 'underscore';
 import { forumTypeSetting } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
+import { schemaDefaultValue } from '../../collectionUtils';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -78,6 +79,7 @@ const schema: SchemaType<DbConversation> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
+    ...schemaDefaultValue([]), // Note: this sets onUpdate and onCreate. onUpdate is overridden below
     // Allow users to only update their own archived status, this has some potential concurrency problems,
     // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
     onUpdate: ({data, currentUser, oldDocument}) => {
@@ -89,6 +91,7 @@ const schema: SchemaType<DbConversation> = {
           }
         }))
       }
+      return data.archivedByIds ?? []
     }
   },
   'archivedByIds.$': {

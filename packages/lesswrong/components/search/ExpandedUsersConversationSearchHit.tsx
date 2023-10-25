@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
@@ -10,6 +10,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
 import { useNavigation } from '../../lib/routeUtil';
 import classNames from 'classnames';
+import { useInitiateConversation } from '../hooks/useInitiateConversation';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -83,42 +84,17 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classNam
   
   const { flash } = useMessages()
   const { history } = useNavigation();
-  const { create: createConversation } = useCreate({
-    collectionName: 'Conversations',
-    fragmentName: 'ConversationsMinimumInfo',
-  });
-  
-  const newConversation = async (initiatingUser: UsersCurrent): Promise<string|null> => {
-    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
-    // const moderatorField = includeModerators ? { moderator: true } : {}
+  const { conversation, initiateConversation } = useInitiateConversation({})
 
-    const data = {
-      participantIds:[user._id, initiatingUser._id],
-      ...alignmentFields,
-      // ...moderatorField
+  useEffect(() => {
+    if (conversation) {
+      history.push({pathname: `/inbox/${conversation._id}`})
+      onClose()
     }
-
-    try {
-      const response = await createConversation({data})
-      return response.data?.createConversation.data._id
-    } catch(e) {
-      flash(e.message)
-      return null
-    }
-  }
-
-  const openConversation = async (initiatingUser: UsersCurrent) => {
-    const conversationId = await newConversation(initiatingUser)
-    if (!conversationId) return
-
-    // TODO do template params
-    // const templateParams = getTemplateParams()
-    history.push({pathname: `/inbox/${conversationId}`})
-    onClose()
-  }
+  }, [conversation, history, onClose])
 
   return <div className={classNames(className, classes.root)}>
-    <div onClick={() => openConversation(currentUser)} className={classes.link}>
+    <div onClick={() => initiateConversation(user._id)} className={classes.link}>
       {isEAForum && <div className={classes.profilePhotoCol}>
         <UsersProfileImage user={user} size={36} />
       </div>}
