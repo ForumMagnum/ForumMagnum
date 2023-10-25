@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
@@ -52,9 +52,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
   },
   card: {
-    width: 450,
     padding: 16,
-    paddingTop: 8
+    ...(isEAForum
+      ? {
+        paddingTop: 12,
+      }
+      : {
+        width: 450,
+        paddingTop: 8,
+      }),
   },
   smallText: {
     ...smallTagTextStyle(theme),
@@ -108,7 +114,6 @@ const FooterTagList = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
-  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // We already have the tags as a resolver on the post, this additional query
   // serves two purposes:
@@ -197,8 +202,6 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  const { Loading, FooterTag, ContentStyles } = Components
-  
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -210,23 +213,34 @@ const FooterTagList = ({
       return <>{children}</>;
     }
   }
-  
+
   const contentTypeInfo = forumSelect(contentTypes);
-  
-  const PostTypeTag = ({tooltipBody, label}: {
-    tooltipBody: React.ReactNode;
-    label: string;
-  }) =>
-    <LWTooltip
-      title={<Card className={classes.card}>
-        <ContentStyles contentType="comment">
-          {tooltipBody}
-        </ContentStyles>
-      </Card>}
-      tooltip={false}
-    >
-      <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>{label}</div>
-    </LWTooltip>
+
+  const PostTypeTag = useCallback(({tooltipBody, label}: {
+    tooltipBody: ReactNode,
+    label: string,
+  }) => {
+    const {EAHoverOver, LWTooltip, ContentStyles} = Components;
+    const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+    return (
+      <Tooltip
+        title={
+          <Card className={classes.card}>
+            <ContentStyles contentType="comment">
+              {tooltipBody}
+            </ContentStyles>
+          </Card>
+        }
+        tooltip={false}
+      >
+        <div className={classNames(classes.frontpageOrPersonal, {
+          [classes.smallText]: smallText,
+        })}>
+          {label}
+        </div>
+      </Tooltip>
+    );
+  }, [classes, smallText]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
@@ -248,6 +262,8 @@ const FooterTagList = ({
     )
 
   const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
+
+  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist} = Components;
 
   const innerContent =
     (loadingInitial || !results) ? (
@@ -283,7 +299,7 @@ const FooterTagList = ({
         {isAwaiting && <Loading />}
       </>
     );
- 
+
   return <>
     <span
       ref={rootRef}
