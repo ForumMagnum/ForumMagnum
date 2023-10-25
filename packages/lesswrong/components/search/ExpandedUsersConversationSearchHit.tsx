@@ -1,13 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import React, { useEffect } from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useMessages } from '../common/withMessages';
+import { isEAForum } from '../../lib/instanceSettings';
 import { useNavigation } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
@@ -81,13 +77,13 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, classNam
 }) => {
   const {FormatDate, UsersProfileImage, ForumIcon} = Components;
   const user = hit as AlgoliaUser;
-  
-  const { flash } = useMessages()
+
   const { history } = useNavigation();
   const { conversation, initiateConversation } = useInitiateConversation({})
 
   useEffect(() => {
     if (conversation) {
+      // TODO note lack of ?from= in PR description
       history.push({pathname: `/inbox/${conversation._id}`})
       onClose()
     }

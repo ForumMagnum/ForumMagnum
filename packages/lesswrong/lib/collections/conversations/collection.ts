@@ -3,7 +3,6 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 export const userCanStartConversations = (user: DbUser|UsersCurrent) => {
   if (user.deleted) return false
