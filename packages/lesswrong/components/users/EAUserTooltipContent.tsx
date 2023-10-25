@@ -11,6 +11,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: "100%",
     gap: "12px",
     fontSize: 14,
+    fontWeight: 450,
+    lineHeight: "19.5px",
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   header: {
     display: "flex",

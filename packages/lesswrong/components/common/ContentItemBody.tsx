@@ -292,11 +292,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   markHoverableLinks = (element: HTMLElement) => {
     const linkTags = this.htmlCollectionToArray(element.getElementsByTagName("a"));
     for (let linkTag of linkTags) {
-      const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
-      
       const href = linkTag.getAttribute("href");
       if (!href || linkIsExcludedFromPreview(href))
         continue;
+
+      const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
       const id = linkTag.getAttribute("id") ?? undefined;
       const rel = linkTag.getAttribute("rel") ?? undefined;
       const replacementElement = <Components.HoverPreviewLink
