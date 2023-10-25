@@ -5,7 +5,7 @@ import { isElectionCandidateSort } from "../../../lib/collections/electionCandid
 import type { SettingsOption } from "../../../lib/collections/posts/dropdownOptions";
 import classNames from "classnames";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -17,6 +17,9 @@ const styles = (_theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "16px",
     rowGap: "12px",
+  },
+  dropdown: {
+    color: theme.palette.givingPortal[0],
   },
 });
 
@@ -52,9 +55,10 @@ const ElectionCandidatesList = ({className, classes}: {
         value={sortBy}
         options={sortOptions}
         onSelect={onSelectSort}
+        className={classes.dropdown}
       />
       <div className={classes.grid}>
-        {loading && <Loading />}
+        {loading && <Loading white />}
         {results?.map((candidate) => (
           <ElectionCandidate candidate={candidate} key={candidate._id} />
         ))}
