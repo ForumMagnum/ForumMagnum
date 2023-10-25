@@ -642,6 +642,15 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/best-of',
     },
     {
+      name: 'GivingPortal',
+      path: '/giving-portal',
+      componentName: 'EAGivingPortalPage',
+      title: 'Giving portal',
+      subtitle: 'Giving portal',
+      subtitleLink: '/giving-portal',
+      unspacedGrid: true,
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',

@@ -56,6 +56,7 @@ export type PostsListConfig = {
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
+  loadMoreMessage?: string,
 }
 
 const defaultTooltipPlacement = isEAForum
@@ -91,6 +92,7 @@ export const usePostsList = ({
   showFinalBottomBorder = false,
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
+  loadMoreMessage,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -228,7 +230,10 @@ export const usePostsList = ({
     loading,
     error,
     loadMore: onLoadMore,
-    loadMoreProps,
+    loadMoreProps: {
+      ...loadMoreProps,
+      message: loadMoreMessage,
+    },
     maybeMorePosts,
     orderedResults,
     itemProps,

@@ -10,6 +10,7 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
+import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
@@ -123,6 +124,7 @@ export type ForumIconName =
   "Users" |
   "UsersOutline" |
   "Bell" |
+  "BellAlert" |
   "BellBorder" |
   "AddEmoji" |
   "Link" |
@@ -196,6 +198,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
@@ -268,6 +271,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
