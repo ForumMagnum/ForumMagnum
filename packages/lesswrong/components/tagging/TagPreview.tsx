@@ -6,6 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, isEAForum } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
+import { EA_HOVER_OVER_WIDTH } from '../ea-forum/EAHoverOver';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   rootEAWidth: {
-    width: 340,
+    width: EA_HOVER_OVER_WIDTH,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,

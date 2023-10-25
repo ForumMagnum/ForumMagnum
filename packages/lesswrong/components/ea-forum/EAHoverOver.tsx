@@ -4,6 +4,9 @@ import type { PopperPlacementType } from "@material-ui/core/Popper";
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 
+export const EA_THIN_HOVER_OVER_WIDTH = 270;
+export const EA_HOVER_OVER_WIDTH = 340;
+
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[0],
