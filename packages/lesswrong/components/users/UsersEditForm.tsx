@@ -12,6 +12,8 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
+// TODO: would be great to have this part of the theme 🤔
+const smallLabelFont = 12
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "60%",
@@ -21,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
+    "--ck-color-engine-placeholder-text": theme.palette.grey[340],
     
     "& .form-input": {
       background: "white",
@@ -57,6 +60,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontWeight: 600,
       width: "100%",
     },
+    "& .geosuggest__input::placeholder": {
+      color: theme.palette.grey[340],
+    },
     "& .geosuggest__input:focus": {
       borderBottom: 0,
     },
@@ -67,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
     "& .mui-input-label[data-shrink='true']" : {
       marginTop: '0.2em',
-      transform: 'translate(0,-6px) scale(.75)',
+      transform: 'translate(0,-6px) scale(.857)',
     },
     
     "& .form-input.form-component-text label + .MuiInput-formControl" :{
@@ -100,7 +106,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .MuiFormLabel-root, .MuiInputBase-input": {
       fontSize: theme.typography.body2.fontSize,
       fontWeight: 600,
-    }
+    },
+
+    "& .MuiFormLabel-root": {
+      color: theme.palette.grey[340],
+    },
+    
+    "& .LocationPicker-label" : {
+      color: theme.palette.grey[340],
+      fontSize: smallLabelFont,
+    },
+    
+    "& .EditorFormComponent-label" : {
+      fontSize: smallLabelFont,
+    },
+    
+    "& .ck.ck-content": {
+      fontWeight: 600,
+    }, 
   },
 
   header: {
@@ -110,7 +133,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4
-  }
+  },
+  smallLabel: {
+    ...theme.typography.smallText,
+    fontSize: smallLabelFont,
+  },
+  userName: {
+    fontWeight: 600,
+  },
 })
 
 const passwordResetMutation = gql`
@@ -169,7 +199,10 @@ const UsersEditForm = ({terms, classes, enableResetPassword = false}: {
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Account Settings")}
       </Typography>
-      <Typography variant="body2">
+      <Typography variant="body2" className={classes.smallLabel}>
+        Username
+      </Typography>
+      <Typography variant="body2" className={classes.userName}>
         {currentUser?.username}
       </Typography>
       {isCurrentUser && enableResetPassword && <Button
