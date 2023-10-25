@@ -19,7 +19,7 @@ const getSendgridClient = () => {
 /**
  * Adds the given user to the given Sendgrid list.
  */
-export const addToList = (user: DbUser, listId: string) => {
+export const addToSendgridList = (user: DbUser, listId: string) => {
   const client = getSendgridClient();
   
   const email = getUserEmail(user)
@@ -52,7 +52,7 @@ export const addToList = (user: DbUser, listId: string) => {
 /**
  * Removes the given user from the given Sendgrid list.
  */
-export const removeFromList = async (user: DbUser, listId: string) => {
+export const removeFromSendgridList = async (user: DbUser, listId: string) => {
   const client = getSendgridClient();
   
   const email = getUserEmail(user)

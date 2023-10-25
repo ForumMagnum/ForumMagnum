@@ -30,7 +30,7 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
-import { addToList, removeFromList } from '../emails/sendgridListManagement';
+import { addToSendgridList, removeFromSendgridList } from '../emails/sendgridListManagement';
 import { sendEmailSendgridTemplate } from '../emails/sendEmail';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -370,9 +370,9 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     }
     
     if (newUser.subscribedToDigest) {
-      void addToList(newUser, sendgridDigestListId)
+      void addToSendgridList(newUser, sendgridDigestListId)
     } else {
-      void removeFromList(newUser, sendgridDigestListId)
+      void removeFromSendgridList(newUser, sendgridDigestListId)
     }
   }
 });
@@ -434,7 +434,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeToWakingUpNewUs
     return;
   }
 
-  void addToList(user, sendgridWelcomeListId)
+  void addToSendgridList(user, sendgridWelcomeListId)
 });
 
 const welcomeMessageDelayer = new EventDebouncer({

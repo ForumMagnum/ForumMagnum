@@ -95,6 +95,11 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   }
 }
 
+/**
+ * Given an array of notifications to send to a user, returns them restructured as an array of batches of notifications.
+ * A batch is either an array of notifications that can be combined into a single email, or an array with a single notification.
+ * This also handles filtering out notifications that should be skipped.
+ */
 const groupNotifications = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
