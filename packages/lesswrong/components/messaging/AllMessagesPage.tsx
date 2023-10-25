@@ -8,6 +8,8 @@ import { useDialog } from "../common/withDialog";
 import { useLocation, useNavigation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
+import { userCanDo } from "../../lib/vulcan-users";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const MAX_WIDTH = 1100;
 
@@ -15,18 +17,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     height: "100%",
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     width: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
     padding: "32px 32px 0px 32px",
-    position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
       minHeight: "100%",
       height: "auto",
     },
+  },
+  modInboxLink: {
+    ...theme.typography.body2,
+    color: theme.palette.lwTertiary.main,
+    width: 'fit-content',
+    padding: "12px 12px 8px 16px",
+    fontWeight: 600,
+  },
+  backButton: {
+    ...theme.typography.body2,
+    color: theme.palette.lwTertiary.main,
+    width: 'fit-content',
+    padding: "12px 0 0 0",
+    fontWeight: 600,
+    display: "none",
+    // Only show on mobile
+    [theme.breakpoints.down('xs')]: {
+      display: "block",
+    }
+  },
+  table: {
+    minHeight: 0,
+    display: "flex",
+    flexDirection: "row",
   },
   column: {
     display: "flex",
@@ -118,7 +143,7 @@ const AllMessagesPage = ({
   conversationId?: string;
 }) => {
   const { openDialog } = useDialog();
-  const { location } = useLocation();
+  const { currentRoute, location } = useLocation();
   const { history } = useNavigation();
 
   const selectedConversationRef = useRef<HTMLDivElement>(null);
@@ -137,7 +162,7 @@ const AllMessagesPage = ({
     });
   }, [openDialog]);
 
-  const { InboxNavigation2, ConversationWidget, ForumIcon, ConversationDetails } = Components;
+  const { InboxNavigation2, ConversationWidget, ForumIcon, ConversationDetails, Typography } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
@@ -171,21 +196,7 @@ const AllMessagesPage = ({
     });
   };
 
-  // Note: we are removing the ability to archive conversations
-  // const showArchive = query.showArchive === "true"
-
-  {
-    /* <SectionTitle title={title} noTopMargin> */
-  }
-  {
-    /* TODO add mod inbox back in */
-  }
-  {
-    /* {showModeratorLink && <Link to={"/moderatorInbox"} className={classes.modInboxLink}>Mod Inbox</Link>} */
-  }
-  {
-    /* </SectionTitle> */
-  }
+  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
 
   const title = selectedConversation
     ? conversationGetTitle2(selectedConversation, currentUser)
@@ -193,42 +204,56 @@ const AllMessagesPage = ({
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.column, classes.leftColumn, {
-        [classes.hideColumnSm]: conversationId,
-      })}>
-        <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
-          <div className={classes.classes.headerText}>All messages</div>
-          <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
-        </div>
-        <div className={classes.navigation}>
-          <InboxNavigation2
-            conversationsResult={conversationsResult}
-            currentUser={currentUser}
-            selectedConversationId={conversationId}
-            setSelectedConversationId={selectConversationCallback}
-          />
-        </div>
-      </div>
-      <div className={classNames(classes.column, classes.rightColumn, {
-        [classes.hideColumnSm]: !conversationId,
-      })}>
-        <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
-          <div className={classes.headerText}>{title}</div>
-          {conversationId && (
-            <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
-          )}
-        </div>
-        <div className={classes.conversation} ref={selectedConversationRef}>
-          {selectedConversation ? <>
-            <ConversationDetails conversation={selectedConversation} hideOptions />
-            <ConversationWidget
+      {showModeratorLink && (
+        <Link to={"/moderatorInbox"} className={classes.modInboxLink}>
+          Mod Inbox
+        </Link>
+      )}
+      <div className={classes.table}>
+        <div
+          className={classNames(classes.column, classes.leftColumn, {
+            [classes.hideColumnSm]: conversationId,
+          })}
+        >
+          <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
+            <div className={classes.classes.headerText}>All messages</div>
+            <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+          </div>
+          <div className={classes.navigation}>
+            <InboxNavigation2
+              conversationsResult={conversationsResult}
               currentUser={currentUser}
-              conversation={selectedConversation}
-              scrollRef={selectedConversationRef}
+              selectedConversationId={conversationId}
+              setSelectedConversationId={selectConversationCallback}
             />
-          </> : (
-            <></>
-          )}
+          </div>
+        </div>
+        <div
+          className={classNames(classes.column, classes.rightColumn, {
+            [classes.hideColumnSm]: !conversationId,
+          })}
+        >
+          <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
+            <div className={classes.headerText}>{title}</div>
+            {conversationId && (
+              <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+            )}
+          </div>
+          <div className={classes.conversation} ref={selectedConversationRef}>
+            {selectedConversation ? (
+              <>
+                <Link to="/inbox" className={classes.backButton}> Go back to Inbox </Link>
+                <ConversationDetails conversation={selectedConversation} hideOptions />
+                <ConversationWidget
+                  currentUser={currentUser}
+                  conversation={selectedConversation}
+                  scrollRef={selectedConversationRef}
+                />
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
       </div>
     </div>
