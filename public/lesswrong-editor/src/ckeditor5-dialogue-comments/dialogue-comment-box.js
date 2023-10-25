@@ -335,12 +335,14 @@ class SimpleBoxEditing extends Plugin {
             model: 'dialogueMessageContent',
             view: {
                 name: 'div',
+                classes: 'dialogue-message-content'
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'dialogueMessageContent',
             view: {
                 name: 'div',
+                classes: 'dialogue-message-content'
             }
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
