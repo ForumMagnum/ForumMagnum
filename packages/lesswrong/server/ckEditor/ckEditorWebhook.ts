@@ -276,8 +276,16 @@ export async function pushRevisionToCkEditor(postId: string, html: string) {
   // (This seems like suspiciously bad API design in CkEditor's REST API, but
   // I've checked thoroughly and there's no way to just overwrite a
   // collaboration like you'd hope.)
-  await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
-  await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
+  try {
+    await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
+  } catch (err) {
+    console.log({ err });
+  }
+  try {
+    await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}`);
+  } catch (err) {
+    console.log({ err });
+  }
   
   // Push the selected revision
   const result = await fetchCkEditorRestAPI("POST", "/collaborations", {

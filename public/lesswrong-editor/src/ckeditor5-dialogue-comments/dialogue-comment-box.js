@@ -1,23 +1,26 @@
 // @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
+import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
 
 export default class DialogueCommentBox extends Plugin {
     static get requires() {
-        return [ SimpleBoxEditing, SimpleBoxUI ];
+        return [ SimpleBoxEditing, SimpleBoxUI, SimpleBoxButton ];
     }
 }
 
 class SimpleBoxUI extends Plugin {
     init() {
+        /**
+         * @type {EditorWithUI}
+         */
         const editor = this.editor;
         const t = editor.t;
 
         // The "dialogueMessageInput" button must be registered among the UI components of the editor
         // to be displayed in the toolbar.
-        editor.ui.componentFactory.add( 'dialogueMessageInput', locale => {
+        editor.ui.componentFactory.add( 'rootParagraphBox', locale => {
             // The state of the button will be bound to the widget command.
             const command = editor.commands.get( 'insertRootParagraphBox' );
 
@@ -27,7 +30,7 @@ class SimpleBoxUI extends Plugin {
             buttonView.set( {
                 // The t() function helps localize the editor. All strings enclosed in t() can be
                 // translated and change when the language of the editor changes.
-                label: t( 'Non-message Block' ),
+                label: t( 'Non-message Block foobar' ),
                 withText: true,
                 tooltip: true
             } );
@@ -40,7 +43,40 @@ class SimpleBoxUI extends Plugin {
 
             return buttonView;
         } );
+    }
+}
 
+class SimpleBoxButton extends Plugin {
+    init() {
+        /**
+         * @type {EditorWithUI}
+         */
+        const editor = this.editor;
+        const t = editor.t;
+
+        editor.ui.componentFactory.add( 'simpleBoxButton', locale => {
+            // The state of the button will be bound to the widget command.
+            const command = editor.commands.get( 'insertSimpleBox' );
+
+            // The button will be an instance of ButtonView.
+            const buttonView = new ButtonView( locale );
+
+            buttonView.set( {
+                // The t() function helps localize the editor. All strings enclosed in t() can be
+                // translated and change when the language of the editor changes.
+                label: t( 'Simple Box' ),
+                withText: true,
+                tooltip: true
+            } );
+
+            // Bind the state of the button to the command.
+            buttonView.bind( 'isOn', 'isEnabled' ).to( command, 'value', 'isEnabled' );
+
+            // Execute the command when the button is clicked (executed).
+            this.listenTo( buttonView, 'execute', () => editor.execute( 'insertSimpleBox' ) );
+
+            return buttonView;
+        } );
     }
 }
 
@@ -142,6 +178,7 @@ class SimpleBoxEditing extends Plugin {
             allowContentOf: '$root',
 
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
+            isObject: true
         });
 
         const forbiddenMessageChildren = [
@@ -264,6 +301,7 @@ class SimpleBoxEditing extends Plugin {
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
                 const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+                console.log({ viewElement, attributes: JSON.stringify(attributes, null, 2) });
                 return modelWriter.createElement('dialogueMessage', attributes);
             },
             view: {
@@ -293,7 +331,7 @@ class SimpleBoxEditing extends Plugin {
             view: messageEditingDowncastViewGenerator
         } );
 
-        		// <simpleBox> converters
+        // <simpleBox> converters
 		conversion.for( 'upcast' ).elementToElement( {
 			model: 'simpleBox',
 			view: {
@@ -441,16 +479,21 @@ class SubmitDialogueMessageCommand extends Command {
                     writer.append(dialogueMessage, root);
                     const inputContents = Array.from(dialogueMessageInput.getChildren());
                     if (inputContents.length === 0) {
-                        writer.appendElement('paragraph', dialogueMessage);
+                        const paragraph = writer.createElement('paragraph', { contenteditable: 'true' });
+                        writer.append(paragraph, dialogueMessage);
                     }
 
                     Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
+                        console.log({ userInput, dialogueMessage });
                         writer.append(userInput, dialogueMessage);
+                        console.log({ dialogueMessage });
                     });
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
                 } else {
-                    writer.insertText(dialogueMessageInput.data, dialogueMessage);
+                    // const messageChildren = Array.from(dialogueMessage.getChildren());
+                    // writer.insertText(dialogueMessageInput.data, messageChildren[0]);
+                    console.log(`else block of dialogueMessageInput.is('element')`, { dialogueMessage });
                     writer.append(dialogueMessage, root);
                 }
 				
@@ -471,6 +514,7 @@ class SubmitDialogueMessageCommand extends Command {
  * @typedef {import('@ckeditor/ckeditor5-engine').DowncastWriter} DowncastWriter
  * @typedef {Exclude<ReturnType<import('@ckeditor/ckeditor5-engine').Model['document']['getRoot']>, null>} RootElement
  * @typedef {import('@ckeditor/ckeditor5-engine').Element} Element
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/model/text').default} Text
  * @typedef {import('@ckeditor/ckeditor5-engine/src/view/containerelement').default} ContainerElement
  * @typedef {Exclude<Parameters<ReturnType<import('@ckeditor/ckeditor5-engine').Conversion['for']>['elementToElement']>[0], undefined>['view']} ViewElementDefinition
  * @typedef {Extract<ViewElementDefinition, (_0, _1) => ContainerElement>} ContainerElementDefinitionGenerator
@@ -567,6 +611,7 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     const userOrder = getUserOrder(modelElement);
     const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
     const section = viewWriter.createContainerElement( 'section', sectionAttributes );
+    console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()) });
 
     const userDisplayName = getUserDisplayName(modelElement);
     const headerAttributes = {
@@ -575,9 +620,43 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     };
     const headerElement = createHeaderElement(viewWriter, 'section', headerAttributes, userDisplayName);
 
-    viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+    /**
+     * @type {Element[]}
+     */
+    const paragraphChildren = Array.from(modelElement.getChildren()).filter(child => child.is('element', 'paragraph'));
+    
+    const convertedParagraphs = paragraphChildren.map(paragraphChild => {
+        const paragraphElement = viewWriter.createEditableElement('p', { contenteditable: 'true' });
+        /**
+         * @type {Text}
+         */
+        const paragraphText = paragraphChild.getChild(0);
+        console.log({ paragraphChild, paragraphText });
 
-    return section;
+        if (paragraphText) {
+            const convertedText = viewWriter.createText(paragraphText.data);
+            viewWriter.insert(viewWriter.createPositionAt(paragraphElement, 0), convertedText);    
+        }
+
+        console.log({ paragraphElement });
+
+        return paragraphElement;
+    });
+
+
+    viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+    convertedParagraphs.forEach(paragraphChild => {
+        viewWriter.insert(viewWriter.createPositionAt(section, 'end'), paragraphChild);
+        console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()), paragraphChild });
+    });
+
+    console.log({ section: Array.from(section.getChildren()).map(child => child.toJSON()) });
+
+    const element = toWidget(section, viewWriter);
+
+    console.log({ element: element.toJSON() });
+
+    return element;
 }
 
 /**
