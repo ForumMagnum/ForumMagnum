@@ -740,6 +740,7 @@ interface DbPost extends DbObject {
   criticismTipsDismissed: boolean
   debate: boolean | null
   collabEditorDialogue: boolean | null
+  mostRecentPublishedDialogueResponseDate: Date | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string

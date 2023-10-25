@@ -719,6 +719,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly debate: boolean | null,
   readonly collabEditorDialogue: boolean | null,
   readonly totalDialogueResponseCount: number,
+  readonly mostRecentPublishedDialogueResponseDate: Date | null,
   readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
