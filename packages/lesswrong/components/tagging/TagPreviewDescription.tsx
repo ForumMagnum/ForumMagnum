@@ -4,7 +4,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isLW } from '../../lib/instanceSettings';
+import { isEAForum, isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,11 +47,24 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   hash?: string,
   classes: ClassesType
 }) => {
-  const { ContentItemBody, ContentStyles } = Components;
-  const { history } = useNavigation();
+  const {history} = useNavigation();
 
-  if (!tag) return null
-  
+  if (!tag) {
+    return null
+  }
+
+  if (isEAForum) {
+    const {TagExcerpt} = Components;
+    return (
+      <TagExcerpt
+        tag={tag}
+        lines={4}
+        hideMultimedia
+        hideMoreLink
+      />
+    );
+  }
+
   const showCustomDescriptionHighlight = isLW && tag.core && !hash;
 
   let highlight: string | undefined;
@@ -74,6 +87,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
 
   if (highlight) {
+    const {ContentItemBody, ContentStyles} = Components;
     return <div
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
@@ -92,6 +106,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
       </ContentStyles>
     </div>
   }
+
   // TODO: This hacky code path that we never hit is Times New Roman
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
