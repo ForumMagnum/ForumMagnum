@@ -249,6 +249,8 @@ export async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Pro
   }
 }
 
+Globals.fetchCkEditorCloudStorageDocument = fetchCkEditorCloudStorageDocument;
+
 export function createCollaborativeSession(ckEditorId: string, html: string) {
   return fetchCkEditorRestAPI("POST", "/collaborations", {
     document_id: ckEditorId,

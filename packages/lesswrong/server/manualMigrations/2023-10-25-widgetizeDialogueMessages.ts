@@ -4,6 +4,7 @@ import { createCollaborativeSession, deleteCkEditorCloudDocument, fetchCkEditorC
 import { backfillDialogueMessageInputAttributes, cheerioWrapAll } from '../editor/conversionUtils';
 import { registerMigration } from './migrationUtils';
 import { cheerioParse } from '../utils/htmlUtil';
+import { Globals } from '../vulcan-lib';
 
 const widgetizeDialogueMessages = (html: string, postId: string) => {
   const $ = cheerioParse(html);
@@ -20,6 +21,34 @@ const widgetizeDialogueMessages = (html: string, postId: string) => {
   return $.html();
 }
 
+async function wrapMessageContents(dialogue: DbPost) {
+  const postId = dialogue._id;
+  const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
+  const ckEditorId = postIdToCkEditorDocumentId(postId);
+  let html;
+  try {
+    html = await fetchCkEditorCloudStorageDocument(ckEditorId);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('Error getting remote html of dialogue', { err });
+  }
+
+  // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
+  html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
+
+  console.log({html})
+
+  const migratedHtml = widgetizeDialogueMessages(html, postId);
+  return migratedHtml;
+}
+
+Globals.wrapDialogueMessageContents = async (postId: string) => {
+  const post = await Posts.findOne(postId);
+  if (post) {
+    const migratedHtml = await wrapMessageContents(post)
+    console.log({migratedHtml})
+  }
+}
 
 registerMigration({
   name: "widgetizeDialogueMessages",
@@ -30,20 +59,8 @@ registerMigration({
 
     const dialogueMigrations = dialogues.map(async (dialogue) => {
       const postId = dialogue._id;
-      const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
       const ckEditorId = postIdToCkEditorDocumentId(postId);
-      let html;
-      try {
-        html = await fetchCkEditorCloudStorageDocument(ckEditorId);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log('Error getting remote html of dialogue', { err });
-      }
-
-      // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
-      html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
-
-      const migratedHtml = widgetizeDialogueMessages(html, postId);
+      const migratedHtml = await wrapMessageContents(dialogue);
       await saveOrUpdateDocumentRevision(postId, migratedHtml);
     
       try {
