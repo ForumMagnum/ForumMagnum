@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useLocation } from "../../../lib/routeUtil";
 import { useCurrentUser } from "../../common/withUser";
+import { useHover } from "../../common/withHover";
 import type { VotingProps } from "../../votes/votingProps";
 
 const styles = (theme: ThemeType) => ({
@@ -21,11 +22,12 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   className?: string,
   classes: ClassesType,
 }) => {
+  const {hover, eventHandlers: hoverEventHandlers} = useHover();
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
-  const icon = hasVoted ? "Heart" : "HeartOutline";
+  const icon = hasVoted || hover ? "Heart" : "HeartOutline";
   const tooltip = hasVoted ? "Remove pre-vote" : "Pre-vote";
 
   const onVote = useCallback(() => {
@@ -45,6 +47,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   return (
     <LWTooltip title={tooltip} placement="bottom" className={className}>
       <ForumIcon
+        {...hoverEventHandlers}
         onClick={onVote}
         icon={icon}
         className={classes.icon}
