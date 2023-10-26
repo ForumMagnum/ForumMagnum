@@ -277,13 +277,6 @@ export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
-const nameFormConfig = {
-  fullWidth: true,
-  inputProps: {
-    disableUnderline: true,
-  }
-}
-
 /**
  * @summary Users schema
  * @type {Object}
@@ -2799,7 +2792,6 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 10,
     group: formGroups.default,
-    form: nameFormConfig,
   },
 
   last_name: {
@@ -2812,7 +2804,6 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 10,
     group: formGroups.default,
-    form: nameFormConfig,
   },
 
   avatar: {

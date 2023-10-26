@@ -109,6 +109,16 @@ type NewUserUpdates = {
   acceptedTos: boolean
 }
 
+type WUUserOnboarding = {
+  username: string
+  subscribeToDigest: boolean
+  acceptedTos: boolean
+  allowNewPrivateMessageRequests: boolean
+  firstName?: string
+  lastName?: string
+  mapLocation: any 
+}
+
 addGraphQLSchema(`
   type MostReadAuthor {
     slug: String,
@@ -184,6 +194,50 @@ addGraphQLResolvers({
         },
         // We've already done necessary gating
         validate: false
+      })).data
+      // Don't want to return the whole object without more permission checking
+      return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
+    },
+    async WUUserOnboarding(
+      root: void,
+      // todo: allowNewPrivateMessageRequests doesn't exist for now, this need to be updated later when it's added
+      {username, subscribeToDigest, firstName, lastName, acceptedTos, allowNewPrivateMessageRequests, mapLocation}: WUUserOnboarding,
+      context: ResolverContext,
+    ) {
+      const {currentUser} = context
+      if (!currentUser) {
+        throw new Error('Cannot change username without being logged in')
+      }
+      // Check they accepted the terms of use
+      if (!acceptedTos) {
+        throw new Error('You must accept the terms of use to continue')
+      }
+      // Only for new users. Existing users should need to contact support to
+      // change their usernames
+      if (!currentUser.usernameUnset) {
+        throw new Error('Only new users can set their username this way')
+      }
+      // Check for uniqueness
+      const existingUser = await Users.findOne({username})
+      if (existingUser && existingUser._id !== currentUser._id) {
+        throw new Error('Username already exists')
+      }
+      const updatedUser = (await updateMutator({
+        collection: Users,
+        documentId: currentUser._id,
+        set: {
+          usernameUnset: false,
+          username,
+          displayName: username,
+          first_name: firstName,
+          last_name: lastName,
+          mapLocation,
+          slug: await Utils.getUnusedSlugByCollectionName('Users', slugify(username)),
+          subscribedToDigest: subscribeToDigest,
+          acceptedTos,
+        },
+        // We've already done necessary gating
+        validate: false,
       })).data
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
@@ -453,6 +507,19 @@ async function getEngagement (userId : string): Promise<{totalSeconds: number, e
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
+
+addGraphQLMutation(
+  `WUUserOnboarding(
+  username: String!, 
+  subscribeToDigest: Boolean!, 
+  acceptedTos: Boolean!,
+  allowNewPrivateMessageRequests: Boolean!,
+  firstName: String, 
+  lastName: String, 
+  mapLocation: JSON,
+  ): NewUserCompletedProfile`
+)
+
 // TODO: Derecated
 addGraphQLMutation(
   'UserAcceptTos: Boolean'

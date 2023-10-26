@@ -174,6 +174,7 @@ async function createWuUser(wuUser: WuUserData): Promise<DbUser> {
       last_name: wuUser.last_name,
       displayName: wuDisplayName(wuUser),
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(wuDisplayName(wuUser))),
+      usernameUnset: true,
     },
     validate: false,
     currentUser: null
