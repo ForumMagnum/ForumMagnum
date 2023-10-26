@@ -1398,9 +1398,11 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     hidden: forumTypeSetting.get() !== 'LessWrong',
-    label: "Hide the widget for opting in to being approached about dialogues"
+    label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
   },
 
   // Karma-change notifier settings
