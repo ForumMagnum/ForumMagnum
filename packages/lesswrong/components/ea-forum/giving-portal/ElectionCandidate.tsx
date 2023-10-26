@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { useVote } from "../../votes/withVote";
 
 const imageSize = 52;
 
@@ -58,15 +59,19 @@ const ElectionCandidate = ({candidate, classes}: {
   candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
+  const {vote} = useVote(candidate, "ElectionCandidates");
+
   const {name, logoSrc, href, baseScore} = candidate;
   const {PreVoteButton} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.imageContainer}>
-        <img src={logoSrc} className={classes.image} />
+        <Link to={href}>
+          <img src={logoSrc} className={classes.image} />
+        </Link>
       </div>
       <div className={classes.details}>
-        <PreVoteButton className={classes.preVoteButton} />
+        <PreVoteButton vote={vote} className={classes.preVoteButton} />
         <div className={classes.name}>
           <Link to={href}>
             {name}

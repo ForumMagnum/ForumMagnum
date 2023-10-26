@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import type { VoteCallback } from "../../votes/votingProps";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -12,10 +13,15 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PreVoteButton = ({className, classes}: {
+const PreVoteButton = ({vote, className, classes}: {
+  vote: VoteCallback<ElectionCandidateBasicInfo>,
   className?: string,
   classes: ClassesType,
 }) => {
+  const onVote = useCallback(() => {
+    // TODO
+  }, [vote]);
+
   const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip
@@ -23,7 +29,11 @@ const PreVoteButton = ({className, classes}: {
       placement="bottom"
       className={className}
     >
-      <ForumIcon icon="HeartOutline" className={classes.icon} />
+      <ForumIcon
+        onClick={onVote}
+        icon="HeartOutline"
+        className={classes.icon}
+      />
     </LWTooltip>
   );
 }
