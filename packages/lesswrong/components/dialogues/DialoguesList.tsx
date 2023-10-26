@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
@@ -132,7 +132,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
   const currentUser = useCurrentUser()
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
-  const [showOptIn, setShowOptIn] = React.useState(optInStartState);
+  const [showOptIn, setShowOptIn] = useState(optInStartState);
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsPage",
