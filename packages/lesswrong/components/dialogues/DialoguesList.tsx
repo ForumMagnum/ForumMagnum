@@ -51,10 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute', 
     right: '8px',
     top: '8px',
-    [theme.breakpoints.down('xs')]: {
-     // top: 'auto',
-     // bottom: '8px', 
-    }, 
     padding: '2px' 
   }
 });
