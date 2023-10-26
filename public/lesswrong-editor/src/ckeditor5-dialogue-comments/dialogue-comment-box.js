@@ -30,7 +30,7 @@ class SimpleBoxUI extends Plugin {
             buttonView.set( {
                 // The t() function helps localize the editor. All strings enclosed in t() can be
                 // translated and change when the language of the editor changes.
-                label: t( 'Non-message Block foobar' ),
+                label: t( 'Non-message Block' ),
                 withText: true,
                 tooltip: true
             } );
