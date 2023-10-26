@@ -3273,6 +3273,18 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly currentUserExtendedVote: any,
 }
 
+interface WithVoteElectionCandidate { // fragment on ElectionCandidates
+  readonly __typename: string,
+  readonly _id: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3497,6 +3509,7 @@ interface FragmentTypes {
   UserRateLimitDisplay: UserRateLimitDisplay
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
+  WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3707,6 +3720,7 @@ interface CollectionNamesByFragmentName {
   UserRateLimitDisplay: "UserRateLimits"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionCandidateBasicInfo: "ElectionCandidates"
+  WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
   SuggestAlignmentComment: "Comments"
 }
