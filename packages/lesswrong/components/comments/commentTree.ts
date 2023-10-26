@@ -168,4 +168,9 @@ export interface CommentTreeOptions {
    * Used to prevent us displaying quick takes multiple times
    */
   hideParentCommentToggleForTopLevel?: boolean,
+  /**
+   * Used in the recent comments section of a user's profile because you're not supposed
+   * to be evaluating them out of context
+   */
+  disableVoting?: boolean
 }

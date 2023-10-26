@@ -74,7 +74,6 @@ export interface CommentsNodeProps {
   displayTagIcon?: boolean,
   className?: string,
   classes: ClassesType,
-  allowVoting?: boolean,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
@@ -109,7 +108,6 @@ const CommentsNode = ({
   displayTagIcon=false,
   className,
   classes,
-  allowVoting=true,
 }: CommentsNodeProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
@@ -263,7 +261,6 @@ const CommentsNode = ({
               scrollIntoView={scrollIntoView}
               setSingleLine={setSingleLine}
               displayTagIcon={displayTagIcon}
-              allowVoting={allowVoting}
               { ...passedThroughItemProps}
             />
         }

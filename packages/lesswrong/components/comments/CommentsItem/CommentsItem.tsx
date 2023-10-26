@@ -191,7 +191,6 @@ export const CommentsItem = ({
   excerptLines,
   className,
   classes,
-  allowVoting=true,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -442,7 +441,6 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
-              allowVoting,
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

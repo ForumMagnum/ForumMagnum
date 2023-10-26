@@ -124,7 +124,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
     : {
       opacity: 0.35,
-    }
+    },
+  karma: {
+    width: "32px",
+    display: "flex",
+    justifyContent: "center",
+  }
 });
 
 export const CommentsItemMeta = ({
@@ -142,7 +147,6 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   classes,
-  allowVoting = true,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -158,13 +162,13 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   classes: ClassesType,
-  allowVoting?: boolean,
 }) => {
   const currentUser = useCurrentUser();
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle, hideParentCommentToggleForTopLevel,
+    disableVoting
   } = treeOptions;
 
   const authorIsPostAuthor = post &&
@@ -219,7 +223,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, KarmaDisplay, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers, PostsItem2MetaInfo
+    ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
   return (
@@ -275,15 +279,15 @@ export const CommentsItemMeta = ({
         </span>
       }
 
-      {!comment.debateResponse && !comment.rejected && allowVoting 
-        ? <SmallSideVote
+      {!comment.debateResponse && !comment.rejected && 
+        disableVoting ? <span className={classNames(classes.karma)}>
+          <KarmaDisplay document={comment}/>
+        </span> : <SmallSideVote
           document={comment}
           collection={Comments}
           hideKarma={post?.hideCommentKarma}
-        /> 
-        : <PostsItem2MetaInfo className="LWPostsItem-karma">
-          <KarmaDisplay document={comment}/>
-        </PostsItem2MetaInfo>}
+        />      
+      }
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 
