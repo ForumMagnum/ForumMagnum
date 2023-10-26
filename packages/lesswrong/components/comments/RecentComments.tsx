@@ -48,6 +48,7 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
             comment={comment}
             startThreadTruncated={truncated}
             showPinnedOnProfile={showPinnedOnProfile}
+            allowVoting={false}
           />
         </div>
       )}

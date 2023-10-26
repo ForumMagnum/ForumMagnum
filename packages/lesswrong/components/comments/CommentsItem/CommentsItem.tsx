@@ -191,6 +191,7 @@ export const CommentsItem = ({
   excerptLines,
   className,
   classes,
+  allowVoting=true,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -211,6 +212,7 @@ export const CommentsItem = ({
   excerptLines?: number,
   className?: string,
   classes: ClassesType,
+  allowVoting?: boolean
 }) => {
   const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [showReplyState, setShowReplyState] = useState(false);
@@ -440,6 +442,7 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
+              allowVoting,
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

@@ -142,6 +142,7 @@ export const CommentsItemMeta = ({
   toggleCollapse,
   setShowEdit,
   classes,
+  allowVoting = true,
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -157,6 +158,7 @@ export const CommentsItemMeta = ({
   toggleCollapse?: () => void,
   setShowEdit: () => void,
   classes: ClassesType,
+  allowVoting?: boolean,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -216,8 +218,8 @@ export const CommentsItemMeta = ({
 
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
-    CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    CommentsItemDate, SmallSideVote, KarmaDisplay, CommentOutdatedWarning, FooterTag, LoadMore,
+    ForumIcon, CommentsMenu, UserCommentMarkers, PostsItem2MetaInfo
   } = Components;
 
   return (
@@ -272,11 +274,16 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && !comment.rejected && <SmallSideVote
-        document={comment}
-        collection={Comments}
-        hideKarma={post?.hideCommentKarma}
-      />}
+
+      {!comment.debateResponse && !comment.rejected && allowVoting 
+        ? <SmallSideVote
+          document={comment}
+          collection={Comments}
+          hideKarma={post?.hideCommentKarma}
+        /> 
+        : <PostsItem2MetaInfo className="LWPostsItem-karma">
+          <KarmaDisplay document={comment}/>
+        </PostsItem2MetaInfo>}
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 
