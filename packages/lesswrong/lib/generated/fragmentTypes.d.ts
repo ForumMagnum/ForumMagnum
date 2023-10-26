@@ -3255,6 +3255,7 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly description: string,
   readonly userId: string,
   readonly postCount: number,
+  readonly tagId: string | null,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates

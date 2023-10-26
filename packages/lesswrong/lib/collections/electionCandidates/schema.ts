@@ -69,6 +69,20 @@ const schema: SchemaType<DbElectionCandidate> = {
     nullable: false,
     defaultValue: 0,
   },
+  /** The tag user for marking posts as being relevant to this candidate */
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: true,
+    nullable: true,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+  },
 };
 
 export default schema;

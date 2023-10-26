@@ -288,6 +288,7 @@ interface DbElectionCandidate extends DbObject {
   description: string
   userId: string
   postCount: number
+  tagId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
