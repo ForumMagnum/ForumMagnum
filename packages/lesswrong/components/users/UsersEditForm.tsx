@@ -11,6 +11,7 @@ import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import {textFieldContainerStyles} from '../form-components/MuiTextField.tsx'
 
 // TODO: would be great to have this part of the theme 🤔
 const smallLabelFont = 12
@@ -26,19 +27,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     "--ck-color-engine-placeholder-text": theme.palette.grey[340],
     
     "& .form-input": {
-      background: "white",
-      borderRadius: 6,
-      paddingLeft: "1em",
-      paddingRight: "1em",
-      paddingTop: "0.5em",
-      paddingBottom: "0.5em",
+      ...textFieldContainerStyles(theme),
     },
 
-    '& .form-input.form-component-text': {
-      paddingTop: "0.7em",
-      paddingBottom: "0.7em",
-    },
-    
     "& .form-section-unicode": {
       padding: 0,
     },
@@ -51,38 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         paddingLeft: "3em",
         paddingRight: "3em",
       },
-    },
-
-    "& .geosuggest__input": {
-      border: 0,
-      borderBottom: 0,
-      color: theme.palette.text.normal,
-      fontWeight: 600,
-      width: "100%",
-    },
-    "& .geosuggest__input::placeholder": {
-      color: theme.palette.grey[340],
-    },
-    "& .geosuggest__input:focus": {
-      borderBottom: 0,
-    },
-
-    "& .mui-input-label" : {
-      transform: "translate(0,8px) scale(1)",
-    },
-
-    "& .mui-input-label[data-shrink='true']" : {
-      marginTop: '0.2em',
-      transform: 'translate(0,-6px) scale(.857)',
-    },
-    
-    "& .form-input.form-component-text label + .MuiInput-formControl" :{
-      marginTop: 0,
-    },
-    
-    "& .MuiInputBase-input" : {
-      fontWeight: 600,
-      marginTop: "4px",
     },
 
     "& .input-first_name, & .input-last_name": {
@@ -103,22 +62,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       },
     },
     
-    "& .MuiFormLabel-root, .MuiInputBase-input": {
-      fontSize: theme.typography.body2.fontSize,
-      fontWeight: 600,
-    },
-
-    "& .MuiFormLabel-root": {
-      color: theme.palette.grey[340],
-    },
-    
-    "& .LocationPicker-label" : {
-      color: theme.palette.grey[340],
-      fontSize: smallLabelFont,
-    },
-    
     "& .EditorFormComponent-label" : {
       fontSize: smallLabelFont,
+      color: theme.palette.grey[340],
     },
     
     "& .ck.ck-content": {

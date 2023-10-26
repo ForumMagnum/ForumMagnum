@@ -7,19 +7,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   labelColor: {
     color: theme.secondary
   },
-  textField: {
-    fontSize: "15px",
-    width: 350,
-    [theme.breakpoints.down('sm')]: {
-      width: "calc(100% - 30px)", // leaving 30px so that the "clear" button for select forms has room
-    },
-  },
+  textField: textFieldStyles(theme),
   fullWidth: {
     width: "100%",
   }
 })
 
-const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, inputProps, classes }: FormComponentProps<string> & {
+export const textFieldStyles = (theme: ThemeType): JssStyles => ({
+  fontSize: theme.typography.body2.fontSize,
+  width: "100%",
+
+  "& .MuiInputLabel-root" : {
+    transform: "translate(0,8px) scale(1)",
+  },
+  "& .MuiInputLabel-root[data-shrink='true']" : {
+    marginTop: '0.2em',
+    transform: 'translate(0,-6px) scale(.857)',
+  },
+  "& .MuiInputBase-input" : {
+    fontWeight: 600,
+    marginTop: "4px",
+  },
+  "& label + .MuiInput-formControl" :{
+    marginTop: 0,
+  },
+  "& .MuiFormLabel-root, .MuiInputBase-input": {
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: 600,
+  },
+  "& .MuiFormLabel-root": {
+    color: theme.palette.grey[340],
+  },
+})
+
+export const textFieldContainerStyles = (theme: ThemeType): JssStyles => ({
+  background: "white",
+  borderRadius: 6,
+  paddingLeft: "1em",
+  paddingRight: "1em",
+  paddingTop: "0.7em",
+  paddingBottom: "0.7em",
+})
+
+const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth=true, multiLine, rows, variant, type, disabled=false, InputLabelProps, InputProps={disableUnderline: true}, classes }: FormComponentProps<string> & {
   children?: ReactNode;
   select?: boolean;
   defaultValue?: string | number;
@@ -29,7 +59,7 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
   variant?: "standard" | "outlined" | "filled";
   type?: string;
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
-  inputProps?: TextFieldProps['InputProps'],
+  InputProps?: TextFieldProps['InputProps'],
   classes: ClassesType;
 }) => {
   const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
@@ -53,7 +83,7 @@ const MuiTextField = ({ value, updateCurrentValues, path, children, select, defa
       className: classes.cssLabel + " mui-input-label",
       ...InputLabelProps
     }}
-    InputProps={inputProps}
+    InputProps={InputProps}
     className={classnames(
       classes.textField,
       {[classes.fullWidth] :fullWidth}

@@ -8,7 +8,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import InputLabel from '@material-ui/core/InputLabel';
 
 export const TosLink: FC = ({children}) =>
-  <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
+  <Link to="https://www.wakingup.com/terms-of-service" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
 
 export const LicenseLink: FC = ({children}) =>
   <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">
