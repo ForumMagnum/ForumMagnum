@@ -9,16 +9,19 @@ import { Globals } from '../vulcan-lib';
 const widgetizeDialogueMessages = (html: string, postId: string) => {
   const $ = cheerioParse(html);
 
+  let anyChanges = false;
+
   //for each dialogue message, we check if it's contents represented as paragraphs are already wrapped in a div or not, 
   //if not we wrap them in a dialogue-message-content div
   $('.dialogue-message').each((i, el) => {
     const existingContentWrapper = $(el).find('.dialogue-message-content');
     if (existingContentWrapper.length === 0) {
       cheerioWrapAll($(el).find('p'), '<div class="dialogue-message-content"></div>', $);
+      anyChanges = true;
     }
   })
 
-  return $.html();
+  return { anyChanges, migratedHtml: $.html() };
 }
 
 async function wrapMessageContents(dialogue: DbPost) {
@@ -36,8 +39,8 @@ async function wrapMessageContents(dialogue: DbPost) {
   // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
   html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
 
-  const migratedHtml = widgetizeDialogueMessages(html, postId);
-  return migratedHtml;
+  const results = widgetizeDialogueMessages(html, postId);
+  return results;
 }
 
 Globals.wrapDialogueMessageContents = async (postId: string) => {
@@ -59,24 +62,26 @@ registerMigration({
     const dialogueMigrations = dialogues.map(async (dialogue) => {
       const postId = dialogue._id;
       const ckEditorId = postIdToCkEditorDocumentId(postId);
-      const migratedHtml = await wrapMessageContents(dialogue);
-      await saveOrUpdateDocumentRevision(postId, migratedHtml);
+      const { anyChanges, migratedHtml } = await wrapMessageContents(dialogue);
+      if (anyChanges) {
+        await saveOrUpdateDocumentRevision(postId, migratedHtml);
     
-      try {
-        await flushCkEditorCollaboration(ckEditorId);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log('Failed to delete remote collaborative session', { err });
+        try {
+          await flushCkEditorCollaboration(ckEditorId);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.log('Failed to delete remote collaborative session', { err });
+        }
+        try {
+          // await deleteCkEditorCloudDocument(ckEditorId);
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.log('Failed to delete remote document from storage', { err });
+        }
+        
+        // Push the selected revision
+        await createCollaborativeSession(ckEditorId, migratedHtml);  
       }
-      try {
-        await deleteCkEditorCloudDocument(ckEditorId);
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log('Failed to delete remote document from storage', { err });
-      }
-      
-      // Push the selected revision
-      await createCollaborativeSession(ckEditorId, migratedHtml);
     });
 
     await Promise.all(dialogueMigrations);
