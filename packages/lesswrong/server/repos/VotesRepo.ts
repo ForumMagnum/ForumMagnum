@@ -4,8 +4,9 @@ import { logIfSlow } from "../../lib/sql/sqlClient";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import keyBy from "lodash/keyBy";
 import groupBy from "lodash/groupBy";
-import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
+import { EAOrLWReactionsVote, NamesAttachedReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
+import { eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -59,6 +60,26 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   }> {
     const powerField = af ? "afPower" : "power";
 
+    const reactionConditions = [
+      // TODO should/can we exclude false votes here (e.g. {"agree": false})?
+      ...eaEmojiNames.map((field) => `"extendedVoteType"->>'${field}' IS NOT NULL`),
+      `jsonb_array_length("extendedVoteType"->'reacts') > 0`,
+    ].join(" OR ");
+
+    const reactionVotesQuery = `
+        SELECT
+          v.*
+        FROM
+          "Votes" v
+        WHERE
+          (${reactionConditions})
+          AND
+          "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
+          "votedAt" >= $2 AND
+          "votedAt" <= $3 AND
+          "userId" <> $1
+      `;
+
     const [allScoreChanges, allReactionVotes] = await Promise.all([
       logIfSlow(() => this.getRawDb().any(`
         SELECT
@@ -75,7 +96,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             "documentId" AS "_id",
             "Votes"."collectionName" as "collectionName",
             SUM("${powerField}") AS "scoreChange",
-            COUNT(jsonb_array_length("Votes"."extendedVoteType"->'reacts') > 0) AS "reactionVoteCount"
+            COUNT(${reactionConditions}) AS "reactionVoteCount"
           FROM "Votes"
           WHERE
             ${af ? '"afPower" IS NOT NULL AND' : ''}
@@ -103,23 +124,12 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       `, [userId, startDate, endDate]),
         `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
       ),
-      logIfSlow(() => this.getRawDb().any(`
-        SELECT
-          v.*
-        FROM
-          "Votes" v
-        WHERE
-          jsonb_array_length("extendedVoteType"->'reacts') > 0 AND
-          "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
-          "votedAt" >= $2 AND
-          "votedAt" <= $3 AND
-          "userId" <> $1
-      `, [userId, startDate, endDate]),
+      logIfSlow(() => this.getRawDb().any<DbVote>(reactionVotesQuery, [userId, startDate, endDate]),
         `getKarmaChanges_reacts(${userId}, ${startDate}, ${endDate})`
       )
     ]);
-    
-    const reactionVotesByDocument = keyBy(allReactionVotes, v=>v.documentId);
+
+    const reactionVotesByDocument = groupBy(allReactionVotes, v=>v.documentId);
 
     let changedComments: CommentKarmaChange[] = [];
     let changedPosts: PostKarmaChange[] = [];
@@ -167,7 +177,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     
     function addNormalizedReact(flattenedReactions: FlattenedReaction[], reactionType: string, quote: string|undefined, isCancellation?: boolean) {
       const idx = flattenedReactions.findIndex(r => r.reactionType===reactionType && r.quote===quote);
-      if (idx >= 0) {
+      if (idx !== -1) {
         flattenedReactions[idx].count += isCancellation ? -1 : 1;
       } else {
         if (!isCancellation) {
@@ -186,9 +196,17 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       for (let vote of votesByUser[userId]) {
         if (!vote.extendedVoteType)
           continue;
-        const extendedVote = (vote.extendedVoteType as NamesAttachedReactionsVote);
-        if (!vote.isUnvote && extendedVote.reacts) {
-          for (let react of extendedVote.reacts) {
+        const extendedVote = (vote.extendedVoteType as EAOrLWReactionsVote);
+        const eaReacts: UserVoteOnSingleReaction[] = eaEmojiNames.filter(emojiName => extendedVote[emojiName]).map(emojiName => ({
+          vote: "created",
+          react: emojiName,
+          "quotes": [],
+        }));
+        const formattedReacts = [...(extendedVote.reacts ?? []), ...eaReacts];
+
+        if (!vote.isUnvote && formattedReacts) {
+          for (let react of formattedReacts) {
+            // Skip anti-reacts for now
             if (react.vote==="disagreed") {
               continue;
             }
@@ -207,10 +225,16 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       for (let vote of votesByUser[userId]) {
         if (!vote.extendedVoteType)
           continue;
-        const extendedUnvote = (vote.extendedVoteType as NamesAttachedReactionsVote);
+        const extendedUnvote = (vote.extendedVoteType as EAOrLWReactionsVote);
+        const eaReacts: UserVoteOnSingleReaction[] = eaEmojiNames.filter(emojiName => extendedUnvote[emojiName]).map(emojiName => ({
+          vote: "created",
+          react: emojiName,
+          "quotes": [],
+        }));
+        const formattedReacts = [...(extendedUnvote.reacts ?? []), ...eaReacts];
         
-        if (vote.isUnvote && extendedUnvote.reacts) {
-          for (let react of extendedUnvote.reacts) {
+        if (vote.isUnvote && formattedReacts) {
+          for (let react of formattedReacts) {
             if (react.vote==="disagreed") {
               continue;
             }

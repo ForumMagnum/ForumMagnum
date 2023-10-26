@@ -219,6 +219,9 @@ export type NamesAttachedReactionsVote = {
   agreement?: string,
   reacts?: UserVoteOnSingleReaction[]
 }
+
+export type EAOrLWReactionsVote = NamesAttachedReactionsVote & Record<string, boolean>;
+
 export type UserReactInfo = {
   userId: string
   reactType: VoteOnReactionType
