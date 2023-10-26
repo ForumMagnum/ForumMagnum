@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
+import { Utils, slugify, getNestedProperty, throwValidationError } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import {
@@ -22,7 +22,6 @@ import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { isFriendlyUI } from '../../../themes/forumTheme';
-import { UserInputError } from 'apollo-server-errors';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -439,24 +438,11 @@ const schema: SchemaType<DbUser> = {
     onUpdate: (props) => {
       const {data, document, oldDocument} = props;
       if (oldDocument.email?.length && !document.email) {
-        // You'd think you could use throwError from vulcan-lib here, but that causes a circular dependency, so we throw
-        // the UserInputError manually
-        throw new UserInputError(
-          'app.validation_error', {
-          id: 'app.validation_error',
-          data: {
-            break: true,
-            errors: [{
-              id: "errors.required",
-              path: "email",
-              properties: {
-                collectionName: "Users",
-                name: " valid email address", // the space is intentional; it prevents the first letter being capitalized
-                type: "required",
-                typeName: "User"
-              }
-            }]
-          }
+        throwValidationError({
+          typeName: "User",
+          field: "email",
+          errorType: "errors.required",
+          alias: " valid email address",
         });
       }
       return data.email;
