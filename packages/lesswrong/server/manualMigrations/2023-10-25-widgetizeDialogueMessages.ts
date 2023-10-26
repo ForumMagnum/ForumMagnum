@@ -64,15 +64,18 @@ registerMigration({
       const ckEditorId = postIdToCkEditorDocumentId(postId);
       const { anyChanges, migratedHtml } = await wrapMessageContents(dialogue);
       if (anyChanges) {
+        console.log(`Need to migrate dialogue titled ${dialogue.title} with id ${postId}`);
         await saveOrUpdateDocumentRevision(postId, migratedHtml);
     
         try {
+          console.log(`About to flush ${ckEditorId}`);
           await flushCkEditorCollaboration(ckEditorId);
         } catch (err) {
           // eslint-disable-next-line no-console
           console.log('Failed to delete remote collaborative session', { err });
         }
         try {
+          console.log(`Should NOT delete ${ckEditorId}`);
           // await deleteCkEditorCloudDocument(ckEditorId);
         } catch (err) {
           // eslint-disable-next-line no-console
