@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useVote } from "../../votes/withVote";
+import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
 
 const imageSize = 52;
 
@@ -59,9 +60,15 @@ const ElectionCandidate = ({candidate, classes}: {
   candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
-  const {vote} = useVote(candidate, "ElectionCandidates");
+  const votingProps = useVote(
+    candidate,
+    "ElectionCandidates",
+    getVotingSystemByName("eaDonationElection"),
+  );
 
-  const {name, logoSrc, href, baseScore} = candidate;
+  const {name, logoSrc, href, extendedScore} = votingProps.document;
+  const preVoteCount = extendedScore?.preVoteCount ?? 0;
+
   const {PreVoteButton} = Components;
   return (
     <div className={classes.root}>
@@ -71,14 +78,14 @@ const ElectionCandidate = ({candidate, classes}: {
         </Link>
       </div>
       <div className={classes.details}>
-        <PreVoteButton vote={vote} className={classes.preVoteButton} />
+        <PreVoteButton {...votingProps} className={classes.preVoteButton} />
         <div className={classes.name}>
           <Link to={href}>
             {name}
           </Link>
         </div>
         <div className={classes.preVotes}>
-          {baseScore} pre-vote{baseScore === 1 ? "" : "s"}
+          {preVoteCount} pre-vote{preVoteCount === 1 ? "" : "s"}
         </div>
       </div>
     </div>

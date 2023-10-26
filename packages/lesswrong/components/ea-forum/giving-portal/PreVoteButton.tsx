@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import type { VoteCallback } from "../../votes/votingProps";
+import { useLocation } from "../../../lib/routeUtil";
+import { useCurrentUser } from "../../common/withUser";
+import type { VotingProps } from "../../votes/votingProps";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -13,25 +15,38 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PreVoteButton = ({vote, className, classes}: {
-  vote: VoteCallback<ElectionCandidateBasicInfo>,
+type PreVoteProps = VotingProps<ElectionCandidateBasicInfo>;
+
+const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   className?: string,
   classes: ClassesType,
 }) => {
+  const {pathname} = useLocation();
+  const currentUser = useCurrentUser();
+
+  const hasVoted = !!document.currentUserExtendedVote?.preVote;
+  const icon = hasVoted ? "Heart" : "HeartOutline";
+  const tooltip = hasVoted ? "Remove pre-vote" : "Pre-vote";
+
   const onVote = useCallback(() => {
-    // TODO
-  }, [vote]);
+    if (currentUser) {
+      vote({
+        document,
+        voteType: null,
+        extendedVote: {preVote: !hasVoted},
+        currentUser,
+      });
+    } else {
+      window.location.href = `/auth/auth0?returnTo=${pathname}`;
+    }
+  }, [vote, currentUser, hasVoted, document, pathname]);
 
   const {LWTooltip, ForumIcon} = Components;
   return (
-    <LWTooltip
-      title="Pre-vote"
-      placement="bottom"
-      className={className}
-    >
+    <LWTooltip title={tooltip} placement="bottom" className={className}>
       <ForumIcon
         onClick={onVote}
-        icon="HeartOutline"
+        icon={icon}
         className={classes.icon}
       />
     </LWTooltip>

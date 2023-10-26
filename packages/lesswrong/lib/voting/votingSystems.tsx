@@ -41,8 +41,8 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getCommentVotingComponent?: () => CommentVotingComponent,
+  getCommentBottomComponent?: () => CommentVotingBottomComponent,
   getPostBottomVotingComponent?: () => PostVotingComponent,
   getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
@@ -338,6 +338,54 @@ registerVotingSystem({
   },
 });
 
+registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
+  name: "eaDonationElection",
+  description: "Donation election voting for the EA Forum",
+  userCanActivate: false,
+  addVoteClient: ({oldExtendedScore, extendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: {preVote: boolean},
+    currentUser: UsersCurrent,
+    document: VoteableType,
+    voteType: string | null,
+  }) => {
+    const oldPreVoteCount =
+      oldExtendedScore && "preVoteCount" in oldExtendedScore
+        ? oldExtendedScore.preVoteCount
+        : 0;
+    const {preVote} = extendedVote ?? {};
+    return {
+      preVoteCount: oldPreVoteCount + (preVote ? 1 : 0),
+    };
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: {preVote: boolean},
+    currentUser: UsersCurrent,
+  }) => {
+    const oldPreVoteCount =
+      oldExtendedScore && "preVoteCount" in oldExtendedScore
+        ? oldExtendedScore.preVoteCount
+        : 0;
+    const {preVote} = cancelledExtendedVote ?? {};
+    return {
+      preVoteCount: oldPreVoteCount - (preVote ? 1 : 0),
+    };
+  },
+  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+    let preVoteCount = 0;
+    for (const vote of votes) {
+      if (vote?.extendedVoteType?.preVote) {
+        preVoteCount++;
+      }
+    }
+    return {preVoteCount};
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    return typeof vote?.extendedVoteType?.preVote === "boolean";
+  },
+});
+
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
@@ -366,6 +414,9 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     if (post?.votingSystem) {
       return post.votingSystem;
     }
+  }
+  if ((document as DbElectionCandidate).electionName) {
+    return "eaDonationElection";
   }
   return (document as DbPost)?.votingSystem ?? "default";
 }
