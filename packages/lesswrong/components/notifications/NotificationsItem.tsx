@@ -55,6 +55,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
   },
+  date: {
+    color: theme.palette.text.dim,
+  },
+  messageDateColumn: {
+    display: "flex",
+    flexDirection: "column",
+  },
 });
 
 const tooltipProps = {
@@ -237,8 +244,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         }}
       >
         {notificationType.getIcon()}
-        <div className={classes.notificationLabel}>
-          {renderMessage()}
+        <div className={classNames(classes.messageDateColumn)}>
+          <div className={classes.notificationLabel}>
+            {renderMessage()}
+          </div>
+          <span className={classNames(classes.date)}>
+            <Components.FormatDate format="MMM DD, YYYY" date={notification.createdAt}/>
+          </span>
         </div>
       </a>
     </PreviewTooltip>
