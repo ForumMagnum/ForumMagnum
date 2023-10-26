@@ -4,9 +4,10 @@ import { useLocation } from "../../../lib/routeUtil";
 import { useCurrentUser } from "../../common/withUser";
 import { useHover } from "../../common/withHover";
 import type { VotingProps } from "../../votes/votingProps";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
-  icon: {
+  root: {
     cursor: "pointer",
     color: theme.palette.givingPortal[0],
     fontSize: 20,
@@ -22,7 +23,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   className?: string,
   classes: ClassesType,
 }) => {
-  const {hover, eventHandlers: hoverEventHandlers} = useHover();
+  const {hover, everHovered, anchorEl, eventHandlers} = useHover();
   const {pathname} = useLocation();
   const currentUser = useCurrentUser();
 
@@ -43,16 +44,27 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
     }
   }, [vote, currentUser, hasVoted, document, pathname]);
 
-  const {LWTooltip, ForumIcon} = Components;
+  const {LWPopper, ForumIcon} = Components;
   return (
-    <LWTooltip title={tooltip} placement="bottom" className={className}>
+    <>
+      {everHovered &&
+        <LWPopper
+          placement="bottom"
+          open={hover}
+          anchorEl={anchorEl}
+          hideOnTouchScreens
+          tooltip
+        >
+          {tooltip}
+        </LWPopper>
+      }
       <ForumIcon
-        {...hoverEventHandlers}
+        {...eventHandlers}
         onClick={onVote}
         icon={icon}
-        className={classes.icon}
+        className={classNames(classes.root, className)}
       />
-    </LWTooltip>
+    </>
   );
 }
 
