@@ -5,13 +5,12 @@ import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-d
 import { getElasticIndexNameWithSorting } from "../../lib/search/elasticUtil";
 import { getSearchClient } from "../../lib/search/algoliaUtil";
 import InfoIcon from "@material-ui/icons/Info";
-import type { ExpandedSearchState } from "../search/SearchPageTabbed";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 600,
-    width: 'min(600px, 80vw)',
+    width: 'min(600px, 100%)',
     maxHeight: 600,
     flex: 1,
     minHeight: 0,
@@ -25,7 +24,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 700,
     padding: '20px 20px 14px 20px',
     display: "flex",
-    alignItems: "top",
     justifyContent: "space-between",
   },
   resultsColumn: {

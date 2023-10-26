@@ -46,8 +46,7 @@ const isProduction = !!opts.production;
 const settingsFile = opts.settings || "settings.json"
 
 const databaseConfig = getDatabaseConfig(opts);
-// TODO add comment here, and/or make this a special override setting
-process.env.PG_URL = process.env.PG_URL || databaseConfig.postgresUrl;
+process.env.PG_URL = databaseConfig.postgresUrl;
 
 if (databaseConfig.sshTunnelCommand) {
   startSshTunnel(databaseConfig.sshTunnelCommand);

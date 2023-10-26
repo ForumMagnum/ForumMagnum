@@ -88,10 +88,10 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
-// Redesigned messaging components
+// "Friendly UI" messaging components
 importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
 importComponent("InboxNavigation2", () => require('../components/messaging/InboxNavigation2'));
-importComponent("ConversationWidget", () => require('../components/messaging/ConversationWidget'));
+importComponent("ConversationContents", () => require('../components/messaging/ConversationContents'));
 importComponent("ConversationItem2", () => require('../components/messaging/ConversationItem2'));
 importComponent("NewConversationDialog", () => require('../components/messaging/NewConversationDialog'));
 

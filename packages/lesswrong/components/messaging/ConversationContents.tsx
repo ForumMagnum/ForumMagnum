@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useSingle } from "../../lib/crud/withSingle";
 import { useMulti } from "../../lib/crud/withMulti";
-import { conversationGetTitle } from "../../lib/collections/conversations/helpers";
 import withErrorBoundary from "../common/withErrorBoundary";
-import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
@@ -36,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ConversationWidget = ({
+const ConversationContents = ({
   conversation,
   currentUser,
   scrollRef,
@@ -160,13 +157,13 @@ const ConversationWidget = ({
   );
 };
 
-const ConversationWidgetComponent = registerComponent("ConversationWidget", ConversationWidget, {
+const ConversationContentsComponent = registerComponent("ConversationContents", ConversationContents, {
   styles,
   hocs: [withErrorBoundary],
 });
 
 declare global {
   interface ComponentTypes {
-    ConversationWidget: typeof ConversationWidgetComponent;
+    ConversationContents: typeof ConversationContentsComponent;
   }
 }

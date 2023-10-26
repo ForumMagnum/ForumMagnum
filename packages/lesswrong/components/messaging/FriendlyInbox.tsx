@@ -52,6 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 0,
     display: "flex",
     flexDirection: "row",
+    flex: 1
   },
   column: {
     display: "flex",
@@ -168,7 +169,7 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const { InboxNavigation2, ConversationWidget, ForumIcon, ConversationDetails, Typography } = Components;
+  const { InboxNavigation2, ConversationContents, ForumIcon, ConversationDetails } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
@@ -250,7 +251,7 @@ const FriendlyInbox = ({
               <>
                 <Link to="/inbox" className={classes.backButton}> Go back to Inbox </Link>
                 <ConversationDetails conversation={selectedConversation} hideOptions />
-                <ConversationWidget
+                <ConversationContents
                   currentUser={currentUser}
                   conversation={selectedConversation}
                   scrollRef={selectedConversationRef}

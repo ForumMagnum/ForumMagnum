@@ -3,7 +3,9 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {}
+  noConversationsMessage: {
+    padding: 16,
+  }
 })
 
 // The Navigation for the Inbox components
@@ -45,7 +47,7 @@ const InboxNavigation2 = ({
       ) : loading ? (
         <Loading />
       ) : (
-        <Typography variant="body2">
+        <Typography variant="body2" className={classes.noConversationsMessage}>
           You are all done! You have no more open conversations.
         </Typography>
       )}

@@ -110,7 +110,6 @@ const ConversationItem2 = ({
           </div>
         </div>
         <div className={classes.preview}>
-          {/* {conversation.latestMessage.contents.plain} */}
           {previewText}
         </div>
       </div>

@@ -91,7 +91,6 @@ const ExpandedUsersConversationSearchHit = ({
 
   useEffect(() => {
     if (conversation) {
-      // TODO note lack of ?from= in PR description
       history.push({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}` });
       onClose();
     }

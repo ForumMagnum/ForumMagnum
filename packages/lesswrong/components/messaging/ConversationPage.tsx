@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 /**
  * Page for viewing a private messages conversation. Typically invoked from
- * InboxWrapper, which takes care of the URL parsing.
+ * ConversationWrapper, which takes care of the URL parsing.
  */
 const ConversationPage = ({ conversationId, currentUser, classes }: {
   conversationId: string,
@@ -43,7 +43,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
     fragmentName: 'ConversationsList',
   });
 
-  const { SingleColumnSection, ConversationWidget, Error404, Loading, Typography, ConversationDetails } = Components
+  const { SingleColumnSection, ConversationContents, Error404, Loading, Typography, ConversationDetails } = Components
 
   if (loading) return <Loading />
   if (!conversation) return <Error404 />
@@ -63,7 +63,7 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
           {conversationGetTitle(conversation, currentUser)}
         </Typography>
         <ConversationDetails conversation={conversation} />
-        <ConversationWidget
+        <ConversationContents
           conversation={conversation}
           currentUser={currentUser}
         />
