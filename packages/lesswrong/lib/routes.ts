@@ -649,6 +649,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       subtitle: 'Giving portal',
       subtitleLink: '/giving-portal',
       unspacedGrid: true,
+      fullscreen: true,
     },
     {
       name: 'contact',
