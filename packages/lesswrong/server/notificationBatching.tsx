@@ -76,7 +76,6 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
         const sendgridData = {
           user,
           to: getUserEmail(user),
-          from: notificationTypeRenderer.from,
           notificationData: await notificationTypeRenderer.loadData?.({user, notifications: batch}),
           notifications: batch,
         }

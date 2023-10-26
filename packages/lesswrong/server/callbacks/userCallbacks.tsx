@@ -317,17 +317,22 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
   ) {
     return;
   }
-
-  if (isEAForum) {
-    const mailchimpAPIKey = mailchimpAPIKeySetting.get();
-    const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
-    if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
-      return;
-    }
-    if (!newUser.email) {
-      captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
-      return;
-    }
+  
+  if (!newUser.email) {
+    captureException(new Error(`Adding user to digest list failed: no email for user ${newUser.displayName}`))
+    return;
+  }
+  
+  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
+  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  const sendgridDigestListId = sendgridDigestListIdSetting.get();
+  
+  if (!mailchimpForumDigestListId && !sendgridDigestListId) {
+    captureException(new Error(`hasDigest is enabled but no digest list id is defined`))
+    return
+  }
+  
+  if (mailchimpAPIKey && mailchimpForumDigestListId) {
     const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
     const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
     
@@ -359,16 +364,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     });
   }
   
-  else if (isWakingUp) {
-    const sendgridDigestListId = sendgridDigestListIdSetting.get();
-    if (!sendgridDigestListId) {
-      return;
-    }
-    if (!newUser.email) {
-      captureException(new Error(`Adding user to Waking Up list failed: no email for user ${newUser.displayName}`))
-      return;
-    }
-    
+  else if (sendgridDigestListId) {
     if (newUser.subscribedToDigest) {
       void addToSendgridList(newUser, sendgridDigestListId)
     } else {
