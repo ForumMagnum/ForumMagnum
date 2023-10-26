@@ -1392,6 +1392,17 @@ const schema: SchemaType<DbUser> = {
     hidden: !dialoguesEnabled,
   },
 
+  hideDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
+    label: "Hide the widget for opting in to being approached about dialogues"
+  },
+
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,

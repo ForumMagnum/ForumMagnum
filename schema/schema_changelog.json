@@ -343,5 +343,10 @@
     "acceptsSchemaHash": "c3e1e47f98b00ea1ff4f2dfe2e646604",
     "acceptedByMigration": "20231014T032053.add_mostRecentPublishedDialogueResponseDate.ts",
     "timestamp": "2023-10-14T03:20:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f9d5e2f48c1c9446111fe368e8e11b52",
+    "acceptedByMigration": "20231025T011639.hideDialogueFacilitation.ts",
+    "timestamp": "2023-10-25T01:16:39.000Z"
   }
 ]
