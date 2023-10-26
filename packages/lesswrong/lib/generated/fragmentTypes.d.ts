@@ -2576,6 +2576,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly allCommentingDisabled: boolean,
   readonly commentingOnOtherUsersDisabled: boolean,
   readonly conversationsDisabled: boolean,
+  readonly first_name: string | null,
+  readonly last_name: string | null,
+  readonly wu_created_at: Date | null,
 }
 
 interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on Users

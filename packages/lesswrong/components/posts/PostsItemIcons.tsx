@@ -7,6 +7,7 @@ import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
+import { showPersonalBlogpostIconSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconSet: {
@@ -114,8 +115,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
         <DebateIcon className={classes.icon} />
       </LWTooltip>
     </span>}
-
-    {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
+    {showPersonalBlogpostIconSetting.get() && !hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <ForumIcon icon="User" className={classes.icon} />
       </LWTooltip>

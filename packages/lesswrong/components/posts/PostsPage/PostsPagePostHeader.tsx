@@ -11,6 +11,7 @@ import { shareButtonSetting, isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { showAudioNodeSetting, showReadingTimeSetting } from '../../../lib/publicSettings';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -343,14 +344,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {crosspostNode}
-        {readingTimeNode}
+        {showReadingTimeSetting.get() && readingTimeNode}
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
           {postGetCommentCountStr(post, commentCount)}
         </CommentsLink>
-        {audioNode}
+        {showAudioNodeSetting.get() && audioNode}
         {addToCalendarNode}
         {tripleDotMenuNode}
       </div>
@@ -360,8 +361,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {readingTimeNode}
-        {audioNode}
+        {showReadingTimeSetting.get() && readingTimeNode}
+        {showAudioNodeSetting.get() && audioNode}
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&

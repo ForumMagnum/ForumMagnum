@@ -19,20 +19,18 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
   
   "& .geosuggest__input": {
     backgroundColor: 'transparent',
-    border: "2px solid transparent",
-    borderBottom: `1px solid ${theme.palette.text.normal}`,
     padding: ".5em .5em 0.5em 0em !important",
-    width: 350,
-    fontSize: 13,
-    color: theme.palette.primary.main,
-    [theme.breakpoints.down('sm')]: {
-      width: "100%"
-    },
+    fontWeight: 600,
+    width: "100%",
+    fontSize: theme.typography.body2.fontSize,
+    fontFamily: theme.typography.body2.fontFamily,
+    color: theme.palette.text.normal,
+  },
+  "& .geosuggest__input::placeholder": {
+    color: theme.palette.grey[340],
   },
   "& .geosuggest__input:focus": {
     outline: "none",
-    borderBottom: `2px solid ${theme.palette.text.normal}`,
-    borderBottomColor: theme.palette.geosuggest.dropdownActiveBackground,
     boxShadow: "0 0 0 transparent",
   },
   
@@ -86,7 +84,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle
   },
   label: {
-    fontSize: 10
+    color: theme.palette.grey[340],
+    fontSize: 12,
   }
 });
 
@@ -204,9 +203,7 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
 
 const LocationFormComponent = (props: FormComponentProps<any> & {
   stringVersionFieldName?: string|null,
-}) => {
-  return <Components.LocationPicker {...props}/>
-}
+}) => <Components.LocationPicker {...props}/>
 
 const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});

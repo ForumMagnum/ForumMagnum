@@ -139,7 +139,7 @@ export const wakingUpTheme: SiteThemeSpecification = {
           fontFamily: serifStack,
         },
         body2: {
-          fontSize: "1.1rem",
+          fontSize: "14px",
           lineHeight: "1.5em",
           fontWeight: 450,
         },

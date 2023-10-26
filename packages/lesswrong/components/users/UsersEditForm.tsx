@@ -11,7 +11,10 @@ import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import {textFieldContainerStyles} from '../form-components/MuiTextField.tsx'
 
+// TODO: would be great to have this part of the theme 🤔
+const smallLabelFont = 12
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "60%",
@@ -21,21 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
+    "--ck-color-engine-placeholder-text": theme.palette.grey[340],
     
     "& .form-input": {
-      background: "white",
-      borderRadius: 6,
-      paddingLeft: "1em",
-      paddingRight: "1em",
-      paddingTop: "0.5em",
-      paddingBottom: "0.5em",
+      ...textFieldContainerStyles(theme),
     },
 
-    '& .form-input.form-component-text': {
-      paddingTop: "0.7em",
-      paddingBottom: "0.7em",
-    },
-    
     "& .form-section-unicode": {
       padding: 0,
     },
@@ -48,35 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         paddingLeft: "3em",
         paddingRight: "3em",
       },
-    },
-
-    "& .geosuggest__input": {
-      border: 0,
-      borderBottom: 0,
-      color: theme.palette.text.normal,
-      fontWeight: 600,
-      width: "100%",
-    },
-    "& .geosuggest__input:focus": {
-      borderBottom: 0,
-    },
-
-    "& .mui-input-label" : {
-      transform: "translate(0,8px) scale(1)",
-    },
-
-    "& .mui-input-label[data-shrink='true']" : {
-      marginTop: '0.2em',
-      transform: 'translate(0,-6px) scale(.75)',
-    },
-    
-    "& .form-input.form-component-text label + .MuiInput-formControl" :{
-      marginTop: 0,
-    },
-    
-    "& .MuiInputBase-input" : {
-      fontWeight: 600,
-      marginTop: "4px",
     },
 
     "& .input-first_name, & .input-last_name": {
@@ -96,19 +61,32 @@ const styles = (theme: ThemeType): JssStyles => ({
         float: "none",
       },
     },
-
+    
+    "& .EditorFormComponent-label" : {
+      fontSize: smallLabelFont,
+      color: theme.palette.grey[340],
+    },
+    
+    "& .ck.ck-content": {
+      fontWeight: 600,
+    }, 
   },
 
   header: {
     margin: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: theme.spacing.unit/2,
-    },
+    marginLeft: 0,
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4
-  }
+  },
+  smallLabel: {
+    ...theme.typography.smallText,
+    fontSize: smallLabelFont,
+  },
+  userName: {
+    fontWeight: 600,
+  },
 })
 
 const passwordResetMutation = gql`
@@ -167,7 +145,10 @@ const UsersEditForm = ({terms, classes, enableResetPassword = false}: {
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Account Settings")}
       </Typography>
-      <Typography variant="body2">
+      <Typography variant="body2" className={classes.smallLabel}>
+        Username
+      </Typography>
+      <Typography variant="body2" className={classes.userName}>
         {currentUser?.username}
       </Typography>
       {isCurrentUser && enableResetPassword && <Button

@@ -7,6 +7,7 @@ import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REV
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { showFirstPostReviewMessageSetting } from '../../../lib/publicSettings';
 
 const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your Quick takes. Because it's marked as a draft, your Quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -107,7 +108,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <ContentItemBody dangerouslySetInnerHTML={{__html: post.rejectedReason || "" }}/>
       </ContentStyles>
     </div>}
-    {!post.rejected && post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
+    {showFirstPostReviewMessageSetting.get() && !post.rejected && post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       {currentUser?._id === post.userId
         ? "Because this is your first post, this post is awaiting moderator approval."
         : "This post is unlisted and is still awaiting moderation.\nUsers' first posts need to be approved by a moderator."

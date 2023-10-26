@@ -13,7 +13,7 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW, isLWorAF } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
@@ -1314,7 +1314,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members'],
     optional: true,
     hidden: true,
-    ...(isEAForum && {
+    ...(!isLWorAF && {
       onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
         isEvent,
         submitToFrontpage,

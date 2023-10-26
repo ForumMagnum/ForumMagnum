@@ -266,7 +266,7 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsPageInitializer,
       NavigationEventSender,
       PetrovDayWrapper,
-      NewUserCompleteProfile,
+      WUUserOnboarding,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -377,7 +377,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name ?? "404")
-                      ? <NewUserCompleteProfile currentUser={currentUser}/>
+                      ? <WUUserOnboarding currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
