@@ -17,6 +17,7 @@ import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { hasDigestSetting } from '../../publicSettings';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
