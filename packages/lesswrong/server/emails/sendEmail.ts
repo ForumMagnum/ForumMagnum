@@ -92,7 +92,8 @@ const isEmailWhitelistedForSendgrid = (emailAddress: string) => {
     // If the whitelisted email contains a wildcard, perform a wildcard match
     if (whitelistedEmail.includes('*')) {
       // Escape special characters in the whitelisted email, except for the wildcard "*"
-      const escapedEmail = whitelistedEmail.replace(/([.+?^=!:${}()|\[\]\/\\])/g, "\\$1").replace(/\*/g, ".*");
+      const escapedEmail = whitelistedEmail.replace(/[.+?^=:${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+
       // Create a RegExp object using the escaped email
       const regex = new RegExp(`^${escapedEmail}$`, 'i');
 
