@@ -10,5 +10,10 @@ registerFragment(`
     description
     postCount
     baseScore
+    score
+    extendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);

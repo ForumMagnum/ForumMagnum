@@ -3266,6 +3266,11 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly description: string,
   readonly postCount: number,
   readonly baseScore: number,
+  readonly score: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TypingIndicatorInfo { // fragment on TypingIndicators
