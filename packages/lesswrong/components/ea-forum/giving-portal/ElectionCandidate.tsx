@@ -1,12 +1,11 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 
 const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    cursor: "pointer",
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.default,
     padding: 8,
@@ -16,11 +15,6 @@ const styles = (theme: ThemeType) => ({
     gap: "16px",
     width: 360,
     height: 68,
-    border: "1px solid transparent",
-    "&:hover": {
-      opacity: 0.9,
-      border: `1px solid ${theme.palette.givingPortal[1000]}`,
-    },
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
@@ -35,10 +29,17 @@ const styles = (theme: ThemeType) => ({
     height: imageSize,
   },
   details: {
+    position: "relative",
+    flexGrow: 1,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     gap: "2px",
+  },
+  preVoteButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
   },
   name: {
     fontWeight: 600,
@@ -58,20 +59,24 @@ const ElectionCandidate = ({candidate, classes}: {
   classes: ClassesType,
 }) => {
   const {name, logoSrc, href, baseScore} = candidate;
+  const {PreVoteButton} = Components;
   return (
-    <Link to={href} className={classes.root}>
+    <div className={classes.root}>
       <div className={classes.imageContainer}>
         <img src={logoSrc} className={classes.image} />
       </div>
       <div className={classes.details}>
+        <PreVoteButton className={classes.preVoteButton} />
         <div className={classes.name}>
-          {name}
+          <Link to={href}>
+            {name}
+          </Link>
         </div>
         <div className={classes.preVotes}>
           {baseScore} pre-vote{baseScore === 1 ? "" : "s"}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

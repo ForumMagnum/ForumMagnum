@@ -16,6 +16,8 @@ import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
+import HeartIcon from "@heroicons/react/24/solid/HeartIcon";
+import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
@@ -164,6 +166,8 @@ export type ForumIconName =
   "List" |
   "PlusSmall" |
   "MinusSmall" |
+  "Heart" |
+  "HeartOutline" |
   "Settings" |
   "Email" |
   "Puzzle" |
@@ -234,6 +238,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Image: PhotoIcon,
@@ -307,6 +313,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
     Image: PhotoIcon,
