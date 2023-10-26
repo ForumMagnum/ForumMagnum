@@ -48,10 +48,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },  
 
   closeIcon: { 
+    color: "#e0e0e0",
     position: 'absolute', 
     right: '8px',
     top: '8px',
-    padding: '2px' 
+    padding: '2px',
+  },
+
+  prompt: {
+    color: theme.palette.lwTertiary.main,
+    fontWeight: 645,
   }
 });
 
@@ -106,21 +112,22 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
           <CloseIcon />
         </IconButton>
         <div className={classes.content} >
-          <div style={{ height: '30px', display: 'flex', alignItems: 'top' }}>
-            <FormControlLabel
+          <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
+            <FormControlLabel  style={{ paddingLeft: '8px' }}
               control={
                 <Checkbox
                   checked={optIn}
                   onChange={event => handleOptInChange(event)}
                   name="optIn"
                   color="primary"
+                  style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
                 />
               }
-              label={<span style={{ fontWeight: 'bold' }}>{prompt}</span>}
+              label={<span className={classes.prompt} >{prompt}</span>}
             />
           </div>     
           <p>
-            If ticked, we might check in to see if we can facilitate a dialogue you'd find valuable 
+            If you tick the box, we might check in to see if we can facilitate a dialogue you'd find valuable 
             (by helping with topics, partners, scheduling or editing).  
           </p>        
         </div>
@@ -143,6 +150,9 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const dialoguesTooltip = <div>
     <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
   </div>
+
+  const updateCurrentUser = useUpdateCurrentUser()
+  //void updateCurrentUser({hideDialogueFacilitation: false})
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
