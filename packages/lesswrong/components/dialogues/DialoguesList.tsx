@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const OptInComponent = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent | null, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
+const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const { captureEvent } = useTracking();
   const optInMessageABTestGroup = useABTest(dialogueFacilitationMessagesABTest);
 
@@ -152,7 +152,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
         </LWTooltip>}
       />
 
-      {showOptIn && <OptInComponent classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
+      {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
       
       {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
