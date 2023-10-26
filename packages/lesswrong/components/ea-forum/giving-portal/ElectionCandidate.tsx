@@ -38,6 +38,11 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     gap: "2px",
   },
+  heartIcon: {
+    fontSize: 14,
+    transform: "translateY(2px)",
+    marginRight: 4,
+  },
   preVoteButton: {
     position: "absolute",
     top: 0,
@@ -69,7 +74,7 @@ const ElectionCandidate = ({candidate, classes}: {
   const {name, logoSrc, href, extendedScore} = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
 
-  const {PreVoteButton} = Components;
+  const {PreVoteButton, ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.imageContainer}>
@@ -85,6 +90,7 @@ const ElectionCandidate = ({candidate, classes}: {
           </Link>
         </div>
         <div className={classes.preVotes}>
+          <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
           {preVoteCount} pre-vote{preVoteCount === 1 ? "" : "s"}
         </div>
       </div>
