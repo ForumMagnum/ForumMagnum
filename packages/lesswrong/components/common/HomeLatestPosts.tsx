@@ -21,6 +21,7 @@ import { getPostViewOptions } from '../../lib/postViewOptions';
 import Button from '@material-ui/core/Button';
 import qs from 'qs'
 import { Link } from '../../lib/reactRouterWrapper';
+import { frontpagePostsCountSetting } from '../../lib/publicSettings';
 
 const titleWrapper = isLW ? {
   marginBottom: 8
@@ -121,7 +122,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const defaultLimit = isFriendlyUI ? 11 : 13;
+const defaultLimit = frontpagePostsCountSetting.get() ?? isFriendlyUI ? 11 : 13;
 
 const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
   if (!isEAForum) {
@@ -159,7 +160,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   } = Components
   const { history } = useNavigation();
 
-  const limit = parseInt(query.limit) || defaultLimit;
+  const limit = frontpagePostsCountSetting.get() ?? (parseInt(query.limit) || defaultLimit);
 
   const now = useCurrentTime();
 
@@ -180,6 +181,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     view: currentSorting,
     forum: true,
     limit:limit,
+    itemsPerPage: frontpagePostsCountSetting.get() ?? 25,
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())

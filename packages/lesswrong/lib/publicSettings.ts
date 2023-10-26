@@ -156,13 +156,12 @@ export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEma
 // /** main theme color, needed here for server/emails/renderEmail */
 // export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");
 
-export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false);
-
-export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean>('showPersonalBlogpostIcon', true);
-export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
-
 export const showTableOfContentsSetting = new DatabasePublicSetting<boolean>('showTableOfContents', true);
 export const showReadingTimeSetting = new DatabasePublicSetting<boolean>('showReadingTime', true);
 export const showAudioNodeSetting = new DatabasePublicSetting<boolean>('showAudioNode', true);
-
 export const showSocialMediaShareLinksSetting = new DatabasePublicSetting<boolean>('showSocialMediaShareLinks', true);
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false);
+export const frontpagePostsCountSetting = new DatabasePublicSetting<number | null>('frontpagePostsCount', null)
+export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean>('showPersonalBlogpostIcon', true);
+export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
