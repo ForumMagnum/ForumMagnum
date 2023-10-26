@@ -567,7 +567,6 @@ const CKPostEditor = ({
           'mediaEmbed',
           'footnote',
           'rootParagraphBox',
-          'simpleBoxButton'
         ]} : {}),
         autosave: {
           save (editor: any) {

@@ -36,8 +36,6 @@ async function wrapMessageContents(dialogue: DbPost) {
   // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
   html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
 
-  console.log({html})
-
   const migratedHtml = widgetizeDialogueMessages(html, postId);
   return migratedHtml;
 }
@@ -46,6 +44,7 @@ Globals.wrapDialogueMessageContents = async (postId: string) => {
   const post = await Posts.findOne(postId);
   if (post) {
     const migratedHtml = await wrapMessageContents(post)
+    // eslint-disable-next-line no-console
     console.log({migratedHtml})
   }
 }
