@@ -167,6 +167,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  quickTakesCommunity: {type: Boolean, optional: true, nullable: true},
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
@@ -1389,6 +1390,19 @@ const schema: SchemaType<DbUser> = {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
+  },
+
+  hideDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
+    label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
   },
 
   // Karma-change notifier settings

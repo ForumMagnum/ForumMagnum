@@ -79,3 +79,18 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+export const dialogueFacilitationMessagesABTest = new ABTest({
+  name: "dialogueFacilitationMessages",
+  description: "Different wording",
+  groups: {
+    getHelp: {
+      description: "Get help version",
+      weight: 1,
+    },
+    optIn: {
+      description: "Opt-in version",
+      weight: 1,
+    },
+  },
+});

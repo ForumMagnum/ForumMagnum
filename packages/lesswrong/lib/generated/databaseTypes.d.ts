@@ -740,6 +740,7 @@ interface DbPost extends DbObject {
   criticismTipsDismissed: boolean
   debate: boolean | null
   collabEditorDialogue: boolean | null
+  mostRecentPublishedDialogueResponseDate: Date | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -1152,6 +1153,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
@@ -1317,6 +1319,7 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  hideDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,

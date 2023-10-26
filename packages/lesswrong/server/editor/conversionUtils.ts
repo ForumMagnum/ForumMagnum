@@ -17,6 +17,8 @@ import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import Users from '../../lib/vulcan-users';
+import { Posts } from '../../lib/collections/posts';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -137,6 +139,7 @@ function wrapSpoilerTags(html: string): string {
 const handleDialogueHtml = async (html: string): Promise<string> => {
   const $ = cheerioParse(html);
 
+  $('.dialogue-message-input-wrapper').remove();
   $('.dialogue-message-input').remove();
 
   const userIds: string[] = [];
@@ -153,14 +156,66 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
     const userId = $(element).attr('user-id');
     if (userId && userDisplayNamesById[userId]) {
       $(element)
-        .append(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"></section>`)
-        .find('.dialogue-message-header')
-        .text(userDisplayNamesById[userId]);
+        .prepend(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"><b></b></section>`)
+        .find('.dialogue-message-header b')
+        .text(userDisplayNamesById[userId])
     }
   });
 
   return $.html();
 };
+
+interface UserIdAndDisplayName {
+  userId: string;
+  displayName: string;
+}
+
+export const backfillDialogueMessageInputAttributes = async (html: string, postId: string) => {
+  const post = await Posts.findOne(postId);
+  if (!post) throw new Error(`Can't find post with id ${postId}!`);
+  
+  const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
+  const usersWithDisplayNames = await Users.find({ _id: { $in: dialogueParticipantIds } }, undefined, { _id: 1, displayName: 1 }).fetch();
+  const displayNamesById = Object.fromEntries(usersWithDisplayNames.map(user => [user._id, user.displayName] as const));
+
+  const $ = cheerioParse(html);
+
+  if ($('.dialogue-message-input-wrapper').length > 0) {
+    return $.html();
+  }
+
+  const userIdsWithOrders: [number, UserIdAndDisplayName][] = dialogueParticipantIds.map(
+    (participantId, idx) => ([idx + 1, { userId: participantId, displayName: displayNamesById[participantId] ?? '[Missing displayName]' }])
+  );
+
+  userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
+  const userIdsByOrder = Object.fromEntries(userIdsWithOrders);
+
+  const messageInputElements = $('.dialogue-message-input').toArray();
+
+  for (const [idx, element] of Object.entries(messageInputElements)) {
+    const userId = $(element).attr('user-id');
+    const userOrder = $(element).attr('user-order');
+
+    if (userId) {
+      // eslint-disable-next-line no-console
+      console.log(`Element ${element} already has userId ${userId}`);
+      continue;
+    }
+
+    const idxDerivedOrder = (Number.parseInt(idx) + 1).toString();
+    const finalUserOrder = userOrder ?? idxDerivedOrder;
+    const { userId: userIdByOrder, displayName } = userIdsByOrder[finalUserOrder];
+
+    $(element).attr('user-id', userIdByOrder);
+    $(element).attr('user-order', finalUserOrder);
+    $(element).attr('display-name', displayName);
+  }
+
+  cheerioWrapAll($('.dialogue-message-input'), '<div class="dialogue-message-input-wrapper" />', $);
+
+  return $.html();
+}
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   const $ = cheerioParse(`<div id="root">${html}</div>`)
