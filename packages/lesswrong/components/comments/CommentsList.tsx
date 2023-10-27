@@ -72,7 +72,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   }
   return <Components.ErrorBoundary>
     {renderExpandOptions()}
-    <div className={classes.commentsList}>
+    {comments.length > 0 && <div className={classes.commentsList}>
       {comments.map(comment =>
         <CommentsNode
           treeOptions={treeOptions}
@@ -87,7 +87,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           isChild={defaultNestingLevel > 1}
         />)
       }
-    </div>
+    </div>}
   </Components.ErrorBoundary>
 }
 

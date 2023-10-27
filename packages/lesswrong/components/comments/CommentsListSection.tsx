@@ -17,13 +17,13 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+export const NEW_COMMENT_MARGIN_BOTTOM = "0"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.background.default,
     fontWeight: theme.typography.body1.fontWeight ?? 400,
-    margin: "0px auto 15px auto",
+    margin: "0px auto",
     ...theme.typography.commentStyle,
     position: "relative",
     [theme.breakpoints.down('sm')]: {
