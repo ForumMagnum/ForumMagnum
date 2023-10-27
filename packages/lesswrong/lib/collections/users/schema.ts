@@ -442,7 +442,8 @@ const schema: SchemaType<DbUser> = {
           typeName: "User",
           field: "email",
           errorType: "errors.required",
-          alias: " valid email address",
+          alias: "valid email address",
+          capitalizeName: true,
         });
       }
       return data.email;

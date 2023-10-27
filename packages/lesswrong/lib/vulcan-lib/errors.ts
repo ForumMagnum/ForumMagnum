@@ -115,21 +115,24 @@ export const getErrors = (error: AnyBecauseTodo) => {
 // Vulcan throws validation errors via interpreting the schema, but you can use this function to throw them manually.
 // Vulcan can throw multiple validation errors at once, but this function only throws one at a time.
 // Note that field names inserted in error descriptions capitalize the first letter by default. You can avoid this
-// by using an alias with a starting space.
+// with capitalizeName: false.
 export const throwValidationError = ({
     typeName,
     field,
     errorType,
     alias,
+    capitalizeName = true
   }: {
     typeName: string, // e.g "Comment", "Post", "User"
     field: string,
     errorType: 'errors.required' | 'errors.expectedType' | 'errors.maxString' | 'errors.regEx' | 'errors.disallowed_property_detected',
     alias?: string, // i.e. the field name as described in the message to the user, which you might want to change from the schema field name
+    capitalizeName?: boolean
   }
 ) => {
   const collectionName = getCollectionName(typeName);
   const required = errorType === 'errors.required';
+  const displayFieldName = (capitalizeName ? ' ' : '') + (alias || field);
 
   throw new UserInputError(
     'app.validation_error',
@@ -142,7 +145,7 @@ export const throwValidationError = ({
           path: field,
           properties: {
             collectionName,
-            name: alias || field,
+            name: displayFieldName,
             type: required,
             typeName
           }
