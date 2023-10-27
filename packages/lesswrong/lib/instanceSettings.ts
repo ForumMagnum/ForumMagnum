@@ -118,6 +118,7 @@ export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('foru
 export const isLW = forumTypeSetting.get() === "LessWrong"
 export const isEAForum = forumTypeSetting.get() === "EAForum"
 export const isAF = forumTypeSetting.get() === "AlignmentForum"
+export const isWakingUp = forumTypeSetting.get() === "WakingUp"
 export const isLWorAF = isLW || isAF
 
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs

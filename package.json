@@ -88,6 +88,8 @@
     "@material-ui/icons": "^3.0.0",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "@popperjs/core": "^2.11.5",
+    "@sendgrid/client": "^7.7.0",
+    "@sendgrid/mail": "^7.7.0",
     "@sentry/browser": "^5.12.4",
     "@sentry/core": "^5.12.4",
     "@sentry/integrations": "^5.12.4",

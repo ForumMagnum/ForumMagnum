@@ -11,6 +11,7 @@ import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { sendEmailSendgridTemplate, useSendgridTemplatesSetting } from './emails/sendEmail';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -46,8 +47,45 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   ).fetch();
   
   if (notificationsToEmail.length) {
+    const groupedNotifications = await groupNotifications({user, notifications: notificationsToEmail});
+    if (useSendgridTemplatesSetting.get()) {
+      /** Example notification data:
+       * [
+    {
+      _id: 'xsLHawAnDK9kBzmza',
+      userId: 'vFmaN5HM4HkJpwgXm',
+      documentId: 'muCkEoteKzeLMLjsa',
+      documentType: 'message',
+      extraData: null,
+      link: '/inbox/NtwCrStHpoWLTkdwq',
+      title: null,
+      message: 'Will Howard sent you a new message!',
+      type: 'newMessage',
+      deleted: false,
+      viewed: false,
+      emailed: true,
+      waitingForBatch: false,
+      schemaVersion: 1,
+      createdAt: 2023-09-12T21:57:19.465Z,
+      legacyData: null
+    }
+  ]
+       */
+      for (let batch of groupedNotifications) {
+        const notificationTypeRenderer = getNotificationTypeByNameServer(batch[0].type)
+        const sendgridData = {
+          user,
+          to: getUserEmail(user),
+          notificationData: await notificationTypeRenderer.loadData?.({user, notifications: batch}),
+          notifications: batch,
+        }
+        await sendEmailSendgridTemplate(sendgridData)
+      }
+      
+      return
+    }
     const emails = await notificationBatchToEmails({
-      user, notifications: notificationsToEmail
+      user, notifications: groupedNotifications
     });
     
     for (let email of emails) {
@@ -56,7 +94,12 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   }
 }
 
-const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
+/**
+ * Given an array of notifications to send to a user, returns them restructured as an array of batches of notifications.
+ * A batch is either an array of notifications that can be combined into a single email, or an array with a single notification.
+ * This also handles filtering out notifications that should be skipped.
+ */
+const groupNotifications = async ({user, notifications}: {user: DbUser, notifications: Array<DbNotification>}) => {
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
@@ -65,9 +108,18 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   const groupedNotifications = notificationTypeRenderer.canCombineEmails ? [notifications] : notifications.map((notification) => [notification])
 
   const shouldSkip = await Promise.all(groupedNotifications.map(async notifications => notificationTypeRenderer.skip({ user, notifications })));
+  const nonSkippedNotifications = groupedNotifications
+    .filter((_, idx) => !shouldSkip[idx])
+  
+  return nonSkippedNotifications;
+}
+
+const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, notifications: Array<Array<DbNotification>>}) => {
+  const notificationType = notifications[0][0].type;
+  const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
+
   return await Promise.all(
-    groupedNotifications
-      .filter((_, idx) => !shouldSkip[idx])
+    notifications
       .map(async (notifications: DbNotification[]) => ({
         user,
         to: getUserEmail(user),
@@ -98,9 +150,10 @@ addGraphQLResolvers({
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }
         ).fetch();
+        const groupedNotifications = await groupNotifications({user: currentUser, notifications});
         emails = await notificationBatchToEmails({
           user: currentUser,
-          notifications
+          notifications: groupedNotifications
         });
       }
       if (postId) {
