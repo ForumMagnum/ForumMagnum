@@ -349,10 +349,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             <div className={classes.column}>
               <div className={classes.h2}>Candidates in the Election</div>
               <div className={classes.electionCandidates}>
-                {electionCandidatesLoading && <Loading />}
                 {electionCandidates?.map((candidate) => (
                   <ElectionCandidate candidate={candidate} key={candidate._id} />
                 ))}
+                {electionCandidatesLoading && <Loading />}
               </div>
               <div className={classes.mb100}>
                 <button
@@ -408,10 +408,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             <span className={classes.totalRaised}>{totalAmount}</span>
           </div>
           <div className={classNames(classes.donationOpportunities, classes.mt10)}>
-            {donationOpportunitiesLoading && <Loading />}
             {donationOpportunities?.map((candidate) => (
               <DonationOpportunity candidate={candidate} key={candidate._id} />
             ))}
+            {donationOpportunitiesLoading && <Loading />}
           </div>
           <div onClick={onLoadMoreOpportunities} className={classes.loadMore}>
             {/* TODO: Hook up this load more button */}
