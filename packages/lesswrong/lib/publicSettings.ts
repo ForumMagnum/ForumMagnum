@@ -163,5 +163,6 @@ export const showSocialMediaShareLinksSetting = new DatabasePublicSetting<boolea
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false);
 export const frontpagePostsCountSetting = new DatabasePublicSetting<number | null>('frontpagePostsCount', null)
+export const frontpagePostsLoadMoreCountSetting = new DatabasePublicSetting<number | undefined>('frontpagePostsLoadMoreCount', undefined)
 export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean>('showPersonalBlogpostIcon', true);
 export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
