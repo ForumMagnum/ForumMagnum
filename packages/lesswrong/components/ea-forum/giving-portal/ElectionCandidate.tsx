@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.16px",
   },
   preVotes: {
-    opacity: 0.5,
+    opacity: 0.8,
     fontWeight: 500,
     fontSize: 14,
     letterSpacing: "-0.14px",
