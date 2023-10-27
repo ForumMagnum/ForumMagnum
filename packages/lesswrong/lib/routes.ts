@@ -49,7 +49,7 @@ const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWu
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
 
-const postBackground = "white"
+const postBackground = undefined
 
 const lw18ReviewPosts = [
   ['sketch', 'yeADMcScw8EW9yxpH', 'a-sketch-of-good-communication'],

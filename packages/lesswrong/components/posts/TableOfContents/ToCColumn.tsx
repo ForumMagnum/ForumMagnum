@@ -8,8 +8,8 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const DEFAULT_TOC_MARGIN = 100
-const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 200
+const MAX_TOC_WIDTH = 0
+const MIN_TOC_WIDTH = 0
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,6 +20,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     gridArea: 'title',
+    backgroundColor: "#fff",
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -32,8 +33,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         min-content
-        10px
-        1.5fr
+        1fr
       `,
       gridTemplateAreas: `
         "... ... .... title   .... ... .... ..."
@@ -105,7 +105,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
   },
-  content: { gridArea: 'content' },
+  content: {
+    gridArea: 'content',
+    backgroundColor: "#fff",
+  },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
   gap3: { gridArea: 'gap3' },

@@ -184,8 +184,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginRight: -8
     }
   },
+  header: {
+    backgroundColor: "#fff"
+  },
   title: {
     marginBottom: 32,
+    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined,
     [theme.breakpoints.down('sm')]: {
       marginBottom: theme.spacing.titleDividerSpacing,
     }
@@ -194,7 +198,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: theme.spacing.unit *3
+    marginBottom: 0
   },
   postContent: { //Used by a Cypress test
     marginBottom: isFriendlyUI ? 40 : undefined
