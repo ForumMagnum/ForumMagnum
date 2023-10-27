@@ -21,7 +21,7 @@ import { getPostViewOptions } from '../../lib/postViewOptions';
 import Button from '@material-ui/core/Button';
 import qs from 'qs'
 import { Link } from '../../lib/reactRouterWrapper';
-import { frontpagePostsCountSetting } from '../../lib/publicSettings';
+import { frontpagePostsCountSetting, frontpagePostsLoadMoreCountSetting } from '../../lib/publicSettings';
 
 const titleWrapper = isLW ? {
   marginBottom: 8
@@ -181,7 +181,6 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     view: currentSorting,
     forum: true,
     limit:limit,
-    itemsPerPage: frontpagePostsCountSetting.get() ?? 25,
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
@@ -220,6 +219,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 terms={postsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
+                itemsPerPage={frontpagePostsLoadMoreCountSetting.get()}
               >
               </PostsList2>
             </AllowHidingFrontPagePostsContext.Provider>
