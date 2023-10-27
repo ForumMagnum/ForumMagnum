@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useVote } from "../../votes/withVote";
 import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
+import classNames from "classnames";
 
 const imageSize = 52;
 
@@ -17,6 +18,9 @@ const styles = (theme: ThemeType) => ({
     gap: "16px",
     width: 360,
     height: 68,
+  },
+  rootVoted: {
+    backgroundColor: theme.palette.givingPortal[700],
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
@@ -71,12 +75,17 @@ const ElectionCandidate = ({candidate, classes}: {
     getVotingSystemByName("eaDonationElection"),
   );
 
-  const {name, logoSrc, href, extendedScore} = votingProps.document;
+  const {
+    name, logoSrc, href, extendedScore, currentUserExtendedVote,
+  } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
+  const hasVoted = !!currentUserExtendedVote?.preVote;
 
   const {PreVoteButton, ForumIcon} = Components;
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, {
+      [classes.rootVoted]: hasVoted,
+    })}>
       <div className={classes.imageContainer}>
         <Link to={href}>
           <img src={logoSrc} className={classes.image} />
