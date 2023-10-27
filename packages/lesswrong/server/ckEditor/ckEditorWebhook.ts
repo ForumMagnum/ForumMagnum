@@ -15,7 +15,6 @@ import difference from 'lodash/difference';
 import moment from 'moment';
 import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { z } from 'zod';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
