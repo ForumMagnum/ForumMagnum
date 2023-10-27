@@ -14,6 +14,8 @@ import * as _ from 'underscore';
 import moment from 'moment';
 import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { z } from 'zod';
+import { CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, partition, UserSchema } from './ckEditorApiValidators';
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -249,7 +251,41 @@ export async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Pro
   }
 }
 
+const StorageDocumentValidator = z.object({
+  id: z.string(),
+  content: z.object({
+    bundle_version: z.string(),
+    data: z.string(),
+
+  })
+})
+
+export async function fetchCkEditorDocumentFromStorage(ckEditorId: string): Promise<DocumentResponse> {
+  const rawResult = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
+  let parsedResult;
+  try {
+    parsedResult = JSON.parse(rawResult);
+  } catch (err) {
+    throw new Error(`Failure to parse response from ckEditor when fetching document from storage. Returned data: ${rawResult}`);
+  }
+
+  const validatedResult = DocumentResponseSchema.safeParse(parsedResult);
+  if (!validatedResult.success) {
+    throw new Error(`Failure to validate response from ckEditor when fetching document from storage. Validation error: ${validatedResult.error}.  Parsed data: ${parsedResult}`);
+  }
+
+  return validatedResult.data;
+}
+
 Globals.fetchCkEditorCloudStorageDocument = fetchCkEditorCloudStorageDocument;
+
+export async function fetchCkEditorDocument(ckEditorId: string) {
+  const result = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
+
+  console.log({ result });
+}
+
+Globals.fetchCkEditorDocument = fetchCkEditorDocument;
 
 export function createCollaborativeSession(ckEditorId: string, html: string) {
   return fetchCkEditorRestAPI("POST", "/collaborations", {
@@ -258,6 +294,34 @@ export function createCollaborativeSession(ckEditorId: string, html: string) {
     data: html,
     use_initial_data: false,
   });
+}
+
+export async function createRemoteStorageDocument(document: CreateDocumentPayload) {
+  const commentUsers = document.comments.map(comment => comment.user.id);
+  const suggestionUsers = document.suggestions.map(suggestion => suggestion.author_id);
+
+  const ckEditorUserIds = Array.from(new Set([...commentUsers, ...suggestionUsers]));
+
+  const rawUsers = await Promise.all(ckEditorUserIds.map(userId => fetchCkEditorRestAPI("GET", `/users/${userId}`)));
+
+  const parsedUsers = rawUsers.map(rawUser => {
+    try {
+      const parsedUser = JSON.parse(rawUser);
+      return parsedUser;
+    } catch (err) {
+      throw new Error(`Failed to parse ckEditor user response.  Raw data: ${rawUser}`);
+    }
+  });
+
+  const { succeses: validUsers, failures: invalidUsers } = partition(parsedUsers, UserSchema);
+  if (invalidUsers.length > 0) {
+    invalidUsers.forEach(invalidUser => console.log(`Failed to validate ckEditor user response with error ${invalidUser.error.toString()}.`));
+    throw new Error('At least one invalid user returned from ckEditor document.');
+  }
+
+  // TODO - create any users that don't yet exist by fetching them from our db and pushing them to ckEditor with a display(?) name
+
+  return fetchCkEditorRestAPI("POST", "/documents", document);
 }
 
 // Given a state for a document, which may or may not currently have a collaboration

@@ -1,10 +1,13 @@
+import merge from 'lodash/merge';
 import { Posts } from '../../lib/collections/posts';
 import Revisions from '../../lib/collections/revisions/collection';
-import { createCollaborativeSession, deleteCkEditorCloudDocument, fetchCkEditorCloudStorageDocument, flushAllCkEditorCollaborations, flushCkEditorCollaboration, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorWebhook';
-import { backfillDialogueMessageInputAttributes, cheerioWrapAll } from '../editor/conversionUtils';
-import { registerMigration } from './migrationUtils';
+import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
+import { createCollaborativeSession, createRemoteStorageDocument, deleteCkEditorCloudDocument, fetchCkEditorDocumentFromStorage, flushAllCkEditorCollaborations, flushCkEditorCollaboration, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorWebhook';
+import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { Globals } from '../vulcan-lib';
+import { registerMigration } from './migrationUtils';
 
 const widgetizeDialogueMessages = (html: string, postId: string) => {
   const $ = cheerioParse(html);
@@ -28,9 +31,12 @@ async function wrapMessageContents(dialogue: DbPost) {
   const postId = dialogue._id;
   const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
   const ckEditorId = postIdToCkEditorDocumentId(postId);
+  
   let html;
+  let remoteDocument;
   try {
-    html = await fetchCkEditorCloudStorageDocument(ckEditorId);
+    remoteDocument = await fetchCkEditorDocumentFromStorage(ckEditorId); // fetchCkEditorCloudStorageDocument(ckEditorId);
+    html = remoteDocument.content.data;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log('Error getting remote html of dialogue', { err });
@@ -40,7 +46,10 @@ async function wrapMessageContents(dialogue: DbPost) {
   html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
 
   const results = widgetizeDialogueMessages(html, postId);
-  return results;
+  return {
+    ...results,
+    remoteDocument
+  };
 }
 
 Globals.wrapDialogueMessageContents = async (postId: string) => {
@@ -62,7 +71,7 @@ registerMigration({
     const dialogueMigrations = dialogues.map(async (dialogue) => {
       const postId = dialogue._id;
       const ckEditorId = postIdToCkEditorDocumentId(postId);
-      const { anyChanges, migratedHtml } = await wrapMessageContents(dialogue);
+      const { anyChanges, migratedHtml, remoteDocument } = await wrapMessageContents(dialogue);
       if (anyChanges) {
         console.log(`Need to migrate dialogue titled ${dialogue.title} with id ${postId}`);
         await saveOrUpdateDocumentRevision(postId, migratedHtml);
@@ -75,15 +84,29 @@ registerMigration({
           console.log('Failed to delete remote collaborative session', { err });
         }
         try {
-          console.log(`Should NOT delete ${ckEditorId}`);
-          // await deleteCkEditorCloudDocument(ckEditorId);
+          console.log(`About to delete ${ckEditorId}`);
+          await deleteCkEditorCloudDocument(ckEditorId);
         } catch (err) {
           // eslint-disable-next-line no-console
           console.log('Failed to delete remote document from storage', { err });
         }
-        
-        // Push the selected revision
-        await createCollaborativeSession(ckEditorId, migratedHtml);  
+
+        const updatedContent = {
+          content: {
+            use_initial_data: false,
+            data: migratedHtml,
+            bundle_version: ckEditorBundleVersion
+          }
+        };
+
+        if (remoteDocument) {
+          const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
+          
+          // Push the selected revision
+          await createRemoteStorageDocument(newDocumentPayload);
+        } else {
+          await createCollaborativeSession(ckEditorId, migratedHtml);  
+        }
       }
     });
 
