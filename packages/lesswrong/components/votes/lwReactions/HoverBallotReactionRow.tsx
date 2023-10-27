@@ -57,7 +57,7 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
   const allReactsAreInline = usersWhoReacted.every(userWhoReacted => userWhoReacted.quotes?.length);
 
   return <div key={reactionName}>
-    {!allReactsAreInline && <div className={classes.hoverBallotEntry}>
+    <div className={classes.hoverBallotEntry}>
       <ReactionIcon react={reactionName} size={30}/>
       <div className={classes.hoverInfo}>
         <span className={classes.hoverBallotLabel}>
@@ -71,13 +71,13 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
         <Components.UsersWhoReacted usersWhoReacted={usersWhoReacted} wrap showTooltip={false}/>
 
       </div>
-      <Components.ReactOrAntireactVote
+      {!allReactsAreInline && <Components.ReactOrAntireactVote
         reactionName={reactionName}
         netReactionCount={netReactionCount}
         currentUserReaction={getCurrentUserReactionVote(reactionName)}
         setCurrentUserReaction={setCurrentUserReaction}
-      />
-    </div>}
+      />}
+    </div>
     <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentBodyRef={commentBodyRef}/>
   </div>
 }
