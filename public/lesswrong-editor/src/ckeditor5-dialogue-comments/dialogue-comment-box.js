@@ -506,7 +506,7 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
  * @type {ContainerElementDefinitionGenerator}
  */
 function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
-    const contentElement = viewWriter.createEditableElement('div');
+    const contentElement = viewWriter.createEditableElement('div', { class: 'dialogue-message-content' });
     return toWidgetEditable(contentElement, viewWriter);
 }
 

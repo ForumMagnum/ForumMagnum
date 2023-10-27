@@ -1,4 +1,4 @@
-import { SafeParseError, SafeParseReturnType, SafeParseSuccess, z } from "zod";
+import { SafeParseError, SafeParseSuccess, z } from "zod";
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -87,27 +87,16 @@ export const DocumentResponseSchema = z.object({
   revisions: z.array(RevisionSchema),
 });
 
-export const partition = <O, I, T extends z.ZodType<O, any, I>>(items: unknown[], validator: T) => {
-  const succeses: SafeParseSuccess<O>[] = [];
-  const failures: SafeParseError<I>[] = [];
-
-  const validatedItems = items.map(item =>  validator.safeParse(item));
-  for (const item of validatedItems) {
-    if (item.success) {
-      succeses.push(item);
-    } else {
-      failures.push(item);
-    }
-  }
-
-  return { succeses, failures };
+type PartitionOutput<I, O> = {
+  successes: SafeParseSuccess<O>[];
+  failures: SafeParseError<I>[];
 }
-
 
 export type CkEditorImportComment = z.TypeOf<typeof CommentSchema>;
 export type CkEditorImportSuggestion = z.TypeOf<typeof SuggestionSchema>;
 
 export type DocumentResponse = z.TypeOf<typeof DocumentResponseSchema>;
+export type CkEditorUser = z.TypeOf<typeof UserSchema>;
 
 export interface CreateDocumentPayload extends DocumentResponse {
   content: DocumentResponse['content'] & {

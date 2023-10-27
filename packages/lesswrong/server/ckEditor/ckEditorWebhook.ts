@@ -11,11 +11,14 @@ import { createNotifications } from '../notificationCallbacksHelpers';
 import crypto from 'crypto';
 import fs from 'fs';
 import * as _ from 'underscore';
+import difference from 'lodash/difference';
 import moment from 'moment';
 import { backfillDialogueMessageInputAttributes } from '../editor/conversionUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { z } from 'zod';
-import { CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, partition, UserSchema } from './ckEditorApiValidators';
+import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -251,14 +254,7 @@ export async function fetchCkEditorCloudStorageDocument(ckEditorId: string): Pro
   }
 }
 
-const StorageDocumentValidator = z.object({
-  id: z.string(),
-  content: z.object({
-    bundle_version: z.string(),
-    data: z.string(),
-
-  })
-})
+Globals.fetchCkEditorCloudStorageDocument = fetchCkEditorCloudStorageDocument;
 
 export async function fetchCkEditorDocumentFromStorage(ckEditorId: string): Promise<DocumentResponse> {
   const rawResult = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
@@ -277,7 +273,9 @@ export async function fetchCkEditorDocumentFromStorage(ckEditorId: string): Prom
   return validatedResult.data;
 }
 
-Globals.fetchCkEditorCloudStorageDocument = fetchCkEditorCloudStorageDocument;
+//eslint-disable-next-line no-console
+Globals.fetchCkEditorDocumentFromStorage = (ckEditorId: string) => fetchCkEditorDocumentFromStorage(ckEditorId).then((result) => console.log(result));
+
 
 export async function fetchCkEditorDocument(ckEditorId: string) {
   const result = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
@@ -296,31 +294,48 @@ export function createCollaborativeSession(ckEditorId: string, html: string) {
   });
 }
 
-export async function createRemoteStorageDocument(document: CreateDocumentPayload) {
+async function fetchCkEditorUser(userId: string): Promise<CkEditorUser|undefined> {
+  let parsedUser;
+  try {
+    const rawUser = await fetchCkEditorRestAPI("GET", `/users/${userId}`);
+    parsedUser = JSON.parse(rawUser);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to fetch or parse ckEditor user with id ${userId}. Error: ${err}`)
+    return undefined
+  }
+  const validatedUser = UserSchema.safeParse(parsedUser);
+  if (!validatedUser.success) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to validate ckEditor user response with error ${validatedUser.error.toString()}.  Parsed data: ${parsedUser}`);
+    return undefined
+  }
+  return validatedUser.data;
+}
+
+function createCkEditorUser(user: { id: string; name: string; }): Promise<string> {
+  return fetchCkEditorRestAPI("POST", `/users`, user);
+}
+
+async function createMissingUsersForDocument(document: CreateDocumentPayload) {
   const commentUsers = document.comments.map(comment => comment.user.id);
   const suggestionUsers = document.suggestions.map(suggestion => suggestion.author_id);
+  const documentUserIds = Array.from(new Set([...commentUsers, ...suggestionUsers]));
 
-  const ckEditorUserIds = Array.from(new Set([...commentUsers, ...suggestionUsers]));
+  const ckEditorUsers = filterNonnull(await Promise.all(documentUserIds.map(userId => fetchCkEditorUser(userId))));
 
-  const rawUsers = await Promise.all(ckEditorUserIds.map(userId => fetchCkEditorRestAPI("GET", `/users/${userId}`)));
+  const missingUserIds = difference(documentUserIds, ckEditorUsers.map(user => user.id));
+  const missingUserNames = await Users.find({ _id: { $in: missingUserIds } }, undefined, { _id: 1, displayName: 1, username: 1, fullName: 1 }).fetch();
+  const missingUserPayloads = missingUserNames.map(user => ({
+    id: user._id,
+    name: userGetDisplayName(user),
+  }));
 
-  const parsedUsers = rawUsers.map(rawUser => {
-    try {
-      const parsedUser = JSON.parse(rawUser);
-      return parsedUser;
-    } catch (err) {
-      throw new Error(`Failed to parse ckEditor user response.  Raw data: ${rawUser}`);
-    }
-  });
+  await Promise.all(missingUserPayloads.map(user => createCkEditorUser(user)));
+}
 
-  const { succeses: validUsers, failures: invalidUsers } = partition(parsedUsers, UserSchema);
-  if (invalidUsers.length > 0) {
-    invalidUsers.forEach(invalidUser => console.log(`Failed to validate ckEditor user response with error ${invalidUser.error.toString()}.`));
-    throw new Error('At least one invalid user returned from ckEditor document.');
-  }
-
-  // TODO - create any users that don't yet exist by fetching them from our db and pushing them to ckEditor with a display(?) name
-
+export async function createRemoteStorageDocument(document: CreateDocumentPayload) {
+  await createMissingUsersForDocument(document);
   return fetchCkEditorRestAPI("POST", "/documents", document);
 }
 
@@ -443,7 +458,15 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
     },
   });
   if (!response.ok) {
-    throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`); //eslint-disable-line no-console
+
+    let explanation;
+    try {
+      const responseBody = await response.json()
+      explanation = responseBody.data?.reasons?.[0]?.explanation
+    } catch (err) { /* empty */ } 
+
+    if (explanation) throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}\n${explanation}`); 
+    throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`); 
   }
   const responseBody = await response.text();
   return responseBody;
