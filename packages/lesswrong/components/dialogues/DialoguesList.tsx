@@ -11,8 +11,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
-import { dialogueFacilitationMessagesABTest, useABTest } from '../../lib/abTests';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogueFacilitationItem: {
@@ -63,7 +61,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const { captureEvent } = useTracking();
-  const optInMessageABTestGroup = useABTest(dialogueFacilitationMessagesABTest);
 
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
   const updateCurrentUser = useUpdateCurrentUser()
@@ -84,7 +81,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
     const webhookURL = "https://hooks.slack.com/triggers/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";
     const data = {
       user: userDetailString,
-      abTestGroup: optInMessageABTestGroup,
+      abTestGroup: "optIn (no more AB test)",
     };
   
     if (event.target.checked) {
@@ -104,7 +101,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
     }
   };
 
-  const prompt = optInMessageABTestGroup === "getHelp" ? "Get help having a dialogue" : "Opt-in to dialogue invitations" 
+  const prompt = "Opt-in to dialogue invitations" 
  
   return (
       <div className={classes.dialogueFacilitationItem}>
@@ -150,9 +147,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const dialoguesTooltip = <div>
     <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
   </div>
-
-  const updateCurrentUser = useUpdateCurrentUser()
-  //void updateCurrentUser({hideDialogueFacilitation: false})
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
