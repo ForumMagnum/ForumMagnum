@@ -1,7 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import type { GivingPortalOrg } from "./givingPortalOrgs";
 
 const imageSize = 52;
 
@@ -54,11 +53,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ElectionCandidate = ({org, classes}: {
-  org: GivingPortalOrg,
+const ElectionCandidate = ({candidate, classes}: {
+  candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
-  const {name, logoSrc, href, preVoteCount} = org;
+  const {name, logoSrc, href, baseScore} = candidate;
   return (
     <Link to={href} className={classes.root}>
       <div className={classes.imageContainer}>
@@ -69,7 +68,7 @@ const ElectionCandidate = ({org, classes}: {
           {name}
         </div>
         <div className={classes.preVotes}>
-          {preVoteCount} pre-vote{preVoteCount === 1 ? "" : "s"}
+          {baseScore} pre-vote{baseScore === 1 ? "" : "s"}
         </div>
       </div>
     </Link>
