@@ -22,7 +22,8 @@ import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { UsersRepo } from '../repos';
+import { TagsRepo, UsersRepo } from '../repos';
+import {defineQuery} from '../utils/serverGraphqlUtil';
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -135,10 +136,14 @@ addGraphQLSchema(`
     topShortform: Comment,
     karmaChange: Int
   }
-  type SuggestedDialogueUsers {
-    dialogueUsers: [User]
-  }
-`)
+  `)
+//   type SuggestedDialogueUsers {
+//     dialogueUsers: [User],
+//     topUsers: [GraphQLJSON],
+//     topCommentedTags: [Tag],
+//     topCommentedTagTopUsers: [User],
+//   }
+// `)
 
 addGraphQLResolvers({
   Mutation: {
@@ -387,28 +392,6 @@ addGraphQLResolvers({
         throw new Error('Invalid user type type')
       }
     },
-    async GetUsersWhoHaveMadeDialogues(): Promise<AnyBecauseTodo> {
-      
-      // dummy dialogues users
-      const dialogueUsers = new UsersRepo().getUsersWhoHaveMadeDialogues()
-      
-      // Your top tags
-
-      // The top authors of your top tags
-
-      // Your top authors
-
-      // The top tags of your top authors
-
-
-      const results: AnyBecauseTodo = {
-        dialogueUsers: dialogueUsers
-
-
-      }
-      
-      return results
-    }
   },
 })
 
@@ -490,4 +473,81 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
-addGraphQLQuery('GetUsersWhoHaveMadeDialogues: SuggestedDialogueUsers')
+// addGraphQLQuery('GetUsersWhoHaveMadeDialogues: SuggestedDialogueUsers')
+
+
+
+
+
+// async GetUsersWhoHaveMadeDialogues(root:void, _:any, context: ResolverContext): Promise<AnyBecauseTodo> {
+//   const { currentUser } = context
+//   if (!currentUser) {
+//     throw new Error('User must be logged in to get top upvoted users');
+//   }
+
+//   // dummy dialogues users
+//   const dialogueUsers = new UsersRepo().getUsersWhoHaveMadeDialogues()
+  
+//   // Your top commented tags
+//   const topCommentedTags = await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
+
+//   // Your top authors 
+//   const topUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
+
+
+//   // The top authors of your top tags
+//   const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
+//   // const topCommentedUsersTopTags = await new TagsRepo().getTopUsersTopCommentedTags(preTopCommentedTagTopUsers);
+//   const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
+
+
+
+//   // The top tags of your top authors
+//   const results: AnyBecauseTodo = {
+//     dialogueUsers: dialogueUsers,
+//     topUsers: topUsers,
+//     topCommentedTags: topCommentedTags,
+//     topCommentedTagTopUsers: topCommentedTagTopUsers
+//   }
+  
+//   return results
+// }
+
+defineQuery({
+  name: "GetUsersWhoHaveMadeDialogues",
+  resultType: "JSON",
+  fn: async (root:void, _:any, context: ResolverContext) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get top upvoted users');
+    }
+
+    // dummy dialogues users
+    const dialogueUsers = await new UsersRepo().getUsersWhoHaveMadeDialogues()
+    
+    // Your top commented tags
+    const topCommentedTags = await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
+
+    // Your top authors 
+    const topUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
+
+
+    // The top authors of your top tags
+    const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
+    // const topCommentedUsersTopTags = await new TagsRepo().getTopUsersTopCommentedTags(preTopCommentedTagTopUsers);
+    const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
+
+
+
+    // The top tags of your top authors
+    const results: AnyBecauseTodo = {
+      dialogueUsers: dialogueUsers,
+      topUsers: topUsers,
+      topCommentedTags: topCommentedTags,
+      topCommentedTagTopUsers: topCommentedTagTopUsers,
+    }
+    
+    return results
+  }
+});
+ 

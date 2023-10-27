@@ -33,6 +33,17 @@ WHERE _id IN (
 LIMIT 1
 `;
 
+type UpvotedUser = {
+  _id: string;
+  username: string;
+  displayName: string;
+  total_power: number;
+  power_values: string;
+  vote_counts: number;
+  total_agreement: number;
+  agreement_values: string;
+};
+
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -249,5 +260,138 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       INNER JOIN "Posts" ON "Users"._id = "Posts"."userId"
       WHERE "Posts"."collabEditorDialogue" = TRUE
     `)
+  }
+
+  
+
+  async getUsersTopUpvotedUsers(userId:string): Promise<AnyBecauseTodo[]> {
+    return this.getRawDb().any(`
+      SELECT
+      public."Users"._id,
+      public."Users".username,
+      public."Users"."displayName",
+      SUM(public."Votes".power) AS total_power,
+      ARRAY_AGG(public."Votes".power) AS power_values,
+      COUNT(public."Votes".power) AS vote_counts,
+      SUM(CASE
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+          ELSE 0
+      END
+      ) AS total_agreement,
+      ARRAY_AGG(CASE
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+          ELSE 0
+      END
+      ) AS agreement_values
+      FROM public."Users"
+      INNER JOIN public."Posts" ON public."Users"._id = public."Posts"."userId"
+      INNER JOIN public."Votes" ON public."Posts"._id = public."Votes"."documentId"
+      WHERE
+          public."Votes"."userId" = '${userId}'
+          AND public."Users"._id != '${userId}'
+      GROUP BY public."Users"._id, public."Users".username
+      HAVING SUM(public."Votes".power) > 1
+      UNION
+      SELECT
+          public."Users"._id,
+          public."Users".username,
+          public."Users"."displayName",
+          SUM(public."Votes".power) AS total_power,
+          ARRAY_AGG(public."Votes".power) AS power_values,
+          COUNT(public."Votes".power) AS vote_counts,
+          SUM(CASE
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+              ELSE 0
+          END
+          ) AS total_agreement,
+          ARRAY_AGG(CASE
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+              ELSE 0
+          END
+          ) AS agreement_values
+      FROM public."Users"
+      INNER JOIN public."Comments" ON public."Users"._id = public."Comments"."userId"
+      INNER JOIN public."Votes" ON public."Comments"._id = public."Votes"."documentId"
+      WHERE
+          public."Votes"."userId" = '${userId}'
+          AND public."Users"._id != '${userId}'
+      GROUP BY public."Users"._id, public."Users".username
+      HAVING SUM(public."Votes".power) > 1
+      ORDER BY total_power DESC
+      LIMIT 100
+    `)
+  }
+  
+  async getPreTopCommentersOfTopCommentedTags(topUsers: DbUser[], topCommentedTags: DbTag[]): Promise<any> {
+    const topUserIds = topUsers.map(user => user._id);
+    const topTagNames = topCommentedTags.map(tag => tag.name);
+  
+    // Use parameterized query to prevent SQL injection
+    const query = `
+      SELECT
+        topCommentedTags.name,
+        u.username,
+        c."userId",
+        COUNT(*) AS post_comment_count
+      FROM unnest($1::text[]) AS topCommentedTags(name)
+      INNER JOIN public."Tags" AS t ON topCommentedTags.name = t.name
+      INNER JOIN public."TagRels" AS tr ON t._id = tr."tagId"
+      INNER JOIN public."Comments" AS c ON tr."postId" = c."postId"
+      INNER JOIN public."Users" AS u ON c."userId" = u._id
+      WHERE c."userId" = ANY($2)
+      GROUP BY topCommentedTags.name, c."userId", u.username
+      HAVING COUNT(*) > 15
+    `;
+  
+    try {
+      return await this.any(query, [topTagNames, topUserIds]);
+    } catch (error) {
+      console.error('Error executing getAuthorsOfTopTags query:', error);
+      throw error;
+    }
+  }
+
+  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: any[], topUsers: any[]): Promise<any> {
+    // Extract data from the preprocessed data
+    const userData = preTopCommentedTagTopUsers.map(user => ({username: user.username, name: user.name, post_comment_count: user.post_comment_count}));
+    const totalPowers = topUsers.map(user => ({username: user.username, total_power: user.total_power}));
+  
+    const query = `
+      SELECT
+        subquery.username,
+        topUsers->>'total_power',
+        json_object_agg(
+          subquery.name,
+          subquery.post_comment_count ORDER BY subquery.post_comment_count DESC
+        ) AS tag_comment_counts
+      FROM unnest($1::jsonb[]) AS subquery_json,
+          jsonb_to_record(subquery_json) AS subquery(username TEXT, name TEXT, post_comment_count INTEGER)
+      INNER JOIN unnest($2::jsonb[]) AS topUsers ON subquery.username = topUsers->>'username'
+      GROUP BY subquery.username, topUsers->>'total_power'
+      ORDER BY (topUsers->>'total_power')::integer DESC
+    `;
+  
+    try {
+      return await this.any(query, [userData, totalPowers]);
+    } catch (error) {
+      console.error('Error executing topCommentedTagTopUsers query:', error);
+      throw error;
+    }
   }
 }
