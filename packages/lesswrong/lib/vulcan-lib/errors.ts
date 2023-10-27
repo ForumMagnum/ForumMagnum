@@ -132,7 +132,7 @@ export const throwValidationError = ({
 ) => {
   const collectionName = getCollectionName(typeName);
   const required = errorType === 'errors.required';
-  const displayFieldName = (capitalizeName ? ' ' : '') + (alias || field);
+  const displayFieldName = (capitalizeName ? '' : ' ') + (alias || field);
 
   throw new UserInputError(
     'app.validation_error',
