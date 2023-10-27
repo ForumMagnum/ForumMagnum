@@ -5,13 +5,6 @@ import classNames from 'classnames';
 import OTPInput from './OTPInput';
 import SimpleSchema from 'simpl-schema';
 
-const badLoginErrorMessage = "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.";
-const unknownErrorMessage = 'An unknown error has occurred. Email community@wakingup.com if this persists.'
-
-const errorMessage = (error: ApolloError | undefined) => {
-  return error?.message === 'app.authorization_error' ? badLoginErrorMessage : unknownErrorMessage;
-}
-
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     wordBreak: "normal",
@@ -135,6 +128,9 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [ mutate, { error } ] = useMutation(currentActionToMutation[currentAction], { errorPolicy: 'all' })
   const [showValidationWarning, setShowValidationWarning] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const { Loading } = Components;
 
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
@@ -143,8 +139,12 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
       return false;
     }
 
+    setLoading(true);
+
     const variables = { email, code: oneTimeCode }
     const { data } = await mutate({ variables })
+
+    setLoading(false);
 
     if (data?.requestLoginCode?.result === "success") {
       setCurrentAction("enterCode")
@@ -186,7 +186,8 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
         <div>Not a Waking Up app member? <a href="https://www.wakingup.com/">Get the app</a>.</div>
       </div>
       
-      {error && <div className={classes.error}>{errorMessage(error)}</div>}
+      {error && <div className={classes.error}>{error.message}</div>}
+      {loading && <Loading />}
     </form>
   </Components.ContentStyles>;
 }

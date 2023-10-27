@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
+import { Utils, slugify, getNestedProperty, throwValidationError } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import {
@@ -431,7 +431,13 @@ const schema: SchemaType<DbUser> = {
     onUpdate: (props) => {
       const {data, document, oldDocument} = props;
       if (oldDocument.email?.length && !document.email) {
-        throw new Error("You cannot remove your email address");
+        throwValidationError({
+          typeName: "User",
+          field: "email",
+          errorType: "errors.required",
+          alias: "valid email address",
+          capitalizeName: true,
+        });
       }
       return data.email;
     },

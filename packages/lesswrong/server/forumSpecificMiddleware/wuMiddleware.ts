@@ -8,13 +8,20 @@ import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolve
 import { isProduction } from '../../lib/executionEnvironment';
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
+import { createError } from 'apollo-errors';
+import { ApolloError } from 'apollo-server-errors';
 
 // This file has middleware for redirecting logged-out users to the login page,
 // but it also manages authentication with the Waking Up app. This latter thing
 // is not actually middleware, but it's useful to use the forumSpecificMiddleware
 // system to manage it.
 
-const AUTH_ERROR = 'app.authorization_error';
+const AuthorizationError = createError(
+  'AuthorizationError',
+  {
+    message: "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake."
+  }
+)
 
 function urlDisallowedForLoggedOutUsers(req: express.Request) {
   if (req.user) return false;
@@ -223,7 +230,7 @@ const authenticationResolvers = {
         await updateOneTimeCode(user, oneTimeCode)
         // TODO: send code email
       } else {
-        throw new Error(AUTH_ERROR)
+        throw new AuthorizationError({ internalData: { error: "Invalid Waking Up user" } })
       }
       return { result: "success" }
     },
@@ -231,8 +238,8 @@ const authenticationResolvers = {
     async codeLogin(root: void, { email, code }: {email: string, code: string}, { req, res }: ResolverContext) {
       const user = await userFindOneByEmail(email);
 
-      if (!user?.wu_subscription_active) throw new Error(AUTH_ERROR)
-      if (!user.wu_forum_access) throw new Error(AUTH_ERROR)
+      if (!user?.wu_subscription_active) throw new AuthorizationError({internalData: { error: "Inactive WU subscription" }});
+      if (!user.wu_forum_access) throw new AuthorizationError({internalData: { error: "WU account lacks forum access" }});
 
       const validCode = user && code?.length > 0 && user.services?.wakingUp?.oneTimeCode === code;
       // TODO: restrict the dev code in production (staging server runs in production mode so
@@ -246,7 +253,10 @@ const authenticationResolvers = {
         const token = await createAndSetToken(req, res, user)
         return { token };
       } else {
-        throw new Error('Invalid one-time code');
+        throw new AuthorizationError({
+          message: "Error: The code you entered was invalid or expired.",
+          internalData: { error: "Invalid one-time code" }}
+        );
       }
     },
   } 

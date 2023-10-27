@@ -7,7 +7,7 @@ import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { performVoteServer } from '../voteServer';
-import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
+import { updateMutator, createMutator, deleteMutator, throwError, throwValidationError } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
@@ -212,7 +212,12 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
 getCollectionHooks("Comments").newValidate.add(function NewCommentsEmptyCheck (comment: DbComment) {
   const { data } = (comment.contents && comment.contents.originalContents) || {}
   if (!data) {
-    throw new Error("You cannot submit an empty comment");
+    throwValidationError({
+      typeName: "Comment",
+      field: "contents",
+      errorType: 'errors.required',
+      alias: " comment body"
+    });
   }
   return comment;
 });
