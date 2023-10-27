@@ -5,12 +5,12 @@ import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor: theme.palette.grey[60],
     padding: 20
   },
   button: {
     fontSize: 16,
     textTransform: 'none',
+    backgroundColor: theme.palette.buttons.startReadingButtonBackground,
   },
   feedbackRow: {
     display: 'flex',
@@ -47,7 +47,7 @@ export const DialogueEditorFeedback = ({ classes, post }: {
   const user = useCurrentUser()
   return <div className={classes.root}>
     <div className={classes.feedbackRow}>{beenClicked === 'unclicked'
-      ? <Button color="primary" className={classes.button} onClick={async _ => { await feedbackButtonClicked(user, post, setBeenClicked) }}>
+      ? <Button className={classes.button} onClick={async _ => { await feedbackButtonClicked(user, post, setBeenClicked) }}>
           Get feedback or editing help from the LessWrong team.
         </Button>
       : beenClicked === 'clickedAndItWorked'
