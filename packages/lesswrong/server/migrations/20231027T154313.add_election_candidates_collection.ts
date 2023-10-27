@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "9ea1ba2f0a54b06fbe9a13a1aaad555f";
+export const acceptsSchemaHash = "5e28a08c9be1ba704a99a94dab5c4fae";
 
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection"
 import { createTable, dropTable } from "./meta/utils";
