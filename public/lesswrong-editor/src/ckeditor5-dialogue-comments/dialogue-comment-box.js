@@ -366,10 +366,7 @@ class SubmitDialogueMessageCommand extends Command {
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
                 } else {
-                    // const messageChildren = Array.from(dialogueMessage.getChildren());
-                    // writer.insertText(dialogueMessageInput.data, messageChildren[0]);
-                    console.log(`else block of dialogueMessageInput.is('element')`, { dialogueMessage });
-                    // writer.append(dialogueMessage, root);
+                    console.error('dialogueMessageInput is not an element')
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0);
