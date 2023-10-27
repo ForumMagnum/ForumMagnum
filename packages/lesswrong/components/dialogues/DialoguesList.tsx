@@ -81,7 +81,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
     const webhookURL = "https://hooks.slack.com/triggers/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";
     const data = {
       user: userDetailString,
-      abTestGroup: "optIn",
+      abTestGroup: "optIn (no more AB test)",
     };
   
     if (event.target.checked) {
