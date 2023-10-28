@@ -1,29 +1,23 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
+import { SearchState } from 'react-instantsearch/connectors';
+import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
+import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
-import Select from '@material-ui/core/Select';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
 import {
   ElasticSorting,
   defaultElasticSorting,
-  elasticCollectionIsCustomSortable,
   elasticSortingToUrlParam,
-  formatElasticSorting,
   getElasticIndexNameWithSorting,
-  getElasticSortingsForCollection,
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
-import { communityPath } from '../../lib/routes';
 
 const hitsPerPage = 10
 
@@ -40,56 +34,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingTop: 24,
     }
   },
-  filtersColumn: {
-    flex: 'none',
-    width: 250,
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
-    paddingTop: 12,
+  filtersColumnWrapper: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
-    '& .ais-NumericMenu': {
-      marginBottom: 26
-    },
-    '& .ais-NumericMenu-item': {
-      marginTop: 5
-    },
-    '& .ais-NumericMenu-label': {
-      display: 'flex',
-      columnGap: 3
-    },
-    '& .ais-ToggleRefinement-label': {
-      display: 'flex',
-      columnGap: 6,
-      alignItems: 'center',
-      marginTop: 12
-    },
-    '& .ais-ClearRefinements': {
-      color: theme.palette.primary.main,
-      marginTop: 20
-    },
-    '& .ais-ClearRefinements-button--disabled': {
-      display: 'none'
-    },
-  },
-  filtersHeadline: {
-    marginBottom: 18,
-    fontWeight: 500,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    "&:not(:first-child)": {
-      marginTop: 35,
-    },
-  },
-  filterLabel: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    marginBottom: 6
-  },
-  mapLink: {
-    color: theme.palette.primary.main,
-    padding: 1,
-    marginTop: 30
   },
   resultsColumn: {
     flex: '1 1 0',
@@ -173,10 +121,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-  sort: {
-    borderRadius: theme.borderRadius.small,
-    width: "100%",
-  },
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -207,28 +151,6 @@ type ExpandedSearchState = SearchState & {
     tags: Array<string>|''
   }
 }
-
-type TagsRefinementProps = {
-  tagsFilter?: Array<string>,
-  setTagsFilter?: Function
-}
-
-// filters by tags
-const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
-  RefinementListProvided & TagsRefinementProps
-) => {
-  return <Components.TagMultiselect
-    value={tagsFilter ?? []}
-    path="tags"
-    placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
-    hidePostCount
-    startWithBorder
-    updateCurrentValues={(values: {tags?: Array<string>}) => {
-      setTagsFilter && setTagsFilter(values.tags)
-    }}
-  />
-}
-const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 // shows total # of results
 const Stats = ({ nbHits, className }: {
@@ -273,6 +195,7 @@ const SearchPageTabbed = ({classes}:{
   const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
   const pastMonth = useRef(moment().subtract(1, 'months').valueOf())
   const pastYear = useRef(moment().subtract(1, 'years').valueOf())
+  const dateRangeValues = [pastDay, pastWeek, pastMonth, pastYear];
 
   // initialize the tab & search state from the URL
   const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
@@ -305,7 +228,7 @@ const SearchPageTabbed = ({classes}:{
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem, ForumIcon
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
   } = Components;
 
   // we try to keep the URL synced with the search state
@@ -384,70 +307,16 @@ const SearchPageTabbed = ({classes}:{
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
     >
-      <div className={classes.filtersColumn}>
-        <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
-        {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
-          <div className={classes.filterLabel}>
-            Filter by {tab === 'Users' ? 'joined' : 'posted'} date
-          </div>
-          <NumericMenu
-            attribute="publicDateMs"
-            items={[
-              { label: 'All' },
-              { label: 'Past 24 hours', start: pastDay.current },
-              { label: 'Past week', start: pastWeek.current },
-              { label: 'Past month', start: pastMonth.current },
-              { label: 'Past year', start: pastYear.current },
-            ]}
-          />
-        </>}
-        {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
-            attribute="tags"
-            defaultRefinement={tagsFilter}
-            tagsFilter={tagsFilter}
-            setTagsFilter={handleUpdateTagsFilter}
-          />
-        }
-        {tab === 'Posts' && <ToggleRefinement
-          attribute="curated"
-          label="Curated"
-          value={true}
-        />}
-        {tab === 'Posts' && <ToggleRefinement
-          attribute="isEvent"
-          label="Exclude events"
-          value={false}
-          defaultRefinement={true}
-        />}
-        {tab === 'Tags' && <ToggleRefinement
-          attribute="core"
-          label="Core topic"
-          value={true}
-        />}
-        <ClearRefinements />
 
-        {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
-          <Link to={`${communityPath}#individuals`}>View community map</Link>
-        </div>}
-
-        {elasticCollectionIsCustomSortable(tab) &&
-          <>
-            <Typography variant="headline" className={classes.filtersHeadline}>
-              Sort
-            </Typography>
-            <Select
-              value={sorting}
-              onChange={(e) => onSortingChange(e.target.value)}
-              className={classes.sort}
-            >
-              {getElasticSortingsForCollection(tab).map((name, i) =>
-                <MenuItem key={i} value={name}>
-                  {formatElasticSorting(name)}
-                </MenuItem>
-              )}
-            </Select>
-          </>
-        }
+      <div className={classes.filtersColumnWrapper}>
+        <Components.SearchFilters
+          tab={tab}
+          tagsFilter={tagsFilter}
+          handleUpdateTagsFilter={handleUpdateTagsFilter}
+          onSortingChange={onSortingChange}
+          sorting={sorting}
+          dateRangeValues={dateRangeValues}
+        />
       </div>
 
       <div className={classes.resultsColumn}>

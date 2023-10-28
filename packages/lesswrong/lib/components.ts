@@ -630,6 +630,7 @@ importComponent("SearchBarResults", () => require('../components/search/SearchBa
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
 importComponent("SearchPage", () => require('../components/search/SearchPage'));
 importComponent("SearchPageTabbed", () => require('../components/search/SearchPageTabbed'));
+importComponent("SearchFilters", () => require('../components/search/SearchFilters'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));
