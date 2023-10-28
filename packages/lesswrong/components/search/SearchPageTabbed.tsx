@@ -339,6 +339,7 @@ const SearchPageTabbed = ({classes}:{
           onSortingChange={onSortingChange}
           sorting={sorting}
           dateRangeValues={dateRangeValues}
+          setModalOpen={setModalOpen}
         />
       </div>
 
@@ -382,6 +383,7 @@ const SearchPageTabbed = ({classes}:{
               onSortingChange={onSortingChange}
               sorting={sorting}
               dateRangeValues={dateRangeValues}
+              setModalOpen={setModalOpen}
             />
           </div>
         </Modal>

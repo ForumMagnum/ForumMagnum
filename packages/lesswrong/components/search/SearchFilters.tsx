@@ -13,6 +13,7 @@ import {
   getElasticSortingsForCollection,
 } from '../../lib/search/elasticUtil';
 import { communityPath } from '../../lib/routes';
+import IconButton from '@material-ui/core/IconButton';
 
 const styles = (theme: ThemeType): JssStyles => ({
   filtersColumn: {
@@ -21,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: "max-content",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.grey[800],
-    paddingTop: 12,
     '& .ais-NumericMenu': {
       marginBottom: 26
     },
@@ -46,14 +46,26 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     },
   },
+  filtersHeadlineWrapper: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 48,
+    marginBottom: 8,
+  },
   filtersHeadline: {
-    marginBottom: 18,
     fontWeight: 500,
     fontFamily: theme.palette.fonts.sansSerifStack,
     "&:not(:first-child)": {
       marginTop: 35,
     },
   },
+  closeIconButton: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none'
+    },
+  },
+  closeIcon: {},
   filterLabel: {
     fontSize: 14,
     color: theme.palette.grey[600],
@@ -92,7 +104,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 }
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
-const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues}:{
+const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}:{
   classes: ClassesType
   tab: AlgoliaIndexCollectionName
   tagsFilter: Array<string>
@@ -100,13 +112,19 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
   onSortingChange: (sorting: string) => void
   sorting: ElasticSorting
   dateRangeValues: Array<MutableRefObject<number>>
+  setModalOpen: (open: boolean) => void
 }) => {
 
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
-  const { Typography, MenuItem } = Components;
+  const { Typography, MenuItem, ForumIcon } = Components;
 
   return <div className={classes.filtersColumn}>
-    <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
+    <div className={classes.filtersHeadlineWrapper}>
+      <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
+      <IconButton className={classes.closeIconButton} onClick={() => setModalOpen(false)}>
+        <ForumIcon icon="Close" />
+      </IconButton>
+    </div>
     {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
       <div className={classes.filterLabel}>
         Filter by {tab === 'Users' ? 'joined' : 'posted'} date
