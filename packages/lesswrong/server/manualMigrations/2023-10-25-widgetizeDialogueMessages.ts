@@ -2,8 +2,8 @@ import merge from 'lodash/merge';
 import { Posts } from '../../lib/collections/posts';
 import Revisions from '../../lib/collections/revisions/collection';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
-import { createCollaborativeSession, createRemoteStorageDocument, deleteCkEditorCloudDocument, fetchCkEditorDocumentFromStorage, flushAllCkEditorCollaborations, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorWebhook';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
@@ -29,12 +29,12 @@ const widgetizeDialogueMessages = (html: string, postId: string) => {
 async function wrapMessageContents(dialogue: DbPost) {
   const postId = dialogue._id;
   const latestRevisionPromise = Revisions.findOne({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } });
-  const ckEditorId = postIdToCkEditorDocumentId(postId);
+  const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
   
   let html;
   let remoteDocument;
   try {
-    remoteDocument = await fetchCkEditorDocumentFromStorage(ckEditorId); // fetchCkEditorCloudStorageDocument(ckEditorId);
+    remoteDocument = await ckEditorApi.fetchCkEditorDocumentFromStorage(ckEditorId);
     html = remoteDocument.content.data;
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -52,10 +52,10 @@ async function wrapMessageContents(dialogue: DbPost) {
 }
 
 async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string, ckEditorId: string) {
-  await saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await documentHelpers.saveOrUpdateDocumentRevision(postId, migratedHtml);
 
   try {
-    await deleteCkEditorCloudDocument(ckEditorId);
+    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log('Failed to delete remote document from storage', { err });
@@ -64,7 +64,7 @@ async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string,
 
 async function migrateDialogue(dialogue: DbPost) {
   const postId = dialogue._id;
-  const ckEditorId = postIdToCkEditorDocumentId(postId);
+  const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
   const { anyChanges, migratedHtml, remoteDocument } = await wrapMessageContents(dialogue);
   if (anyChanges) {
     await saveAndDeleteRemoteDocument(postId, migratedHtml, ckEditorId);
@@ -81,13 +81,13 @@ async function migrateDialogue(dialogue: DbPost) {
       const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
       // Push the selected revision
       try {
-        await createRemoteStorageDocument(newDocumentPayload);
+        await ckEditorApiHelpers.createRemoteStorageDocument(newDocumentPayload);
       } catch (err) {
         //eslint-disable-next-line no-console
         console.log('Error pushing new document payload', { err })
       }
     } else {
-      await createCollaborativeSession(ckEditorId, migratedHtml);
+      await ckEditorApi.createCollaborativeSession(ckEditorId, migratedHtml);
     }
   }
 }
@@ -101,6 +101,6 @@ registerMigration({
     const dialogueMigrations = dialogues.map(migrateDialogue);
 
     await Promise.all(dialogueMigrations);
-    await flushAllCkEditorCollaborations();
+    await ckEditorApi.flushAllCkEditorCollaborations();
   }
 });
