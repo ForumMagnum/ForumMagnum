@@ -64,6 +64,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
     left: -DEFAULT_TOC_MARGIN,
     marginTop: -TOC_OFFSET_TOP,
     marginBottom: -TOC_OFFSET_BOTTOM,
+
+    [theme.breakpoints.down('sm')]:{
+      display: "none",
+      marginTop: 0,
+      marginBottom: 0,
+    },
   },
   stickyBlockScroller: {
     position: "sticky",

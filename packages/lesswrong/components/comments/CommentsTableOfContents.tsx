@@ -45,17 +45,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentsTableOfContents = ({commentTree, post, classes}: {
+const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   commentTree?: CommentTreeNode<CommentsList>[],
+  answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
   const [collapsed,setCollapsed] = useState(false);
-  const flattenedComments = commentTree ? flattenCommentTree(commentTree) : [];
+  const flattenedComments = flattenCommentTree([
+    ...(answersTree ?? []),
+    ...(commentTree ?? [])
+  ]);
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => ({
-      landmarkName: comment._id, 
+      landmarkName: comment._id,
       elementId: comment._id,
       position: "topOfElement"
     }))
@@ -94,6 +98,15 @@ const CommentsTableOfContents = ({commentTree, post, classes}: {
         </div>
       </div>
     </TableOfContentsRow>
+
+    {!collapsed && answersTree && answersTree.map(answer => <>
+      <ToCCommentBlock
+        key={answer.item._id}
+        commentTree={answer} indentLevel={1} classes={classes}
+        highlightedCommentId={highlightedLandmarkName}
+      />
+      <Components.TableOfContentsDivider/>
+    </>)}
     {!collapsed && commentTree && commentTree.map(comment => comment.item
       ? <ToCCommentBlock
           key={comment.item._id}

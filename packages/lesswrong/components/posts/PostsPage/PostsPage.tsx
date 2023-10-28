@@ -193,7 +193,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: theme.spacing.unit *3
   },
   postContent: { //Used by a Cypress test
     marginBottom: isEAForum ? 40 : undefined
@@ -646,19 +645,14 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             </div>
           </AnalyticsContext>
         }
-        {/* Answers Section */}
-        {post.question && <div className={classes.centralColumn}>
-          <div id="answers"/>
-          <AnalyticsContext pageSectionContext="answersSection">
-            <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
-          </AnalyticsContext>
-        </div>}
       </div>
     </ToCColumn>
 
     <PostsCommentsSection
       post={post}
-      terms={commentTerms}
+      commentTerms={commentTerms}
+      answers={answers ?? null}
+      refetch={refetch}
       eagerPostComments={eagerPostComments}
     />
     {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>

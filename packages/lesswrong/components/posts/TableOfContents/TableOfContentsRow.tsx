@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isEAForum } from '../../../lib/instanceSettings';
 
@@ -84,14 +84,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim700,
     paddingLeft: 48,
   },
-  divider: {
-    width: 80,
-    marginBottom:theme.spacing.unit,
-    marginRight: "auto",
-    borderBottom: theme.palette.border.faint,
-    paddingBottom: theme.spacing.unit,
-    display:"block",
-  }
 });
 
 const levelToClassName = (level: number, classes: ClassesType) => {
@@ -118,7 +110,9 @@ const TableOfContentsRow = ({
   answer?: boolean,
   dense?: boolean,
 }) => {
-  if (divider) return <div className={classes.divider} />
+  if (divider) {
+    return <Components.TableOfContentsDivider />
+  }
 
   return <div
     className={classNames(

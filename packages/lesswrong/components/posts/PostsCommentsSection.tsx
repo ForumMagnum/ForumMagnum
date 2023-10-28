@@ -19,21 +19,23 @@ export const postsCommentsThreadMultiOptions = {
 const styles = (theme: ThemeType): JssStyles => ({
 })
 
-const PostsCommentsSection = ({post, terms, eagerPostComments, classes}: {
+const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answers, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  terms: CommentsViewTerms,
+  commentTerms: CommentsViewTerms,
   eagerPostComments?: EagerPostComments,
+  answers: CommentsList[]|null,
+  refetch: ()=>void,
   classes: ClassesType,
 }) => {
-  const { ToCColumn, AnalyticsInViewTracker, AFUnreviewedCommentCount, CommentsTableOfContents } = Components;
+  const { ToCColumn, AnalyticsInViewTracker, AFUnreviewedCommentCount, CommentsTableOfContents, PostsPageQuestionContent } = Components;
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
   const currentUser = useCurrentUser();
 
   // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && isEqual(terms, eagerPostComments?.terms);
+  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
 
   const lazyResults = useMulti({
-    terms: {...terms, postId: post._id},
+    terms: {...commentTerms, postId: post._id},
     skip: useEagerResults,
     ...postsCommentsThreadMultiOptions,
   });
@@ -49,13 +51,27 @@ const PostsCommentsSection = ({post, terms, eagerPostComments, classes}: {
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results);
   
+  // FIXME: At this point of the React tree we have answers without their children
+  const answersTree = answers ? answers.map(answer => ({
+    item: answer,
+    children: [],
+  })) : [];
+  
   return <ToCColumn
     tableOfContents={<CommentsTableOfContents
       commentTree={commentTree}
+      answersTree={answersTree}
       post={post}
     />}
   >
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+      {/* Answers Section */}
+      {post.question && <div className={classes.centralColumn}>
+        <div id="answers"/>
+        <AnalyticsContext pageSectionContext="answersSection">
+          <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
+        </AnalyticsContext>
+      </div>}
       {/* Comments Section */}
       <div className={classes.commentsSection}>
         <AnalyticsContext pageSectionContext="commentsSection">
