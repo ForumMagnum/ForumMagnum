@@ -103,6 +103,7 @@ import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
+import { FunnelIcon } from "../icons/funnel";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -180,7 +181,8 @@ export type ForumIconName =
   "Menu" |
   "CloseMenu" |
   "Q" |
-  "BarChart";
+  "BarChart" |
+  "Funnel";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -254,6 +256,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FunnelIcon,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -326,6 +329,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FunnelIcon,
   },
 };
 

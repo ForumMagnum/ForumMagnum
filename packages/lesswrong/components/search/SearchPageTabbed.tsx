@@ -9,6 +9,7 @@ import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/ins
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
+import IconButton from '@material-ui/core/IconButton';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
 import {
@@ -65,6 +66,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       marginBottom: 12,
     },
+  },
+  funnelIconButton: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none'
+    },
+  },
+  funnelIcon: {
+    stroke: "black"
   },
   searchInputArea: {
     flex: 1,
@@ -341,6 +350,11 @@ const SearchPageTabbed = ({classes}:{
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+            <div onClick={() => setModalOpen(true)}>
+              <IconButton className={classes.funnelIconButton}>
+                <ForumIcon icon="Funnel" className={classes.funnelIcon}/>
+              </IconButton>
+            </div>
           </div>
           <LWTooltip
             title={`"Quotes" and -minus signs are supported.`}
