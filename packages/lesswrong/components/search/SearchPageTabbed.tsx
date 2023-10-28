@@ -18,6 +18,7 @@ import {
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
+import Modal from '@material-ui/core/Modal';
 
 const hitsPerPage = 10
 
@@ -38,6 +39,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  filtersModal: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  filtersModalContent: {
+    maxWidth: "max-content",
+    background: '#fff',
+    padding: '20px',
+    overflowY: 'auto',
+    zIndex: 10001
   },
   resultsColumn: {
     flex: '1 1 0',
@@ -212,6 +224,8 @@ const SearchPageTabbed = ({classes}:{
     isValidElasticSorting(initialSorting) ? initialSorting : defaultElasticSorting,
   );
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
       throw new Error("Invalid algolia sorting: " + newSorting);
@@ -337,6 +351,26 @@ const SearchPageTabbed = ({classes}:{
         </div>
 
         <div ref={scrollToRef} />
+
+        <Modal
+          open={true}
+          onClose={() => setModalOpen(false)}
+          aria-labelledby="search-filters-modal"
+          aria-describedby="search-filters-modal"
+          style={{display: modalOpen ? 'flex' : 'none'}}
+          className={classes.filtersModal}
+        >
+          <div className={classes.filtersModalContent}>
+            <Components.SearchFilters
+              tab={tab}
+              tagsFilter={tagsFilter}
+              handleUpdateTagsFilter={handleUpdateTagsFilter}
+              onSortingChange={onSortingChange}
+              sorting={sorting}
+              dateRangeValues={dateRangeValues}
+            />
+          </div>
+        </Modal>
 
         <Tabs
           value={tab}
