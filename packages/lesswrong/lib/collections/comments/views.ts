@@ -504,6 +504,7 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 });
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   return {
     selector: {
       shortform: true,
@@ -514,6 +515,18 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       ...(!terms.showCommunity && {
         relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
       }),
+      // Quick takes older than 2 hours must have at least 1 karma, quick takes
+      // younger than 2 hours must have at least -5 karma
+      $or: [
+        {
+          baseScore: {$gte: 1},
+          createdAt: {$lt: twoHoursAgo},
+        },
+        {
+          baseScore: {$gte: -5},
+          createdAt: {$gte: twoHoursAgo},
+        },
+      ],
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

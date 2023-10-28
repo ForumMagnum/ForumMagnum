@@ -352,6 +352,7 @@ const CKPostEditor = ({
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+  const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
 
   // Get the linkSharingKey, if it exists
@@ -398,6 +399,7 @@ const CKPostEditor = ({
         trackChanges.value = true;
         break;
       case "Editing":
+      case "Editing (override)":
         editor.isReadOnly = false;
         trackChanges.value = false;
         break;
@@ -409,6 +411,7 @@ const CKPostEditor = ({
       applyCollabModeToCkEditor(editor, mode);
     }
     setCollaborationMode(mode);
+    collaborationModeRef.current = mode;
   }
 
   return <div>
@@ -522,10 +525,12 @@ const CKPostEditor = ({
               }
             }
             
-            if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
-              changeCollaborationMode("Commenting");
-            } else {
-              changeCollaborationMode("Editing");
+            if (collaborationModeRef.current !== "Editing (override)") {
+              if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
+                changeCollaborationMode("Commenting");
+              } else {
+                changeCollaborationMode("Editing");
+              }
             }
 
             const acceptCommand = editor.commands.get('acceptSuggestion');
@@ -538,7 +543,7 @@ const CKPostEditor = ({
                   for (let suggestionId of suggestionIds) {
                     const suggestion = (trackChangesPlugin as any).getSuggestion(suggestionId);
                     const suggesterUserId = suggestion.author.id;
-                    if (!currentUser || (suggesterUserId === currentUser?._id)) {
+                    if ((!currentUser || (suggesterUserId === currentUser?._id)) && collaborationModeRef.current !== "Editing (override)") {
                       flash("You cannot accept your own changes");
                       command.stop();
                     }

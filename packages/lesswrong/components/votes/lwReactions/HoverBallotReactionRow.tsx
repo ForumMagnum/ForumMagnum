@@ -53,6 +53,9 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
   const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
+  // Don't show the "general" (non-quote-specific) ballot for this react if all the instances of this react are inline (quote-specific)
+  const allReactsAreInline = usersWhoReacted.every(userWhoReacted => userWhoReacted.quotes?.length);
+
   return <div key={reactionName}>
     <div className={classes.hoverBallotEntry}>
       <ReactionIcon react={reactionName} size={30}/>
@@ -68,12 +71,12 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
         <Components.UsersWhoReacted usersWhoReacted={usersWhoReacted} wrap showTooltip={false}/>
 
       </div>
-      <Components.ReactOrAntireactVote
+      {!allReactsAreInline && <Components.ReactOrAntireactVote
         reactionName={reactionName}
         netReactionCount={netReactionCount}
         currentUserReaction={getCurrentUserReactionVote(reactionName)}
         setCurrentUserReaction={setCurrentUserReaction}
-      />
+      />}
     </div>
     <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentBodyRef={commentBodyRef}/>
   </div>
