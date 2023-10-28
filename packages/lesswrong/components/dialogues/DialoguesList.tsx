@@ -139,21 +139,18 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
   const [showOptIn, setShowOptIn] = useState(optInStartState);
 
-  const { results: dialoguePosts, error, count, loading, loadingInitial } = usePaginatedResolver({
+  const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsList",
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
-    ssr: true
   }); 
-
-  console.log({ dialoguePosts, error, count, loading, loadingInitial })
 
   const {
     document: party,
   } = useSingle({
     documentId: "BJcNeJss4jxc68GQR",
     collectionName: "Posts",
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
   });
 
   const dialoguesTooltip = <div>
