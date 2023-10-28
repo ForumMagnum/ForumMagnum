@@ -276,6 +276,31 @@ interface DbDigest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface ElectionCandidatesCollection extends CollectionBase<DbElectionCandidate, "ElectionCandidates"> {
+}
+
+interface DbElectionCandidate extends DbObject {
+  __collectionName?: "ElectionCandidates"
+  electionName: string
+  name: string
+  logoSrc: string
+  href: string
+  description: string
+  userId: string
+  postCount: number
+  tagId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
+}
+
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
 }
 
@@ -1319,6 +1344,7 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  hideDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1518,6 +1544,7 @@ interface CollectionsByName {
   DebouncerEvents: DebouncerEventsCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  ElectionCandidates: ElectionCandidatesCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1574,6 +1601,7 @@ interface ObjectsByCollectionName {
   DebouncerEvents: DbDebouncerEvents
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  ElectionCandidates: DbElectionCandidate
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
