@@ -20,7 +20,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     gridArea: 'title',
-    backgroundColor: "#fff",
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -107,7 +106,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   content: {
     gridArea: 'content',
-    backgroundColor: "#fff",
   },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
