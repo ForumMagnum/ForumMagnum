@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -477,6 +477,31 @@ export const PostSharedWithUserNotification = registerNotificationType({
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
     return getPostCollaborateUrl(documentId, false)
+  }
+});
+
+export const PostAddedAsCoauthorNotification = registerNotificationType({
+  name: "addedAsCoauthor",
+  userSettingField: "notificationAddedAsCoauthor",
+  allowedChannels: ["onsite", "email", "both"],
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbPost;
+    const name = await postGetAuthorName(document);
+    const postOrDialogue = document.collabEditorDialogue ? 'dialogue' : 'post';
+    return `${name} added you as a coauthor to the ${postOrDialogue} "${document.title}"`;
+  },
+  getIcon() {
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+  },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    if (!documentId) {
+      throw new Error("PostAddedAsCoauthorNotification documentId is missing")
+    }
+    return postGetEditUrl(documentId, false)
   }
 });
 
