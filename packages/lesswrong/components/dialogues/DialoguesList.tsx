@@ -140,7 +140,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const [showOptIn, setShowOptIn] = useState(optInStartState);
 
   const { results: dialoguePosts } = usePaginatedResolver({
-    fragmentName: "PostsList",
+    fragmentName: "PostsListWithVotes",
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
   }); 
@@ -168,7 +168,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
 
       {party && <PostsItem post={party}/>}
       
-      {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
+      {dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
