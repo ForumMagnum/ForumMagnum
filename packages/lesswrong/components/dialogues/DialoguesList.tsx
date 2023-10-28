@@ -4,6 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const DialoguesList = () => {
   const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
@@ -13,6 +14,14 @@ const DialoguesList = () => {
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
   }); 
+
+  const {
+    document: party,
+  } = useSingle({
+    documentId: "BJcNeJss4jxc68GQR",
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+  });
 
   const dialoguesTooltip = <div>
     <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
@@ -25,6 +34,7 @@ const DialoguesList = () => {
           Dialogues
         </LWTooltip>}
       />
+      {party && <PostsItem post={party}/>}
       {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post}
