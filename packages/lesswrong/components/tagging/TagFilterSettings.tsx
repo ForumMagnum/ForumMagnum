@@ -42,9 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     border: theme.palette.tag.border
   },
-  flexWrapEndGrow: {
-    flexGrow: 9999999,
-  },
   personalTooltip: {
     ...filteringStyles(theme),
   },
@@ -124,7 +121,6 @@ const TagFilterSettings = ({
           </AddTagButton>
       </LWTooltip>}
     </div>
-    <div className={classes.flexWrapEndGrow} />
   </span>
 }
 
