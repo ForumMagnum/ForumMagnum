@@ -9,6 +9,7 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type PgCollection from "../sql/PgCollection";
+import LRU from "lru-cache";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -27,7 +28,8 @@ interface CollectionBase<
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView?: ViewFunction<N>
   views: Record<string, ViewFunction<N>>
-  
+  crossRequestCache?: LRU<string, T>;
+
   _schemaFields: SchemaType<T>
   _simpleSchema: any
 

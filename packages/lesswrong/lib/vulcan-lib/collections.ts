@@ -7,6 +7,7 @@ import { addGraphQLCollection } from './graphql';
 import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
 import { forceCollectionTypeSetting } from '../instanceSettings';
+import LRU from "lru-cache";
 export * from './getCollection';
 
 // When used in a view, set the query so that it returns rows where a field is
@@ -55,6 +56,7 @@ export const createCollection = <
   resolvers?: any,
   mutations?: any,
   logChanges?: boolean,
+  crossRequestCacheOptions?: LRU.Options<string, ObjectsByCollectionName[N]>,
 }): any => {
   const {
     typeName,
@@ -103,6 +105,9 @@ export const createCollection = <
   const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
+  if (options.crossRequestCacheOptions) {
+    collection.crossRequestCache = new LRU(options.crossRequestCacheOptions);
+  }
 
   registerCollection(collection);
 

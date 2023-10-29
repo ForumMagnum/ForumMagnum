@@ -53,6 +53,11 @@ export const Tags: ExtendedTagsCollection = createCollection({
     },
   }),
   logChanges: true,
+  crossRequestCacheOptions: {
+    maxAge: 1000 * 60 * 30, // 30 mins
+    updateAgeOnGet: false,
+    max: 1024,
+  },
 });
 
 Tags.checkAccess = async (currentUser: DbUser|null, tag: DbTag, context: ResolverContext|null): Promise<boolean> => {
