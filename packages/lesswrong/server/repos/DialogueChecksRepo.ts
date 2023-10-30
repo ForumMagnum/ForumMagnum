@@ -38,12 +38,16 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     )
   }
 
-  async getMatchedUsers(userId: string, targetUserIds: string[]): Promise<DbDialogueCheck[]> {
+  async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck[]> {
     return this.any(`
       SELECT 
         * 
       FROM public."DialogueChecks" 
-      WHERE "targetUserId" = $1 AND "userId" = ANY($2::text[]) AND "checked" = true;
-    `, [userId, targetUserIds])
+      WHERE "targetUserId" = $1 AND "userId" = $2 AND "checked" = true
+      AND EXISTS (
+        SELECT 1 FROM public."DialogueChecks" 
+        WHERE "targetUserId" = $2 AND "userId" = $1 AND "checked" = true
+      );
+    `, [userId1, userId2])
   }
 }
