@@ -169,7 +169,10 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <h2>Your top users</h2>
+      <h1>Dialogue Reciprocity</h1>
+        <p>Blah blah here's how dialogues matchmaking works. LessWrong team looks at metadata analytics</p>
+        <br />
+      <h3>Your top users</h3>
       <div className={classes.grid}>
         <h5 className={classes.header}>Display Name</h5>
         <h5 className={classes.header}>Upvotes from you</h5>
