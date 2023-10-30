@@ -1270,7 +1270,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
@@ -1891,7 +1891,7 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
-    // control: "UsersListEditor",
+    // control: "FormUsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1932,7 +1932,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.event,
   },
 
@@ -2602,6 +2602,14 @@ const schema: SchemaType<DbPost> = {
     // Implementation in postResolvers.ts
   },
 
+  mostRecentPublishedDialogueResponseDate: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+
   unreadDebateResponseCount: {
     type: Number,
     optional: true,
@@ -2814,7 +2822,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
   },
   'suggestForAlignmentUserIds.$': {

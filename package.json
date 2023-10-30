@@ -177,7 +177,7 @@
     "cloudinary-react": "1.0.6",
     "compression": "^1.7.3",
     "cookie-parser": "^1.4.3",
-    "crypto-js": "^3.1.9-1",
+    "crypto-js": "^4.2.0",
     "csso": "^5.0.5",
     "dataloader": "^2.2.2",
     "dd-trace": "^3.5.0",

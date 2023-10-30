@@ -128,9 +128,11 @@ const EARecentDiscussionItem = ({
             {" "}
             {action}
             {" "}
-            {post && <Link
+            {post &&
+              <Link
                 to={postUrlOverride ?? postGetPageUrl(post)}
                 className={classes.primaryText}
+                eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
               >
                 {postTitleOverride ?? post.title}
               </Link>

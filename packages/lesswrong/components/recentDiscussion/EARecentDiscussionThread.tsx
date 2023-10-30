@@ -133,6 +133,7 @@ const EARecentDiscussionThread = ({
             post={post}
             read={post.isRead}
             className={classes.postTitle}
+            linkEventProps={{intent: 'expandPost'}}
           />
           <EAPostMeta post={post} useEventStyles />
         </div>

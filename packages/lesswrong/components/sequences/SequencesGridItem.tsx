@@ -10,10 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
 
-    width: "calc(33% - 5px)",
     boxShadow: theme.palette.boxShadow.default,
     paddingBottom: 0,
-    marginBottom: 10,
     display: "flex",
     flexDirection: "column",
 

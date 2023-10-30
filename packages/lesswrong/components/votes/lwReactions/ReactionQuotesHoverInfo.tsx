@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { ComponentPropsWithoutRef } from 'react';
 import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../../lib/voting/namesAttachedReactions';
 import { useCurrentUser } from '../../common/withUser';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
-import { dimHighlightClassName, highlightSelectorClassName } from '../../comments/CommentsItem/CommentsItem';
+import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import { ContentItemBody } from '../../common/ContentItemBody';
 
@@ -68,10 +68,8 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   classes: ClassesType
 }) => {
-  const { LWTooltip } = Components;
+  const { ReactOrAntireactVote } = Components;
   const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
-
-  const currentUser = useCurrentUser();
 
   const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
   const usersWhoReacted = alreadyUsedReactions[react]
@@ -84,7 +82,7 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
     return { quote, users: usersWhoReactedToQuote  }
   })
 
-  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function handleHoverQuote (quote: string) {
     // TODO
@@ -98,7 +96,12 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
 
   return <div className={classes.root}>
     {quotesWithUsers.map(({quote, users}) => {
-      const currentUserReactedToQuote = users?.find(r => r.userId === currentUser?._id)
+      const netQuoteReactionCount = sumBy(users, (user) => user.reactType==="disagreed"?-1:1)
+      
+      // Pass in `setCurrentUserReaction` as a closure over the current `quote`, since `ReactOrAntireactVote` doesn't know anything about quotes
+      type SetCurrentUserReactionPropType = ComponentPropsWithoutRef<typeof ReactOrAntireactVote>['setCurrentUserReaction'];
+      const setCurrentUserQuoteReaction: SetCurrentUserReactionPropType = (reactionName, reaction) => setCurrentUserReaction(reactionName, reaction, quote);
+
       return <div key={quote} className={classes.quote}>
           <div className={classes.tinyQuoteRow} onMouseEnter={() => handleHoverQuote(quote)} onMouseLeave={() => handleLeaveQuote()}>
             <div className={classes.tinyQuoteWrapper}>
@@ -109,11 +112,12 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
                 {users?.map(user => user.displayName)?.join(", ")}
               </div>
             </div>
-            <LWTooltip title={currentUserReactedToQuote ? "Remove your react to this snippet" : "Endorse this react for this snippet"} placement="right">
-              <div className={classes.tinyQuoteReactToggle} onClick={() => toggleReaction(react, quote)}>
-                {currentUserReactedToQuote ? "x" : "+1"}
-              </div>
-            </LWTooltip>
+            <ReactOrAntireactVote
+              reactionName={react}
+              currentUserReaction={getCurrentUserReactionVote(react)}
+              netReactionCount={netQuoteReactionCount}
+              setCurrentUserReaction={setCurrentUserQuoteReaction}
+            />
           </div>
         </div>
       })}
