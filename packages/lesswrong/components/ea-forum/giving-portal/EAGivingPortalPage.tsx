@@ -23,6 +23,8 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
     backgroundColor: theme.palette.givingPortal[0],
+    width: "100vw",
+    overflow: "hidden",
   },
   sectionLight: {
     backgroundColor: theme.palette.givingPortal[200],

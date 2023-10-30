@@ -71,23 +71,17 @@ const styles = (theme: ThemeType) => ({
     height: 8,
     zIndex: 8,
   },
-  youAreHere: {
-    color: theme.palette.givingPortal[1000],
-    fontSize: 14,
-    fontWeight: 600,
-    whiteSpace: "nowrap",
-    position: "absolute",
-    top: HEIGHT + 40,
-  },
-  arrow: {
-    color: theme.palette.givingPortal[1000],
-    position: "absolute",
-    top: HEIGHT + 6,
-    right: -8,
-  },
 });
 
-const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
+const Timeline = ({
+  start,
+  end,
+  points,
+  spans,
+  showStartAndEnd,
+  classes,
+}: TimelineSpec & {
+  showStartAndEnd?: boolean,
   classes: ClassesType,
 }) => {
   const currentDate = new Date("2023-11-04") // TODO; // useCurrentTime();
@@ -126,7 +120,12 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
 
   return (
     <div className={classes.root}>
-      <div {...positionDate(end)}>{formatDate(end)}</div>
+      {showStartAndEnd &&
+        <>
+          <div {...positionDate(start)}>{formatDate(start)}</div>
+          <div {...positionDate(end)}>{formatDate(end)}</div>
+        </>
+      }
       {points.map(({date, description}) => (
         <div {...positionDate(date)} key={description}>
           <div>{formatDate(date)}</div>

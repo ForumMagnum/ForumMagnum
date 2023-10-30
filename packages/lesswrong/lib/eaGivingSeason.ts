@@ -28,27 +28,27 @@ export type TimelineSpec = {
 
 export const timelineSpec: TimelineSpec = {
   start: new Date("2023-11-01"),
-  end: new Date("2023-12-31"),
+  end: new Date("2023-12-10"),
   points: [
     {date: new Date("2023-11-01"), description: "Election Fund opens"},
     {date: votingOpensDate, description: "Voting starts"},
-    {date: new Date("2023-12-20"), description: "Election winner announced"},
+    {date: new Date("2023-12-20"), description: "Winners announced"},
   ],
   spans: [
     {
-      start: new Date("2023-11-21"),
-      end: new Date("2023-11-28"),
-      description: "Effective giving spotlight Week",
+      start: new Date("2023-11-07"),
+      end: new Date("2023-11-14"),
+      description: "Effective giving spotlight",
     },
     {
-      start: new Date("2023-11-30"),
-      end: new Date("2023-12-07"),
+      start: new Date("2023-11-14"),
+      end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
     },
     {
-      start: new Date("2023-12-08"),
-      end: new Date("2023-12-16"),
-      description: "Forum BOTEC-a-thon Week",
+      start: new Date("2023-11-21"),
+      end: new Date("2023-11-28"),
+      description: "Estimating cost-effectiveness",
     },
   ],
 };
