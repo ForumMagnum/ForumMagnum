@@ -8,8 +8,8 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const DEFAULT_TOC_MARGIN = 100
-const MAX_TOC_WIDTH = 0
-const MIN_TOC_WIDTH = 0
+const MAX_TOC_WIDTH = 270
+const MIN_TOC_WIDTH = 200
 
 export const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,6 +20,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     gridArea: 'title',
+    margin: "0 auto",
+    maxWidth: 720,
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -106,6 +108,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   content: {
     gridArea: 'content',
+    margin: "0 auto",
+    maxWidth: 720
   },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},

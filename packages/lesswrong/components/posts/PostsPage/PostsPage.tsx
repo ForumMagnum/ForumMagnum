@@ -188,7 +188,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: "#fff"
   },
   title: {
-    marginBottom: 32,
     borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined,
     [theme.breakpoints.down('sm')]: {
       marginBottom: theme.spacing.titleDividerSpacing,
@@ -201,7 +200,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 0
   },
   postContent: { //Used by a Cypress test
-    marginBottom: isFriendlyUI ? 40 : undefined
+    marginBottom: isFriendlyUI ? 40 : undefined,
+    paddingTop: 14,
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 0,
+    }
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
@@ -550,7 +553,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
     : null;
 
-  const rightColumnChildren = <>
+  const rightColumnChildren = showTableOfContentsSetting.get() && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
   </>;
