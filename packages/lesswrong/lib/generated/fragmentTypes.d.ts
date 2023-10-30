@@ -494,6 +494,17 @@ interface ConversationsDefaultFragment { // fragment on Conversations
   readonly archivedByIds: Array<string>,
 }
 
+interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
+  readonly electionName: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly description: string,
+  readonly userId: string,
+  readonly postCount: number,
+  readonly tagId: string | null,
+}
+
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly postId: string,
   readonly postHash: string,
@@ -3249,17 +3260,6 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
-interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
-  readonly electionName: string,
-  readonly name: string,
-  readonly logoSrc: string,
-  readonly href: string,
-  readonly description: string,
-  readonly userId: string,
-  readonly postCount: number,
-  readonly tagId: string | null,
-}
-
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
@@ -3267,6 +3267,7 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly logoSrc: string,
   readonly href: string,
   readonly description: string,
+  readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,
   readonly score: number,
@@ -3314,6 +3315,7 @@ interface FragmentTypes {
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
+  ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -3510,7 +3512,6 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
-  ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
@@ -3525,6 +3526,7 @@ interface CollectionNamesByFragmentName {
   UserTagRelsDefaultFragment: "UserTagRels"
   TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
+  ElectionCandidatesDefaultFragment: "ElectionCandidates"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
@@ -3721,7 +3723,6 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
-  ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"

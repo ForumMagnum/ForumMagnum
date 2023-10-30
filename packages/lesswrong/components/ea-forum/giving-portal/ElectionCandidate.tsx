@@ -70,6 +70,11 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
+  tooltip: {
+    maxWidth: 200,
+    textAlign: "center",
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+  },
 });
 
 const ElectionCandidate = ({candidate, classes}: {
@@ -83,12 +88,15 @@ const ElectionCandidate = ({candidate, classes}: {
   );
 
   const {
-    name, logoSrc, href, postCount, extendedScore, currentUserExtendedVote,
+    name, logoSrc, href, postCount, tag, extendedScore, currentUserExtendedVote,
   } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
   const hasVoted = !!currentUserExtendedVote?.preVote;
 
-  const {PreVoteButton, ForumIcon} = Components;
+  const preVoteCountString = `${preVoteCount} pre-vote${preVoteCount === 1 ? "" : "s"}`;
+  const postCountString = `${postCount} post${postCount === 1 ? "" : "s"}`;
+
+  const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
     <div className={classNames(classes.root, {
       [classes.rootVoted]: hasVoted,
@@ -107,11 +115,21 @@ const ElectionCandidate = ({candidate, classes}: {
         </div>
         <div className={classes.preVotes}>
           <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
-          {preVoteCount} pre-vote{preVoteCount === 1 ? "" : "s"}
-          ,{" "}
-          <a href="#" className={classes.postCount}>
-            {postCount} post{postCount === 1 ? "" : "s"}
-          </a>
+          {preVoteCountString}
+          {tag &&
+            <>
+              {", "}
+              <LWTooltip
+                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election”`}
+                placement="bottom"
+                popperClassName={classes.tooltip}
+              >
+                <a href="#" className={classes.postCount}>
+                  {postCountString}
+                </a>
+              </LWTooltip>
+            </>
+          }
         </div>
       </div>
     </div>
