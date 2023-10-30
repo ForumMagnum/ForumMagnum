@@ -55,7 +55,7 @@ const SharePostButton = ({
     <div ref={anchorEl}>
       <LWTooltip title="Share post" placement="bottom-start" disabled={isOpen}>
         <ForumIcon
-          icon="Share"
+          icon="Link"
           className={classNames(classes.icon, className)}
           onClick={shareClicked}
         />

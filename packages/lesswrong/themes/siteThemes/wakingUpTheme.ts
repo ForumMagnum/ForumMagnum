@@ -235,7 +235,7 @@ export const wakingUpTheme: SiteThemeSpecification = {
       overrides: {
         SiteLogo: {
           root: {
-            height: "20px",
+            height: "24px",
             marginTop: "4px",
             '@media (max-width: 979px)': {
               height: "20px",

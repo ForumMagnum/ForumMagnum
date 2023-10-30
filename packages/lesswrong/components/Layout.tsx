@@ -361,7 +361,7 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isFriendlyUI && <AdminToggle />}
-                {standaloneNavigation && <NavigationStandalone
+                {currentUser && standaloneNavigation && <NavigationStandalone
                   sidebarHidden={hideNavigationSidebar}
                   unspacedGridLayout={unspacedGridLayout}
                   className={classes.standaloneNav}

@@ -15,7 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: "2.8125rem",
     marginLeft: "50%",
     transform: "translateX(-50%)",
-    textAlign: "center"
+    textAlign: "center",
+    maxWidth: "100%",
   },
   input: {
     font: 'inherit',
@@ -44,7 +45,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   error: {
     padding: 8,
-    color: theme.palette.error.main 
+    color: theme.palette.error.main,
+    marginLeft: -90,
+    marginRight: -90,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      marginRight: 0
+    }
   },
   options: {
     display: 'flex',
@@ -53,10 +60,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 10,
     padding: 4
   },
+  splashLogo: {
+    height: 'auto',
+  },
   heading: {
-    marginTop: 80,
+    marginTop: "1.4rem !important",
     marginBottom: 20,
     fontWeight: "700 !important",
+    color: "#222 !important",
+  },
+  topInstructions: {
+    marginLeft: '-20px',
+    marginRight: '-20px',
+    marginBottom: 8,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: 0,
+      marginRight: 0
+    }
+  },
+  hideSm: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   },
   emailAndButton: {
     display: 'flex',
@@ -85,6 +110,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   otpContainer: {
     justifyContent: 'center',
     gap: '5px',
+  },
+  returnToLogin: {
+    display: 'block',
+    textDecoration: 'underline',
+    marginTop: 6,
+    '&:visited': {
+      color: theme.palette.text.primary + ' !important'
+    }
   }
 })
 
@@ -154,13 +187,14 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
 
   return <Components.ContentStyles contentType="commentExceptPointerEvents">
     <form className={classes.root} onSubmit={submitFunction}>
+      <img src="/SplashLogo.png" alt="logo" width="358px" height="97px" className={classes.splashLogo} />
       <h1 className={classes.heading}>Sign in</h1>
       {currentAction === "requestCode" && <>
-        <p>Enter the email associated with your account, and we’ll send you a code to sign in to the app.</p>
-        <div className={classes.emailAndButton}>
+        <p className={classes.topInstructions}>Enter the email associated with your account,<br className={classes.hideSm} /> and we’ll send you a code to sign in to the community.</p>
+        {!error && <div className={classes.emailAndButton}>
           <input value={email} type="email" name="email" placeholder={"Email Address"} className={classes.input} onChange={event => setEmail(event.target.value)}/>
           <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
-        </div>
+        </div>}
         {showValidationWarning && <div className={classes.error}>
           Please enter a valid email address
         </div>}
@@ -181,12 +215,9 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
         />
         <input type="submit" className={classNames(classes.submit, classes.enterCodeSubmit)} value={currentActionToButtonText[currentAction]} />
       </>}
-      
-      <div className={classes.options}>
-        <div>Not a Waking Up app member? <a href="https://www.wakingup.com/">Get the app</a>.</div>
-      </div>
-      
+
       {error && <div className={classes.error}>{error.message}</div>}
+      {(error || currentAction === "enterCode") && <a href="/" className={classes.returnToLogin}>Return to login</a>}
       {loading && <Loading />}
     </form>
   </Components.ContentStyles>;

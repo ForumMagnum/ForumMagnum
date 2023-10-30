@@ -92,6 +92,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 3
     },
   },
+  extraMargin: { // Adds margin to the logo when logged out so there's no menu button
+    marginLeft: 17,
+  },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
       display:"none"
@@ -309,7 +312,7 @@ const Header = ({
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={isFriendlyUI}>
-              {renderNavigationMenuButton()}
+              {currentUser && renderNavigationMenuButton()}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
@@ -322,7 +325,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasLogoSetting.get() && <div className={classNames(classes.siteLogo, {[classes.extraMargin]: !currentUser})}><Components.SiteLogo/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>
