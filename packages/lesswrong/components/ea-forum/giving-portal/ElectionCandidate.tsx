@@ -74,6 +74,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 200,
     textAlign: "center",
     background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+    transform: "translateY(8px)",
   },
 });
 
