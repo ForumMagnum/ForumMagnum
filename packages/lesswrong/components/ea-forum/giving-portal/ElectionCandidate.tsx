@@ -57,13 +57,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     letterSpacing: "-0.16px",
   },
-  preVotes: {
-    opacity: 0.8,
+  metaInfo: {
     fontWeight: 500,
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
+  preVotes: {
+    opacity: 0.8,
+  },
   postCount: {
+    opacity: 0.8,
     textDecoration: "none",
     "&:hover": {
       opacity: 1,
@@ -114,9 +117,11 @@ const ElectionCandidate = ({candidate, classes}: {
             {name}
           </Link>
         </div>
-        <div className={classes.preVotes}>
-          <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
-          {preVoteCountString}
+        <div className={classes.metaInfo}>
+          <span className={classes.preVotes}>
+            <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+            {preVoteCountString}
+          </span>
           {tag &&
             <>
               {", "}
