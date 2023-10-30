@@ -2,25 +2,8 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import { SquigglyArrowIcon } from "../../icons/squigglyArrow";
+import type { TimelineSpec } from "../../../lib/eaGivingSeason";
 import moment from "moment";
-
-type TimelinePoint = {
-  date: Date,
-  description: string,
-}
-
-type TimelineSpan = {
-  start: Date,
-  end: Date,
-  description: string,
-}
-
-export type TimelineSpec = {
-  start: Date,
-  end: Date,
-  points: TimelinePoint[],
-  spans: TimelineSpan[],
-}
 
 const formatDate = (date: Date) => moment(date).format("MMM D");
 
