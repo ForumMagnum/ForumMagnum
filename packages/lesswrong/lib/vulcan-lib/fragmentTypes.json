@@ -16,6 +16,9 @@
           },
           {
             "name": "Revision"
+          },
+          {
+            "name": "ElectionCandidate"
           }
         ]
       }

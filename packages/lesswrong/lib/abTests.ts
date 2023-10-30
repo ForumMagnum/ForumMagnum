@@ -79,3 +79,19 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+// not active anymore since picked the best option, but leaving around as a record of AB tests that were previously run
+export const dialogueFacilitationMessagesABTest = new ABTest({
+  name: "dialogueFacilitationMessages",
+  description: "Different wording",
+  groups: {
+    getHelp: {
+      description: "Get help version",
+      weight: 1,
+    },
+    optIn: {
+      description: "Opt-in version",
+      weight: 1,
+    },
+  },
+});
