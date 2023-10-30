@@ -1,6 +1,5 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
@@ -58,7 +57,7 @@ const UserCommentMarkers = ({
       {showNewUserIcon &&
         <LWTooltip
           placement="bottom-start"
-          title={`${user.displayName} is either new on ${siteNameWithArticleSetting.get()} or doesn't have much karma yet.`}
+          title={`This is ${user.displayName}'s first week on the forum.`}
           className={classes.iconWrapper}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />

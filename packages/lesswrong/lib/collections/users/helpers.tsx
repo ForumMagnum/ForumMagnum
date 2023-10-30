@@ -11,6 +11,7 @@ import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import moment from 'moment';
 import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -52,7 +53,7 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   // For the EA forum, return true if either:
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
   }
 
