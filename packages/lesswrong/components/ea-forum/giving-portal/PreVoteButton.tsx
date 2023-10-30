@@ -15,6 +15,9 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5,
     },
   },
+  tooltip: {
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+  },
 });
 
 type PreVoteProps = VotingProps<ElectionCandidateBasicInfo>;
@@ -55,6 +58,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
           placement="bottom"
           open={hover}
           anchorEl={anchorEl}
+          className={classes.tooltip}
           hideOnTouchScreens
           tooltip
         >
