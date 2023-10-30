@@ -110,4 +110,5 @@ module.exports = {
     afCommentCount: 0,
     commentCount: 0,
     hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false
 }

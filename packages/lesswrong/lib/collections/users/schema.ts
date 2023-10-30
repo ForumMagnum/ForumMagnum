@@ -1405,6 +1405,18 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(false)
   },
 
+  optedInToDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    hidden: forumTypeSetting.get() !== 'LessWrong',
+    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+    ...schemaDefaultValue(false)
+  },
+
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,

@@ -242,6 +242,7 @@ interface UsersDefaultFragment { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly hideDialogueFacilitation: boolean,
+  readonly optedInToDialogueFacilitation: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2741,6 +2742,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly allowDatadogSessionReplay: boolean | null,
   readonly hideFrontpageBook2020Ad: boolean,
   readonly hideDialogueFacilitation: boolean,
+  readonly optedInToDialogueFacilitation: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
