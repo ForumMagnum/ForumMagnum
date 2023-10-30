@@ -7,6 +7,8 @@ import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
+import { Globals } from '../vulcan-lib';
+import { sleep } from '../../lib/helpers';
 
 const widgetizeDialogueMessages = (html: string, postId: string) => {
   const $ = cheerioParse(html);
@@ -55,6 +57,9 @@ async function saveAndDeleteRemoteDocument(postId: string, migratedHtml: string,
   await documentHelpers.saveOrUpdateDocumentRevision(postId, migratedHtml);
 
   try {
+    //Repeated twice because ckEditor is bad at their jobs. Without this, 
+    //complains about inability to create new session when there's an existing one
+    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
     await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -77,6 +82,8 @@ async function migrateDialogue(dialogue: DbPost) {
       }
     };
 
+    //empirically necessary to prevent an error about inability to create new session because one already exists
+    await sleep(10000)
     if (remoteDocument) {
       const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
       // Push the selected revision
@@ -90,6 +97,11 @@ async function migrateDialogue(dialogue: DbPost) {
       await ckEditorApi.createCollaborativeSession(ckEditorId, migratedHtml);
     }
   }
+}
+
+Globals.migrateDialogue = async (postId: string) => {
+  const dialogue = await Posts.findOne(postId);
+  if (dialogue) await migrateDialogue(dialogue)
 }
 
 registerMigration({
