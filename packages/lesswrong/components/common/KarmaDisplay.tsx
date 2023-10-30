@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
+import { showKarmaTooltipsSetting } from "../../lib/publicSettings";
 
 const KarmaDisplay = ({document, placement="left"}: {
   document: VoteableType,
@@ -14,18 +15,20 @@ const KarmaDisplay = ({document, placement="left"}: {
     ? document.afBaseScore
     : null;
   const {LWTooltip} = Components;
+
+  const title = showKarmaTooltipsSetting.get() &&
+    <div>
+      <div>{baseScore ?? 0} karma</div>
+      <div>({document.voteCount} votes)</div>
+      {afBaseScore &&
+        <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>
+      }
+    </div>
+
   return (
     <LWTooltip
       placement={placement}
-      title={
-        <div>
-          <div>{baseScore ?? 0} karma</div>
-          <div>({document.voteCount} votes)</div>
-          {afBaseScore &&
-            <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>
-          }
-        </div>
-      }
+      title={title}
     >
       {baseScore ?? 0}
     </LWTooltip>
