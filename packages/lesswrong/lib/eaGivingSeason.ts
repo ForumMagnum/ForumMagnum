@@ -27,12 +27,11 @@ export type TimelineSpec = {
 }
 
 export const timelineSpec: TimelineSpec = {
-  start: new Date("2023-11-15"),
+  start: new Date("2023-11-01"),
   end: new Date("2023-12-31"),
   points: [
-    {date: new Date("2023-11-28"), description: "Giving Tuesday"},
+    {date: new Date("2023-11-01"), description: "Election Fund opens"},
     {date: votingOpensDate, description: "Voting starts"},
-    {date: new Date("2023-12-15"), description: "Voting ends"},
     {date: new Date("2023-12-20"), description: "Election winner announced"},
   ],
   spans: [

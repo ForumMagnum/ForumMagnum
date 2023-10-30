@@ -1,11 +1,10 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import { SquigglyArrowIcon } from "../../icons/squigglyArrow";
 import type { TimelineSpec } from "../../../lib/eaGivingSeason";
 import moment from "moment";
 
-const formatDate = (date: Date) => moment(date).format("MMM D");
+const formatDate = (date: Date) => moment.utc(date).format("MMM D");
 
 const HEIGHT = 54;
 const POINT_OFFSET = 25;
@@ -51,7 +50,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: 6,
   },
   span: {
-    backgroundColor: theme.palette.givingPortal[500],
+    backgroundColor: theme.palette.givingPortal[800],
     color: theme.palette.givingPortal[1000],
     fontSize: 14,
     fontWeight: 600,
@@ -67,10 +66,9 @@ const styles = (theme: ThemeType) => ({
   currentMarker: {
     backgroundColor: theme.palette.givingPortal[1000],
     borderTopLeftRadius: theme.borderRadius.default,
-    borderBottomLeftRadius: theme.borderRadius.default,
     position: "absolute",
     top: 0,
-    height: "100%",
+    height: 8,
     zIndex: 8,
   },
   youAreHere: {
@@ -92,7 +90,7 @@ const styles = (theme: ThemeType) => ({
 const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
   classes: ClassesType,
 }) => {
-  const currentDate = useCurrentTime();
+  const currentDate = new Date("2023-11-04") // TODO; // useCurrentTime();
   const showCurrentDate = currentDate.getTime() > start.getTime() &&
     currentDate.getTime() < end.getTime();
 
@@ -128,7 +126,6 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
 
   return (
     <div className={classes.root}>
-      <div {...positionDate(start)}>{formatDate(start)}</div>
       <div {...positionDate(end)}>{formatDate(end)}</div>
       {points.map(({date, description}) => (
         <div {...positionDate(date)} key={description}>
@@ -146,12 +143,7 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
         <div
           className={classes.currentMarker}
           style={{width: `${getDatePercent(currentDate)}%`}}
-        >
-          <div className={classes.youAreHere}>You are here</div>
-          <div className={classes.arrow}>
-            <SquigglyArrowIcon />
-          </div>
-        </div>
+        />
       }
     </div>
   );

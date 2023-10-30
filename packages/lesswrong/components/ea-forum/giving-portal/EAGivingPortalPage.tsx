@@ -22,9 +22,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
+    backgroundColor: theme.palette.givingPortal[0],
   },
   sectionLight: {
-    backgroundColor: theme.palette.givingPortal[100],
+    backgroundColor: theme.palette.givingPortal[200],
   },
   sectionDark: {
     backgroundColor: theme.palette.givingPortal[1000],
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     background: `linear-gradient(
       to top,
       ${theme.palette.givingPortal[1000]} 100px,
-      ${theme.palette.givingPortal[100]} 100px
+      ${theme.palette.givingPortal[200]} 100px
     )`,
   },
   content: {

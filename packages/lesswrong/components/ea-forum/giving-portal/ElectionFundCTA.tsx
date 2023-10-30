@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     height: 28,
-    backgroundColor: theme.palette.givingPortal[100],
+    backgroundColor: theme.palette.givingPortal[200],
     borderRadius: theme.borderRadius.small,
   },
   progress: {
