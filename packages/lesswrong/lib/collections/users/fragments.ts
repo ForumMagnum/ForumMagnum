@@ -209,6 +209,8 @@ registerFragment(`
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
   }
 `);
 

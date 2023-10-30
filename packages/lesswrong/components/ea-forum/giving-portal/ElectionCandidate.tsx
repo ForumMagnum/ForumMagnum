@@ -63,6 +63,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
+  postCount: {
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 1,
+      textDecoration: "underline",
+    },
+  },
 });
 
 const ElectionCandidate = ({candidate, classes}: {
@@ -76,7 +83,7 @@ const ElectionCandidate = ({candidate, classes}: {
   );
 
   const {
-    name, logoSrc, href, extendedScore, currentUserExtendedVote,
+    name, logoSrc, href, postCount, extendedScore, currentUserExtendedVote,
   } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
   const hasVoted = !!currentUserExtendedVote?.preVote;
@@ -101,6 +108,10 @@ const ElectionCandidate = ({candidate, classes}: {
         <div className={classes.preVotes}>
           <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
           {preVoteCount} pre-vote{preVoteCount === 1 ? "" : "s"}
+          ,{" "}
+          <a href="#" className={classes.postCount}>
+            {postCount} post{postCount === 1 ? "" : "s"}
+          </a>
         </div>
       </div>
     </div>

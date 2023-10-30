@@ -4,8 +4,18 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
-import { useDonationOpportunities, useElectionCandidates } from "./hooks";
-import type { TimelineSpec } from "./Timeline";
+import {
+  useAmountRaised,
+  useDonationOpportunities,
+  useElectionCandidates,
+} from "./hooks";
+import {
+  donationElectionLink,
+  donationElectionTagId,
+  effectiveGivingTagId,
+  timelineSpec,
+  votingOpensDate,
+} from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -169,50 +179,6 @@ const styles = (theme: ThemeType) => ({
   mb100: { marginBottom: 100 },
 });
 
-const useAmountRaised = () => {
-  // TODO: Query for the actual amount
-  return {
-    raisedForElectionFund: 3720,
-    donationTarget: 15000,
-    totalRaised: 10250,
-  };
-}
-
-const donationElectionLink = "#"; // TODO
-
-const votingOpensDate = new Date("2023-12-01");
-
-const donationElectionTagId = "L6NqHZkLc4xZ7YtDr"; // TODO: This tag doesn't exist yet
-const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
-
-const timelineSpec: TimelineSpec = {
-  start: new Date("2023-11-15"),
-  end: new Date("2023-12-31"),
-  points: [
-    {date: new Date("2023-11-28"), description: "Giving Tuesday"},
-    {date: votingOpensDate, description: "Voting starts"},
-    {date: new Date("2023-12-15"), description: "Voting ends"},
-    {date: new Date("2023-12-20"), description: "Election winner announced"},
-  ],
-  spans: [
-    {
-      start: new Date("2023-11-21"),
-      end: new Date("2023-11-28"),
-      description: "Effective giving spotlight Week",
-    },
-    {
-      start: new Date("2023-11-30"),
-      end: new Date("2023-12-07"),
-      description: "Marginal Funding Week",
-    },
-    {
-      start: new Date("2023-12-08"),
-      end: new Date("2023-12-16"),
-      description: "Forum BOTEC-a-thon Week",
-    },
-  ],
-};
-
 const getListTerms = (
   tagId: string,
   sortedBy: string,
@@ -349,10 +315,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             <div className={classes.column}>
               <div className={classes.h2}>Candidates in the Election</div>
               <div className={classes.electionCandidates}>
-                {electionCandidatesLoading && <Loading />}
                 {electionCandidates?.map((candidate) => (
                   <ElectionCandidate candidate={candidate} key={candidate._id} />
                 ))}
+                {electionCandidatesLoading && <Loading />}
               </div>
               <div className={classes.mb100}>
                 <button
@@ -408,10 +374,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             <span className={classes.totalRaised}>{totalAmount}</span>
           </div>
           <div className={classNames(classes.donationOpportunities, classes.mt10)}>
-            {donationOpportunitiesLoading && <Loading />}
             {donationOpportunities?.map((candidate) => (
               <DonationOpportunity candidate={candidate} key={candidate._id} />
             ))}
+            {donationOpportunitiesLoading && <Loading />}
           </div>
           <div onClick={onLoadMoreOpportunities} className={classes.loadMore}>
             {/* TODO: Hook up this load more button */}
