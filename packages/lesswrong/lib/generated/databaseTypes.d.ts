@@ -250,6 +250,19 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueChecksCollection extends CollectionBase<DbDialogueCheck, "DialogueChecks"> {
+}
+
+interface DbDialogueCheck extends DbObject {
+  __collectionName?: "DialogueChecks"
+  userId: string
+  targetUserId: string
+  checked: boolean
+  checkedAt: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -1517,6 +1530,7 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DialogueChecks: DialogueChecksCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   EmailTokens: EmailTokensCollection
@@ -1573,6 +1587,7 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueChecks: DbDialogueCheck
   DigestPosts: DbDigestPost
   Digests: DbDigest
   EmailTokens: DbEmailTokens

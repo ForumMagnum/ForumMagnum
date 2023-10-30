@@ -19,7 +19,7 @@ const schema: SchemaType<DbDialogueCheck> = {
     canRead: ['members'],
     canCreate: ['members'],
   },
-  Check: {
+  checked: {
     type: Boolean,
     nullable: false,
     ...schemaDefaultValue(false),
@@ -27,7 +27,7 @@ const schema: SchemaType<DbDialogueCheck> = {
     canCreate: ['members'],
     canUpdate: [userOwns],
   },
-  CheckedAt: {
+  checkedAt: {
     type: Date,
     nullable: false,
     canRead: ['members'],
@@ -59,5 +59,7 @@ DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck
 };
 
 addUniversalFields({ collection: DialogueChecks })
+
+ensureIndex(DialogueChecks, { userId: 1, targetUserId: 1 }, { unique: true });
 
 export default DialogueChecks;

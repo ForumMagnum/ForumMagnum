@@ -3256,6 +3256,21 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
+  readonly userId: string,
+  readonly targetUserId: string,
+  readonly checked: boolean,
+  readonly checkedAt: Date,
+}
+
+interface DialogueCheckInfo { // fragment on DialogueChecks
+  readonly _id: string,
+  readonly userId: string,
+  readonly targetUserId: string,
+  readonly checked: boolean,
+  readonly checkedAt: Date,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3472,6 +3487,8 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   TypingIndicatorInfo: TypingIndicatorInfo
+  DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
+  DialogueCheckInfo: DialogueCheckInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3680,8 +3697,10 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   TypingIndicatorInfo: "TypingIndicators"
+  DialogueChecksDefaultFragment: "DialogueChecks"
+  DialogueCheckInfo: "DialogueChecks"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DigestPosts"|"Digests"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DigestPosts"|"Digests"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

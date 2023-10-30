@@ -10,6 +10,7 @@ type ConversationsViewName = "moderatorConversations"|"userConversations"|"userG
 type CronHistoriesViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
+type DialogueChecksViewName = never
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
 type EmailTokensViewName = never
@@ -65,6 +66,7 @@ interface ViewTermsByCollectionName {
   CronHistories: ViewTermsBase
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
+  DialogueChecks: ViewTermsBase
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
   EmailTokens: ViewTermsBase

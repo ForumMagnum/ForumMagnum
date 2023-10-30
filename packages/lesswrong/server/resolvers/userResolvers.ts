@@ -542,11 +542,10 @@ defineQuery({
     // The top tags of your top authors
     const results: AnyBecauseTodo = {
       dialogueUsers: dialogueUsers,
-      topUsers: topUsers,
-      topCommentedTags: topCommentedTags,
-      topCommentedTagTopUsers: topCommentedTagTopUsers,
+     topUsers: topUsers,
+     topCommentedTags: topCommentedTags,
+     topCommentedTagTopUsers: topCommentedTagTopUsers,
     }
-    
     return results
   }
 });

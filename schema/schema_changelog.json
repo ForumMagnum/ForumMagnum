@@ -348,5 +348,10 @@
     "acceptsSchemaHash": "ccc15da1a7699b6fb4cbacde8bd63bef",
     "acceptedByMigration": "20231026T014747.dialogue_facilitation_offer.ts",
     "timestamp": "2023-10-26T01:47:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2e0ba043f057e511aa882172641097b4",
+    "acceptedByMigration": "20231027T213216.add_dialoguecheck_collection.ts",
+    "timestamp": "2023-10-27T21:32:16.000Z"
   }
 ]
