@@ -87,11 +87,6 @@ export const DocumentResponseSchema = z.object({
   revisions: z.array(RevisionSchema),
 });
 
-type PartitionOutput<I, O> = {
-  successes: SafeParseSuccess<O>[];
-  failures: SafeParseError<I>[];
-}
-
 export type CkEditorImportComment = z.TypeOf<typeof CommentSchema>;
 export type CkEditorImportSuggestion = z.TypeOf<typeof SuggestionSchema>;
 
