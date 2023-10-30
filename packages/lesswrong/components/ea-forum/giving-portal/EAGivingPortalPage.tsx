@@ -17,6 +17,7 @@ import {
   votingOpensDate,
 } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
+import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -30,13 +31,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal[200],
   },
   sectionDark: {
-    backgroundColor: theme.palette.givingPortal[1000],
+    backgroundColor: theme.palette.givingPortal[800],
     color: theme.palette.grey[0],
   },
   sectionSplit: {
     background: `linear-gradient(
       to top,
-      ${theme.palette.givingPortal[1000]} 100px,
+      ${theme.palette.givingPortal[800]} 100px,
       ${theme.palette.givingPortal[200]} 100px
     )`,
   },
@@ -106,6 +107,18 @@ const styles = (theme: ThemeType) => ({
       color: "inherit",
       textDecoration: "underline",
       fontWeight: 700,
+      "&:hover": {
+        opacity: 1,
+        textDecoration: "none",
+      },
+    },
+  },
+  underlinedLink: {
+    color: "inherit",
+    textDecoration: "underline",
+    "&:hover": {
+      opacity: 1,
+      textDecoration: "none",
     },
   },
   button: {
@@ -126,6 +139,28 @@ const styles = (theme: ThemeType) => ({
     "&:active": {
       opacity: 0.7,
     },
+  },
+  progressBar: {
+    position: "relative",
+    width: "100%",
+    height: 28,
+    backgroundColor: theme.palette.givingPortal[800],
+    borderRadius: theme.borderRadius.small,
+    marginBottom: 20,
+  },
+  progress: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    backgroundColor: theme.palette.givingPortal[1000],
+    borderRadius: theme.borderRadius.small,
+    height: "100%",
+  },
+  raisedSoFar: {
+    fontWeight: 700,
+    fontSize: 20,
+    letterSpacing: "-0.2px",
+    color: theme.palette.grey[1000],
   },
   postsList: {
     width: SECTION_WIDTH,
@@ -249,8 +284,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
   const classicPostsTerms = getListTerms(effectiveGivingTagId, "topAdjusted", 5);
 
-  const fundAmount = formatDollars(raisedForElectionFund);
   const totalAmount = formatDollars(totalRaised);
+  const targetPercent = (raisedForElectionFund / donationTarget) * 100;
 
   const {
     Loading, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
@@ -265,51 +300,66 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             Giving portal 2023
           </div>
           <div className={classNames(classes.text, classes.center)}>
-            It’s Giving Season on the EA Forum. We’re hosting a{" "}
-            <Link to={donationElectionLink}>Donation Election</Link> along
-            with weekly themes throughout November and December.
+            It’s Giving Season on the EA Forum. We’re hosting a Donation
+            Election along with weekly themes throughout November and December.
           </div>
           <div className={classNames(classes.h2, classes.mt20)}>Timeline</div>
           <Timeline {...timelineSpec} />
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content}>
-            <div className={classNames(classes.row, classes.mt80)}>
-              <div className={classes.column}>
-                <div className={classNames(classes.h1, classes.primaryText)}>
-                  Donation election 2023
-                </div>
-                <div className={classes.text}>
-                  There is currently {fundAmount} in the Election fund. On{" "}
-                  <span className={classes.bold}>December 15</span>, a winning
-                  Fundraiser will get everything in the Donation Election Fund,
-                  based on Forum users’ vote. Voting opens on{" "}
-                  <span className={classes.bold}>December 1st</span>.
-                </div>
-                <div>
-                  <Link
-                    to={donationElectionLink}
-                    className={classNames(classes.text, classes.primaryText)}
-                  >
-                    -&gt; Read more about the Donation Election.
-                  </Link>
-                </div>
-                <div>
-                  <button
-                    onClick={onNotifyWhenVotingOpens}
-                    className={classNames(classes.button, classes.mt10)}
-                  >
-                    <ForumIcon icon="BellAlert" />
-                    Get notified when the voting opens
-                  </button>
-                </div>
+            <div className={classNames(classes.column, classes.mt80)}>
+              <div className={classNames(classes.h1, classes.primaryText)}>
+                Donation election 2023
               </div>
-              <ElectionFundCTA
-                amountRaised={raisedForElectionFund}
-                donationTarget={donationTarget}
-                votingOpensDate={votingOpensDate}
-                onDonate={onDonate}
-              />
+              <div className={classes.text}>
+                <span className={classes.bold}>
+                  To encourage more discussion about donation choice, consider
+                  contributing to the Election Fund.
+                </span>{" "}
+                Starting 1 December, Forum users will vote on how to distribute
+                the funds. It’s matched up to $5,000.{" "}
+                <a href={donationElectionLink}>Read more here.</a>
+              </div>
+              <div className={classNames(classes.row, classes.mt20)}>
+                <ElectionFundCTA
+                  image={<DonateIcon />}
+                  title="Donate"
+                  description="Donate to the Election Fund"
+                  buttonText="Donate"
+                  onButtonClick={onDonate}
+                  solidButton
+                >
+                  <div className={classes.progressBar}>
+                    <div
+                      className={classes.progress}
+                      style={{width: `${targetPercent}%`}}
+                    />
+                  </div>
+                  <div className={classes.raisedSoFar}>
+                    {formatDollars(raisedForElectionFund)} raised so far
+                  </div>
+                </ElectionFundCTA>
+                <ElectionFundCTA
+                  image={<DiscussIcon />}
+                  title="Discuss"
+                  description="Share post, quick takes and discuss  where the funds should go"
+                  buttonText="Contribute to the discussion"
+                  onButtonClick={onContribute}
+                >
+                  <Link to="#" className={classes.underlinedLink}> {/* TODO: Correct link */}
+                    View 14 posts about the Election
+                  </Link>
+                </ElectionFundCTA>
+                <ElectionFundCTA
+                  image={<VoteIcon />}
+                  title="Vote"
+                  description="Voting opens Dec 1. The Fund will be split proportionally between the top 3 winning candidates. You can already pre-vote below."
+                  buttonText="Get notified when voting opens"
+                  buttonIcon="BellAlert"
+                  onButtonClick={onNotifyWhenVotingOpens}
+                />
+              </div>
             </div>
           </div>
         </div>
