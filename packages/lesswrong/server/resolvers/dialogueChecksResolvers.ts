@@ -1,4 +1,7 @@
 //import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
+import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
+import { randomId } from "../../lib/random";
+import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import {defineMutation, defineQuery} from "../utils/serverGraphqlUtil";
 
@@ -9,8 +12,16 @@ defineMutation({
   fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")
-
-    await new DialogueChecksRepo().upsertDialogueCheck(currentUser._id, targetUserId, checked)
+    const id = randomId()
+    const now = new Date()
+    await new DialogueChecksRepo().upsertDialogueCheck(id, currentUser._id, targetUserId, checked, now)
+    return {
+      _id: id,
+      userId: currentUser._id,
+      targetUserId,
+      checked,
+      checkedAt: now
+    }
   } 
 })
 
@@ -20,23 +31,24 @@ defineQuery({
   argTypes: "",
   fn: async (_, __, {currentUser}) => {
     if (!currentUser) throw new Error("No check user was provided")
-
     return new DialogueChecksRepo().getUsersDialogueChecks(currentUser._id)
   }
 })
 
-defineQuery({
-  name: "getMatchedUsers",
-  resultType: "[DialogueCheck]",
-  argTypes: "(targetUserIds: [String!]!)",
-  fn: async (_, { targetUserIds }, { currentUser }) => {
-    if (!currentUser) throw new Error("No check user was provided");
-
-    const matchedUsers = await new DialogueChecksRepo().getMatchedUsers(
-      currentUser._id,
-      targetUserIds
-    );
-
-    return matchedUsers;
-  },
-});
+augmentFieldsDict(DialogueChecks, {
+  match: {
+    resolveAs: {
+      fieldName: 'match',
+      type: 'Boolean',
+      resolver: async (check: DbDialogueCheck, args: void, context: ResolverContext): Promise<Boolean> => {
+        const currentUser = context.currentUser
+        if (!currentUser) throw Error("Can't get match without current User")
+        const matchedUsers = await new DialogueChecksRepo().getMatchedUsers(
+          check.userId,
+          [check.targetUserId]
+        );
+        return matchedUsers.length > 0
+      },
+    }
+  }
+})

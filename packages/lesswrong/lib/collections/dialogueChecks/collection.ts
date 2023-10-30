@@ -34,6 +34,12 @@ const schema: SchemaType<DbDialogueCheck> = {
     canCreate: ['members'],
     canUpdate: [userOwns],
   },
+  match: {
+    type: Boolean,
+    nullable: false,
+    canRead: ['members'],
+    // Defined in resolvers.ts
+  }
 }
 
 

@@ -4,6 +4,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import ConversionHelpers from '@ckeditor/ckeditor5-engine/src/conversion/conversionhelpers';
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useCurrentUser } from '../common/withUser';
+import { randomId } from '../../lib/random';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,6 +30,7 @@ function MyComponent() {
           userId
           targetUserId
           checked
+          match
         }
       }
     `)
@@ -44,61 +46,74 @@ function MyComponent() {
         userId
         targetUserId
         checked
+        match
       }
     }
   `;
   const { loading: loadingChecks, error: errorChecks, data: dataChecks } = useQuery(GET_USERS_DIALOGUE_CHECKS);
   // for all the targetUsers thus obtained, check if there's a match 
-  const GET_MATCHED_USERS = gql`
-    query getMatchedUsers($targetUserIds: [String!]!) {
-      getMatchedUsers(targetUserIds: $targetUserIds) {
-        _id
-        __typename
-        userId
-        targetUserId
-        checked
-      }
-    }
-  `;
-  console.log("dataChecks", dataChecks)
 
   let targetUserIds = [];
   if (dataChecks && dataChecks.getUsersDialogueChecks) {
     targetUserIds = dataChecks.getUsersDialogueChecks.map(check => check.targetUserId);
   }
 
-  const { loading: loadingMatches, error: errorMatches, data: dataMatches } = useQuery(GET_MATCHED_USERS, {
-    variables: { targetUserIds },
-  });
-
   //console.log("targetUserIds for ", currentUser?._id, targetUserIds)
   //console.log("dataMatchesfor ", currentUser?._id, dataMatches)
 
   
- function updateDatabase(e, targetUserId:string, checkId:string) {
+ function updateDatabase(e, targetUserId:string, checkId?:string) {
+    console.log({ targetUserId, checkId })
     if (!currentUser) return;
-
-    console.log("checkbox value ", e.target.checked)
 
     void upsertDialogueCheck({
       variables: {
         targetUserId: targetUserId, 
         checked: e.target.checked
       },
+      update(cache, { data }) {
+        console.log("calling Update", { checkId, data})
+        if (!checkId) {
+          cache.modify({
+            fields: {
+              getUsersDialogueChecks(existingChecksRefs = []) {
+                const newCheckRef = cache.writeFragment({
+                  data: data.upsertUserDialogueCheck,
+                  fragment: gql`
+                    fragment NewCheck on DialogueChecks {
+                      _id
+                      __typename
+                      userId
+                      targetUserId
+                      checked
+                      match
+                    }
+                  `
+                });
+                const newData = [...existingChecksRefs, newCheckRef]
+                return newData;
+              }
+            }
+          });
+        }
+      },
       optimisticResponse: {
         upsertUserDialogueCheck: {
-          _id: checkId,
+          _id: checkId || randomId(),
           __typename: 'DialogueCheck',
           userId: currentUser._id,
           targetUserId: targetUserId,
           checked: e.target.checked,
+          match: false 
         }
       }
   })
   }
 
-  if (loading || loadingChecks || loadingMatches) return <p>Loading...</p>;
-  if (error || errorChecks || errorMatches) return <p>Error </p>;
+  if (loading) return <p>Loading...</p>;
+  if (error || errorChecks) return <p>Error </p>;
+
+  console.log({ dataChecks })
 
   return (
     <div style={{ padding: '20px', maxWidth: '500px' }}>
@@ -111,7 +126,7 @@ function MyComponent() {
         <h3>Message</h3>
         <h3>Match</h3>
         {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
-          <React.Fragment key={targetUser.displayName}>
+          <React.Fragment key={targetUser.displayName + randomId()}>
             <p style={{ margin: '3px' }}>{targetUser.displayName}</p>
             <p style={{ margin: '3px' }}>{targetUser.total_power}</p>
             <p style={{ margin: '3px' }}>{targetUser.total_agreement}</p>
@@ -120,12 +135,12 @@ function MyComponent() {
               style={{ margin: '0' }} 
               onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
               value={targetUser.displayName} 
-              checked={dataChecks && dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id)}
+              checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
             />
             <button>Message</button>
             <p>
-              {dataMatches &&
-                dataMatches.getMatchedUsers.some(match => match.userId === targetUser?._id) ? (
+              {dataChecks &&
+                dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? (
                   <span>You match!</span>
                 ) : null}
             </p>

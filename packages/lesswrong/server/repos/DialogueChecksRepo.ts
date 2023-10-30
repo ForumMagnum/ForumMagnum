@@ -13,8 +13,7 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     super(DialogueChecks);
   }
 
-  async upsertDialogueCheck(userId: string, targetUserId: string, checked: boolean) {
-    const now  = new Date()
+  async upsertDialogueCheck(recordId: string,userId: string, targetUserId: string, checked: boolean, checkedAt: Date) {
     return this.none(`
       INSERT INTO "DialogueChecks" (
         "_id",
@@ -27,14 +26,14 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
       ) ON CONFLICT ("userId", "targetUserId") DO UPDATE SET 
         "checked" = $4,
         "checkedAt" = $5
-    `, [randomId(), userId, targetUserId, checked, now])
+    `, [recordId, userId, targetUserId, checked, checkedAt])
   }
 
   async getUsersDialogueChecks(userId: string): Promise<DbDialogueCheck[]> {
     return this.any(`
       SELECT 
         * 
-      FROM public."DialogueChecks" WHERE "userId" = $1 AND checked = true;
+      FROM public."DialogueChecks" WHERE "userId" = $1;
         `, [userId]
     )
   }
