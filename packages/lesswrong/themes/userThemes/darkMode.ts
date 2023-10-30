@@ -255,10 +255,8 @@ export const darkModeTheme: UserThemeSpecification = {
     },
     givingPortal: {
       [0]: "#1a1a1a",
-      [100]: "#5f43bc",
       [200]: "#e6edf9",
       [500]: "#391bb1",
-      [700]: "#856cc7",
       [800]: "#e6edf9",
       [1000]: "#e2e1f2",
     },

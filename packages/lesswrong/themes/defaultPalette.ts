@@ -495,14 +495,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   eventsHomeLoadMoreHover: '#085d6c',
 
   givingPortal: {
-    [0]: "#FDFCFC",
-    [200]: "#FBF2F0",// wrong
-    [500]: "#FDF1EC",// wrong
-    [700]: "#F8E7E2",// wrong
-    [800]: "#F5E1DB", // wrong
+    [0]: "#fdfcfc",
+    [200]: "#fcf5f3",
+    [500]: "#fef4ef",
+    [800]: "#f8e7e2",
     [1000]: "#862115",
   },
-  
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',
