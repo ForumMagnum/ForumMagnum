@@ -9,14 +9,18 @@ const SmallSideVote = ({document, hideKarma=false, collection}: {
 }) => {
   const votingSystemName = (document as any)?.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
-  
-  const VotingComponent = votingSystem.getCommentVotingComponent();
-  return <VotingComponent
-    document={document}
-    hideKarma={hideKarma}
-    collection={collection}
-    votingSystem={votingSystem}
-  />
+
+  const VotingComponent = votingSystem.getCommentVotingComponent?.();
+  return VotingComponent
+    ? (
+      <VotingComponent
+        document={document}
+        hideKarma={hideKarma}
+        collection={collection}
+        votingSystem={votingSystem}
+      />
+    )
+    : null;
 }
 
 const SmallSideVoteComponent = registerComponent('SmallSideVote', SmallSideVote, {areEqual: "auto"});
