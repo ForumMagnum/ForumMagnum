@@ -10,6 +10,7 @@ import {
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
   withNoLogs,
+  createDummyUserRateLimit,
 } from '../utils';
 import moment from 'moment';
 
@@ -166,5 +167,48 @@ describe('attempts to read hideKarma comment', () => {
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(true)
     receivedComment.baseScore.should.equal(1)
+  })
+})
+
+describe('moderator-applied user comment rate limit', () => {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  it('should prevent rate-limited user from commenting and throw an error', async () => {
+    const postAuthorUser = await createDummyUser({isAdmin: true})
+    const rateLimitedUser = await createDummyUser()
+    const post = await createDummyPost(postAuthorUser)
+
+    await createDummyComment(rateLimitedUser, {postId: post._id})
+    await createDummyUserRateLimit(rateLimitedUser, {
+      type: 'allComments',
+      intervalUnit: 'days',
+      intervalLength: 1,
+      actionsPerInterval: 1,
+      endedAt: moment().add(1, 'day').toDate(),
+      schemaVersion: 1,
+    })
+
+    function createCommentQuery(postId: string) {
+      return `
+        mutation {
+          createComment(
+            data: {
+              contents: { originalContents: { type: "markdown", data: "test" } }
+              postId: "${postId}"
+            }
+          ){
+            data {
+              contents {
+                markdown
+              }
+            }
+          }
+        }
+      `;
+    }
+
+    const result = runQuery(createCommentQuery(post._id), {}, {currentUser: rateLimitedUser})
+    await (result).should.be.rejected;
+
+    graphQLerrors.getErrors()[0][0].message.startsWith("You're currently limited to 1 comment per day").should.equal(true)
   })
 })

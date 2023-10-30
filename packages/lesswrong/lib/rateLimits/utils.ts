@@ -40,14 +40,32 @@ export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>)
   return sortedRateLimits[0] ?? null;
 }
 
+function constructRateLimitMessage(userRateLimit: DbUserRateLimit, nextEligible: Date) {
+  const docType = userRateLimit.type === 'allPosts' ? 'post' : 'comment';
+  const pluralizedDocType = userRateLimit.actionsPerInterval === 1 ? docType : `${docType}s`;
+  const perLength = userRateLimit.intervalLength === 1 ? '' : `${userRateLimit.intervalLength} `;
+  const pluralizedUnit = userRateLimit.intervalLength === 1 ? userRateLimit.intervalUnit.slice(0, -1) : `${userRateLimit.intervalUnit}s`;
+  const fromNowInWords = timeFromNowInWords(nextEligible);
+
+  const message = `You're currently limited to ${userRateLimit?.actionsPerInterval} ${pluralizedDocType} per ${perLength}${pluralizedUnit}, and you'll need to wait ${fromNowInWords} to ${docType} again.`;
+  const supportSuffix = " Email us at moderation@wakingup.com if you think this is a mistake."
+
+  const interpolatedMessage = interpolateRateLimitMessage(message, nextEligible);
+
+  return interpolatedMessage + supportSuffix
+}
+
 export function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   if (!userRateLimit) return null
   const nextEligible = getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
   if (!nextEligible) return null
+
+  const message = constructRateLimitMessage(userRateLimit, nextEligible)
+
   return {
     nextEligible,
     rateLimitType: "moderator",
-    rateLimitMessage: "A moderator has rate limited you."
+    rateLimitMessage: message
   }
 }
 
@@ -263,4 +281,18 @@ export function documentOnlyHasSelfVote(userId: string, mostRecentVoteInfo: Rece
     mostRecentVoteInfo.userId === userId &&
     allVoteInfo.filter(v => v.userId === userId && v.documentId === mostRecentVoteInfo.documentId).length === 1
   );
+}
+
+// interpolateRateLimitMessage replaces [fromNow] in the rate limit message with
+// the time until nextEligible, e.g. "6 seconds".
+// When nextEligible is supplied as a string, it should already be in the correct
+// format, e.g. "6 seconds". When it's supplied as a Date, we format it first.
+export function interpolateRateLimitMessage(message: string, nextEligible: Date|string) {
+  const timeLength = typeof(nextEligible) === "string" ? nextEligible : timeFromNowInWords(nextEligible);
+
+  return message.replace(/\[fromNow\]/g, timeLength);
+}
+
+export const timeFromNowInWords = (fromNow: Date) => {
+  return moment(fromNow).locale('descriptive-durations').fromNow()
 }

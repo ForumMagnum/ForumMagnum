@@ -161,6 +161,29 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   ]
 }
 
+const WU: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
+  POSTS: [
+    {
+      ...timeframe('1 Posts per 8 seconds'),
+      rateLimitType: "universal",
+      rateLimitMessage: "Please wait [fromNow] before posting again.",
+    },
+    {
+      ...timeframe('2 Posts per 6 hours'),
+      rateLimitType: "universal",
+      rateLimitMessage: "Looks like you've created multiple posts recently. Please wait [fromNow] before submitting a new post.",
+    }
+  ],
+  COMMENTS: [
+    {
+      ...timeframe('1 Comments per 8 seconds'),
+      rateLimitType: "universal",
+      rateLimitMessage: "Please wait [fromNow] before commenting again.",
+      appliesToOwnPosts: true
+    }
+  ]
+}
+
 const ALL = {
   POSTS: {
     FIVE_PER_DAY: {
@@ -186,6 +209,9 @@ export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
   LessWrong: [ 
     ...LW.POSTS,
   ],
+  WakingUp: [
+    ...WU.POSTS,
+  ],
   default: [
     ALL.POSTS.FIVE_PER_DAY
   ]
@@ -199,6 +225,9 @@ export const autoCommentRateLimits: ForumOptions<CommentAutoRateLimit[]> = {
   LessWrong: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
     ...LW.COMMENTS,
+  ],
+  WakingUp: [
+    ...WU.COMMENTS,
   ],
   default: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS

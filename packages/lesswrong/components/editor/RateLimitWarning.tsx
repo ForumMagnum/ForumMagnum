@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import AlarmIcon from '@material-ui/icons/Alarm';
+import { interpolateRateLimitMessage, timeFromNowInWords } from '../../lib/rateLimits/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   lwBanner: {
@@ -30,33 +31,7 @@ const RateLimitWarning = ({lastRateLimitExpiry, rateLimitMessage, classes}: {
 }) => {
   const { ContentStyles, ContentItemBody } = Components
 
-  const getTimeUntilNextPost = () => {
-    const lastExpiry = moment(lastRateLimitExpiry)
-    const now = moment()
-    const diffInSeconds = lastExpiry.diff(now, 'seconds')
-    const diffInMin = lastExpiry.diff(now, 'minutes')
-    const diffInHours = lastExpiry.diff(now, 'hours')
-    const diffInDays = lastExpiry.diff(now, 'days')
-    const diffInWeeks =lastExpiry.diff(now, 'weeks')
-    if (diffInSeconds < 60) {
-      return `${diffInSeconds} second${diffInSeconds > 1 ? 's' : ''}`
-    }
-    if (diffInMin < 60) {
-      return `${diffInMin} minute${diffInMin > 1 ? 's' : ''}`
-    }
-    if (diffInHours < 24) {
-      return `${diffInHours} hour${diffInHours > 1 ? 's' : ''}`
-    }
-    if (diffInDays < 7) {
-      return `${diffInDays} day${diffInDays > 1 ? 's' : ''}`
-    }
-    return `${diffInWeeks} week${diffInWeeks > 1 ? 's' : ''}`
-  }
-
-  let message = `<p>You can post again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
-  if (isEAForum) {
-    message = `You've written more than 3 comments in the last 30 minutes. Please wait ${getTimeUntilNextPost()} before commenting again. ${rateLimitMessage ?? ''}`
-  }
+  const message = interpolateRateLimitMessage(rateLimitMessage ?? '', timeFromNowInWords(lastRateLimitExpiry));
 
   if (isEAForum) {
     return <Components.WarningBanner message={message}/>

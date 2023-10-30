@@ -3,6 +3,7 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { interpolateRateLimitMessage } from '../../lib/rateLimits/utils';
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -58,8 +59,13 @@ async function enforcePostRateLimit (user: DbUser) {
     if (nextEligible > new Date()) {
       // "fromNow" makes for a more human readable "how long till I can comment/post?".
       // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
+
       moment.relativeTimeThreshold('ss', 0);
-      throw new Error(`Rate limit: You cannot post for ${moment(nextEligible).fromNow()}, until ${nextEligible}`);
+      const message = rateLimit.rateLimitMessage ?
+        interpolateRateLimitMessage(rateLimit.rateLimitMessage, nextEligible) :
+        `Rate limit: You cannot post for ${moment(nextEligible).fromNow()} (until ${nextEligible})`
+
+      throw new Error(message);
     }
   }
 }
@@ -75,8 +81,13 @@ async function enforceCommentRateLimit({user, comment, context}:{
     if (nextEligible > new Date()) {
       // "fromNow" makes for a more human readable "how long till I can comment/post?".
       // moment.relativeTimeThreshold ensures that it doesn't appreviate unhelpfully to "now"
+
       moment.relativeTimeThreshold('ss', 0);
-      throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
+      const message = rateLimit.rateLimitMessage ?
+        interpolateRateLimitMessage(rateLimit.rateLimitMessage, nextEligible) :
+        `Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`
+
+      throw new Error(message);
     }
   }
 }
