@@ -566,7 +566,7 @@ const CKPostEditor = ({
           'mathDisplay',
           'mediaEmbed',
           'footnote',
-          'dialogueMessageInput'
+          'rootParagraphBox',
         ]} : {}),
         autosave: {
           save (editor: any) {
