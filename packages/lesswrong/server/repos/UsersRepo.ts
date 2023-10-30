@@ -265,77 +265,81 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   
 
   async getUsersTopUpvotedUsers(userId:string): Promise<AnyBecauseTodo[]> {
-    return this.getRawDb().any(`
-      SELECT
-      public."Users"._id,
-      public."Users".username,
-      public."Users"."displayName",
-      SUM(public."Votes".power) AS total_power,
-      ARRAY_AGG(public."Votes".power) AS power_values,
-      COUNT(public."Votes".power) AS vote_counts,
-      SUM(CASE
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
-          ELSE 0
-      END
-      ) AS total_agreement,
-      ARRAY_AGG(CASE
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-          WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
-          ELSE 0
-      END
-      ) AS agreement_values
-      FROM public."Users"
-      INNER JOIN public."Posts" ON public."Users"._id = public."Posts"."userId"
-      INNER JOIN public."Votes" ON public."Posts"._id = public."Votes"."documentId"
-      WHERE
-          public."Votes"."userId" = '${userId}'
-          AND public."Users"._id != '${userId}'
-      GROUP BY public."Users"._id, public."Users".username
-      HAVING SUM(public."Votes".power) > 1
-      UNION
-      SELECT
-          public."Users"._id,
-          public."Users".username,
-          public."Users"."displayName",
-          SUM(public."Votes".power) AS total_power,
-          ARRAY_AGG(public."Votes".power) AS power_values,
-          COUNT(public."Votes".power) AS vote_counts,
-          SUM(CASE
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
-              ELSE 0
-          END
-          ) AS total_agreement,
-          ARRAY_AGG(CASE
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-              WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
-              ELSE 0
-          END
-          ) AS agreement_values
-      FROM public."Users"
-      INNER JOIN public."Comments" ON public."Users"._id = public."Comments"."userId"
-      INNER JOIN public."Votes" ON public."Comments"._id = public."Votes"."documentId"
-      WHERE
-          public."Votes"."userId" = '${userId}'
-          AND public."Users"._id != '${userId}'
-      GROUP BY public."Users"._id, public."Users".username
-      HAVING SUM(public."Votes".power) > 1
-      ORDER BY total_power DESC
-      LIMIT 100
-    `)
+    return this.getRawDb().any(
+      `
+      WITH "CombinedVotes" AS (
+        -- Joining Users with Posts and Votes
+        SELECT
+            public."Users"._id,
+            public."Users".username,
+            public."Users"."displayName",
+            public."Votes".power,
+            CASE
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                ELSE 0
+            END AS agreement_value
+        FROM public."Users"
+        INNER JOIN public."Posts" ON public."Users"._id = public."Posts"."userId"
+        INNER JOIN
+            public."Votes"
+            ON public."Posts"._id = public."Votes"."documentId"
+        WHERE
+            public."Votes"."userId" = '${userId}'
+            AND public."Users"._id != '${userId}'
+            AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
+    
+        UNION ALL
+    
+        -- Joining Users with Comments and Votes
+        SELECT
+            public."Users"._id,
+            public."Users".username,
+            public."Users"."displayName",
+            public."Votes".power,
+            CASE
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                ELSE 0
+            END AS agreement_value
+        FROM public."Users"
+        INNER JOIN
+            public."Comments"
+            ON public."Users"._id = public."Comments"."userId"
+        INNER JOIN
+            public."Votes"
+            ON public."Comments"._id = public."Votes"."documentId"
+        WHERE
+            public."Votes"."userId" = '${userId}'
+            AND public."Users"._id != '${userId}'
+            AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
+    )
+    
+    SELECT
+        _id,
+        username,
+        "displayName",
+        SUM(power) AS total_power,
+        ARRAY_AGG(power) AS power_values,
+        COUNT(power) AS vote_counts,
+        SUM(agreement_value) AS total_agreement,
+        ARRAY(
+            SELECT val
+            FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
+            WHERE val != 0
+        ) AS agreement_values
+    FROM "CombinedVotes"
+    GROUP BY _id, username, "displayName"
+    HAVING SUM(power) > 1
+    ORDER BY total_power DESC
+    LIMIT 50;
+      `)
   }
   
   async getPreTopCommentersOfTopCommentedTags(topUsers: DbUser[], topCommentedTags: DbTag[]): Promise<any> {
