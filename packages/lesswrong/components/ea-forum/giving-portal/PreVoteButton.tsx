@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useLocation } from "../../../lib/routeUtil";
+import { useDialog } from "../../common/withDialog";
 import { useCurrentUser } from "../../common/withUser";
 import { useHover } from "../../common/withHover";
 import type { VotingProps } from "../../votes/votingProps";
@@ -24,7 +24,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   classes: ClassesType,
 }) => {
   const {hover, everHovered, anchorEl, eventHandlers} = useHover();
-  const {pathname} = useLocation();
+  const {openDialog} = useDialog();
   const currentUser = useCurrentUser();
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
@@ -40,9 +40,12 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
         currentUser,
       });
     } else {
-      window.location.href = `/auth/auth0?returnTo=${pathname}`;
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      });
     }
-  }, [vote, currentUser, hasVoted, document, pathname]);
+  }, [vote, currentUser, hasVoted, document, openDialog]);
 
   const {LWPopper, ForumIcon} = Components;
   return (
