@@ -78,7 +78,15 @@ describe('Voting', function() {
       const yesterday = new Date().getTime()-(1*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(yesterday)})
       await Posts.rawUpdateOne(post._id, {$set: {inactive: true}}); //Do after creation, since onInsert of inactive sets to false
-      await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user, skipRateLimits: false })
+      /* In the main upstream code, the following line does a smallUpvote, not a smallDownvote. The system causes all
+         post-creators to upvote their own post automatically on creation, and in the upstream code, that's a bigUpvote,
+         so the subsequent smallUpvote is a change that sets inactive to false correctly. Waking Up doesn't have strong
+         votes, so the initial creator vote is already a smallUpvote, so sending a smallUpvote follows a different path
+         that just clears the vote and doesn't set inactive to false.
+           (Maybe that's a bug? Unsetting your vote on a post is probably a meaningful vote that should count for post
+           activity? If so, it should be changed upstream, so this is a reasonable fix for this fork for now.)
+      */
+      await performVoteServer({ documentId: post._id, voteType: 'smallDownvote', collection: Posts, user, skipRateLimits: false })
       const updatedPost = await Posts.find({_id: post._id}).fetch();
 
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(yesterday, 1000);

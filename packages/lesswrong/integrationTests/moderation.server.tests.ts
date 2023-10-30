@@ -212,23 +212,24 @@ describe('User moderation fields --', () => {
     const expectedOutput = { data: { updateUser: {data: { moderationStyle: "easy-going" } } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
-  it("non-trusted users can set their moderationGuidelines", async () => {
-    const user = await createDummyUser()
-    const query = `
-      mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {originalContents: {type: "markdown", data: "blah"}}}) {
-          data {
-            moderationGuidelines {
-              markdown
-            }
-          }
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: {markdown: "blah"} } } } }
-    return (response as any).should.eventually.deep.equal(expectedOutput);
-  });
+  /* Waking Up forum users don't change their moderationGuidelines, so this is commented out */
+  // it("non-trusted users can set their moderationGuidelines", async () => {
+  //   const user = await createDummyUser()
+  //   const query = `
+  //     mutation UsersUpdate {
+  //       updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {originalContents: {type: "markdown", data: "blah"}}}) {
+  //         data {
+  //           moderationGuidelines {
+  //             markdown
+  //           }
+  //         }
+  //       }
+  //     }
+  //   `;
+  //   const response = runQuery(query, {}, {currentUser:user})
+  //   const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: {markdown: "blah"} } } } }
+  //   return (response as any).should.eventually.deep.equal(expectedOutput);
+  // });
   it("non-trusted users can set their moderatorAssistance", async () => {
     const user = await createDummyUser()
     const query = `
@@ -259,23 +260,24 @@ describe('User moderation fields --', () => {
     const expectedOutput = { data: { updateUser: {data: { moderationStyle: "easy-going" } } } }
     return (response as any).should.eventually.deep.equal(expectedOutput);
   });
-  it("trusted users can set their moderationGuidelines", async () => {
-    const user = await createDummyUser({groups:["trustLevel1"]})
-    const query = `
-      mutation UsersUpdate {
-        updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {originalContents: {type: "markdown", data: "blah"}}}) {
-          data {
-            moderationGuidelines {
-              markdown
-            }
-          }
-        }
-      }
-    `;
-    const response = runQuery(query, {}, {currentUser:user})
-    const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: {markdown: "blah"}} } } }
-    return (response as any).should.eventually.deep.equal(expectedOutput);
-  });
+  /* Waking Up forum users don't change their moderationGuidelines, so this is commented out */
+  // it("trusted users can set their moderationGuidelines", async () => {
+  //   const user = await createDummyUser({groups:["trustLevel1"]})
+  //   const query = `
+  //     mutation UsersUpdate {
+  //       updateUser(selector: {_id: "${user._id}"}, data: {moderationGuidelines: {originalContents: {type: "markdown", data: "blah"}}}) {
+  //         data {
+  //           moderationGuidelines {
+  //             markdown
+  //           }
+  //         }
+  //       }
+  //     }
+  //   `;
+  //   const response = runQuery(query, {}, {currentUser:user})
+  //   const expectedOutput = { data: { updateUser: { data: {moderationGuidelines: {markdown: "blah"}} } } }
+  //   return (response as any).should.eventually.deep.equal(expectedOutput);
+  // });
   it("trusted users can set their moderatorAssistance", async () => {
     const user = await createDummyUser({groups:["trustLevel1"]})
     const query = `
