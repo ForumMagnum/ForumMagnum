@@ -51,13 +51,20 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
+  postCount: {
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 1,
+      textDecoration: "underline",
+    },
+  },
 });
 
 const ElectionCandidate = ({candidate, classes}: {
   candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
-  const {name, logoSrc, href, baseScore} = candidate;
+  const {name, logoSrc, href, postCount, baseScore} = candidate;
   return (
     <Link to={href} className={classes.root}>
       <div className={classes.imageContainer}>
@@ -69,6 +76,10 @@ const ElectionCandidate = ({candidate, classes}: {
         </div>
         <div className={classes.preVotes}>
           {baseScore} pre-vote{baseScore === 1 ? "" : "s"}
+          ,{" "}
+          <a href="#" className={classes.postCount}>
+            {postCount} post{postCount === 1 ? "" : "s"}
+          </a>
         </div>
       </div>
     </Link>

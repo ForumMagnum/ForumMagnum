@@ -2,29 +2,14 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import { SquigglyArrowIcon } from "../../icons/squigglyArrow";
+import type { TimelineSpec } from "../../../lib/eaGivingSeason";
 import moment from "moment";
-
-type TimelinePoint = {
-  date: Date,
-  description: string,
-}
-
-type TimelineSpan = {
-  start: Date,
-  end: Date,
-  description: string,
-}
-
-export type TimelineSpec = {
-  start: Date,
-  end: Date,
-  points: TimelinePoint[],
-  spans: TimelineSpan[],
-}
 
 const formatDate = (date: Date) => moment(date).format("MMM D");
 
 const HEIGHT = 54;
+const POINT_OFFSET = 25;
+const MARKER_SIZE = 12;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -58,11 +43,11 @@ const styles = (theme: ThemeType) => ({
   dateMarker: {
     backgroundColor: theme.palette.givingPortal[1000],
     borderRadius: "50%",
-    width: 12,
-    height: 12,
+    width: MARKER_SIZE,
+    height: MARKER_SIZE,
     position: "absolute",
     top: -18,
-    right: "40%",
+    left: POINT_OFFSET - (MARKER_SIZE / 2),
     zIndex: 6,
   },
   span: {
@@ -125,7 +110,7 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
   const positionDate = (date: Date) => ({
     className: classes.date,
     style: {
-      left: `calc(${getDatePercent(date)}% - 25px)`,
+      left: `calc(${getDatePercent(date)}% - ${POINT_OFFSET}px)`,
     },
   });
 

@@ -241,6 +241,7 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly hideDialogueFacilitation: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2739,6 +2740,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
   readonly hideFrontpageBook2020Ad: boolean,
+  readonly hideDialogueFacilitation: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3255,6 +3257,7 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly description: string,
   readonly userId: string,
   readonly postCount: number,
+  readonly tagId: string | null,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
