@@ -85,11 +85,6 @@ const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, 
       terms: {view: "userNotifications"},
     },
     {
-      name: "New Posts",
-      icon: () => (<PostsIcon classes={{root: classes.icon}}/>),
-      terms: {view: 'userNotifications', type: "newPost"},
-    },
-    {
       name: "New Comments",
       icon: () => (<CommentsIcon classes={{root: classes.icon}}/>),
       terms: {view: 'userNotifications', type: "newComment"},
