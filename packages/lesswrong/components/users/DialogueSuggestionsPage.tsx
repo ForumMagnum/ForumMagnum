@@ -5,6 +5,8 @@ import { gql, useQuery, useMutation } from "@apollo/client";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
+import { useCreate } from '../../lib/crud/withCreate';
+import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,6 +34,8 @@ export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
+  const { history } = useNavigation();
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
       GetUsersWhoHaveMadeDialogues
@@ -123,9 +127,41 @@ export const DialogueSuggestionsPage = ({classes}: {
           match: false 
         }
       }
-  })
+    })
   }
 
+  async function createDialogue(title: string, participants: string[]) {
+    console.log({ participants })
+    const createResult = await createPost({
+      data: {
+        title,
+        draft: true,
+        collabEditorDialogue: true,
+        coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
+        shareWithUsers: participants,
+        sharingSettings: {
+          anyoneWithLinkCan: "none",
+          explicitlySharedUsersCan: "edit",
+        },
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: ""
+          }
+        } as AnyBecauseHard
+      },
+    });
+    if (createResult?.data?.createPost?.data) {
+      const post = createResult?.data?.createPost?.data;
+      if (post) {
+        const postId = post._id;
+        const postEditUrl = `/editPost?postId=${postId}`;
+        history.push(postEditUrl);
+      }
+    }
+  }
+
+  if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <p>Loading...</p>;
   if (error || errorChecks) return <p>Error </p>;
 
@@ -156,9 +192,10 @@ export const DialogueSuggestionsPage = ({classes}: {
             <button>Message</button>
             <div>
               {dataChecks &&
-                dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? (
+                dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
                   <span>You match!</span>
-                ) : null}
+                  <button onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </button>
+                </div> : null}
             </div>
           </React.Fragment>
         ))}

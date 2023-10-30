@@ -55,17 +55,11 @@ export const DialogueChecks: DialogueChecksCollection = createCollection({
 
 // TODO!!!: 
 DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck, context: ResolverContext|null): Promise<boolean> => {
-  // You can access only if:
-  // * you have a document with your userId and the targetUserId, and where Check is true 
-
-  const gossippee = document.userId 
-  // check if there is an existing document where gossipper is user, gossippee is targetUser, and Check is true
-
-  return true // (vote.userId===currentUser._id || userIsAdminOrMod(currentUser));
+  // You can only access ones that belong to you
+  return document.userId === user?._id;
 };
 
 addUniversalFields({ collection: DialogueChecks })
-
 ensureIndex(DialogueChecks, { userId: 1, targetUserId: 1 }, { unique: true });
 
 export default DialogueChecks;
