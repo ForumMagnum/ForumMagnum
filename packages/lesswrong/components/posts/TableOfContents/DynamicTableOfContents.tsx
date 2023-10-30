@@ -48,11 +48,6 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, displayToc =
   const sectionData = latestToc ?? {html:null, sections:[], headingsCount:0};
   const displayedTitle = title || (sectionData.headingsCount > 0 ? "Table of Contents" : "")
 
-  // Tables of contents are disabled for Waking Up, so we just return early.
-  // (It'll do less violence to the codebase to intervene here than to remove
-  // the DynamicTableOfContents wrappers around the post forms.)
-  return <>{children}</>;
-
   return <div>
     <DynamicTableOfContentsContext.Provider value={context}>
       <ToCColumn 
