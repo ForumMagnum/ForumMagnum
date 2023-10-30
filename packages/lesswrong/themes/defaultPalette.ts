@@ -499,6 +499,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [200]: "#fcf5f3",
     [500]: "#fef4ef",
     [800]: "#f8e7e2",
+    [900]: "#cda09a",
     [1000]: "#862115",
   },
 
