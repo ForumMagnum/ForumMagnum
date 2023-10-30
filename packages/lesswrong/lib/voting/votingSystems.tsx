@@ -406,6 +406,9 @@ export function getVotingSystems(): VotingSystem[] {
 }
 
 export async function getVotingSystemNameForDocument(document: VoteableType, context: ResolverContext): Promise<string> {
+  if ((document as DbElectionCandidate).electionName) {
+    return "eaDonationElection";
+  }
   if ((document as DbComment).tagId) {
     return "twoAxis";
   }
@@ -414,9 +417,6 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     if (post?.votingSystem) {
       return post.votingSystem;
     }
-  }
-  if ((document as DbElectionCandidate).electionName) {
-    return "eaDonationElection";
   }
   return (document as DbPost)?.votingSystem ?? "default";
 }
