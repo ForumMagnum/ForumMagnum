@@ -12,7 +12,8 @@ defineMutation({
   fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")
-    const id = randomId()
+    const existingCheck = await DialogueChecks.findOne({targetUserId, userId: currentUser._id})
+    const id = existingCheck ? existingCheck._id : randomId()
     const now = new Date()
     await new DialogueChecksRepo().upsertDialogueCheck(id, currentUser._id, targetUserId, checked, now)
     return {
