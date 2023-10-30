@@ -351,6 +351,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       SELECT
         topCommentedTags.name,
         u.username,
+        u."displayName",
         c."userId",
         COUNT(*) AS post_comment_count
       FROM unnest($1::text[]) AS topCommentedTags(name)
@@ -359,7 +360,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       INNER JOIN public."Comments" AS c ON tr."postId" = c."postId"
       INNER JOIN public."Users" AS u ON c."userId" = u._id
       WHERE c."userId" = ANY($2)
-      GROUP BY topCommentedTags.name, c."userId", u.username
+      GROUP BY topCommentedTags.name, c."userId", u.username, u."displayName"
       HAVING COUNT(*) > 15
     `;
   
@@ -373,21 +374,30 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: any[], topUsers: any[]): Promise<any> {
     // Extract data from the preprocessed data
-    const userData = preTopCommentedTagTopUsers.map(user => ({username: user.username, name: user.name, post_comment_count: user.post_comment_count}));
-    const totalPowers = topUsers.map(user => ({username: user.username, total_power: user.total_power}));
+    const userData = preTopCommentedTagTopUsers.map(user => ({
+      username: user.username, 
+      name: user.name, // tag name: make clearer!
+      displayName: user.displayName,
+      post_comment_count: user.post_comment_count
+    }));
+    const totalPowers = topUsers.map(user => ({
+      username: user.username, 
+      total_power: user.total_power
+    }));
   
     const query = `
       SELECT
         subquery.username,
+        subquery."displayName",
         topUsers->>'total_power',
         json_object_agg(
           subquery.name,
           subquery.post_comment_count ORDER BY subquery.post_comment_count DESC
         ) AS tag_comment_counts
       FROM unnest($1::jsonb[]) AS subquery_json,
-          jsonb_to_record(subquery_json) AS subquery(username TEXT, name TEXT, post_comment_count INTEGER)
+          jsonb_to_record(subquery_json) AS subquery(username TEXT, name TEXT, "displayName" TEXT, post_comment_count INTEGER)
       INNER JOIN unnest($2::jsonb[]) AS topUsers ON subquery.username = topUsers->>'username'
-      GROUP BY subquery.username, topUsers->>'total_power'
+      GROUP BY subquery.username, topUsers->>'total_power', subquery."displayName"
       ORDER BY (topUsers->>'total_power')::integer DESC
     `;
   
