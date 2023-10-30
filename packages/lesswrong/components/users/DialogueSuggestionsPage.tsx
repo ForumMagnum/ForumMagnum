@@ -1,21 +1,37 @@
 import React from 'react';
-import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import ConversionHelpers from '@ckeditor/ckeditor5-engine/src/conversion/conversionhelpers';
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-
+    padding: 20,
+    ...commentBodyStyles(theme),
+  },
+  grid: {
+    display: 'grid', 
+    gridTemplateColumns: `130px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 200px) auto`,
+    rowGap: '2px',
+    columnGap: '10px'
+  },
+  header: {
+    margin: 0,
+    marginBottom: 10,
+  },
+  displayName: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   }
 });
 
-
-
-function MyComponent() {
-
+export const DialogueSuggestionsPage = ({classes}: {
+  classes: ClassesType,
+}) => {
+  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
       GetUsersWhoHaveMadeDialogues
@@ -116,20 +132,20 @@ function MyComponent() {
   console.log({ dataChecks })
 
   return (
-    <div style={{ padding: '20px', maxWidth: '500px' }}>
+    <div className={classes.root}>
       <h2>Your top users</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr', gap: '0px' }}>
-        <h3>Display Name</h3>
-        <h3>Total upvotes from you</h3>
-        <h3>Total agreement from you</h3>
-        <h3>Opt-in to dialogue</h3>
-        <h3>Message</h3>
-        <h3>Match</h3>
+      <div className={classes.grid}>
+        <h5 className={classes.header}>Display Name</h5>
+        <h5 className={classes.header}>Upvotes from you</h5>
+        <h5 className={classes.header}>Agreement from you</h5>
+        <h5 className={classes.header}>Opt-in to dialogue</h5>
+        <h5 className={classes.header}>Message</h5>
+        <h5 className={classes.header}>Match</h5>
         {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
           <React.Fragment key={targetUser.displayName + randomId()}>
-            <p style={{ margin: '3px' }}>{targetUser.displayName}</p>
-            <p style={{ margin: '3px' }}>{targetUser.total_power}</p>
-            <p style={{ margin: '3px' }}>{targetUser.total_agreement}</p>
+            <div className={classes.displayName}>{targetUser.displayName}</div>
+            <div>{targetUser.total_power}</div>
+            <div>{targetUser.total_agreement}</div>
             <input 
               type="checkbox" 
               style={{ margin: '0' }} 
@@ -138,21 +154,21 @@ function MyComponent() {
               checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
             />
             <button>Message</button>
-            <p>
+            <div>
               {dataChecks &&
                 dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? (
                   <span>You match!</span>
                 ) : null}
-            </p>
+            </div>
           </React.Fragment>
         ))}
       </div>
 
       {/* <h2>All users who had dialogues</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h3>Display Name</h3>
-        <h3>Opt-in to dialogue</h3>
-        <h3>Message</h3>
+        <h5>Display Name</h5>
+        <h5>Opt-in to dialogue</h5>
+        <h5>Message</h5>
         {[...new Map(data.GetUsersWhoHaveMadeDialogues.dialogueUsers.map(user => [user.displayName, user])).values()].map(user => (
           <React.Fragment key={user.displayName}>
             <p style={{ margin: '3px' }}>{user.displayName}</p>
@@ -164,9 +180,9 @@ function MyComponent() {
 
       {/* <h2>Your top tags</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h3>Tag Name</h3>
-        <h3>Comment Count</h3>
-        <h3>Opt-in to dialogue</h3>
+        <h5>Tag Name</h5>
+        <h5>Comment Count</h5>
+        <h5>Opt-in to dialogue</h5>
         {data.GetUsersWhoHaveMadeDialogues.topCommentedTags.slice(0,20).map(tag => (
           <React.Fragment key={tag.name}>
             <p style={{ margin: '3px' }}>{tag.name}</p>
@@ -178,9 +194,9 @@ function MyComponent() {
 
       {/* <h2>Your top tags top users</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h3>Username</h3>
-        <h3>Total Power</h3>
-        <h3>Tag Comment Counts</h3>
+        <h5>Username</h5>
+        <h5>Total Power</h5>
+        <h5>Tag Comment Counts</h5>
         {data.GetUsersWhoHaveMadeDialogues.topCommentedTagTopUsers.map(user => (
           <React.Fragment key={user.username}>
             <p style={{ margin: '0' }}>{user.username}</p>
@@ -191,17 +207,6 @@ function MyComponent() {
       </div> */}
     </div>
   );
-} 
-
-export const DialogueSuggestionsPage = ({classes}: {
-  classes: ClassesType,
-}) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-
-  return <div className={classes.root}>
-    <MyComponent />
-
-  </div>;
 }
 
 const DialogueSuggestionsPageComponent = registerComponent('DialogueSuggestionsPage', DialogueSuggestionsPage, {styles});
