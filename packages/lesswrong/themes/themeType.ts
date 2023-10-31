@@ -124,6 +124,7 @@ declare global {
       dim45: ColorString,
       dim55: ColorString,
       dim60: ColorString,
+      dim65: ColorString,
       grey: ColorString,
       dim700: ColorString,
       spoilerBlockNotice: ColorString,

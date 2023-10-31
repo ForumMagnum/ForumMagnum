@@ -55,7 +55,8 @@ export const wakingUpTheme: SiteThemeSpecification = {
       primaryAlert: "#3e64bb"
     },
     link: {
-      visited: "#7130a6",
+      unmarked: "#0D5EC9",
+      visited: "#212121",
     },
     background: {
       default: shadePalette.type === 'light' ? '#e5e5e5' : shadePalette.grey[60],

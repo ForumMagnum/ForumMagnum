@@ -53,7 +53,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     fontSize: 13,
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim65,
     cursor: "pointer",
   },
   karma: {

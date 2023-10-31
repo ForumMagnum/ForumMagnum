@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     verticalAlign: "middle",
   },
   read: {
-    color: theme.palette.text.dim55,
+    color: theme.palette.text.dim65,
     '&:hover': {
       color: theme.palette.text.normal,
     }

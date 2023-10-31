@@ -268,7 +268,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     paddingRight: '0.07em'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main,
+    color: theme.palette.link.unmarked,
+    textDecoration: "underline",
     '& u': {
       textDecoration: "none"
     }

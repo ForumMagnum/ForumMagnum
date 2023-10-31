@@ -177,6 +177,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim45: shades.greyAlpha(.45),
     dim55: shades.greyAlpha(.55),
     dim60: shades.greyAlpha(.6),
+    dim65: shades.greyAlpha(.65),
     grey: shades.grey[650],
     spoilerBlockNotice: "#fff",
     notificationCount: shades.greyAlpha(0.6),
