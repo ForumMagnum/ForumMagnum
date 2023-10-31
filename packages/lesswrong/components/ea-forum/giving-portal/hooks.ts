@@ -22,7 +22,7 @@ export const useAmountRaised = () => {
   return {
     showAmountRaised: false,
     raisedForElectionFund: 3720,
-    donationTarget: 15000,
+    donationTarget: 10000,
     totalRaised: 10250,
   };
 }
