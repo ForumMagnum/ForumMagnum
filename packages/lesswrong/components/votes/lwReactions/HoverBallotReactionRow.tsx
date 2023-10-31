@@ -6,6 +6,7 @@ import type { VotingProps } from '../votingProps';
 import sumBy from 'lodash/sumBy';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
+import filter from 'lodash/filter';
 
 const styles = (theme: ThemeType): JssStyles => ({
   hoverBallotEntry: {
@@ -51,7 +52,8 @@ const HoverBallotReactionRow = ({reactionName, quote, usersWhoReacted, classes, 
   commentBodyRef?: React.RefObject<ContentItemBody>|null
 }) => {
   const { ReactionDescription, ReactionIcon, ReactionQuotesHoverInfo } = Components;
-  const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
+  const usersWhoReactedNonInline = filter(usersWhoReacted, r => !(r.quotes?.length));
+  const nonInlineNetReactionCount = sumBy(usersWhoReactedNonInline, r => r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   // Don't show the "general" (non-quote-specific) ballot for this react if all the instances of this react are inline (quote-specific)
@@ -74,7 +76,7 @@ const HoverBallotReactionRow = ({reactionName, quote, usersWhoReacted, classes, 
       {!allReactsAreInline && <Components.ReactOrAntireactVote
         reactionName={reactionName}
         quote={quote}
-        netReactionCount={netReactionCount}
+        netReactionCount={nonInlineNetReactionCount}
         currentUserReaction={getCurrentUserReactionVote(reactionName, quote)}
         setCurrentUserReaction={setCurrentUserReaction}
       />}
