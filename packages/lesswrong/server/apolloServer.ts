@@ -14,7 +14,7 @@ import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from '.
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
-import { ErrorInfo, formatError } from 'apollo-errors';
+import {createError, formatError} from 'apollo-errors'
 
 import * as Sentry from '@sentry/node';
 import express from 'express'
@@ -63,6 +63,22 @@ class ApolloServerLogging {
     };
   }
 }
+
+export const SimpleValidationError = createError(
+  'SimpleValidationError',
+  {
+    message: "Validation error",
+  }
+)
+
+export const AuthorizationError = createError(
+  'AuthorizationError',
+  {
+    message: "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.",
+  }
+)
+
+const whitelistedErrors = ["SimpleValidationError", "AuthorizationError"]
 
 export type AddMiddlewareType = typeof app.use;
 
@@ -118,7 +134,7 @@ export function startWebserver() {
     if (!e?.extensions?.code) return false;
     if (e.extensions.code === 'BAD_USER_INPUT') return false;
     if (e.extensions.code === 'UNAUTHENTICATED') return false;
-    if (e?.extensions?.exception?.name == 'AuthorizationError') return false;
+    if (whitelistedErrors.includes('AuthorizationError')) return false;
 
     return true
   }

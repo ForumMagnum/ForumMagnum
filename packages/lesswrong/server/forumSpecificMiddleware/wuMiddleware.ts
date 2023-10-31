@@ -5,22 +5,14 @@ import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { userFindOneByEmail } from "../commonQueries";
 import request from 'request';
 import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from '../vulcan-lib';
-import { isProduction } from '../../lib/executionEnvironment';
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
-import { createError } from 'apollo-errors';
+import {AuthorizationError} from '../apolloServer'
 
 // This file has middleware for redirecting logged-out users to the login page,
 // but it also manages authentication with the Waking Up app. This latter thing
 // is not actually middleware, but it's useful to use the forumSpecificMiddleware
 // system to manage it.
-
-const AuthorizationError = createError(
-  'AuthorizationError',
-  {
-    message: "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.",
-  }
-)
 
 const authMessageWithEmail = (email: string) => `Sorry, the email ${email} doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.`
 

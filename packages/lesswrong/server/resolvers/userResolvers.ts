@@ -23,6 +23,7 @@ import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDa
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
+import {SimpleValidationError} from '../apolloServer.ts'
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -220,7 +221,7 @@ addGraphQLResolvers({
       // Check for uniqueness
       const existingUser = await Users.findOne({username})
       if (existingUser && existingUser._id !== currentUser._id) {
-        throw new Error('Username already exists')
+        throw new SimpleValidationError({message: "Username is already taken"})
       }
       const updatedUser = (await updateMutator({
         collection: Users,
