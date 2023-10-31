@@ -183,6 +183,7 @@ const documentHelpers = {
   }
 };
 
+// See https://docs.cke-cs.com/api/v5/docs for documentation on ckEditor's api.
 const ckEditorApi = {
   async fetchCkEditorDocumentFromStorage(ckEditorId: string): Promise<DocumentResponse> {
     const rawResult = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
@@ -250,10 +251,16 @@ const ckEditorApi = {
     return await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
   },
 
+  /**
+   * This deletes only the document *contents* from storage, not any associated collaborative session, comments, suggestions, users, etc.
+   */
   async deleteCkEditorCloudStorageDocument(ckEditorId: string) {
     return await fetchCkEditorRestAPI("DELETE", `/storage/${ckEditorId}`);
   },
   
+  /**
+   * This deletes the *entire* document, including any associated collaborative session, comments, suggestions, users, etc.
+   */
   async deleteCkEditorCloudDocument(ckEditorId: string) {
     return await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true&wait=true`);
   },
@@ -365,14 +372,16 @@ const ckEditorApiHelpers = {
     
     // End the collaboration session so that we can restart with new contents
     // To do this we have to delete *both* the document and the collaboration.
-    // (This seems like suspiciously bad API design in CkEditor's REST API, but
+    // (jimrandomh: This seems like suspiciously bad API design in CkEditor's REST API, but
     // I've checked thoroughly and there's no way to just overwrite a
     // collaboration like you'd hope.)
     //
-    // RobertM (2023-10-27): Pretty sure deleting the remote document deletes comments and suggestions.
-    // TODO: test whether that happens, and if so, refactor to use the new fetch + delete + recreate flow.
+    // (RobertM: the above was true as of ckEditor's v4 api.
+    // With the v5 api, you can delete an entire document, along with any associated collaborative session, comments, suggestions, etc.
+    // Unfortunately the part where it does delete comments, suggestions, etc. is undesirable.
+    // So we just flush the session and delete the document *contents* from storage, but it takes two operations.)
     await ckEditorApi.flushCkEditorCollaboration(ckEditorId);
-    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
+    await ckEditorApi.deleteCkEditorCloudStorageDocument(ckEditorId);
     
     // Push the selected revision
     await ckEditorApi.createCollaborativeSession(ckEditorId, html);
@@ -394,5 +403,22 @@ Globals.cke = {
   ...ckEditorApiHelpers,
   ...documentHelpers
 };
+
+// Also generate serverShellCommands that log the output of every function here, rather than just running them.
+// In general this is only useful for GET calls, since ckEditor doesn't often return anything for POST/DELETE/etc operations.
+// This isn't guaranteed to produce sane results in every single case, but seems fine for the things I've tested.
+Globals.cke.log = Object.fromEntries(Object.entries(Globals.cke).map(([key, val]) => {
+  if (typeof val !== 'function') {
+    return [key, val];
+  }
+
+  const withLoggedOutput = async (...args: any[]) => {
+    const result = await val(...args);
+    console.log({ result });
+    return result;
+  };
+
+  return [key, withLoggedOutput];
+}));
 
 export { ckEditorApi, ckEditorApiHelpers, documentHelpers };
