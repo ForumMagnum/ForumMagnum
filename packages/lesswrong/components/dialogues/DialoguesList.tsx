@@ -197,7 +197,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
               <LWTooltip placement="top-start" title={myDialoguesTooltip}>
                 <Link to={"/dialogues"}>
                   <SectionSubtitle className={classes.subheading}>
-                    My Draft Dialogues (Only Visible to Me)
+                    My Dialogues (only visible to you)
                   </SectionSubtitle>
                 </Link>
               </LWTooltip>
