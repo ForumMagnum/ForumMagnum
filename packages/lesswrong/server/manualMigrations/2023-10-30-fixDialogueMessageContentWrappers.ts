@@ -1,6 +1,10 @@
+import merge from 'lodash/merge';
 import { Posts } from '../../lib/collections/posts';
 import Revisions from '../../lib/collections/revisions/collection';
-import { ckEditorApi, documentHelpers } from '../ckEditor/ckEditorApi';
+import { sleep } from '../../lib/helpers';
+import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
+import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { Globals } from '../vulcan-lib';
@@ -43,13 +47,28 @@ function revisionHasContentWrapper(revision: DbRevision) {
 async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml: string) {
   await documentHelpers.saveOrUpdateDocumentRevision(postId, migratedHtml);
 
+  const updatedContent = {
+    content: {
+      use_initial_data: false,
+      data: migratedHtml,
+      bundle_version: ckEditorBundleVersion
+    }
+  };
+
   try {
-    await ckEditorApi.flushCkEditorCollaboration(ckEditorId);
-    await ckEditorApi.deleteCkEditorCloudStorageDocument(ckEditorId);
-    await ckEditorApi.createCollaborativeSession(ckEditorId, migratedHtml);
+    const remoteDocument = await ckEditorApi.fetchCkEditorDocumentFromStorage(ckEditorId);
+    const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
+  
+    //Repeated twice because ckEditor is bad at their jobs. Without this, 
+    //complains about inability to create new session when there's an existing one
+    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
+    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
+
+    await sleep(10000);
+    await ckEditorApiHelpers.createRemoteStorageDocument(newDocumentPayload);
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log('Failed to flush, delete from storage, or recreate session', { err });
+    console.log('Failed to delete remote document from storage', { err });
   }
 }
 
@@ -74,7 +93,7 @@ async function migrateDialogue(dialogue: DbPost) {
 
   const lastRevisionWithoutContentWrapper = revisions.find((revision) => !revisionHasContentWrapper(revision));
   if (!lastRevisionWithoutContentWrapper) {
-    // Do something else
+    // eslint-disable-next-line no-console
     console.log('no lastRevisionWithoutContentWrapper', { postId });
     return;
   }
