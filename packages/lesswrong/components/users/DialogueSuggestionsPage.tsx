@@ -1,5 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useCurrentUser } from '../common/withUser';
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   grid: {
     display: 'grid', 
-    gridTemplateColumns: `130px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 200px) auto`,
+    gridTemplateColumns: `130px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
     rowGap: '2px',
     columnGap: '10px'
   },
@@ -27,12 +27,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
+  },
+  button: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.primary.light,
+    color: 'white'
+  },
+  link: {
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.primary.light,
+    }
   }
 });
 
 export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
 }) => {
+  const { NewConversationButton } = Components;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -175,29 +188,31 @@ export const DialogueSuggestionsPage = ({classes}: {
       <h3>Your top users</h3>
       <div className={classes.grid}>
         <h5 className={classes.header}>Display Name</h5>
+        <h5 className={classes.header}>Opt-in to dialogue</h5>
         <h5 className={classes.header}>Upvotes from you</h5>
         <h5 className={classes.header}>Agreement from you</h5>
-        <h5 className={classes.header}>Opt-in to dialogue</h5>
         <h5 className={classes.header}>Message</h5>
         <h5 className={classes.header}>Match</h5>
         {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
           <React.Fragment key={targetUser.displayName + randomId()}>
             <div className={classes.displayName}>{targetUser.displayName}</div>
-            <div>{targetUser.total_power}</div>
-            <div>{targetUser.total_agreement}</div>
             <input 
               type="checkbox" 
-              style={{ margin: '0' }} 
+              style={{ margin: '0', width: '20px' }} 
               onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
               value={targetUser.displayName} 
               checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
             />
-            <button>Message</button>
+            <div>{targetUser.total_power}</div>
+            <div>{targetUser.total_agreement}</div>
+            {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+                <a data-cy="message">Message</a>
+            </NewConversationButton> </button>}
             <div>
               {dataChecks &&
                 dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
                   <span>You match!</span>
-                  <button onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </button>
+                  <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
                 </div> : null}
             </div>
           </React.Fragment>
