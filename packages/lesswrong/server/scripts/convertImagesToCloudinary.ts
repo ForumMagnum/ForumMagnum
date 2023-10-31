@@ -159,7 +159,7 @@ function getImageUrlsFromImgTag(tag: any): string[] {
   }
   const srcset: string = tag.attr("srcset");
   if (srcset) {
-    const imageVariants = srcset.split(",").map(tok=>tok.trim());
+    const imageVariants = srcset.split(", ").map(tok=>tok.trim());
     for (let imageVariant of imageVariants) {
       const [url, _size] = imageVariant.split(" ").map(tok=>tok.trim());
       if (url) imageUrls.push(url);
@@ -170,7 +170,7 @@ function getImageUrlsFromImgTag(tag: any): string[] {
 }
 
 function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
-  const imageVariants = srcset.split(",").map(tok=>tok.trim());
+  const imageVariants = srcset.split(", ").map(tok=>tok.trim());
   const rewrittenImageVariants = imageVariants.map(variant => {
     let tokens = variant.split(" ");
     if (tokens[0] in urlMap)
