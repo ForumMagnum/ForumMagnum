@@ -2,11 +2,15 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,6 +61,10 @@ export const DialogueSuggestionsPage = ({classes}: {
 }) => {
   const { NewConversationButton, UsersName } = Components;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+
+  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
+  const updateCurrentUser = useUpdateCurrentUser()
+
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
   const { loading, error, data } = useQuery(gql`
@@ -218,10 +226,57 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   console.log({ dataChecks })
 
+  const handleOptInToRevealDialogueChecks = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setOptIn(event.target.checked);
+    void updateCurrentUser({hideDialogueFacilitation: event.target.checked}) // show people they have clicked, but remove component from view upon refresh
+    captureEvent("optInToRevealDialogueChecks", {optIn: event.target.checked})
+    
+    const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
+  
+    // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
+    const webhookURL = "https://hooks.slack.com/triggers/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";
+    const data = {
+      user: userDetailString,
+      abTestGroup: "optIn (no more AB test)",
+    };
+  
+    if (event.target.checked) {
+      try {
+        const response = await fetch(webhookURL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        //eslint-disable-next-line no-console
+        console.error('There was a problem with the fetch operation: ', error);
+      }
+    }
+  };
+
+  const prompt = "Opt-in to allow Lightcone to see your checked users" 
+
   return (
     <div className={classes.root}>
       <h1>Dialogue Reciprocity</h1>
       <p>Blah blah here's how dialogues matchmaking works. LessWrong team looks at metadata analytics</p>
+      <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
+            <FormControlLabel  style={{ paddingLeft: '8px' }}
+              control={
+                <Checkbox
+                  checked={optIn}
+                  onChange={event => handleOptInToRevealDialogueChecks(event)}
+                  name="optIn"
+                  color="primary"
+                  style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
+                />
+              }
+              label={<span className={classes.prompt} >{prompt}</span>}
+            />
+          </div> 
       <br />
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
