@@ -504,26 +504,3 @@ function getUserOrder(modelElement) {
 function getUserDisplayName(modelElement) {
     return (modelElement.getAttribute('display-name') || '').toString();
 }
-
-
-/**
- * @param {Element | Text} userInputElement
- * @param {ModelWriter} writer
- */
-function convertInputToMessageContent(userInputElement, writer) {
-    if (!userInputElement.is('text') && !userInputElement.is('element', 'paragraph')) {
-        return userInputElement;
-    }
-
-    const paragraph = writer.createElement('paragraph');
-
-    if (userInputElement.is('text')) {
-        return userInputElement;
-    }
-
-
-
-    if (userInputElement.is('element', 'paragraph')) {
-        return userInputElement.getChild(0);
-    }
-}
