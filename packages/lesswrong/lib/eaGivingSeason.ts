@@ -2,12 +2,11 @@ export const eaGivingSeason23ElectionName = "givingSeason23";
 
 export const donationElectionLink = "#"; // TODO
 export const setupFundraiserLink = "#"; // TODO
-export const postsAboutElectionLink = "/topics/donation-election"; // TODO
+export const postsAboutElectionLink = "/topics/donation-election-2023";
 
 export const votingOpensDate = new Date("2023-12-01");
 
-// TODO: This tag doesn't exist yet
-export const donationElectionTagId = "L6NqHZkLc4xZ7YtDr";
+export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
 type TimelinePoint = {
