@@ -580,6 +580,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
@@ -612,7 +615,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.collabEditorDialogue && <Row justifyContent="center">
+        {showSubscribeToDialogueButton && <Row justifyContent="center">
           <div className={classes.subscribeToDialogue}>
             <NotifyMeDropdownItem
               document={post}
