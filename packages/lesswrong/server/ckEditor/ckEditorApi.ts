@@ -414,6 +414,7 @@ Globals.cke.log = Object.fromEntries(Object.entries(Globals.cke).map(([key, val]
 
   const withLoggedOutput = async (...args: any[]) => {
     const result = await val(...args);
+    // eslint-disable-next-line no-console
     console.log({ result });
     return result;
   };
