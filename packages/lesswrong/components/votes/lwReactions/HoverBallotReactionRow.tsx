@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
+import type { EmojiReactName, QuoteLocator, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import type { VotingProps } from '../votingProps';
 import sumBy from 'lodash/sumBy';
@@ -42,8 +42,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, commentBodyRef, voteProps}: {
-  reactionName: string,
+const HoverBallotReactionRow = ({reactionName, quote, usersWhoReacted, classes, commentBodyRef, voteProps}: {
+  reactionName: EmojiReactName,
+  quote: QuoteLocator|null,
   usersWhoReacted: UserReactInfo[],
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
@@ -69,16 +70,20 @@ const HoverBallotReactionRow = ({reactionName, usersWhoReacted, classes, comment
           className={classes.hoverBallotReactDescription}
         />
         <Components.UsersWhoReacted usersWhoReacted={usersWhoReacted} wrap showTooltip={false}/>
-
       </div>
       {!allReactsAreInline && <Components.ReactOrAntireactVote
         reactionName={reactionName}
+        quote={quote}
         netReactionCount={netReactionCount}
-        currentUserReaction={getCurrentUserReactionVote(reactionName)}
+        currentUserReaction={getCurrentUserReactionVote(reactionName, quote)}
         setCurrentUserReaction={setCurrentUserReaction}
       />}
     </div>
-    <ReactionQuotesHoverInfo react={reactionName} voteProps={voteProps} commentBodyRef={commentBodyRef}/>
+    <ReactionQuotesHoverInfo
+      react={reactionName} quote={quote}
+      voteProps={voteProps}
+      commentBodyRef={commentBodyRef}
+    />
   </div>
 }
 

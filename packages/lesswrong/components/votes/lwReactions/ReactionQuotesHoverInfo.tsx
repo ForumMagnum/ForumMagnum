@@ -1,5 +1,5 @@
 import React, { ComponentPropsWithoutRef } from 'react';
-import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, NamesAttachedReactionsScore, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { useCurrentUser } from '../../common/withUser';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
@@ -62,19 +62,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
-  react: string, 
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}:{
+  react: EmojiReactName,
+  quote: QuoteLocator|null,
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   classes: ClassesType
 }) => {
   const { ReactOrAntireactVote } = Components;
-  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
-  const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
+  const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};
   const usersWhoReacted = alreadyUsedReactions[react]
 
-  const allQuotesOrUndefined = uniq(usersWhoReacted?.flatMap(r => r.quotes))
+  const allQuotesOrUndefined = quote ? [quote] : uniq(usersWhoReacted?.flatMap(r => r.quotes))
   const allQuotes = filter(allQuotesOrUndefined, q => q !== undefined) as string[]
   
   const quotesWithUsers = allQuotes.map(quote => {
@@ -114,8 +115,9 @@ const ReactionQuotesHoverInfo = ({react, voteProps, commentBodyRef, classes}:{
             </div>
             <ReactOrAntireactVote
               reactionName={react}
-              currentUserReaction={getCurrentUserReactionVote(react)}
+              currentUserReaction={getCurrentUserReactionVote(react, quote)}
               netReactionCount={netQuoteReactionCount}
+              quote={quote}
               setCurrentUserReaction={setCurrentUserQuoteReaction}
             />
           </div>

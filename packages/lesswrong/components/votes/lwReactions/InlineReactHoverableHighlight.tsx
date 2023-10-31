@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import type { NamesAttachedReactionsList } from '../../../lib/voting/namesAttachedReactions';
+import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { HoveredReactionListContext } from './HoveredReactionContextProvider';
@@ -33,7 +33,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const InlineReactHoverableHighlight = ({reactions, voteProps, children, classes}: {
+const InlineReactHoverableHighlight = ({quote,reactions, voteProps, children, classes}: {
+  quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps?: VotingProps<VoteableTypeClient>,
   children: React.ReactNode,
@@ -48,6 +49,7 @@ const InlineReactHoverableHighlight = ({reactions, voteProps, children, classes}
 
   return <LWTooltip
     title={<InlineReactHoverInfo
+      quote={quote}
       reactions={reactions}
       voteProps={voteProps}
     />}
