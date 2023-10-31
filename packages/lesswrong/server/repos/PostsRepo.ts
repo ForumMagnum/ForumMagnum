@@ -219,7 +219,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       FROM (
           SELECT DISTINCT ON (p._id) p.* 
           FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-          WHERE p."collabEditorDialogue" IS TRUE AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+          WHERE p."collabEditorDialogue" IS TRUE 
+          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
       ) dialogues
       ORDER BY "modifiedAt" DESC
       LIMIT $2

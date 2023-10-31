@@ -5,6 +5,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useSingle } from '../../lib/crud/withSingle';
+import { useCurrentUser } from '../common/withUser';
 
 const DialoguesPage = () => {
   const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionFooter, LoadMore } = Components
@@ -20,6 +21,10 @@ const DialoguesPage = () => {
     resolverName: "MyDialogues",
     limit: 10,
   }); 
+
+  const currentUser = useCurrentUser();
+
+  const renderMyDialogues = currentUser && myDialogues?.length
 
   const { document: announcementPost } = useSingle({
     documentId: "kQuSZG8ibfW6fJYmo",
@@ -37,22 +42,22 @@ const DialoguesPage = () => {
 
   return <AnalyticsContext pageContext="DialoguesPage">
     <SingleColumnSection>
-      <AnalyticsContext pageSectionContext="MyDialoguesList">
-        <SectionTitle
-            title={<LWTooltip placement="top-start" title={myDialoguesTooltip}>
-              My Dialogues (Drafts & Published)
-            </LWTooltip>}
-          />
-        {myDialogues?.map((post: PostsListWithVotes, i: number) =>
-          <PostsItem
-            key={post._id} post={post}
-            showBottomBorder={i < myDialogues.length-1}
-          />
-        )}
-        <SectionFooter>
-          <LoadMore {...myDialoguesLoadMoreProps}/>
-        </SectionFooter>
-      </AnalyticsContext>
+      {renderMyDialogues && <AnalyticsContext pageSectionContext="MyDialoguesList">
+          <SectionTitle
+              title={<LWTooltip placement="top-start" title={myDialoguesTooltip}>
+                My Dialogues (Drafts & Published)
+              </LWTooltip>}
+            />
+          {myDialogues?.map((post: PostsListWithVotes, i: number) =>
+            <PostsItem
+              key={post._id} post={post}
+              showBottomBorder={i < myDialogues.length-1}
+            />
+          )}
+          <SectionFooter>
+            <LoadMore {...myDialoguesLoadMoreProps}/>
+          </SectionFooter>
+        </AnalyticsContext>}
 
       <AnalyticsContext pageSectionContext="DialoguesList">
         <SectionTitle

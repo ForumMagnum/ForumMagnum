@@ -336,8 +336,9 @@ createPaginatedResolver({
     {repos, currentUser}: ResolverContext,
     limit: number,
   ): Promise<DbPost[]> => {
-      if (!currentUser) throw new Error("Cannot retrieves dialogues because no user logged in.")
+      if (!currentUser) return []
       return repos.posts.getMyActiveDialogues(currentUser._id, limit)
     },
-  cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
+  // Caching is not user specific, do not use caching here else you will share users' drafts
+  cacheMaxAgeMs: 0, 
 });

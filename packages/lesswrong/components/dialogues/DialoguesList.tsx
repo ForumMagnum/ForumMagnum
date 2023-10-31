@@ -164,13 +164,13 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   });
 
   const dialoguesTooltip = <div>
-    <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
+    <p>Dialogues between a small group of users. Click to see more.</p>
   </div>
 
   const renderMyDialogues = myDialogues?.length 
 
   const myDialoguesTooltip = <div>
-      <div>These are dialogues that you are a coauthor on (including drafts and published dialogues).</div>
+      <div>These are the dialoges you are involved in (both drafts and published)</div>
     </div>
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
