@@ -57,11 +57,6 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
 
   const youCanStillPost = `This will not prevent you from posting, but the mentioned users won't be notified.`
 
-  if (currentUser.conversationsDisabled) return {
-    result: false,
-    reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
-  }
-
   if (karmaThreshold && (currentUser.karma || 0) < karmaThreshold && mentionsCount > 0) {
     return {
       result: false,
@@ -72,6 +67,11 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
   if (mentionsCount > mentionsLimit) return {
     result: false,
     reason: `You can notify ${mentionsLimit} users at most in a single post. ${youCanStillPost}`,
+  }
+
+  if (currentUser.conversationsDisabled) return {
+    result: false,
+    reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
   }
 
   return {result: true}
