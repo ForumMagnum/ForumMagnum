@@ -1,14 +1,15 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import type { TimelineSpec } from "../../../lib/eaGivingSeason";
+import classNames from "classnames";
 import moment from "moment";
 
 const formatDate = (date: Date) => moment.utc(date).format("MMM D");
 
 const HEIGHT = 54;
-const POINT_OFFSET = 25;
 const MARKER_SIZE = 12;
+const DATE_WIDTH = 80;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -21,9 +22,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
     zIndex: 2,
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
   },
   date: {
     color: theme.palette.grey[1000],
@@ -35,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     position: "absolute",
     top: HEIGHT + 11,
+    width: DATE_WIDTH,
   },
   dateDescription: {
     color: theme.palette.givingPortal[1000],
@@ -49,8 +48,8 @@ const styles = (theme: ThemeType) => ({
     width: MARKER_SIZE,
     height: MARKER_SIZE,
     position: "absolute",
-    top: -18,
-    left: POINT_OFFSET - (MARKER_SIZE / 2),
+    top: HEIGHT - (MARKER_SIZE / 2),
+    left: `calc(50% - ${MARKER_SIZE / 2}px)`,
     zIndex: 6,
   },
   span: {
@@ -67,6 +66,10 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     zIndex: 4,
   },
+  spanDate: {
+    width: "100%",
+    left: 0,
+  },
   currentMarker: {
     backgroundColor: theme.palette.givingPortal[1000],
     borderTopLeftRadius: theme.borderRadius.default,
@@ -77,13 +80,27 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const defaultDivisionToPercent = (division: number, divisions: number) =>
+  (division / divisions) * 100;
+
+const formatSpanDates = (startDate: Date, endDate: Date) => {
+  const start = moment(startDate);
+  const end = moment(endDate);
+  const startFormat = start.year() !== end.year() ? "MMM D YYYY" : "MMM D";
+  const endFormat = start.month() !== end.month() ? "MMM D" : "D";
+  return `${start.format(startFormat)} – ${end.format(endFormat)}`;
+}
+
 const Timeline = ({
   start,
   end,
   points,
   spans,
+  divisionToPercent = defaultDivisionToPercent,
+  className,
   classes,
 }: TimelineSpec & {
+  className?: string,
   classes: ClassesType,
 }) => {
   const currentDate = useCurrentTime();
@@ -97,21 +114,46 @@ const Timeline = ({
   const getDatePercent = (date: Date) => {
     const dateMoment = moment(date);
     const division = dateMoment.diff(startMoment, "days");
-    const percent = (division / divisions) * 100;
+    const percent = divisionToPercent(division, divisions);
     return percent < 0 ? 0 : percent > 100 ? 100 : percent;
   }
 
-  const positionDate = (date: Date) => ({
-    className: classes.date,
+  const positionDate = (date: Date) => {
+    const percent = getDatePercent(date);
+    const textAlign: "left" | "right" | undefined =
+      percent < 5
+        ? "left"
+        : percent > 95
+          ? "right"
+          : undefined;
+    return {
+      className: classes.date,
+      style: {
+        textAlign,
+        left: `
+          min(
+            max(
+              calc(${percent}% - ${DATE_WIDTH / 2}px),
+              0px
+            ),
+            calc(100% - ${DATE_WIDTH}px)
+          )
+        `,
+      },
+    };
+  }
+
+  const positionDateMarker = (date: Date) => ({
+    className: classes.dateMarker,
     style: {
-      left: `calc(${getDatePercent(date)}% - ${POINT_OFFSET}px)`,
+      left: `calc(${getDatePercent(date)}% - ${MARKER_SIZE / 2}px)`,
     },
   });
 
   const positionSpan = (start: Date, end: Date) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
-    const width = Math.max(endPercent - startPercent - 2, 2);
+    const width = Math.max(endPercent - startPercent - 1, 2);
     return {
       className: classes.span,
       style: {
@@ -122,17 +164,22 @@ const Timeline = ({
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, className)}>
       {points.map(({date, description}) => (
-        <div {...positionDate(date)} key={description}>
-          <div>{formatDate(date)}</div>
-          <div className={classes.dateDescription}>{description}</div>
-          <div className={classes.dateMarker} />
-        </div>
+        <Fragment key={description}>
+          <div {...positionDate(date)}>
+            <div>{formatDate(date)}</div>
+            <div className={classes.dateDescription}>{description}</div>
+          </div>
+          <div {...positionDateMarker(date)} />
+        </Fragment>
       ))}
       {spans.map(({start, end, description}) => (
         <div {...positionSpan(start, end)} key={description}>
           {description}
+          <div className={classNames(classes.date, classes.spanDate)}>
+            {formatSpanDates(start, end)}
+          </div>
         </div>
       ))}
       {showCurrentDate &&
@@ -148,7 +195,7 @@ const Timeline = ({
 const TimelineComponent = registerComponent(
   "Timeline",
   Timeline,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {
