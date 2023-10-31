@@ -8,6 +8,9 @@ registerFragment(`
     logoSrc
     href
     description
+    tag {
+      ...TagBasicInfo
+    }
     postCount
     baseScore
     score

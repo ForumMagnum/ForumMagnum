@@ -3267,6 +3267,7 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly logoSrc: string,
   readonly href: string,
   readonly description: string,
+  readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,
   readonly score: number,
