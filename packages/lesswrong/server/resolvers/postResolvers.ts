@@ -328,3 +328,16 @@ createPaginatedResolver({
   ): Promise<DbPost[]> => repos.posts.getRecentlyActiveDialogues(limit),
   cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
 });
+
+createPaginatedResolver({
+  name: "MyDialogues",
+  graphQLType: "Post",
+  callback: async (
+    {repos, currentUser}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => {
+      if (!currentUser) throw new Error("Cannot retrieves dialogues because no user logged in.")
+      return repos.posts.getMyActiveDialogues(currentUser._id, limit)
+    },
+  cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
+});

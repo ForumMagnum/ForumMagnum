@@ -57,6 +57,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   prompt: {
     color: theme.palette.lwTertiary.main,
     fontWeight: 645,
+  },
+
+  subheading: {
+    marginTop: '10px',
   }
 });
 
@@ -134,7 +138,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 };
 
 const DialoguesList = ({ classes }: { classes: ClassesType }) => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
+  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
   const [showOptIn, setShowOptIn] = useState(optInStartState);
@@ -142,6 +146,12 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
     resolverName: "RecentlyActiveDialogues",
+    limit: 3,
+  }); 
+
+  const { results: myDialogues } = usePaginatedResolver({
+    fragmentName: "PostsListWithVotes",
+    resolverName: "MyDialogues",
     limit: 3,
   }); 
 
@@ -156,6 +166,12 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const dialoguesTooltip = <div>
     <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
   </div>
+
+  const renderMyDialogues = myDialogues?.length 
+
+  const myDialoguesTooltip = <div>
+      <div>These are dialogues that you are a coauthor on (including drafts and published dialogues).</div>
+    </div>
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -174,6 +190,28 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
+
+      {renderMyDialogues && (
+          <div className={classes.subsection}>
+            <AnalyticsContext pageSubSectionContext="myDialogues">
+              <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+                <Link to={"/dialogues"}>
+                  <SectionSubtitle className={classes.subheading}>
+                    My Draft Dialogues (Only Visible to Me)
+                  </SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              {myDialogues?.map((post, i: number) =>
+                <PostsItem
+                  key={post._id} post={post}
+                  showBottomBorder={i < myDialogues.length-1}
+                />
+              )}
+            </AnalyticsContext>
+          </div>
+        )}
+      
+
    </SingleColumnSection>
   </AnalyticsContext>
 }
