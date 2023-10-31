@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { NewConversationButton } = Components;
+  const { NewConversationButton, UsersName } = Components;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -235,7 +235,7 @@ export const DialogueSuggestionsPage = ({classes}: {
             <h5 className={classes.header}>Match</h5>
             {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
               <React.Fragment key={targetUser.displayName + randomId()}>
-                <div className={classes.displayName}>{targetUser.displayName}</div>
+                <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
                 <input 
                   type="checkbox" 
                   style={{ margin: '0', width: '20px' }} 
