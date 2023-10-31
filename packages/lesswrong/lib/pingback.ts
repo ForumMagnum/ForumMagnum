@@ -62,9 +62,7 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
     reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
   }
 
-  if (karmaThreshold === null) return {result: true}
-
-  if ((currentUser.karma || 0) < karmaThreshold && mentionsCount > 0) {
+  if (karmaThreshold && (currentUser.karma || 0) < karmaThreshold && mentionsCount > 0) {
     return {
       result: false,
       reason: `You must have at least ${karmaThreshold} karma to mention users. ${youCanStillPost}`,
