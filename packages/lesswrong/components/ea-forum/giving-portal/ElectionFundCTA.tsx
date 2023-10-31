@@ -4,6 +4,15 @@ import { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
+  /**
+   * This class is unused.
+   * Don't remove it or everything will break.
+   * It has to be the first class in this object.
+   * I don't have time to debug and this bug is making me nauseous.
+   */
+  unused: {
+    display: "flex",
+  },
   root: {
     display: "flex",
     flexDirection: "column",
