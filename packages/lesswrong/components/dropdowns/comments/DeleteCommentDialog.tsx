@@ -64,14 +64,15 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
     return (
       <LWDialog open={true} onClose={onClose}>
         <DialogTitle>
-          What is your reason for deleting this comment?
+          Are you sure?
         </DialogTitle>
         <DialogContent>
-          <p className={classes.subtitle}><em>
-            (If you delete without a trace, the reason will be sent to the
-            author of the comment privately. Otherwise it will be publicly
-            displayed below the comment.)
-          </em></p>
+          <p className={classes.subtitle}>
+            This comment will be marked as deleted and the username will become Anonymous.
+          </p>
+          <p className={classes.subtitle}>
+            You can add a reason for deleting it, if you want.
+          </p>
           <br/>
           <TextField
             id="comment-menu-item-delete-reason"
@@ -84,9 +85,6 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDelete} className={classes.deleteWithoutTrace}>
-            Delete Without Trace
-          </Button>
           <Button onClick={onClose}>
             Cancel
           </Button>
