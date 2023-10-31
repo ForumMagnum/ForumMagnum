@@ -13,6 +13,7 @@ type DebouncerEventsViewName = never
 type DialogueChecksViewName = never
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
+type ElectionCandidatesViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
@@ -69,6 +70,7 @@ interface ViewTermsByCollectionName {
   DialogueChecks: ViewTermsBase
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
+  ElectionCandidates: ElectionCandidatesViewTerms
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms

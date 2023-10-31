@@ -1,7 +1,7 @@
 // @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
+import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
 
 export default class DialogueCommentBox extends Plugin {
@@ -12,14 +12,17 @@ export default class DialogueCommentBox extends Plugin {
 
 class SimpleBoxUI extends Plugin {
     init() {
+        /**
+         * @type {EditorWithUI}
+         */
         const editor = this.editor;
         const t = editor.t;
 
         // The "dialogueMessageInput" button must be registered among the UI components of the editor
         // to be displayed in the toolbar.
-        editor.ui.componentFactory.add( 'dialogueMessageInput', locale => {
+        editor.ui.componentFactory.add( 'rootParagraphBox', locale => {
             // The state of the button will be bound to the widget command.
-            const command = editor.commands.get( 'insertSimpleBox' );
+            const command = editor.commands.get( 'insertRootParagraphBox' );
 
             // The button will be an instance of ButtonView.
             const buttonView = new ButtonView( locale );
@@ -36,7 +39,7 @@ class SimpleBoxUI extends Plugin {
             buttonView.bind( 'isOn', 'isEnabled' ).to( command, 'value', 'isEnabled' );
 
             // Execute the command when the button is clicked (executed).
-            this.listenTo( buttonView, 'execute', () => editor.execute( 'insertSimpleBox' ) );
+            this.listenTo( buttonView, 'execute', () => editor.execute( 'insertRootParagraphBox' ) );
 
             return buttonView;
         } );
@@ -52,7 +55,7 @@ class SimpleBoxEditing extends Plugin {
         this._defineSchema();
         this._defineConverters();
 
-        this.editor.commands.add( 'insertSimpleBox', new InsertRootParagraphBoxCommand( this.editor ) );
+        this.editor.commands.add( 'insertRootParagraphBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 
         this.editor.keystrokes.set( 'Ctrl+Enter', (evt, cancel) => {
@@ -122,11 +125,18 @@ class SimpleBoxEditing extends Plugin {
             allowContentOf: '$root',
 
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
+            isObject: true
+        });
+
+        schema.register( 'dialogueMessageContent', {
+            allowIn: 'dialogueMessage',
+            allowContentOf: '$root',
+            isLimit: true
         });
 
         const forbiddenMessageChildren = [
             'dialogueMessage',
-            'dialogueMessage',
+            'dialogueMessageInput',
             ...Object.values(FOOTNOTE_ELEMENTS)
         ];
 
@@ -146,6 +156,10 @@ class SimpleBoxEditing extends Plugin {
             }
 
             if (context.endsWith('dialogueMessageInput') && forbiddenInputChilden.includes(childDefinition.name)) {
+                return false;
+            }
+
+            if (context.endsWith('dialogueMessageContent') && forbiddenMessageChildren.includes(childDefinition.name)) {
                 return false;
             }
         });
@@ -238,9 +252,28 @@ class SimpleBoxEditing extends Plugin {
             model: 'dialogueMessage',
             view: messageEditingDowncastViewGenerator
         } );
+
+        // <dialogueMessageContent> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+                classes: 'dialogue-message-content'
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+                classes: 'dialogue-message-content'
+            }
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: messageContentDowncastViewGenerator
+        } );
     }
 }
-
 
 class InsertRootParagraphBoxCommand extends Command {
     execute() {
@@ -296,19 +329,44 @@ class SubmitDialogueMessageCommand extends Command {
 
                 if (dialogueMessageInput.is('element')) {
                     writer.append(dialogueMessage, root);
+
+                    const contentDiv = writer.createElement('dialogueMessageContent');
+
                     const inputContents = Array.from(dialogueMessageInput.getChildren());
                     if (inputContents.length === 0) {
-                        writer.appendElement('paragraph', dialogueMessage);
+                        const paragraph = writer.createElement('paragraph');
+                        writer.append(paragraph, contentDiv);
+                        writer.append(paragraph, dialogueMessage);
                     }
 
-                    Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
-                        writer.append(userInput, dialogueMessage);
+                    inputContents.forEach(userInput => {
+                        const paragraph = writer.createElement('paragraph');
+                        let userInputText = userInput;
+                        let iterations = 0;
+                        while (!userInputText.is('text') && iterations < 5) {
+                            const child = userInputText.getChild(0);
+                            if (child) {
+                                userInputText = child;
+                            } else {
+                                break;
+                            }
+                            iterations++;
+                        }
+
+                        // at this point, userInput should be Text, or something's gone wrong
+                        if (userInputText.is('text')) {
+                            writer.insertText(userInputText.data, paragraph);
+                        }
+                        writer.append(paragraph, contentDiv);
+                        writer.remove(userInput);
                     });
+
+                    writer.append(contentDiv, dialogueMessage);
+
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
                 } else {
-                    writer.insertText(dialogueMessageInput.data, dialogueMessage);
-                    writer.append(dialogueMessage, root);
+                    console.error('dialogueMessageInput is not an element')
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0);
@@ -328,6 +386,7 @@ class SubmitDialogueMessageCommand extends Command {
  * @typedef {import('@ckeditor/ckeditor5-engine').DowncastWriter} DowncastWriter
  * @typedef {Exclude<ReturnType<import('@ckeditor/ckeditor5-engine').Model['document']['getRoot']>, null>} RootElement
  * @typedef {import('@ckeditor/ckeditor5-engine').Element} Element
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/model/text').default} Text
  * @typedef {import('@ckeditor/ckeditor5-engine/src/view/containerelement').default} ContainerElement
  * @typedef {Exclude<Parameters<ReturnType<import('@ckeditor/ckeditor5-engine').Conversion['for']>['elementToElement']>[0], undefined>['view']} ViewElementDefinition
  * @typedef {Extract<ViewElementDefinition, (_0, _1) => ContainerElement>} ContainerElementDefinitionGenerator
@@ -372,6 +431,9 @@ function findMessageInputs(root) {
     const rootChildren = Array.from(root.getChildren());
     // For backwards compatibility, when we didn't have a wrapper around the message inputs
     const rootInputs = rootChildren.filter(child => child.is('element', 'dialogueMessageInput'));
+    /**
+     * @type {Element}
+     */
     const dialogueMessageInputWrapper = rootChildren.find(child => child.is('element', 'dialogueMessageInputWrapper'));
 
     if (!dialogueMessageInputWrapper) return rootInputs;
@@ -434,7 +496,15 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
 
     viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
 
-    return section;
+    return toWidget(section, viewWriter, { hasSelectionHandle: true });
+}
+
+/**
+ * @type {ContainerElementDefinitionGenerator}
+ */
+function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
+    const contentElement = viewWriter.createEditableElement('div', { class: 'dialogue-message-content' });
+    return toWidgetEditable(contentElement, viewWriter);
 }
 
 /**

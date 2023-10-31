@@ -284,6 +284,30 @@ CREATE TABLE "Digests" (
     "legacyData" jsonb
 );
 
+-- Schema for "ElectionCandidates", hash: 62abe24d31b820b73ada023955f0f5b8
+CREATE TABLE "ElectionCandidates" (
+    _id varchar(27) PRIMARY KEY,
+    "electionName" text NOT NULL,
+    "name" text NOT NULL,
+    "logoSrc" text NOT NULL,
+    "href" text NOT NULL,
+    "description" text NOT NULL,
+    "userId" varchar(27) NOT NULL,
+    "postCount" double precision NOT NULL DEFAULT 0,
+    "tagId" varchar(27),
+    "schemaVersion" double precision DEFAULT 1,
+    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "legacyData" jsonb,
+    "voteCount" double precision DEFAULT 0,
+    "baseScore" double precision DEFAULT 0,
+    "extendedScore" jsonb,
+    "score" double precision DEFAULT 0,
+    "inactive" bool,
+    "afBaseScore" double precision,
+    "afExtendedScore" jsonb,
+    "afVoteCount" double precision
+);
+
 -- Schema for "EmailTokens", hash: e5ad1bb9271a861a3a69375cabb71b64
 CREATE TABLE "EmailTokens" (
     _id varchar(27) PRIMARY KEY,
@@ -1047,7 +1071,7 @@ CREATE TABLE "UserTagRels" (
     "legacyData" jsonb
 );
 
--- Schema for "Users", hash: 28b52051adbbce3dec100b42997d7281
+-- Schema for "Users", hash: 5ba2636d560ee7de9037187bab001099
 CREATE TABLE "Users" (
     _id varchar(27) PRIMARY KEY,
     "username" text,
@@ -1140,6 +1164,7 @@ CREATE TABLE "Users" (
     "notificationDebateCommentsOnSubscribedPost" jsonb DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
     "notificationDebateReplies" jsonb DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
     "hideDialogueFacilitation" bool NOT NULL DEFAULT false,
+    "optedInToDialogueFacilitation" bool NOT NULL DEFAULT false,
     "karmaChangeNotifierSettings" jsonb DEFAULT '{"updateFrequency":"daily","timeOfDayGMT":11,"dayOfWeekGMT":"Saturday","showNegativeKarma":false}' ::jsonb,
     "karmaChangeLastOpened" timestamptz,
     "karmaChangeBatchStart" timestamptz,

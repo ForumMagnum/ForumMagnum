@@ -234,6 +234,11 @@ import './collections/postRelations';
 // PostRecommendations
 import './collections/postRecommendations/collection';
 
+// ElectionCandidates
+import './collections/electionCandidates/collection';
+import './collections/electionCandidates/fragments';
+import './collections/electionCandidates/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';

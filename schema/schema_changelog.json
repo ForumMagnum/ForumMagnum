@@ -350,8 +350,18 @@
     "timestamp": "2023-10-26T01:47:47.000Z"
   },
   {
+    "acceptsSchemaHash": "5e28a08c9be1ba704a99a94dab5c4fae",
+    "acceptedByMigration": "20231027T154313.add_election_candidates_collection.ts",
+    "timestamp": "2023-10-27T15:43:13.000Z"
+  },
+  {
     "acceptsSchemaHash": "2e0ba043f057e511aa882172641097b4",
     "acceptedByMigration": "20231027T213216.add_dialoguecheck_collection.ts",
     "timestamp": "2023-10-27T21:32:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8906155f2e34f2b130266760ca58b508",
+    "acceptedByMigration": "20231030T233405.add_Dialogue_OptIn_Field_To_User_Schema.ts",
+    "timestamp": "2023-10-30T23:34:05.000Z"
   }
 ]
