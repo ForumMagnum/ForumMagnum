@@ -28,7 +28,7 @@ const sortOptions: Record<ElectionCandidatesSort, SettingsOption> = {
     label: "Most pre-voted",
   },
   name: {
-    label: "Name",
+    label: "Name A-Z",
   },
   recentlyAdded: {
     label: "Recently added",
