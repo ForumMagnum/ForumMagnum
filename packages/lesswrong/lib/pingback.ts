@@ -1,6 +1,7 @@
 import {PingbackDocument, RouterLocation} from './vulcan-lib'
 import {Posts} from './collections/posts'
 import {Users} from './collections/users/collection'
+import { mentionKarmaThresholdSetting } from './publicSettings'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
@@ -49,12 +50,19 @@ interface ValidationUserPartial {
 }
 
 export const canMention = (currentUser: ValidationUserPartial, mentionsCount: number, {
-  karmaThreshold = 1,
+  karmaThreshold = mentionKarmaThresholdSetting.get(),
   mentionsLimit = 10,
-}: { karmaThreshold?: number, mentionsLimit?: number } = {}): { result: boolean, reason?: string } => {
+}: { karmaThreshold?: number|null, mentionsLimit?: number } = {}): { result: boolean, reason?: string } => {
   if (currentUser.isAdmin) return {result: true}
 
   const youCanStillPost = `This will not prevent you from posting, but the mentioned users won't be notified.`
+
+  if (currentUser.conversationsDisabled) return {
+    result: false,
+    reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
+  }
+
+  if (karmaThreshold === null) return {result: true}
 
   if ((currentUser.karma || 0) < karmaThreshold && mentionsCount > 0) {
     return {
@@ -66,11 +74,6 @@ export const canMention = (currentUser: ValidationUserPartial, mentionsCount: nu
   if (mentionsCount > mentionsLimit) return {
     result: false,
     reason: `You can notify ${mentionsLimit} users at most in a single post. ${youCanStillPost}`,
-  }
-
-  if (currentUser.conversationsDisabled) return {
-    result: false,
-    reason: `Ability to mention users has been disabled for this account. ${youCanStillPost}`,
   }
 
   return {result: true}
