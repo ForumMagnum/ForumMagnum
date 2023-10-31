@@ -18,6 +18,8 @@ type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
+  hideDates?: boolean,
+  hatched?: boolean,
 }
 
 export type TimelineSpec = {
@@ -52,6 +54,13 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-21"),
       end: new Date("2023-11-28"),
       description: "Estimating cost-effectiveness",
+    },
+    {
+      start: new Date("2023-12-01"),
+      end: new Date("2023-12-15"),
+      description: "Vote in the Election",
+      hideDates: true,
+      hatched: true,
     },
   ],
   // We have a lot of events in November and few in December. This function

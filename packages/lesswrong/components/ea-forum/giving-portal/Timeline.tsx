@@ -66,6 +66,17 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     zIndex: 4,
   },
+  spanHatched: {
+    background: `
+      repeating-linear-gradient(
+        110deg,
+        ${theme.palette.givingPortal[800]},
+        ${theme.palette.givingPortal[800]} 2px,
+        ${theme.palette.givingPortal[200]} 2px,
+        ${theme.palette.givingPortal[200]} 8px
+      );
+    `,
+  },
   spanDate: {
     width: "100%",
     left: 0,
@@ -150,12 +161,12 @@ const Timeline = ({
     },
   });
 
-  const positionSpan = (start: Date, end: Date) => {
+  const positionSpan = (start: Date, end: Date, hatched?: boolean) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
     const width = Math.max(endPercent - startPercent - 1, 2);
     return {
-      className: classes.span,
+      className: classNames(classes.span, {[classes.spanHatched]: hatched}),
       style: {
         left: `${startPercent}%`,
         width: `${width}%`,
@@ -174,12 +185,14 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({start, end, description}) => (
-        <div {...positionSpan(start, end)} key={description}>
+      {spans.map(({start, end, description, hideDates, hatched}) => (
+        <div {...positionSpan(start, end, hatched)} key={description}>
           {description}
-          <div className={classNames(classes.date, classes.spanDate)}>
-            {formatSpanDates(start, end)}
-          </div>
+          {!hideDates &&
+            <div className={classNames(classes.date, classes.spanDate)}>
+              {formatSpanDates(start, end)}
+            </div>
+          }
         </div>
       ))}
       {showCurrentDate &&
