@@ -20,6 +20,9 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
     zIndex: 2,
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   date: {
     color: theme.palette.grey[1000],

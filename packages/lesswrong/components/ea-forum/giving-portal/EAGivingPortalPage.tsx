@@ -221,6 +221,11 @@ const styles = (theme: ThemeType) => ({
   sequence: {
     maxWidth: 264,
   },
+  hideOnMobile: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
   mt10: { marginTop: 10 },
   mt20: { marginTop: 20 },
   mt30: { marginTop: 30 },
@@ -330,7 +335,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             It’s Giving Season on the EA Forum. We’re hosting a Donation
             Election along with weekly themes throughout November and December.
           </div>
-          <div className={classNames(classes.h2, classes.mt20)}>Timeline</div>
+          <div className={classNames(
+            classes.h2,
+            classes.mt20,
+            classes.hideOnMobile,
+          )}>
+            Timeline
+          </div>
           <Timeline {...timelineSpec} />
         </div>
         <div className={classes.sectionSplit}>
