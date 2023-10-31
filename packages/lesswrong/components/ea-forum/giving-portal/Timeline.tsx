@@ -84,7 +84,7 @@ const Timeline = ({
   showStartAndEnd?: boolean,
   classes: ClassesType,
 }) => {
-  const currentDate = new Date("2023-11-04") // TODO; // useCurrentTime();
+  const currentDate = useCurrentTime();
   const showCurrentDate = currentDate.getTime() > start.getTime() &&
     currentDate.getTime() < end.getTime();
 
