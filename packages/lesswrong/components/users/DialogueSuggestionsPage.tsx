@@ -95,11 +95,11 @@ export const DialogueSuggestionsPage = ({classes}: {
   //console.log("dataMatchesfor ", currentUser?._id, dataMatches)
 
   
- function updateDatabase(e, targetUserId:string, checkId?:string) {
+ async function updateDatabase(e, targetUserId:string, checkId?:string) {
     console.log({ targetUserId, checkId })
     if (!currentUser) return;
 
-    void upsertDialogueCheck({
+    const response = await upsertDialogueCheck({
       variables: {
         targetUserId: targetUserId, 
         checked: e.target.checked
@@ -141,6 +141,10 @@ export const DialogueSuggestionsPage = ({classes}: {
         }
       }
     })
+    
+    if (response.data.upsertUserDialogueCheck.match) {
+      void handleNewMatchAnonymisedAnalytics()
+    }
   }
 
   async function createDialogue(title: string, participants: string[]) {
