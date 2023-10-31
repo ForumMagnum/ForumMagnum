@@ -1304,4 +1304,3 @@ CREATE TABLE "Votes" (
     "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "legacyData" jsonb
 );
-

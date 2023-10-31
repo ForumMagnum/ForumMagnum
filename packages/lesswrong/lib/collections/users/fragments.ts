@@ -212,6 +212,7 @@ registerFragment(`
 
     hideDialogueFacilitation
     optedInToDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 

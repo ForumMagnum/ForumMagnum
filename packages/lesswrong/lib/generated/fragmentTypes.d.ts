@@ -243,6 +243,7 @@ interface UsersDefaultFragment { // fragment on Users
   },
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
+  readonly revealChecksToAdmins: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2751,6 +2752,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageBook2020Ad: boolean,
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
+  readonly revealChecksToAdmins: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3733,4 +3735,3 @@ interface CollectionNamesByFragmentName {
 }
 
 type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DigestPosts"|"Digests"|"ElectionCandidates"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
-

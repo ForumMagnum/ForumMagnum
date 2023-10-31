@@ -1359,6 +1359,7 @@ interface DbUser extends DbObject {
   }
   hideDialogueFacilitation: boolean
   optedInToDialogueFacilitation: boolean
+  revealChecksToAdmins: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1658,4 +1659,3 @@ interface ObjectsByCollectionName {
   Users: DbUser
   Votes: DbVote
 }
-

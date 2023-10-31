@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -1405,17 +1405,30 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(false)
   },
 
-  optedInToDialogueFacilitation: {
+  revealChecksToAdmins: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
-    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Allow users to reveal their checks for better facilitation",
     ...schemaDefaultValue(false)
   },
+
+  optedInToDialogueFacilitation: {
+        type: Boolean,
+        canRead: [userOwns, 'sunshineRegiment', 'admins'],
+        canCreate: ['members'],
+        canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+        optional: true,
+        nullable: false,
+        hidden: forumTypeSetting.get() !== 'LessWrong',
+        label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+        ...schemaDefaultValue(false)
+      },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
