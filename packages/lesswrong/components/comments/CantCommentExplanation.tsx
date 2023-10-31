@@ -33,7 +33,7 @@ const CantCommentExplanation = ({post, classes}: {
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { userBlockedCommentingReason(currentUser, post, author)}{" "}
       { email && <span>
-        (Questions? Send an email to <a className={classes.emailLink} href={`mailto:${email}`}>{email}</a>)
+        Questions? Send an email to <a className={classes.emailLink} href={`mailto:${email}`}>{email}</a>
       </span> }
     </div>
   );
