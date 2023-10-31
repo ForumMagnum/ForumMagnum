@@ -17,7 +17,8 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "16px",
     width: 360,
-    height: 68,
+    maxWidth: "100%",
+    minHeight: 68,
   },
   rootVoted: {
     backgroundColor: theme.palette.givingPortal[0],
