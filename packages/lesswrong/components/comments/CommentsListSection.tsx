@@ -252,6 +252,7 @@ const CommentsListSection = ({
       { totalComments ? renderTitleComponent() : null }
       <CommentsList
         treeOptions={{
+          highlightDate: highlightDate,
           post: post,
           postPage: true,
           showCollapseButtons: true,
