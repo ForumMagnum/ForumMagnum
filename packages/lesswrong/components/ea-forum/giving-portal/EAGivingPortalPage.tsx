@@ -509,7 +509,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             Load more
           </div>
         </div>
-        <div className={classNames(classes.content, classes.mb100)}>
+        {/* TODO add in these sequences once more of them exist */}
+        {/* <div className={classNames(classes.content, classes.mb100)}>
           <div className={classNames(classes.column, classes.w100)}>
             <div className={classes.h4}>
               Featured reading on Giving season
@@ -525,7 +526,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
             {loadingRelevantSequences && <Loading />}
           </div>
-        </div>
+        </div> */}
       </div>
     </AnalyticsContext>
   );
