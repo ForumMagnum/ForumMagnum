@@ -10,7 +10,7 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
-    color: theme.palette.givingPortal[0],
+    color: theme.palette.givingPortal[1000],
     fontSize: 20,
     "&:hover": {
       opacity: 0.5,

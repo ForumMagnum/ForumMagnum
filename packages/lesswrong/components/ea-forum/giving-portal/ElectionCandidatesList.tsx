@@ -17,14 +17,15 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "16px",
     rowGap: "12px",
+    maxWidth: "100%",
   },
   dropdown: {
     "& .ForumDropdownMultiselect-button": {
-      color: theme.palette.givingPortal[0],
+      color: theme.palette.givingPortal[1000],
       backgroundColor: theme.palette.givingPortal[500],
       "&:hover": {
-        backgroundColor: theme.palette.grey[250],
-        color: theme.palette.grey[1000],
+        color: theme.palette.givingPortal[1000],
+        backgroundColor: theme.palette.givingPortal[0],
       },
     },
   },

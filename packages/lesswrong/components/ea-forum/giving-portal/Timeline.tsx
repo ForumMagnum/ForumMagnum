@@ -1,15 +1,15 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import { SquigglyArrowIcon } from "../../icons/squigglyArrow";
 import type { TimelineSpec } from "../../../lib/eaGivingSeason";
+import classNames from "classnames";
 import moment from "moment";
 
-const formatDate = (date: Date) => moment(date).format("MMM D");
+const formatDate = (date: Date) => moment.utc(date).format("MMM D");
 
 const HEIGHT = 54;
-const POINT_OFFSET = 25;
 const MARKER_SIZE = 12;
+const DATE_WIDTH = 80;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,6 +18,7 @@ const styles = (theme: ThemeType) => ({
     height: HEIGHT,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.givingPortal[200],
+    borderBottom: `2px solid ${theme.palette.givingPortal[1000]}`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
     zIndex: 2,
@@ -31,7 +32,8 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     whiteSpace: "nowrap",
     position: "absolute",
-    top: HEIGHT + 8,
+    top: HEIGHT + 11,
+    width: DATE_WIDTH,
   },
   dateDescription: {
     color: theme.palette.givingPortal[1000],
@@ -46,17 +48,18 @@ const styles = (theme: ThemeType) => ({
     width: MARKER_SIZE,
     height: MARKER_SIZE,
     position: "absolute",
-    top: -18,
-    left: POINT_OFFSET - (MARKER_SIZE / 2),
+    top: HEIGHT - (MARKER_SIZE / 2),
+    left: `calc(50% - ${MARKER_SIZE / 2}px)`,
     zIndex: 6,
   },
   span: {
-    backgroundColor: theme.palette.givingPortal[500],
+    backgroundColor: theme.palette.givingPortal[800],
     color: theme.palette.givingPortal[1000],
     fontSize: 14,
     fontWeight: 600,
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     textAlign: "center",
     padding: "0 14px",
     position: "absolute",
@@ -64,32 +67,52 @@ const styles = (theme: ThemeType) => ({
     height: "100%",
     zIndex: 4,
   },
+  spanHatched: {
+    background: `
+      repeating-linear-gradient(
+        110deg,
+        ${theme.palette.givingPortal[800]},
+        ${theme.palette.givingPortal[800]} 2px,
+        ${theme.palette.givingPortal[200]} 2px,
+        ${theme.palette.givingPortal[200]} 8px
+      );
+    `,
+  },
+  spanDate: {
+    width: "100%",
+    left: 0,
+  },
   currentMarker: {
     backgroundColor: theme.palette.givingPortal[1000],
     borderTopLeftRadius: theme.borderRadius.default,
-    borderBottomLeftRadius: theme.borderRadius.default,
     position: "absolute",
     top: 0,
-    height: "100%",
+    height: 8,
     zIndex: 8,
-  },
-  youAreHere: {
-    color: theme.palette.givingPortal[1000],
-    fontSize: 14,
-    fontWeight: 600,
-    whiteSpace: "nowrap",
-    position: "absolute",
-    top: HEIGHT + 40,
-  },
-  arrow: {
-    color: theme.palette.givingPortal[1000],
-    position: "absolute",
-    top: HEIGHT + 6,
-    right: -8,
   },
 });
 
-const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
+const defaultDivisionToPercent = (division: number, divisions: number) =>
+  (division / divisions) * 100;
+
+const formatSpanDates = (startDate: Date, endDate: Date) => {
+  const start = moment(startDate);
+  const end = moment(endDate);
+  const startFormat = start.year() !== end.year() ? "MMM D YYYY" : "MMM D";
+  const endFormat = start.month() !== end.month() ? "MMM D" : "D";
+  return `${start.format(startFormat)} – ${end.format(endFormat)}`;
+}
+
+const Timeline = ({
+  start,
+  end,
+  points,
+  spans,
+  divisionToPercent = defaultDivisionToPercent,
+  className,
+  classes,
+}: TimelineSpec & {
+  className?: string,
   classes: ClassesType,
 }) => {
   const currentDate = useCurrentTime();
@@ -103,55 +126,90 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
   const getDatePercent = (date: Date) => {
     const dateMoment = moment(date);
     const division = dateMoment.diff(startMoment, "days");
-    const percent = (division / divisions) * 100;
+    const percent = divisionToPercent(division, divisions);
     return percent < 0 ? 0 : percent > 100 ? 100 : percent;
   }
 
-  const positionDate = (date: Date) => ({
-    className: classes.date,
+  const positionDate = (date: Date) => {
+    const percent = getDatePercent(date);
+    const textAlign: "left" | "right" | undefined =
+      percent < 5
+        ? "left"
+        : percent > 95
+          ? "right"
+          : undefined;
+    return {
+      className: classes.date,
+      style: {
+        textAlign,
+        left: `
+          min(
+            max(
+              calc(${percent}% - ${DATE_WIDTH / 2}px),
+              0px
+            ),
+            calc(100% - ${DATE_WIDTH}px)
+          )
+        `,
+      },
+    };
+  }
+
+  const positionDateMarker = (date: Date) => ({
+    className: classes.dateMarker,
     style: {
-      left: `calc(${getDatePercent(date)}% - ${POINT_OFFSET}px)`,
+      left: `calc(${getDatePercent(date)}% - ${MARKER_SIZE / 2}px)`,
     },
   });
 
-  const positionSpan = (start: Date, end: Date) => {
+  const positionSpan = (
+    start: Date,
+    end: Date,
+    consecutive?: boolean,
+    hatched?: boolean,
+  ) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
+    const endOffset = consecutive ? 1 : 0;
+    const width = Math.max(endPercent - startPercent - endOffset, 2);
     return {
-      className: classes.span,
+      className: classNames(classes.span, {[classes.spanHatched]: hatched}),
       style: {
         left: `${startPercent}%`,
-        width: `${endPercent - startPercent}%`,
+        width: `${width}%`,
       },
     };
   }
 
   return (
-    <div className={classes.root}>
-      <div {...positionDate(start)}>{formatDate(start)}</div>
-      <div {...positionDate(end)}>{formatDate(end)}</div>
+    <div className={classNames(classes.root, className)}>
       {points.map(({date, description}) => (
-        <div {...positionDate(date)} key={description}>
-          <div>{formatDate(date)}</div>
-          <div className={classes.dateDescription}>{description}</div>
-          <div className={classes.dateMarker} />
-        </div>
+        <Fragment key={description}>
+          <div {...positionDate(date)}>
+            <div>{formatDate(date)}</div>
+            <div className={classes.dateDescription}>{description}</div>
+          </div>
+          <div {...positionDateMarker(date)} />
+        </Fragment>
       ))}
-      {spans.map(({start, end, description}) => (
-        <div {...positionSpan(start, end)} key={description}>
+      {spans.map(({start, end, description, consecutive, hideDates, hatched}) => (
+        <div
+          {...positionSpan(start, end, consecutive, hatched)}
+          key={description}
+        >
           {description}
+          {!hideDates &&
+            <div className={classNames(classes.date, classes.spanDate)}>
+              {formatSpanDates(start, end)}
+            </div>
+          }
         </div>
       ))}
       {showCurrentDate &&
         <div
           className={classes.currentMarker}
           style={{width: `${getDatePercent(currentDate)}%`}}
-        >
-          <div className={classes.youAreHere}>You are here</div>
-          <div className={classes.arrow}>
-            <SquigglyArrowIcon />
-          </div>
-        </div>
+        />
       }
     </div>
   );
@@ -160,7 +218,7 @@ const Timeline = ({start, end, points, spans, classes}: TimelineSpec & {
 const TimelineComponent = registerComponent(
   "Timeline",
   Timeline,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

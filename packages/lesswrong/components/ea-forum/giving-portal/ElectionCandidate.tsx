@@ -10,18 +10,19 @@ const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    backgroundColor: theme.palette.givingPortal[800],
+    backgroundColor: theme.palette.givingPortal[500],
     borderRadius: theme.borderRadius.default,
     padding: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[0],
+    color: theme.palette.givingPortal[1000],
     display: "flex",
     gap: "16px",
     width: 360,
-    height: 68,
+    maxWidth: "100%",
+    minHeight: 68,
   },
   rootVoted: {
-    backgroundColor: theme.palette.givingPortal[700],
+    backgroundColor: theme.palette.givingPortal[0],
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,

@@ -452,7 +452,7 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
-    givingPortal: Record<0 | 100 | 200 | 500 | 700 | 800 | 1000, ColorString>,
+    givingPortal: Record<0 | 200 | 500 | 800 | 900 | 1000, ColorString>,
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
