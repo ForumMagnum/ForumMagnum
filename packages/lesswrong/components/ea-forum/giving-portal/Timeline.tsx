@@ -59,6 +59,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     textAlign: "center",
     padding: "0 14px",
     position: "absolute",
@@ -161,10 +162,16 @@ const Timeline = ({
     },
   });
 
-  const positionSpan = (start: Date, end: Date, hatched?: boolean) => {
+  const positionSpan = (
+    start: Date,
+    end: Date,
+    consecutive?: boolean,
+    hatched?: boolean,
+  ) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
-    const width = Math.max(endPercent - startPercent - 1, 2);
+    const endOffset = consecutive ? 1 : 0;
+    const width = Math.max(endPercent - startPercent - endOffset, 2);
     return {
       className: classNames(classes.span, {[classes.spanHatched]: hatched}),
       style: {
@@ -185,8 +192,11 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({start, end, description, hideDates, hatched}) => (
-        <div {...positionSpan(start, end, hatched)} key={description}>
+      {spans.map(({start, end, description, consecutive, hideDates, hatched}) => (
+        <div
+          {...positionSpan(start, end, consecutive, hatched)}
+          key={description}
+        >
           {description}
           {!hideDates &&
             <div className={classNames(classes.date, classes.spanDate)}>

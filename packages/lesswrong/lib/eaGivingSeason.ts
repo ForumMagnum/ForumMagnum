@@ -18,6 +18,7 @@ type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
+  consecutive?: boolean,
   hideDates?: boolean,
   hatched?: boolean,
 }
@@ -44,16 +45,19 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
       description: "Effective giving spotlight",
+      consecutive: true,
     },
     {
       start: new Date("2023-11-14"),
       end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
+      consecutive: true,
     },
     {
       start: new Date("2023-11-21"),
       end: new Date("2023-11-28"),
       description: "Estimating cost-effectiveness",
+      consecutive: true,
     },
     {
       start: new Date("2023-12-01"),
