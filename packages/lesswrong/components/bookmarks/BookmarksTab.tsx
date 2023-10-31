@@ -10,8 +10,9 @@ export const BookmarksTab = () => {
 
   return <AnalyticsContext pageSectionContext="bookmarksTab">
     <BookmarksList/>
-    <SectionTitle title="Continue Reading"/>
-    <ContinueReadingList continueReading={continueReading}/>
+    {continueReading?.length > 0 && <><SectionTitle title="Continue Reading"/>
+      <ContinueReadingList continueReading={continueReading}/>
+    </>}
   </AnalyticsContext>
 }
 
