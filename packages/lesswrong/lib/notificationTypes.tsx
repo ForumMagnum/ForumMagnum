@@ -491,7 +491,7 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
     return `${name} added you as a coauthor to the ${postOrDialogue} "${document.title}"`;
   },
   getIcon() {
-    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+    return <GroupAddIcon style={iconStyles} />
   },
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
