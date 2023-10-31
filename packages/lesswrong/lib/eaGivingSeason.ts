@@ -1,14 +1,31 @@
+import moment from "moment";
+
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
 export const donationElectionLink = "#"; // TODO
 export const setupFundraiserLink = "#"; // TODO
-export const postsAboutElectionLink = "/topics/donation-election"; // TODO
+export const postsAboutElectionLink = "/topics/donation-election-2023";
 
 export const votingOpensDate = new Date("2023-12-01");
 
-// TODO: This tag doesn't exist yet
-export const donationElectionTagId = "L6NqHZkLc4xZ7YtDr";
+export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
+
+const votingAccountCreationCutoff = new Date("2023-10-23");
+
+const userCanVoteInDonationElection = (
+  user: UsersCurrent | DbUser | null,
+) =>
+  !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime();
+
+export const assertUserCanVoteInDonationElection = (
+  user: UsersCurrent | DbUser | null,
+) => {
+  if (!userCanVoteInDonationElection(user)) {
+    const date = moment(votingAccountCreationCutoff).format("Do MMMM YYYY");
+    throw new Error(`To vote in this election your account must be created before ${date}`);
+  }
+}
 
 type TimelinePoint = {
   date: Date,
@@ -19,6 +36,9 @@ type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
+  consecutive?: boolean,
+  hideDates?: boolean,
+  hatched?: boolean,
 }
 
 export type TimelineSpec = {
@@ -43,27 +63,46 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
       description: "Effective giving spotlight",
+      consecutive: true,
     },
     {
       start: new Date("2023-11-14"),
       end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
+      consecutive: true,
     },
     {
       start: new Date("2023-11-21"),
       end: new Date("2023-11-28"),
       description: "Estimating cost-effectiveness",
+      consecutive: true,
+    },
+    {
+      start: new Date("2023-12-01"),
+      end: new Date("2023-12-15"),
+      description: "Vote in the Election",
+      hideDates: true,
+      hatched: true,
     },
   ],
   // We have a lot of events in November and few in December. This function
-  // allows us to space out Novemeber to use 75% of the timeline and only give
-  // 25% to December.
+  // allows us to space out Novemeber to use most of the timeline and only give
+  // what's left to December. A point `inputSplit` along the timeline will be
+  // linearly mapped to `outputSplit`, with points after `inputSplit` being
+  // squeezed linearly into the remaining space.
+  // This could almost certainly be simplified, but it's too late in the day
+  // for algebra.
   divisionToPercent: (division: number, divisions: number) => {
-    const halfWay = divisions / 2;
+    const inputSplit = 0.5;
+    const outputSplit = 0.65;
+    const multiplier = (100 / inputSplit) * outputSplit;
+    const halfWay = divisions * inputSplit;
     if (division < halfWay) {
-      return (division / divisions) * 150;
+      return (division / divisions) * multiplier;
     } else {
-      return 75 + (((division - halfWay) / divisions) * 50);
+      const multiplier2 = (100 / inputSplit) * (1 - outputSplit);
+      return ((halfWay / divisions) * multiplier) +
+        (((division - halfWay) / divisions) * multiplier2);
     }
   },
 };

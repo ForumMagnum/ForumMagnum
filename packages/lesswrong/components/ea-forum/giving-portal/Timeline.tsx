@@ -59,12 +59,24 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     textAlign: "center",
     padding: "0 14px",
     position: "absolute",
     top: 0,
     height: "100%",
     zIndex: 4,
+  },
+  spanHatched: {
+    background: `
+      repeating-linear-gradient(
+        110deg,
+        ${theme.palette.givingPortal[800]},
+        ${theme.palette.givingPortal[800]} 2px,
+        ${theme.palette.givingPortal[200]} 2px,
+        ${theme.palette.givingPortal[200]} 8px
+      );
+    `,
   },
   spanDate: {
     width: "100%",
@@ -150,12 +162,18 @@ const Timeline = ({
     },
   });
 
-  const positionSpan = (start: Date, end: Date) => {
+  const positionSpan = (
+    start: Date,
+    end: Date,
+    consecutive?: boolean,
+    hatched?: boolean,
+  ) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
-    const width = Math.max(endPercent - startPercent - 1, 2);
+    const endOffset = consecutive ? 1 : 0;
+    const width = Math.max(endPercent - startPercent - endOffset, 2);
     return {
-      className: classes.span,
+      className: classNames(classes.span, {[classes.spanHatched]: hatched}),
       style: {
         left: `${startPercent}%`,
         width: `${width}%`,
@@ -174,12 +192,17 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({start, end, description}) => (
-        <div {...positionSpan(start, end)} key={description}>
+      {spans.map(({start, end, description, consecutive, hideDates, hatched}) => (
+        <div
+          {...positionSpan(start, end, consecutive, hatched)}
+          key={description}
+        >
           {description}
-          <div className={classNames(classes.date, classes.spanDate)}>
-            {formatSpanDates(start, end)}
-          </div>
+          {!hideDates &&
+            <div className={classNames(classes.date, classes.spanDate)}>
+              {formatSpanDates(start, end)}
+            </div>
+          }
         </div>
       ))}
       {showCurrentDate &&
