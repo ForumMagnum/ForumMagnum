@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useVote } from "../../votes/withVote";
 import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
+import { donationElectionTagId } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 
 const imageSize = 52;
@@ -99,6 +100,7 @@ const ElectionCandidate = ({candidate, classes}: {
 
   const preVoteCountString = `${preVoteCount} pre-vote${preVoteCount === 1 ? "" : "s"}`;
   const postCountString = `${postCount} post${postCount === 1 ? "" : "s"}`;
+  const postsLink = `/search?query=&tags[0]=${donationElectionTagId}&tags[1]=${tag?._id}`;
 
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
@@ -130,7 +132,7 @@ const ElectionCandidate = ({candidate, classes}: {
                 placement="bottom"
                 popperClassName={classes.tooltip}
               >
-                <a href="#" className={classes.postCount}>
+                <a href={postsLink} className={classes.postCount}>
                   {postCountString}
                 </a>
               </LWTooltip>
