@@ -22,6 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
   image: {
     width: 100,
+    color: theme.palette.givingPortal[1000],
   },
   title: {
     fontSize: 28,
