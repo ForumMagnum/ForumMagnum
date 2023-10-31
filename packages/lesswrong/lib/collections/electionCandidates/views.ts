@@ -24,7 +24,7 @@ declare global {
 const createSort = (sort?: string) => {
   switch (sort) {
   case "mostPreVoted":
-    return {baseScore: -1, createdAt: -1};
+    return {"extendedScore.preVoteCount": -1, createdAt: -1};
   case "name":
     return {name: 1};
   case "recentlyAdded":
