@@ -353,5 +353,10 @@
     "acceptsSchemaHash": "5e28a08c9be1ba704a99a94dab5c4fae",
     "acceptedByMigration": "20231027T154313.add_election_candidates_collection.ts",
     "timestamp": "2023-10-27T15:43:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "78e606840d83dfa8b862129cc0788620",
+    "acceptedByMigration": "20231031T011454.add_field_for_optin_to_reveal_checks.ts",
+    "timestamp": "2023-10-31T01:14:54.000Z"
   }
 ]

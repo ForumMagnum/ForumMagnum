@@ -211,6 +211,7 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     hideDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 

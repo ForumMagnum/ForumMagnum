@@ -113,5 +113,6 @@ module.exports = {
     schemaVersion: 1,
     afCommentCount: 0,
     commentCount: 0,
-    hideDialogueFacilitation: false
+    hideDialogueFacilitation: false,
+    revealChecksToAdmins: false,
 }
