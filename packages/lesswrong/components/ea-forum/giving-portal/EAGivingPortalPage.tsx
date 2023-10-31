@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -270,7 +271,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
   } = useDonationOpportunities();
-
+  const {document: donationElectionTag} = useSingle({
+    documentId: donationElectionTagId,
+    collectionName: "Tags",
+    fragmentName: "TagBasicInfo",
+  });
   const {
     results: relevantSequences,
     loading: loadingRelevantSequences,
@@ -381,7 +386,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                     to={postsAboutElectionLink}
                     className={classes.underlinedLink}
                   >
-                    View 14 posts about the Election
+                    View {donationElectionTag?.postCount} posts about the Election
                   </Link>
                 </ElectionFundCTA>
                 <ElectionFundCTA
