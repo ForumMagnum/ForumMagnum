@@ -13,7 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 20,
     ...commentBodyStyles(theme),
   },
-  grid: {
+  matchContainer: {
+    maxWidth: 700,
+    padding: 20,
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 5,
+  },
+  matchContainerGrid: {
     display: 'grid', 
     gridTemplateColumns: `130px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
     rowGap: '2px',
@@ -39,7 +45,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       color: theme.palette.primary.light,
     }
-  }
+  },
+  rootFlex: {
+    display: 'flex'
+  },
+  
 });
 
 export const DialogueSuggestionsPage = ({classes}: {
@@ -211,40 +221,44 @@ export const DialogueSuggestionsPage = ({classes}: {
   return (
     <div className={classes.root}>
       <h1>Dialogue Reciprocity</h1>
-        <p>Blah blah here's how dialogues matchmaking works. LessWrong team looks at metadata analytics</p>
-        <br />
-      <h3>Your top users</h3>
-      <div className={classes.grid}>
-        <h5 className={classes.header}>Display Name</h5>
-        <h5 className={classes.header}>Opt-in to dialogue</h5>
-        <h5 className={classes.header}>Upvotes from you</h5>
-        <h5 className={classes.header}>Agreement from you</h5>
-        <h5 className={classes.header}>Message</h5>
-        <h5 className={classes.header}>Match</h5>
-        {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
-          <React.Fragment key={targetUser.displayName + randomId()}>
-            <div className={classes.displayName}>{targetUser.displayName}</div>
-            <input 
-              type="checkbox" 
-              style={{ margin: '0', width: '20px' }} 
-              onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
-              value={targetUser.displayName} 
-              checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
-            />
-            <div>{targetUser.total_power}</div>
-            <div>{targetUser.total_agreement}</div>
-            {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                <a data-cy="message">Message</a>
-            </NewConversationButton> </button>}
-            <div>
-              {dataChecks &&
-                dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                  <span>You match!</span>
-                  <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                </div> : null}
-            </div>
-          </React.Fragment>
-        ))}
+      <p>Blah blah here's how dialogues matchmaking works. LessWrong team looks at metadata analytics</p>
+      <br />
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Your top users</h3>
+          <div className={classes.matchContainerGrid}>
+            <h5 className={classes.header}>Display Name</h5>
+            <h5 className={classes.header}>Opt-in to dialogue</h5>
+            <h5 className={classes.header}>Upvotes from you</h5>
+            <h5 className={classes.header}>Agreement from you</h5>
+            <h5 className={classes.header}>Message</h5>
+            <h5 className={classes.header}>Match</h5>
+            {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
+              <React.Fragment key={targetUser.displayName + randomId()}>
+                <div className={classes.displayName}>{targetUser.displayName}</div>
+                <input 
+                  type="checkbox" 
+                  style={{ margin: '0', width: '20px' }} 
+                  onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
+                  value={targetUser.displayName} 
+                  checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
+                />
+                <div>{targetUser.total_power}</div>
+                <div>{targetUser.total_agreement}</div>
+                {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+                    <a data-cy="message">Message</a>
+                </NewConversationButton> </button>}
+                <div>
+                  {dataChecks &&
+                    dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
+                      <span>You match!</span>
+                      <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
+                    </div> : null}
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* <h2>All users who had dialogues</h2>

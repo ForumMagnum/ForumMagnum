@@ -3294,6 +3294,7 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly targetUserId: string,
   readonly checked: boolean,
   readonly checkedAt: Date,
+  readonly match: boolean,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

@@ -7,5 +7,6 @@ registerFragment(`
     targetUserId
     checked
     checkedAt
+    match
   }
 `);
