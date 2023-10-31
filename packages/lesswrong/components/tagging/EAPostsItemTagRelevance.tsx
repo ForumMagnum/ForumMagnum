@@ -61,7 +61,7 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
 
   const onVote = (voteType: string, isVoted: boolean) => async () => {
     if (currentUser && canVote) {
-      vote({
+      await vote({
         document,
         voteType: isVoted ? "neutral" : voteType,
         currentUser,
