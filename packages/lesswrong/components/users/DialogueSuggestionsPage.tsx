@@ -174,6 +174,30 @@ export const DialogueSuggestionsPage = ({classes}: {
     }
   }
 
+  async function handleNewMatchAnonymisedAnalytics() {
+    captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
+
+    // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
+    const webhookURL = "https://hooks.slack.com/triggers/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";
+    const data = { // Not sending any data for now
+    };
+  
+    try {
+      const response = await fetch(webhookURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('There was a problem with the fetch operation: ', error);
+    }
+    
+  }
+
   if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <p>Loading...</p>;
   if (error || errorChecks) return <p>Error </p>;
