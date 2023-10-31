@@ -19,7 +19,14 @@ const styles = (theme: ThemeType) => ({
     rowGap: "12px",
   },
   dropdown: {
-    color: theme.palette.givingPortal[0],
+    "& .ForumDropdownMultiselect-button": {
+      color: theme.palette.givingPortal[0],
+      backgroundColor: theme.palette.givingPortal[500],
+      "&:hover": {
+        backgroundColor: theme.palette.grey[250],
+        color: theme.palette.grey[1000],
+      },
+    },
   },
 });
 
