@@ -99,7 +99,7 @@ const PostsVoteDefault = ({
       [classes.voteBlockHorizontal]: useHorizontalLayout,
     })}>
       <Tooltip
-        title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
         classes={{tooltip: classes.tooltip}}
       >
@@ -156,7 +156,7 @@ const PostsVoteDefault = ({
         }
       </div>
       <Tooltip
-        title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
         classes={{tooltip: classes.tooltip}}
       >
