@@ -1,12 +1,15 @@
 import { useMulti } from "../../../lib/crud/withMulti";
 import { eaGivingSeason23ElectionName } from "../../../lib/eaGivingSeason";
 
-export const useElectionCandidates = () => {
+export const useElectionCandidates = (
+  sortBy: ElectionCandidatesSort = "mostPreVoted",
+) => {
   return useMulti({
     collectionName: "ElectionCandidates",
     fragmentName: "ElectionCandidateBasicInfo",
     terms: {
       electionName: eaGivingSeason23ElectionName,
+      sortBy,
     },
   });
 }
