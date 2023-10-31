@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
 export const donationElectionLink = "#"; // TODO
@@ -7,6 +9,22 @@ export const votingOpensDate = new Date("2023-12-01");
 // TODO: This tag doesn't exist yet
 export const donationElectionTagId = "L6NqHZkLc4xZ7YtDr";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
+
+const votingAccountCreationCutoff = new Date("2023-10-23");
+
+const userCanVoteInDonationElection = (
+  user: UsersCurrent | DbUser | null,
+) =>
+  !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime();
+
+export const assertUserCanVoteInDonationElection = (
+  user: UsersCurrent | DbUser | null,
+) => {
+  if (!userCanVoteInDonationElection(user)) {
+    const date = moment(votingAccountCreationCutoff).format("Do MMMM YYYY");
+    throw new Error(`To vote in this election your account must be created before ${date}`);
+  }
+}
 
 type TimelinePoint = {
   date: Date,

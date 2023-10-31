@@ -11,6 +11,7 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import { assertUserCanVoteInDonationElection } from '../eaGivingSeason';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -342,13 +343,25 @@ registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
   name: "eaDonationElection",
   description: "Donation election voting for the EA Forum",
   userCanActivate: false,
-  addVoteClient: ({oldExtendedScore, extendedVote}: {
+  isAllowedExtendedVote: (user) => {
+    try {
+      assertUserCanVoteInDonationElection(user);
+      return {allowed: true};
+    } catch (e) {
+      return {
+        allowed: false,
+        reason: e.message(),
+      };
+    }
+  },
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: {preVote: boolean},
     currentUser: UsersCurrent,
     document: VoteableType,
     voteType: string | null,
   }) => {
+    assertUserCanVoteInDonationElection(currentUser);
     const oldPreVoteCount =
       oldExtendedScore && "preVoteCount" in oldExtendedScore
         ? oldExtendedScore.preVoteCount
@@ -358,11 +371,12 @@ registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
       preVoteCount: oldPreVoteCount + (preVote ? 1 : 0),
     };
   },
-  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote}: {
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {
     oldExtendedScore?: Record<string, number>,
     cancelledExtendedVote?: {preVote: boolean},
     currentUser: UsersCurrent,
   }) => {
+    assertUserCanVoteInDonationElection(currentUser);
     const oldPreVoteCount =
       oldExtendedScore && "preVoteCount" in oldExtendedScore
         ? oldExtendedScore.preVoteCount
@@ -372,7 +386,8 @@ registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
       preVoteCount: oldPreVoteCount - (preVote ? 1 : 0),
     };
   },
-  computeExtendedScore: async (votes: DbVote[], _context: ResolverContext) => {
+  computeExtendedScore: async (votes: DbVote[], {currentUser}: ResolverContext) => {
+    assertUserCanVoteInDonationElection(currentUser);
     let preVoteCount = 0;
     for (const vote of votes) {
       if (vote?.extendedVoteType?.preVote) {
