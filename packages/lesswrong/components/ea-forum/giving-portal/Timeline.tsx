@@ -17,6 +17,7 @@ const styles = (theme: ThemeType) => ({
     height: HEIGHT,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.givingPortal[200],
+    borderBottom: `2px solid ${theme.palette.givingPortal[1000]}`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginBottom: 80,
     zIndex: 2,
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     whiteSpace: "nowrap",
     position: "absolute",
-    top: HEIGHT + 8,
+    top: HEIGHT + 11,
   },
   dateDescription: {
     color: theme.palette.givingPortal[1000],
@@ -81,10 +82,8 @@ const Timeline = ({
   end,
   points,
   spans,
-  showStartAndEnd,
   classes,
 }: TimelineSpec & {
-  showStartAndEnd?: boolean,
   classes: ClassesType,
 }) => {
   const currentDate = useCurrentTime();
@@ -112,23 +111,18 @@ const Timeline = ({
   const positionSpan = (start: Date, end: Date) => {
     const startPercent = getDatePercent(start);
     const endPercent = getDatePercent(end);
+    const width = Math.max(endPercent - startPercent - 2, 2);
     return {
       className: classes.span,
       style: {
         left: `${startPercent}%`,
-        width: `${endPercent - startPercent}%`,
+        width: `${width}%`,
       },
     };
   }
 
   return (
     <div className={classes.root}>
-      {showStartAndEnd &&
-        <>
-          <div {...positionDate(start)}>{formatDate(start)}</div>
-          <div {...positionDate(end)}>{formatDate(end)}</div>
-        </>
-      }
       {points.map(({date, description}) => (
         <div {...positionDate(date)} key={description}>
           <div>{formatDate(date)}</div>
