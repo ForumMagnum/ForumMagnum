@@ -20,6 +20,7 @@ export const useDonationOpportunities = useElectionCandidates;
 export const useAmountRaised = () => {
   // TODO: Query for the actual amount
   return {
+    showAmountRaised: false,
     raisedForElectionFund: 3720,
     donationTarget: 15000,
     totalRaised: 10250,

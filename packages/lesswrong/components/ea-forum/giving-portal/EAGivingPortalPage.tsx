@@ -254,6 +254,7 @@ const formatDollars = (amount: number) => "$" + formatStat(amount);
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {
+    showAmountRaised,
     raisedForElectionFund,
     donationTarget,
     totalRaised,
@@ -356,15 +357,19 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   onButtonClick={onDonate}
                   solidButton
                 >
-                  <div className={classes.progressBar}>
-                    <div
-                      className={classes.progress}
-                      style={{width: `${targetPercent}%`}}
-                    />
-                  </div>
-                  <div className={classes.raisedSoFar}>
-                    {formatDollars(raisedForElectionFund)} raised so far
-                  </div>
+                  {showAmountRaised &&
+                    <>
+                      <div className={classes.progressBar}>
+                        <div
+                          className={classes.progress}
+                          style={{width: `${targetPercent}%`}}
+                        />
+                      </div>
+                      <div className={classes.raisedSoFar}>
+                        {formatDollars(raisedForElectionFund)} raised so far
+                      </div>
+                    </>
+                  }
                 </ElectionFundCTA>
                 <ElectionFundCTA
                   image={<DiscussIcon />}
@@ -476,10 +481,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             participate, you can donate directly to effective charities, or{" "}
             <a href={setupFundraiserLink}>set up your own fundraiser</a>.
           </div>
-          <div className={classes.text}>
-            Total donations raised through the Forum:{" "}
-            <span className={classes.totalRaised}>{totalAmount}</span>
-          </div>
+          {showAmountRaised &&
+            <div className={classes.text}>
+              Total donations raised through the Forum:{" "}
+              <span className={classes.totalRaised}>{totalAmount}</span>
+            </div>
+          }
           <div className={classNames(classes.grid, classes.mt10)}>
             {donationOpportunities?.map((candidate) => (
               <DonationOpportunity candidate={candidate} key={candidate._id} />

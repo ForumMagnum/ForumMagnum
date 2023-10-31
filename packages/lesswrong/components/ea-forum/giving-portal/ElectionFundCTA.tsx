@@ -102,7 +102,7 @@ const ElectionFundCTA = ({
       <div className={classes.image}>{image}</div>
       <div className={classes.title}>{title}</div>
       <div className={classes.description}>{description}</div>
-      {children && <div className={classes.children}>{children}</div>}
+      <div className={classes.children}>{children}</div>
       <button
         onClick={onButtonClick}
         className={classNames(classes.button, {
