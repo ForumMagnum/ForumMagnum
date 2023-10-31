@@ -9,7 +9,6 @@ import { formatStat } from "../../users/EAUserTooltipContent";
 import {
   useAmountRaised,
   useDonationOpportunities,
-  useElectionCandidates,
 } from "./hooks";
 import {
   donationElectionLink,
@@ -193,10 +192,6 @@ const styles = (theme: ThemeType) => ({
   electionCandidates: {
     width: 1120,
     maxWidth: "100%",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "16px",
-    rowGap: "12px",
   },
   grid: {
     width: "100%",
@@ -264,10 +259,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     totalRaised,
   } = useAmountRaised();
   const {
-    results: electionCandidates,
-    loading: electionCandidatesLoading,
-  } = useElectionCandidates();
-  const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
   } = useDonationOpportunities();
@@ -324,7 +315,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {
     Loading, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
-    ElectionCandidate, DonationOpportunity, CloudinaryImage2, EASequenceCard,
+    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -421,12 +412,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 likely to vote for on December 1. Pre-votes don’t automatically
                 turn into real votes, and you can change them at any time.
               </div>
-              <div className={classes.electionCandidates}>
-                {electionCandidates?.map((candidate) => (
-                  <ElectionCandidate candidate={candidate} key={candidate._id} />
-                ))}
-                {electionCandidatesLoading && <Loading />}
-              </div>
+              <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
                 classes.rowThin,
                 classes.mt10,

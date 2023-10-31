@@ -6,6 +6,9 @@
         "name": "Voteable",
         "possibleTypes": [
           {
+            "name": "ElectionCandidate"
+          },
+          {
             "name": "TagRel"
           },
           {
@@ -16,9 +19,6 @@
           },
           {
             "name": "Revision"
-          },
-          {
-            "name": "ElectionCandidate"
           }
         ]
       }

@@ -46,6 +46,7 @@ importComponent("EAGivingPortalPage", () => require('../components/ea-forum/givi
 importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
 importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
 importComponent("ElectionCandidate", () => require('../components/ea-forum/giving-portal/ElectionCandidate'));
+importComponent("ElectionCandidatesList", () => require('../components/ea-forum/giving-portal/ElectionCandidatesList'));
 importComponent("DonationOpportunity", () => require('../components/ea-forum/giving-portal/DonationOpportunity'));
 importComponent("PreVoteButton", () => require('../components/ea-forum/giving-portal/PreVoteButton'));
 importComponent("EAHoverOver", () => require('../components/ea-forum/EAHoverOver'));
@@ -420,6 +421,7 @@ importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("DialogueEditorGuidelines", () => require('../components/posts/dialogues/DialogueEditorGuidelines'));
+importComponent("DialogueEditorFeedback", () => require('../components/posts/dialogues/DialogueEditorFeedback'));
 importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 
