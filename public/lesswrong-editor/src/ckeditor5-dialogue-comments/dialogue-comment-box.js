@@ -339,29 +339,12 @@ class SubmitDialogueMessageCommand extends Command {
                         writer.append(paragraph, dialogueMessage);
                     }
 
-                    inputContents.forEach(userInput => {
-                        const paragraph = writer.createElement('paragraph');
-                        let userInputText = userInput;
-                        let iterations = 0;
-                        while (!userInputText.is('text') && iterations < 5) {
-                            const child = userInputText.getChild(0);
-                            if (child) {
-                                userInputText = child;
-                            } else {
-                                break;
-                            }
-                            iterations++;
-                        }
+                    writer.append(contentDiv, dialogueMessage);
 
-                        // at this point, userInput should be Text, or something's gone wrong
-                        if (userInputText.is('text')) {
-                            writer.insertText(userInputText.data, paragraph);
-                        }
-                        writer.append(paragraph, contentDiv);
-                        writer.remove(userInput);
+                    inputContents.forEach(userInput => {
+                        writer.append(userInput, contentDiv);
                     });
 
-                    writer.append(contentDiv, dialogueMessage);
 
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
@@ -384,6 +367,7 @@ class SubmitDialogueMessageCommand extends Command {
  * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editorwithui').EditorWithUI} EditorWithUI
  * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editor').default} Editor
  * @typedef {import('@ckeditor/ckeditor5-engine').DowncastWriter} DowncastWriter
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/model/writer').default} ModelWriter
  * @typedef {Exclude<ReturnType<import('@ckeditor/ckeditor5-engine').Model['document']['getRoot']>, null>} RootElement
  * @typedef {import('@ckeditor/ckeditor5-engine').Element} Element
  * @typedef {import('@ckeditor/ckeditor5-engine/src/model/text').default} Text
@@ -519,4 +503,27 @@ function getUserOrder(modelElement) {
  */
 function getUserDisplayName(modelElement) {
     return (modelElement.getAttribute('display-name') || '').toString();
+}
+
+
+/**
+ * @param {Element | Text} userInputElement
+ * @param {ModelWriter} writer
+ */
+function convertInputToMessageContent(userInputElement, writer) {
+    if (!userInputElement.is('text') && !userInputElement.is('element', 'paragraph')) {
+        return userInputElement;
+    }
+
+    const paragraph = writer.createElement('paragraph');
+
+    if (userInputElement.is('text')) {
+        return userInputElement;
+    }
+
+
+
+    if (userInputElement.is('element', 'paragraph')) {
+        return userInputElement.getChild(0);
+    }
 }
