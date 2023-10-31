@@ -43,7 +43,7 @@ augmentFieldsDict(DialogueChecks, {
       resolver: async (check: DbDialogueCheck, args: void, context: ResolverContext): Promise<Boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")
-        const matchedUsers = await context.repos.dialogueChecks.checkForMatch(check.userId,check.targetUserId);
+        const matchedUsers = await context.repos.dialogueChecks.checkForMatch(check.userId, check.targetUserId);
         return matchedUsers.length > 0
       },
     }

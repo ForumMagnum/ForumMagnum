@@ -62,7 +62,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
           public."Comments"
           ON public."TagRels"."postId" = public."Comments"."postId"
       WHERE
-          public."Comments"."userId" = '${userId}'
+          public."Comments"."userId" = $1
           AND public."Tags".name NOT IN (
               'Community',
               'Rationality',
@@ -81,7 +81,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
           )
       GROUP BY public."Tags".name
       ORDER BY comment_count DESC
-    `)
+    `, [userId]);
   }
 
   async getTopUsersTopCommentedTags(preTopCommentedTagTopUsers: any[]): Promise<any> {

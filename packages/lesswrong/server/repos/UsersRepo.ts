@@ -255,11 +255,12 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
     // return this.one(`SELECT * FROM "Users" WHERE _id = 'gXeEWGjTWyqgrQTzR'`
     // )
-    return this.any(`SELECT "Users".*
-      FROM "Users"
-      INNER JOIN "Posts" ON "Users"._id = "Posts"."userId"
-      WHERE "Posts"."collabEditorDialogue" = TRUE
-    `)
+    return this.any(`
+    SELECT U.*
+    FROM "Users" AS U
+    INNER JOIN "Posts" AS P ON U._id = P."userId"
+    WHERE P."collabEditorDialogue" IS TRUE
+  `)
   }
 
   
@@ -288,8 +289,8 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             public."Votes"
             ON public."Posts"._id = public."Votes"."documentId"
         WHERE
-            public."Votes"."userId" = '${userId}'
-            AND public."Users"._id != '${userId}'
+            public."Votes"."userId" = $1
+            AND public."Users"._id != $1
             AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
     
         UNION ALL
@@ -316,8 +317,8 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             public."Votes"
             ON public."Comments"._id = public."Votes"."documentId"
         WHERE
-            public."Votes"."userId" = '${userId}'
-            AND public."Users"._id != '${userId}'
+            public."Votes"."userId" = $1
+            AND public."Users"._id != $1
             AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
     )
     
@@ -339,7 +340,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     HAVING SUM(power) > 1
     ORDER BY total_power DESC
     LIMIT 50;
-      `)
+      `, [userId])
   }
   
   async getPreTopCommentersOfTopCommentedTags(topUsers: DbUser[], topCommentedTags: DbTag[]): Promise<any> {

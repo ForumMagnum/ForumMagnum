@@ -1,47 +1,7 @@
 import {ensureIndex} from "../../collectionIndexUtils";
 import {addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
-import {MutationOptions} from "../../vulcan-core/default_mutations";
 import {createCollection} from "../../vulcan-lib";
-import {userOwns} from "../../vulcan-users/permissions";
-//import schema from "./schema";
-
-const schema: SchemaType<DbDialogueCheck> = {
-  // permissions enforced via collection-level checkAccess
-  userId: {
-    type: String,
-    nullable: false,
-    canRead: ['members'], 
-    canCreate: ['members'],
-  },
-  targetUserId: {
-    type: String,
-    nullable: false,
-    canRead: ['members'],
-    canCreate: ['members'],
-  },
-  checked: {
-    type: Boolean,
-    nullable: false,
-    ...schemaDefaultValue(false),
-    canRead: ['members'],
-    canCreate: ['members'],
-    canUpdate: [userOwns],
-  },
-  checkedAt: {
-    type: Date,
-    nullable: false,
-    canRead: ['members'],
-    canCreate: ['members'],
-    canUpdate: [userOwns],
-  },
-  match: {
-    type: Boolean,
-    nullable: false,
-    canRead: ['members'],
-    // Defined in resolvers.ts
-  }
-}
-
+import schema from "./schema";
 
 export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionName: 'DialogueChecks',
