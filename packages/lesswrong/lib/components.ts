@@ -420,6 +420,7 @@ importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("DialogueEditorGuidelines", () => require('../components/posts/dialogues/DialogueEditorGuidelines'));
+importComponent("DialogueEditorFeedback", () => require('../components/posts/dialogues/DialogueEditorFeedback'));
 importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 

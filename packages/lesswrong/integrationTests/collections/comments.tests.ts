@@ -10,8 +10,10 @@ import {
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
   withNoLogs,
+  createDummyUserRateLimit,
 } from '../utils';
 import moment from 'moment';
+import { Comments } from "../../lib/collections/comments";
 
 const { assert } = chai;
 
@@ -166,5 +168,50 @@ describe('attempts to read hideKarma comment', () => {
     receivedComment._id.should.equal(comment._id)
     receivedComment.hideKarma.should.equal(true)
     receivedComment.baseScore.should.equal(1)
+  })
+})
+
+describe('moderator-applied user comment rate limit', () => {
+  let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
+  it('should prevent rate-limited user from commenting and throw an error', async () => {
+    const postAuthorUser = await createDummyUser({isAdmin: true})
+    const rateLimitedUser = await createDummyUser()
+    const post = await createDummyPost(postAuthorUser)
+
+    const comment = await createDummyComment(rateLimitedUser, {postId: post._id})
+    await Comments.rawUpdateOne(comment._id, {$set: {postedAt: moment().subtract(1, 'hour').toDate()}}); // (can't set postedAt in createDummyComment)
+
+    await createDummyUserRateLimit(rateLimitedUser, {
+      type: 'allComments',
+      intervalUnit: 'days',
+      intervalLength: 1,
+      actionsPerInterval: 1,
+      endedAt: moment().add(1, 'day').toDate(),
+      schemaVersion: 1,
+    })
+
+    function createCommentQuery(postId: string) {
+      return `
+        mutation {
+          createComment(
+            data: {
+              contents: { originalContents: { type: "markdown", data: "test" } }
+              postId: "${postId}"
+            }
+          ){
+            data {
+              contents {
+                markdown
+              }
+            }
+          }
+        }
+      `;
+    }
+
+    const result = runQuery(createCommentQuery(post._id), {}, {currentUser: rateLimitedUser})
+    await (result as any).should.be.rejected;
+
+    graphQLerrors.getErrors()[0][0].message.startsWith("Rate limit: You cannot comment for 1d").should.equal(true)
   })
 })
