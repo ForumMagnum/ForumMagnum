@@ -9,7 +9,6 @@ import { isProduction } from '../../lib/executionEnvironment';
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
 import { createError } from 'apollo-errors';
-import { ApolloError } from 'apollo-server-errors';
 
 // This file has middleware for redirecting logged-out users to the login page,
 // but it also manages authentication with the Waking Up app. This latter thing
@@ -22,6 +21,8 @@ const AuthorizationError = createError(
     message: "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.",
   }
 )
+
+const authMessageWithEmail = (email: string) => `Sorry, the email ${email} doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.`
 
 function urlDisallowedForLoggedOutUsers(req: express.Request) {
   if (req.user) return false;
@@ -230,7 +231,7 @@ const authenticationResolvers = {
         await updateOneTimeCode(user, oneTimeCode)
         // TODO: send code email
       } else {
-        throw new AuthorizationError({ internalData: { error: "Invalid Waking Up user" } })
+        throw new AuthorizationError({ message: authMessageWithEmail(email), internalData: { error: "Invalid Waking Up user" } })
       }
       return { result: "success" }
     },
@@ -238,8 +239,8 @@ const authenticationResolvers = {
     async codeLogin(root: void, { email, code }: {email: string, code: string}, { req, res }: ResolverContext) {
       const user = await userFindOneByEmail(email);
 
-      if (!user?.wu_subscription_active) throw new AuthorizationError({internalData: { error: "Inactive WU subscription" }});
-      if (!user.wu_forum_access) throw new AuthorizationError({internalData: { error: "WU account lacks forum access" }});
+      if (!user?.wu_subscription_active) throw new AuthorizationError({ message: authMessageWithEmail(email), internalData: { error: "Inactive WU subscription" }});
+      if (!user.wu_forum_access) throw new AuthorizationError({ message: authMessageWithEmail(email), internalData: { error: "WU account lacks forum access" }});
 
       const validCode = user && code?.length > 0 && user.services?.wakingUp?.oneTimeCode === code;
       // TODO: restrict the dev code in production (staging server runs in production mode so

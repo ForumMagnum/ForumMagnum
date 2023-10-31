@@ -437,7 +437,7 @@ const schema: SchemaType<DbUser> = {
           field: "email",
           errorType: "errors.required",
           alias: "valid email address",
-          capitalizeName: true,
+          capitalizeName: false,
         });
       }
       return data.email;
