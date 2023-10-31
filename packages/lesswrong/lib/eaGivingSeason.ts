@@ -26,6 +26,7 @@ export type TimelineSpec = {
   end: Date,
   points: TimelinePoint[],
   spans: TimelineSpan[],
+  divisionToPercent?: (division: number, divisions: number) => number,
 }
 
 export const timelineSpec: TimelineSpec = {
@@ -54,4 +55,15 @@ export const timelineSpec: TimelineSpec = {
       description: "Estimating cost-effectiveness",
     },
   ],
+  // We have a lot of events in November and few in December. This function
+  // allows us to space out Novemeber to use 75% of the timeline and only give
+  // 25% to December.
+  divisionToPercent: (division: number, divisions: number) => {
+    const halfWay = divisions / 2;
+    if (division < halfWay) {
+      return (division / divisions) * 150;
+    } else {
+      return 75 + (((division - halfWay) / divisions) * 50);
+    }
+  },
 };

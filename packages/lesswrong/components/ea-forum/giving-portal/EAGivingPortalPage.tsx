@@ -342,7 +342,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           )}>
             Timeline
           </div>
-          <Timeline {...timelineSpec} />
+          <Timeline {...timelineSpec} className={classes.hideOnMobile} />
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content}>
