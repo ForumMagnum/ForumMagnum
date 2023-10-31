@@ -249,6 +249,10 @@ const ckEditorApi = {
   async flushCkEditorCollaboration(ckEditorId: string) {
     return await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
   },
+
+  async deleteCkEditorCloudStorageDocument(ckEditorId: string) {
+    return await fetchCkEditorRestAPI("DELETE", `/storage/${ckEditorId}`);
+  },
   
   async deleteCkEditorCloudDocument(ckEditorId: string) {
     return await fetchCkEditorRestAPI("DELETE", `/documents/${ckEditorId}?force=true&wait=true`);
