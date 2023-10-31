@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting, verifyEmailsSetting } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -280,7 +280,7 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
   // EA Forum does not do its own email verification
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (!verifyEmailsSetting.get()) {
     return true
   }
   if (!user || !user.emails)

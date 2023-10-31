@@ -150,11 +150,6 @@ export const showCuratedSetting = new DatabasePublicSetting<boolean>("showCurate
 /** TODO; doc */
 export const showCommunityMapSetting = new DatabasePublicSetting<boolean>("showCommunityMap", false);
 
-// TODO: make this an instance setting if JP confirms that makes sense, because
-// we'd need it in collections/users/schema and server/emails/renderEmail
-/** whether this forum verifies user emails */
-export const verifyEmailsSetting = new DatabasePublicSetting<boolean>("verifyEmails", true);
-
 // TODO: make this an instance setting if JP confirms that makes sense
 // /** main theme color, needed here for server/emails/renderEmail */
 // export const mainThemeColorSetting = new DatabasePublicSetting<string>("mainThemeColor", "#5f9b65");

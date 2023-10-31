@@ -208,3 +208,5 @@ export const sortNewNameSetting = new PublicInstanceSetting<string | null>('sort
 export const sortOldNameSetting = new PublicInstanceSetting<string | null>('sortOldName', null, "optional");
 export const sortRecentRepliesNameSetting = new PublicInstanceSetting<string | null>('sortRecentRepliesName', null, "optional");
 export const sortRecentCommentsNameSetting = new PublicInstanceSetting<string | null>('sortRecentCommentsName', null, "optional");
+
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");

@@ -12,8 +12,8 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import {forumTypeSetting, isEAForum, isLW, isWakingUp } from "../../lib/instanceSettings";
-import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, sendgridDigestListIdSetting, sendgridWelcomeListIdSetting, verifyEmailsSetting } from "../../lib/publicSettings";
+import {forumTypeSetting, isEAForum, isLW, isWakingUp, verifyEmailsSetting } from "../../lib/instanceSettings";
+import { hasDigestSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, sendgridDigestListIdSetting, sendgridWelcomeListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
