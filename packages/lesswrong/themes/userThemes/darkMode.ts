@@ -259,6 +259,7 @@ export const darkModeTheme: UserThemeSpecification = {
       [800]: "#49201C",
       [1000]: "#FFF",
       button: {
+        alwaysDark: "#862115",
         dark: "#FFF",
         light: "#862115",
         hoverOutlined: "#744843",

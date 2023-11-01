@@ -458,6 +458,7 @@ declare global {
       candidate: ColorString,
       votedCandidate: ColorString,
       button: {
+        alwaysDark: ColorString,
         dark: ColorString,
         light: ColorString,
         hoverOutlined: ColorString,

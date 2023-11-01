@@ -500,6 +500,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [800]: "#f8e7e2",
     [1000]: "#862115",
     button: {
+      alwaysDark: "#862115",
       dark: "#862115",
       light: "#FFF",
       hoverOutlined: "#f5f5f5",

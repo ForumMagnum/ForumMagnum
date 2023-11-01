@@ -70,12 +70,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   buttonPrimary: {
-    backgroundColor: theme.palette.givingPortal.button.light,
-    color: theme.palette.givingPortal.button.dark,
+    backgroundColor: theme.palette.givingPortal.button.alwaysDark,
+    color: theme.palette.text.alwaysWhite,
   },
-  buttonSecondary: {
-    backgroundColor: theme.palette.givingPortal.button.dark,
-    color: theme.palette.givingPortal.button.light,
+  buttonGrey: {
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[1000],
   },
 });
 
@@ -98,7 +98,7 @@ const DonationOpportunity = ({candidate, classes}: {
         <button className={classNames(classes.button, classes.buttonPrimary)}>
           Donate
         </button>
-        <button className={classNames(classes.button, classes.buttonSecondary)}>
+        <button className={classNames(classes.button, classes.buttonGrey)}>
           Learn more
         </button>
       </div>
