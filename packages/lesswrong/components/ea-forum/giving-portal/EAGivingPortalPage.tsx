@@ -322,12 +322,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
   }, []);
 
-  const onLoadMoreOpportunities = useCallback(() => {
-    // TODO: Hook up loading more opportunities
-    // eslint-disable-next-line no-console
-    console.log("Clicked load more donation opportunities");
-  }, []);
-
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
 
   const totalAmount = formatDollars(totalRaised);
