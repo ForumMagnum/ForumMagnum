@@ -70,12 +70,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   buttonPrimary: {
-    backgroundColor: theme.palette.givingPortal.button.dark,
-    color: theme.palette.givingPortal.button.light,
-  },
-  buttonSecondary: {
     backgroundColor: theme.palette.givingPortal.button.light,
     color: theme.palette.givingPortal.button.dark,
+  },
+  buttonSecondary: {
+    backgroundColor: theme.palette.givingPortal.button.dark,
+    color: theme.palette.givingPortal.button.light,
   },
 });
 

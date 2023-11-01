@@ -83,14 +83,14 @@ const styles = (theme: ThemeType) => ({
   primaryText: {
     color: theme.palette.givingPortal[1000],
   },
-  secondaryText: {
-    color: theme.palette.givingPortal[900],
-  },
   h1: {
     fontSize: 60,
     fontWeight: 700,
     lineHeight: "normal",
     letterSpacing: "-1.2px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 40,
+    }
   },
   h2: {
     fontSize: 28,
@@ -453,7 +453,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mt60,
               classes.mb80,
             )}>
-              <div className={classes.h4}>
+              <div className={classes.h2}>
                 Recent posts tagged Donation Election 2023
               </div>
               <div className={classNames(
@@ -478,7 +478,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           classes.mt60,
           classes.mb80,
         )}>
-          <div className={classes.h3}>Other donation opportunities</div>
+          <div className={classes.h1}>Other donation opportunities</div>
           <div className={classNames(classes.text, classes.textWide)}>
             If you don’t want to donate to the Election Fund but still want to
             participate, you can donate directly to effective charities, or{" "}
