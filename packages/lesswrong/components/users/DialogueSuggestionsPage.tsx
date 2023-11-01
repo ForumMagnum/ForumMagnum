@@ -283,7 +283,7 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   const handleOptInToRevealDialogueChecks = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setOptIn(event.target.checked);
-    void updateCurrentUser({hideDialogueFacilitation: event.target.checked}) // show people they have clicked, but remove component from view upon refresh
+    void updateCurrentUser({revealChecksToAdmins: event.target.checked})
     captureEvent("optInToRevealDialogueChecks", {optIn: event.target.checked})
     
     const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
