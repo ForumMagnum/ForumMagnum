@@ -6,6 +6,7 @@ import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { History } from 'history';
+import { cloudinaryCloudNameSetting } from './publicSettings';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -180,4 +181,8 @@ export const classifyHost = (host: string): "onsite"|"offsite"|"mirrorOfUs" => {
 // A string could possibly be an ID if is in the range of meteor's `Random.id`.
 export const looksLikeDbIdString = (str: string): boolean => {
   return /^[a-zA-Z0-9]{17}$/.test(str);
+}
+
+export const cdnAssetUrl = (filename: string) => {
+  return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/assets/${filename}`
 }
