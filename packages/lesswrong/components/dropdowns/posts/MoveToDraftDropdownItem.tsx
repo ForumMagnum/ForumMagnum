@@ -27,6 +27,7 @@ const MoveToDraftDropdownItem = ({ post }: {
       <DropdownItem
         title={preferredHeadingCase("Move to Draft")}
         onClick={handleMoveToDraftDropdownItem}
+        icon={"Document"}
       />
     );
   } else {

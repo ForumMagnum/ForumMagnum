@@ -40,6 +40,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   if (!post) return null;
   const postAuthor = post.user;
+  const currentUserIsAuthor = postAuthor?._id === currentUser?._id
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
@@ -57,46 +58,17 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {isBookUI && shareButtonSetting.get() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
-      <NotifyMeDropdownItem
-        document={post.group}
-        enabled={!!post.group}
-        subscribeMessage={`Subscribe to ${post.group?.name}`}
-        unsubscribeMessage={`Unsubscribe from ${post.group?.name}`}
-      />
-      <NotifyMeDropdownItem
-        document={post}
-        enabled={post.shortform && post.userId !== currentUser?._id}
-        subscribeMessage={`Subscribe to ${post.title}`}
-        unsubscribeMessage={`Unsubscribe from ${post.title}`}
-        subscriptionType={subscriptionTypes.newShortform}
-      />
-      <NotifyMeDropdownItem
-        document={postAuthor}
-        enabled={!!postAuthor && postAuthor._id !== currentUser?._id}
-        subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
-        unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
-      />
-      <NotifyMeDropdownItem
-        document={post}
-        enabled={!!post.debate}
-        subscribeMessage="Subscribe to dialogue"
-        unsubscribeMessage="Unsubscribe from dialogue"
-        subscriptionType={subscriptionTypes.newDebateComments}
-        tooltip="Notifies you when there is new activity in the dialogue"
-      />
-      <NotifyMeDropdownItem
+      {currentUserIsAuthor && <NotifyMeDropdownItem
         document={post}
         subscribeMessage="Subscribe to comments"
         unsubscribeMessage="Unsubscribe from comments"
-      />
-      {includeBookmark && <BookmarkDropdownItem post={post} />}
+      />}
+      {!currentUserIsAuthor && includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideCommentVisibility />
-      <HideFrontpagePostDropdownItem post={post} />
-      <ReportPostDropdownItem post={post}/>
+      {!currentUserIsAuthor && <ReportPostDropdownItem post={post}/>}
       {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
       {/*currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />*/}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
-      {currentUser && <MarkAsReadDropdownItem post={post} />}
       {showCuratedSetting.get() && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />

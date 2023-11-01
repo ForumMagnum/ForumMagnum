@@ -20,6 +20,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     BanUserFromPostDropdownItem, LockThreadDropdownItem,
   } = Components;
 
+  const currentUserIsAuthor = comment.user?._id === currentUser?._id
+
   const {document: postDetails} = useSingle({
     skip: !post,
     documentId: post?._id,
@@ -56,23 +58,11 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
       <PinToProfileDropdownItem comment={comment} post={post} />
       <NotifyMeDropdownItem
-        document={post}
-        enabled={enableSubscribeToPost}
-        subscribeMessage={`Subscribe to ${post?.title}`}
-        unsubscribeMessage={`Unsubscribe from ${post?.title}`}
-      />
-      <NotifyMeDropdownItem
         document={comment}
         subscribeMessage="Subscribe to comment replies"
         unsubscribeMessage="Unsubscribe from comment replies"
       />
-      <NotifyMeDropdownItem
-        document={comment.user}
-        enabled={enableSubscribeToCommentUser}
-        subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
-        unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
-      />
-      <ReportCommentDropdownItem comment={comment} post={post} />
+      {!currentUserIsAuthor && <ReportCommentDropdownItem comment={comment} post={post} />}
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />
 
@@ -85,7 +75,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
       <ShortformFrontpageDropdownItem comment={comment} />
       <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
-      <RetractCommentDropdownItem comment={comment} />
       <LockThreadDropdownItem comment={comment} />
       <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
       <BanUserFromAllPostsDropdownItem comment={comment} post={postDetails} />

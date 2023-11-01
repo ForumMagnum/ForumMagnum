@@ -53,6 +53,7 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
       <DropdownItem
         title="Delete"
         onClick={showDeleteDialog}
+        icon={"Warning"}
       />
     );
   }

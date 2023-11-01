@@ -40,8 +40,8 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
     : `${comment.user?.displayName}'s`;
 
   const title = comment.isPinnedOnProfile
-    ? `Unpin from ${username} profile`
-    : `Pin to ${username} profile`;
+    ? `Unpin from profile`
+    : `Pin to profile`;
 
   const {DropdownItem} = Components;
   return (
