@@ -57,6 +57,7 @@ const styles = (theme: ThemeType) => ({
     gap: "6px",
     width: "100%",
     fontSize: 16,
+    lineHeight: '22px',
     fontWeight: 600,
     borderRadius: theme.borderRadius.small,
     padding: 16,
@@ -71,11 +72,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     "&:hover": {
       backgroundColor: theme.palette.givingPortal.button.hoverOutlined,
+      opacity: 1,
     },
   },
   solidButton: {
     color: theme.palette.givingPortal.button.light,
     backgroundColor: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.dark}`,
     "&:hover": {
       opacity: 0.9,
     },
