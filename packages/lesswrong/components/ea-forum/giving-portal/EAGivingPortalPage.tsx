@@ -467,7 +467,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader />
+        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(
