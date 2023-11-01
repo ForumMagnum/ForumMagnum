@@ -2,8 +2,8 @@ import moment from "moment";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
-export const donationElectionLink = "#"; // TODO
-export const setupFundraiserLink = "#"; // TODO
+export const donationElectionLink = "#"; // TODO link to Lizka's post once it's drafted
+export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
 
 export const votingOpensDate = new Date("2023-12-01");

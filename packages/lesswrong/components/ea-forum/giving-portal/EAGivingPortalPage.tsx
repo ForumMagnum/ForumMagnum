@@ -19,6 +19,7 @@ import {
 } from "../../../lib/eaGivingSeason";
 import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
+import { useLocation, useNavigation } from "../../../lib/routeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -258,6 +259,7 @@ const getListTerms = (
 const formatDollars = (amount: number) => "$" + formatStat(amount);
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
+  const { history } = useNavigation()
   const {
     showAmountRaised,
     raisedForElectionFund,
@@ -297,15 +299,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   }, []);
 
   const onAddCandidate = useCallback(() => {
-    // TODO: Hook up notifications
+    // TODO: Link to GWWC's form
     // eslint-disable-next-line no-console
     console.log("Clicked add candidate");
   }, []);
 
   const onContribute = useCallback(() => {
-    // TODO: Hook up contribute button
-    // eslint-disable-next-line no-console
-    console.log("Clicked contribute to the discussion");
+    history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
   }, []);
 
   const onLoadMoreOpportunities = useCallback(() => {
