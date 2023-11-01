@@ -355,13 +355,13 @@
     "timestamp": "2023-10-27T15:43:13.000Z"
   },
   {
-    "acceptsSchemaHash": "fe5dbcea19da578c02e9189042283f6e",
-    "acceptedByMigration": "20231031T201947.add_givingSeasonNotifyForVoting.ts",
-    "timestamp": "2023-10-31T20:19:47.000Z"
+    "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
+    "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
+    "timestamp": "2023-10-28T01:20:12.000Z"
   },
   {
-    "acceptsSchemaHash": "91ad2a7394e631ea353845caef6277e6",
-    "acceptedByMigration": "20231101T201239.add_more_election_candidate_links.ts",
-    "timestamp": "2023-11-01T20:12:39.000Z"
+    "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
+    "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
+    "timestamp": "2023-11-01T21:57:39.000Z"
   }
 ]

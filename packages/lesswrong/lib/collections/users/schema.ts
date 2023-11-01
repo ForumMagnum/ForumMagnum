@@ -1381,6 +1381,10 @@ const schema: SchemaType<DbUser> = {
     label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField()
   },
+  notificationAddedAsCoauthor: {
+    label: "Someone has added me as a coauthor to a post",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
@@ -1391,6 +1395,7 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
+  
 
   hideDialogueFacilitation: {
     type: Boolean,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
-import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -440,6 +440,29 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
     const name = await postGetAuthorName(post);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
+    </p>
+  },
+});
+
+export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
+  name: "addedAsCoauthor",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const name = await postGetAuthorName(post);
+    const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
+    return `${name} added you as a coauthor to the ${postOrDialogue} "${post.title}"`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const link = postGetEditUrl(post._id, true);
+    const name = await postGetAuthorName(post);
+    const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
+
+    return <p>
+      {name} added you as a coauthor to the {postOrDialogue} <a href={link}>{post.title}</a>.
     </p>
   },
 });

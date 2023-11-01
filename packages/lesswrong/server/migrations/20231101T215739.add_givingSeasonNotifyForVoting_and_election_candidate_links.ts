@@ -1,28 +1,23 @@
 /**
- * Generated on 2023-11-01T20:12:39.190Z by `yarn makemigrations`
+ * Generated on 2023-11-01T21:57:39.699Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
- * index e6e19b40e6..c90cbcd244 100644
+ * index f9261cb496..11c3ebba3b 100644
  * --- a/Users/sarah/EAForum/schema/accepted_schema.sql
  * +++ b/Users/sarah/EAForum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: fe5dbcea19da578c02e9189042283f6e
+ * --- Overall schema hash: ee9f40a8166012becef3bf0f5a9726b0
  * -
- * --- Accepted on 2023-10-31T20:19:47.000Z by 20231031T201947.add_givingSeasonNotifyForVoting.ts
- * +-- Overall schema hash: 91ad2a7394e631ea353845caef6277e6
+ * --- Accepted on 2023-10-28T01:20:12.000Z by 20231028T012012.add_notificationAddedAsCoauthor.ts
+ * +-- Overall schema hash: 0cc5ac04b5c4340a894f1bef511f22a9
  *  
- * @@ -274,3 +272,3 @@ CREATE TABLE "Digests" (
+ * @@ -1063,3 +1061,3 @@ CREATE TABLE "UserTagRels" (
  *  
- * --- Schema for "ElectionCandidates", hash: 62abe24d31b820b73ada023955f0f5b8
- * +-- Schema for "ElectionCandidates", hash: a7a2f2e4d62f2d0bafdd610dc996f29d
- *  CREATE TABLE "ElectionCandidates" (
- * @@ -281,2 +279,4 @@ CREATE TABLE "ElectionCandidates" (
- *      "href" text NOT NULL,
- * +    "fundraiserLink" text,
- * +    "gwwcLink" text,
- *      "description" text NOT NULL,
+ * --- Schema for "Users", hash: b27730e9f93ef74e21bbea8d6f188b80
+ * +-- Schema for "Users", hash: 50f4feeb1374733e404020c3513d1892
+ *  CREATE TABLE "Users" (
  * 
  * -------------------------------------------
  * (run `git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql` to see this more clearly)
@@ -32,12 +27,17 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "91ad2a7394e631ea353845caef6277e6";
+export const acceptsSchemaHash = "0cc5ac04b5c4340a894f1bef511f22a9";
 
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
-import { addField, dropField } from "./meta/utils";
+import Users from "../../lib/collections/users/collection";
+import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
+  if (Users.isPostgres()) {
+    await addField(db, Users, "givingSeasonNotifyForVoting");
+  }
+  
   if (ElectionCandidates.isPostgres()) {
     await addField(db, ElectionCandidates, "fundraiserLink");
     await addField(db, ElectionCandidates, "gwwcLink");
@@ -45,6 +45,10 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
+  if (Users.isPostgres()) {
+    await dropField(db, Users, "givingSeasonNotifyForVoting");
+  }
+  
   if (ElectionCandidates.isPostgres()) {
     await dropField(db, ElectionCandidates, "fundraiserLink");
     await dropField(db, ElectionCandidates, "gwwcLink");
