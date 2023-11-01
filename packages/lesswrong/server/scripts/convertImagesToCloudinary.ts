@@ -1,7 +1,5 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { editableCollectionsFields } from '../../lib/editor/make_editable';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
-import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -20,34 +18,38 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
-// Given a URL which (probably) points to an image, download that image,
-// re-upload it to cloudinary, and return a cloudinary URL for that image. If
-// the URL is already Cloudinary or can't be downloaded, returns null instead.
-async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
-  const logger = loggerConstructor("image-conversion")
-  const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
-  if (alreadyRehosted) return alreadyRehosted;
-  
-  const cloudName = cloudinaryCloudNameSetting.get();
-  const apiKey = cloudinaryApiKey.get();
-  const apiSecret = cloudinaryApiSecret.get();
-  
+export const cloudinaryPublicIdFromUrl = (url: string, folder: string) => {
+  const parsedUrl = new URL(url)
+  const path = parsedUrl.pathname
+  const parts = path.split('/')
+  return `${folder}/${parts[parts.length - 1]}`
+}
+
+export const moveToCloudinary = async (oldUrl: string, folder?: string) => {
+  const logger = loggerConstructor('image-conversion')
+  const alreadyRehosted = await findAlreadyMovedImage(oldUrl)
+  if (alreadyRehosted) return alreadyRehosted
+
+  const cloudName = cloudinaryCloudNameSetting.get()
+  const apiKey = cloudinaryApiKey.get()
+  const apiSecret = cloudinaryApiSecret.get()
+
   if (!cloudName || !apiKey || !apiSecret) {
     // eslint-disable-next-line no-console
-    console.error("Cannot upload image to Cloudinary: not configured");
-    return null;
+    console.error('Cannot upload image to Cloudinary: not configured')
+    return null
   }
-  
+
   const result = await cloudinary.v2.uploader.upload(
     oldUrl,
     {
-      folder: `mirroredImages/${originDocumentId}`,
+      folder,
       cloud_name: cloudName,
       api_key: apiKey,
       api_secret: apiSecret,
-    }
-  );
-  logger(`Result of moving image: ${result.secure_url}`);
+    },
+  )
+  logger(`Result of moving image: ${result.secure_url}`)
 
   // Serve all images with automatic quality and format transformations to save on bandwidth
   const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
@@ -56,15 +58,22 @@ async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): 
     api_secret: apiSecret,
     quality: 'auto',
     fetch_format: 'auto',
-    secure: true
-  });
-  
+    secure: true,
+  })
+
   await Images.rawInsert({
     originalUrl: oldUrl,
     cdnHostedUrl: autoQualityFormatUrl,
-  });
-  
-  return autoQualityFormatUrl;
+  })
+
+  return autoQualityFormatUrl
+}
+
+// Given a URL which (probably) points to an image, download that image,
+// re-upload it to cloudinary, and return a cloudinary URL for that image. If
+// the URL is already Cloudinary or can't be downloaded, returns null instead.
+async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+  return moveToCloudinary(oldUrl, `mirroredImages/${originDocumentId}`)
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.

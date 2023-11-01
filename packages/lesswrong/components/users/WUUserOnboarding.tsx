@@ -14,6 +14,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.default,
     padding: '40px 22px',
     borderRadius: 6,
+    
+    "& .MuiIconButton-root": {
+      paddingTop: 7,
+      paddingBottom: 7,
+    },
   },
   title: {
     marginTop: 0,
@@ -21,6 +26,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 28,
     },
     color: theme.palette.text.normal,
+    fontWeight: 700,
+    fontSize: 30.8,
   },
   section: {
     marginTop: theme.spacing.unit * 3,
@@ -65,13 +72,6 @@ type WUUserOnboardingProps = {
   classes: ClassesType
 }
 
-function prefillUsername(maybeUsername: string | undefined | null): string {
-  if (!maybeUsername) return ''
-  if (/^\S+@\S+\.\S+$/.test(maybeUsername)) return ''
-  if (/new_user_\d+/.test(maybeUsername)) return ''
-  return maybeUsername
-}
-
 const WUTextField = ({classes, ...props}: TextFieldProps & { classes: ClassesType }) =>
   <div className={classes.inputContainer}>
     <TextField
@@ -81,10 +81,10 @@ const WUTextField = ({classes, ...props}: TextFieldProps & { classes: ClassesTyp
     /></div>
 
 const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes}) => {
-  const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
+  const [username, setUsername] = useState('')
   const [firstName, setFirstName] = useState(currentUser.first_name)
   const [lastName, setLastName] = useState(currentUser.last_name)
-  const [subscribeToDigest, setSubscribeToDigest] = useState(currentUser.subscribedToDigest)
+  const [subscribeToDigest, setSubscribeToDigest] = useState(true)
   const [allowNewPrivateMessageRequests, setAllowNewPrivateMessageRequests] = useState(true)
   const [acceptedTos, setAcceptedTos] = useState(false)
   const [mapLocation, setMapLocation] = useState(currentUser.mapLocation)
@@ -141,8 +141,8 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
         },
       })
     } catch (err) {
-      if (/duplicate key error/.test(err.toString?.())) {
-        setValidationError('Username already taken')
+      if (/Username/.test(err.toString?.())) {
+        setValidationError('Username is already taken')
       }
       // eslint-disable-next-line no-console
       console.error(err)
@@ -153,7 +153,7 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant="display2" gutterBottom className={classes.title}>
-        Welcome to the {siteNameWithArticleSetting.get()}
+        Welcome to the {siteNameWithArticleSetting.get()} Beta
       </Typography>
 
       <Typography variant="body2">

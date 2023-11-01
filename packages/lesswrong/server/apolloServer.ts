@@ -14,7 +14,7 @@ import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from '.
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
-import { ErrorInfo, formatError } from 'apollo-errors';
+import {formatError} from 'apollo-errors'
 
 import * as Sentry from '@sentry/node';
 import express from 'express'
@@ -49,6 +49,7 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
+import { shouldHideErrorDetailsFromUser } from './vulcan-lib';
 
 class ApolloServerLogging {
   requestDidStart(context: any) {
@@ -111,17 +112,6 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-
-  // Most errors shouldn't be shown to the user. Only a few specific ones should,
-  // and they're whitelisted here.
-  const shouldHideErrorDetailsFromUser = (e: GraphQLError) => {
-    if (!e?.extensions?.code) return false;
-    if (e.extensions.code === 'BAD_USER_INPUT') return false;
-    if (e.extensions.code === 'UNAUTHENTICATED') return false;
-    if (e?.extensions?.exception?.name == 'AuthorizationError') return false;
-
-    return true
-  }
 
   // formatErrorShim does two useful things:
   // 1. It fixes the slight incompatibility between the ErrorInfo type returned

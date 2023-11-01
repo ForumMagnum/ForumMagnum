@@ -1,7 +1,16 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
+import {
+  addGraphQLMutation,
+  addGraphQLQuery,
+  addGraphQLResolvers,
+  addGraphQLSchema,
+  SimpleValidationError,
+  slugify,
+  updateMutator,
+  Utils,
+} from '../vulcan-lib'
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
@@ -220,7 +229,7 @@ addGraphQLResolvers({
       // Check for uniqueness
       const existingUser = await Users.findOne({username})
       if (existingUser && existingUser._id !== currentUser._id) {
-        throw new Error('Username already exists')
+        throw new SimpleValidationError({message: "Username is already taken"})
       }
       const updatedUser = (await updateMutator({
         collection: Users,
