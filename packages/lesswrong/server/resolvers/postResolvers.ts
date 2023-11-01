@@ -225,8 +225,9 @@ addGraphQLResolvers({
       }
 
       const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
+      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context);
       return {
-        posts: posts,
+        posts: filteredPosts,
       }
     },
     async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
