@@ -187,7 +187,6 @@ const Timeline = ({
         <Fragment key={description}>
           <div {...positionDate(date)}>
             <div>{formatDate(date)}</div>
-            <div className={classes.dateDescription}>{description}</div>
           </div>
           <div {...positionDateMarker(date)} />
         </Fragment>
