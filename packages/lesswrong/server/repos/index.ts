@@ -8,6 +8,7 @@ import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
 import PostsRepo from "./PostsRepo";
+import ReadStatusesRepo from "./ReadStatusesRepo";
 import SequencesRepo from "./SequencesRepo";
 import TagsRepo from "./TagsRepo";
 import UsersRepo from "./UsersRepo";
@@ -28,6 +29,7 @@ const getAllRepos = () => ({
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
+  readStatuses: new ReadStatusesRepo(),
   sequences: new SequencesRepo(),
   tags: new TagsRepo(),
   users: new UsersRepo(),
@@ -44,6 +46,7 @@ export {
   PostRecommendationsRepo,
   PostRelationsRepo,
   PostsRepo,
+  ReadStatusesRepo,
   SequencesRepo,
   TagsRepo,
   UsersRepo,
