@@ -7,6 +7,7 @@ export type PostsPreviewTooltipProps = {
   hash?: string|null,
   post: PostsList|SunshinePostsList|null,
   comment?: CommentsList,
+  dialogueMessageId?: string,
 }
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>

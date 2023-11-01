@@ -24,6 +24,28 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
+export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogueMessageId}: {
+  postId: string,
+  postsList?: boolean
+  dialogueMessageId: string,
+}) => {
+  const { document: post, loading: postLoading } = useSingle({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+    fetchPolicy: 'cache-then-network' as AnyBecauseTodo,
+    documentId: postId,
+  });
+
+  const {PostsPreviewLoading} = Components;
+  if (postLoading) {
+    return <PostsPreviewLoading />
+  }
+
+  if (!post) {return null;}
+
+  return <PostsPreviewTooltip post={post} postsList={postsList} dialogueMessageId={dialogueMessageId}/>
+}
+
 export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {
   postId: string,
   commentId: string,

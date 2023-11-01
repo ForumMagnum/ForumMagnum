@@ -287,11 +287,7 @@ export const NewDialogueMessagesNotification = registerNotificationType({
     const newMessageAuthorId = extraData?.newMessageAuthorId
     const newMessageContents = extraData?.newMessageContents
     let post = await getDocument(documentType, documentId) as DbPost;
-    let author = await getDocument("user", newMessageAuthorId) as DbUser;
-    console.log("inside NewDialogueMessageNotification", {newMessageAuthorId, newMessageContents, extraData})
-    if (!author) throw new Error("Author not found")
-
-    console.log({rawDisplayName: author.displayName, displayName: userGetDisplayName(author)})
+    let author = await getDocument("user", newMessageAuthorId) as DbUser ?? '[Missing Author Name]';
 
     return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
   },

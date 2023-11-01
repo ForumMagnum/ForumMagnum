@@ -137,6 +137,7 @@ const LWPostsPreviewTooltip = ({
   post,
   hash,
   comment,
+  dialogueMessageId,
   classes,
 }: LWPostsPreviewTooltipProps) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
@@ -156,13 +157,32 @@ const LWPostsPreviewTooltip = ({
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
+
+  const {document: postWithDialogueMessage, loading: postWithDialogueMessageLoading} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "PostWithDialogueMessage",
+    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
+    skip: !post || !dialogueMessageId,
+    fetchPolicy: "cache-first",
+    extraVariables: { dialogueMessageId: "String" },
+    extraVariablesValues: {dialogueMessageId},
+    apolloClient: isForeign ? foreignApolloClient : undefined,
+  });
+
   if (!post) return null
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = post.debate
-    ? post.dialogTooltipPreview
-    : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+  const highlightContents = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+
+  let highlight;
+  if (post.collabEditorDialogue) {
+    highlight = postWithDialogueMessage?.dialogueMessageContents ?? highlightContents
+  } else if (post.debate) {
+    highlight = post.dialogTooltipPreview
+  } else {
+    highlight = highlightContents
+  }
 
   const renderWordCount = !comment && !post.isEvent && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)

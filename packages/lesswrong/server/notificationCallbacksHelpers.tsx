@@ -189,7 +189,7 @@ export const createNotification = async ({userId, notificationType, documentType
     userId: userId,
     documentId: documentId||undefined,
     documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId),
+    message: await notificationMessage(notificationType, documentType, documentId, extraData),
     type: notificationType,
     link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,
