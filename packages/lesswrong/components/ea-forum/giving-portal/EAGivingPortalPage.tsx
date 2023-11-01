@@ -317,7 +317,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
   const onAddCandidate = useCallback(() => {
-    // TODO: Hook up notifications
+    // TODO: Hook up adding candidate
     // eslint-disable-next-line no-console
     console.log("Clicked add candidate");
   }, []);
