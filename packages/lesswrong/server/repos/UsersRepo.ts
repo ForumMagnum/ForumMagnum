@@ -34,7 +34,7 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-type UpvotedUser = {
+export type UpvotedUser = {
   _id: string;
   username: string;
   displayName: string;
@@ -45,7 +45,21 @@ type UpvotedUser = {
   agreement_values: string;
 };
 
-type TopCommentedTagUser = {
+// topCommentedTags.name,
+// u.username,
+// u."displayName",
+// c."userId",
+// COUNT(*) AS post_comment_count
+
+type UserData = {
+  _id: string;
+  username: string;
+  displayName: string;
+  name: string;
+  post_comment_count: number;
+};
+
+export type TopCommentedTagUser = {
   _id: string;
   username: string;
   displayName: string;
@@ -353,7 +367,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       `, [userId])
   }
   
-  async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<any> {
+  async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<UserData[]> {
     const topUserIds = topUsers.map(user => user._id);
     const topTagNames = topCommentedTags.map(tag => tag.name);
   
@@ -383,7 +397,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     }
   }
 
-  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: any[], topUsers: any[]): Promise<TopCommentedTagUser[]> {
+  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: UserData[], topUsers: UpvotedUser[]): Promise<TopCommentedTagUser[]> {
     // Extract data from the preprocessed data
     const userData = preTopCommentedTagTopUsers.map(user => ({
       username: user.username, 

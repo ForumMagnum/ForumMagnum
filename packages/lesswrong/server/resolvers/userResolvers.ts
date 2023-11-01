@@ -24,6 +24,16 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { TagsRepo, UsersRepo } from '../repos';
 import {defineQuery} from '../utils/serverGraphqlUtil';
+import { CommentCountTag } from "../repos/TagsRepo";
+import { UpvotedUser, TopCommentedTagUser } from "../repos/UsersRepo";
+
+
+type TopTagsTopUsers = {
+  dialogueUsers: DbUser[],
+  topUsers: UpvotedUser[],
+  topCommentedTags: CommentCountTag[],
+  topCommentedTagTopUsers: TopCommentedTagUser[],
+}
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -542,4 +552,3 @@ defineQuery({
     return results
   }
 });
- 
