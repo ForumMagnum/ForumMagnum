@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 1252,
     padding: 40,
     margin: "0 auto",
-    "@media screen and (max-width: 1000px)": {
+    [theme.breakpoints.down("md")]: {
       padding: 24,
     },
   },
