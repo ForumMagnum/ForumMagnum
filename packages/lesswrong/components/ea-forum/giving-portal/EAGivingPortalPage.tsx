@@ -488,7 +488,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           classes.mt60,
           classes.mb80,
         )}>
-          <div className={classes.h1}>Other donation opportunities & more on effective giving</div>
+          <div className={classes.h1}>Other donation opportunities</div>
           <div className={classNames(classes.text, classes.textWide)}>
           Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
             <a href={setupFundraiserLink}>run custom fundraisers</a>, or more.
