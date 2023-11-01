@@ -20,11 +20,12 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
   },
   dropdown: {
+
     "& .ForumDropdownMultiselect-button": {
       color: theme.palette.givingPortal[1000],
-      backgroundColor: theme.palette.givingPortal.candidate,
+      fontSize: 16,
       "&:hover": {
-        backgroundColor: theme.palette.givingPortal.votedCandidate,
+        backgroundColor: theme.palette.givingPortal.candidate,
       },
     },
   },

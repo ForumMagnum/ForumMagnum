@@ -7,6 +7,8 @@ registerFragment(`
     name
     logoSrc
     href
+    fundraiserLink
+    gwwcLink
     description
     tag {
       ...TagBasicInfo

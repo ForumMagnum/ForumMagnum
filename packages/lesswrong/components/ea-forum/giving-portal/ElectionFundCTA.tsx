@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { Link } from "../../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   /**
@@ -26,6 +27,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 408,
     padding: "32px 24px",
     fontSize: 16,
+    lineHeight: '22px',
     letterSpacing: "-0.16px",
     fontWeight: 500,
     color: theme.palette.givingPortal.ctaText,
@@ -55,6 +57,7 @@ const styles = (theme: ThemeType) => ({
     gap: "6px",
     width: "100%",
     fontSize: 16,
+    lineHeight: '22px',
     fontWeight: 600,
     borderRadius: theme.borderRadius.small,
     padding: 16,
@@ -69,11 +72,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     "&:hover": {
       backgroundColor: theme.palette.givingPortal.button.hoverOutlined,
+      opacity: 1,
     },
   },
   solidButton: {
     color: theme.palette.givingPortal.button.light,
     backgroundColor: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.dark}`,
     "&:hover": {
       opacity: 0.9,
     },
@@ -89,6 +94,7 @@ const ElectionFundCTA = ({
   description,
   buttonIcon,
   buttonText,
+  href,
   onButtonClick,
   solidButton,
   children,
@@ -99,30 +105,46 @@ const ElectionFundCTA = ({
   description: string,
   buttonIcon?: ForumIconName,
   buttonText: string,
-  onButtonClick: () => void,
+  href?: string,
+  onButtonClick?: () => void,
   solidButton?: boolean,
   children?: ReactNode,
   classes: ClassesType,
 }) => {
   const {ForumIcon} = Components;
+  
+  // If an href is provided, make this a link instead of a button
+  const buttonNode = href ? <Link
+    to={href}
+    className={classNames(classes.button, {
+      [classes.outlineButton]: !solidButton,
+      [classes.solidButton]: solidButton,
+    })}
+  >
+    {buttonIcon &&
+      <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
+    }
+    {buttonText}
+  </Link> : <button
+    onClick={onButtonClick}
+    className={classNames(classes.button, {
+      [classes.outlineButton]: !solidButton,
+      [classes.solidButton]: solidButton,
+    })}
+  >
+    {buttonIcon &&
+      <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
+    }
+    {buttonText}
+  </button>
+  
   return (
     <div className={classes.root}>
       <div className={classes.image}>{image}</div>
       <div className={classes.title}>{title}</div>
       <div className={classes.description}>{description}</div>
       <div className={classes.children}>{children}</div>
-      <button
-        onClick={onButtonClick}
-        className={classNames(classes.button, {
-          [classes.outlineButton]: !solidButton,
-          [classes.solidButton]: solidButton,
-        })}
-      >
-        {buttonIcon &&
-          <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
-        }
-        {buttonText}
-      </button>
+      {buttonNode}
     </div>
   );
 }

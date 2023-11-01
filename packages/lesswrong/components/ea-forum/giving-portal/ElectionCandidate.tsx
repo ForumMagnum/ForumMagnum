@@ -43,6 +43,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "center",
     gap: "2px",
+    paddingRight: 24
   },
   heartIcon: {
     fontSize: 14,
@@ -129,7 +130,7 @@ const ElectionCandidate = ({candidate, classes}: {
             <>
               {", "}
               <LWTooltip
-                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election”`}
+                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
                 placement="bottom"
                 popperClassName={classes.tooltip}
               >

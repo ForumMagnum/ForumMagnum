@@ -28,7 +28,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     optional: false,
     nullable: false,
   },
-  /** Link for this candidate */
+  /** Link for this candidate (i.e. to the org's website) */
   href: {
     type: String,
     canRead: ["guests"],
@@ -36,6 +36,24 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+  },
+  /** Link for this candidate's GWWC fundraiser page */
+  fundraiserLink: {
+    type: String,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
+  },
+  /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
+  gwwcLink: {
+    type: String,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
   },
   /** Short plaintext description */
   description: {

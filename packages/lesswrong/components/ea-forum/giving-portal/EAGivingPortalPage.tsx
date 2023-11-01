@@ -126,7 +126,6 @@ const styles = (theme: ThemeType) => ({
     "& a": {
       color: "inherit",
       textDecoration: "underline",
-      fontWeight: 700,
       "&:hover": {
         opacity: 1,
         textDecoration: "none",
@@ -275,9 +274,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
+    loadMoreProps: donationOpportunitiesLoadMoreProps,
   } = useDonationOpportunities();
   const {document: donationElectionTag} = useSingle({
     documentId: donationElectionTagId,
+    collectionName: "Tags",
+    fragmentName: "TagBasicInfo",
+  });
+  const {document: effectiveGivingTag} = useSingle({
+    documentId: effectiveGivingTagId,
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
@@ -316,31 +321,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
-  const onAddCandidate = useCallback(() => {
-    // TODO: Hook up adding candidate
-    // eslint-disable-next-line no-console
-    console.log("Clicked add candidate");
-  }, []);
-
-  const onContribute = useCallback(() => {
-    // TODO: Hook up contribute button
-    // eslint-disable-next-line no-console
-    console.log("Clicked contribute to the discussion");
-  }, []);
-
-  const onLoadMoreOpportunities = useCallback(() => {
-    // TODO: Hook up loading more opportunities
-    // eslint-disable-next-line no-console
-    console.log("Clicked load more donation opportunities");
-  }, []);
-
-  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 6);
+  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 8);
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
 
   const {
-    Loading, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
+    Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
   } = Components;
   return (
@@ -379,14 +366,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be allocated to the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
-                <a href={donationElectionLink}>Learn more.</a>
+                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                <a href={donationElectionLink}>Learn more</a>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
                   image={<DonateIcon />}
                   title="Donate"
-                  description="The Donation Election Fund will be allocated to top 3 candidates, based on Forum users' votes."
+                  description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
                   onButtonClick={onDonate}
                   solidButton
@@ -410,7 +397,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Discuss"
                   description="Discuss where we should donate and what we should vote for in the Election."
                   buttonText="Contribute to the discussion"
-                  onButtonClick={onContribute}
+                  href={postsAboutElectionLink}
                 >
                   <Link
                     to={postsAboutElectionLink}
@@ -443,11 +430,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.textWide,
                 classes.mb20,
               )}>
-                The top three winning candidates in the election will receive money from the Donation Election Fund (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
+                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
                 <ul>
                   <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
-                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://www.givingwhatwecan.org/">
-                  here </a> can be a candidate.</li>
+                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://docs.google.com/spreadsheets/d/1I-IFdkai9frIIMO6fVqOIp6PDllXG713UhnI1WuwyiQ/edit#gid=0">
+                  here</a> can be a candidate.</li>
                 </ul>
                 <i>Only users who had an account as of 22 October 2023 can pre-vote or vote in the election.</i>
               </div>
@@ -457,10 +444,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.mt10,
                 classes.mb80,
               )}>
-                <button onClick={onAddCandidate} className={classes.button}>
+                <Link to="https://docs.google.com/forms/d/e/1FAIpQLScnIBGnpqQUNTXqeh-DjLKPZ3b4-Cs9vBnvd6Wh5r_7oiX92Q/viewform" className={classes.button}>
                   <ForumIcon icon="Plus" />
                   Add candidate
-                </button>
+                </Link>
                 <div className={classNames(classes.text, classes.primaryText)}>
                   Deadline to add: November 21
                 </div>
@@ -488,10 +475,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   loadMoreMessage="View more"
                 />
               </div>
-              <div>
-                <button onClick={onContribute} className={classes.button}>
+              <div className={classes.rowThin}>
+                <Link to={`/topics/${effectiveGivingTag?.slug}`} className={classes.button}>
                   Contribute to the discussion
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -518,10 +505,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             ))}
             {donationOpportunitiesLoading && <Loading />}
           </div>
-          <div onClick={onLoadMoreOpportunities} className={classes.loadMore}>
-            {/* TODO: Hook up this load more button */}
-            Load more
-          </div>
+          <LoadMore className={classes.loadMore} {...donationOpportunitiesLoadMoreProps} />
         </div>
         {/* TODO add in these sequences once more of them exist */}
         {/* <div className={classNames(classes.content, classes.mb100)}>
