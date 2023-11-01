@@ -1441,6 +1441,17 @@ const schema: SchemaType<DbUser> = {
     logChanges: false,
   },
 
+  // User wants to get notifications when giving season voting begins
+  givingSeasonNotifyForVoting: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
+
   // Email settings
   emailSubscribedToCurated: {
     type: Boolean,
