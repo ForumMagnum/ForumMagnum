@@ -35,6 +35,9 @@ import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
+import { ckEditorApiHelpers, documentHelpers } from './ckEditor/ckEditorApi';
+import { getLatestRev } from './editor/make_editable_callbacks';
+import { cheerioParse } from './utils/htmlUtil';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -223,11 +226,32 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   }
 });
 
-export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, post: DbPost) {
+/**
+ * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
+*/
+const getDialogueMessageContents = async (post: DbPost, messageId: string): string => {
+  if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
+
+  const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(post._id)
+  const remoteDocument = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorId)
+  const latestRevision = await getLatestRev(remoteDocument, "contents")
+  const html = remoteDocument ?? latestRevision?.html ?? post.contents.html ?? ""
+
+  // fetch remote document from storage / fetch latest revision / post latest contents
+  console.log({remoteDocument, latestRevision: latestRevision?.html, postContents: post.contents.html, html})
+
+  const $ = cheerioParse(html)
+  const message = $(`[message-id="${messageId}"] .dialogue-message-content`);
+  const messageContents =  message.html() || '';
+  return messageContents
+}
+
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, newMessageId: string, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
   const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
   const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
   const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
+  const newMessageContents = await getDialogueMessageContents(post, newMessageId);
 
   const notifications = await Notifications.find({userId: {$in: debateParticipantIds}, documentId: post._id, documentType: 'post', type: 'newDialogueMessages', createdAt: {$gt: earliestLastNotificationsCheck }}).fetch();
 
@@ -237,8 +261,10 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
     const userLastNotificationCreatedAt = _.max([...userNotifications.map(notification => notification.createdAt), post.createdAt]);
     return moment(userLastNotificationCreatedAt).isBefore(moment(user.lastNotificationsCheck));
   }).map(user => user._id);
+    
+    console.log("Inside function notifyDialogueParticipantsNewMessage", {newMessageAuthorId, newMessageContents, newMessageId})
 
-  await createNotifications({ userIds: userIdsToNotify, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id });
+  await createNotifications({ userIds: userIdsToNotify, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id, extraData: {newMessageAuthorId, newMessageId, newMessageContents} });
 }
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {

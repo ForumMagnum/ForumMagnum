@@ -23,8 +23,8 @@ import DoneIcon from '@material-ui/icons/Done';
 import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
-import {userGetDisplayName} from './collections/users/helpers'
-import {TupleSet, UnionOf} from './utils/typeGuardUtils'
+import { userGetDisplayName } from './collections/users/helpers'
+import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const)
@@ -33,16 +33,24 @@ export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 interface GetMessageProps {
   documentType: NotificationDocument | null
   documentId: string | null
+  extraData?: Record<string,any>
+}
+
+interface GetDialogueMessageProps {
+  documentType: NotificationDocument | null
+  documentId: string | null
+  newMessageAuthorId: string
+  newMessageContents: string
 }
 
 interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
-  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null})=>Promise<string>
+  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
   causesRedBadge?: boolean
 }
 
@@ -274,9 +282,18 @@ export const NewSubforumCommentNotification = registerNotificationType({
 export const NewDialogueMessagesNotification = registerNotificationType({
   name: "newDialogueMessages",
   userSettingField: "notificationDialogueMessages",
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, extraData}: GetMessageProps) {
+
+    const newMessageAuthorId = extraData?.newMessageAuthorId
+    const newMessageContents = extraData?.newMessageContents
     let post = await getDocument(documentType, documentId) as DbPost;
-    return `New response in your dialogue "${post.title}"`;
+    let author = await getDocument("user", newMessageAuthorId) as DbUser;
+    console.log("inside NewDialogueMessageNotification", {newMessageAuthorId, newMessageContents, extraData})
+    if (!author) throw new Error("Author not found")
+
+    console.log({rawDisplayName: author.displayName, displayName: userGetDisplayName(author)})
+
+    return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

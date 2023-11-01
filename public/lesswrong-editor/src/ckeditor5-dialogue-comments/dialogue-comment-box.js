@@ -353,7 +353,7 @@ class SubmitDialogueMessageCommand extends Command {
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0);
-			  	dialogueConfig.dialogueParticipantNotificationCallback();
+			  	dialogueConfig.dialogueParticipantNotificationCallback({userId, messageId});
             }
         });
     }
