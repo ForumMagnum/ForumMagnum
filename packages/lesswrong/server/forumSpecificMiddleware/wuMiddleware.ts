@@ -8,6 +8,7 @@ import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolve
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
 import {AuthorizationError} from '../apolloServer'
+import {cloudinaryPublicIdFromUrl, moveToCloudinary} from '../scripts/convertImagesToCloudinary'
 
 // This file has middleware for redirecting logged-out users to the login page,
 // but it also manages authentication with the Waking Up app. This latter thing
@@ -175,11 +176,21 @@ async function createWuUser(wuUser: WuUserData): Promise<DbUser> {
       displayName: wuDisplayName(wuUser),
       username: await Utils.getUnusedSlugByCollectionName("Users", slugify(wuDisplayName(wuUser))),
       usernameUnset: true,
+      profileImageId: await rehostProfileImageToCloudinary(wuUser.avatar)
     },
     validate: false,
     currentUser: null
   })
   return userCreated
+}
+
+const rehostProfileImageToCloudinary = async (url?: string) => {
+  if (!url) return undefined
+  const folder = 'profileImages'
+  const newUrl = await moveToCloudinary(url, folder)
+  if (!newUrl) return undefined
+  
+  return cloudinaryPublicIdFromUrl(newUrl, folder)
 }
 
 function wuDisplayName(wuUser: WuUserData): string {
