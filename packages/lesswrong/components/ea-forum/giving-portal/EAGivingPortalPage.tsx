@@ -465,7 +465,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )}>
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged Effective giving
+                Recent posts tagged &quot;Effective giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
