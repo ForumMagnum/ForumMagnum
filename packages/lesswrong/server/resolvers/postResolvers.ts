@@ -334,9 +334,10 @@ createPaginatedResolver({
   name: "MyDialogues",
   graphQLType: "Post",
   callback: async (
-    {repos, currentUser, context}: ResolverContext,
+    context: ResolverContext,
     limit: number,
   ): Promise<DbPost[]> => {
+      const {repos, currentUser} = context
       if (!currentUser) return []
       const posts = await repos.posts.getMyActiveDialogues(currentUser._id, limit);
       return await accessFilterMultiple(currentUser, Posts, posts, context);
