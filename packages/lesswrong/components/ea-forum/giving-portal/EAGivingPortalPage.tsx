@@ -320,7 +320,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const onContribute = useCallback(() => {
     history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
-  }, []);
+  }, [history]);
 
   const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
 
