@@ -157,7 +157,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'sunshine'
   },
   whiteBackground: {
-    background: theme.palette.background.pageActiveAreaBackground,
+    // Unlike EA/LW, Waking Up still uses a gray background for posts, but only at wide widths.
+    // So we only apply the rule for whiteBackground pages if the width is narrow. (See the
+    // useEffect hook in the Layout component for more details on when whiteBackground is
+    // applied.)
+    [theme.breakpoints.down('sm')]: {
+      background: theme.palette.background.pageActiveAreaBackground,
+    }
   },
   '@global': {
     ...globalStyles(theme),

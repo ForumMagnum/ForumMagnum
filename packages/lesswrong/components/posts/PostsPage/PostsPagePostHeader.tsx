@@ -24,7 +24,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
+    marginBottom: 0,
+    padding: '16px 10px',
+    [theme.breakpoints.down('sm')]: {
+      marginTop: -40,
+    }
   },
   headerLeft: {
     width: "100%"
@@ -53,8 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isFriendlyUI ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
-    paddingBottom: isFriendlyUI ? 12 : undefined,
-    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
+    paddingBottom: 0,
   },
   secondaryInfo: {
     flexGrow: 1,

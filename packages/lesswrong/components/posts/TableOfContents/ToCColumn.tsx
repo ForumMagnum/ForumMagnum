@@ -20,6 +20,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   header: {
     gridArea: 'title',
+    margin: "0 auto",
+    maxWidth: 720,
   },
   tocActivated: {
     // Check for support for template areas before applying
@@ -32,8 +34,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         minmax(min-content, ${MAX_COLUMN_WIDTH}px)
         minmax(0px, ${DEFAULT_TOC_MARGIN}px)
         min-content
-        10px
-        1.5fr
+        1fr
       `,
       gridTemplateAreas: `
         "... ... .... title   .... ... .... ..."
@@ -105,7 +106,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
   },
-  content: { gridArea: 'content' },
+  content: {
+    gridArea: 'content',
+    margin: "0 auto",
+    maxWidth: 720
+  },
   gap1: { gridArea: 'gap1'},
   gap2: { gridArea: 'gap2'},
   gap3: { gridArea: 'gap3' },

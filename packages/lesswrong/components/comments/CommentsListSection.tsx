@@ -17,23 +17,28 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
+export const NEW_COMMENT_MARGIN_BOTTOM = "0"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    backgroundColor: theme.palette.background.default,
     fontWeight: theme.typography.body1.fontWeight ?? 400,
-    margin: "0px auto 15px auto",
+    margin: "0px auto",
     ...theme.typography.commentStyle,
-    position: "relative"
+    position: "relative",
+    [theme.breakpoints.down('sm')]: {
+      background: "#fff",
+    }
   },
   maxWidthRoot: {
     maxWidth: 720,
   },
   commentsHeadline: {
-    fontSize: 24,
+    fontSize: 20,
     lineHeight: '36px',
     fontWeight: 600,
-    marginBottom: 16
+    paddingTop: 20,
+    marginBottom: 8
   },
   commentCount: {
     color: theme.palette.grey[600],
@@ -53,6 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   newComment: {
     border: theme.palette.border.commentBorder,
+    backgroundColor: "#fff",
     position: 'relative',
     borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
@@ -222,7 +228,7 @@ const CommentsListSection = ({
             [classes.newQuickTake]: isEAForum && post?.shortform,
           })}
         >
-          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {!isFriendlyUI && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && (post?.rsvps?.length > 0) && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

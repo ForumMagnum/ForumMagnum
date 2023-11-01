@@ -12,6 +12,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
+  commentsList: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 4,
+    [theme.breakpoints.down('sm')]: {
+      padding: 0,
+    }
+  }
 })
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
@@ -64,7 +72,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   }
   return <Components.ErrorBoundary>
     {renderExpandOptions()}
-    <div>
+    {comments.length > 0 && <div className={classes.commentsList}>
       {comments.map(comment =>
         <CommentsNode
           treeOptions={treeOptions}
@@ -79,7 +87,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           isChild={defaultNestingLevel > 1}
         />)
       }
-    </div>
+    </div>}
   </Components.ErrorBoundary>
 }
 

@@ -249,6 +249,11 @@ export const wakingUpTheme: SiteThemeSpecification = {
             '@media (max-width: 979px)': {
               paddingTop: 22,
             },
+          },
+          whiteBackground: {
+            "& .ToCColumn-content, & .ToCColumn-header": {
+              backgroundColor: "#fff",
+            },
           }
         },
         MuiTooltip: {
