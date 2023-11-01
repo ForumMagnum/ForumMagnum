@@ -5,4 +5,5 @@ export type SearchHitComponentProps = {
   clickAction?: any,
   classes: ClassesType,
   showIcon?: boolean
+  showKarma?: boolean
 }

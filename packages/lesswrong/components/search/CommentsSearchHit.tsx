@@ -33,7 +33,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false, showKarma=false}: SearchHitComponentProps) => {
   const comment = (hit as AlgoliaComment);
   const { LWTooltip } = Components
 
@@ -56,7 +56,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHi
     <Link to={url} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div>
         <Components.MetaInfo>{comment.authorDisplayName}</Components.MetaInfo>
-        <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>
+        {showKarma && <Components.MetaInfo>{comment.baseScore} karma </Components.MetaInfo>}
         <Components.MetaInfo>
           <Components.FormatDate date={comment.postedAt}/>
         </Components.MetaInfo>
