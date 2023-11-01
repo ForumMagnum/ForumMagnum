@@ -284,6 +284,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
+  const {document: effectiveGivingTag} = useSingle({
+    documentId: effectiveGivingTagId,
+    collectionName: "Tags",
+    fragmentName: "TagBasicInfo",
+  });
   const {
     results: relevantSequences,
     loading: loadingRelevantSequences,
@@ -318,10 +323,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     void updateCurrentUser({givingSeasonNotifyForVoting: !notifyForVotingOn});
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
-
-  const onContribute = useCallback(() => {
-    history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
-  }, [history]);
 
   const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 6);
 
@@ -399,7 +400,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Discuss"
                   description="Discuss where we should donate and what we should vote for in the Election."
                   buttonText="Contribute to the discussion"
-                  onButtonClick={onContribute}
+                  href={`/topics/${donationElectionTag?.slug}`}
                 >
                   <Link
                     to={postsAboutElectionLink}
@@ -435,7 +436,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 The top three winning candidates in the election will receive money from the Donation Election Fund (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
                 <ul>
                   <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
-                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://www.givingwhatwecan.org/">
+                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://docs.google.com/spreadsheets/d/1I-IFdkai9frIIMO6fVqOIp6PDllXG713UhnI1WuwyiQ/edit#gid=0">
                   here</a> can be a candidate.</li>
                 </ul>
                 <i>Only users who had an account as of 22 October 2023 can pre-vote or vote in the election.</i>
@@ -477,10 +478,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   loadMoreMessage="View more"
                 />
               </div>
-              <div>
-                <button onClick={onContribute} className={classes.button}>
+              <div className={classes.rowThin}>
+                <Link to={`/topics/${effectiveGivingTag?.slug}`} className={classes.button}>
                   Contribute to the discussion
-                </button>
+                </Link>
               </div>
             </div>
           </div>

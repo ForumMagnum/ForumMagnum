@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { Link } from "../../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   /**
@@ -90,6 +91,7 @@ const ElectionFundCTA = ({
   description,
   buttonIcon,
   buttonText,
+  href,
   onButtonClick,
   solidButton,
   children,
@@ -100,30 +102,46 @@ const ElectionFundCTA = ({
   description: string,
   buttonIcon?: ForumIconName,
   buttonText: string,
-  onButtonClick: () => void,
+  href?: string,
+  onButtonClick?: () => void,
   solidButton?: boolean,
   children?: ReactNode,
   classes: ClassesType,
 }) => {
   const {ForumIcon} = Components;
+  
+  // If an href is provided, make this a link instead of a button
+  const buttonNode = href ? <Link
+    to={href}
+    className={classNames(classes.button, {
+      [classes.outlineButton]: !solidButton,
+      [classes.solidButton]: solidButton,
+    })}
+  >
+    {buttonIcon &&
+      <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
+    }
+    {buttonText}
+  </Link> : <button
+    onClick={onButtonClick}
+    className={classNames(classes.button, {
+      [classes.outlineButton]: !solidButton,
+      [classes.solidButton]: solidButton,
+    })}
+  >
+    {buttonIcon &&
+      <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
+    }
+    {buttonText}
+  </button>
+  
   return (
     <div className={classes.root}>
       <div className={classes.image}>{image}</div>
       <div className={classes.title}>{title}</div>
       <div className={classes.description}>{description}</div>
       <div className={classes.children}>{children}</div>
-      <button
-        onClick={onButtonClick}
-        className={classNames(classes.button, {
-          [classes.outlineButton]: !solidButton,
-          [classes.solidButton]: solidButton,
-        })}
-      >
-        {buttonIcon &&
-          <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
-        }
-        {buttonText}
-      </button>
+      {buttonNode}
     </div>
   );
 }
