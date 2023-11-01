@@ -26,6 +26,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 408,
     padding: "32px 24px",
     fontSize: 16,
+    lineHeight: '22px',
     letterSpacing: "-0.16px",
     fontWeight: 500,
     color: theme.palette.givingPortal.ctaText,

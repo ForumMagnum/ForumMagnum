@@ -436,7 +436,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <ul>
                   <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
                   <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://www.givingwhatwecan.org/">
-                  here </a> can be a candidate.</li>
+                  here</a> can be a candidate.</li>
                 </ul>
                 <i>Only users who had an account as of 22 October 2023 can pre-vote or vote in the election.</i>
               </div>
