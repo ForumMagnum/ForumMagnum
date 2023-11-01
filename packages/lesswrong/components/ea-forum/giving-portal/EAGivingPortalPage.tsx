@@ -13,6 +13,7 @@ import {
 import {
   donationElectionLink,
   donationElectionTagId,
+  effectiveGivingTagId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -333,7 +334,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     console.log("Clicked load more donation opportunities");
   }, []);
 
-  const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
+  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 6);
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
@@ -415,7 +416,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                     to={postsAboutElectionLink}
                     className={classes.underlinedLink}
                   >
-                    View {donationElectionTag?.postCount} related posts
+                    View {donationElectionTag?.postCount} related post{donationElectionTag?.postCount === 1 ? "" : "s"}
                   </Link>
                 </ElectionFundCTA>
                 <ElectionFundCTA
@@ -476,14 +477,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )}>
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged Donation Election 2023
+                Recent posts tagged &quot;Effective giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={electionPostsTerms}
+                  terms={effectiveGivingPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
