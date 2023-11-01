@@ -36,7 +36,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const PostsSearchHit = ({hit, clickAction, classes, showIcon=false, showKarma=false}: SearchHitComponentProps) => {
   const post = (hit as AlgoliaPost);
   const { Typography, LWTooltip } = Components;
 
@@ -57,9 +57,9 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
           {post.authorDisplayName && <Components.MetaInfo>
             {post.authorDisplayName}
           </Components.MetaInfo>}
-          <Components.MetaInfo>
+          {showKarma && <Components.MetaInfo>
             {post.baseScore} karma
-          </Components.MetaInfo>
+          </Components.MetaInfo>}
           {post.postedAt && <Components.MetaInfo>
             <Components.FormatDate date={post.postedAt}/>
           </Components.MetaInfo>}

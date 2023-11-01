@@ -25,7 +25,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const UsersSearchHit = ({hit, clickAction, classes, showIcon=false, showKarma=false}: SearchHitComponentProps) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as AlgoliaUser
 
@@ -40,9 +40,9 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
       <MetaInfo>
         <FormatDate date={user.createdAt} />
       </MetaInfo>
-      <MetaInfo>
+      {showKarma && <MetaInfo>
         {user.karma||0} karma
-      </MetaInfo>
+      </MetaInfo>}
     </Link>
   </div>
 }
