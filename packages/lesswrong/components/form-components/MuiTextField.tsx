@@ -26,7 +26,8 @@ export const textFieldStyles = (theme: ThemeType): JssStyles => ({
   },
   "& .MuiInputBase-input" : {
     fontWeight: 600,
-    marginTop: "4px",
+    marginTop: 10,
+    marginBottom: -6,
   },
   "& label + .MuiInput-formControl" :{
     marginTop: 0,
