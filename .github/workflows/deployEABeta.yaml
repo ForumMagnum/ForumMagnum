@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [giving-portal-improvements, ea-giving-season-23]
+    branches: [ea-giving-season-23]
 jobs:
   deploy:
     runs-on: ubuntu-latest
