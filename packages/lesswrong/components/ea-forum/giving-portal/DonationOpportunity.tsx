@@ -71,8 +71,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   buttonPrimary: {
-    backgroundColor: theme.palette.givingPortal[1000],
-    color: theme.palette.grey[0],
+    backgroundColor: theme.palette.givingPortal.button.alwaysDark,
+    color: theme.palette.text.alwaysWhite,
   },
   buttonGrey: {
     backgroundColor: theme.palette.grey[200],

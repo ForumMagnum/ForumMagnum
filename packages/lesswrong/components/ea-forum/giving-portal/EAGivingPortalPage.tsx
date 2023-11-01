@@ -13,6 +13,7 @@ import {
 import {
   donationElectionLink,
   donationElectionTagId,
+  effectiveGivingTagId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -91,14 +92,14 @@ const styles = (theme: ThemeType) => ({
   primaryText: {
     color: theme.palette.givingPortal[1000],
   },
-  secondaryText: {
-    color: theme.palette.givingPortal[900],
-  },
   h1: {
     fontSize: 60,
     fontWeight: 700,
     lineHeight: "normal",
     letterSpacing: "-1.2px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 40,
+    }
   },
   h2: {
     fontSize: 28,
@@ -150,8 +151,8 @@ const styles = (theme: ThemeType) => ({
     gap: "10px",
     fontSize: 16,
     fontWeight: 600,
-    background: theme.palette.grey[0],
-    color: theme.palette.givingPortal[1000],
+    background: theme.palette.givingPortal.button.dark,
+    color: theme.palette.givingPortal.button.light,
     borderRadius: theme.borderRadius.small,
     padding: "12px 48px",
     border: "none",
@@ -322,7 +323,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
   }, [history]);
 
-  const electionPostsTerms = getListTerms(donationElectionTagId, "new", 6);
+  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 6);
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
@@ -404,7 +405,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                     to={postsAboutElectionLink}
                     className={classes.underlinedLink}
                   >
-                    View {donationElectionTag?.postCount} related posts
+                    View {donationElectionTag?.postCount} related post{donationElectionTag?.postCount === 1 ? "" : "s"}
                   </Link>
                 </ElectionFundCTA>
                 <ElectionFundCTA
@@ -456,7 +457,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader />
+        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(
@@ -465,14 +466,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )}>
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged Donation Election 2023
+                Recent posts tagged &quot;Effective giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={electionPostsTerms}
+                  terms={effectiveGivingPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>

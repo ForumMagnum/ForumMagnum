@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "24px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.givingPortal[0],
+    backgroundColor: theme.palette.givingPortal.ctaBackground,
     borderRadius: theme.borderRadius.default,
     maxWidth: "100%",
     width: 500,
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     letterSpacing: "-0.16px",
     fontWeight: 500,
-    color: theme.palette.grey[600],
+    color: theme.palette.givingPortal.ctaText,
   },
   image: {
     width: 100,
@@ -64,17 +64,16 @@ const styles = (theme: ThemeType) => ({
     },
   },
   outlineButton: {
-    color: theme.palette.givingPortal[1000],
-    border: `1.5px solid ${theme.palette.grey[340]}`,
+    color: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.borderColor}`,
     backgroundColor: "transparent",
     "&:hover": {
-      backgroundColor: theme.palette.grey[100],
+      backgroundColor: theme.palette.givingPortal.button.hoverOutlined,
     },
   },
   solidButton: {
-    color: theme.palette.grey[0],
-    border: `1.5px solid ${theme.palette.givingPortal[1000]}`,
-    backgroundColor: theme.palette.givingPortal[1000],
+    color: theme.palette.givingPortal.button.light,
+    backgroundColor: theme.palette.givingPortal.button.dark,
     "&:hover": {
       opacity: 0.9,
     },
