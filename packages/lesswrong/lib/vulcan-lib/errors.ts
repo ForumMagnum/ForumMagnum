@@ -1,6 +1,8 @@
 import isEmpty from 'lodash/isEmpty';
 import { getCollectionName } from './collections';
 import { UserInputError } from 'apollo-server-errors';
+import { createError } from 'apollo-errors'
+import { GraphQLError } from 'graphql';
 
 /*
 
@@ -154,3 +156,30 @@ export const throwValidationError = ({
     }
   )
 };
+
+export const SimpleValidationError = createError(
+  'SimpleValidationError',
+  {
+    message: "Validation error",
+  }
+)
+
+export const AuthorizationError = createError(
+  'AuthorizationError',
+  {
+    message: "Sorry, the email provided doesn't have access to the Waking Up Community. Email community@wakingup.com if you think this is a mistake.",
+  }
+)
+
+const whitelistedErrors = ["SimpleValidationError", "AuthorizationError"]
+
+// Most errors shouldn't be shown to the user. Only a few specific ones should,
+// and they're whitelisted here.
+export const shouldHideErrorDetailsFromUser = (e: GraphQLError) => {
+  if (!e?.extensions?.code) return false;
+  if (e.extensions.code === 'BAD_USER_INPUT') return false;
+  if (e.extensions.code === 'UNAUTHENTICATED') return false;
+  if (whitelistedErrors.includes(e?.extensions?.exception?.name)) return false;
+
+  return true
+}

@@ -4,10 +4,9 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { userFindOneByEmail } from "../commonQueries";
 import request from 'request';
-import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers } from '../vulcan-lib';
+import { Utils, slugify, addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, AuthorizationError } from '../vulcan-lib';
 import type { AddMiddlewareType } from '../apolloServer';
 import express from 'express'
-import {AuthorizationError} from '../apolloServer'
 import {cloudinaryPublicIdFromUrl, moveToCloudinary} from '../scripts/convertImagesToCloudinary'
 
 // This file has middleware for redirecting logged-out users to the login page,
