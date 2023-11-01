@@ -11,10 +11,10 @@ export const useElectionCandidates = (
       electionName: eaGivingSeason23ElectionName,
       sortBy,
     },
+    limit: 30
   });
 }
 
-// TODO: Should this have separate logic to useElectionCandidates?
 export const useDonationOpportunities = useElectionCandidates;
 
 export const useAmountRaised = () => {

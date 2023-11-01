@@ -1,6 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import classNames from "classnames";
+import { Link } from "../../../lib/reactRouterWrapper";
 
 const imageWidth = 70;
 const imageHeight = 60;
@@ -83,7 +84,6 @@ const DonationOpportunity = ({candidate, classes}: {
   candidate: ElectionCandidateBasicInfo,
   classes: ClassesType,
 }) => {
-  // TODO: Handle button clicks
   const {name, logoSrc, description} = candidate;
   return (
     <div className={classes.root}>
@@ -91,16 +91,16 @@ const DonationOpportunity = ({candidate, classes}: {
         <div className={classes.imageContainer}>
           <img src={logoSrc} className={classes.image} />
         </div>
-        <div className={classes.name}>{name}</div>
+        <Link to={candidate.href} className={classes.name}>{name}</Link>
       </div>
       <div className={classes.description}>{description}</div>
       <div className={classes.buttons}>
-        <button className={classNames(classes.button, classes.buttonPrimary)}>
+        {candidate.fundraiserLink && <Link to={candidate.fundraiserLink} className={classNames(classes.button, classes.buttonPrimary)}>
           Donate
-        </button>
-        <button className={classNames(classes.button, classes.buttonGrey)}>
+        </Link>}
+        {candidate.gwwcLink && <Link to={candidate.gwwcLink} className={classNames(classes.button, classes.buttonGrey)}>
           Learn more
-        </button>
+        </Link>}
       </div>
     </div>
   );

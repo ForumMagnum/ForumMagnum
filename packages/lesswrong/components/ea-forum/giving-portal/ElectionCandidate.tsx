@@ -43,6 +43,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "center",
     gap: "2px",
+    paddingRight: 24
   },
   heartIcon: {
     fontSize: 14,

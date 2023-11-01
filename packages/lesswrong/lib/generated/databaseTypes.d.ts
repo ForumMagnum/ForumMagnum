@@ -285,6 +285,8 @@ interface DbElectionCandidate extends DbObject {
   name: string
   logoSrc: string
   href: string
+  fundraiserLink: string | null
+  gwwcLink: string | null
   description: string
   userId: string
   postCount: number

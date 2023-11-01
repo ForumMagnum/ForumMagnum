@@ -273,6 +273,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
+    loadMoreProps: donationOpportunitiesLoadMoreProps,
   } = useDonationOpportunities();
   const {document: donationElectionTag} = useSingle({
     documentId: donationElectionTagId,
@@ -314,12 +315,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
-  const onAddCandidate = useCallback(() => {
-    // TODO: Link to GWWC's form
-    // eslint-disable-next-line no-console
-    console.log("Clicked add candidate");
-  }, []);
-
   const onContribute = useCallback(() => {
     history.push({pathname: '/newPost', search: `?subforumTagId=${donationElectionTagId}`})
   }, []);
@@ -336,7 +331,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
 
   const {
-    Loading, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
+    Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
   } = Components;
   return (
@@ -450,10 +445,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.mt10,
                 classes.mb80,
               )}>
-                <button onClick={onAddCandidate} className={classes.button}>
+                <Link to="https://docs.google.com/forms/d/e/1FAIpQLScnIBGnpqQUNTXqeh-DjLKPZ3b4-Cs9vBnvd6Wh5r_7oiX92Q/viewform" className={classes.button}>
                   <ForumIcon icon="Plus" />
                   Add candidate
-                </button>
+                </Link>
                 <div className={classNames(classes.text, classes.primaryText)}>
                   Deadline to add: November 30
                 </div>
@@ -520,10 +515,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             ))}
             {donationOpportunitiesLoading && <Loading />}
           </div>
-          <div onClick={onLoadMoreOpportunities} className={classes.loadMore}>
-            {/* TODO: Hook up this load more button */}
-            Load more
-          </div>
+          <LoadMore className={classes.loadMore} {...donationOpportunitiesLoadMoreProps} />
         </div>
         <div className={classNames(classes.content, classes.mb100)}>
           <div className={classNames(classes.column, classes.w100)}>
