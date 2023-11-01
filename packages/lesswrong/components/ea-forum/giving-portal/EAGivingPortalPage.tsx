@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
@@ -19,7 +19,11 @@ import {
 } from "../../../lib/eaGivingSeason";
 import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
-import { useLocation, useNavigation } from "../../../lib/routeUtil";
+import { useNavigation } from "../../../lib/routeUtil";
+import { useMessages } from "../../common/withMessages";
+import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { useCurrentUser } from "../../common/withUser";
+import { useDialog } from "../../common/withDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -285,6 +289,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
       "wog9xb8cdqDySbBvM", // TODO: Add more sequences here
     ]},
   });
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
+  const {flash} = useMessages();
+  const {openDialog} = useDialog();
 
   const onDonate = useCallback(() => {
     // TODO: Hook up donation
@@ -292,11 +301,18 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     console.log("Clicked donate");
   }, []);
 
-  const onNotifyWhenVotingOpens = useCallback(() => {
-    // TODO: Hook up notifications
-    // eslint-disable-next-line no-console
-    console.log("Clicked notify when voting opens");
-  }, []);
+  const toggleNotifyWhenVotingOpens = useCallback(() => {
+    // TODO: captureEvent
+    if (!currentUser) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {},
+      })
+    }
+    setNotifyForVotingOn(!notifyForVotingOn);
+    void updateCurrentUser({givingSeasonNotifyForVoting: !notifyForVotingOn});
+    flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
+  }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
   const onAddCandidate = useCallback(() => {
     // TODO: Link to GWWC's form
@@ -400,9 +416,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   image={<VoteIcon />}
                   title="Vote"
                   description="Voting opens Dec 1. The Fund will be split proportionally between the top 3 winning candidates. You can already pre-vote below."
-                  buttonText="Get notified when voting opens"
-                  buttonIcon="BellAlert"
-                  onButtonClick={onNotifyWhenVotingOpens}
+                  buttonText={notifyForVotingOn ? "You'll be notified when voting opens" : "Get notified when voting opens"}
+                  buttonIcon={notifyForVotingOn ? undefined : "BellAlert"}
+                  onButtonClick={toggleNotifyWhenVotingOpens}
                 />
               </div>
             </div>
