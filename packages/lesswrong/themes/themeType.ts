@@ -452,9 +452,10 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
-    givingPortal: Record<0 | 200 | 500 | 800 | 900 | 1000, ColorString> & {
-      cta: ColorString,
+    givingPortal: Record<0 | 200 | 800 | 1000, ColorString> & {
+      ctaBackground: ColorString,
       ctaText: ColorString,
+      candidate: ColorString,
       votedCandidate: ColorString,
       button: {
         dark: ColorString,
@@ -462,7 +463,6 @@ declare global {
         hoverOutlined: ColorString,
         borderColor: ColorString,
       },
-      buttonText: ColorString,
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

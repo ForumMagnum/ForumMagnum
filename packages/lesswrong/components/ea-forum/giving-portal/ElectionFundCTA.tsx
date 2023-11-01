@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "24px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.givingPortal.cta,
+    backgroundColor: theme.palette.givingPortal.ctaBackground,
     borderRadius: theme.borderRadius.default,
     maxWidth: "100%",
     width: 500,

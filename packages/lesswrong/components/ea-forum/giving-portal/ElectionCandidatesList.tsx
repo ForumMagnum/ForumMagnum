@@ -22,10 +22,9 @@ const styles = (theme: ThemeType) => ({
   dropdown: {
     "& .ForumDropdownMultiselect-button": {
       color: theme.palette.givingPortal[1000],
-      backgroundColor: theme.palette.givingPortal[500],
+      backgroundColor: theme.palette.givingPortal.candidate,
       "&:hover": {
-        color: theme.palette.givingPortal[1000],
-        backgroundColor: theme.palette.givingPortal[0],
+        backgroundColor: theme.palette.givingPortal.votedCandidate,
       },
     },
   },

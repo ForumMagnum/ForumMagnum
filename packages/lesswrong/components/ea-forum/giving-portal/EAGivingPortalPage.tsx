@@ -453,14 +453,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mt60,
               classes.mb80,
             )}>
-              <div className={classNames(
-                classes.h1,
-                classes.secondaryText,
-                classes.center,
-                classes.mb20,
-              )}>
-                Donate, <span className={classes.primaryText}>Discuss</span>, Vote
-              </div>
               <div className={classes.h4}>
                 Recent posts tagged Donation Election 2023
               </div>

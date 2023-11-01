@@ -10,7 +10,7 @@ const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    backgroundColor: theme.palette.givingPortal[500],
+    backgroundColor: theme.palette.givingPortal.candidate,
     borderRadius: theme.borderRadius.default,
     padding: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
