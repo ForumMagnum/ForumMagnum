@@ -311,12 +311,12 @@ export const DialogueSuggestionsPage = ({classes}: {
     }
   };
 
-  const prompt = "Opt-in to allow Lightcone to see your checked users" 
+  const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
   return (
     <div className={classes.root}>
-      <h1>Dialogue Reciprocity</h1>
-      <p>Blah blah here's how dialogues matchmaking works. LessWrong team looks at metadata analytics</p>
+      <h1>Dialogue Matching</h1>
+      <p>Place a checkmark next to a username to indicate your interest in engaging in a dialogue with them if you both indicate interest in doing so. If you mutually check each other, you have created a match and can initiate a dialogue. Users will not see whether you have checked them unless they have also checked you. Currently, users will not be notified about new matches, but we may add that functionality at any point.</p>
       <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
             <FormControlLabel  style={{ paddingLeft: '8px' }}
               control={
@@ -332,6 +332,7 @@ export const DialogueSuggestionsPage = ({classes}: {
             />
           </div> 
       <br />
+      <p>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless the other part of the match has also opted in. </p>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Your top users</h3>
