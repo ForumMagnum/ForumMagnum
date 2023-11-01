@@ -169,4 +169,5 @@ export const frontpagePostsCountSetting = new DatabasePublicSetting<number | nul
 export const frontpagePostsLoadMoreCountSetting = new DatabasePublicSetting<number | undefined>('frontpagePostsLoadMoreCount', undefined)
 export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean>('showPersonalBlogpostIcon', true);
 export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
+export const mentionKarmaThresholdSetting = new DatabasePublicSetting<number | null>('mentionKarmaThreshold', 1); // can be null, in which case there's no threshold
 export const showKarmaTooltipsSetting = new DatabasePublicSetting<boolean>('showKarmaTooltips', true);
