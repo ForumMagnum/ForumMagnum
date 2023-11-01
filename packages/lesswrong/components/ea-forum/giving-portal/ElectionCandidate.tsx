@@ -10,7 +10,7 @@ const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    backgroundColor: theme.palette.givingPortal[500],
+    backgroundColor: theme.palette.givingPortal.candidate,
     borderRadius: theme.borderRadius.default,
     padding: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 68,
   },
   rootVoted: {
-    backgroundColor: theme.palette.givingPortal[0],
+    backgroundColor: theme.palette.givingPortal.votedCandidate,
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,

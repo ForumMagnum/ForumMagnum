@@ -91,14 +91,14 @@ const styles = (theme: ThemeType) => ({
   primaryText: {
     color: theme.palette.givingPortal[1000],
   },
-  secondaryText: {
-    color: theme.palette.givingPortal[900],
-  },
   h1: {
     fontSize: 60,
     fontWeight: 700,
     lineHeight: "normal",
     letterSpacing: "-1.2px",
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 40,
+    }
   },
   h2: {
     fontSize: 28,
@@ -150,8 +150,8 @@ const styles = (theme: ThemeType) => ({
     gap: "10px",
     fontSize: 16,
     fontWeight: 600,
-    background: theme.palette.grey[0],
-    color: theme.palette.givingPortal[1000],
+    background: theme.palette.givingPortal.button.dark,
+    color: theme.palette.givingPortal.button.light,
     borderRadius: theme.borderRadius.small,
     padding: "12px 48px",
     border: "none",
@@ -468,7 +468,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader />
+        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(

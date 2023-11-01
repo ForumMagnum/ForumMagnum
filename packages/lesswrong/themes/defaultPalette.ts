@@ -497,10 +497,20 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   givingPortal: {
     [0]: "#fdfcfc",
     [200]: "#fcf5f3",
-    [500]: "#fef4ef",
     [800]: "#f8e7e2",
-    [900]: "#cda09a",
+    [900]: "#EDD3CE",
     [1000]: "#862115",
+    button: {
+      alwaysDark: "#862115",
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    candidate: "#fef4ef",
+    votedCandidate: "#fff",
+    ctaBackground: "#fdfcfc",
+    ctaText: "#757575",
   },
 
   contrastText: shades.grey[0],
