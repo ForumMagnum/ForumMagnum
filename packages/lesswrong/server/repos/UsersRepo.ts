@@ -1,5 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
+import { CommentCountTag } from "./TagsRepo";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *
@@ -352,7 +353,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       `, [userId])
   }
   
-  async getPreTopCommentersOfTopCommentedTags(topUsers: DbUser[], topCommentedTags: DbTag[]): Promise<any> {
+  async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<any> {
     const topUserIds = topUsers.map(user => user._id);
     const topTagNames = topCommentedTags.map(tag => tag.name);
   
@@ -375,7 +376,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `;
   
     try {
-      return await this.any(query, [topTagNames, topUserIds]);
+      return await this.getRawDb().any(query, [topTagNames, topUserIds]);
     } catch (error) {
       console.error('Error executing getAuthorsOfTopTags query:', error);
       throw error;

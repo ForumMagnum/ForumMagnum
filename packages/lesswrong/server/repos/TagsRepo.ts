@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
 
-type CommentCountTag = {
+export type CommentCountTag = {
   name: string;
   comment_count: number;
 };
