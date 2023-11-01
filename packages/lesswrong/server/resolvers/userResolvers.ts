@@ -24,7 +24,7 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { TagsRepo, UsersRepo } from '../repos';
 import {defineQuery} from '../utils/serverGraphqlUtil';
-import { TopTagsTopUsers } from "../../components/users/DialogueSuggestionsPage";
+import { UserDialogueUsefulData } from "../../components/users/DialogueSuggestionsPage";
 
 
 addGraphQLSchema(`
@@ -565,7 +565,7 @@ defineQuery({
 
 
     // The top tags of your top authors
-    const results: TopTagsTopUsers = {
+    const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
       topCommentedTags: topCommentedTags,

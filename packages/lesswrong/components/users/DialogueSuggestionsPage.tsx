@@ -40,7 +40,7 @@ export type TopCommentedTagUser = {
   }>
 };
 
-export type TopTagsTopUsers = {
+export type UserDialogueUsefulData = {
   dialogueUsers: DbUser[],
   topUsers: UpvotedUser[],
   topCommentedTags: CommentCountTag[],
@@ -160,6 +160,8 @@ export const DialogueSuggestionsPage = ({classes}: {
       GetUsersWhoHaveMadeDialogues
     }
   `);
+
+  const userDialogueUsefulData : UserDialogueUsefulData = data.GetUsersWhoHaveMadeDialogues
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -396,7 +398,7 @@ export const DialogueSuggestionsPage = ({classes}: {
             <h5 className={classes.header}>Agreement from you</h5>
             <h5 className={classes.header}>Message</h5>
             <h5 className={classes.header}>Match</h5>
-            {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => {
+            {userDialogueUsefulData.topUsers.slice(0,50).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
               return (
@@ -439,7 +441,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <h5>Display Name</h5>
         <h5>Opt-in to dialogue</h5>
         <h5>Message</h5>
-        {[...new Map(data.GetUsersWhoHaveMadeDialogues.dialogueUsers.map(user => [user.displayName, user])).values()].map(user => (
+        {[...new Map(userDialogueUsefulData.dialogueUsers.map(user => [user.displayName, user])).values()].map(user => (
           <React.Fragment key={user.displayName}>
             <p style={{ margin: '3px' }}>{user.displayName}</p>
             <input type="checkbox" style={{ margin: '0' }} />
@@ -453,7 +455,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <h5>Tag Name</h5>
         <h5>Comment Count</h5>
         <h5>Opt-in to dialogue</h5>
-        {data.GetUsersWhoHaveMadeDialogues.topCommentedTags.slice(0,20).map(tag => (
+        {userDialogueUsefulData.topCommentedTags.slice(0,20).map(tag => (
           <React.Fragment key={tag.name}>
             <p style={{ margin: '3px' }}>{tag.name}</p>
             <p style={{ margin: '3px' }}>{tag.comment_count}</p>
@@ -467,7 +469,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <h5>Username</h5>
         <h5>Total Power</h5>
         <h5>Tag Comment Counts</h5>
-        {data.GetUsersWhoHaveMadeDialogues.topCommentedTagTopUsers.map(user => (
+        {userDialogueUsefulData.topCommentedTagTopUsers.map(user => (
           <React.Fragment key={user.username}>
             <p style={{ margin: '0' }}>{user.username}</p>
             <p style={{ margin: '0' }}>{user.total_power}</p>
