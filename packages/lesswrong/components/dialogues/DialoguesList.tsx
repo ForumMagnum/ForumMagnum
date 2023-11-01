@@ -167,7 +167,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
     <p>Dialogues between a small group of users. Click to see more.</p>
   </div>
 
-  const renderMyDialogues = myDialogues?.length 
+  const renderMyDialogues = !!currentUser && myDialogues?.length 
 
   const myDialoguesTooltip = <div>
       <div>These are the dialoges you are involved in (both drafts and published)</div>

@@ -2,7 +2,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
@@ -15,6 +15,7 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
+
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -333,11 +334,12 @@ createPaginatedResolver({
   name: "MyDialogues",
   graphQLType: "Post",
   callback: async (
-    {repos, currentUser}: ResolverContext,
+    {repos, currentUser, context}: ResolverContext,
     limit: number,
   ): Promise<DbPost[]> => {
       if (!currentUser) return []
-      return repos.posts.getMyActiveDialogues(currentUser._id, limit)
+      const posts = await repos.posts.getMyActiveDialogues(currentUser._id, limit);
+      return await accessFilterMultiple(currentUser, Posts, posts, context);
     },
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
