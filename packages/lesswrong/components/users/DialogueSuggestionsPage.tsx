@@ -157,11 +157,11 @@ export const DialogueSuggestionsPage = ({classes}: {
   const { history } = useNavigation();
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
-      GetUsersWhoHaveMadeDialogues
+      GetUserDialogueUsefulData
     }
   `);
 
-  const userDialogueUsefulData : UserDialogueUsefulData = data.GetUsersWhoHaveMadeDialogues
+  const userDialogueUsefulData : UserDialogueUsefulData = data.GetUserDialogueUsefulData
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {

@@ -49,7 +49,7 @@ addGraphQLSchema(`
     total_agreement: Float!
     agreement_values: String!
   }
-  type TopTagsTopUsers {
+  type UserDialogueUsefulData {
     dialogueUsers: [User],
     topUsers: [UpvotedUser],
     topCommentedTags: [CommentCountTag],
@@ -498,13 +498,13 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
-// addGraphQLQuery('GetUsersWhoHaveMadeDialogues: SuggestedDialogueUsers')
+// addGraphQLQuery('GetUserDialogueUsefulData: SuggestedDialogueUsers')
 
 
 
 
 
-// async GetUsersWhoHaveMadeDialogues(root:void, _:any, context: ResolverContext): Promise<AnyBecauseTodo> {
+// async GetUserDialogueUsefulData(root:void, _:any, context: ResolverContext): Promise<AnyBecauseTodo> {
 //   const { currentUser } = context
 //   if (!currentUser) {
 //     throw new Error('User must be logged in to get top upvoted users');
@@ -539,8 +539,8 @@ addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 // }
 
 defineQuery({
-  name: "GetUsersWhoHaveMadeDialogues",
-  resultType: "TopTagsTopUsers",
+  name: "GetUserDialogueUsefulData",
+  resultType: "UserDialogueUsefulData",
   fn: async (root:void, _:any, context: ResolverContext) => {
     const { currentUser } = context
     if (!currentUser) {
