@@ -20,7 +20,6 @@ import {
 } from "../../../lib/eaGivingSeason";
 import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
-import { useNavigation } from "../../../lib/routeUtil";
 import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
@@ -266,7 +265,6 @@ const getListTerms = (
 const formatDollars = (amount: number) => "$" + formatStat(amount);
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
-  const { history } = useNavigation()
   const {
     showAmountRaised,
     raisedForElectionFund,
@@ -399,7 +397,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Discuss"
                   description="Discuss where we should donate and what we should vote for in the Election."
                   buttonText="Contribute to the discussion"
-                  href={`/topics/${donationElectionTag?.slug}`}
+                  href={postsAboutElectionLink}
                 >
                   <Link
                     to={postsAboutElectionLink}
