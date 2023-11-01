@@ -6,6 +6,7 @@ import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import {addGraphQLQuery} from "../vulcan-lib";
 
 export type MeanPostKarma = {
   _id: number,
@@ -358,6 +359,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
   }
-}
 
+  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string): Promise<DbPost[]> {
+    return this.any(`
+      SELECT public."Posts".*
+      FROM public."ReadStatuses"
+      INNER JOIN public."Posts" ON public."ReadStatuses"."postId" = public."Posts"._id
+      WHERE
+        public."ReadStatuses"."userId" = $1
+        AND public."Posts"."userId" = $2
+        AND public."ReadStatuses"."isRead" = true
+    `, [userId, targetUserId]);
+  }
+}
+//addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!): [Post]");
 ensureIndex(Posts, {debate:-1})

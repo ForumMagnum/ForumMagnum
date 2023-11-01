@@ -266,9 +266,20 @@ addGraphQLResolvers({
           rating: 0
         }
       })
-    }
+    },
+    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId }: { userId: string, targetUserId: string }, context: ResolverContext) {
+      const { currentUser, repos } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read posts of target user')
+      }
+
+      return await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId)
+    }, 
   },
 })
+
+
+addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!): [Post]");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
@@ -286,6 +297,12 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+addGraphQLSchema(`
+  type UsersReadPostsOfTargetUserResult {
+    posts: [Post!]
+  }
+`)
 
 createPaginatedResolver({
   name: "DigestHighlights",

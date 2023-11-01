@@ -10,6 +10,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useNavigation } from '../../lib/routeUtil';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import {useSingle} from '../../lib/crud/withSingle';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -18,14 +19,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme),
   },
   matchContainer: {
-    maxWidth: 700,
+    maxWidth: 900,
     padding: 20,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 5,
   },
   matchContainerGrid: {
     display: 'grid', 
-    gridTemplateColumns: `130px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
+    gridTemplateColumns: `100px 320px 200px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
     rowGap: '2px',
     columnGap: '10px'
   },
@@ -53,8 +54,62 @@ const styles = (theme: ThemeType): JssStyles => ({
   rootFlex: {
     display: 'flex'
   },
+  bioContainer: {
+    height: '70px', 
+    overflow: 'auto',
+    color: 'grey', 
+    fontSize: '14px'
+  },
+  readPostsContainer: {
+    height: '70px', 
+    overflow: 'auto',
+    color: 'grey', 
+    fontSize: '14px'
+  },
   
 });
+
+const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) => {
+  const { document: userData, loading } = useSingle({
+    documentId: userId,
+    collectionName: "Users",
+    fragmentName: "UsersProfile"
+  });
+
+  return (
+    <div className={classes.bioContainer}>
+      {userData?.biography?.plaintextDescription }
+    </div>
+  )
+};
+
+const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string }) => {
+  const currentUser = useCurrentUser();
+
+  const { loading, error, data } = useQuery(gql`
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!) {
+      UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId) {
+        title
+      }
+    }
+  `, {
+    variables: { userId: currentUser?._id, targetUserId: targetUserId },
+  });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  console.log("post data", data)
+
+  return (
+    <div className={classes.readPostsContainer}>
+      {/* {data.UsersReadPostsOfTargetUser.posts.slice(0, 3).map((post, index) => (
+        <p key={index}>{post.title}</p>
+      ))} */}
+    </div>
+  );
+};
+
 
 export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
@@ -234,10 +289,9 @@ export const DialogueSuggestionsPage = ({classes}: {
     const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
   
     // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
+    const webhookURL = "https://hooks.slack.com/triggers/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";
     const data = {
       user: userDetailString,
-      abTestGroup: "optIn (no more AB test)",
     };
   
     if (event.target.checked) {
@@ -283,35 +337,44 @@ export const DialogueSuggestionsPage = ({classes}: {
           <h3>Your top users</h3>
           <div className={classes.matchContainerGrid}>
             <h5 className={classes.header}>Display Name</h5>
+            <h5 className={classes.header}>Bio</h5>
+            <h5 className={classes.header}>Posts you've read</h5>
             <h5 className={classes.header}>Opt-in to dialogue</h5>
             <h5 className={classes.header}>Upvotes from you</h5>
             <h5 className={classes.header}>Agreement from you</h5>
             <h5 className={classes.header}>Message</h5>
             <h5 className={classes.header}>Match</h5>
-            {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => (
-              <React.Fragment key={targetUser.displayName + randomId()}>
-                <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
-                <input 
-                  type="checkbox" 
-                  style={{ margin: '0', width: '20px' }} 
-                  onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
-                  value={targetUser.displayName} 
-                  checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
-                />
-                <div>{targetUser.total_power}</div>
-                <div>{targetUser.total_agreement}</div>
-                {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                    <a data-cy="message">Message</a>
-                </NewConversationButton> </button>}
-                <div>
-                  {dataChecks &&
-                    dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                      <span>You match!</span>
-                      <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                    </div> : null}
-                </div>
-              </React.Fragment>
-            ))}
+            {data.GetUsersWhoHaveMadeDialogues.topUsers.slice(0,50).map(targetUser => {
+
+         
+              
+              return (
+                <React.Fragment key={targetUser.displayName + randomId()}>
+                  <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
+                  <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
+                  <input 
+                    type="checkbox" 
+                    style={{ margin: '0', width: '20px' }} 
+                    onChange={event => updateDatabase(event, targetUser._id, dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?._id)} 
+                    value={targetUser.displayName} 
+                    checked={dataChecks && dataChecks.getUsersDialogueChecks.find(check => check.targetUserId === targetUser._id)?.checked}
+                  />
+                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} />
+                  <div>{targetUser.total_power}</div>
+                  <div>{targetUser.total_agreement}</div>
+                  {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+                      <a data-cy="message">Message</a>
+                  </NewConversationButton> </button>}
+                  <div>
+                    {dataChecks &&
+                      dataChecks.getUsersDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
+                        <span>You match!</span>
+                        <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
+                      </div> : null}
+                  </div>
+                </React.Fragment>
+              )}
+            )}
           </div>
         </div>
       </div>

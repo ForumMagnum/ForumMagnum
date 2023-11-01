@@ -526,7 +526,7 @@ defineQuery({
     const dialogueUsers = await new UsersRepo().getUsersWhoHaveMadeDialogues()
     
     // Your top commented tags
-    const topCommentedTags = await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
+    const topCommentedTags = [] //await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
 
     // Your top authors 
     const topUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
