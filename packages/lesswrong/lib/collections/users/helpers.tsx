@@ -570,32 +570,8 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
-export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
-  // If the user is null, then returning true from this function is still valid;
-  // it just means that the vote buttons are enabled (but their behavior is that
-  // they open a login form).
-  
-  if (!isLW) {
-    return { fail: false };
-  }
-
-  if (!user) {
-    return {
-      fail: true,
-      reason: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
-    };
-  }
-
-  // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
-  const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
-  const userKarmaAtOrAboveThreshold = user.karma >= lowKarmaUserVotingCutoffKarmaSetting.get();
-
-  if(!userCreatedAfterCutoff || userKarmaAtOrAboveThreshold) {
-    return { fail: false }
-  }
-  
-  return {
-    fail: true,
-    reason: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
-  }
+export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
+  // At one point, we disabled voting for users with less than 1 karma
+  // Keeping this function and its uses around will make it easier to do that kind of thing in the future
+  return { fail: false };
 };
