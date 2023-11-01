@@ -64,7 +64,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
         unsubscribeMessage="Unsubscribe from comments"
       />}
       {!currentUserIsAuthor && includeBookmark && <BookmarkDropdownItem post={post} />}
-      <SetSideCommentVisibility />
       {!currentUserIsAuthor && <ReportPostDropdownItem post={post}/>}
       {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
       {/*currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />*/}
