@@ -479,7 +479,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 Donate, <span className={classes.primaryText}>Discuss</span>, Vote
               </div>
               <div className={classes.h4}>
-                Recent posts tagged Effective giving
+                Recent posts tagged &quot;Effective giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
