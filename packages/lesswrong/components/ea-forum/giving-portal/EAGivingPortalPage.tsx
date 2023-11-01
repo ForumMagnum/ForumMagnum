@@ -368,14 +368,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be allocated to the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
                 <a href={donationElectionLink}>Learn more</a>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
                   image={<DonateIcon />}
                   title="Donate"
-                  description="The Donation Election Fund will be allocated to top 3 candidates, based on Forum users' votes."
+                  description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
                   onButtonClick={onDonate}
                   solidButton
@@ -432,7 +432,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.textWide,
                 classes.mb20,
               )}>
-                The top three winning candidates in the election will receive money from the Donation Election Fund (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
+                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
                 <ul>
                   <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
                   <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://docs.google.com/spreadsheets/d/1I-IFdkai9frIIMO6fVqOIp6PDllXG713UhnI1WuwyiQ/edit#gid=0">
