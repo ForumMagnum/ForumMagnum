@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useVote } from "../../votes/withVote";
 import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
-import { donationElectionTagId } from "../../../lib/eaGivingSeason";
+import { effectiveGivingTagId } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 
 const imageSize = 52;
@@ -102,7 +102,7 @@ const ElectionCandidate = ({candidate, classes}: {
 
   const preVoteCountString = `${preVoteCount} pre-vote${preVoteCount === 1 ? "" : "s"}`;
   const postCountString = `${postCount} post${postCount === 1 ? "" : "s"}`;
-  const postsLink = `/search?query=&tags[0]=${donationElectionTagId}&tags[1]=${tag?._id}`;
+  const postsLink = `/search?query=&tags[0]=${effectiveGivingTagId}&tags[1]=${tag?._id}`;
 
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
@@ -130,7 +130,7 @@ const ElectionCandidate = ({candidate, classes}: {
             <>
               {", "}
               <LWTooltip
-                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election”`}
+                title={`View ${postCountString} tagged “${tag.name}” and “Effective giving”`}
                 placement="bottom"
                 popperClassName={classes.tooltip}
               >
