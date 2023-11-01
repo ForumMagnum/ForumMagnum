@@ -62,7 +62,7 @@ export const timelineSpec: TimelineSpec = {
     {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
-      description: "Effective giving spotlight",
+      description: "Effective Giving Spotlight",
       consecutive: true,
     },
     {
@@ -74,7 +74,7 @@ export const timelineSpec: TimelineSpec = {
     {
       start: new Date("2023-11-21"),
       end: new Date("2023-11-28"),
-      description: "Estimating cost-effectiveness",
+      description: "Donation Choice Week",
       consecutive: true,
     },
     {
