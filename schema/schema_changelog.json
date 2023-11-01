@@ -358,5 +358,10 @@
     "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
     "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
     "timestamp": "2023-10-28T01:20:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
+    "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
+    "timestamp": "2023-11-01T21:57:39.000Z"
   }
 ]
