@@ -4,6 +4,7 @@ import { gql, useMutation, DocumentNode, ApolloError } from '@apollo/client';
 import classNames from 'classnames';
 import OTPInput from './OTPInput';
 import SimpleSchema from 'simpl-schema';
+import { cdnAssetUrl } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -187,7 +188,7 @@ export const WULoginForm = ({ startingState = "requestCode", classes }: WULoginF
 
   return <Components.ContentStyles contentType="commentExceptPointerEvents">
     <form className={classes.root} onSubmit={submitFunction}>
-      <img src="/SplashLogo.png" alt="logo" width="358px" height="97px" className={classes.splashLogo} />
+      <img src={cdnAssetUrl("SplashLogo.png")} alt="logo" width="358px" height="97px" className={classes.splashLogo} />
       <h1 className={classes.heading}>Sign in</h1>
       {currentAction === "requestCode" && <>
         <p className={classes.topInstructions}>Enter the email associated with your account,<br className={classes.hideSm} /> and we’ll send you a code to sign in to the community.</p>

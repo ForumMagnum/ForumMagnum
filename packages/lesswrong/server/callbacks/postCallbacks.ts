@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createMutator, throwValidationError } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -92,6 +92,18 @@ if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
 getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(validationErrors, { document }) {
   if (document.debate && !document.coauthorStatuses?.length) {
     throw new Error('Dialogue must have at least one co-author!');
+  }
+
+  // This duplicates the functionality of the schema field being optional: false, for
+  // the sole reason that it makes the error message become "Please add a post title"
+  // rather than "Please add a title"
+  if (!document.title) {
+    throwValidationError({
+      typeName: "Post",
+      field: "title",
+      errorType: 'errors.required',
+      alias: "post title"
+    });
   }
 
   return validationErrors;

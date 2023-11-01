@@ -12,6 +12,7 @@ import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { showKarmaTooltipsSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -122,7 +123,7 @@ const OverallVoteAxis = ({
       popperClassName={classes.tooltip}
       title={<>
         <div>{whyYouCantVote}</div>
-        <div>{karmaTooltipTitle}</div>
+        {showKarmaTooltipsSetting.get() && <div>{karmaTooltipTitle}</div>}
       </>}
     >
       {children}
@@ -186,7 +187,7 @@ const OverallVoteAxis = ({
             {...voteProps}
             {...buttonProps}
           />
-          <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
+          <TooltipIfEnabled title={showKarmaTooltipsSetting.get() && karmaTooltipTitle} placement={tooltipPlacement}>
             {hideKarma
               ? <span>{' '}</span>
               : <span className={classes.voteScore}>

@@ -2,12 +2,13 @@ import React, { useMemo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import moment from "moment";
+import { showKarmaTooltipsSetting } from "../../lib/publicSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    width: 270,
+    width: showKarmaTooltipsSetting.get() ? 270 : 200,
     maxWidth: "100%",
     gap: "12px",
     fontSize: 14,
@@ -124,10 +125,10 @@ const EAUserTooltipContent = ({user, classes}: {
         </div>
       }
       <div className={classes.stats}>
-        <div className={classes.stat}>
+        {showKarmaTooltipsSetting.get() && <div className={classes.stat}>
           <div>{formatStat(karma)}</div>
           <div>Karma</div>
-        </div>
+        </div>}
         <div className={classes.stat}>
           <div>{formatStat(postCount)}</div>
           <div>{postCount === 1 ? "Post" : "Posts"}</div>
