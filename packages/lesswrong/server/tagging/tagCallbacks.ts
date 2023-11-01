@@ -12,7 +12,6 @@ import { ElectionCandidatesRepo } from '../repos';
 import {
   donationElectionTagId,
   eaGivingSeason23ElectionName,
-  effectiveGivingTagId,
 } from '../../lib/eaGivingSeason';
 
 function isValidTagName(name: string) {
@@ -32,10 +31,10 @@ function normalizeTagName(name: string) {
 const updateDonationElectionPostCounts = async (
   tagRelDict: Record<string, number>,
 ) => {
-  if (isEAForum && (tagRelDict[effectiveGivingTagId] ?? 0) >= 1) {
+  if (isEAForum && (tagRelDict[donationElectionTagId] ?? 0) >= 1) {
     await new ElectionCandidatesRepo().updatePostCounts(
       eaGivingSeason23ElectionName,
-      effectiveGivingTagId,
+      donationElectionTagId,
     );
   }
 }
