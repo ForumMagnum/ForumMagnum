@@ -118,6 +118,8 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   className?: string,
   classes: ClassesType,
 }) => {
+  const [loading, setLoading] = React.useState(true);
+
   if (!user?.displayName) {
     return (
       <picture className={classes.wrapper}>
@@ -140,10 +142,12 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
         height={size}
         imgProps={{q: "100", dpr: "2"}}
         publicId={user.profileImageId}
+        loading={loading}
+        setLoading={setLoading}
         className={classNames(
           classes.root,
-          classes.loadingPlaceholder,
           className,
+          { [classes.loadingPlaceholder]: loading },
         )}
         wrapperClassName={classes.wrapper}
       />

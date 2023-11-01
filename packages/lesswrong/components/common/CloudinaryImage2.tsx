@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useEffect, useRef } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { useThemeOptions } from '../themes/useTheme';
 
@@ -37,6 +37,8 @@ const CloudinaryImage2 = ({
   publicId,
   imgProps,
   fullWidthHeader,
+  loading,
+  setLoading,
   className,
   wrapperClassName,
 }: {
@@ -47,12 +49,15 @@ const CloudinaryImage2 = ({
   publicId: string,
   darkPublicId?: string|null,
   imgProps?: CloudinaryPropsType,
+  loading?: boolean,
+  setLoading?: (loading: boolean) => void,
   /** Overrides width */
   fullWidthHeader?: boolean,
   className?: string,
   wrapperClassName?: string,
 }) => {
   const themeOptions = useThemeOptions() // Danger, Will Robinson! (It'll be ok, see below.)
+  const imgRef = useRef<HTMLImageElement>(null);
 
   let cloudinaryProps: CloudinaryPropsType = {
     c: "fill",
@@ -121,6 +126,15 @@ const CloudinaryImage2 = ({
     `
   }
 
+  function handleImageLoaded() {
+    setLoading?.(false)
+  }
+
+  // The onLoad event isn't reliable for some reason. This useEffect is a fallback.
+  useEffect(() => {
+    if (imgRef?.current?.complete) setLoading?.(false);
+  }, [imgRef, setLoading]);
+
   return <picture className={wrapperClassName}>
     {srcSetFunc && (shouldUseDarkImage === 'maybe' ? <source
       // Cast is safe for similar reasons to above
@@ -139,6 +153,8 @@ const CloudinaryImage2 = ({
       src={basicImageUrl}
       style={imageStyle}
       className={className}
+      ref={imgRef}
+      onLoad={(handleImageLoaded)}
     />
   </picture>
 };
