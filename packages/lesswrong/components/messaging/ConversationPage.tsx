@@ -23,6 +23,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   editor: {
     marginTop: theme.spacing.unit*4,
     position:"relative",
+    "& .ck.ck-content": {
+      paddingLeft: "1.5rem",
+      paddingTop: "1rem",
+    },
+    "& .EditorFormComponent-root": {
+      backgroundColor: theme.palette.text.alwaysWhite,
+      borderRadius: 6,
+    },
+    "& .form-submit .MuiButtonBase-root": {
+      marginLeft: 0,
+    },
   },
   backButton: {
     color: theme.palette.lwTertiary.main
