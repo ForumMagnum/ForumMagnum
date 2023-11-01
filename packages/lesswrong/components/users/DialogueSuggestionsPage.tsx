@@ -155,13 +155,28 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
+
+  console.log("yo ")
+
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
-      GetUserDialogueUsefulData
+      GetUserDialogueUsefulData {
+        topUsers {
+          _id
+          displayName
+          total_power
+          total_agreement
+        }
+       }
     }
   `);
 
-  const userDialogueUsefulData : UserDialogueUsefulData = data.GetUserDialogueUsefulData
+  console.log("yo pt 2")
+  console.log("dataaa: ", data)
+
+  const userDialogueUsefulData : UserDialogueUsefulData = data?.GetUserDialogueUsefulData
+
+  console.log("userDialogueUsefulData: ", userDialogueUsefulData)
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
