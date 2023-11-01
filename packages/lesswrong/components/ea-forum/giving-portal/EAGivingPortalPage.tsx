@@ -323,7 +323,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
-  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 6);
+  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 8);
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
