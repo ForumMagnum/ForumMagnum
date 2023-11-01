@@ -71,8 +71,8 @@ const styles = (theme: ThemeType) => ({
     background: `
       repeating-linear-gradient(
         110deg,
-        ${theme.palette.givingPortal[800]},
-        ${theme.palette.givingPortal[800]} 2px,
+        ${theme.palette.givingPortal[900]},
+        ${theme.palette.givingPortal[900]} 2px,
         ${theme.palette.givingPortal[200]} 2px,
         ${theme.palette.givingPortal[200]} 8px
       );

@@ -257,6 +257,7 @@ export const darkModeTheme: UserThemeSpecification = {
       [0]: "#202020",
       [200]: "#34201E",
       [800]: "#49201C",
+      [900]: "#5B3633",
       [1000]: "#FFF",
       button: {
         alwaysDark: "#862115",

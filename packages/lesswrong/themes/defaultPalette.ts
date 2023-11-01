@@ -498,6 +498,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [0]: "#fdfcfc",
     [200]: "#fcf5f3",
     [800]: "#f8e7e2",
+    [900]: "#EDD3CE",
     [1000]: "#862115",
     button: {
       alwaysDark: "#862115",

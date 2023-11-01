@@ -452,7 +452,7 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
-    givingPortal: Record<0 | 200 | 800 | 1000, ColorString> & {
+    givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
       ctaBackground: ColorString,
       ctaText: ColorString,
       candidate: ColorString,
