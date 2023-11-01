@@ -1,7 +1,16 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
 import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
+import {
+  addGraphQLMutation,
+  addGraphQLQuery,
+  addGraphQLResolvers,
+  addGraphQLSchema,
+  SimpleValidationError,
+  slugify,
+  updateMutator,
+  Utils,
+} from '../vulcan-lib'
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
 import {getUserEmail} from "../../lib/collections/users/helpers";
@@ -23,7 +32,6 @@ import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDa
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
-import {SimpleValidationError} from '../apolloServer.ts'
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
