@@ -235,6 +235,35 @@ export const wakingUpTheme: SiteThemeSpecification = {
         },
       },
       overrides: {
+        Header: {
+          title: {
+            ["@media screen and (max-width: 380px)"]: {
+              paddingRight: 0,
+            },
+            SiteLogo: {
+              root: {
+                ["@media screen and (max-width: 380px)"]: {
+                  maxWidth: "100%",
+                  height: "auto",
+                },
+              }
+            },
+          }
+        },
+        SearchBar: {
+          searchInputArea: {
+            ["@media screen and (max-width: 380px)"]: {
+              minWidth: 40,
+            },
+          }
+        },
+        NotificationsMenuButton: {
+          badgeContainer: {
+            ["@media screen and (max-width: 380px)"]: {
+              width: 40,
+            },
+          }
+        },
         SiteLogo: {
           root: {
             height: "24px",

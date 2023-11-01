@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   titleLink: {
     color: theme.palette.header.text,
     fontSize: 19,
-    '&:hover, &:focus, &:active': {
+    '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
