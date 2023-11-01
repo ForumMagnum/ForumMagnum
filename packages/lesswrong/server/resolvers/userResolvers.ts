@@ -24,16 +24,38 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { TagsRepo, UsersRepo } from '../repos';
 import {defineQuery} from '../utils/serverGraphqlUtil';
-import { CommentCountTag } from "../repos/TagsRepo";
-import { UpvotedUser, TopCommentedTagUser } from "../repos/UsersRepo";
+import { TopTagsTopUsers } from "../../components/users/DialogueSuggestionsPage";
 
 
-type TopTagsTopUsers = {
-  dialogueUsers: DbUser[],
-  topUsers: UpvotedUser[],
-  topCommentedTags: CommentCountTag[],
-  topCommentedTagTopUsers: TopCommentedTagUser[],
-}
+addGraphQLSchema(`
+  type CommentCountTag {
+    name: String!
+    comment_count: Int!
+  }
+  type TopCommentedTagUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    tag_comment_counts: [CommentCountTag!]!
+  }
+  type UpvotedUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    power_values: String!
+    vote_counts: Int!
+    total_agreement: Float!
+    agreement_values: String!
+  }
+  type TopTagsTopUsers {
+    dialogueUsers: [User],
+    topUsers: [UpvotedUser],
+    topCommentedTags: [CommentCountTag],
+    topCommentedTagTopUsers: [TopCommentedTagUser],
+  }
+`)
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -518,7 +540,7 @@ addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
 defineQuery({
   name: "GetUsersWhoHaveMadeDialogues",
-  resultType: "JSON",
+  resultType: "TopTagsTopUsers",
   fn: async (root:void, _:any, context: ResolverContext) => {
     const { currentUser } = context
     if (!currentUser) {
@@ -543,7 +565,7 @@ defineQuery({
 
 
     // The top tags of your top authors
-    const results: AnyBecauseTodo = {
+    const results: TopTagsTopUsers = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
       topCommentedTags: topCommentedTags,

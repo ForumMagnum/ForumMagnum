@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { CommentCountTag } from "./TagsRepo";
+import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueSuggestionsPage";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *
@@ -34,17 +34,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-export type UpvotedUser = {
-  _id: string;
-  username: string;
-  displayName: string;
-  total_power: number;
-  power_values: string;
-  vote_counts: number;
-  total_agreement: number;
-  agreement_values: string;
-};
-
 // topCommentedTags.name,
 // u.username,
 // u."displayName",
@@ -57,17 +46,6 @@ type UserData = {
   displayName: string;
   name: string;
   post_comment_count: number;
-};
-
-export type TopCommentedTagUser = {
-  _id: string;
-  username: string;
-  displayName: string;
-  total_power: number;
-  tag_comment_counts: Array<{
-    name: string;
-    post_comment_count: number;
-  }>
 };
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
@@ -279,7 +257,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }
 
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
-    return this.any(`
+    return this.getRawDb().any(`
       SELECT U.*
       FROM "Users" AS U
       INNER JOIN "Posts" AS P ON U._id = P."userId"
