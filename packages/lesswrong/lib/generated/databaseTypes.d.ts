@@ -1353,6 +1353,7 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
+  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
