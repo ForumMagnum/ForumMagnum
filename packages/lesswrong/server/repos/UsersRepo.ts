@@ -44,6 +44,17 @@ type UpvotedUser = {
   agreement_values: string;
 };
 
+type TopCommentedTagUser = {
+  _id: string;
+  username: string;
+  displayName: string;
+  total_power: number;
+  tag_comment_counts: Array<{
+    name: string;
+    post_comment_count: number;
+  }>
+};
+
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -253,19 +264,17 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }
 
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
-    // return this.one(`SELECT * FROM "Users" WHERE _id = 'gXeEWGjTWyqgrQTzR'`
-    // )
     return this.any(`
-    SELECT U.*
-    FROM "Users" AS U
-    INNER JOIN "Posts" AS P ON U._id = P."userId"
-    WHERE P."collabEditorDialogue" IS TRUE
-  `)
+      SELECT U.*
+      FROM "Users" AS U
+      INNER JOIN "Posts" AS P ON U._id = P."userId"
+      WHERE P."collabEditorDialogue" IS TRUE
+    `)
   }
 
   
 
-  async getUsersTopUpvotedUsers(userId:string): Promise<AnyBecauseTodo[]> {
+  async getUsersTopUpvotedUsers(userId:string): Promise<UpvotedUser[]> {
     return this.getRawDb().any(
       `
       WITH "CombinedVotes" AS (
@@ -373,7 +382,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     }
   }
 
-  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: any[], topUsers: any[]): Promise<any> {
+  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: any[], topUsers: any[]): Promise<TopCommentedTagUser[]> {
     // Extract data from the preprocessed data
     const userData = preTopCommentedTagTopUsers.map(user => ({
       username: user.username, 
@@ -403,7 +412,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `;
   
     try {
-      return await this.any(query, [userData, totalPowers]);
+      return await this.getRawDb().any(query, [userData, totalPowers]);
     } catch (error) {
       console.error('Error executing topCommentedTagTopUsers query:', error);
       throw error;

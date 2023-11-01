@@ -1,6 +1,11 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
 
+type CommentCountTag = {
+  name: string;
+  comment_count: number;
+};
+
 export default class TagsRepo extends AbstractRepo<DbTag> {
   constructor() {
     super(Tags);
@@ -51,8 +56,8 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
     return count;
   }
 
-  async getUsersMostFrequentlyCommentedTags(userId:string): Promise<DbTag[]> {
-    return this.any(`
+  async getUsersMostFrequentlyCommentedTags(userId:string): Promise<CommentCountTag[]> {
+    return this.getRawDb().any(`
       SELECT
         public."Tags".name,
         COUNT(public."Comments"._id) AS comment_count
