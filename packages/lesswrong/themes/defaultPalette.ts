@@ -501,6 +501,16 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [800]: "#f8e7e2",
     [900]: "#cda09a",
     [1000]: "#862115",
+    button: {
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    buttonText: "#fff",
+    votedCandidate: "#fff",
+    cta: "#fdfcfc",
+    ctaText: "#757575",
   },
 
   contrastText: shades.grey[0],

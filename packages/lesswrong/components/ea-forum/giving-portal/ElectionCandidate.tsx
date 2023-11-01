@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 68,
   },
   rootVoted: {
-    backgroundColor: theme.palette.givingPortal[0],
+    backgroundColor: theme.palette.givingPortal.votedCandidate,
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
