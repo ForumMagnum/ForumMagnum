@@ -53,7 +53,7 @@ importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurvey
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
 importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
 importComponent("EditDigestHeader", () => require('../components/ea-forum/digest/EditDigestHeader'));
-importComponent("EditDigestPublishBtn", () => require('../components/ea-forum/digest/EditDigestPublishBtn'));
+importComponent("EditDigestActionButtons", () => require('../components/ea-forum/digest/EditDigestActionButtons'));
 importComponent("ConfirmPublishDialog", () => require('../components/ea-forum/digest/ConfirmPublishDialog'));
 importComponent("EditDigestTableRow", () => require('../components/ea-forum/digest/EditDigestTableRow'));
 importComponent("SmallpoxBanner", () => require('../components/ea-forum/SmallpoxBanner'));
@@ -414,6 +414,7 @@ importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
 importComponent("DialogueEditorGuidelines", () => require('../components/posts/dialogues/DialogueEditorGuidelines'));
+importComponent("DialogueEditorFeedback", () => require('../components/posts/dialogues/DialogueEditorFeedback'));
 importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 

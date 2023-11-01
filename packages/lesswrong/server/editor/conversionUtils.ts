@@ -79,7 +79,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
+export const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
   if (toWrap.length < 1) {
     return toWrap;
   }
@@ -156,9 +156,9 @@ const handleDialogueHtml = async (html: string): Promise<string> => {
     const userId = $(element).attr('user-id');
     if (userId && userDisplayNamesById[userId]) {
       $(element)
-        .append(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"></section>`)
-        .find('.dialogue-message-header')
-        .text(userDisplayNamesById[userId]);
+        .prepend(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"><b></b></section>`)
+        .find('.dialogue-message-header b')
+        .text(userDisplayNamesById[userId])
     }
   });
 
