@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const InlineReactHoverableHighlight = ({quote,reactions, voteProps, children, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
-  voteProps?: VotingProps<VoteableTypeClient>,
+  voteProps: VotingProps<VoteableTypeClient>,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {

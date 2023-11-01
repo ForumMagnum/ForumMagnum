@@ -1,7 +1,7 @@
-import React, { useState, useRef, RefObject, useEffect, useContext } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import React, { useState, useRef, RefObject, useContext } from 'react';
+import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
-import { NamesAttachedReactionsList, NamesAttachedReactionsVote, NamesAttachedReactionsScore, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
+import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
@@ -15,7 +15,6 @@ import orderBy from 'lodash/orderBy';
 import sumBy from 'lodash/sumBy';
 import Card from '@material-ui/core/Card'
 import FormatListBulletedIcon from "@material-ui/icons/FormatListBulleted"
-import without from 'lodash/without';
 import { AddReactionIcon } from '../../icons/AddReactionIcon';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
@@ -23,6 +22,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
+import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -135,6 +135,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+//DEBUG: make the reaction-overview button always visible for testing access
+const alwaysShowReactionOverviewButton = false;
+
 
 export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableTypeClient>): {
   getCurrentUserReaction: (name: EmojiReactName, quote: QuoteLocator|null) => UserVoteOnSingleReaction|null,
@@ -143,22 +146,11 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   setCurrentUserReaction: (name: EmojiReactName, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) => void,
   getAlreadyUsedReactTypesByKarma: () => EmojiReactName[],
   getAlreadyUsedReacts: () => NamesAttachedReactionsList,
-  getAllReactionQuotes: () => string[]
 } => {
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const currentUserExtendedVote = getNormalizedUserVoteFromVoteProps(voteProps) ?? null;
   
-  function reactionIsMatch(react: UserVoteOnSingleReaction, name: EmojiReactName, quote: QuoteLocator|null): boolean {
-    if (react.react !== name)
-      return false;
-    if (quote) {
-      return !!(react.quotes && react.quotes!.indexOf(quote)>=0);
-    } else {
-      return !(react.quotes?.length);
-    }
-  }
-
   /**
    * Given a reaction type, return the user's vote on the non-inline version of
    * it (or null if they haven't reacted or have only reacted inline).
@@ -166,7 +158,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
   function getCurrentUserReaction(name: EmojiReactName, quote: QuoteLocator|null): UserVoteOnSingleReaction|null {
     const reacts = currentUserExtendedVote?.reacts ?? [];
     for (let i=0; i<reacts.length; i++) {
-      if (reactionIsMatch(reacts[i], name, quote)) {
+      if (reactionVoteIsMatch(reacts[i], name, quote)) {
         return reacts[i];
       }
     }
@@ -211,7 +203,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     /*const oldQuotes = getCurrentUserReaction(reactionName)?.quotes ?? [];
     const newQuotes = quote ? [...oldQuotes, quote] : oldQuotes*/
     const newReacts: UserVoteOnSingleReaction[] = [
-      ...filter(oldReacts, r => !reactionIsMatch(r, reactionName, quote)),
+      ...filter(oldReacts, r => !reactionVoteIsMatch(r, reactionName, quote)),
       {
         react: reactionName,
         vote,
@@ -240,7 +232,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     const oldReacts = currentUserExtendedVote?.reacts ?? [];
     const newExtendedVote: NamesAttachedReactionsVote = {
       ...currentUserExtendedVote,
-      reacts: filter(oldReacts, r => !reactionIsMatch(r, reactionName, quote))
+      reacts: filter(oldReacts, r => !reactionVoteIsMatch(r, reactionName, quote))
     };
 
     voteProps.vote({
@@ -250,42 +242,6 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       currentUser,
     });
   }
-
-  /*function clearQuoteFromCurrentUserReaction(reaction: UserVoteOnSingleReaction, quote: QuoteLocator|null) {
-    if (!currentUser) {
-      openLoginDialog();
-      return;
-    }
-
-    const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    const oldQuotes = reaction.quotes ?? [];
-    const newQuotes = without(oldQuotes, quote)
-
-    if (newQuotes.length > 0) {
-      const newReacts: UserVoteOnSingleReaction[] = [
-        ...filter(oldReacts, r=>r.react!==reaction.react),
-        {
-          react: reaction.react,
-          vote: reaction.vote,
-          quotes: newQuotes
-        }
-      ]
-
-      const newExtendedVote: NamesAttachedReactionsVote = {
-        ...currentUserExtendedVote,
-        reacts: newReacts
-      };
-
-      voteProps.vote({
-        document: voteProps.document,
-        voteType: voteProps.document.currentUserVote || null,
-        extendedVote: newExtendedVote,
-        currentUser,
-      });
-    } else {
-      clearCurrentUserReaction(reaction.react, quote)
-    }
-  }*/
   
   function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) {
     if (reaction) {
@@ -310,18 +266,19 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     return alreadyUsedReactionTypesByKarma
   }
 
-  function getAllReactionQuotes(): string[] {
-    const alreadyUsedReactions = getAlreadyUsedReacts()
-    const allReacts = Object.values(alreadyUsedReactions)
-    const allQuotes = allReacts
-      .flatMap(r => r?.flatMap(r => r?.quotes ?? []))
-      .filter(q => q !== undefined) as string[]
-    return uniq(allQuotes)
-  }
-
   return {
-    getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts, getAllReactionQuotes
+    getCurrentUserReaction, getCurrentUserReactionVote, toggleReaction, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts
   };
+}
+
+export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: EmojiReactName, quote: QuoteLocator|null): boolean {
+  if (react.react !== name)
+    return false;
+  if (quote) {
+    return !!(react.quotes && react.quotes!.indexOf(quote)>=0);
+  } else {
+    return !(react.quotes?.length);
+  }
 }
 
 
@@ -350,7 +307,7 @@ const NamesAttachedReactionsCommentBottom = ({
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUser = useCurrentUser();
 
-  const { getAlreadyUsedReactTypesByKarma, getAllReactionQuotes } = useNamesAttachedReactionsVoting(voteProps)
+  const { getAlreadyUsedReactTypesByKarma } = useNamesAttachedReactionsVoting(voteProps)
 
   const allReactions = getAlreadyUsedReactTypesByKarma();
 
@@ -359,8 +316,6 @@ const NamesAttachedReactionsCommentBottom = ({
   
   const visibleReacts = visibleReactionsDisplay.map(r => r.react)
   const hiddenReacts = difference(allReactions, visibleReacts)
-
-  const quotes = getAllReactionQuotes()
 
   const isDebateComment = post?.debate && document.debateResponse
   const canReactUserIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : []
@@ -384,7 +339,7 @@ const NamesAttachedReactionsCommentBottom = ({
       )}
       {hideKarma && <AddReactionIcon />}
     </span>}
-    {hiddenReacts.length > 0 && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
+    {(hiddenReacts.length > 0 || alwaysShowReactionOverviewButton) && <ReactionOverviewButton voteProps={voteProps} classes={classes}/>}
     {showReactButton && <AddReactionButton voteProps={voteProps} classes={classes}/>}
   </span>
 }
@@ -490,8 +445,8 @@ const ReactionOverview = ({voteProps, classes}: {
       <h3>Reacts Overview</h3>
       <div className={classes.alreadyUsedReactions}>
         {alreadyUsedReactionTypesByKarma.map(r => {
-          const usersWhoReacted = alreadyUsedReactions[r]!;
-          const netReactionCount = sumBy(usersWhoReacted, r=>r.reactType==="disagreed"?-1:1);
+          const reactions = alreadyUsedReactions[r]!;
+          const netReactionCount = sumBy(reactions, r=>r.reactType==="disagreed"?-1:1);
           const { description, label } = getNamesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
@@ -505,7 +460,7 @@ const ReactionOverview = ({voteProps, classes}: {
                 currentUserReaction={getCurrentUserReactionVote(r, null)}
                 setCurrentUserReaction={setCurrentUserReaction}
               />
-              <Components.UsersWhoReacted usersWhoReacted={usersWhoReacted}/>
+              <Components.UsersWhoReacted reactions={reactions}/>
             </Row>
           </div>
         })}
@@ -515,24 +470,35 @@ const ReactionOverview = ({voteProps, classes}: {
 }
 
 const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, commentBodyRef}: {
-  react: string,
+  react: EmojiReactName,
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
   commentBodyRef?: React.RefObject<ContentItemBody>|null
 }) => {
+  const { ReactionHoverTopRow, ReactionQuotesHoverInfo } = Components;
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
-
   const alreadyUsedReactions: NamesAttachedReactionsList = normalizedReactions?.reacts ?? {};
+  const relevantReactions = alreadyUsedReactions[react] ?? [];
+
+  // Don't show the "general" (non-quote-specific) ballot for this react if all the instances of this react are inline (quote-specific)
+  const allReactsAreInline = relevantReactions.every(r => !(r.quotes?.length));
+
+  const allQuotes = filterNonnull(uniq(relevantReactions?.flatMap(r => r.quotes)))
 
   return <div className={classes.footerReactionHover}>
-    <Components.HoverBallotReactionRow
-      key={react}
+    <ReactionHoverTopRow
       reactionName={react}
-      quote={null}
-      usersWhoReacted={alreadyUsedReactions[react]!}
+      userReactions={relevantReactions}
+      showNonInlineVoteButtons={!allReactsAreInline}
+      voteProps={voteProps}
+    />
+    {allQuotes.map(quote => <ReactionQuotesHoverInfo
+      key={`${react}-${slugify(quote)}`}
+      react={react}
+      quote={quote}
       voteProps={voteProps}
       commentBodyRef={commentBodyRef}
-    />
+    />)}
   </div>
 }
 
