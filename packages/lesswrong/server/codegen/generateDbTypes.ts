@@ -87,6 +87,13 @@ function generateNameMapTypes(): string {
     sb.push(`  ${collectionName}: Db${typeName}\n`);
   }
   sb.push('}\n\n');
+
+  sb.push('interface ObjectsByTypeName {\n');
+  for (let collection of getAllCollections()) {
+    const {typeName} = collection;
+    sb.push(`  ${typeName}: Db${typeName}\n`);
+  }
+  sb.push('}\n\n');
   return sb.join('');
 }
 

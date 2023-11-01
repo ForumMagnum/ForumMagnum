@@ -1649,3 +1649,60 @@ interface ObjectsByCollectionName {
   Votes: DbVote
 }
 
+interface ObjectsByTypeName {
+  AdvisorRequest: DbAdvisorRequest
+  Ban: DbBan
+  Book: DbBook
+  Chapter: DbChapter
+  ClientId: DbClientId
+  Collection: DbCollection
+  CommentModeratorAction: DbCommentModeratorAction
+  Comment: DbComment
+  Conversation: DbConversation
+  CronHistory: DbCronHistory
+  DatabaseMetadata: DbDatabaseMetadata
+  DebouncerEvents: DbDebouncerEvents
+  DigestPost: DbDigestPost
+  Digest: DbDigest
+  ElectionCandidate: DbElectionCandidate
+  EmailTokens: DbEmailTokens
+  FeaturedResource: DbFeaturedResource
+  GardenCode: DbGardenCode
+  Images: DbImages
+  LWEvent: DbLWEvent
+  LegacyData: DbLegacyData
+  Localgroup: DbLocalgroup
+  Message: DbMessage
+  Migration: DbMigration
+  ModerationTemplate: DbModerationTemplate
+  ModeratorAction: DbModeratorAction
+  Notification: DbNotification
+  PageCacheEntry: DbPageCacheEntry
+  PetrovDayLaunch: DbPetrovDayLaunch
+  PodcastEpisode: DbPodcastEpisode
+  Podcast: DbPodcast
+  PostEmbedding: DbPostEmbedding
+  PostRecommendation: DbPostRecommendation
+  PostRelation: DbPostRelation
+  Post: DbPost
+  RSSFeed: DbRSSFeed
+  ReadStatus: DbReadStatus
+  Report: DbReport
+  ReviewVote: DbReviewVote
+  Revision: DbRevision
+  Sequence: DbSequence
+  Session: DbSession
+  Spotlight: DbSpotlight
+  Subscription: DbSubscription
+  TagFlag: DbTagFlag
+  TagRel: DbTagRel
+  Tag: DbTag
+  TypingIndicator: DbTypingIndicator
+  UserActivity: DbUserActivity
+  UserMostValuablePost: DbUserMostValuablePost
+  UserRateLimit: DbUserRateLimit
+  UserTagRel: DbUserTagRel
+  User: DbUser
+  Vote: DbVote
+}
+
