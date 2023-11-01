@@ -130,7 +130,7 @@ const ElectionCandidate = ({candidate, classes}: {
             <>
               {", "}
               <LWTooltip
-                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election”`}
+                title={`View ${postCountString} tagged “${tag.name}” and “Effective giving”`}
                 placement="bottom"
                 popperClassName={classes.tooltip}
               >

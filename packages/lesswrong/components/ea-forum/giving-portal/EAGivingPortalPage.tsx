@@ -127,7 +127,6 @@ const styles = (theme: ThemeType) => ({
     "& a": {
       color: "inherit",
       textDecoration: "underline",
-      fontWeight: 700,
       "&:hover": {
         opacity: 1,
         textDecoration: "none",
@@ -369,7 +368,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
                 The fund will be allocated to the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
-                <a href={donationElectionLink}>Learn more.</a>
+                <a href={donationElectionLink}>Learn more</a>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
@@ -466,7 +465,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )}>
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged &quot;Effective giving&quot;
+                Recent posts tagged Effective giving
               </div>
               <div className={classNames(
                 classes.postsList,
