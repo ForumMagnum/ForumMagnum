@@ -4,6 +4,7 @@ import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import type { TimelineSpec } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 import moment from "moment";
+import { Link } from "../../../lib/reactRouterWrapper";
 
 const formatDate = (date: Date) => moment.utc(date).format("MMM D");
 
@@ -183,7 +184,7 @@ const Timeline = ({
 
   return (
     <div className={classNames(classes.root, className)}>
-      {points.map(({date, description}) => (
+      {points.map(({ date, description }) => (
         <Fragment key={description}>
           <div {...positionDate(date)}>
             <div>{formatDate(date)}</div>
@@ -191,25 +192,17 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({start, end, description, consecutive, hideDates, hatched}) => (
-        <div
-          {...positionSpan(start, end, consecutive, hatched)}
-          key={description}
-        >
-          {description}
-          {!hideDates &&
-            <div className={classNames(classes.date, classes.spanDate)}>
-              {formatSpanDates(start, end)}
-            </div>
-          }
+      {spans.map(({ start, end, description, href, consecutive, hideDates, hatched }) => (
+        <div {...positionSpan(start, end, consecutive, hatched)} key={description}>
+          {href ? <Link to={href}>{description}</Link> : description}
+          {!hideDates && (
+            <div className={classNames(classes.date, classes.spanDate)}>{formatSpanDates(start, end)}</div>
+          )}
         </div>
       ))}
-      {showCurrentDate &&
-        <div
-          className={classes.currentMarker}
-          style={{width: `${getDatePercent(currentDate)}%`}}
-        />
-      }
+      {showCurrentDate && (
+        <div className={classes.currentMarker} style={{ width: `${getDatePercent(currentDate)}%` }} />
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import moment from "moment";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
-export const donationElectionLink = "https://forum.effectivealtruism.org/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly";
+export const donationElectionLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly";
 export const donationElectionFundraiserLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
@@ -37,6 +37,7 @@ type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
+  href?: string,
   consecutive?: boolean,
   hideDates?: boolean,
   hatched?: boolean,
@@ -64,6 +65,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
       description: "Effective Giving Spotlight",
+      href: `${donationElectionLink}#Effective_giving_spotlight__November_7_14_`,
       consecutive: true,
     },
     {
