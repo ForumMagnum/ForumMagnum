@@ -62,9 +62,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[100],
     borderRadius: 5,
   },
-  matchContainerGrid: {
+  matchContainerGridV1: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
     gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 180px) minmax(min-content, 40px) minmax(min-content, 80px)  550px `,
+    gridRowGap: '10px',
+    columnGap: '10px',
+    alignItems: 'center'
+  },
+  matchContainerGridV2: {
+    display: 'grid',    //        checkbox         name         message                match                    bio  posts read
+    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 180px) auto  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
@@ -78,11 +85,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
-  button: {
+  messageButton: {
     maxHeight: `35px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.background.paper, // theme.palette.primary.light
     color: theme.palette.link.unmarked,
+  },
+  newDialogueButton: {
+    maxHeight: `35px`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.primary.light,
+    color: 'white'
   },
   link: {
     color: theme.palette.primary.main,
@@ -275,7 +288,7 @@ const DialogueCheckBox: React.FC<{
   const [showConfetti, setShowConfetti] = useState(false);
 
 
-  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string, handleConfetti:React.Dispatch<React.SetStateAction<boolean>>) {
+  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId:string, handleConfetti:React.Dispatch<React.SetStateAction<boolean>>, checkId?:string, ) {
     if (!currentUser) return;
 
     const tgt = event.target;
@@ -344,7 +357,7 @@ const DialogueCheckBox: React.FC<{
               root: checkboxClass,
               checked: classes.checked,
             }}
-            onChange={event => updateDatabase(event, targetUserId, checkId, setShowConfetti) } 
+            onChange={event => updateDatabase(event, targetUserId, setShowConfetti, checkId) } 
             checked={isChecked}
           />
         }
@@ -354,7 +367,7 @@ const DialogueCheckBox: React.FC<{
   );
 };
 
-const isMatched = (userDialogueChecks: any[], targetUserId: string): boolean => {
+const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
 };
 
@@ -385,7 +398,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     <div>
       {isMatched ? (
         <button
-          className={classes.button}
+          className={classes.newDialogueButton}
           onClick={(e) =>
             createDialogue(
               `${currentUser?.displayName}/${targetUserDisplayName}`,
@@ -406,7 +419,7 @@ const MessageButton: React.FC<{
   classes: ClassesType;
 }> = ({ targetUserId, currentUser, classes }) => {
   return (
-    <button className={classes.button}>
+    <button className={classes.messageButton}>
       <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
         <a data-cy="message">Message</a>
       </NewConversationButton>
@@ -567,7 +580,7 @@ export const DialogueSuggestionsPage = ({classes}: {
 
       <h1>Dialogue Matching</h1>
       <p>Check a user you'd be interested in having a dialogue with, if they were interested too. Users will 
-        not see whether you have checked them unless they have also checked you. A check is *not* a commitment, just an indication of interest.
+        not see whether you have checked them unless they have also checked you. A check is not a commitment, just an indication of interest.
         You can message people even if you haven't matched. 
         (Also, there are no notifications on match, as we haven't built that yet. You'll have to keep checking the page :)</p>
         
@@ -576,7 +589,7 @@ export const DialogueSuggestionsPage = ({classes}: {
               control={
                 <Checkbox
                   checked={optIn}
-                  onChange={event => console.log("hello!")} //handleOptInToRevealDialogueChecks(event)}
+                  onChange={event => handleOptInToRevealDialogueChecks(event)}
                   name="optIn"
                   color="primary"
                   style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
@@ -591,7 +604,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Your top upvoted users (last 1.5 years)</h3>
-          <div className={classes.matchContainerGrid}>
+          <div className={classes.matchContainerGridV1}>
             <Headers titles={["Dialogue ...?", "Name", "Message", "Match", "Upvotes from you", "Agreement from you", "Posts you've read"]} className={classes.header} />
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
@@ -642,9 +655,7 @@ export const DialogueSuggestionsPage = ({classes}: {
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>All users who have published Dialogues</h3>
-          <div className={classes.matchContainerGrid}>
-            <Headers titles={["Dialogue maybe?", "Name", "Message", "Match", "Karma", "Karma", "Posts you've read", ""]} className={classes.header} />
-
+          <div className={classes.matchContainerGridV2}>
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
@@ -675,12 +686,10 @@ export const DialogueSuggestionsPage = ({classes}: {
                     createDialogue={createDialogue}
                     classes={classes}
                   />
-                  {/* <UserBio 
+                  <UserBio 
                     key={targetUser._id} 
                     classes={classes} 
-                    userId={targetUser._id} /> */}
-                  <div>{targetUser.karma}</div>
-                  <div>{targetUser.karma}</div>
+                    userId={targetUser._id} />
                   <UserPostsYouveRead 
                     classes={classes} 
                     targetUserId={targetUser._id} 
@@ -695,94 +704,52 @@ export const DialogueSuggestionsPage = ({classes}: {
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>All users who have opted in to Dialogue Faciliation</h3>
-          <div className={classes.matchContainerGrid}>
-            <h5 className={classes.header}>Display Name</h5>
-            <h5 className={classes.header}>Bio</h5>
-            <h5 className={classes.header}>Posts you've read</h5>
-            <h5 className={classes.header}>Opt-in to dialogue</h5>
-            <h5 className={classes.header}>Karma</h5>
-            <h5 className={classes.header}>Karma again</h5>
-            <h5 className={classes.header}>Message</h5>
-            <h5 className={classes.header}>Match</h5>
+          <div className={classes.matchContainerGridV2}>
+           
             {UsersOptedInToDialogueFacilitation?.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-              
               return (
-                <React.Fragment key={targetUser.displayName + randomId()}>
-                  <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
-                  <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
-                  <input 
-                    type="checkbox" 
-                    style={{ margin: '0', width: '20px' }} 
-                    // onChange={event => updateDatabase(
-                    //   event, 
-                    //   targetUser._id, 
-                    //   checkId
-                    // )} 
-                    value={targetUser.displayName} 
-                    // checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
+                <React.Fragment key={`${targetUser._id}_other`}> 
+                  <DialogueCheckBox 
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName} 
+                    checkId={checkId} 
+                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    classes={classes}
                   />
-                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
-                  <div>{targetUser.karma}</div>
-                  <div>{targetUser.karma}</div>
-                  {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                      <a data-cy="message">Message</a>
-                  </NewConversationButton> </button>}
-                  <div>
-                    {userDialogueChecks &&
-                      userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                        <span>You match!</span>
-                        <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                      </div> : null}
-                  </div>
-                </React.Fragment>
+                  <UsersName 
+                    className={classes.displayName} 
+                    documentId={targetUser._id} 
+                    simple={false}/>
+                  <MessageButton 
+                    targetUserId={targetUser._id} 
+                    currentUser={currentUser} 
+                    classes={classes} />
+                  <MatchDialogueButton
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    currentUser={currentUser}
+                    loadingNewDialogue={loadingNewDialogue}
+                    createDialogue={createDialogue}
+                    classes={classes}
+                  />
+                  <UserBio 
+                    key={targetUser._id} 
+                    classes={classes} 
+                    userId={targetUser._id} />
+                  <UserPostsYouveRead 
+                    classes={classes} 
+                    targetUserId={targetUser._id} 
+                    components={Components} />
+                </React.Fragment> 
               )}
             )}
           </div>
           <LoadMore {...loadMoreProps} />
         </div>
       </div>
-      {/* <h2>All users who had dialogues</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h5>Display Name</h5>
-        <h5>Opt-in to dialogue</h5>
-        <h5>Message</h5>
-        {[...new Map(userDialogueUsefulData.dialogueUsers.map(user => [user.displayName, user])).values()].map(user => (
-          <React.Fragment key={user.displayName}>
-            <p style={{ margin: '3px' }}>{user.displayName}</p>
-            <input type="checkbox" style={{ margin: '0' }} />
-            <button>Message</button>
-          </React.Fragment>
-        ))}
-      </div>  */}
-
-      {/* <h2>Your top tags</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h5>Tag Name</h5>
-        <h5>Comment Count</h5>
-        <h5>Opt-in to dialogue</h5>
-        {userDialogueUsefulData.topCommentedTags.slice(0,20).map(tag => (
-          <React.Fragment key={tag.name}>
-            <p style={{ margin: '3px' }}>{tag.name}</p>
-            <p style={{ margin: '3px' }}>{tag.comment_count}</p>
-            <input type="checkbox" style={{ margin: '0' }} />
-          </React.Fragment>
-        ))}
-      </div> */}
-
-      {/* <h2>Your top tags top users</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0px' }}>
-        <h5>Username</h5>
-        <h5>Total Power</h5>
-        <h5>Tag Comment Counts</h5>
-        {userDialogueUsefulData.topCommentedTagTopUsers.map(user => (
-          <React.Fragment key={user.username}>
-            <p style={{ margin: '0' }}>{user.username}</p>
-            <p style={{ margin: '0' }}>{user.total_power}</p>
-            <p style={{ margin: '0' }}>{user.tag_comment_counts}</p>
-          </React.Fragment>
-        ))}
-      </div> */}
       </div>
     </div>
   );
