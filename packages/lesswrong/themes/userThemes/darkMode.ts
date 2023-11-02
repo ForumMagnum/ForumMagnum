@@ -270,6 +270,7 @@ export const darkModeTheme: UserThemeSpecification = {
       votedCandidate: "#8A5751",
       ctaBackground: "#64342E",
       ctaText: "#FFF",
+      rhsLink: '#E7714E',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

@@ -391,7 +391,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Discuss"
                   description="Discuss where we should donate and what we should vote for in the Election."
                   buttonText="Contribute to the discussion"
-                  href={postsAboutElectionLink}
+                  href="https://forum.effectivealtruism.org/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Start_discussing_where_we_should_donate__what_we_should_vote_for__and_other_questions_related_to_effective_giving"
                 >
                   <Link
                     to={postsAboutElectionLink}

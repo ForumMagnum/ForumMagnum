@@ -457,6 +457,7 @@ declare global {
       ctaText: ColorString,
       candidate: ColorString,
       votedCandidate: ColorString,
+      rhsLink: ColorString,
       button: {
         alwaysDark: ColorString,
         dark: ColorString,
