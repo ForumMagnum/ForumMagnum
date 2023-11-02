@@ -6,6 +6,9 @@ import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { getCurrentSectionMark } from '../posts/TableOfContents/TableOfContentsList';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import isEmpty from 'lodash/isEmpty';
+import qs from 'qs'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -125,6 +128,9 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
+  const { history } = useNavigation();
+  const location = useLocation();
+  const { query } = location;
   const comment = commentTree.item!;
   
   return <div>
@@ -137,9 +143,14 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
         let anchor = window.document.getElementById(comment._id);
         if (anchor) {
           let anchorBounds = anchor.getBoundingClientRect();
-          const y = anchorBounds.top + window.scrollY - getCurrentSectionMark();
+          const y = anchorBounds.top + window.scrollY - getCurrentSectionMark() + 1;
           window.scrollTo({ top: y });
         }
+        delete query.commentId;
+        history.push({
+          search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
+          hash: `#${comment._id}`,
+        });
         ev.stopPropagation();
         ev.preventDefault();
       }}
