@@ -12,6 +12,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
+import ReactConfetti from 'react-confetti';
 
 const { NewConversationButton, UsersName, PostsTooltip, LoadMore } = Components;
 
@@ -112,10 +113,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: 'grey',
     fontSize: '1rem',
   },
-  row: {
-   // borderBottom: '1px solid white',
+  checkbox: {
+    color: 'default',
+    '&$checked': {
+      color: 'default',
+    },
   },
-  
+  checked: {},
+  checkboxCheckedMatched: {
+    color: 'green',
+    '&$checked': {
+      color: 'green',
+    },
+  },
+  checkboxCheckedNotMatched: {
+    color: '#ADD8E6',
+    '&$checked': {
+      color: '#ADD8E6',
+    },
+  },
 });
 
 const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
@@ -211,10 +227,12 @@ const DialogueCheckBox: React.FC<{
   targetUserId : string;
   targetUserDisplayName : string;
   checkId?: string;
-  userDialogueChecks: DialogueCheckInfo[] | undefined; // replace with the correct type
-}> = ({ targetUserId, targetUserDisplayName, checkId, userDialogueChecks}) => {
+  userDialogueChecks: DialogueCheckInfo[]; // replace with the correct type
+  classes: ClassesType;
+}> = ({ targetUserId, targetUserDisplayName, checkId, userDialogueChecks, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -254,6 +272,7 @@ const DialogueCheckBox: React.FC<{
   }
 
   async function updateDatabase(event:React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string) {
+
     if (!currentUser) return;
 
     const response = await upsertDialogueCheck({
@@ -297,31 +316,45 @@ const DialogueCheckBox: React.FC<{
         }
       }
     })
+
+    console.log(response)
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
     }
   }
 
-  const isMatch = match(userDialogueChecks, targetUserId);
+  const checked = isChecked(userDialogueChecks, targetUserId);
+  const matched = isMatched(userDialogueChecks, targetUserId);
+
+  const checkboxClass = checked 
+    ? (matched ? classes.checkboxCheckedMatched : classes.checkboxCheckedNotMatched)
+    : classes.checkbox;
 
   return (
-    <input 
-      type="checkbox" 
-      style={{ 
-        margin: '0', 
-        width: '20px', 
-        backgroundColor: isMatch ? 'green' : 'white' // Change color based on match
-      }} 
-      onChange={event => updateDatabase(event, targetUserId, checkId)} 
-      value={targetUserDisplayName} 
-      checked={userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked}
-    />
+    // <div>
+    //     <ReactConfetti run={showConfetti} />
+        <Checkbox 
+          classes={{
+            root: checkboxClass,
+            checked: classes.checked,
+          }}
+          onChange={event => updateDatabase(event, targetUserId, checkId)} 
+          checked={checked}
+        />
+    // </div>
+    
   );
 };
 
-const match = (userDialogueChecks: any[], targetUserId: string): boolean => {
+const isMatched = (userDialogueChecks: any[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
+};
+
+const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked || false;
 };
 
 type MatchDialogueButtonProps = {
@@ -345,7 +378,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 }) => {
   return (
     <div>
-      {match(userDialogueChecks, targetUserId) ? (
+      {isMatched(userDialogueChecks, targetUserId) ? (
           <button
             className={classes.link}
             onClick={(e) =>
@@ -407,25 +440,13 @@ export const DialogueSuggestionsPage = ({classes}: {
   `);
 
   const userDialogueUsefulData : UserDialogueUsefulData = data?.GetUserDialogueUsefulData
-
-  
-
   const currentUser = useCurrentUser();
-
-  // const { loading: userLoading, results } = useMulti({
-  //   terms: { view: "usersProfile", slug },
-  //   collectionName: "Users",
-  //   fragmentName: "UsersMinimumInfo",
-  //   enableTotal: false,
-  //   fetchPolicy: "cache-and-network",
-  // });
-  // const user = getUserFromResults(results);
-
 
   const {loading: userLoading, results : userDialogueChecks} = useMulti({
     terms: {
       view: "userDialogueChecks",
-      userId: currentUser?._id
+      userId: currentUser?._id,
+      limit: 1000,
     },
     fragmentName: "DialogueCheckInfo",
     collectionName: "DialogueChecks",
@@ -440,7 +461,6 @@ export const DialogueSuggestionsPage = ({classes}: {
     collectionName: 'Users'  
   });
 
-  console.log("users opted into dialogue facilitation: ", UsersOptedInToDialogueFacilitation)
   // // get all check rows where user is currentUser and checked is true
   // const GET_USERS_DIALOGUE_CHECKS = gql`
   //   query getUsersDialogueChecks {
@@ -464,12 +484,6 @@ export const DialogueSuggestionsPage = ({classes}: {
   if (userDialogueChecks) {
     targetUserIds = userDialogueChecks.map(check => check.targetUserId);
   }
-
-  //console.log("targetUserIds for ", currentUser?._id, targetUserIds)
-  //console.log("dataMatchesfor ", currentUser?._id, dataMatches)
-
-  
- 
 
   async function createDialogue(title: string, participants: string[]) {
     const createResult = await createPost({
@@ -503,7 +517,10 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error </p>;
+  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (userDialogueChecks?.length > 1000) {
+    console.log("Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...")
+  }
 
   const handleOptInToRevealDialogueChecks = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setOptIn(event.target.checked);
@@ -542,7 +559,7 @@ export const DialogueSuggestionsPage = ({classes}: {
       <div style={{ maxWidth: '1100px', margin: 'auto' }}>
 
       <h1>Dialogue Matching</h1>
-      <p>Check a user you'd be interested in having a dialogue with, if they were too. Users will 
+      <p>Check a user you'd be interested in having a dialogue with, if they were interested too. Users will 
         not see whether you have checked them unless they have also checked you. A check is *not* a commitment, just an indication of interest.
         You can message people even if you haven't matched. 
         (Also, there are no notifications on match, as we haven't built that yet. You'll have to keep checking the page :)</p>
@@ -578,6 +595,7 @@ export const DialogueSuggestionsPage = ({classes}: {
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
                     userDialogueChecks={userDialogueChecks} 
+                    classes={classes}
                   />
                   <UsersName 
                     className={classes.displayName} 
@@ -629,6 +647,7 @@ export const DialogueSuggestionsPage = ({classes}: {
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
                     userDialogueChecks={userDialogueChecks} 
+                    classes={classes}
                   />
                   <UsersName 
                     className={classes.displayName} 
