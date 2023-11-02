@@ -116,6 +116,13 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   description: "Don't show the how-to guide on the new post page",
 });
 
+export const COLLAPSE_COMMENTS_TOC = registerCookie({
+  name: "CollapseCommentsToC",
+  type: "functional",
+  description: "Controls whether the comments section of the table of contents is expanded",
+});
+
+
 // Third party cookies
 
 // Intercom
@@ -248,4 +255,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

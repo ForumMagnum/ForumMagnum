@@ -170,7 +170,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
  * screen where the current-post will transition when its heading passes.
  */
 export const getCurrentSectionMark = () => {
-  return window.innerHeight/3
+  return window.innerHeight/5
 }
 
 /**

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { ToCSection } from '../../lib/tableOfContents';
-import { useScrollHighlight } from '../hooks/useScrollHighlight';
+import { getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { getCurrentSectionMark } from '../posts/TableOfContents/TableOfContentsList';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
+import { usePersistentToggle } from '../hooks/usePersistentToggle';
+import { COLLAPSE_COMMENTS_TOC } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -55,17 +56,13 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
-  const [collapsed,setCollapsed] = useState(false);
+  const {value: collapsed, toggle: toggleCollapsed} = usePersistentToggle(COLLAPSE_COMMENTS_TOC);
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
   ]);
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
-    flattenedComments.map(comment => ({
-      landmarkName: comment._id,
-      elementId: comment._id,
-      position: "topOfElement"
-    }))
+    flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
   
   return <div className={classes.root}>
@@ -88,7 +85,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
         <div
           className={classes.collapseButtonWrapper}
           onClick={ev => {
-            setCollapsed(!collapsed);
+            toggleCollapsed();
             ev.preventDefault();
             ev.stopPropagation();
           }
@@ -121,6 +118,15 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   </div>
 }
 
+function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
+  return {
+    landmarkName: commentId,
+    elementId: commentId,
+    position: "topOfElement",
+    offset: 25, //approximate distance from top-border of a comment to the center of the metadata line
+  }
+}
+
 const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classes}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
@@ -140,12 +146,16 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
       dense
       href={"#"+comment._id}
       onClick={ev => {
-        let anchor = window.document.getElementById(comment._id);
-        if (anchor) {
-          let anchorBounds = anchor.getBoundingClientRect();
-          const y = anchorBounds.top + window.scrollY - getCurrentSectionMark() + 1;
+        const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
+        if (commentTop) {
+          // Add window.scrollY because window.scrollTo takes a relative scroll distance
+          // rather than an absolute scroll position, and a +1 because of rounding issues
+          // that otherwise cause us to wind up just above the comment such that the ToC
+          // highlights the wrong one.
+          const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
           window.scrollTo({ top: y });
         }
+
         delete query.commentId;
         history.push({
           search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
