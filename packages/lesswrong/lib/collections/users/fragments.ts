@@ -188,6 +188,8 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
+    givingSeasonNotifyForVoting
+
     abTestKey
     abTestOverrides
 
@@ -474,6 +476,8 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+
+    givingSeasonNotifyForVoting
 
     hideFrontpageMap
     hideTaggingProgressBar

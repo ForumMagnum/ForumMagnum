@@ -493,7 +493,26 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  
+
+  givingPortal: {
+    [0]: "#fdfcfc",
+    [200]: "#fcf5f3",
+    [800]: "#f8e7e2",
+    [900]: "#EDD3CE",
+    [1000]: "#862115",
+    button: {
+      alwaysDark: "#862115",
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    candidate: "#fef4ef",
+    votedCandidate: "#fff",
+    ctaBackground: "#fdfcfc",
+    ctaText: "#757575",
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',

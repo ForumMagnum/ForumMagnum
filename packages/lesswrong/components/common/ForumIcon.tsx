@@ -10,11 +10,14 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
+import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
+import HeartIcon from "@heroicons/react/24/solid/HeartIcon";
+import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
@@ -123,6 +126,7 @@ export type ForumIconName =
   "Users" |
   "UsersOutline" |
   "Bell" |
+  "BellAlert" |
   "BellBorder" |
   "AddEmoji" |
   "Link" |
@@ -162,6 +166,8 @@ export type ForumIconName =
   "List" |
   "PlusSmall" |
   "MinusSmall" |
+  "Heart" |
+  "HeartOutline" |
   "Settings" |
   "Email" |
   "Puzzle" |
@@ -196,6 +202,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
@@ -231,6 +238,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Image: PhotoIcon,
@@ -268,6 +277,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
@@ -303,6 +313,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
     Image: PhotoIcon,
