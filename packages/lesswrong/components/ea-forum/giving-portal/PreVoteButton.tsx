@@ -6,6 +6,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useHover } from "../../common/withHover";
 import type { VotingProps } from "../../votes/votingProps";
 import classNames from "classnames";
+import { useTracking } from "../../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,6 +32,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   const {openDialog} = useDialog();
   const {flash} = useMessages();
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
   const icon = hasVoted || hover ? "Heart" : "HeartOutline";
@@ -38,6 +40,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
 
   const onVote = useCallback(async () => {
     if (currentUser) {
+      captureEvent('preVote', {documentId: document._id, preVote: !hasVoted});
       try {
         await vote({
           document,
@@ -54,7 +57,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
         componentProps: {},
       });
     }
-  }, [vote, currentUser, hasVoted, document, openDialog, flash]);
+  }, [currentUser, captureEvent, document, hasVoted, vote, flash, openDialog]);
 
   const {LWPopper, ForumIcon} = Components;
   return (

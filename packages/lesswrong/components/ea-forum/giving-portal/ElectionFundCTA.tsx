@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   /**
@@ -62,6 +63,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     padding: 16,
     outline: "none",
+    whiteSpace: "nowrap",
     "&:active": {
       opacity: 0.8,
     },
@@ -139,13 +141,17 @@ const ElectionFundCTA = ({
   </button>
   
   return (
-    <div className={classes.root}>
-      <div className={classes.image}>{image}</div>
-      <div className={classes.title}>{title}</div>
-      <div className={classes.description}>{description}</div>
-      <div className={classes.children}>{children}</div>
-      {buttonNode}
-    </div>
+    <AnalyticsContext pageSubSectionContext="electionFundCTA">
+      <div className={classes.root}>
+        <div className={classes.image}>{image}</div>
+        <div className={classes.title}>{title}</div>
+        <div className={classes.description}>{description}</div>
+        <div className={classes.children}>{children}</div>
+        <AnalyticsContext pageElementContext="electionFundCTAButton">
+          {buttonNode}
+        </AnalyticsContext>
+      </div>
+    </AnalyticsContext>
   );
 }
 

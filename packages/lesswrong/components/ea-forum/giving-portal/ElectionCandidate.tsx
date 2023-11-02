@@ -5,6 +5,7 @@ import { useVote } from "../../votes/withVote";
 import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
 import { donationElectionTagId } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const imageSize = 52;
 
@@ -106,43 +107,45 @@ const ElectionCandidate = ({candidate, classes}: {
 
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
-    <div className={classNames(classes.root, {
-      [classes.rootVoted]: hasVoted,
-    })}>
-      <div className={classes.imageContainer}>
-        <Link to={href}>
-          <img src={logoSrc} className={classes.image} />
-        </Link>
-      </div>
-      <div className={classes.details}>
-        <PreVoteButton {...votingProps} className={classes.preVoteButton} />
-        <div className={classes.name}>
+    <AnalyticsContext pageElementContext="electionCandidate">
+      <div className={classNames(classes.root, {
+        [classes.rootVoted]: hasVoted,
+      })}>
+        <div className={classes.imageContainer}>
           <Link to={href}>
-            {name}
+            <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
-        <div className={classes.metaInfo}>
-          <span className={classes.preVotes}>
-            <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
-            {preVoteCountString}
-          </span>
-          {tag &&
-            <>
-              {", "}
-              <LWTooltip
-                title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
-                placement="bottom"
-                popperClassName={classes.tooltip}
-              >
-                <a href={postsLink} className={classes.postCount}>
-                  {postCountString}
-                </a>
-              </LWTooltip>
-            </>
-          }
+        <div className={classes.details}>
+          <PreVoteButton {...votingProps} className={classes.preVoteButton} />
+          <div className={classes.name}>
+            <Link to={href}>
+              {name}
+            </Link>
+          </div>
+          <div className={classes.metaInfo}>
+            <span className={classes.preVotes}>
+              <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+              {preVoteCountString}
+            </span>
+            {tag &&
+              <>
+                {", "}
+                <LWTooltip
+                  title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
+                  placement="bottom"
+                  popperClassName={classes.tooltip}
+                >
+                  <a href={postsLink} className={classes.postCount}>
+                    {postCountString}
+                  </a>
+                </LWTooltip>
+              </>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 
