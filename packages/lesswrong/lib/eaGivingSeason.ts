@@ -2,7 +2,7 @@ import moment from "moment";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
-export const donationElectionLink = "#"; // TODO link to Lizka's post once it's drafted
+export const donationElectionLink = "https://forum.effectivealtruism.org/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly";
 export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
 

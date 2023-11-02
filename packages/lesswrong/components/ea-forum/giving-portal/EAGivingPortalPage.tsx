@@ -334,7 +334,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
         <HeadTags title="Giving portal" />
-        <div className={classNames(classes.content, classes.mb20)}>
+        <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
           </div>
@@ -351,7 +351,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           <Timeline {...timelineSpec} className={classes.hideOnMobile} />
         </div>
         <div className={classes.sectionSplit}>
-          <div className={classes.content}>
+          <div className={classes.content} id="election">
             <div className={classNames(classes.column, classes.mt60)}>
               <div className={classNames(classes.h1, classes.primaryText)}>
                 Donation election 2023
@@ -419,7 +419,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           </div>
         </div>
         <div className={classes.sectionDark}>
-          <div className={classes.content}>
+          <div className={classes.content} id="candidates">
             <div className={classes.column}>
               <div className={classNames(classes.h2, classes.primaryText)}>
                 Candidates in the Election
@@ -462,7 +462,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.column,
               classes.mt60,
               classes.mb80,
-            )}>
+            )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
                 Recent posts tagged &quot;Effective giving&quot;
               </div>
@@ -487,11 +487,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           classes.content,
           classes.mt60,
           classes.mb80,
-        )}>
+        )} id="opportunities">
           <div className={classes.h1}>Other donation opportunities</div>
           <div className={classNames(classes.text, classes.textWide)}>
           Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
-            <a href={setupFundraiserLink}>run custom fundraisers</a>, or more.
+            <a href={setupFundraiserLink}>run custom fundraisers</a>, or <a href="https://www.givingwhatwecan.org">more</a>.
           </div>
           {showAmountRaised &&
             <div className={classes.text}>
