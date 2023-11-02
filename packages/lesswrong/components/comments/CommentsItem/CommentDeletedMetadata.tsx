@@ -27,9 +27,9 @@ const CommentDeletedMetadata = ({documentId, classes}: {
     return (
       <div className={classes.root}>
         <div className={classes.meta}>
-          {deletedByUsername && <span>Deleted by {deletedByUsername}</span>}, {document.deletedDate && <span>
-            <Components.CalendarDate date={document.deletedDate}/>
-          </span>} 
+          Deleted {deletedByUsername && <span>by {deletedByUsername},</span>} {document.deletedDate && <span>
+            <Components.CalendarDate date={document.deletedDate} capitalizeFirstLetter={false} />
+          </span>}
         </div>
         {document.deletedReason &&
           <div className={classes.meta}>

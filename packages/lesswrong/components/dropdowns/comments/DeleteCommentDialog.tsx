@@ -68,10 +68,7 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
         </DialogTitle>
         <DialogContent>
           <p className={classes.subtitle}>
-            This comment will be marked as deleted and the username will become Anonymous.
-          </p>
-          <p className={classes.subtitle}>
-            You can add a reason for deleting it, if you want.
+          This comment will be marked as deleted. You can add a reason for deleting it, if you want.
           </p>
           <br/>
           <TextField
