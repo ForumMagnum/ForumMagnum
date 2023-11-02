@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
-import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
@@ -25,6 +25,10 @@ import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
+import { useCurrentTime } from "../../../lib/utils/timeUtil";
+import moment from "moment";
+import { useTimezone } from "../../common/withTimezone";
+import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -246,11 +250,7 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
 });
 
-const getListTerms = (
-  tagId: string,
-  sortedBy: string,
-  limit: number,
-) => ({
+const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sortedBy: PostSortingModeWithRelevanceOption; limit: number, after: string }): PostsViewTerms => ({
   filterSettings: {
     tags: [
       {
@@ -259,8 +259,18 @@ const getListTerms = (
       },
     ],
   },
+  after,
   sortedBy,
   limit,
+  // Make it more recency biased, this is how these numbers translate to the time decay factor:
+  // Higher timeDecayFactor => more recency bias
+  // const timeDecayFactor = Math.min(
+  //   decayFactorSlowest * (1 + (activityWeight * activityFactor)),
+  //   decayFactorFastest
+  // );
+  algoActivityFactor: 1.0,
+  algoActivityWeight: 3.0,
+  algoDecayFactorFastest: 3.0,
 });
 
 const formatDollars = (amount: number) => "$" + formatStat(amount);
@@ -302,21 +312,28 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
+  const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
+
+  const { timezone } = useTimezone();
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const toggleNotifyWhenVotingOpens = useCallback(() => {
-    // TODO: captureEvent
+    captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
+
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
         componentProps: {},
       })
+      return;
     }
     setNotifyForVotingOn(!notifyForVotingOn);
     void updateCurrentUser({givingSeasonNotifyForVoting: !notifyForVotingOn});
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
-  }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
+  }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
 
-  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 8);
+  const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
@@ -361,7 +378,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
                 The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
-                <a href={donationElectionLink}>Learn more</a>.
+                <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
@@ -391,11 +408,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Discuss"
                   description="Discuss where we should donate and what we should vote for in the Election."
                   buttonText="Contribute to the discussion"
-                  href="https://forum.effectivealtruism.org/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Start_discussing_where_we_should_donate__what_we_should_vote_for__and_other_questions_related_to_effective_giving"
+                  href="/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Start_discussing_where_we_should_donate__what_we_should_vote_for__and_other_questions_related_to_effective_giving"
                 >
                   <Link
                     to={postsAboutElectionLink}
                     className={classes.underlinedLink}
+                    eventProps={{pageElementContext: "givingPortalViewRelatedPosts"}}
                   >
                     View {donationElectionTag?.postCount} related post{donationElectionTag?.postCount === 1 ? "" : "s"}
                   </Link>
