@@ -229,7 +229,7 @@ addGraphQLResolvers({
       // Check for uniqueness
       const existingUser = await Users.findOne({username})
       if (existingUser && existingUser._id !== currentUser._id) {
-        throw new SimpleValidationError({message: "Username is already taken"})
+        throw new SimpleValidationError({message: "Sorry, that username is already taken."})
       }
       const updatedUser = (await updateMutator({
         collection: Users,
