@@ -522,7 +522,6 @@ addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
 //   // The top authors of your top tags
 //   const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
-//   // const topCommentedUsersTopTags = await new TagsRepo().getTopUsersTopCommentedTags(preTopCommentedTagTopUsers);
 //   const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
 
 
@@ -559,7 +558,6 @@ defineQuery({
 
     // The top authors of your top tags
     const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
-    // const topCommentedUsersTopTags = await new TagsRepo().getTopUsersTopCommentedTags(preTopCommentedTagTopUsers);
     const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
 
 
