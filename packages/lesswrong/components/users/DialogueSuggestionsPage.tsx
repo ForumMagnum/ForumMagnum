@@ -13,7 +13,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 
-const { NewConversationButton, UsersName, PostsTooltip } = Components;
+const { NewConversationButton, UsersName, PostsTooltip, LoadMore } = Components;
 
 export type UpvotedUser = {
   _id: string;
@@ -263,14 +263,16 @@ export const DialogueSuggestionsPage = ({classes}: {
     collectionName: "DialogueChecks",
   });
 
-  const {loading: userOptedInLoading, results : UsersOptedInToDialogueFacilitation} = useMulti({
+  const {loading: userOptedInLoading, results : UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
     terms: { 
-      view: 'usersWithOptedInToDialogueFacilitation' 
+      view: 'usersWithOptedInToDialogueFacilitation',
+      limit: 10, 
     },
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users'  
   });
 
+  console.log("users opted into dialogue facilitation: ", UsersOptedInToDialogueFacilitation)
   // // get all check rows where user is currentUser and checked is true
   // const GET_USERS_DIALOGUE_CHECKS = gql`
   //   query getUsersDialogueChecks {
@@ -614,6 +616,7 @@ export const DialogueSuggestionsPage = ({classes}: {
               )}
             )}
           </div>
+          <LoadMore {...loadMoreProps} />
         </div>
       </div>
       {/* <h2>All users who had dialogues</h2>
