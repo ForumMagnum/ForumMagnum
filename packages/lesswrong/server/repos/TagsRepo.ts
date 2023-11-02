@@ -86,27 +86,4 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
     `, [userId]);
   }
 
-  async getTopUsersTopCommentedTags(preTopCommentedTagTopUsers: any[]): Promise<any> {
-    // Extract tag names and comment counts from the preprocessed data
-    const tagNames = preTopCommentedTagTopUsers.map(item => item.name);
-    const commentCounts = preTopCommentedTagTopUsers.map(item => item.post_comment_count);
-  
-    const query = `
-      SELECT
-        subquery.name AS "Tag name",
-        df9.comment_count,
-        json_object_agg(username, post_comment_count ORDER BY post_comment_count DESC) AS author_counts
-      FROM unnest($1::text[]) AS subquery(name)
-      INNER JOIN unnest($2::int[]) AS df9(comment_count) ON subquery.name = df9.name
-      GROUP BY subquery.name, df9.comment_count
-      ORDER BY df9.comment_count DESC
-    `;
-  
-    try {
-      return await this.any(query, [tagNames, commentCounts]);
-    } catch (error) {
-      console.error('Error executing topCommentedTagTopUsers query:', error);
-      throw error;
-    }
-  }
 }
