@@ -177,6 +177,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   sort: {
     borderRadius: theme.borderRadius.small,
     width: "100%",
+    backgroundColor: theme.palette.text.alwaysWhite,
+    padding: "0.5em",
   },
   pagination: {
     ...theme.typography.commentStyle,
@@ -261,9 +263,22 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}:{
-  classes: ClassesType
-}) => {
+const SearchPageTabbed = (
+  {
+    classes,
+    enableTagSearch = false,
+    enableSequenceSearch = false,
+    enableRefineByTags = false,
+    enableRefineByIsEvent = false,
+    enableRefineByCurated = false,
+  }: {
+    enableTagSearch?: boolean,
+    enableSequenceSearch?: boolean,
+    enableRefineByTags?: boolean,
+    enableRefineByCurated?: boolean,
+    enableRefineByIsEvent?: boolean,
+    classes: ClassesType
+  }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
   const { history } = useNavigation()
   const { location, query } = useLocation()
@@ -402,19 +417,19 @@ const SearchPageTabbed = ({classes}:{
             ]}
           />
         </>}
-        {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
+        {enableRefineByTags && ['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
             attribute="tags"
             defaultRefinement={tagsFilter}
             tagsFilter={tagsFilter}
             setTagsFilter={handleUpdateTagsFilter}
           />
         }
-        {tab === 'Posts' && <ToggleRefinement
+        {enableRefineByCurated && tab === 'Posts' && <ToggleRefinement
           attribute="curated"
           label="Curated"
           value={true}
         />}
-        {tab === 'Posts' && <ToggleRefinement
+        {enableRefineByIsEvent && tab === 'Posts' && <ToggleRefinement
           attribute="isEvent"
           label="Exclude events"
           value={false}
@@ -440,6 +455,7 @@ const SearchPageTabbed = ({classes}:{
               value={sorting}
               onChange={(e) => onSortingChange(e.target.value)}
               className={classes.sort}
+              disableUnderline={true}
             >
               {getElasticSortingsForCollection(tab).map((name, i) =>
                 <MenuItem key={i} value={name}>
@@ -481,8 +497,8 @@ const SearchPageTabbed = ({classes}:{
         >
           <Tab label="Posts" value="Posts" />
           <Tab label="Comments" value="Comments" />
-          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
-          <Tab label="Sequences" value="Sequences" />
+          {enableTagSearch && <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />}
+          {enableSequenceSearch && <Tab label="Sequences" value="Sequences" />}
           <Tab label="Users" value="Users" />
         </Tabs>
         
