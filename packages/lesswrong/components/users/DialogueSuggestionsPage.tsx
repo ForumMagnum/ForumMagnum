@@ -86,13 +86,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap'
   },
   messageButton: {
-    maxHeight: `35px`,
+    maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.background.paper, // theme.palette.primary.light
     color: theme.palette.link.unmarked,
   },
   newDialogueButton: {
-    maxHeight: `35px`,
+    maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white'
@@ -579,9 +579,20 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
+  const isMobile = window.innerWidth <= 768; // Adjust this value as needed
+
+
   return (
+    
     <div className={classes.root}>
+      
       <div style={{ maxWidth: '1100px', margin: 'auto' }}>
+
+      {isMobile && (
+        <div style={{ backgroundColor: 'yellow', padding: '10px', marginBottom: '20px', maxWidth: '40vw' }}>
+          Dialogues matching doesn't render well on mobile right now. <br/> <br /> Please view on laptop or tablet!
+        </div>
+      )}
 
       <h1>Dialogue Matching</h1>
       <p>Check a user you'd be interested in having a dialogue with, if they were interested too. Users will 
@@ -704,7 +715,7 @@ export const DialogueSuggestionsPage = ({classes}: {
       <br />
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Users who opted in to dialogue invitations from LW team</h3>
+          <h3>Users who opted in to dialogue invitations on frontpage</h3>
           <div className={classes.matchContainerGridV2}> 
             {UsersOptedInToDialogueFacilitation?.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
