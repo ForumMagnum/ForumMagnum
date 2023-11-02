@@ -129,7 +129,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkboxCheckedNotMatched: {
     color: '#ADD8E6',
     '&$checked': {
-      color: '#ADD8E6',
+      color: '#00000038',
     },
   },
 });
@@ -227,13 +227,14 @@ const DialogueCheckBox: React.FC<{
   targetUserId : string;
   targetUserDisplayName : string;
   checkId?: string;
-  userDialogueChecks: DialogueCheckInfo[]; // replace with the correct type
+  isChecked: boolean, 
+  isMatched: boolean;
   classes: ClassesType;
-}> = ({ targetUserId, targetUserDisplayName, checkId, userDialogueChecks, classes}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const [showConfetti, setShowConfetti] = useState(false);
 
+  const [localChecked, setLocalChecked] = useState(false);
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
       upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
@@ -271,14 +272,19 @@ const DialogueCheckBox: React.FC<{
     
   }
 
-  async function updateDatabase(event:React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string) {
+  const [showConfetti, setShowConfetti] = useState(false);
 
+
+  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string, handleConfetti:React.Dispatch<React.SetStateAction<boolean>>) {
     if (!currentUser) return;
+
+    const tgt = event.target;
+    if (!(tgt instanceof HTMLInputElement)) return;
 
     const response = await upsertDialogueCheck({
       variables: {
         targetUserId: targetUserId, 
-        checked: event.target.checked
+        checked: tgt.checked
       },
       update(cache, { data }) {
         if (!checkId) {
@@ -316,36 +322,35 @@ const DialogueCheckBox: React.FC<{
         }
       }
     })
-
-    console.log(response)
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 2000);
+      handleConfetti(true);
+      setTimeout(() => handleConfetti(false), 5000); // Reset the variable after 5 so it can be clicked again
     }
   }
 
-  const checked = isChecked(userDialogueChecks, targetUserId);
-  const matched = isMatched(userDialogueChecks, targetUserId);
-
-  const checkboxClass = checked 
-    ? (matched ? classes.checkboxCheckedMatched : classes.checkboxCheckedNotMatched)
-    : classes.checkbox;
+  const checkboxClass = isChecked 
+    ? (isMatched ? classes.checkboxCheckedMatched : classes.checkboxCheckedNotMatched)
+    : classes.checkbox
 
   return (
-    // <div>
-    //     <ReactConfetti run={showConfetti} />
-        <Checkbox 
-          classes={{
-            root: checkboxClass,
-            checked: classes.checked,
-          }}
-          onChange={event => updateDatabase(event, targetUserId, checkId)} 
-          checked={checked}
-        />
-    // </div>
-    
+    <>
+      {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} />}
+      <FormControlLabel
+        control={ 
+          <Checkbox 
+            classes={{
+              root: checkboxClass,
+              checked: classes.checked,
+            }}
+            onChange={event => updateDatabase(event, targetUserId, checkId, setShowConfetti) } 
+            checked={isChecked}
+          />
+        }
+        label=""
+      />
+    </>
   );
 };
 
@@ -358,7 +363,7 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
 };
 
 type MatchDialogueButtonProps = {
-  userDialogueChecks: any; // replace with the correct type
+  isMatched: boolean;
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: any; // replace with the correct type
@@ -368,7 +373,7 @@ type MatchDialogueButtonProps = {
 };
 
 const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
-  userDialogueChecks,
+  isMatched,
   targetUserId,
   targetUserDisplayName,
   currentUser,
@@ -378,7 +383,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 }) => {
   return (
     <div>
-      {isMatched(userDialogueChecks, targetUserId) ? (
+      {isMatched ? (
           <button
             className={classes.link}
             onClick={(e) =>
@@ -451,6 +456,8 @@ export const DialogueSuggestionsPage = ({classes}: {
     fragmentName: "DialogueCheckInfo",
     collectionName: "DialogueChecks",
   });
+
+  const [localDialogueChecks, setLocalDialogueChecks] = useState(userDialogueChecks ?? []);
 
   const {loading: userOptedInLoading, results : UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
     terms: { 
@@ -569,7 +576,7 @@ export const DialogueSuggestionsPage = ({classes}: {
               control={
                 <Checkbox
                   checked={optIn}
-                  onChange={event => handleOptInToRevealDialogueChecks(event)}
+                  onChange={event => console.log("hello!")} //handleOptInToRevealDialogueChecks(event)}
                   name="optIn"
                   color="primary"
                   style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
@@ -589,12 +596,13 @@ export const DialogueSuggestionsPage = ({classes}: {
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               return (
-                <React.Fragment key={targetUser.displayName + randomId()}> 
+                <React.Fragment key={targetUser._id}>
                   <DialogueCheckBox 
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
-                    userDialogueChecks={userDialogueChecks} 
+                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
                     classes={classes}
                   />
                   <UsersName 
@@ -606,7 +614,7 @@ export const DialogueSuggestionsPage = ({classes}: {
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
-                    userDialogueChecks={userDialogueChecks}
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
@@ -641,12 +649,13 @@ export const DialogueSuggestionsPage = ({classes}: {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
               return (
-                <React.Fragment key={targetUser.displayName + randomId()}> 
+                <React.Fragment key={`${targetUser._id}_other`}> 
                   <DialogueCheckBox 
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
-                    userDialogueChecks={userDialogueChecks} 
+                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
                     classes={classes}
                   />
                   <UsersName 
@@ -658,7 +667,7 @@ export const DialogueSuggestionsPage = ({classes}: {
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
-                    userDialogueChecks={userDialogueChecks}
+                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
@@ -705,13 +714,13 @@ export const DialogueSuggestionsPage = ({classes}: {
                   <input 
                     type="checkbox" 
                     style={{ margin: '0', width: '20px' }} 
-                    onChange={event => updateDatabase(
-                      event, 
-                      targetUser._id, 
-                      checkId
-                    )} 
+                    // onChange={event => updateDatabase(
+                    //   event, 
+                    //   targetUser._id, 
+                    //   checkId
+                    // )} 
                     value={targetUser.displayName} 
-                    checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
+                    // checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
                   />
                   <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
                   <div>{targetUser.karma}</div>
