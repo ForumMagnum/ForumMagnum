@@ -1,7 +1,6 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
-import { unflattenComments } from "../../lib/utils/unflatten";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -33,35 +32,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.primary.main,
     textAlign: 'right'
   },
-  loadingMore: {
-    opacity:.7
-  },
-  canLoadMore: {
-    cursor: "pointer"
-  }
 })
 
-export const ABRIDGE_COMMENT_COUNT = 500;
-
-const AnswerCommentsList = ({classes, post, parentAnswer}: {
+const AnswerCommentsList = ({classes, post, parentAnswer, commentTree}: {
   classes: ClassesType,
   post: PostsList,
+  commentTree: CommentTreeNode<CommentsList>[],
   parentAnswer: CommentsList,
 }) => {
   const [commenting, setCommenting] = React.useState(false);
   const [loadedMore, setLoadedMore] = React.useState(false);
-  
-  const { loadMore, results, loading, loadingMore, totalCount } = useMulti({
-    terms: {
-      view: "repliesToAnswer",
-      parentAnswerId: parentAnswer._id,
-      limit: ABRIDGE_COMMENT_COUNT,
-    },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-  });
+  const totalCount = parentAnswer.descendentCount;
   
   const highlightDate =
     (post?.lastVisitedAt
@@ -73,71 +54,42 @@ const AnswerCommentsList = ({classes, post, parentAnswer}: {
     [setCommenting]
   );
 
-  const loadMoreComments = React.useCallback(
-    (event) => {
-      event.stopPropagation()
-      if (totalCount! > ABRIDGE_COMMENT_COUNT) {
-        setLoadedMore(true);
-        loadMore(10000)
-      }
-    },
-    [totalCount, setLoadedMore, loadMore]
-  );
-
-  const { CommentsList, Loading, CommentsNewForm, Typography } = Components
-  const noComments = (!results || !results.length) && !commenting
-
-  if (loading || !results)
-    return <Loading/>
+  const { CommentsList, CommentsNewForm, Typography } = Components
   
-  const nestedComments = unflattenComments(results);
   return (
     <div>
       {!commenting && <Typography variant="body2" onClick={()=>setCommenting(true)} className={classNames(classes.newComment)}>
           <a>Add Comment</a>
-        </Typography>}
-      { commenting &&
-          <div className={classes.editor}>
-            <CommentsNewForm
-              post={post}
-              parentComment={parentAnswer}
-              prefilledProps={{
-                parentAnswerId: parentAnswer._id,
-              }}
-              successCallback={closeCommentNewForm}
-              cancelCallback={closeCommentNewForm}
-              type="reply"
-            />
-          </div>
-        }
-      <div onClick={loadMoreComments}
-        className={classNames(
-          classes.commentsList, {
-            [classes.noCommentAnswersList]: noComments,
-            [classes.loadingMore]: loadingMore,
-            [classes.canLoadMore]: !loadedMore && totalCount! > ABRIDGE_COMMENT_COUNT
-          }
-      )}>
-        { loadingMore && <Loading /> }
-        <CommentsList
-          treeOptions={{
-            postPage: true,
-            showCollapseButtons: true,
-            post: post,
-            highlightDate: highlightDate,
-          }}
-          totalComments={totalCount}
-          comments={nestedComments}
-          parentCommentId={parentAnswer._id}
-          parentAnswerId={parentAnswer._id}
-          defaultNestingLevel={2}
-          startThreadTruncated
-        />
-      </div>
-      {(results.length && results.length < totalCount!) ?
-        <Typography variant="body2" onClick={loadMoreComments} className={classes.loadMore}>
-          <a>Showing {results.length}/{totalCount} comments. Click to load All.</a>
-        </Typography> : null}
+        </Typography>
+      }
+      {commenting &&
+        <div className={classes.editor}>
+          <CommentsNewForm
+            post={post}
+            parentComment={parentAnswer}
+            prefilledProps={{
+              parentAnswerId: parentAnswer._id,
+            }}
+            successCallback={closeCommentNewForm}
+            cancelCallback={closeCommentNewForm}
+            type="reply"
+          />
+        </div>
+      }
+      <CommentsList
+        treeOptions={{
+          postPage: true,
+          showCollapseButtons: true,
+          post: post,
+          highlightDate: highlightDate,
+        }}
+        totalComments={totalCount}
+        comments={commentTree}
+        parentCommentId={parentAnswer._id}
+        parentAnswerId={parentAnswer._id}
+        defaultNestingLevel={2}
+        startThreadTruncated
+      />
     </div>
   );
 }

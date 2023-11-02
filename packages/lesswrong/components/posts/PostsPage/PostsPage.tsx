@@ -35,7 +35,7 @@ export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 
-const MAX_ANSWERS_QUERIED = 100
+const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -373,11 +373,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }, [history, location.location, openDialog, post, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
-  const { results: answers } = useMulti({
+  const { results: answersAndReplies } = useMulti({
     terms: {
-      view: "questionAnswers",
+      view: "answersAndReplies",
       postId: post._id,
-      limit: MAX_ANSWERS_QUERIED,
+      limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       sortBy
     },
     collectionName: "Comments",
@@ -386,6 +386,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     enableTotal: true,
     skip: !post.question,
   });
+  const answers = answersAndReplies?.filter(c => c.answer) ?? [];
 
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
   // we're leaving it for now to keep supporting the few debates that were made with it, but
@@ -431,7 +432,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, PostsCommentsSection,
-    PostsPageQuestionContent, AnalyticsInViewTracker
+    AnalyticsInViewTracker
   } = Components
 
   useEffect(() => {
@@ -654,7 +655,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <PostsCommentsSection
       post={post}
       commentTerms={commentTerms}
-      answers={answers ?? null}
+      answersAndReplies={answersAndReplies ?? null}
       refetch={refetch}
       eagerPostComments={eagerPostComments}
     />

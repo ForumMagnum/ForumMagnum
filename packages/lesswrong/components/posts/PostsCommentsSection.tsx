@@ -19,11 +19,11 @@ export const postsCommentsThreadMultiOptions = {
 const styles = (theme: ThemeType): JssStyles => ({
 })
 
-const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answers, refetch, classes}: {
+const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answersAndReplies, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   commentTerms: CommentsViewTerms,
   eagerPostComments?: EagerPostComments,
-  answers: CommentsList[]|null,
+  answersAndReplies: CommentsList[]|null,
   refetch: ()=>void,
   classes: ClassesType,
 }) => {
@@ -50,12 +50,7 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answers, r
 
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results);
-  
-  // FIXME: At this point of the React tree we have answers without their children
-  const answersTree = answers ? answers.map(answer => ({
-    item: answer,
-    children: [],
-  })) : [];
+  const answersTree = unflattenComments(answersAndReplies ?? []);
   
   return <ToCColumn
     tableOfContents={<CommentsTableOfContents
@@ -69,7 +64,7 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answers, r
       {post.question && <div className={classes.centralColumn}>
         <div id="answers"/>
         <AnalyticsContext pageSectionContext="answersSection">
-          <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
+          <PostsPageQuestionContent post={post} answersTree={answersTree ?? []} refetch={refetch}/>
         </AnalyticsContext>
       </div>}
       {/* Comments Section */}

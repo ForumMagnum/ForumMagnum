@@ -9,6 +9,8 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
+import { useMulti } from '../../lib/crud/withMulti';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -122,9 +124,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Answer = ({ comment, post, classes }: {
+export const ABRIDGE_COMMENT_COUNT = 500;
+
+const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
+  childComments: CommentTreeNode<CommentsList>[],
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
@@ -221,6 +226,7 @@ const Answer = ({ comment, post, classes }: {
           </AnalyticsContext>
           <AnswerCommentsList
             post={post}
+            commentTree={childComments}
             parentAnswer={comment}
           />
         </div>
