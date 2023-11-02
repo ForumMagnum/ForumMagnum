@@ -84,11 +84,12 @@ const styles = (theme: ThemeType) => ({
   },
   currentMarker: {
     backgroundColor: theme.palette.givingPortal[1000],
-    borderTopLeftRadius: theme.borderRadius.default,
+    borderBottomLeftRadius: theme.borderRadius.default,
+    opacity: 0.6,
     position: "absolute",
-    top: 0,
+    bottom: 0,
     height: 8,
-    zIndex: 8,
+    zIndex: 5,
   },
 });
 
