@@ -275,7 +275,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }
 
-  
+  async getUsersWhoHaveOptedInToDialogueFacilitation(): Promise<DbUser[]> {
+    return this.getRawDb().any(`
+        SELECT *
+        FROM "Users" u
+        WHERE u."optedInToDialogueFacilitation" IS TRUE
+    `)
+  }  
 
   async getUsersTopUpvotedUsers(userId:string): Promise<UpvotedUser[]> {
     return this.getRawDb().any(
