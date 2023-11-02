@@ -258,10 +258,20 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
     return this.getRawDb().any(`
+      WITH all_dialogue_authors AS
+        (SELECT (UNNESTED->>'userId') AS _id
+            FROM "Posts" p, UNNEST("coauthorStatuses") unnested
+            WHERE p."collabEditorDialogue" IS TRUE 
+            AND p."draft" IS FALSE
+        UNION
+        SELECT P."userId" as _id
+            FROM "Posts" as P
+            WHERE P."collabEditorDialogue" IS TRUE
+            AND p."draft" IS FALSE
+        )
       SELECT U.*
       FROM "Users" AS U
-      INNER JOIN "Posts" AS P ON U._id = P."userId"
-      WHERE P."collabEditorDialogue" IS TRUE
+      INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = U._id
     `)
   }
 
