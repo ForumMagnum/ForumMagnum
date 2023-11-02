@@ -437,9 +437,11 @@ export const DialogueSuggestionsPage = ({classes}: {
       <div style={{ maxWidth: '1100px', margin: 'auto' }}>
 
       <h1>Dialogue Matching</h1>
-      <p>Check a user to you'd be interested in having a dialogue, if they were too. Users will 
-        not see whether you have checked them unless they have also checked you. Currently, users will not be notified about new 
-        matches, but we may add that functionality at any point.</p>
+      <p>Check a user you'd be interested in having a dialogue with, if they were too. Users will 
+        not see whether you have checked them unless they have also checked you. A check is *not* a commitment, just an indication of interest.
+        You can message people even if you haven't matched. 
+        (Also, there are no notifications on match, as we haven't built that yet. You'll have to keep checking the page :)</p>
+        
       <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
             <FormControlLabel  style={{ paddingLeft: '8px' }}
               control={
