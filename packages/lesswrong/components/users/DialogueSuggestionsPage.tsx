@@ -62,10 +62,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
   },
   matchContainerGrid: {
-    display: 'grid', 
-    gridTemplateColumns: `100px 250px minmax(min-content, 80px) 400px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
+    display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
+    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 40px) minmax(min-content, 80px)  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
+    alignItems: 'center'
   },
   header: {
     margin: 0,
@@ -79,8 +80,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   button: {
     maxHeight: `30px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.primary.light,
-    color: 'white'
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.link.unmarked,
   },
   link: {
     color: theme.palette.primary.main,
@@ -97,8 +98,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '70px', 
     overflow: 'auto',
     color: 'grey', 
-    fontSize: '13px',
-    lineHeight: '1.3em',
+    fontSize: '14px',
+    lineHeight: '1.15em',
     WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
     '&.scrolled-to-bottom': {
       WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
@@ -196,6 +197,182 @@ const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, t
   );
 };
 
+const Headers = ({ titles, className }: { titles: string[], className: string }) => {
+  return (
+    <>
+      {titles.map((title, index) => (
+        <h5 key={index} className={className}>{title}</h5>
+      ))}
+    </>
+  );
+};
+
+const DialogueCheckBox: React.FC<{
+  targetUser: UpvotedUser;
+  checkId?: string;
+  userDialogueChecks: any; // replace with the correct type
+}> = ({ targetUser, checkId, userDialogueChecks }) => {
+  const currentUser = useCurrentUser();
+  const { _id: targetUserId, displayName } = targetUser;
+  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+
+  const [upsertDialogueCheck] = useMutation(gql`
+    mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
+      upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
+          _id
+          __typename
+          userId
+          targetUserId
+          checked
+          match
+        }
+      }
+    `)
+
+  async function handleNewMatchAnonymisedAnalytics() {
+    captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
+
+    // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
+    const webhookURL = "https://hooks.slack.com/triggers/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";
+    const data = { // Not sending any data for now
+    };
+
+    try {
+      const response = await fetch(webhookURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      //eslint-disable-next-line no-console
+      console.error('There was a problem with the fetch operation: ', error);
+    }
+    
+  }
+
+  async function updateDatabase(event:React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string) {
+    if (!currentUser) return;
+
+    const response = await upsertDialogueCheck({
+      variables: {
+        targetUserId: targetUserId, 
+        checked: event.target.checked
+      },
+      update(cache, { data }) {
+        if (!checkId) {
+          cache.modify({
+            fields: {
+              getUsersDialogueChecks(existingChecksRefs = []) {
+                const newCheckRef = cache.writeFragment({
+                  data: data.upsertUserDialogueCheck,
+                  fragment: gql`
+                    fragment NewCheck on DialogueChecks {
+                      _id
+                      __typename
+                      userId
+                      targetUserId
+                      checked
+                      match
+                    }
+                  `
+                });
+                const newData = [...existingChecksRefs, newCheckRef]
+                return newData;
+              }
+            }
+          });
+        }
+      },
+      optimisticResponse: {
+        upsertUserDialogueCheck: {
+          _id: checkId || randomId(),
+          __typename: 'DialogueCheck',
+          userId: currentUser._id,
+          targetUserId: targetUserId,
+          checked: event.target.checked,
+          match: false 
+        }
+      }
+    })
+    
+    if (response.data.upsertUserDialogueCheck.match) {
+      void handleNewMatchAnonymisedAnalytics()
+    }
+  }
+
+  const isMatch = match(userDialogueChecks, targetUser._id);
+
+  return (
+    <input 
+      type="checkbox" 
+      style={{ 
+        margin: '0', 
+        width: '20px', 
+        backgroundColor: isMatch ? 'green' : 'white' // Change color based on match
+      }} 
+      onChange={event => updateDatabase(event, targetUserId, checkId)} 
+      value={displayName} 
+      checked={userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked}
+    />
+  );
+};
+
+const match = (userDialogueChecks: any[], targetUserId: string): boolean => {
+  return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
+};
+
+type MatchDialogueButtonProps = {
+  userDialogueChecks: any; // replace with the correct type
+  targetUser: UpvotedUser;
+  currentUser: any; // replace with the correct type
+  loadingNewDialogue: boolean;
+  createDialogue: (title: string, participants: string[]) => void;
+  classes: ClassesType;
+};
+
+const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
+  userDialogueChecks,
+  targetUser,
+  currentUser,
+  loadingNewDialogue,
+  createDialogue,
+  classes,
+}) => {
+  return (
+    <div>
+      {match(userDialogueChecks, targetUser._id) ? (
+          <button
+            className={classes.link}
+            onClick={(e) =>
+              createDialogue(
+                `${currentUser?.displayName}/${targetUser.displayName}`,
+                [targetUser._id]
+              )
+            }
+          >
+            {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"}
+          </button>
+      ) : null}
+    </div>
+  );
+};
+
+const MessageButton: React.FC<{
+  targetUser: UpvotedUser;
+  currentUser: any; // replace with the correct type
+  classes: ClassesType;
+}> = ({ targetUser, currentUser, classes }) => {
+  return (
+    <button className={classes.button}>
+      <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+        <a data-cy="message">Message</a>
+      </NewConversationButton>
+    </button>
+  );
+};
 
 export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
@@ -229,18 +406,7 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   const userDialogueUsefulData : UserDialogueUsefulData = data?.GetUserDialogueUsefulData
 
-  const [upsertDialogueCheck] = useMutation(gql`
-    mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
-      upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
-          _id
-          __typename
-          userId
-          targetUserId
-          checked
-          match
-        }
-      }
-    `)
+  
 
   const currentUser = useCurrentUser();
 
@@ -292,55 +458,7 @@ export const DialogueSuggestionsPage = ({classes}: {
   //console.log("dataMatchesfor ", currentUser?._id, dataMatches)
 
   
- async function updateDatabase(event:React.ChangeEvent<HTMLInputElement>, targetUserId:string, checkId?:string) {
-    if (!currentUser) return;
-
-    const response = await upsertDialogueCheck({
-      variables: {
-        targetUserId: targetUserId, 
-        checked: event.target.checked
-      },
-      update(cache, { data }) {
-        if (!checkId) {
-          cache.modify({
-            fields: {
-              getUsersDialogueChecks(existingChecksRefs = []) {
-                const newCheckRef = cache.writeFragment({
-                  data: data.upsertUserDialogueCheck,
-                  fragment: gql`
-                    fragment NewCheck on DialogueChecks {
-                      _id
-                      __typename
-                      userId
-                      targetUserId
-                      checked
-                      match
-                    }
-                  `
-                });
-                const newData = [...existingChecksRefs, newCheckRef]
-                return newData;
-              }
-            }
-          });
-        }
-      },
-      optimisticResponse: {
-        upsertUserDialogueCheck: {
-          _id: checkId || randomId(),
-          __typename: 'DialogueCheck',
-          userId: currentUser._id,
-          targetUserId: targetUserId,
-          checked: event.target.checked,
-          match: false 
-        }
-      }
-    })
-    
-    if (response.data.upsertUserDialogueCheck.match) {
-      void handleNewMatchAnonymisedAnalytics()
-    }
-  }
+ 
 
   async function createDialogue(title: string, participants: string[]) {
     const createResult = await createPost({
@@ -372,30 +490,6 @@ export const DialogueSuggestionsPage = ({classes}: {
     }
   }
 
-  async function handleNewMatchAnonymisedAnalytics() {
-    captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
-
-    // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
-    const data = { // Not sending any data for now
-    };
-  
-    try {
-      const response = await fetch(webhookURL, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      //eslint-disable-next-line no-console
-      console.error('There was a problem with the fetch operation: ', error);
-    }
-    
-  }
-
   if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error </p>;
@@ -408,7 +502,7 @@ export const DialogueSuggestionsPage = ({classes}: {
     const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
   
     // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
+    const webhookURL = "https://hooks.slack.com/triggers/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" // dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
     const data = {
       user: userDetailString,
     };
@@ -456,54 +550,50 @@ export const DialogueSuggestionsPage = ({classes}: {
               label={<span className={classes.prompt} >{prompt}</span>}
             />
           </div> 
-        <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless the other part of the match has also opted in.</p>      <div className={classes.rootFlex}>
+        <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, 
+          to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
+          the other part of the match has also opted in.</p>      
+        <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Your top users</h3>
+          <h3>Your top upvoted users (last 1.5 years)</h3>
           <div className={classes.matchContainerGrid}>
-            <h5 className={classes.header}>Display Name</h5>
-            <h5 className={classes.header}>Bio</h5>
-            <h5 className={classes.header}></h5>
-            <h5 className={classes.header}>Posts you've read</h5>
-            <h5 className={classes.header}>Upvotes from you</h5>
-            <h5 className={classes.header}>Agreement from you</h5>
-            <h5 className={classes.header}>Message</h5>
-            <h5 className={classes.header}></h5>
+            <Headers titles={["Dialogue ...?", "Name", "Message", "Match", "Upvotes", "Agreement", "Posts you've read"]} className={classes.header} />
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-              
               return (
-                // <div className={classes.row} key={targetUser.displayName + randomId()}>
                 <React.Fragment key={targetUser.displayName + randomId()}> 
-                  
-                    <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
-                    <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
-                    <input 
-                      type="checkbox" 
-                      style={{ margin: '0', width: '20px' }} 
-                      onChange={event => updateDatabase(
-                        event, 
-                        targetUser._id, 
-                        checkId
-                      )} 
-                      value={targetUser.displayName} 
-                      checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
-                    />
-                    <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
-                    <div>{targetUser.total_power}</div>
-                    <div>{targetUser.total_agreement}</div>
-                    {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                        <a data-cy="message">Message</a>
-                    </NewConversationButton> </button>}
-                    <div>
-                      {userDialogueChecks &&
-                        userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                          <span>You match!</span>
-                          <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                        </div> : null}
-                    </div>
-                 
+                  <DialogueCheckBox 
+                    targetUser={targetUser} 
+                    checkId={checkId} 
+                    userDialogueChecks={userDialogueChecks} 
+                  />
+                  <UsersName 
+                    className={classes.displayName} 
+                    documentId={targetUser._id} 
+                    simple={false}/>
+                  <MessageButton 
+                    targetUser={targetUser} 
+                    currentUser={currentUser} 
+                    classes={classes} />
+                  <MatchDialogueButton
+                    userDialogueChecks={userDialogueChecks}
+                    targetUser={targetUser}
+                    currentUser={currentUser}
+                    loadingNewDialogue={loadingNewDialogue}
+                    createDialogue={createDialogue}
+                    classes={classes}
+                  />
+                  {/* <UserBio 
+                    key={targetUser._id} 
+                    classes={classes} 
+                    userId={targetUser._id} /> */}
+                  <div>{targetUser.total_power}</div>
+                  <div>{targetUser.total_agreement}</div>
+                  <UserPostsYouveRead 
+                    classes={classes} 
+                    targetUserId={targetUser._id} 
+                    components={Components} />
                 </React.Fragment> 
-                // </div>
               )}
             )}
           </div>
@@ -514,14 +604,8 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>All users who have published Dialogues</h3>
           <div className={classes.matchContainerGrid}>
-            <h5 className={classes.header}>Display Name</h5>
-            <h5 className={classes.header}>Bio</h5>
-            <h5 className={classes.header}>Posts you've read</h5>
-            <h5 className={classes.header}>Opt-in to dialogue</h5>
-            <h5 className={classes.header}>Karma</h5>
-            <h5 className={classes.header}>Karma again</h5>
-            <h5 className={classes.header}>Message</h5>
-            <h5 className={classes.header}>Match</h5>
+            <Headers titles={["Dialogue maybe?", "Name", "Message", "Match", "Upvotes from you", "Agreement from you", "Posts you've read", ""]} className={classes.header} />
+
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
