@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio  posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) auto  550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) 125px  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
