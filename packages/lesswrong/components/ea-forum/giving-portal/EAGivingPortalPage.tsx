@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
-import { AnalyticsContext, captureEvent } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
@@ -312,23 +312,26 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
+  const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
 
   const { timezone } = useTimezone();
   const now = useCurrentTime();
   const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const toggleNotifyWhenVotingOpens = useCallback(() => {
-    // TODO: captureEvent
+    captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
+
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
         componentProps: {},
       })
+      return;
     }
     setNotifyForVotingOn(!notifyForVotingOn);
     void updateCurrentUser({givingSeasonNotifyForVoting: !notifyForVotingOn});
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
-  }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
+  }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
 
   const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
 
@@ -375,7 +378,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
                 The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
-                <a href={donationElectionLink}>Learn more</a>.
+                <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
@@ -410,6 +413,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   <Link
                     to={postsAboutElectionLink}
                     className={classes.underlinedLink}
+                    eventProps={{pageElementContext: "givingPortalViewRelatedPosts"}}
                   >
                     View {donationElectionTag?.postCount} related post{donationElectionTag?.postCount === 1 ? "" : "s"}
                   </Link>

@@ -185,7 +185,7 @@ const Timeline = ({
   return (
     <div className={classNames(classes.root, className)}>
       {points.map(({date, description}) => (
-        <Fragment key={description}>
+        <Fragment key={`${date}_${description}`}>
           <div {...positionDate(date)}>
             <div>{formatDate(date)}</div>
           </div>
