@@ -3072,6 +3072,12 @@ interface UsersCrosspostInfo { // fragment on Users
   readonly fmCrosspostUserId: string,
 }
 
+interface UsersOptedInToDialogueFacilitation { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+  readonly karma: number,
+}
+
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
   readonly launchCode: string,
   readonly hashedLaunchCode: string,
@@ -3496,6 +3502,7 @@ interface FragmentTypes {
   UsersWithReviewInfo: UsersWithReviewInfo
   UsersProfileEdit: UsersProfileEdit
   UsersCrosspostInfo: UsersCrosspostInfo
+  UsersOptedInToDialogueFacilitation: UsersOptedInToDialogueFacilitation
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -3708,6 +3715,7 @@ interface CollectionNamesByFragmentName {
   UsersWithReviewInfo: "Users"
   UsersProfileEdit: "Users"
   UsersCrosspostInfo: "Users"
+  UsersOptedInToDialogueFacilitation: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

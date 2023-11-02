@@ -13,7 +13,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 
-const { NewConversationButton, UsersName, PostsTooltip } = Components;
+const { NewConversationButton, UsersName, PostsTooltip, LoadMore } = Components;
 
 export type UpvotedUser = {
   _id: string;
@@ -429,7 +429,16 @@ export const DialogueSuggestionsPage = ({classes}: {
     collectionName: "DialogueChecks",
   });
 
+  const {loading: userOptedInLoading, results : UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
+    terms: { 
+      view: 'usersWithOptedInToDialogueFacilitation',
+      limit: 10, 
+    },
+    fragmentName: 'UsersOptedInToDialogueFacilitation',
+    collectionName: 'Users'  
+  });
 
+  console.log("users opted into dialogue facilitation: ", UsersOptedInToDialogueFacilitation)
   // // get all check rows where user is currentUser and checked is true
   // const GET_USERS_DIALOGUE_CHECKS = gql`
   //   query getUsersDialogueChecks {
@@ -624,7 +633,7 @@ export const DialogueSuggestionsPage = ({classes}: {
                     value={targetUser.displayName} 
                     checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
                   />
-                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} />
+                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
                   <div>{targetUser.karma}</div>
                   <div>{targetUser.karma}</div>
                   {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
@@ -641,6 +650,57 @@ export const DialogueSuggestionsPage = ({classes}: {
               )}
             )}
           </div>
+        </div>
+      </div>
+      <br />
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>All users who have opted in to Dialogue Faciliation</h3>
+          <div className={classes.matchContainerGrid}>
+            <h5 className={classes.header}>Display Name</h5>
+            <h5 className={classes.header}>Bio</h5>
+            <h5 className={classes.header}>Posts you've read</h5>
+            <h5 className={classes.header}>Opt-in to dialogue</h5>
+            <h5 className={classes.header}>Karma</h5>
+            <h5 className={classes.header}>Karma again</h5>
+            <h5 className={classes.header}>Message</h5>
+            <h5 className={classes.header}>Match</h5>
+            {UsersOptedInToDialogueFacilitation?.map(targetUser => {
+              const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
+              
+              return (
+                <React.Fragment key={targetUser.displayName + randomId()}>
+                  <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
+                  <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
+                  <input 
+                    type="checkbox" 
+                    style={{ margin: '0', width: '20px' }} 
+                    onChange={event => updateDatabase(
+                      event, 
+                      targetUser._id, 
+                      checkId
+                    )} 
+                    value={targetUser.displayName} 
+                    checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
+                  />
+                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
+                  <div>{targetUser.karma}</div>
+                  <div>{targetUser.karma}</div>
+                  {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+                      <a data-cy="message">Message</a>
+                  </NewConversationButton> </button>}
+                  <div>
+                    {userDialogueChecks &&
+                      userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
+                        <span>You match!</span>
+                        <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
+                      </div> : null}
+                  </div>
+                </React.Fragment>
+              )}
+            )}
+          </div>
+          <LoadMore {...loadMoreProps} />
         </div>
       </div>
       {/* <h2>All users who had dialogues</h2>

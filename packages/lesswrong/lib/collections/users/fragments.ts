@@ -549,3 +549,11 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+    karma
+  }
+`);
