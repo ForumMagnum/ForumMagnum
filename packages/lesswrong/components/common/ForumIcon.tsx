@@ -54,6 +54,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -103,7 +104,6 @@ import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
-import { FunnelIcon } from "../icons/funnel";
 
 /**
  * This exists to allow us to easily use different icon sets on different
