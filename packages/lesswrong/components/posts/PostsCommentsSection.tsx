@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import {forumTypeSetting, isEAForum} from '../../lib/instanceSettings';
+import {forumTypeSetting, isEAForum, isLWorAF} from '../../lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { EagerPostComments } from './PostsPage/PostsPage';
 import { useCurrentUser } from '../common/withUser';
@@ -52,13 +52,9 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answersAnd
   const commentTree = unflattenComments(results);
   const answersTree = unflattenComments(answersAndReplies ?? []);
   
-  return <ToCColumn
-    tableOfContents={<CommentsTableOfContents
-      commentTree={commentTree}
-      answersTree={answersTree}
-      post={post}
-    />}
-  >
+  // JB: mainColumn is extracted into a variable here to support the forum-gating below. See
+  // also the forum-gating in PostsPage, which must be removed at the same time.
+  const mainColumn =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
       {/* Answers Section */}
       {post.question && <div className={classes.centralColumn}>
@@ -89,7 +85,20 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answersAnd
         }
       </div>
     </AnalyticsInViewTracker>
-  </ToCColumn>
+  
+  if (isLWorAF) {
+    return <ToCColumn
+      tableOfContents={<CommentsTableOfContents
+        commentTree={commentTree}
+        answersTree={answersTree}
+        post={post}
+      />}
+    >
+      {mainColumn}
+    </ToCColumn>
+  } else {
+    return mainColumn;
+  }
 }
 
 

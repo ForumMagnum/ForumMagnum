@@ -10,6 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { usePersistentToggle } from '../hooks/usePersistentToggle';
 import { COLLAPSE_COMMENTS_TOC } from '../../lib/cookies/cookies';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,6 +65,10 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
+  
+  if (!isLWorAF) {
+    return null;
+  }
   
   return <div className={classes.root}>
     <TableOfContentsRow key="postTitle"

@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { userHasSideComments } from '../../../lib/betas';
@@ -582,76 +582,72 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
+  
+  // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
+  // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
+  // components. When the forum gating is removed, each of these variables should have only a single usage,
+  // so inline it back into place. See also the forum gating in PostsCommentsSection, which must be removed at
+  // the same time.
 
-  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={post}>
-    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
-    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    <ToCColumn
-      tableOfContents={tableOfContents}
-      header={header}
-      rightColumnChildren={rightColumnChildren}
-    >
-      <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
-        {/* Body */}
-        {/* The embedded player for posts with a manually uploaded podcast episode */}
-        {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
-        </div>}
-        {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
-        { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
-          <PostBodyPrefix post={post} query={query}/>
-          <AnalyticsContext pageSectionContext="postBody">
-            <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors &&
-                <PostBody
-                  post={post}
-                  html={htmlWithAnchors}
-                  sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-                />
-              }
-            </CommentOnSelectionContentWrapper>
-          </AnalyticsContext>
-        </ContentStyles>}
+  const postBodySection =
+    <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
+      {/* Body */}
+      {/* The embedded player for posts with a manually uploaded podcast episode */}
+      {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
+      </div>}
+      {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
+      { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
+      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+        <PostBodyPrefix post={post} query={query}/>
+        <AnalyticsContext pageSectionContext="postBody">
+          <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+            {htmlWithAnchors &&
+              <PostBody
+                post={post}
+                html={htmlWithAnchors}
+                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+              />
+            }
+          </CommentOnSelectionContentWrapper>
+        </AnalyticsContext>
+      </ContentStyles>}
 
-        {showSubscribeToDialogueButton && <Row justifyContent="center">
-          <div className={classes.subscribeToDialogue}>
-            <NotifyMeDropdownItem
-              document={post}
-              enabled={!!post.collabEditorDialogue}
-              subscribeMessage="Subscribe to dialogue"
-              unsubscribeMessage="Unsubscribe from dialogue"
-              subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
-              tooltip="Notifies you when there is new activity in the dialogue"
+      {showSubscribeToDialogueButton && <Row justifyContent="center">
+        <div className={classes.subscribeToDialogue}>
+          <NotifyMeDropdownItem
+            document={post}
+            enabled={!!post.collabEditorDialogue}
+            subscribeMessage="Subscribe to dialogue"
+            unsubscribeMessage="Unsubscribe from dialogue"
+            subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
+            tooltip="Notifies you when there is new activity in the dialogue"
+          />
+        </div>
+      </Row>}
+
+      {post.debate && debateResponses && debateResponseReplies &&
+        <DebateBody
+          debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
+          post={post}
+        />}
+
+    </div>
+  const betweenPostAndCommentsSection =
+    <div className={classes.centralColumn}>
+      <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+  
+      {showRecommendations && recommendationsPosition === "underPost" &&
+        <AnalyticsContext pageSectionContext="postBottomRecommendations">
+          <div className={classes.recommendations}>
+            <PostsPageRecommendationsList
+              strategy="tagWeightedCollabFilter"
             />
           </div>
-        </Row>}
-
-        {post.debate && debateResponses && debateResponseReplies &&
-          <DebateBody
-            debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
-            post={post}
-          />}
-
-      </div>
-    </ToCColumn>
-    <ToCColumn tableOfContents={<div/>}>
-      <div className={classes.centralColumn}>
-        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-  
-        {showRecommendations && recommendationsPosition === "underPost" &&
-          <AnalyticsContext pageSectionContext="postBottomRecommendations">
-            <div className={classes.recommendations}>
-              <PostsPageRecommendationsList
-                strategy="tagWeightedCollabFilter"
-              />
-            </div>
-          </AnalyticsContext>
-        }
-      </div>
-    </ToCColumn>
-
+        </AnalyticsContext>
+      }
+    </div>
+  const commentsSection =
     <PostsCommentsSection
       post={post}
       commentTerms={commentTerms}
@@ -659,6 +655,37 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       refetch={refetch}
       eagerPostComments={eagerPostComments}
     />
+
+  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <PostsPageContext.Provider value={post}>
+    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
+    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    
+    {isLWorAF
+      ? <>
+          <ToCColumn
+            tableOfContents={tableOfContents}
+            header={header}
+            rightColumnChildren={rightColumnChildren}
+          >
+            {postBodySection}
+          </ToCColumn>
+          <ToCColumn tableOfContents={<div/>}>
+            {betweenPostAndCommentsSection}
+          </ToCColumn>
+          {commentsSection}
+        </>
+      : <ToCColumn
+          tableOfContents={tableOfContents}
+          header={header}
+          rightColumnChildren={rightColumnChildren}
+        >
+          {postBodySection}
+          {betweenPostAndCommentsSection}
+          {commentsSection}
+        </ToCColumn>
+    }
+  
     {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations post={post} />
     </AnalyticsInViewTracker>}
