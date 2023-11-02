@@ -1,10 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import { getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
+import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
-import { getCurrentSectionMark } from '../posts/TableOfContents/TableOfContentsList';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'

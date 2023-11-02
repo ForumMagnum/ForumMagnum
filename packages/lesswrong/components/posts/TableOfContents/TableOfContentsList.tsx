@@ -7,7 +7,7 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
-import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 
 export interface ToCDisplayOptions {
   /**
@@ -164,14 +164,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   </div>
 }
 
-
-/**
- * Return the screen-space current section mark - that is, the spot on the
- * screen where the current-post will transition when its heading passes.
- */
-export const getCurrentSectionMark = () => {
-  return window.innerHeight/5
-}
 
 /**
  * Return the screen-space Y coordinate of an anchor. (Screen-space meaning

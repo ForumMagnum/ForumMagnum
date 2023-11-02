@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { isServer } from "../../lib/executionEnvironment";
-import { getCurrentSectionMark } from "../posts/TableOfContents/TableOfContentsList";
 
 export type ScrollHighlightLandmark = {
   landmarkName: string,
@@ -63,6 +62,14 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
   return {
     landmarkName: currentLandmark
   };
+}
+
+/**
+ * Return the screen-space current section mark - that is, the spot on the
+ * screen where the current-post will transition when its heading passes.
+ */
+export const getCurrentSectionMark = () => {
+  return window.innerHeight/5
 }
 
 // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
