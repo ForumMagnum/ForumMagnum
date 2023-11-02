@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     outline: "none",
     fontSize: 14,
     fontWeight: 600,
-    width: "50%",
+    width: "100%",
     "&:hover": {
       opacity: 0.8,
     },
@@ -119,15 +119,6 @@ const DonationOpportunity = ({candidate, classes}: {
               eventProps={{ documentId: candidate._id }}
             >
               Donate
-            </Link>
-          )}
-          {candidate.gwwcLink && (
-            <Link
-              to={candidate.gwwcLink}
-              className={classNames(classes.button, classes.buttonGrey)}
-              eventProps={{ documentId: candidate._id }}
-            >
-              Learn more
             </Link>
           )}
         </div>
