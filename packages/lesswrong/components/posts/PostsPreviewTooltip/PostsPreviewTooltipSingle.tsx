@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { Components } from '../../../lib/vulcan-lib';
-import { PostsPreviewTooltip } from './PostsPreviewTooltip';
+import { DialogueMessageInfo, PostsPreviewTooltip } from './PostsPreviewTooltip';
 
 export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   postId: string,
@@ -24,10 +24,10 @@ export const PostsPreviewTooltipSingle = ({postId, postsList=false}: {
   return <PostsPreviewTooltip post={post} postsList={postsList}/>
 }
 
-export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogueMessageId}: {
+export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogueMessageInfo}: {
   postId: string,
   postsList?: boolean
-  dialogueMessageId: string,
+  dialogueMessageInfo: DialogueMessageInfo,
 }) => {
   const { document: post, loading: postLoading } = useSingle({
     collectionName: "Posts",
@@ -43,7 +43,7 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
 
   if (!post) {return null;}
 
-  return <PostsPreviewTooltip post={post} postsList={postsList} dialogueMessageId={dialogueMessageId}/>
+  return <PostsPreviewTooltip post={post} postsList={postsList} dialogueMessageInfo={dialogueMessageInfo}/>
 }
 
 export const PostsPreviewTooltipSingleWithComment = ({postId, commentId}: {

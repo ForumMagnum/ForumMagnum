@@ -24,7 +24,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
  * Do not use this for anyone who doesn't have privileged access to document since it can return unpublished edits
 */
-const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string> => {
+const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string|null> => {
   if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
 
   // fetch remote document from storage / fetch latest revision / post latest contents
@@ -33,8 +33,8 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
   console.log({latestRevision, html, postId: post._id})
 
   const $ = cheerioParse(html)
-  const message = $(`[message-id="${messageId}"] .dialogue-message-content`);
-  const messageContents =  message.html() || '';
+  const message = $(`[message-id="${messageId}"]`);
+  const messageContents =  message.html();
   return messageContents
 }
 

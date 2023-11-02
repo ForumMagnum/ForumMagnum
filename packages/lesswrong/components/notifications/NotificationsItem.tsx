@@ -135,10 +135,10 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
     }
 
     if (notification.type == "newDialogueMessages") {
-      const dialogueMessageId = notification.extraData?.dialogueMessageId
+      const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
       const postId = notification.documentId
       return (
-        <PostsTooltip postId={postId} dialogueMessageId={dialogueMessageId} {...tooltipProps}>
+        <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
           {children}
         </PostsTooltip>
       )

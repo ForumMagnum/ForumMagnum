@@ -137,7 +137,7 @@ const LWPostsPreviewTooltip = ({
   post,
   hash,
   comment,
-  dialogueMessageId,
+  dialogueMessageInfo,
   classes,
 }: LWPostsPreviewTooltipProps) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
@@ -157,6 +157,7 @@ const LWPostsPreviewTooltip = ({
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
+  const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
 
   const {document: postWithDialogueMessage, loading: postWithDialogueMessageLoading} = useSingle({
     collectionName: "Posts",
@@ -169,6 +170,8 @@ const LWPostsPreviewTooltip = ({
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
+  console.log({postWithDialogueMessage, dialogueMessageContents})
+
   if (!post) return null
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
@@ -177,7 +180,7 @@ const LWPostsPreviewTooltip = ({
 
   let highlight;
   if (post.collabEditorDialogue) {
-    highlight = postWithDialogueMessage?.dialogueMessageContents ?? highlightContents
+    highlight = postWithDialogueMessage?.dialogueMessageContents ?? dialogueMessageContents ?? highlightContents
   } else if (post.debate) {
     highlight = post.dialogTooltipPreview
   } else {

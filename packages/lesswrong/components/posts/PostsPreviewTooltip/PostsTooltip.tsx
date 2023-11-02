@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
-import { PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
   DialogueMessagePreviewTooltip,
   PostsPreviewTooltipSingle,
@@ -16,7 +16,7 @@ const PostsTooltip = ({
   comment,
   commentId,
   tagRelId,
-  dialogueMessageId,
+  dialogueMessageInfo,
   hash,
   postsList,
   inlineBlock=false,
@@ -34,7 +34,7 @@ const PostsTooltip = ({
   comment?: CommentsList,
   commentId?: string,
   tagRelId?: string,
-  dialogueMessageId?: string,
+  dialogueMessageInfo?: DialogueMessageInfo,
   hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
@@ -65,8 +65,8 @@ const PostsTooltip = ({
     }
 
     if (postId) {
-      if (dialogueMessageId) {
-        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageId={dialogueMessageId}/>
+      if (dialogueMessageInfo) {
+        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo}/>
       }
 
       const actualCommentId = commentId ?? comment?._id;
@@ -85,7 +85,7 @@ const PostsTooltip = ({
         );
     }
     return null;
-  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageId, hash]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
 
   const {EAHoverOver, LWTooltip} = Components;
   const Tooltip = isEAForum ? EAHoverOver : LWTooltip;

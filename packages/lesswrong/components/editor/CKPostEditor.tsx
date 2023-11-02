@@ -358,21 +358,6 @@ const CKPostEditor = ({
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId)
-    }
-  `);
-  const dialogueParticipantNotificationCallback = async () => {
-    await sendNewDialogueMessageNotification({
-      variables: {
-        postId: post._id
-      }
-    });
-  }
-  
-  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -386,6 +371,28 @@ const CKPostEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
+
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
+      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
+    }
+  `);
+
+  const dialogueParticipantNotificationCallback = async () => {
+    
+    const editorContents =  editorRef?.current?.editor.getData()
+    console.log("in dialogueParticipantNotificationCallback", {editorContents})
+
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id,
+        dialogueHtml: editorContents
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+    
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;

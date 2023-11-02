@@ -2,12 +2,17 @@ import React, { FC } from "react";
 import { Components } from "../../../lib/vulcan-lib";
 import { isEAForum } from "../../../lib/instanceSettings";
 
+export interface DialogueMessageInfo {
+  dialogueMessageId: string
+  dialogueMessageContents: string
+}
+
 export type PostsPreviewTooltipProps = {
   postsList?: boolean,
   hash?: string|null,
   post: PostsList|SunshinePostsList|null,
   comment?: CommentsList,
-  dialogueMessageId?: string,
+  dialogueMessageInfo?: DialogueMessageInfo,
 }
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>

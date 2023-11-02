@@ -5,6 +5,8 @@ import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
+import { cheerioParse } from '../utils/htmlUtil';
+import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -52,18 +54,40 @@ defineQuery({
   }
 });
 
+
+
+const extractLatestDialogueMessageByUser = (dialogueHtml: string, userId: string): DialogueMessageInfo|undefined => {
+  const $ = cheerioParse(dialogueHtml);
+  const messages = $('.dialogue-message');
+  let latestMessage: DialogueMessageInfo|undefined
+  messages.each((_, message) => {
+    const messageUserId = $(message).attr('user-id');
+    if (messageUserId === userId) {
+      latestMessage = {
+        dialogueMessageId: $(message).attr('message-id') ?? "",
+        dialogueMessageContents: $(message).html() ?? "",
+      };
+    }
+  });
+  return latestMessage;
+};
+
 defineMutation({
   name: "sendNewDialogueMessageNotification",
   resultType: "Boolean!",
-  argTypes: "(postId: String!)",
-  fn: async (_, {postId}: { postId: string }, {currentUser, loaders}) => {
+  argTypes: "(postId: String!, dialogueHtml: String!)",
+  fn: async (_, {postId, dialogueHtml}: { postId: string, dialogueHtml: string }, {currentUser, loaders}) => {
     if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(postId)
     if (!post) throw new Error("No post was provided")
     if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
     if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
+
+    const messageInfo = extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id) 
+
+    console.log("inside sendNewDialogueMessageNotification", {messageInfo, dialogueHtml})
   
-    await notifyDialogueParticipantsNewMessage(currentUser._id, post)
+    await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
     
     return true
   }
