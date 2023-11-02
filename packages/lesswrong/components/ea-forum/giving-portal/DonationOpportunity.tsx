@@ -43,12 +43,24 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.18px",
   },
   description: {
+    position: 'relative',
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
     letterSpacing: "-0.14px",
     lineHeight: "140%",
     flexGrow: 1,
+    overflow: 'hidden',
+    '&:after': {
+      position: 'absolute',
+      left: 0,
+      bottom: 0,
+      width: '100%',
+      height: 50,
+      content: "''",
+      background: `linear-gradient(to top, ${theme.palette.givingPortal[0]}, ${theme.palette.background.transparent})`,
+      pointerEvents: 'none'
+    }
   },
   buttons: {
     display: "flex",
