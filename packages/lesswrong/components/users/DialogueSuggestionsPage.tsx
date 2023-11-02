@@ -208,12 +208,12 @@ const Headers = ({ titles, className }: { titles: string[], className: string })
 };
 
 const DialogueCheckBox: React.FC<{
-  targetUser: UpvotedUser;
+  targetUserId : string;
+  targetUserDisplayName : string;
   checkId?: string;
-  userDialogueChecks: any; // replace with the correct type
-}> = ({ targetUser, checkId, userDialogueChecks }) => {
+  userDialogueChecks: DialogueCheckInfo[] | undefined; // replace with the correct type
+}> = ({ targetUserId, targetUserDisplayName, checkId, userDialogueChecks}) => {
   const currentUser = useCurrentUser();
-  const { _id: targetUserId, displayName } = targetUser;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const [upsertDialogueCheck] = useMutation(gql`
@@ -303,7 +303,7 @@ const DialogueCheckBox: React.FC<{
     }
   }
 
-  const isMatch = match(userDialogueChecks, targetUser._id);
+  const isMatch = match(userDialogueChecks, targetUserId);
 
   return (
     <input 
@@ -314,7 +314,7 @@ const DialogueCheckBox: React.FC<{
         backgroundColor: isMatch ? 'green' : 'white' // Change color based on match
       }} 
       onChange={event => updateDatabase(event, targetUserId, checkId)} 
-      value={displayName} 
+      value={targetUserDisplayName} 
       checked={userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked}
     />
   );
@@ -326,7 +326,8 @@ const match = (userDialogueChecks: any[], targetUserId: string): boolean => {
 
 type MatchDialogueButtonProps = {
   userDialogueChecks: any; // replace with the correct type
-  targetUser: UpvotedUser;
+  targetUserId: string;
+  targetUserDisplayName: string;
   currentUser: any; // replace with the correct type
   loadingNewDialogue: boolean;
   createDialogue: (title: string, participants: string[]) => void;
@@ -335,7 +336,8 @@ type MatchDialogueButtonProps = {
 
 const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   userDialogueChecks,
-  targetUser,
+  targetUserId,
+  targetUserDisplayName,
   currentUser,
   loadingNewDialogue,
   createDialogue,
@@ -343,13 +345,13 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 }) => {
   return (
     <div>
-      {match(userDialogueChecks, targetUser._id) ? (
+      {match(userDialogueChecks, targetUserId) ? (
           <button
             className={classes.link}
             onClick={(e) =>
               createDialogue(
-                `${currentUser?.displayName}/${targetUser.displayName}`,
-                [targetUser._id]
+                `${currentUser?.displayName}/${targetUserDisplayName}`,
+                [targetUserId]
               )
             }
           >
@@ -361,13 +363,13 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 };
 
 const MessageButton: React.FC<{
-  targetUser: UpvotedUser;
+  targetUserId: string;
   currentUser: any; // replace with the correct type
   classes: ClassesType;
-}> = ({ targetUser, currentUser, classes }) => {
+}> = ({ targetUserId, currentUser, classes }) => {
   return (
     <button className={classes.button}>
-      <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+      <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
         <a data-cy="message">Message</a>
       </NewConversationButton>
     </button>
@@ -566,13 +568,14 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Your top upvoted users (last 1.5 years)</h3>
           <div className={classes.matchContainerGrid}>
-            <Headers titles={["Dialogue ...?", "Name", "Message", "Match", "Upvotes", "Agreement", "Posts you've read"]} className={classes.header} />
+            <Headers titles={["Dialogue ...?", "Name", "Message", "Match", "Upvotes from you", "Agreement from you", "Posts you've read"]} className={classes.header} />
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               return (
                 <React.Fragment key={targetUser.displayName + randomId()}> 
                   <DialogueCheckBox 
-                    targetUser={targetUser} 
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
                     userDialogueChecks={userDialogueChecks} 
                   />
@@ -581,12 +584,13 @@ export const DialogueSuggestionsPage = ({classes}: {
                     documentId={targetUser._id} 
                     simple={false}/>
                   <MessageButton 
-                    targetUser={targetUser} 
+                    targetUserId={targetUser._id} 
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
                     userDialogueChecks={userDialogueChecks}
-                    targetUser={targetUser}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
                     loadingNewDialogue={loadingNewDialogue}
                     createDialogue={createDialogue}
@@ -613,40 +617,47 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>All users who have published Dialogues</h3>
           <div className={classes.matchContainerGrid}>
-            <Headers titles={["Dialogue maybe?", "Name", "Message", "Match", "Upvotes from you", "Agreement from you", "Posts you've read", ""]} className={classes.header} />
+            <Headers titles={["Dialogue maybe?", "Name", "Message", "Match", "Karma", "Karma", "Posts you've read", ""]} className={classes.header} />
 
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
               return (
-                <React.Fragment key={targetUser.displayName + randomId()}>
-                  <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
-                  <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
-                  <input 
-                    type="checkbox" 
-                    style={{ margin: '0', width: '20px' }} 
-                    onChange={event => updateDatabase(
-                      event, 
-                      targetUser._id, 
-                      checkId
-                    )} 
-                    value={targetUser.displayName} 
-                    checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
+                <React.Fragment key={targetUser.displayName + randomId()}> 
+                  <DialogueCheckBox 
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName} 
+                    checkId={checkId} 
+                    userDialogueChecks={userDialogueChecks} 
                   />
-                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
+                  <UsersName 
+                    className={classes.displayName} 
+                    documentId={targetUser._id} 
+                    simple={false}/>
+                  <MessageButton 
+                    targetUserId={targetUser._id} 
+                    currentUser={currentUser} 
+                    classes={classes} />
+                  <MatchDialogueButton
+                    userDialogueChecks={userDialogueChecks}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    currentUser={currentUser}
+                    loadingNewDialogue={loadingNewDialogue}
+                    createDialogue={createDialogue}
+                    classes={classes}
+                  />
+                  {/* <UserBio 
+                    key={targetUser._id} 
+                    classes={classes} 
+                    userId={targetUser._id} /> */}
                   <div>{targetUser.karma}</div>
                   <div>{targetUser.karma}</div>
-                  {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                      <a data-cy="message">Message</a>
-                  </NewConversationButton> </button>}
-                  <div>
-                    {userDialogueChecks &&
-                      userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                        <span>You match!</span>
-                        <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                      </div> : null}
-                  </div>
-                </React.Fragment>
+                  <UserPostsYouveRead 
+                    classes={classes} 
+                    targetUserId={targetUser._id} 
+                    components={Components} />
+                </React.Fragment> 
               )}
             )}
           </div>
