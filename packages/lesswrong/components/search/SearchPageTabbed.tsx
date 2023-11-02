@@ -5,7 +5,7 @@ import { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
@@ -80,7 +80,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'none'
     },
   },
-  funnelIcon: {
+  funnelIconLW: {
+    fill: theme.palette.grey[1000],
+  },
+  funnelIconEA: {
     stroke: theme.palette.grey[1000],
   },
   searchInputArea: {
@@ -361,7 +364,7 @@ const SearchPageTabbed = ({classes}:{
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classes.funnelIcon}/>
+                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
               </IconButton>
             </div>
           </div>
