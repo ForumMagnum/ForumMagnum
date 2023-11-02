@@ -511,6 +511,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     votedCandidate: "#fff",
     ctaBackground: "#fdfcfc",
     ctaText: "#757575",
+    rhsLink: '#862115',
   },
 
   contrastText: shades.grey[0],
