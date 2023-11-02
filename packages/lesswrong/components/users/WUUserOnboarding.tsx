@@ -5,7 +5,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import TextField, {TextFieldProps} from '@material-ui/core/TextField'
 import {siteNameWithArticleSetting} from '../../lib/instanceSettings'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
-import {useMessages} from '../common/withMessages'
 import {TosLink} from '../posts/PostsAcceptTos'
 import {textFieldContainerStyles, textFieldStyles} from '../form-components/MuiTextField.tsx'
 
@@ -88,7 +87,9 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
   const [allowNewPrivateMessageRequests, setAllowNewPrivateMessageRequests] = useState(true)
   const [acceptedTos, setAcceptedTos] = useState(false)
   const [mapLocation, setMapLocation] = useState(currentUser.mapLocation)
-  const [validationError, setValidationError] = useState('')
+  const [validationError, setValidationError] = useState('Username is empty by default')
+  const [serverValidationErrors, setServerValidationErrors] = useState<any[]>([])
+  
   const [updateUser] = useMutation(gql`
     mutation WUUserOnboarding(
     $username: String!, 
@@ -114,8 +115,7 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
       }
     }
   `, {refetchQueries: ['getCurrentUser']})
-  const {flash} = useMessages()
-  const {SingleColumnSection, Typography, EAButton, LocationPicker, EAUsersProfileImage, MuiTextField} = Components
+  const {SingleColumnSection, Typography, EAButton, LocationPicker, EAUsersProfileImage, FormErrors} = Components
 
   function validateUsername(username: string): void {
     if (username.length === 0) {
@@ -141,19 +141,19 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
         },
       })
     } catch (err) {
-      if (/Username/.test(err.toString?.())) {
+      if (/username/.test(err.toString?.())) {
         setValidationError('Username is already taken')
       }
       // eslint-disable-next-line no-console
       console.error(err)
-      flash(`${err}`)
+      setServerValidationErrors([err])
     }
   }
 
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant="display2" gutterBottom className={classes.title}>
-        Welcome to the {siteNameWithArticleSetting.get()} Beta
+        Welcome to {siteNameWithArticleSetting.get()} Beta
       </Typography>
 
       <Typography variant="body2">
@@ -285,6 +285,8 @@ const WUUserOnboarding: React.FC<WUUserOnboardingProps> = ({currentUser, classes
             </Typography>}
         />
       </div>
+
+      <FormErrors errors={serverValidationErrors}/>
       
       <div className={classes.submitButtonSection}>
         <EAButton onClick={handleSave} disabled={!!validationError || !acceptedTos}>
