@@ -11,6 +11,7 @@ import {
   useDonationOpportunities,
 } from "./hooks";
 import {
+  donationElectionFundraiserLink,
   donationElectionLink,
   donationElectionTagId,
   effectiveGivingTagId,
@@ -302,12 +303,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {flash} = useMessages();
   const {openDialog} = useDialog();
 
-  const onDonate = useCallback(() => {
-    // TODO: Hook up donation
-    // eslint-disable-next-line no-console
-    console.log("Clicked donate");
-  }, []);
-
   const toggleNotifyWhenVotingOpens = useCallback(() => {
     // TODO: captureEvent
     if (!currentUser) {
@@ -363,7 +358,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.mb20,
               )}>
                 <span className={classes.bold}>
-                  
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
                 The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
@@ -375,7 +369,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   title="Donate"
                   description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
-                  onButtonClick={onDonate}
+                  href={donationElectionFundraiserLink}
                   solidButton
                 >
                   {showAmountRaised &&
