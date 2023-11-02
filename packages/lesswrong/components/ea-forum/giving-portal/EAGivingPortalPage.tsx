@@ -25,6 +25,10 @@ import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
+import { useCurrentTime } from "../../../lib/utils/timeUtil";
+import moment from "moment";
+import { useTimezone } from "../../common/withTimezone";
+import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -246,11 +250,7 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
 });
 
-const getListTerms = (
-  tagId: string,
-  sortedBy: string,
-  limit: number,
-) => ({
+const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sortedBy: PostSortingModeWithRelevanceOption; limit: number, after: string }): PostsViewTerms => ({
   filterSettings: {
     tags: [
       {
@@ -259,8 +259,18 @@ const getListTerms = (
       },
     ],
   },
+  after,
   sortedBy,
   limit,
+  // Make it more recency biased, this is how these numbers translate to the time decay factor:
+  // Higher timeDecayFactor => more recency bias
+  // const timeDecayFactor = Math.min(
+  //   decayFactorSlowest * (1 + (activityWeight * activityFactor)),
+  //   decayFactorFastest
+  // );
+  algoActivityFactor: 1.0,
+  algoActivityWeight: 3.0,
+  algoDecayFactorFastest: 3.0,
 });
 
 const formatDollars = (amount: number) => "$" + formatStat(amount);
@@ -303,6 +313,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {flash} = useMessages();
   const {openDialog} = useDialog();
 
+  const { timezone } = useTimezone();
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+
   const toggleNotifyWhenVotingOpens = useCallback(() => {
     // TODO: captureEvent
     if (!currentUser) {
@@ -316,7 +330,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [currentUser, openDialog, setNotifyForVotingOn, notifyForVotingOn, flash, updateCurrentUser]);
 
-  const effectiveGivingPostsTerms = getListTerms(effectiveGivingTagId, "magic", 8);
+  const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
 
   const totalAmount = formatDollars(totalRaised);
   const targetPercent = (raisedForElectionFund / donationTarget) * 100;
