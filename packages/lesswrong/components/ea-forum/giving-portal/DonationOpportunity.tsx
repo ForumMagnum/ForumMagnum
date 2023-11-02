@@ -56,6 +56,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   button: {
+    textAlign: 'center',
     padding: 12,
     borderRadius: theme.borderRadius.small,
     border: "none",
@@ -87,12 +88,14 @@ const DonationOpportunity = ({candidate, classes}: {
   const {name, logoSrc, description} = candidate;
   return (
     <div className={classes.root}>
-      <div className={classes.header}>
-        <div className={classes.imageContainer}>
-          <img src={logoSrc} className={classes.image} />
+      <Link to={candidate.href}>
+        <div className={classes.header}>
+          <div className={classes.imageContainer}>
+            <img src={logoSrc} className={classes.image} />
+          </div>
+          <div className={classes.name}>{name}</div>
         </div>
-        <Link to={candidate.href} className={classes.name}>{name}</Link>
-      </div>
+      </Link>
       <div className={classes.description}>{description}</div>
       <div className={classes.buttons}>
         {candidate.fundraiserLink && <Link to={candidate.fundraiserLink} className={classNames(classes.button, classes.buttonPrimary)}>
