@@ -7,7 +7,7 @@ import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSe
 import { Link } from '../../lib/reactRouterWrapper';
 import Select from '@material-ui/core/Select';
 import {
-    ElasticSorting,
+  ElasticSorting,
   elasticCollectionIsCustomSortable,
   formatElasticSorting,
   getElasticSortingsForCollection,

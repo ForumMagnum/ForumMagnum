@@ -47,7 +47,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   filtersModalContent: {
     maxWidth: "max-content",
-    background: '#fff',
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
     padding: '20px',
     overflowY: 'auto',
     zIndex: 10001
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   funnelIcon: {
-    stroke: "black"
+    stroke: theme.palette.grey[1000],
   },
   searchInputArea: {
     flex: 1,
