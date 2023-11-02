@@ -6,10 +6,11 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 const imageWidth = 70;
 const imageHeight = 60;
+export const DONATION_OPPORTUNITY_CARD_WIDTH = 280
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: 280,
+    width: DONATION_OPPORTUNITY_CARD_WIDTH,
     height: 265,
     backgroundColor: theme.palette.givingPortal[0],
     boxShadow: `0px 2px 6px 0px ${theme.palette.greyAlpha(0.1)}`,

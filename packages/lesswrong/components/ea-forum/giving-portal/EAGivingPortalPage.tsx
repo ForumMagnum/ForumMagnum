@@ -29,6 +29,7 @@ import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import moment from "moment";
 import { useTimezone } from "../../common/withTimezone";
 import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
+import { DONATION_OPPORTUNITY_CARD_WIDTH } from "./DonationOpportunity";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -207,11 +208,9 @@ const styles = (theme: ThemeType) => ({
   },
   grid: {
     width: "100%",
-    display: "flex",
-    flexWrap: "wrap",
+    display: "grid",
+    gridTemplateColumns: `repeat(auto-fit, ${DONATION_OPPORTUNITY_CARD_WIDTH}px)`,
     gap: "16px",
-    rowGap: "16px",
-    justifyContent: "center",
   },
   totalRaised: {
     fontSize: 24,
