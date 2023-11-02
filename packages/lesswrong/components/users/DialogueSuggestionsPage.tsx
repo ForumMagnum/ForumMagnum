@@ -63,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   matchContainerGrid: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
-    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 40px) minmax(min-content, 80px)  550px `,
+    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 180px) minmax(min-content, 40px) minmax(min-content, 80px)  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
@@ -78,9 +78,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap'
   },
   button: {
-    maxHeight: `30px`,
+    maxHeight: `35px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.paper, // theme.palette.primary.light
     color: theme.palette.link.unmarked,
   },
   link: {
@@ -347,7 +347,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     <div>
       {match(userDialogueChecks, targetUserId) ? (
         <button
-          className={classes.link}
+          className={classes.button}
           onClick={(e) =>
             createDialogue(
               `${currentUser?.displayName}/${targetUserDisplayName}`,
@@ -355,7 +355,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
             )
           }
         >
-          {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"}
+          {loadingNewDialogue ? <a data-cy="message">Creating new Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
         </button>
       ) : null}
     </div>
