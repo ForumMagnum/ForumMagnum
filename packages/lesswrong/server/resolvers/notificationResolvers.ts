@@ -55,16 +55,15 @@ defineQuery({
 defineMutation({
   name: "sendNewDialogueMessageNotification",
   resultType: "Boolean!",
-  argTypes: "(userId: String!, messageId: String!, postId: String!)",
-  fn: async (_, {userId, messageId, postId}: { userId: string, messageId: string, postId: string }, {loaders}) => {
+  argTypes: "(postId: String!)",
+  fn: async (_, {postId}: { postId: string }, {currentUser, loaders}) => {
+    if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(postId)
     if (!post) throw new Error("No post was provided")
     if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
-    if (!isDialogueParticipant(userId, post)) throw new Error("User is not a dialogue participant")
-
-    console.log("Inside Define Mutation", {userId, messageId, postId})
+    if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
   
-    await notifyDialogueParticipantsNewMessage(userId, messageId, post)
+    await notifyDialogueParticipantsNewMessage(currentUser._id, post)
     
     return true
   }

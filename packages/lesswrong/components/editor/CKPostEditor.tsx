@@ -359,16 +359,14 @@ const CKPostEditor = ({
   const { query : { key } } = useSubscribedLocation();
   
   const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!, $userId: String!, $messageId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId, userId: $userId, messageId: $messageId)
+    mutation sendNewDialogueMessageNotification($postId: String!) {
+      sendNewDialogueMessageNotification(postId: $postId)
     }
   `);
-  const dialogueParticipantNotificationCallback = async ({userId, messageId}: {userId: string, messageId: string}) => {
+  const dialogueParticipantNotificationCallback = async () => {
     await sendNewDialogueMessageNotification({
       variables: {
-        postId: post._id,
-        userId,
-        messageId
+        postId: post._id
       }
     });
   }
