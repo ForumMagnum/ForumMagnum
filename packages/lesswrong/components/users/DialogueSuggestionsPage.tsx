@@ -64,14 +64,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   matchContainerGridV1: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
-    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 180px) minmax(min-content, 40px) minmax(min-content, 80px)  550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) minmax(min-content, 45px) minmax(min-content, 80px)  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio  posts read
-    gridTemplateColumns: `minmax(min-content, 55px) 100px minmax(min-content, 80px) minmax(min-content, 180px) auto  550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) auto  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
@@ -144,6 +144,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&$checked': {
       color: '#00000038',
     },
+  },
+  centeredText: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
@@ -605,7 +610,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Your top upvoted users (last 1.5 years)</h3>
           <div className={classes.matchContainerGridV1}>
-            <Headers titles={["Dialogue ...?", "Name", "Message", "Match", "Upvotes from you", "Agreement from you", "Posts you've read"]} className={classes.header} />
+            <Headers titles={["Dialogue", "Name", "Message", "Match", "Karma", "Agreement", "Posts you've read"]} className={classes.header} />
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               return (
@@ -635,12 +640,8 @@ export const DialogueSuggestionsPage = ({classes}: {
                     createDialogue={createDialogue}
                     classes={classes}
                   />
-                  {/* <UserBio 
-                    key={targetUser._id} 
-                    classes={classes} 
-                    userId={targetUser._id} /> */}
-                  <div>{targetUser.total_power}</div>
-                  <div>{targetUser.total_agreement}</div>
+                  <div className={classes.centeredText}>{targetUser.total_power}</div>
+                  <div className={classes.centeredText}>{targetUser.total_agreement}</div>
                   <UserPostsYouveRead 
                     classes={classes} 
                     targetUserId={targetUser._id} 
@@ -654,7 +655,7 @@ export const DialogueSuggestionsPage = ({classes}: {
       <br />
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>All users who have published Dialogues</h3>
+          <h3>Users who published dialogues</h3>
           <div className={classes.matchContainerGridV2}>
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
@@ -703,9 +704,8 @@ export const DialogueSuggestionsPage = ({classes}: {
       <br />
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>All users who have opted in to Dialogue Faciliation</h3>
-          <div className={classes.matchContainerGridV2}>
-           
+          <h3>Users who opted in to dialogue invitations from LW team</h3>
+          <div className={classes.matchContainerGridV2}> 
             {UsersOptedInToDialogueFacilitation?.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               return (
