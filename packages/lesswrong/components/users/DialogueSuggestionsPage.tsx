@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery, useMutation } from "@apollo/client";
@@ -12,6 +12,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
+
+const { NewConversationButton, UsersName, PostsTooltip } = Components;
 
 export type UpvotedUser = {
   _id: string;
@@ -54,16 +56,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...commentBodyStyles(theme),
   },
   matchContainer: {
-    maxWidth: 900,
+    maxWidth: 1300,
     padding: 20,
     backgroundColor: theme.palette.grey[100],
     borderRadius: 5,
   },
   matchContainerGrid: {
     display: 'grid', 
-    gridTemplateColumns: `100px 320px 200px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
-    rowGap: '2px',
-    columnGap: '10px'
+    gridTemplateColumns: `100px 250px minmax(min-content, 80px) 400px minmax(min-content, 80px) minmax(min-content, 80px) minmax(min-content, 60px) auto`,
+    gridRowGap: '10px',
+    columnGap: '10px',
   },
   header: {
     margin: 0,
@@ -75,6 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap'
   },
   button: {
+    maxHeight: `30px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white'
@@ -89,20 +92,52 @@ const styles = (theme: ThemeType): JssStyles => ({
   rootFlex: {
     display: 'flex'
   },
-  bioContainer: {
+  gradientBigTextContainer: {
+    position: 'relative',
     height: '70px', 
     overflow: 'auto',
     color: 'grey', 
-    fontSize: '14px'
+    fontSize: '13px',
+    lineHeight: '1.3em',
+    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+    '&.scrolled-to-bottom': {
+      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+    },
+    '&.scrolled-to-top': {
+      WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 80%, transparent 100%)',
+    }
   },
-  readPostsContainer: {
-    height: '70px', 
-    overflow: 'auto',
-    color: 'grey', 
-    fontSize: '14px'
+  privacyNote: {
+    color: 'grey',
+    fontSize: '1rem',
+  },
+  row: {
+   // borderBottom: '1px solid white',
   },
   
 });
+
+const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
+  const [isScrolledToTop, setIsScrolledToTop] = useState(true);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const element = ref.current;
+      if (element) {
+        const atTop = element.scrollTop <= (element.scrollHeight * 0.10);
+        const atBottom = (element.scrollHeight - element.scrollTop) <= (element.clientHeight * 1.10);
+        setIsScrolledToTop(atTop);
+        setIsScrolledToBottom(atBottom);
+      }
+    };
+
+    ref.current?.addEventListener('scroll', handleScroll);
+    return () => ref.current?.removeEventListener('scroll', handleScroll);
+  }, [ref]);
+
+  return { isScrolledToTop, isScrolledToBottom };
+};
 
 const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) => {
   const { document: userData, loading } = useSingle({
@@ -111,19 +146,23 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
     fragmentName: "UsersProfile"
   });
 
+  const bioContainerRef = useRef<HTMLDivElement | null>(null);
+  const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(bioContainerRef);
+
   return (
-    <div className={classes.bioContainer}>
+    <div className={`${classes.gradientBigTextContainer} ${isScrolledToTop ? 'scrolled-to-top' : ''} ${isScrolledToBottom ? 'scrolled-to-bottom' : ''}`} ref={bioContainerRef}>
       {userData?.biography?.plaintextDescription }
     </div>
   )
 };
 
-const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string }) => {
+const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string, components:ComponentTypes }) => {
   const currentUser = useCurrentUser();
 
   const { loading, error, data } = useQuery(gql`
     query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId) {
+        _id
         title
       }
     }
@@ -131,14 +170,28 @@ const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, t
     variables: { userId: currentUser?._id, targetUserId: targetUserId },
   });
 
+  const readPosts:[DbPost] = data?.UsersReadPostsOfTargetUser
+
+  const readPostsContainerRef = useRef<HTMLDivElement | null>(null);
+  const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(readPostsContainerRef);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <div className={classes.readPostsContainer}>
-      {/* {data.UsersReadPostsOfTargetUser.posts.slice(0, 3).map((post, index) => (
-        <p key={index}>{post.title}</p>
-      ))} */}
+    <div className={`${classes.gradientBigTextContainer} ${isScrolledToTop ? 'scrolled-to-top' : ''} ${isScrolledToBottom ? 'scrolled-to-bottom' : ''}`} ref={readPostsContainerRef}>
+      {readPosts.length > 0 ? (
+        readPosts.slice(0, 8).map((post, index) => {
+            return (
+              <PostsTooltip key={index} postId={post._id}>
+                <a key={index} href={"https://www.lesswrong.com/posts/gDijQHHaZzeGrv2Jc/"+post._id}>• {post.title}</a>
+                <br/>
+              </PostsTooltip>
+            )
+          })
+      ) : (
+        <p>(no posts read...)</p>
+      )}
     </div>
   );
 };
@@ -147,7 +200,7 @@ const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, t
 export const DialogueSuggestionsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { NewConversationButton, UsersName } = Components;
+  
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
@@ -155,8 +208,6 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
-
-  console.log("yo ")
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -171,12 +222,7 @@ export const DialogueSuggestionsPage = ({classes}: {
     }
   `);
 
-  console.log("yo pt 2")
-  console.log("dataaa: ", data)
-
   const userDialogueUsefulData : UserDialogueUsefulData = data?.GetUserDialogueUsefulData
-
-  console.log("userDialogueUsefulData: ", userDialogueUsefulData)
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -383,8 +429,12 @@ export const DialogueSuggestionsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
+      <div style={{ maxWidth: '1100px', margin: 'auto' }}>
+
       <h1>Dialogue Matching</h1>
-      <p>Place a checkmark next to a username to indicate your interest in engaging in a dialogue with them if you both indicate interest in doing so. If you mutually check each other, you have created a match and can initiate a dialogue. Users will not see whether you have checked them unless they have also checked you. Currently, users will not be notified about new matches, but we may add that functionality at any point.</p>
+      <p>Check a user to you'd be interested in having a dialogue, if they were too. Users will 
+        not see whether you have checked them unless they have also checked you. Currently, users will not be notified about new 
+        matches, but we may add that functionality at any point.</p>
       <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
             <FormControlLabel  style={{ paddingLeft: '8px' }}
               control={
@@ -399,52 +449,54 @@ export const DialogueSuggestionsPage = ({classes}: {
               label={<span className={classes.prompt} >{prompt}</span>}
             />
           </div> 
-      <br />
-      <p>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless the other part of the match has also opted in. </p>
-      <div className={classes.rootFlex}>
+        <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless the other part of the match has also opted in.</p>      <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Your top users</h3>
           <div className={classes.matchContainerGrid}>
             <h5 className={classes.header}>Display Name</h5>
             <h5 className={classes.header}>Bio</h5>
+            <h5 className={classes.header}></h5>
             <h5 className={classes.header}>Posts you've read</h5>
-            <h5 className={classes.header}>Opt-in to dialogue</h5>
             <h5 className={classes.header}>Upvotes from you</h5>
             <h5 className={classes.header}>Agreement from you</h5>
             <h5 className={classes.header}>Message</h5>
-            <h5 className={classes.header}>Match</h5>
-            {userDialogueUsefulData.topUsers.slice(0,50).map(targetUser => {
+            <h5 className={classes.header}></h5>
+            {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
               return (
-                <React.Fragment key={targetUser.displayName + randomId()}>
-                  <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
-                  <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
-                  <input 
-                    type="checkbox" 
-                    style={{ margin: '0', width: '20px' }} 
-                    onChange={event => updateDatabase(
-                      event, 
-                      targetUser._id, 
-                      checkId
-                    )} 
-                    value={targetUser.displayName} 
-                    checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
-                  />
-                  <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} />
-                  <div>{targetUser.total_power}</div>
-                  <div>{targetUser.total_agreement}</div>
-                  {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
-                      <a data-cy="message">Message</a>
-                  </NewConversationButton> </button>}
-                  <div>
-                    {userDialogueChecks &&
-                      userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
-                        <span>You match!</span>
-                        <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
-                      </div> : null}
-                  </div>
-                </React.Fragment>
+                // <div className={classes.row} key={targetUser.displayName + randomId()}>
+                <React.Fragment key={targetUser.displayName + randomId()}> 
+                  
+                    <div className={classes.displayName}><UsersName documentId={targetUser._id} simple={false}/></div>
+                    <UserBio key={targetUser._id} classes={classes} userId={targetUser._id} />
+                    <input 
+                      type="checkbox" 
+                      style={{ margin: '0', width: '20px' }} 
+                      onChange={event => updateDatabase(
+                        event, 
+                        targetUser._id, 
+                        checkId
+                      )} 
+                      value={targetUser.displayName} 
+                      checked={userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?.checked}
+                    />
+                    <UserPostsYouveRead classes={classes} targetUserId={targetUser._id} components={Components} />
+                    <div>{targetUser.total_power}</div>
+                    <div>{targetUser.total_agreement}</div>
+                    {<button className={classes.button}> <NewConversationButton user={{_id: targetUser._id}} currentUser={currentUser}>
+                        <a data-cy="message">Message</a>
+                    </NewConversationButton> </button>}
+                    <div>
+                      {userDialogueChecks &&
+                        userDialogueChecks.some(check => check.targetUserId === targetUser._id && check.match) ? <div>
+                          <span>You match!</span>
+                          <a className={classes.link} onClick={e => createDialogue(`${currentUser?.displayName}/${targetUser.displayName}`, [targetUser._id])}> {loadingNewDialogue ? "Creating new Dialogue..." : "Start Dialogue"} </a>
+                        </div> : null}
+                    </div>
+                 
+                </React.Fragment> 
+                // </div>
               )}
             )}
           </div>
@@ -492,6 +544,7 @@ export const DialogueSuggestionsPage = ({classes}: {
           </React.Fragment>
         ))}
       </div> */}
+      </div>
     </div>
   );
 }

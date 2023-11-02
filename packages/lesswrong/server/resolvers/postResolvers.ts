@@ -273,13 +273,21 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to view read posts of target user')
       }
 
-      return await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId)
+      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId)
+     // console.log('UsersReadPostsOfTargetUser', posts)
+
+      return posts
     }, 
   },
 })
 
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!): [Post]");
+addGraphQLSchema(`
+  type UsersReadPostsOfTargetUserResult {
+    posts: [Post!]
+  }
+`)
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
@@ -298,11 +306,7 @@ addGraphQLSchema(`
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
 
-addGraphQLSchema(`
-  type UsersReadPostsOfTargetUserResult {
-    posts: [Post!]
-  }
-`)
+
 
 createPaginatedResolver({
   name: "DigestHighlights",

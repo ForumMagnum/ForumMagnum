@@ -366,9 +366,12 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       FROM public."ReadStatuses"
       INNER JOIN public."Posts" ON public."ReadStatuses"."postId" = public."Posts"._id
       WHERE
-        public."ReadStatuses"."userId" = $1
-        AND public."Posts"."userId" = $2
-        AND public."ReadStatuses"."isRead" = true
+          public."ReadStatuses"."userId" = $1
+          AND public."Posts"."userId" = $2
+          AND public."ReadStatuses"."isRead" = true
+      ORDER BY public."ReadStatuses"."lastUpdated" DESC
+      LIMIT 20
+    
     `, [userId, targetUserId]);
   }
 }
