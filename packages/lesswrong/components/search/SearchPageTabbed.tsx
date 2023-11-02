@@ -20,6 +20,7 @@ import {
   isValidElasticSorting,
 } from '../../lib/search/elasticUtil';
 import Modal from '@material-ui/core/Modal';
+import classNames from 'classnames';
 
 const hitsPerPage = 10
 
@@ -44,6 +45,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   filtersModal: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  filtersModalOpen: {
+    display: "flex",
+  },
+  filtersModalClosed: {
+    display: "none",
   },
   filtersModalContent: {
     maxWidth: "max-content",
@@ -374,7 +381,7 @@ const SearchPageTabbed = ({classes}:{
           aria-labelledby="search-filters-modal"
           aria-describedby="search-filters-modal"
           style={{display: modalOpen ? 'flex' : 'none'}}
-          className={classes.filtersModal}
+          className={classNames(classes.filtersModal, {[classes.filtersModalOpen]: modalOpen}, {[classes.filtersModalClosed]: !modalOpen})}
         >
           <div className={classes.filtersModalContent}>
             <Components.SearchFilters
