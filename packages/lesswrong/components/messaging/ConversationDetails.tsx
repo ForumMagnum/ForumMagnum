@@ -14,8 +14,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, classes}: {
+const ConversationDetails = ({conversation, enableConversationOptions=false, classes}: {
   conversation: conversationsListFragment,
+  enableConversationOptions?: boolean,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
@@ -41,9 +42,9 @@ const ConversationDetails = ({conversation, classes}: {
           { i < conversation.participants.length-1 && ","}
         </MetaInfo>)}
       </span>
-      <span onClick={openConversationOptions}>
+      {enableConversationOptions && <span onClick={openConversationOptions}>
         <MetaInfo button>{preferredHeadingCase("Conversation Options")}</MetaInfo>
-      </span>
+      </span>}
     </div>
   )
 }

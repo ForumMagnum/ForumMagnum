@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto',
   },
   message: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.text.alwaysWhite,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
@@ -36,8 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'message',
   },
   backgroundIsCurrent: {
-    backgroundColor: theme.palette.grey[700],
-    color: theme.palette.panelBackground.default,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {

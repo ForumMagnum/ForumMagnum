@@ -9,15 +9,26 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 
+const styles = (theme: ThemeType): JssStyles => ({
+  sectionTitle: {
+    marginBottom: '1em',
+  },
+})
+
+
 // The Navigation for the Inbox components
 const InboxNavigation = ({
   terms,
   currentUser,
   title=preferredHeadingCase("Your Conversations"),
+  enableExpand=false, 
+  classes,
 }: {
   terms: ConversationsViewTerms,
   currentUser: UsersCurrent,
+  enableExpand?: boolean,
   title?: JSX.Element | String
+  classes: ClassesType,
 }) => {
   const location = useLocation();
   const { currentRoute, query } = location;
@@ -53,13 +64,13 @@ const InboxNavigation = ({
 
   return (
     <SingleColumnSection>
-        <SectionTitle title={title}>
+        <SectionTitle title={title} className={classes.sectionTitle}>
           <SectionFooter>
-            <SectionFooterCheckbox
+            {enableExpand && <SectionFooterCheckbox
               onClick={expandCheckboxClick}
               value={expanded}
               label={"Expand"}
-            />
+            />}
             {showModeratorLink && <Link to={"/moderatorInbox"}>Mod Inbox</Link>}
           </SectionFooter>
         </SectionTitle>
@@ -80,7 +91,7 @@ const InboxNavigation = ({
   )
 }
 
-const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation);
+const InboxNavigationComponent = registerComponent('InboxNavigation', InboxNavigation, {styles});
 
 declare global {
   interface ComponentTypes {
