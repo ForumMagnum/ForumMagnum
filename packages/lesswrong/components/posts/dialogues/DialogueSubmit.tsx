@@ -5,7 +5,10 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, isLW} from "../../../lib/instanceSettings";
+import { isEAForum, isLW } from "../../../lib/instanceSettings";
+import { useCreate } from '../../../lib/crud/withCreate';
+import { useNavigation } from '../../../lib/routeUtil';
+import { EditorsContext } from '../PostsEditForm';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -73,6 +76,13 @@ const DialogueSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
+  const { create: createShortform, loading, error } = useCreate({
+    collectionName: "Comments",
+    fragmentName: 'CommentEdit',
+  })
+  const userShortfeed = currentUser?.shortformFeedId;
+  const [editors, _setEditors] = React.useContext(EditorsContext)
+
   const { SectionFooterCheckbox, Row } = Components;
 
   const defaultCoauthorSignoffs = document.coauthors.reduce((result: Record<string, CoauthorSignoff>, coauthor: UsersMinimumInfo) => {
@@ -82,6 +92,7 @@ const DialogueSubmit = ({
 
   const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
   
+  const { history } = useNavigation();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -107,6 +118,33 @@ const DialogueSubmit = ({
         >
           {saveDraftLabel}
         </Button>
+        {userShortfeed && <Button
+          className={classNames(classes.formButton)}
+          disabled={loading || !!error}
+          onClick={async e => {
+            e.preventDefault()
+            
+            // So this property exists. But the typings don't agree. For now, #AnyBecauseHard
+            // @ts-ignore
+            const shortformString = editors[`${document._id}-contents`].getData()
+            const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}}
+
+            const response = await createShortform({
+              data: {
+                // When Ollie Etherington wrote ff6296e he ts-ignore'd the annoying error.
+                // And he's definitely a real developer. So I'm going to do the same.
+                // @ts-ignore
+                contents: shortformContents,
+                shortform: true,
+                postId: userShortfeed,
+                originalDialogueId: document._id,
+              }
+            })
+
+            response.data && history.push(`/posts/${userShortfeed}?commentId=${response.data.createComment.data._id}`)
+          }}
+        >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
+        }
         <Button
           type="submit"
           onClick={onSubmitClick}
