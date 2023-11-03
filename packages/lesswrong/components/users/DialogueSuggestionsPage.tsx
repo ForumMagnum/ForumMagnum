@@ -46,8 +46,6 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: DbUser[],
   topUsers: UpvotedUser[],
-  topCommentedTags: CommentCountTag[],
-  topCommentedTagTopUsers: TopCommentedTagUser[],
 }
 
 

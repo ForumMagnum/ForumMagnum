@@ -365,7 +365,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const topUserIds = topUsers.map(user => user._id);
     const topTagNames = topCommentedTags.map(tag => tag.name);
   
-    // Use parameterized query to prevent SQL injection
     const query = `
       SELECT
         topCommentedTags.name,
@@ -383,48 +382,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       HAVING COUNT(*) > 15
     `;
   
-    try {
-      return await this.getRawDb().any(query, [topTagNames, topUserIds]);
-    } catch (error) {
-      console.error('Error executing getAuthorsOfTopTags query:', error);
-      throw error;
-    }
-  }
-
-  async getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers: UserData[], topUsers: UpvotedUser[]): Promise<TopCommentedTagUser[]> {
-    // Extract data from the preprocessed data
-    const userData = preTopCommentedTagTopUsers.map(user => ({
-      username: user.username, 
-      name: user.name, // tag name: make clearer!
-      displayName: user.displayName,
-      post_comment_count: user.post_comment_count
-    }));
-    const totalPowers = topUsers.map(user => ({
-      username: user.username, 
-      total_power: user.total_power
-    }));
-  
-    const query = `
-      SELECT
-        subquery.username,
-        subquery."displayName",
-        topUsers->>'total_power',
-        json_object_agg(
-          subquery.name,
-          subquery.post_comment_count ORDER BY subquery.post_comment_count DESC
-        ) AS tag_comment_counts
-      FROM unnest($1::jsonb[]) AS subquery_json,
-          jsonb_to_record(subquery_json) AS subquery(username TEXT, name TEXT, "displayName" TEXT, post_comment_count INTEGER)
-      INNER JOIN unnest($2::jsonb[]) AS topUsers ON subquery.username = topUsers->>'username'
-      GROUP BY subquery.username, topUsers->>'total_power', subquery."displayName"
-      ORDER BY (topUsers->>'total_power')::integer DESC
-    `;
-  
-    try {
-      return await this.getRawDb().any(query, [userData, totalPowers]);
-    } catch (error) {
-      console.error('Error executing topCommentedTagTopUsers query:', error);
-      throw error;
-    }
+    return await this.getRawDb().any(query, [topTagNames, topUserIds]);
   }
 }
