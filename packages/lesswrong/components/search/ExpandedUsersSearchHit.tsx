@@ -6,6 +6,7 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import {showKarmaSetting} from '../../lib/publicSettings.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -66,9 +67,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const ExpandedUsersSearchHit = ({hit, showKarma = false, classes}: {
+const ExpandedUsersSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}: {
   hit: Hit<any>,
-  showKarma?: boolean,
+  showKarma?: () => boolean,
   classes: ClassesType,
 }) => {
   const {UsersProfileImage, ForumIcon} = Components;
@@ -85,7 +86,7 @@ const ExpandedUsersSearchHit = ({hit, showKarma = false, classes}: {
           <span className={classes.displayName}>
             {user.username}
           </span>
-          {showKarma && <span className={classes.metaInfo}>
+          {showKarma() && <span className={classes.metaInfo}>
             <ForumIcon icon="Star" className={classes.metaInfoIcon}/> {user.karma ?? 0}
           </span>}
           {(user.firstName || user.lastName) &&
