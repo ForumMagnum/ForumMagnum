@@ -73,7 +73,6 @@ const ExpandedUsersSearchHit = ({hit, showKarma = false, classes}: {
 }) => {
   const {UsersProfileImage, ForumIcon} = Components;
   const user = hit as AlgoliaUser;
-  console.log({user})
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>

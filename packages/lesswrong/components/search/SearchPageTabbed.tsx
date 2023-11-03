@@ -265,12 +265,12 @@ const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = (
   {
-    classes,
     enableTagSearch = false,
     enableSequenceSearch = false,
     enableRefineByTags = false,
-    enableRefineByIsEvent = false,
     enableRefineByCurated = false,
+    enableRefineByIsEvent = false,
+    classes,
   }: {
     enableTagSearch?: boolean,
     enableSequenceSearch?: boolean,
