@@ -112,7 +112,7 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
 
 const ContentStylesComponent = registerComponent('ContentStyles', ContentStyles, {
   styles,
-  stylePriority: 5,
+  stylePriority: -1,
 });
 
 declare global {
