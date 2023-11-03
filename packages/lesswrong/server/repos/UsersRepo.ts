@@ -279,13 +279,10 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersTopUpvotedUsers(userId:string): Promise<UpvotedUser[]> {
-
-    const user = await getUser(userId)
-    const karma = user ? user.karma : 0
+  async getUsersTopUpvotedUsers(user:DbUser, limit = 30): Promise<UpvotedUser[]> {
+    const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
-    const limit = 30
     
     return this.getRawDb().any(`
       WITH "CombinedVotes" AS (
@@ -354,6 +351,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     HAVING SUM(vote_power) > 1
     ORDER BY total_power DESC
     LIMIT $4;
-      `, [userId, smallVotePower, bigVotePower, limit])
+      `, [user._id, smallVotePower, bigVotePower, limit])
   }
 }

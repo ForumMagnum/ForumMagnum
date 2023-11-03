@@ -508,7 +508,7 @@ defineQuery({
 
     const [dialogueUsers, topUsers] = await Promise.all([
       new UsersRepo().getUsersWhoHaveMadeDialogues(),
-      new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser)
     ]);
 
     const results: UserDialogueUsefulData = {
