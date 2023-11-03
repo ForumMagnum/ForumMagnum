@@ -35,7 +35,6 @@ import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
-import HeartIcon from '@heroicons/react/24/solid/HeartIcon';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -265,7 +264,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       id: 'giving-portal',
       title: 'Giving portal',
       link: '/giving-portal',
-      iconComponent: HeartIcon,
+      iconComponent: TakeActionSelectedIcon,
       customComponentName: 'GivingPortalMobileMenuItem'
     }, {
       id: 'bestOf',
