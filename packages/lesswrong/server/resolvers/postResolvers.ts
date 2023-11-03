@@ -267,14 +267,13 @@ addGraphQLResolvers({
         }
       })
     },
-    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId }: { userId: string, targetUserId: string }, context: ResolverContext) {
+    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId, limit = 20 }: { userId: string, targetUserId: string, limit: number }, context: ResolverContext) {
       const { currentUser, repos } = context
       if (!currentUser) {
         throw new Error('Must be logged in to view read posts of target user')
       }
 
-      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId)
-     // console.log('UsersReadPostsOfTargetUser', posts)
+      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
 
       return posts
     }, 
@@ -282,7 +281,7 @@ addGraphQLResolvers({
 })
 
 
-addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!): [Post]");
+addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post]");
 addGraphQLSchema(`
   type UsersReadPostsOfTargetUserResult {
     posts: [Post!]

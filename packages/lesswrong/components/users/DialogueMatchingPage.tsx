@@ -14,8 +14,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 
-const { NewConversationButton, UsersName, PostsTooltip, LoadMore } = Components;
-
 export type UpvotedUser = {
   _id: string;
   username: string;
@@ -194,21 +192,23 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
   )
 };
 
-const UserPostsYouveRead = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string, components:ComponentTypes }) => {
+const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number, components: ComponentTypes }) => {
   const currentUser = useCurrentUser();
+  const { PostsTooltip } = Components;
+
 
   const { loading, error, data } = useQuery(gql`
-    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!) {
-      UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId) {
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, limit: Int) {
+      UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         title
       }
     }
   `, {
-    variables: { userId: currentUser?._id, targetUserId: targetUserId },
+    variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : limit },
   });
 
-  const readPosts:[DbPost] = data?.UsersReadPostsOfTargetUser
+  const readPosts:DbPost[] = data?.UsersReadPostsOfTargetUser
 
   const readPostsContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(readPostsContainerRef);
@@ -426,6 +426,8 @@ const MessageButton: React.FC<{
   currentUser: any; // replace with the correct type
   classes: ClassesType;
 }> = ({ targetUserId, currentUser, classes }) => {
+  const { NewConversationButton } = Components;
+  
   return (
     <button className={classes.messageButton}>
       <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
@@ -443,6 +445,8 @@ export const DialogueMatchingPage = ({classes}: {
 
   const updateCurrentUser = useUpdateCurrentUser()
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
+
+  const { UsersName, LoadMore } = Components;
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -660,6 +664,7 @@ export const DialogueMatchingPage = ({classes}: {
                   <UserPostsYouveRead 
                     classes={classes} 
                     targetUserId={targetUser._id} 
+                    limit={20}
                     components={Components} />
                 </React.Fragment> 
               )}
@@ -710,6 +715,7 @@ export const DialogueMatchingPage = ({classes}: {
                   <UserPostsYouveRead 
                     classes={classes} 
                     targetUserId={targetUser._id} 
+                    limit={20}
                     components={Components} />
                 </React.Fragment> 
               )}
