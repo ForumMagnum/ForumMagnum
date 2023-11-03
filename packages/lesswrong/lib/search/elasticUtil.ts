@@ -18,9 +18,10 @@ export const defaultElasticSorting: ElasticSorting = "relevance";
 
 export const getElasticSortingsForCollection = (
   collectionName: AlgoliaIndexCollectionName,
+  karmaDisabled: string[] = ["Sequences", "Users"],  
 ): ElasticSorting[] => {
   const allSortings = Array.from(elasticSortings);
-  if (collectionName === "Sequences") {
+  if (karmaDisabled.includes(collectionName)) {
     return allSortings.filter((sorting) => sorting !== "karma");
   }
   return allSortings;
@@ -29,8 +30,11 @@ export const getElasticSortingsForCollection = (
 export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
   elasticSortings.has(sorting);
 
-export const formatElasticSorting = (sorting: ElasticSorting): string =>
-  sorting[0].toUpperCase() + sorting.slice(1).replace(/_/g, " ");
+export const formatElasticSorting = (sorting: ElasticSorting): string => {
+  if(sorting === "karma") return "Top"
+  
+  return sorting[0].toUpperCase() + sorting.slice(1).replace(/_/g, ' ')
+};
 
 export const elasticSortingToUrlParam = (sorting: ElasticSorting): string|undefined =>
   sorting === defaultElasticSorting ? undefined : sorting;

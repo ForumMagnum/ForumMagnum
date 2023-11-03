@@ -174,6 +174,9 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."profileTagIds" AS "tags",
         u."mapLocation"->'geometry'->'location' AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
+        u."first_name" AS "firstName",
+        u."last_name" AS "lastName",
+        u."wu_created_at" AS "wuCreatedAt",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;

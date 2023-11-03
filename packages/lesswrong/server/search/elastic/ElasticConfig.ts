@@ -223,6 +223,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   Users: {
     fields: [
       "displayName^10000",
+      "firstName^10000",
+      "lastName^10000",
       "bio",
       "mapLocationAddress",
       "jobTitle",
@@ -265,6 +267,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
     ],
     mappings: {
       displayName: shingleTextMapping,
+      firstName: shingleTextMapping,
+      lastName: shingleTextMapping,
       bio: fullTextMapping,
       mapLocationAddress: fullTextMapping,
       jobTitle: fullTextMapping,

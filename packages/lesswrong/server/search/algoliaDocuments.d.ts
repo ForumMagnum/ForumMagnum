@@ -69,6 +69,9 @@ interface AlgoliaUser {
   },
   mapLocationAddress?: string,
   tags: Array<string>,
+  firstName?: string,
+  lastName?: string,
+  wuCreatedAt?: Date | null,
 }
 
 interface AlgoliaPost {

@@ -8,6 +8,7 @@ import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { useNavigation } from '../../lib/routeUtil';
+import {showKarmaSetting} from '../../lib/publicSettings.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -66,8 +67,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ExpandedCommentsSearchHit = ({hit, classes}: {
+const ExpandedCommentsSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}: {
   hit: Hit<any>,
+  showKarma?: () => boolean,
   classes: ClassesType,
 }) => {
   const { history } = useNavigation()
@@ -108,7 +110,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
       {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
         {comment.authorDisplayName}
       </Link> : <UserNameDeleted />}
-      <span>{comment.baseScore ?? 0} karma</span>
+      {showKarma() && <span>{comment.baseScore ?? 0} karma</span>}
       <FormatDate date={comment.createdAt} />
     </div>
   </div>

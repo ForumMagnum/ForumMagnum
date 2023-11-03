@@ -6,17 +6,21 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { isFriendlyUI } from '../../themes/forumTheme';
+import {showKarmaSetting} from '../../lib/publicSettings.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
     paddingBottom: 2,
-    marginBottom: 18
+    marginBottom: 18,
   },
   link: {
     display: "flex",
-    columnGap: 14,
+    flexDirection: 'column',
+    backgroundColor: theme.palette.text.alwaysWhite,
+    padding: "2em",
+    borderRadius: 6,
   },
   profilePhotoCol: {
     flex: 'none'
@@ -34,16 +38,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   metaInfo: {
     display: "flex",
     alignItems: 'center',
-    columnGap: 3
+    columnGap: 3,
+    color: theme.palette.text.normal,
   },
   metaInfoIcon: {
     fontSize: 12,
-    color: theme.palette.grey[500],
+    color: theme.palette.text.normal,
   },
   displayName: {
     fontSize: 18,
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
+    color: theme.palette.text.normal,
     fontWeight: 600,
   },
   role: {
@@ -58,43 +62,48 @@ const styles = (theme: ThemeType): JssStyles => ({
     wordBreak: "break-word",
     fontSize: 14,
     lineHeight: '21px',
-    color: theme.palette.grey[700],
-    marginTop: 5
-  }
+    color: theme.palette.text.normal,
+    marginTop: "1.5em",
+  },
 })
 
-const ExpandedUsersSearchHit = ({hit, classes}: {
+const ExpandedUsersSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}: {
   hit: Hit<any>,
+  showKarma?: () => boolean,
   classes: ClassesType,
 }) => {
-  const {FormatDate, UsersProfileImage, ForumIcon} = Components;
+  const {UsersProfileImage, ForumIcon} = Components;
   const user = hit as AlgoliaUser;
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
-      {isFriendlyUI && <div className={classes.profilePhotoCol}>
-        <UsersProfileImage user={user} size={36} />
-      </div>}
       <div>
         <div className={classes.displayNameRow}>
+          {isFriendlyUI && <div className={classes.profilePhotoCol}>
+            <UsersProfileImage user={user} size={36}/>
+          </div>}
+
           <span className={classes.displayName}>
-            {user.displayName}
+            {user.username}
           </span>
-          <FormatDate date={user.createdAt} />
-          <span className={classes.metaInfo}>
-            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
-          </span>
+          {showKarma() && <span className={classes.metaInfo}>
+            <ForumIcon icon="Star" className={classes.metaInfoIcon}/> {user.karma ?? 0}
+          </span>}
+          {(user.firstName || user.lastName) &&
+            <span className={classes.metaInfo}> {user.firstName} {user.lastName}</span>
+          }
           {user.mapLocationAddress && <span className={classes.metaInfo}>
-            <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}
+            <LocationIcon className={classes.metaInfoIcon}/> {user.mapLocationAddress}
           </span>}
         </div>
         {(user.jobTitle || user.organization) && <div className={classes.role}>
           {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
         </div>}
-        <div className={classes.snippet}>
-          <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark" />
-        </div>
       </div>
+      {/*Going a bit into weeds of how the hits are rendered to prevent snippet component rendering if it's empty*/}
+      {hit?._snippetResult?.bio?.value && <div className={classes.snippet}>
+        <Snippet className={classes.snippet} attribute="bio" hit={user} tagName="mark"/>
+      </div>}
     </Link>
   </div>
 }
