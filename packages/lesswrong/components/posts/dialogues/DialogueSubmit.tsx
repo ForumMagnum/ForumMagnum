@@ -8,7 +8,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { isEAForum, isLW } from "../../../lib/instanceSettings";
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useNavigation } from '../../../lib/routeUtil';
-import { EditorsContext } from '../PostsEditForm';
+import { EditorContext } from '../PostsEditForm';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -81,7 +81,7 @@ const DialogueSubmit = ({
     fragmentName: 'CommentEdit',
   })
   const userShortfeed = currentUser?.shortformFeedId;
-  const [editors, _setEditors] = React.useContext(EditorsContext)
+  const [editor, _] = React.useContext(EditorContext)
 
   const { SectionFooterCheckbox, Row } = Components;
 
@@ -126,7 +126,7 @@ const DialogueSubmit = ({
             
             // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
             // @ts-ignore
-            const shortformString = editors[`${document._id}-contents`].getData()
+            const shortformString = editor && editor.getData()
             // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
             const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
 

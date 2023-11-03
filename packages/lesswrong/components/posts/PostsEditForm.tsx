@@ -18,8 +18,8 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { DynamicTableOfContentsContext } from './TableOfContents/DynamicTableOfContents';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 
-const editors : Record<string, Editor> = {}
-export const EditorsContext = React.createContext<[typeof editors, (d: string, e: Editor) => void]>([editors, (doc, editor) => ({...editors, [doc]: editor})]);
+const editor : Editor | null = null
+export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -46,7 +46,7 @@ const PostsEditForm = ({ documentId, classes }: {
 
   const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 
-  const [editorsState, setEditorsState] = useState(editors)
+  const [editorState, setEditorState] = useState<Editor | null>(editor)
   const saveDraftLabel: string = ((post) => {
     if (!post) return "Save Draft"
     if (!post.draft) return "Move to Drafts"
@@ -126,7 +126,7 @@ const PostsEditForm = ({ documentId, classes }: {
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
-          <EditorsContext.Provider value={[editorsState, (id, editor) => setEditorsState({...editors, [id]: editor})]}>
+          <EditorContext.Provider value={[editorState, e => setEditorState(e)]}>
             <WrappedSmartForm
               collectionName="Posts"
               removeFields={removedFields}
@@ -183,7 +183,7 @@ const PostsEditForm = ({ documentId, classes }: {
               */
               addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
             />
-          </EditorsContext.Provider>
+          </EditorContext.Provider>
         </NoSSR>
       </div>
     </DynamicTableOfContents>
