@@ -24,16 +24,6 @@ defineMutation({
   } 
 })
 
-defineQuery({
-  name: "getUsersDialogueChecks",
-  resultType: "[DialogueCheck]",
-  argTypes: "",
-  fn: async (_, __, {currentUser}) => {
-    if (!currentUser) throw new Error("No check user was provided")
-    return await DialogueChecks.find({userId: currentUser._id}).fetch()
-  }
-})
-
 augmentFieldsDict(DialogueChecks, {
   match: {
     resolveAs: {
