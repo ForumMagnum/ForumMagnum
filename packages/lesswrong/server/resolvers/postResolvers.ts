@@ -33,7 +33,7 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
 
   const $ = cheerioParse(html)
   const message = $(`[message-id="${messageId}"]`);
-  return  message.html();
+  return message.html();
 }
 
 augmentFieldsDict(Posts, {
