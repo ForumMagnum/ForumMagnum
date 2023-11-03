@@ -285,29 +285,27 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const karma = user ? user.karma : 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
+    const limit = 30
     
     return this.getRawDb().any(`
       WITH "CombinedVotes" AS (
-        -- Joining Users with Posts and Votes
-        SELECT
-            u._id,
-            u.username,
-            u."displayName",
-            v.power,
-            CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
-                ELSE 0
-            END AS agreement_value
+      -- Joining Users with Posts and Votes
+      SELECT
+          u._id AS user_id,
+          u.username AS user_username,
+          u."displayName" AS user_displayName,
+          v.power AS vote_power,
+          CASE
+              WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
+              WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
+              WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+              WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
+              WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
+              ELSE 0
+          END AS agreement_value
         FROM "Users" u
-        INNER JOIN "Posts" p
-        ON u._id = p."userId"
-        INNER JOIN
-            "Votes" v
-            ON p._id = v."documentId"
+        INNER JOIN "Posts" p ON u._id = p."userId"
+        INNER JOIN "Votes" v ON p._id = v."documentId"
         WHERE
             v."userId" = $1
             AND u._id != $1
@@ -317,50 +315,46 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     
         -- Joining Users with Comments and Votes
         SELECT
-            u._id,
-            u.username,
-            u."displayName",
-            v.power,
+            u._id AS user_id,
+            u.username AS user_username,
+            u."displayName" AS user_displayName,
+            v.power AS vote_power,
             CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
+                WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
+                WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
+                WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+                WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
+                WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
                 ELSE 0
             END AS agreement_value
         FROM "Users" u
-        INNER JOIN
-            "Comments" c
-            ON u._id = c."userId"
-        INNER JOIN
-            "Votes" v
-            ON c._id = v."documentId"
+        INNER JOIN "Comments" c ON u._id = c."userId"
+        INNER JOIN "Votes" v ON c._id = v."documentId"
         WHERE
             v."userId" = $1
             AND u._id != $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
     )
-    
+  
     SELECT
-        _id,
-        username,
-        "displayName",
-        SUM(power) AS total_power,
-        ARRAY_AGG(power) AS power_values,
-        COUNT(power) AS vote_counts,
-        SUM(agreement_value) AS total_agreement,
-        ARRAY(
-            SELECT val
-            FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
-            WHERE val != 0
-        ) AS agreement_values
+      user_id AS _id,
+      user_username AS username,
+      user_displayName AS "displayName",
+      SUM(vote_power) AS total_power,
+      ARRAY_AGG(vote_power) AS power_values,
+      COUNT(vote_power) AS vote_counts,
+      SUM(agreement_value) AS total_agreement,
+      ARRAY(
+          SELECT val
+          FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
+          WHERE val != 0
+      ) AS agreement_values
     FROM "CombinedVotes"
-    GROUP BY _id, username, "displayName"
-    HAVING SUM(power) > 1
+    GROUP BY user_id, user_username, user_displayName
+    HAVING SUM(vote_power) > 1
     ORDER BY total_power DESC
-    LIMIT 50;
-      `, [userId, smallVotePower, bigVotePower])
+    LIMIT $4;
+      `, [userId, smallVotePower, bigVotePower, limit])
   }
   
   async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<UserData[]> {
