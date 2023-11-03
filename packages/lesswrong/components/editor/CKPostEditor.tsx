@@ -388,6 +388,26 @@ const CKPostEditor = ({
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
 
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
+      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
+    }
+  `);
+
+  const dialogueParticipantNotificationCallback = async () => {
+  const editorContents =  editorRef?.current?.editor.getData()
+
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id,
+        dialogueHtml: editorContents
+      }
+    });
+  }
+
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+
+
   const [_, setEditor] = useContext(EditorContext);
 
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
