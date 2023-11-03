@@ -33,6 +33,10 @@ export class DatabasePublicSetting<SettingValueType> {
     private settingName: string, 
     private defaultValue: SettingValueType
   ) {
+    // Affords for more convenient lazy usage, 
+    // so you can refer to setting getter as setting.get ves having to wrap it in a function
+    this.get = this.get.bind(this)
+    
     initializeSetting(settingName, "public")
   }
   get(): SettingValueType {
