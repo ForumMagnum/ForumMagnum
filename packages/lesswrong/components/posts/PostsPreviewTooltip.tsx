@@ -8,6 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sortTags } from '../tagging/FooterTagList';
 import { useSingle } from '../../lib/crud/withSingle';
 import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
+import { showKarmaSetting } from '../../lib/publicSettings';
 
 export const POST_PREVIEW_WIDTH = 400
 
@@ -192,7 +193,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
               { !postsList && <>
                 {post.user && <PostsUserAndCoauthors post={post}/>}
                 <div className={classes.metadata}>
-                  <span className={classes.smallText}>{postGetKarma(post)} karma</span>
+                  {showKarmaSetting.get() && <span className={classes.smallText}>{postGetKarma(post)} karma</span>}
                   <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>
                   <span className={classes.smallText}>
                     <FormatDate date={post.postedAt}/>

@@ -1,6 +1,7 @@
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import React from 'react'
 import {styles as metaInfo} from '../common/MetaInfo'
+import { showKarmaSetting } from '../../lib/publicSettings'
 
 const specificityFmClass = 'forum-magnum'
 const specificityCkClass = 'ck-override'
@@ -32,9 +33,9 @@ const UsersSearchAutocompleteHit = (props: UsersSearchAutocompleteHitProps) => {
     <MetaInfo className={metaClassName}>
       <FormatDate date={props.createdAt} tooltip={false} />
     </MetaInfo>
-    <MetaInfo className={metaClassName}>
+    {showKarmaSetting.get() && <MetaInfo className={metaClassName}>
       {props.karma || 0} karma
-    </MetaInfo>
+    </MetaInfo>}
   </span>
 }
 

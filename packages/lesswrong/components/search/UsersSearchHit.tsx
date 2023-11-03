@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@material-ui/icons/Person';
 import React from 'react';
 import type { SearchHitComponentProps } from './types';
+import { showKarmaSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,7 +26,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes, showIcon=false, showKarma=false}: SearchHitComponentProps) => {
+const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
   const user = hit as AlgoliaUser
 
@@ -40,7 +41,7 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false, showKarma=fa
       <MetaInfo>
         <FormatDate date={user.createdAt} />
       </MetaInfo>
-      {showKarma && <MetaInfo>
+      {showKarmaSetting.get() && <MetaInfo>
         {user.karma||0} karma
       </MetaInfo>}
     </Link>
