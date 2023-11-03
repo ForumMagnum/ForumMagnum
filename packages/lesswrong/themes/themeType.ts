@@ -452,18 +452,21 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
-    givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
+    givingPortal: Record<0 | 200 | 800 | 900 | 1000 | 1100, ColorString> & {
       ctaBackground: ColorString,
       ctaText: ColorString,
       candidate: ColorString,
       votedCandidate: ColorString,
       rhsLink: ColorString,
+      alwaysLight: ColorString,
+      secondary: ColorString,
       button: {
         alwaysDark: ColorString,
         dark: ColorString,
         light: ColorString,
         hoverOutlined: ColorString,
         borderColor: ColorString,
+        headerBannerSecondary: ColorString,
       },
     },
   };
