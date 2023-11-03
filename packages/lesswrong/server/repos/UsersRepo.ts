@@ -291,10 +291,10 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       WITH "CombinedVotes" AS (
       -- Joining Users with Posts and Votes
       SELECT
+          v.power AS vote_power,
           u._id AS user_id,
           u.username AS user_username,
           u."displayName" AS user_displayName,
-          v.power AS vote_power,
           CASE
               WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
               WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
@@ -355,28 +355,5 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     ORDER BY total_power DESC
     LIMIT $4;
       `, [userId, smallVotePower, bigVotePower, limit])
-  }
-  
-  async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<UserData[]> {
-    const topUserIds = topUsers.map(user => user._id);
-    const topTagNames = topCommentedTags.map(tag => tag.name);
-  
-    const query = `
-      SELECT
-        t.name,
-        u.username,
-        u."displayName",
-        c."userId",
-        COUNT(*) AS post_comment_count
-      FROM "Tags" AS t
-      INNER JOIN "TagRels" AS tr ON t._id = tr."tagId"
-      INNER JOIN "Comments" AS c ON tr."postId" = c."postId"
-      INNER JOIN "Users" AS u ON c."userId" = u._id
-      WHERE t.name = ANY($1::text[]) AND c."userId" = ANY($2)
-      GROUP BY t.name, c."userId", u.username, u."displayName"
-      HAVING COUNT(*) > 15
-    `;
-  
-    return await this.getRawDb().any(query, [topTagNames, topUserIds]);
   }
 }
