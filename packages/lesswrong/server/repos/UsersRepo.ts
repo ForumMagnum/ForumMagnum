@@ -258,14 +258,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             WHERE p."collabEditorDialogue" IS TRUE 
             AND p."draft" IS FALSE
         UNION
-        SELECT P."userId" as _id
-            FROM "Posts" as P
-            WHERE P."collabEditorDialogue" IS TRUE
+        SELECT p."userId" as _id
+            FROM "Posts" p
+            WHERE p."collabEditorDialogue" IS TRUE
             AND p."draft" IS FALSE
         )
-      SELECT U.*
-      FROM "Users" AS U
-      INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = U._id
+      SELECT u.*
+      FROM "Users" u
+      INNER JOIN all_dialogue_authors ON all_dialogue_authors._id = u._id
     `)
   }
 
@@ -278,60 +278,60 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }  
 
   async getUsersTopUpvotedUsers(userId:string): Promise<UpvotedUser[]> {
-    return this.getRawDb().any(
-      `
+    return this.getRawDb().any(`
       WITH "CombinedVotes" AS (
         -- Joining Users with Posts and Votes
         SELECT
-            public."Users"._id,
-            public."Users".username,
-            public."Users"."displayName",
-            public."Votes".power,
+            u._id,
+            u.username,
+            u."displayName",
+            v.power,
             CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+                WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+                WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+                WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
                 ELSE 0
             END AS agreement_value
-        FROM public."Users"
-        INNER JOIN public."Posts" ON public."Users"._id = public."Posts"."userId"
+        FROM "Users" u
+        INNER JOIN "Posts" p
+        ON u._id = p."userId"
         INNER JOIN
-            public."Votes"
-            ON public."Posts"._id = public."Votes"."documentId"
+            "Votes" v
+            ON p._id = v."documentId"
         WHERE
-            public."Votes"."userId" = $1
-            AND public."Users"._id != $1
-            AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
+            v."userId" = $1
+            AND u._id != $1
+            AND v."votedAt" > NOW() - INTERVAL '1.5 years'
     
         UNION ALL
     
         -- Joining Users with Comments and Votes
         SELECT
-            public."Users"._id,
-            public."Users".username,
-            public."Users"."displayName",
-            public."Votes".power,
+            u._id,
+            u.username,
+            u."displayName",
+            v.power,
             CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
+                WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
+                WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
+                WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
                 ELSE 0
             END AS agreement_value
-        FROM public."Users"
+        FROM "Users" u
         INNER JOIN
-            public."Comments"
-            ON public."Users"._id = public."Comments"."userId"
+            "Comments" c
+            ON u._id = c."userId"
         INNER JOIN
-            public."Votes"
-            ON public."Comments"._id = public."Votes"."documentId"
+            "Votes" v
+            ON c._id = v."documentId"
         WHERE
-            public."Votes"."userId" = $1
-            AND public."Users"._id != $1
-            AND public."Votes"."votedAt" > NOW() - INTERVAL '1.5 years'
+            v."userId" = $1
+            AND u._id != $1
+            AND v."votedAt" > NOW() - INTERVAL '1.5 years'
     )
     
     SELECT
@@ -366,10 +366,10 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."displayName",
         c."userId",
         COUNT(*) AS post_comment_count
-      FROM public."Tags" AS t
-      INNER JOIN public."TagRels" AS tr ON t._id = tr."tagId"
-      INNER JOIN public."Comments" AS c ON tr."postId" = c."postId"
-      INNER JOIN public."Users" AS u ON c."userId" = u._id
+      FROM "Tags" AS t
+      INNER JOIN "TagRels" AS tr ON t._id = tr."tagId"
+      INNER JOIN "Comments" AS c ON tr."postId" = c."postId"
+      INNER JOIN "Users" AS u ON c."userId" = u._id
       WHERE t.name = ANY($1::text[]) AND c."userId" = ANY($2)
       GROUP BY t.name, c."userId", u.username, u."displayName"
       HAVING COUNT(*) > 15
