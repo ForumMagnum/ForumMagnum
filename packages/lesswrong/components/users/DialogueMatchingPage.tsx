@@ -194,7 +194,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
 
 const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number }) => {
   const currentUser = useCurrentUser();
-  const { PostsTooltip } = Components;
+  const { Loading, PostsTooltip } = Components;
 
 
   const { loading, error, data } = useQuery(gql`
@@ -213,7 +213,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
   const readPostsContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(readPostsContainerRef);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return < Loading/>
   if (error) return <p>Error: {error.message}</p>;
 
   return (
@@ -446,7 +446,7 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
 
-  const { UsersName, LoadMore } = Components;
+  const { UsersName, Loading, LoadMore } = Components;
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -528,7 +528,7 @@ export const DialogueMatchingPage = ({classes}: {
   }
 
   if (!currentUser) return <p>You have to be logged in to view this page</p>
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     console.log("Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...")
