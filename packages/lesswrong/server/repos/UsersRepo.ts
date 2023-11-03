@@ -365,7 +365,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const topUserIds = topUsers.map(user => user._id);
     const topTagNames = topCommentedTags.map(tag => tag.name);
   
-    // Use parameterized query to prevent SQL injection
     const query = `
       SELECT
         topCommentedTags.name,
@@ -383,11 +382,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       HAVING COUNT(*) > 15
     `;
   
-    try {
-      return await this.getRawDb().any(query, [topTagNames, topUserIds]);
-    } catch (error) {
-      console.error('Error executing getAuthorsOfTopTags query:', error);
-      throw error;
-    }
+    return await this.getRawDb().any(query, [topTagNames, topUserIds]);
   }
 }
