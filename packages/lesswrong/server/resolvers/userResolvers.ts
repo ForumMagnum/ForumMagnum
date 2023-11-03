@@ -51,9 +51,7 @@ addGraphQLSchema(`
   }
   type UserDialogueUsefulData {
     dialogueUsers: [User],
-    topUsers: [UpvotedUser],
-    topCommentedTags: [CommentCountTag],
-    topCommentedTagTopUsers: [TopCommentedTagUser],
+    topUsers: [UpvotedUser]
   }
 `)
 
@@ -498,44 +496,6 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
-// addGraphQLQuery('GetUserDialogueUsefulData: SuggestedDialogueUsers')
-
-
-
-
-
-// async GetUserDialogueUsefulData(root:void, _:any, context: ResolverContext): Promise<AnyBecauseTodo> {
-//   const { currentUser } = context
-//   if (!currentUser) {
-//     throw new Error('User must be logged in to get top upvoted users');
-//   }
-
-//   // dummy dialogues users
-//   const dialogueUsers = new UsersRepo().getUsersWhoHaveMadeDialogues()
-  
-//   // Your top commented tags
-//   const topCommentedTags = await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
-
-//   // Your top authors 
-//   const topUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
-
-
-//   // The top authors of your top tags
-//   const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
-//   const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
-
-
-
-//   // The top tags of your top authors
-//   const results: AnyBecauseTodo = {
-//     dialogueUsers: dialogueUsers,
-//     topUsers: topUsers,
-//     topCommentedTags: topCommentedTags,
-//     topCommentedTagTopUsers: topCommentedTagTopUsers
-//   }
-  
-//   return results
-// }
 
 defineQuery({
   name: "GetUserDialogueUsefulData",
@@ -546,28 +506,14 @@ defineQuery({
       throw new Error('User must be logged in to get top upvoted users');
     }
 
-    // dummy dialogues users
-    const dialogueUsers = await new UsersRepo().getUsersWhoHaveMadeDialogues()
-    
-    // Your top commented tags
-    const topCommentedTags = await new TagsRepo().getUsersMostFrequentlyCommentedTags(currentUser._id)
+    const [dialogueUsers, topUsers] = await Promise.all([
+      new UsersRepo().getUsersWhoHaveMadeDialogues(),
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
+    ]);
 
-    // Your top authors 
-    const topUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser._id)
-
-
-    // The top authors of your top tags
-    const preTopCommentedTagTopUsers = await new UsersRepo().getPreTopCommentersOfTopCommentedTags(topUsers, topCommentedTags); // basically an artificial new collection 
-    const topCommentedTagTopUsers = await new UsersRepo().getTopCommentedTagsTopUsers(preTopCommentedTagTopUsers, topUsers);
-
-
-
-    // The top tags of your top authors
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
-      topCommentedTags: topCommentedTags,
-      topCommentedTagTopUsers: topCommentedTagTopUsers,
     }
     return results
   }
