@@ -435,6 +435,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
   readonly agentFoundationsId: string,
+  readonly originalDialogueId: string,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
@@ -1520,6 +1521,7 @@ interface CommentsList { // fragment on Comments
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
+  readonly originalDialogueId: string,
 }
 
 interface CommentsList_tag { // fragment on Tags

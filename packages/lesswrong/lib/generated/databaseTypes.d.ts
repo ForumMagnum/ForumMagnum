@@ -179,6 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
+  originalDialogueId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents

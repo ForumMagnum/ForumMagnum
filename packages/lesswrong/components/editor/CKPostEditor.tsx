@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -18,6 +18,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import { EditorContext } from '../posts/PostsEditForm';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -392,6 +393,8 @@ const CKPostEditor = ({
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
     
   
+  const [_, setEditor] = useContext(EditorContext);
+  
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
     switch(mode) {
@@ -469,6 +472,9 @@ const CKPostEditor = ({
           applyCollabModeToCkEditor(editor, collaborationMode);
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+          
+          // We need this context for Dialogues, which should always be collaborative.
+          setEditor(editor);
         }
 
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
@@ -522,7 +528,7 @@ const CKPostEditor = ({
                   return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
-                  const owner = getBlockUserId(parentDialogueElement);  
+                  const owner = getBlockUserId(parentDialogueElement);
                   if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
