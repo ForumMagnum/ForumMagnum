@@ -62,14 +62,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   matchContainerGridV1: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
     gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  550px `,
-    gridRowGap: '10px',
+    gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio  posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 125px  550px `,
-    gridRowGap: '10px',
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  550px `,
+    gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
   },
@@ -134,20 +134,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
   },
   checkbox: {
-    height: 'auto', 
+    height: '10px', 
     color: 'default',
     '&$checked': {
       color: 'default',
     },
   },
-  checked: {},
+  checked: {
+    height: '10px', 
+  },
   checkboxCheckedMatched: {
+    height: '10px', 
     color: 'green',
     '&$checked': {
       color: 'green',
     },
   },
   checkboxCheckedNotMatched: {
+    height: '10px', 
     color: '#ADD8E6',
     '&$checked': {
       color: '#00000038',
