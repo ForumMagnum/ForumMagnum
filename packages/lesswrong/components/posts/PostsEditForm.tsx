@@ -163,7 +163,9 @@ const PostsEditForm = ({ documentId, classes }: {
             extraVariables={{
               version: 'String'
             }}
-            version="draft"
+            extraVariablesValues={{
+              version: 'draft'
+            }}
             noSubmitOnCmdEnter
             repeatErrors
             

@@ -71,6 +71,7 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
         key={`${spotlight._id}-${post._id}`}
         post={post}
         flip={false}
+        inlineBlock
       >
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
           <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />

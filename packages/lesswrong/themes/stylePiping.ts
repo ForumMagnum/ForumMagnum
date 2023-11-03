@@ -327,6 +327,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  "& u": {
+    textDecoration: "none",
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {

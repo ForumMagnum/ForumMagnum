@@ -215,6 +215,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
+
+    debateComment: '#1192e8',
+    debateComment2: '#198038',
+    debateComment3: '#b28600',
+    debateComment4: '#9f1853',
+    debateComment5: '#a56eff',
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -297,11 +303,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
     primaryTranslucent: 'rgba(12,134,155,.7)',
-    debateComment: '#1c912766',
-    debateComment2: '#df1d4566',
-    debateComment3: '#2671ff66',
-    debateComment4: '#eb26ff66',
-    debateComment5: '#efdc0066',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
   },
@@ -493,7 +494,27 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  
+
+  givingPortal: {
+    [0]: "#fdfcfc",
+    [200]: "#fcf5f3",
+    [800]: "#f8e7e2",
+    [900]: "#EDD3CE",
+    [1000]: "#862115",
+    button: {
+      alwaysDark: "#862115",
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    candidate: "#fef4ef",
+    votedCandidate: "#fff",
+    ctaBackground: "#fdfcfc",
+    ctaText: "#757575",
+    rhsLink: '#862115',
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',

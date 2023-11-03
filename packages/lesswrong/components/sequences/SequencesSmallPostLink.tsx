@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -43,7 +44,7 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
     </span>
     <PostsTooltip
       post={post}
-      postsList
+      postsList={!isEAForum}
       placement={placement}
       inlineBlock={false}
       clickable

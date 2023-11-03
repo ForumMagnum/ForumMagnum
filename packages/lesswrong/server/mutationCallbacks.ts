@@ -5,6 +5,10 @@ type CallbackValidationErrors = Array<any>;
 
 export interface CreateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
   document: T
+  /** 
+   * BE CAREFUL USING THIS - IT'S NOT THE INSERTED RECORD, BUT THE DATA PASSED IN TO `createMutator`
+   * Correspondingly, it won't have fields like `_id`
+   */
   newDocument: T
 }
 
