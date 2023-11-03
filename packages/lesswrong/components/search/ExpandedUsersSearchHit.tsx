@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.normal,
   },
   metaInfoIcon: {
-    fontSize: 14,
+    fontSize: 12,
     color: theme.palette.text.normal,
   },
   displayName: {
