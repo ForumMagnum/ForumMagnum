@@ -8,6 +8,9 @@ import InfoIcon from "@material-ui/icons/Info";
 import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType): JssStyles => ({
+  paper: {
+    width: 600,
+  },
   root: {
     maxWidth: 600,
     width: 'min(600px, 100%)',
@@ -132,7 +135,9 @@ const NewConversationDialog = ({
 
   return (
     <AnalyticsContext pageSectionContext="newConversationDialog">
-      <LWDialog open={true} onClose={onClose}>
+      <LWDialog open={true} onClose={onClose} dialogClasses={{
+        paper: classes.paper,
+      }}>
         <div className={classes.root}>
           <div className={classes.titleRow}>
             <div>New conversation</div>
