@@ -437,7 +437,7 @@ const MessageButton: React.FC<{
   );
 };
 
-export const DialogueSuggestionsPage = ({classes}: {
+export const DialogueMatchingPage = ({classes}: {
   classes: ClassesType,
 }) => {
   
@@ -486,6 +486,7 @@ export const DialogueSuggestionsPage = ({classes}: {
     terms: { 
       view: 'usersWithOptedInToDialogueFacilitation',
       limit: 10, 
+      sort: { karma: -1 } 
     },
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users'  
@@ -773,10 +774,10 @@ export const DialogueSuggestionsPage = ({classes}: {
   );
 }
 
-const DialogueSuggestionsPageComponent = registerComponent('DialogueSuggestionsPage', DialogueSuggestionsPage, {styles});
+const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    DialogueSuggestionsPage: typeof DialogueSuggestionsPageComponent
+    DialogueMatchingPage: typeof DialogueMatchingPageComponent
   }
 }

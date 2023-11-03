@@ -366,10 +366,10 @@ addRoute(
     title: "Your Past Votes"
   },
   {
-    name:'users.dialogueSuggestions',
-    path:'/dialogueSuggestions',
-    componentName: 'DialogueSuggestionsPage',
-    title: "Dialogue suggestions",
+    name:'users.dialogueMatching',
+    path:'/dialogueMatching',
+    componentName: 'DialogueMatchingPage',
+    title: "Dialogue matching",
     background: "white"
   },
 );
