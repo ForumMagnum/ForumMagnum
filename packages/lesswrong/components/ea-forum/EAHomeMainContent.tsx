@@ -116,6 +116,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[1000],
     },
+    "&.EAHomeMainContent-givingSeasonTab": {
+      backgroundColor: theme.palette.givingPortal.button.alwaysDark,
+      color: theme.palette.text.alwaysWhite,
+      "&:hover": {
+        backgroundColor: theme.palette.givingPortal[900],
+      },
+    }
+  },
+  givingSeasonTab: {
+    backgroundColor: theme.palette.givingPortal[800],
+    color: theme.palette.givingPortal[1000],
+    "&:hover": {
+      backgroundColor: theme.palette.givingPortal[900],
+    },
   },
   spotlightMargin: {
     marginBottom: 24,
@@ -138,6 +152,7 @@ const frontpageTab = {_id: '0', name: 'Frontpage'}
 
 // The order in which the topics are displayed is slightly different from their default ordering
 const topicTabsOrder = [
+  'L6NqHZkLc4xZ7YtDr', // Effective giving is at the front of the list for giving season - TODO: remove after giving season
   'sWcuTyTB5dP3nas2t', // Global health
   'QdH9f8TC6G8oGYdgt', // Animal welfare
   'oNiQsBHA3i837sySD', // AI safety
@@ -148,7 +163,7 @@ const topicTabsOrder = [
   'EHLmbEmJ2Qd5WfwTb', // Building effective altruism
   'of9xBvR3wpbp6qsZC', // Policy
   'psBzwdY8ipfCeExJ7', // Cause prioritization
-  'L6NqHZkLc4xZ7YtDr', // Effective giving
+  // 'L6NqHZkLc4xZ7YtDr', // Effective giving
   '4CH9vsvzyk4mSKwyZ', // Career choice
   'aJnrnnobcBNWRsfAw', // Forecasting & estimation
 ]
@@ -323,7 +338,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
                     return <button
                       key={tabName}
                       onClick={() => handleTabClick(tab)}
-                      className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
+                      className={classNames(classes.tab, {
+                        [classes.activeTab]: tab._id === activeTab._id,
+                        [classes.givingSeasonTab]: tab._id === 'L6NqHZkLc4xZ7YtDr' // TODO: remove after giving season
+                      })}
                     >
                       {tabName}
                     </button>

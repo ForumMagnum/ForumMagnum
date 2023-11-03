@@ -21,6 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 24,
     height: 24,
     verticalAlign: "middle",
+    cursor: 'pointer'
   },
   voteArrowLeft: {
     transform: 'rotate(-90deg)',

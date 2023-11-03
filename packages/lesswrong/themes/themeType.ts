@@ -163,6 +163,12 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
+
+      debateComment: ColorString,
+      debateComment2: ColorString,
+      debateComment3: ColorString,
+      debateComment4: ColorString,
+      debateComment5: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -244,11 +250,6 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
-      debateComment: string,
-      debateComment2: string,
-      debateComment3: string,
-      debateComment4: string,
-      debateComment5: string,
       dashed500: string,
       mentionsBaloon: string,
     },
@@ -450,6 +451,21 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
+
+    givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
+      ctaBackground: ColorString,
+      ctaText: ColorString,
+      candidate: ColorString,
+      votedCandidate: ColorString,
+      rhsLink: ColorString,
+      button: {
+        alwaysDark: ColorString,
+        dark: ColorString,
+        light: ColorString,
+        hoverOutlined: ColorString,
+        borderColor: ColorString,
+      },
+    },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

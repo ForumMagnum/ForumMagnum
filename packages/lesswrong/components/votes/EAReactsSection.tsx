@@ -225,7 +225,7 @@ const EAReactsSection: FC<{
     setAnchorEl(null);
   }, [captureEvent]);
 
-  const onSelectEmoji = useCallback((emojiOption: EmojiOption) => {
+  const onSelectEmoji = useCallback(async (emojiOption: EmojiOption) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -243,7 +243,7 @@ const EAReactsSection: FC<{
       extendedVote[partner] = false;
     }
 
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote ?? "neutral",
       extendedVote,

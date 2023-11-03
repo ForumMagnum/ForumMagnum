@@ -338,5 +338,30 @@
     "acceptsSchemaHash": "881c509060130982ab7f20a92a5c9602",
     "acceptedByMigration": "20231009T101621.add_wasEverUndrafted_to_posts.ts",
     "timestamp": "2023-10-09T10:16:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c3e1e47f98b00ea1ff4f2dfe2e646604",
+    "acceptedByMigration": "20231014T032053.add_mostRecentPublishedDialogueResponseDate.ts",
+    "timestamp": "2023-10-14T03:20:53.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ccc15da1a7699b6fb4cbacde8bd63bef",
+    "acceptedByMigration": "20231026T014747.dialogue_facilitation_offer.ts",
+    "timestamp": "2023-10-26T01:47:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5e28a08c9be1ba704a99a94dab5c4fae",
+    "acceptedByMigration": "20231027T154313.add_election_candidates_collection.ts",
+    "timestamp": "2023-10-27T15:43:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
+    "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
+    "timestamp": "2023-10-28T01:20:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
+    "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
+    "timestamp": "2023-11-01T21:57:39.000Z"
   }
 ]
