@@ -1,6 +1,6 @@
 import Users from '../../lib/collections/users/collection';
 import { Globals, createAdminContext } from '../vulcan-lib';
-import { nullifyVotesForUser, nullifyVotesForUserByTarget, reverseVote } from '../callbacks';
+import { nullifyVotesForUser, nullifyVotesForUserByTarget, silentlyReverseVote } from '../callbacks';
 import { VotesRepo } from '../repos';
 import { Votes } from '../../lib/collections/votes';
 
@@ -42,13 +42,18 @@ Globals.nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dr
   const votes = await Votes.find({ _id: { $in: voteIds } }, { sort: { votedAt: -1 } }).fetch();
 
   // eslint-disable-next-line no-console
-  console.log(`Found ${votes.length} shared votes between ${user1Id} and ${user2Id}`);
+  console.log(`Found ${votes.length} votes where ${user1Id} and ${user2Id} voted on the same document`);
 
   const context = await createAdminContext();
 
   if (dryRun) return;
 
-  // for (const vote of votes) {
-  //   await reverseVote(vote, context);
-  // }
+  for (const vote of votes) {
+    //eslint-disable-next-line no-console
+    console.log("reversing vote: ", vote);
+    await silentlyReverseVote(vote, context);
+  }
+
+  //eslint-disable-next-line no-console
+  console.log(`Reversed ${votes.length} votes where ${user1Id} and ${user2Id} voted on the same document`);
 }

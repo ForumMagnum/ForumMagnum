@@ -118,13 +118,18 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, notify=true, context }: {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<DbVoteableType>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
+  /**
+   * If true, notifies the user of the karma changes from this vote. This will be true
+   * except for votes being nullified by mods.
+   */
+  notify?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -175,6 +180,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       isUnvote: true,
       power: -vote.power,
       votedAt: new Date(),
+      notify,
     };
     await createMutator({
       collection: Votes,

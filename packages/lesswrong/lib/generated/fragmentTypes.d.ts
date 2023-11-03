@@ -769,6 +769,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly isUnvote: boolean,
   readonly votedAt: Date,
   readonly documentIsAf: boolean,
+  readonly notify: boolean,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
