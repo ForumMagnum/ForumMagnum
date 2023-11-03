@@ -2,7 +2,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
@@ -273,20 +273,15 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to view read posts of target user')
       }
 
-      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
+      let posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
+      posts = await accessFilterMultiple(currentUser, Posts, posts, context)
 
       return posts
     }, 
   },
 })
 
-
-addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post]");
-addGraphQLSchema(`
-  type UsersReadPostsOfTargetUserResult {
-    posts: [Post!]
-  }
-`)
+addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {

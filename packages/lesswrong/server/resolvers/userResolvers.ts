@@ -166,7 +166,7 @@ addGraphQLSchema(`
     topShortform: Comment,
     karmaChange: Int
   }
-  `)
+`)
 
 addGraphQLResolvers({
   Mutation: {
