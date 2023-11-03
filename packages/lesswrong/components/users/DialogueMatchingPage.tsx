@@ -482,8 +482,6 @@ export const DialogueMatchingPage = ({classes}: {
     collectionName: "DialogueChecks",
   });
 
-  const [localDialogueChecks, setLocalDialogueChecks] = useState(userDialogueChecks ?? []);
-
   const {loading: userOptedInLoading, results : UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
     terms: { 
       view: 'usersWithOptedInToDialogueFacilitation',
@@ -493,25 +491,6 @@ export const DialogueMatchingPage = ({classes}: {
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users'  
   });
-
-  // // get all check rows where user is currentUser and checked is true
-  // const GET_USERS_DIALOGUE_CHECKS = gql`
-  //   query getUsersDialogueChecks {
-  //     getUsersDialogueChecks {
-  //       _id
-  //       __typename
-  //       userId
-  //       targetUserId
-  //       checked
-  //       match
-  //     }
-  //   }
-  // `;
-
-  // // useMulti fetching from dialogueChecks based on a view, which takes as a usedId as an input. 
-  // // permission stuff happens in the background
-  
-  // const { loading: loadingChecks, error: errorChecks, data: dataChecks } = useQuery(GET_USERS_DIALOGUE_CHECKS);  // for all the targetUsers thus obtained, check if there's a match 
 
   let targetUserIds = [];
   if (userDialogueChecks) {

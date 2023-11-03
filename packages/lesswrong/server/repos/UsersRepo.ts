@@ -315,10 +315,10 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     
         -- Joining Users with Comments and Votes
         SELECT
+            v.power AS vote_power,
             u._id AS user_id,
             u.username AS user_username,
             u."displayName" AS user_displayName,
-            v.power AS vote_power,
             CASE
                 WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
                 WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
