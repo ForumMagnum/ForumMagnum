@@ -305,8 +305,6 @@ addGraphQLSchema(`
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
 
-
-
 createPaginatedResolver({
   name: "DigestHighlights",
   graphQLType: "Post",
