@@ -6,7 +6,6 @@ import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
-import {addGraphQLQuery} from "../vulcan-lib";
 
 export type MeanPostKarma = {
   _id: number,
