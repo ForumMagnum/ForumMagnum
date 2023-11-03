@@ -165,10 +165,10 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     
     return <div className={classes.root}>
       <Typography variant="body1" className={classes.heading}>
-        Vote Notifications
+        Vote and Reaction Notifications
       </Typography>
       <Typography variant="body2">
-        Shows upvotes and downvotes to your posts and comments on top of the
+        Shows reactions, upvotes and downvotes on your posts and comments on top of the
         page. By default, this is on but only updates once per day, to avoid
         creating a distracting temptation to frequently recheck it. Can be
         set to real time (removing the batching), disabled (to remove it
