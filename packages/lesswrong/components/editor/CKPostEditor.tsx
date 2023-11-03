@@ -359,21 +359,6 @@ const CKPostEditor = ({
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
 
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId)
-    }
-  `);
-  const dialogueParticipantNotificationCallback = async () => {
-    await sendNewDialogueMessageNotification({
-      variables: {
-        postId: post._id
-      }
-    });
-  }
-
-  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
