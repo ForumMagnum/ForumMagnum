@@ -70,6 +70,9 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
+/**
+ * Reverse the given vote, without triggering any karma change notifications
+ */
 export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});

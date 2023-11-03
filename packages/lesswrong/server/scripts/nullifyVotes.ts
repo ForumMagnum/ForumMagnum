@@ -37,6 +37,10 @@ Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId:
   await nullifyVotesForUserByTarget(sourceUser, targetUserId, { after: afterDate, before: beforeDate });
 }
 
+/**
+ * Nullify votes where both user1 and user2 voted on the same document, this is intended for
+ * nullifying duplicate votes from someone using an alt account.
+ */
 Globals.nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dryRun = false) => {
   const voteIds = await(new VotesRepo()).getSharedVoteIds({ user1Id, user2Id });
   const votes = await Votes.find({ _id: { $in: voteIds } }, { sort: { votedAt: -1 } }).fetch();
