@@ -34,12 +34,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-// topCommentedTags.name,
-// u.username,
-// u."displayName",
-// c."userId",
-// COUNT(*) AS post_comment_count
-
 type UserData = {
   _id: string;
   username: string;
@@ -367,18 +361,17 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   
     const query = `
       SELECT
-        topCommentedTags.name,
+        t.name,
         u.username,
         u."displayName",
         c."userId",
         COUNT(*) AS post_comment_count
-      FROM unnest($1::text[]) AS topCommentedTags(name)
-      INNER JOIN public."Tags" AS t ON topCommentedTags.name = t.name
+      FROM public."Tags" AS t
       INNER JOIN public."TagRels" AS tr ON t._id = tr."tagId"
       INNER JOIN public."Comments" AS c ON tr."postId" = c."postId"
       INNER JOIN public."Users" AS u ON c."userId" = u._id
-      WHERE c."userId" = ANY($2)
-      GROUP BY topCommentedTags.name, c."userId", u.username, u."displayName"
+      WHERE t.name = ANY($1::text[]) AND c."userId" = ANY($2)
+      GROUP BY t.name, c."userId", u.username, u."displayName"
       HAVING COUNT(*) > 15
     `;
   
