@@ -13,7 +13,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export type UpvotedUser = {
   _id: string;
@@ -74,6 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center'
   },
   header: {
+    height: 'auto',
     margin: 0,
     marginBottom: 10,
     whiteSpace: 'nowrap',
@@ -81,11 +82,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
   },
   displayName: {
+    height: 'auto',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
   messageButton: {
+    height: 'auto', // ???
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.background.paper,
@@ -93,6 +96,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap'
   },
   newDialogueButton: {
+    height: 'auto', // ???
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
@@ -107,11 +111,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   rootFlex: {
-    display: 'flex'
+    display: 'flex',
+    alignItems: 'stretch'
   },
   gradientBigTextContainer: {
     position: 'relative',
-    height: '70px', 
+    maxHeight: '70px', 
     overflow: 'auto',
     color: 'grey', 
     fontSize: '14px',
@@ -129,6 +134,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
   },
   checkbox: {
+    height: 'auto', 
     color: 'default',
     '&$checked': {
       color: 'default',
@@ -223,7 +229,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
         readPosts.map((post, index) => {
             return (
               <PostsTooltip key={index} postId={post._id}>
-                <Link key={index} to={"https://www.lesswrong.com/posts/"+post._id}>•{post.title}</Link>
+                <Link key={index} to={"https://www.lesswrong.com/posts/"+post._id}>• {post.title}</Link>
                 <br/>
               </PostsTooltip>
             )
