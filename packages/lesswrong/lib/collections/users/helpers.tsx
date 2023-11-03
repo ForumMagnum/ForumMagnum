@@ -8,10 +8,11 @@ import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
-import { DatabasePublicSetting } from '../../publicSettings';
+import {DatabasePublicSetting, requireMarkdownOnMobileSetting} from '../../publicSettings'
 import moment from 'moment';
 import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import {isMobile} from '../../utils/isMobile.ts'
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -338,18 +339,8 @@ export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): s
   return `${prefix}/users/${userSlug}`;
 }
 
-
-
-const clientRequiresMarkdown = (): boolean => {
-  if (isClient &&
-      window &&
-      window.navigator &&
-      window.navigator.userAgent) {
-
-      return (bowser.mobile || bowser.tablet)
-  }
-  return false
-}
+const clientRequiresMarkdown = (): boolean => 
+  requireMarkdownOnMobileSetting.get() && isMobile()
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   if (clientRequiresMarkdown()) {
