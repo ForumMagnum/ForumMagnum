@@ -13,6 +13,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
+import { Link } from 'react-router-dom';
 
 export type UpvotedUser = {
   _id: string;
@@ -222,7 +223,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
         readPosts.map((post, index) => {
             return (
               <PostsTooltip key={index} postId={post._id}>
-                <a key={index} href={"https://www.lesswrong.com/posts/gDijQHHaZzeGrv2Jc/"+post._id}>• {post.title}</a>
+                <Link key={index} to={"https://www.lesswrong.com/posts/"+post._id}>•{post.title}</Link>
                 <br/>
               </PostsTooltip>
             )
