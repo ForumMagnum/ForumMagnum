@@ -1,4 +1,3 @@
-//import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import { randomId } from "../../lib/random";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
