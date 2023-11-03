@@ -64,14 +64,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   matchContainerGridV1: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) minmax(min-content, 45px) minmax(min-content, 80px)  550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio  posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 180px) 125px  550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 125px  550px `,
     gridRowGap: '10px',
     columnGap: '10px',
     alignItems: 'center'
@@ -79,6 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   header: {
     margin: 0,
     marginBottom: 10,
+    whiteSpace: 'nowrap',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   displayName: {
     overflow: 'hidden',
@@ -88,14 +91,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   messageButton: {
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.background.paper, // theme.palette.primary.light
+    backgroundColor: theme.palette.background.paper,
     color: theme.palette.link.unmarked,
+    whiteSpace: 'nowrap'
   },
   newDialogueButton: {
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
-    color: 'white'
+    color: 'white',
+    whiteSpace: 'nowrap'
   },
   link: {
     color: theme.palette.primary.main,
@@ -411,7 +416,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
             )
           }
         >
-          {loadingNewDialogue ? <a data-cy="message">Creating new Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
+          {loadingNewDialogue ? <a data-cy="message">Creating New Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
         </button>
       ) : null}
     </div>
@@ -438,8 +443,8 @@ export const DialogueSuggestionsPage = ({classes}: {
   
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
   const updateCurrentUser = useUpdateCurrentUser()
+  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -668,6 +673,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Users who published dialogues</h3>
           <div className={classes.matchContainerGridV2}>
+            <Headers titles={["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]} className={classes.header} />
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               
@@ -717,6 +723,7 @@ export const DialogueSuggestionsPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Users who opted in to dialogue invitations on frontpage</h3>
           <div className={classes.matchContainerGridV2}> 
+          <Headers titles={["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]} className={classes.header} />
             {UsersOptedInToDialogueFacilitation?.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               return (
