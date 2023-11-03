@@ -256,6 +256,7 @@ interface UsersDefaultFragment { // fragment on Users
   },
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeBatchStart: Date,
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
@@ -499,6 +500,19 @@ interface ConversationsDefaultFragment { // fragment on Conversations
   readonly messageCount: number,
   readonly moderator: boolean | null,
   readonly archivedByIds: Array<string>,
+}
+
+interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
+  readonly electionName: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly gwwcLink: string | null,
+  readonly description: string,
+  readonly userId: string,
+  readonly postCount: number,
+  readonly tagId: string | null,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -2728,6 +2742,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly sortDraftsBy: string,
@@ -3014,6 +3029,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
@@ -3257,26 +3273,35 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
-interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
-  readonly electionName: string,
-  readonly name: string,
-  readonly logoSrc: string,
-  readonly href: string,
-  readonly description: string,
-  readonly userId: string,
-  readonly postCount: number,
-  readonly tagId: string | null,
-}
-
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly _id: string,
   readonly electionName: string,
   readonly name: string,
   readonly logoSrc: string,
   readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly gwwcLink: string | null,
   readonly description: string,
+  readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,
+  readonly score: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
+interface WithVoteElectionCandidate { // fragment on ElectionCandidates
+  readonly __typename: string,
+  readonly _id: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
 }
 
 interface TypingIndicatorInfo { // fragment on TypingIndicators
@@ -3305,6 +3330,7 @@ interface FragmentTypes {
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
+  ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -3501,8 +3527,8 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
-  ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
+  WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3515,6 +3541,7 @@ interface CollectionNamesByFragmentName {
   UserTagRelsDefaultFragment: "UserTagRels"
   TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
+  ElectionCandidatesDefaultFragment: "ElectionCandidates"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
@@ -3711,8 +3738,8 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
-  ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionCandidateBasicInfo: "ElectionCandidates"
+  WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
   SuggestAlignmentComment: "Comments"
 }
