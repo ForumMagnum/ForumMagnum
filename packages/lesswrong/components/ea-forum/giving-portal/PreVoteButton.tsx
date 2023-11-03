@@ -13,10 +13,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.givingPortal[1000],
-    fontSize: 28,
-    padding: 4,
+    fontSize: 32,
+    padding: 6,
     // Translate to offset the padding
-    transform: "translate(4px, -4px)",
+    transform: "translate(6px, -6px)",
     "&:hover": {
       opacity: 0.5,
     },
