@@ -59,8 +59,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       <PinToProfileDropdownItem comment={comment} post={post} />
       <NotifyMeDropdownItem
         document={comment}
-        subscribeMessage="Subscribe to comment replies"
-        unsubscribeMessage="Unsubscribe from comment replies"
+        subscribeMessage="Subscribe to Comment Replies"
+        unsubscribeMessage="Unsubscribe from Comment Replies"
       />
       {!currentUserIsAuthor && <ReportCommentDropdownItem comment={comment} post={post} />}
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />

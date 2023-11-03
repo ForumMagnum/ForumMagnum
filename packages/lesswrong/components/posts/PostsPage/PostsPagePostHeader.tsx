@@ -7,7 +7,7 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { shareButtonSetting, isLWorAF } from '../../../lib/instanceSettings';
+import { shareButtonSetting, isLWorAF, isEAForum } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
@@ -337,7 +337,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
+        <PostActionsButton post={post} includeBookmark={!isEAForum} flip={true}/>
       </AnalyticsContext>
     </span>
 

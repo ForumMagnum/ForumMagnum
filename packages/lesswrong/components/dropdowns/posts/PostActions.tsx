@@ -58,11 +58,11 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {isBookUI && shareButtonSetting.get() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
-      {currentUserIsAuthor && <NotifyMeDropdownItem
+      <NotifyMeDropdownItem
         document={post}
-        subscribeMessage="Subscribe to comments"
-        unsubscribeMessage="Unsubscribe from comments"
-      />}
+        subscribeMessage="Subscribe to Comments"
+        unsubscribeMessage="Unsubscribe from Comments"
+      />
       {!currentUserIsAuthor && includeBookmark && <BookmarkDropdownItem post={post} />}
       {!currentUserIsAuthor && <ReportPostDropdownItem post={post}/>}
       {/* Tags (topics) are removed for launch, but will be added back later, so I'm leaving this commented out. */}
