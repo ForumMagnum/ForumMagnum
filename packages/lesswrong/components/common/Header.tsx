@@ -18,6 +18,7 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { timelineSpec } from '../../lib/eaGivingSeason';
 import moment from 'moment';
 import { useLocation } from '../../lib/routeUtil';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -169,7 +170,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
       height: EA_FORUM_HEADER_HEIGHT,
-    }
+    },
+    "& .headroom": {
+      zIndex: theme.zIndexes.searchResults,
+    },
   },
   appBarGivingSeason: {
     color: theme.palette.givingPortal.alwaysLight,
@@ -196,16 +200,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       padding: '9px 11px',
     },
+    
     "& .HeaderSubtitle-subtitle": {
       color: theme.palette.givingPortal.alwaysLight,
     },
     "& .SearchBar-searchIcon": {
       color: theme.palette.givingPortal.alwaysLight,
     },
+    "& .ais-SearchBox-input": {
+      color: theme.palette.givingPortal.alwaysLight,
+    },
+    "& .ais-SearchBox-input::placeholder": {
+      color: theme.palette.givingPortal.alwaysLight,
+    },
     "& .KarmaChangeNotifier-starIcon": {
       color: theme.palette.givingPortal.alwaysLight,
     },
     "& .KarmaChangeNotifier-gainedPoints": {
+      color: theme.palette.givingPortal.alwaysLight,
+    },
+    "& .NotificationsMenuButton-badge": {
       color: theme.palette.givingPortal.alwaysLight,
     },
     "& .NotificationsMenuButton-buttonClosed": {
@@ -228,7 +242,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         backgroundColor: `${theme.palette.givingPortal.button.headerBannerSecondary} !important`,
       },
     },
-    
   },
   toolbarGivingSeason: {
     zIndex: theme.zIndexes.spotlightItem
@@ -289,7 +302,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   givingSeasonOverview: {
     maxWidth: 500,
-    padding: '0 20px 0 50px'
+    padding: '0 20px 0 48px'
   },
   givingSeasonHeading: {
     color: theme.palette.givingPortal.alwaysLight,
@@ -371,6 +384,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
   const { pathname } = useLocation()
+  const isDesktop = useIsAboveBreakpoint('md')
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -491,13 +505,13 @@ const Header = ({
           <Headroom
             disableInlineStyles
             downTolerance={10} upTolerance={10}
-            height={213}
+            height={isDesktop ? EA_FORUM_GIVING_SEASON_HEADER_HEIGHT : EA_FORUM_HEADER_HEIGHT}
             className={classNames(classes.headroom, {
               [classes.headroomPinnedOpen]: searchOpen,
             })}
             onUnfix={() => setUnFixed(true)}
             onUnpin={() => setUnFixed(false)}
-            disable={stayAtTop}
+            disable={isDesktop}
           >
             <header className={classes.appBarGivingSeason}>
               <div className={classes.givingSeasonGradient}></div>
@@ -554,7 +568,7 @@ const Header = ({
                 <div className={classes.givingSeasonTimeline}>
                   {timelineSpec.spans.map(span => {
                     if (span.hatched) return null
-                    const now = moment().add(20,'days')
+                    const now = moment()
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
                     return <div
                       key={`${span.description}-label`}
