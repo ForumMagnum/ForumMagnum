@@ -139,7 +139,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         _id: votedContent._id,
         collectionName: votedContent.collectionName,
         scoreChange: votedContent.scoreChange,
-        addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent.documentId]),
+        addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent._id]),
       };
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
@@ -166,6 +166,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   }
   
   reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
+    if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
     const reactionChanges: ReactionChange[] = [];
     

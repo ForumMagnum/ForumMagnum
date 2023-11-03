@@ -17,6 +17,7 @@ import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
+import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,6 +50,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     minWidth: 20,
     textAlign: "right",
+  },
+  votedItemReacts: {
+    marginLeft: 6,
+  },
+  individualAddedReact: {
+    marginLeft: 2,
   },
   votedItemDescription: {
     display: "inline-block",
@@ -87,29 +94,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
 });
-
-export const karmaNotificationTimingChoices: AnyBecauseTodo = {
-  disabled: {
-    label: "Disabled",
-    infoText: "Karma changes are disabled",
-    emptyText: "Karma changes are disabled"
-  },
-  daily: {
-    label: "Batched daily (default)",
-    infoText: "Karma Changes (batched daily):",
-    emptyText: "No karma changes yesterday"
-  },
-  weekly: {
-    label: "Batched weekly",
-    infoText: "Karma Changes (batched weekly):",
-    emptyText: "No karma changes last week"
-  },
-  realtime: {
-    label: "Realtime",
-    infoText: "Recent Karma Changes",
-    emptyText: "No karma changes since you last checked"
-  },
-};
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and
@@ -155,11 +139,11 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 to={postGetPageUrl(postChange)}
                 key={postChange._id}
               >
-                <span className={classes.votedItemScoreChange}>
+                {(postChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={postChange.scoreChange} classes={classes}/>
-                </span>
+                </span>}
                 <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={postChange.addedReacts}/>
+                  <NewReactions reactionChanges={postChange.addedReacts} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {postChange.title}
@@ -177,7 +161,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>
                 <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={commentChange.addedReacts}/>
+                  <NewReactions reactionChanges={commentChange.addedReacts} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
@@ -194,7 +178,7 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                   <ColoredNumber n={tagChange.scoreChange} classes={classes}/>
                 </span>
                 <span className={classes.votedItemReacts}>
-                  <NewReactions reactionChanges={tagChange.addedReacts}/>
+                  <NewReactions reactionChanges={tagChange.addedReacts} classes={classes}/>
                 </span>
                 <div className={classes.votedItemDescription}>
                   {tagChange.tagName}
@@ -282,7 +266,11 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
           <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
-              : <Badge badgeContent={<span className={classes.pointBadge}><ColoredNumber n={totalChange} classes={classes}/></span>}>
+              : <Badge badgeContent={
+                  <span className={classes.pointBadge}>
+                    {(totalChange !== 0) && <ColoredNumber n={totalChange} classes={classes}/>}
+                  </span>}
+                >
                   <ForumIcon icon="Karma" className={classes.starIcon}/>
                 </Badge>
             }
@@ -307,20 +295,35 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
   return render();
 }
 
-const NewReactions = ({reactionChanges}: {
-  reactionChanges: ReactionChange[]
+const NewReactions = ({reactionChanges, classes}: {
+  reactionChanges: ReactionChange[],
+  classes: ClassesType,
 }) => {
-  const { ReactionIcon } = Components;
+  const { ReactionIcon, LWTooltip } = Components;
 
   const distinctReactionTypes = new Set<string>();
   for (let reactionChange of reactionChanges)
     distinctReactionTypes.add(reactionChange.reactionType);
   
   return <span>
-    {[...distinctReactionTypes.keys()].map(reactionType => <ReactionIcon
+    {[...distinctReactionTypes.keys()].map(reactionType => <span
+      className={classes.individualAddedReact}
       key={reactionType}
-      react={reactionType}
-    />)}
+    >
+      <LWTooltip
+        title={
+          reactionChanges.filter(r=>r.reactionType===reactionType)
+            .map((r,i) => <>
+              {i>0 && <>{", "}</>}
+              <Components.UsersName documentId={r.userId}/>
+            </>)
+        }
+      >
+        <ReactionIcon
+          react={reactionType}
+        />
+      </LWTooltip>
+    </span>)}
   </span>
 }
 

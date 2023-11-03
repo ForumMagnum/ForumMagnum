@@ -40,26 +40,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const karmaNotificationTimingChoices = {
+type KarmaNotificationTimingStrings = {
+  label: string
+  infoText: string
+  emptyText: string
+};
+
+export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimingStrings> = {
   disabled: {
     label: "Disabled",
-    infoText: "Karma changes are disabled",
-    emptyText: "Karma changes are disabled"
+    infoText: "Karma and react notifications are disabled",
+    emptyText: "Karma and react notifications are disabled"
   },
   daily: {
     label: "Batched daily (default)",
-    infoText: "Karma Changes (batched daily):",
-    emptyText: "No karma changes yesterday"
+    infoText: "Karma Changes and Reacts (batched daily):",
+    emptyText: "No karma changes or reacts yesterday"
   },
   weekly: {
     label: "Batched weekly",
-    infoText: "Karma Changes (batched weekly):",
-    emptyText: "No karma changes last week"
+    infoText: "Karma Changes and Reacts (batched weekly):",
+    emptyText: "No karma changes or reacts last week"
   },
   realtime: {
     label: "Realtime",
-    infoText: "Recent Karma Changes",
-    emptyText: "No karma changes since you last checked"
+    infoText: "Recent Karma Changes and Reacts",
+    emptyText: "No karma changes or reacts since you last checked"
   },
 };
 
