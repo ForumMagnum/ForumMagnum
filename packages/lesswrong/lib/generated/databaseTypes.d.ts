@@ -179,6 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
+  originalDialogueId: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -285,6 +286,8 @@ interface DbElectionCandidate extends DbObject {
   name: string
   logoSrc: string
   href: string
+  fundraiserLink: string | null
+  gwwcLink: string | null
   description: string
   userId: string
   postCount: number
@@ -1359,6 +1362,7 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
+  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean

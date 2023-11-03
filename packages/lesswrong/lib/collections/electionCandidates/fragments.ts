@@ -7,8 +7,34 @@ registerFragment(`
     name
     logoSrc
     href
+    fundraiserLink
+    gwwcLink
     description
+    tag {
+      ...TagBasicInfo
+    }
     postCount
     baseScore
+    score
+    extendedScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
+  }
+`);
+
+// This fragment has to be fully dereferenced, because the context of vote
+// fragments doesn't allow for spreading other fragments
+registerFragment(`
+  fragment WithVoteElectionCandidate on ElectionCandidate {
+    __typename
+    _id
+    score
+    baseScore
+    extendedScore
+    afBaseScore
+    voteCount
+    currentUserVote
+    currentUserExtendedVote
   }
 `);
