@@ -166,3 +166,4 @@ export const showPersonalBlogpostIconSetting = new DatabasePublicSetting<boolean
 export const showFirstPostReviewMessageSetting = new DatabasePublicSetting<boolean>('showFirstPostReviewMessage', true);
 export const mentionKarmaThresholdSetting = new DatabasePublicSetting<number | null>('mentionKarmaThreshold', 1); // can be null, in which case there's no threshold
 export const showKarmaSetting = new DatabasePublicSetting<boolean>('showKarma', true);
+export const requireMarkdownOnMobileSetting = new DatabasePublicSetting<boolean>('requireMarkdownOnMobile', false);

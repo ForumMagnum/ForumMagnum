@@ -9,8 +9,8 @@ import { isClient } from '../executionEnvironment';
  * presentation, this is probably not what you want; use CSS breakpoints
  * instead.
  */
-export const isMobile = () => {
+export const isMobile = (): boolean => {
   return isClient
-    && window?.navigator?.userAgent
+    && !!window?.navigator?.userAgent
     && (bowser.mobile || bowser.tablet);
 }
