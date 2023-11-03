@@ -192,7 +192,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
   )
 };
 
-const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number, components: ComponentTypes }) => {
+const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number }) => {
   const currentUser = useCurrentUser();
   const { PostsTooltip } = Components;
 
@@ -219,7 +219,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
   return (
     <div className={`${classes.gradientBigTextContainer} ${isScrolledToTop ? 'scrolled-to-top' : ''} ${isScrolledToBottom ? 'scrolled-to-bottom' : ''}`} ref={readPostsContainerRef}>
       {readPosts.length > 0 ? (
-        readPosts.slice(0, 8).map((post, index) => {
+        readPosts.map((post, index) => {
             return (
               <PostsTooltip key={index} postId={post._id}>
                 <a key={index} href={"https://www.lesswrong.com/posts/gDijQHHaZzeGrv2Jc/"+post._id}>• {post.title}</a>
@@ -643,8 +643,8 @@ export const DialogueMatchingPage = ({classes}: {
                   <UserPostsYouveRead 
                     classes={classes} 
                     targetUserId={targetUser._id} 
-                    limit={20}
-                    components={Components} />
+                    limit={8} 
+                  />
                 </React.Fragment> 
               )}
             )}
@@ -690,12 +690,13 @@ export const DialogueMatchingPage = ({classes}: {
                   <UserBio 
                     key={targetUser._id} 
                     classes={classes} 
-                    userId={targetUser._id} />
+                    userId={targetUser._id} 
+                  />
                   <UserPostsYouveRead 
                     classes={classes} 
-                    targetUserId={targetUser._id} 
-                    limit={20}
-                    components={Components} />
+                    targetUserId={targetUser._id}
+                    limit={8} 
+                  />
                 </React.Fragment> 
               )}
             )}
@@ -743,8 +744,9 @@ export const DialogueMatchingPage = ({classes}: {
                     userId={targetUser._id} />
                   <UserPostsYouveRead 
                     classes={classes} 
-                    targetUserId={targetUser._id} 
-                    components={Components} />
+                    targetUserId={targetUser._id}
+                    limit={8} 
+                  />
                 </React.Fragment> 
               )}
             )}
