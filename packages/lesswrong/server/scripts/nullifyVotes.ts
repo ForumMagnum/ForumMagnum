@@ -1,6 +1,8 @@
 import Users from '../../lib/collections/users/collection';
-import { Globals } from '../vulcan-lib';
-import { nullifyVotesForUser, nullifyVotesForUserByTarget } from '../callbacks';
+import { Globals, createAdminContext } from '../vulcan-lib';
+import { nullifyVotesForUser, nullifyVotesForUserByTarget, reverseVote } from '../callbacks';
+import { VotesRepo } from '../repos';
+import { Votes } from '../../lib/collections/votes';
 
 Globals.nullifyVotesForNullifiedUsers = async () => {
   const users = await Users.find({nullifyVotes: true}).fetch();
@@ -33,4 +35,20 @@ Globals.nullifyVotesForUserByTarget = async (sourceUserId: string, targetUserId:
   const sourceUser = await Users.findOne(sourceUserId);
   if (!sourceUser) throw new Error(`Couldn't find a source user with _id ${sourceUserId}`);
   await nullifyVotesForUserByTarget(sourceUser, targetUserId, { after: afterDate, before: beforeDate });
+}
+
+Globals.nullifySharedVotesForUsers = async (user1Id: string, user2Id: string, dryRun = false) => {
+  const voteIds = await(new VotesRepo()).getSharedVoteIds({ user1Id, user2Id });
+  const votes = await Votes.find({ _id: { $in: voteIds } }, { sort: { votedAt: -1 } }).fetch();
+
+  // eslint-disable-next-line no-console
+  console.log(`Found ${votes.length} shared votes between ${user1Id} and ${user2Id}`);
+
+  const context = await createAdminContext();
+
+  if (dryRun) return;
+
+  // for (const vote of votes) {
+  //   await reverseVote(vote, context);
+  // }
 }
