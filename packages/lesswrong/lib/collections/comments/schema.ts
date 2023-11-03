@@ -872,6 +872,7 @@ const schema: SchemaType<DbComment> = {
     }),
     optional: true,
     hidden: true,
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],

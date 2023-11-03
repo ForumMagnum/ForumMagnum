@@ -16,9 +16,9 @@ import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import { DynamicTableOfContentsContext } from './TableOfContents/DynamicTableOfContents';
-import { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 
-const editors : {[doc: string]: Editor} = {}
+const editors : Record<string, Editor> = {}
 export const EditorsContext = React.createContext<[typeof editors, (d: string, e: Editor) => void]>([editors, (doc, editor) => ({...editors, [doc]: editor})]);
 
 const PostsEditForm = ({ documentId, classes }: {

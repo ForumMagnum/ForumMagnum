@@ -124,10 +124,11 @@ const DialogueSubmit = ({
           onClick={async e => {
             e.preventDefault()
             
-            // So this property exists. But the typings don't agree. For now, #AnyBecauseHard
+            // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
             // @ts-ignore
             const shortformString = editors[`${document._id}-contents`].getData()
-            const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}}
+            // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
+            const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
 
             const response = await createShortform({
               data: {
