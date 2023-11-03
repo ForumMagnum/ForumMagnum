@@ -68,7 +68,7 @@ const requestFeedbackKarmaLevel = forumSelect({
 const PostSubmit = ({
   submitLabel = "Submit",
   cancelLabel = "Cancel",
-  saveDraftLabel = "Save as draft",
+  saveDraftLabel = "Save as Draft",
   feedbackLabel = "Request Feedback",
   cancelCallback, document, collectionName, classes
 }: PostSubmitProps, { updateCurrentValues, addToSuccessForm }: any) => {
