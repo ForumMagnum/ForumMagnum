@@ -1,6 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
+import {calculateVotePower} from "../../lib/voting/voteTypes";
+import {getUser} from "../../lib/vulcan-users";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *
@@ -278,8 +280,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }  
 
   async getUsersTopUpvotedUsers(userId:string): Promise<UpvotedUser[]> {
-    return this.getRawDb().any(
-      `
+
+    const user = await getUser(userId)
+    const karma = user ? user.karma : 0
+    const smallVotePower = calculateVotePower(karma, "smallUpvote");
+    const bigVotePower = calculateVotePower(karma, "bigUpvote");
+    
+    return this.getRawDb().any(`
       WITH "CombinedVotes" AS (
         -- Joining Users with Posts and Votes
         SELECT
@@ -288,11 +295,11 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             public."Users"."displayName",
             public."Votes".power,
             CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
                 WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
                 ELSE 0
             END AS agreement_value
         FROM public."Users"
@@ -314,11 +321,11 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             public."Users"."displayName",
             public."Votes".power,
             CASE
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -6
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
                 WHEN public."Votes"."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN 2
-                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN 6
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
+                WHEN public."Votes"."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
                 ELSE 0
             END AS agreement_value
         FROM public."Users"
@@ -352,7 +359,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     HAVING SUM(power) > 1
     ORDER BY total_power DESC
     LIMIT 50;
-      `, [userId])
+      `, [userId, smallVotePower, bigVotePower])
   }
   
   async getPreTopCommentersOfTopCommentedTags(topUsers: UpvotedUser[], topCommentedTags: CommentCountTag[]): Promise<UserData[]> {
