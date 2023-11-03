@@ -4,7 +4,6 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { restrictViewableFields, userCanDo } from '../../lib/vulcan-users/permissions';
@@ -12,7 +11,7 @@ import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { updateMutator } from '../vulcan-lib/mutators';
-import { pushRevisionToCkEditor } from './ckEditorWebhook';
+import { ckEditorApiHelpers } from './ckEditorApi';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -159,7 +158,7 @@ defineMutation({
     if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+      await ckEditorApiHelpers.pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");

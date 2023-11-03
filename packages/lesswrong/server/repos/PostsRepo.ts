@@ -205,18 +205,26 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
 
   getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
     return this.any(`
-      SELECT p.*, c."mostRecentCommentAt"
+      SELECT p.*
       FROM "Posts" p
-      LEFT JOIN (
-          SELECT "postId", MAX("createdAt") as "mostRecentCommentAt"
-          FROM "Comments"
-          WHERE "debateResponse" IS TRUE
-          GROUP BY "postId"
-          ) c ON p."_id" = c."postId"
-      WHERE (p.debate IS TRUE OR p."collabEditorDialogue" IS TRUE) AND p.draft IS NOT TRUE
-      ORDER BY GREATEST(p."postedAt", c."mostRecentCommentAt") DESC
+      WHERE p."collabEditorDialogue" IS TRUE AND p.draft IS NOT TRUE
+      ORDER BY GREATEST(p."postedAt", p."mostRecentPublishedDialogueResponseDate") DESC
       LIMIT $1
     `, [limit]);
+  }
+
+  getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT * 
+      FROM (
+          SELECT DISTINCT ON (p._id) p.* 
+          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
+          WHERE p."collabEditorDialogue" IS TRUE 
+          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+      ) dialogues
+      ORDER BY "modifiedAt" DESC
+      LIMIT $2
+    `, [userId, limit]);
   }
 
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {

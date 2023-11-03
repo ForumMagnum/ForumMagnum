@@ -76,6 +76,7 @@ interface UsersDefaultFragment { // fragment on Users
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null,
   readonly showCommunityInRecentDiscussion: boolean,
@@ -228,6 +229,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationAddedAsCoauthor: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly notificationDebateCommentsOnSubscribedPost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -240,6 +247,7 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly hideDialogueFacilitation: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -248,6 +256,7 @@ interface UsersDefaultFragment { // fragment on Users
   },
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeBatchStart: Date,
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
@@ -428,42 +437,6 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly agentFoundationsId: string,
 }
 
-interface ConversationsDefaultFragment { // fragment on Conversations
-  readonly title: string,
-  readonly participantIds: Array<string>,
-  readonly latestActivity: Date,
-  readonly af: boolean,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-  readonly archivedByIds: Array<string>,
-}
-
-interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
-  readonly postId: string,
-  readonly postHash: string,
-  readonly lastGeneratedAt: Date,
-  readonly model: string,
-  readonly embeddings: Array<number>,
-}
-
-interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
-  readonly userId: string | null,
-  readonly clientId: string | null,
-  readonly postId: string,
-  readonly strategyName: string,
-  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly recommendationCount: number,
-  readonly lastRecommendedAt: Date,
-  readonly clickedAt: Date | null,
-}
-
-interface PostRelationsDefaultFragment { // fragment on PostRelations
-  readonly type: string,
-  readonly sourcePostId: string,
-  readonly targetPostId: string,
-  readonly order: number,
-}
-
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
   readonly tagId: string,
   readonly userId: string,
@@ -516,6 +489,55 @@ interface TagsDefaultFragment { // fragment on Tags
   readonly autoTagModel: string | null,
   readonly autoTagPrompt: string | null,
   readonly noindex: boolean,
+}
+
+interface ConversationsDefaultFragment { // fragment on Conversations
+  readonly title: string,
+  readonly participantIds: Array<string>,
+  readonly latestActivity: Date,
+  readonly af: boolean,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
+  readonly archivedByIds: Array<string>,
+}
+
+interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
+  readonly electionName: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly gwwcLink: string | null,
+  readonly description: string,
+  readonly userId: string,
+  readonly postCount: number,
+  readonly tagId: string | null,
+}
+
+interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
+  readonly postId: string,
+  readonly postHash: string,
+  readonly lastGeneratedAt: Date,
+  readonly model: string,
+  readonly embeddings: Array<number>,
+}
+
+interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
+  readonly userId: string | null,
+  readonly clientId: string | null,
+  readonly postId: string,
+  readonly strategyName: string,
+  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly recommendationCount: number,
+  readonly lastRecommendedAt: Date,
+  readonly clickedAt: Date | null,
+}
+
+interface PostRelationsDefaultFragment { // fragment on PostRelations
+  readonly type: string,
+  readonly sourcePostId: string,
+  readonly targetPostId: string,
+  readonly order: number,
 }
 
 interface TagRelsDefaultFragment { // fragment on TagRels
@@ -718,6 +740,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly debate: boolean | null,
   readonly collabEditorDialogue: boolean | null,
   readonly totalDialogueResponseCount: number,
+  readonly mostRecentPublishedDialogueResponseDate: Date | null,
   readonly unreadDebateResponseCount: number,
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
@@ -2607,6 +2630,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null,
   readonly hidePostsRecommendations: boolean,
@@ -2716,6 +2740,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2019Ad: boolean,
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly abTestKey: string,
   readonly abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/,
   readonly sortDraftsBy: string,
@@ -2736,6 +2761,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean | null,
   readonly hideFrontpageBook2020Ad: boolean,
+  readonly hideDialogueFacilitation: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3001,6 +3027,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly givingSeasonNotifyForVoting: boolean,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
   readonly hideFrontpageBookAd: boolean,
@@ -3244,6 +3271,37 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
+interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
+  readonly _id: string,
+  readonly electionName: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly gwwcLink: string | null,
+  readonly description: string,
+  readonly tag: TagBasicInfo|null,
+  readonly postCount: number,
+  readonly baseScore: number,
+  readonly score: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
+interface WithVoteElectionCandidate { // fragment on ElectionCandidates
+  readonly __typename: string,
+  readonly _id: string,
+  readonly score: number,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly afBaseScore: number,
+  readonly voteCount: number,
+  readonly currentUserVote: string,
+  readonly currentUserExtendedVote: any,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3267,12 +3325,13 @@ interface FragmentTypes {
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
+  UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
+  TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
+  ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
-  UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
-  TagsDefaultFragment: TagsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
@@ -3466,6 +3525,8 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
+  ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
+  WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3475,12 +3536,13 @@ interface CollectionNamesByFragmentName {
   LocalgroupsDefaultFragment: "Localgroups"
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
+  UserTagRelsDefaultFragment: "UserTagRels"
+  TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
+  ElectionCandidatesDefaultFragment: "ElectionCandidates"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
-  UserTagRelsDefaultFragment: "UserTagRels"
-  TagsDefaultFragment: "Tags"
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
@@ -3674,9 +3736,11 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
+  ElectionCandidateBasicInfo: "ElectionCandidates"
+  WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DigestPosts"|"Digests"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DigestPosts"|"Digests"|"ElectionCandidates"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

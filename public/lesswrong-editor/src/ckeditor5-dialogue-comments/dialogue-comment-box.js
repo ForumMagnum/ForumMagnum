@@ -1,7 +1,8 @@
 // @ts-check
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
-import { Widget, toWidgetEditable } from '@ckeditor/ckeditor5-widget';
+import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
+import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
 
 export default class DialogueCommentBox extends Plugin {
     static get requires() {
@@ -11,14 +12,17 @@ export default class DialogueCommentBox extends Plugin {
 
 class SimpleBoxUI extends Plugin {
     init() {
+        /**
+         * @type {EditorWithUI}
+         */
         const editor = this.editor;
         const t = editor.t;
 
         // The "dialogueMessageInput" button must be registered among the UI components of the editor
         // to be displayed in the toolbar.
-        editor.ui.componentFactory.add( 'dialogueMessageInput', locale => {
+        editor.ui.componentFactory.add( 'rootParagraphBox', locale => {
             // The state of the button will be bound to the widget command.
-            const command = editor.commands.get( 'insertSimpleBox' );
+            const command = editor.commands.get( 'insertRootParagraphBox' );
 
             // The button will be an instance of ButtonView.
             const buttonView = new ButtonView( locale );
@@ -35,7 +39,7 @@ class SimpleBoxUI extends Plugin {
             buttonView.bind( 'isOn', 'isEnabled' ).to( command, 'value', 'isEnabled' );
 
             // Execute the command when the button is clicked (executed).
-            this.listenTo( buttonView, 'execute', () => editor.execute( 'insertSimpleBox' ) );
+            this.listenTo( buttonView, 'execute', () => editor.execute( 'insertRootParagraphBox' ) );
 
             return buttonView;
         } );
@@ -51,7 +55,7 @@ class SimpleBoxEditing extends Plugin {
         this._defineSchema();
         this._defineConverters();
 
-        this.editor.commands.add( 'insertSimpleBox', new InsertRootParagraphBoxCommand( this.editor ) );
+        this.editor.commands.add( 'insertRootParagraphBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 
         this.editor.keystrokes.set( 'Ctrl+Enter', (evt, cancel) => {
@@ -96,9 +100,15 @@ class SimpleBoxEditing extends Plugin {
     _defineSchema() {
         const schema = this.editor.model.schema;
 
+        schema.register( 'dialogueMessageInputWrapper', {
+			// Allow in places where other blocks are allowed (e.g. directly in the root).
+			allowIn: '$root',
+            allowChildren: 'dialogueMessageInput'
+        } );
+
         schema.register( 'dialogueMessageInput', {
 			// Allow in places where other blocks are allowed (e.g. directly in the root).
-			allowWhere: '$block',
+			allowIn: 'dialogueMessageInputWrapper',
 
             // Allow content which is allowed in the root (e.g. paragraphs).
             allowContentOf: '$root',
@@ -115,81 +125,99 @@ class SimpleBoxEditing extends Plugin {
             allowContentOf: '$root',
 
             allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date', 'user-order'],
+            isObject: true
         });
 
+        schema.register( 'dialogueMessageContent', {
+            allowIn: 'dialogueMessage',
+            allowContentOf: '$root',
+            isLimit: true
+        });
+
+        const forbiddenMessageChildren = [
+            'dialogueMessage',
+            'dialogueMessageInput',
+            ...Object.values(FOOTNOTE_ELEMENTS)
+        ];
+
+        const forbiddenInputChilden = [
+            'dialogueMessage',
+            'dialogueMessageHeader',
+            'dialogueMessageInput',
+            'dialogueMessageInputWrapper',
+            ...Object.values(FOOTNOTE_ELEMENTS)
+        ];
+
         schema.addChildCheck((context, childDefinition) => {
-            if (
-                (context.endsWith('dialogueMessage') || context.endsWith('dialogueMessageInput')) &&
-                (childDefinition.name === 'dialogueMessage' || childDefinition.name === 'dialogueMessageHeader')
-            ) {
+            // Explicitly forbid some degenerate cases
+            // Some of these are doubtless ruled out by the schema definitions above, but they often behave in pretty weird ways
+            if (context.endsWith('dialogueMessage') && forbiddenMessageChildren.includes(childDefinition.name)) {
+                return false;
+            }
+
+            if (context.endsWith('dialogueMessageInput') && forbiddenInputChilden.includes(childDefinition.name)) {
+                return false;
+            }
+
+            if (context.endsWith('dialogueMessageContent') && forbiddenMessageChildren.includes(childDefinition.name)) {
                 return false;
             }
         });
-
-        // schema.register( 'dialogueMessageHeader', {
-        //     allowWhere: 'dialogueMessage',
-        //     allowContentOf: '$root',
-        //     // isLimit: true,
-        //     allowAttributes: ['message-id', 'user-id', 'display-name', 'submitted-date']
-        // });
     }
 
     _defineConverters() {
         const conversion = this.editor.conversion;
 
+        // <dialogueMessageInputWrapper> converters
+        const inputWrapperView = {
+            name: 'div',
+            classes: 'dialogue-message-input-wrapper',
+        };
+
+        conversion.for( 'upcast' ).elementToElement( {
+            model: (viewElement, { writer: modelWriter }) => {
+                return modelWriter.createElement('dialogueMessageInputWrapper');
+            },
+            view: inputWrapperView
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'dialogueMessageInputWrapper',
+            view: inputWrapperView
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'dialogueMessageInputWrapper',
+            view: inputWrapperView
+        } )
+        
+
         // <dialogueMessageInput> converters
         conversion.for( 'upcast' ).elementToElement( {
             model: (viewElement, { writer: modelWriter }) => {
-                return modelWriter.createElement('dialogueMessageInput');
+                const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
+                return modelWriter.createElement('dialogueMessageInput', attributes);
             },
             view: {
                 name: 'section',
                 classes: 'dialogue-message-input',
+                attributes: {
+                    'user-id': true,
+                    'display-name': true,
+                    'user-order': true
+                }
             }
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'dialogueMessageInput',
-            view: {
-                name: 'section',
-                classes: 'dialogue-message-input'
-            }
+            view: getDataDowncastViewGenerator('dialogue-message-input', [
+                'user-id',
+                'user-order',
+                'display-name'
+            ])
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessageInput',
-            view: ( modelElement, { writer: viewWriter } ) => {
-                const editor = this.editor
-
-                const buttonAttributes = { type: 'button', class: 'CommentsNewForm-formButton MuiButton-root MuiButtonBase-root' };
-                const button = viewWriter.createUIElement( 'button', buttonAttributes, function (domDocument) {
-                    const domElement = this.toDomElement(domDocument);
-                    domElement.contentEditable = 'false';
-                    domElement.innerHTML = 'Submit';
-                    domElement.addEventListener('click', () => editor.execute('submitDialogueMessage') );
-
-                    return domElement;
-                });
-
-                const userDisplayName = getUserDisplayName(modelElement);
-                const headerAttributes = { class: 'dialogue-message-input-header CommentUserName-author UsersNameDisplay-noColor' };
-                const headerElement = viewWriter.createUIElement('div', headerAttributes, function(domDocument) {
-                    const domElement = this.toDomElement(domDocument);
-                    domElement.contentEditable = 'false';
-
-                    domElement.append(userDisplayName);
-
-                    return domElement;
-                });
-
-                const userOrder = getUserOrder(modelElement);
-                const userId = modelElement.getAttribute('user-id');
-                const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId };
-                const section = viewWriter.createContainerElement( 'section', sectionAttributes );
-
-                viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
-                viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
-
-                return toWidgetEditable(section, viewWriter);
-            }
+            // Need to bind for `this.editor` referenced in the function
+            view: inputEditingDowncastViewGenerator.bind(this)
         } );
 
         // <dialogueMessage> converters
@@ -212,81 +240,40 @@ class SimpleBoxEditing extends Plugin {
         } );
         conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'dialogueMessage',
-            view: generateDialogueMessageView('dialogue-message ContentStyles-debateResponseBody')
+            view: getDataDowncastViewGenerator('dialogue-message ContentStyles-debateResponseBody', [
+                'message-id',
+                'user-id',
+                'display-name',
+                'submitted-date',
+                'user-order'
+            ])
         } );
         conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'dialogueMessage',
-            view: ( modelElement, { writer: viewWriter } ) => {
-                const userOrder = getUserOrder(modelElement);
-                const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
-                const section = viewWriter.createContainerElement( 'section', sectionAttributes );
-
-                const userDisplayName = getUserDisplayName(modelElement);
-
-                const headerAttributes = {
-                    class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor',
-                    contenteditable: 'false'
-                };
-
-                const headerElement = viewWriter.createUIElement('section', headerAttributes, function(domDocument) {
-                    const domElement = this.toDomElement(domDocument);
-                    domElement.contentEditable = 'false';
-                    domElement.append(userDisplayName);
-
-                    return domElement;
-                });
-
-                viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
-
-                return section;
-            }
+            view: messageEditingDowncastViewGenerator
         } );
 
-        // <dialogueMessageHeader> converters
-        // conversion.for( 'upcast' ).elementToElement( {
-        //     model: (viewElement, { writer: modelWriter }) => {
-        //         const attributes = Object.fromEntries(Array.from(viewElement.getAttributes()));
-        //         return modelWriter.createElement('dialogueMessageHeader', attributes);
-        //     },
-        //     view: {
-        //         name: 'section',
-        //         classes: 'dialogue-message-header',
-        //         attributes: {
-        //             'message-id': true,
-        //             'user-id': true,
-        //             'display-name': true,
-        //             'submitted-date': true
-        //         }
-        //     }
-        // } );
-        // conversion.for( 'dataDowncast' ).elementToElement( {
-        //     model: 'dialogueMessageHeader',
-        //     view: generateDialogueMessageHeaderView('dialogue-message-header CommentUserName-author UsersNameDisplay-noColor')
-        // } );
-        // conversion.for( 'editingDowncast' ).elementToElement( {
-        //     model: 'dialogueMessageHeader',
-        //     view: ( modelElement, { writer: viewWriter }) => {
-        //         const userDisplayName = getUserDisplayName(modelElement);
-
-        //         const headerAttributes = {
-        //             class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor',
-        //             contenteditable: 'false'
-        //         };
-
-        //         const headerElement = viewWriter.createUIElement('section', headerAttributes, function(domDocument) {
-        //             const domElement = this.toDomElement(domDocument);
-        //             domElement.contentEditable = 'false';
-        //             domElement.append(userDisplayName);
-
-        //             return domElement;
-        //         });
-
-        //         return headerElement;
-        //     }
-        // } );
+        // <dialogueMessageContent> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+                classes: 'dialogue-message-content'
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: {
+                name: 'div',
+                classes: 'dialogue-message-content'
+            }
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'dialogueMessageContent',
+            view: messageContentDowncastViewGenerator
+        } );
     }
 }
-
 
 class InsertRootParagraphBoxCommand extends Command {
     execute() {
@@ -321,19 +308,17 @@ class InsertRootParagraphBoxCommand extends Command {
 class SubmitDialogueMessageCommand extends Command {
     execute() {
         const me = this.editor.plugins.get( 'Users' ).me;
-	    const { id: userId, name: displayName } = me
-	    if (!userId || !displayName) return
+	    const { id: userId, name: displayName } = me;
+	    if (!userId || !displayName) return;
         const model = this.editor.model;
 
         model.change(writer => {
             const root = model.document.getRoot();
             if (!root) return;
 
-            const dialogueMessageInput = Array.from(root.getChildren()).find(node => (
-                node.is('element', 'dialogueMessageInput') && node.getAttribute('user-id') === userId
-            ));
+            const dialogueMessageInput = findMessageInputs(root).find(node => node.getAttribute('user-id') === userId);
 		  
-			const dialogueConfig = this.editor.config.get('dialogues')
+			const dialogueConfig = this.editor.config.get('dialogues');
 
             if (dialogueMessageInput) {
                 const submittedDate = (new Date()).toUTCString();
@@ -341,82 +326,180 @@ class SubmitDialogueMessageCommand extends Command {
                 const messageAttributes = { 'message-id': messageId, 'user-id': userId, 'display-name': displayName, 'submitted-date': (new Date()).toUTCString() };
 
                 const dialogueMessage = writer.createElement('dialogueMessage', messageAttributes);
-                // const dialogueMessageHeader = writer.createElement('dialogueMessageHeader', messageAttributes);
-
-                // writer.append(dialogueMessageHeader, dialogueMessage);
 
                 if (dialogueMessageInput.is('element')) {
                     writer.append(dialogueMessage, root);
+
+                    const contentDiv = writer.createElement('dialogueMessageContent');
+
                     const inputContents = Array.from(dialogueMessageInput.getChildren());
                     if (inputContents.length === 0) {
-                        writer.appendElement('paragraph', dialogueMessage);
+                        const paragraph = writer.createElement('paragraph');
+                        writer.append(paragraph, contentDiv);
+                        writer.append(paragraph, dialogueMessage);
                     }
 
-                    Array.from(dialogueMessageInput.getChildren()).forEach(userInput => {
-                        writer.append(userInput, dialogueMessage);
+                    writer.append(contentDiv, dialogueMessage);
+
+                    inputContents.forEach(userInput => {
+                        writer.append(userInput, contentDiv);
                     });
+
+
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
-                    writer.appendElement('paragraph', dialogueMessageInput)
+                    writer.appendElement('paragraph', dialogueMessageInput);
                 } else {
-                    writer.insertText(dialogueMessageInput.data, dialogueMessage);
-                    writer.append(dialogueMessage, root);
+                    console.error('dialogueMessageInput is not an element')
                 }
 				
-				writer.setSelection(dialogueMessageInput, 0)
-			  	dialogueConfig.dialogueParticipantNotificationCallback()
+				writer.setSelection(dialogueMessageInput, 0);
+			  	dialogueConfig.dialogueParticipantNotificationCallback();
             }
         });
     }
 
     refresh() {
-        const model = this.editor.model;
-        const selection = model.document.selection;
-        const allowedIn = model.schema.findAllowedParent(selection.getFirstPosition(), 'dialogueMessageInput');
-
-        this.isEnabled = allowedIn !== null;
+        this.isEnabled = true;
     }
 }
 
-function generateDialogueMessageView(className) {
-    return (modelElement, { writer: viewWriter }) => {
-        const attributeList = [
-            'message-id',
-            'user-id',
-            'display-name',
-            'submitted-date',
-            'user-order'
-        ];
+/**
+ * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editorwithui').EditorWithUI} EditorWithUI
+ * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editor').default} Editor
+ * @typedef {import('@ckeditor/ckeditor5-engine').DowncastWriter} DowncastWriter
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/model/writer').default} ModelWriter
+ * @typedef {Exclude<ReturnType<import('@ckeditor/ckeditor5-engine').Model['document']['getRoot']>, null>} RootElement
+ * @typedef {import('@ckeditor/ckeditor5-engine').Element} Element
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/model/text').default} Text
+ * @typedef {import('@ckeditor/ckeditor5-engine/src/view/containerelement').default} ContainerElement
+ * @typedef {Exclude<Parameters<ReturnType<import('@ckeditor/ckeditor5-engine').Conversion['for']>['elementToElement']>[0], undefined>['view']} ViewElementDefinition
+ * @typedef {Extract<ViewElementDefinition, (_0, _1) => ContainerElement>} ContainerElementDefinitionGenerator
+ */
 
-        const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
+/**
+ * @param {DowncastWriter} viewWriter 
+ * @param {Record<string, any>} buttonAttributes 
+ * @param {Editor | EditorWithUI} editor 
+ */
+function createButtonElement(viewWriter, buttonAttributes, editor) {
+    return viewWriter.createUIElement('button', buttonAttributes, function (domDocument) {
+        const domElement = this.toDomElement(domDocument);
+        domElement.contentEditable = 'false';
+        domElement.innerHTML = 'Submit';
+        domElement.addEventListener('click', () => editor.execute('submitDialogueMessage'));
 
-        return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
-    };
+        return domElement;
+    });
 }
 
-function generateDialogueMessageHeaderView(className) {
+/**
+ * @param {DowncastWriter} viewWriter 
+ * @param {string} elementName
+ * @param {Record<string, any>} headerAttributes 
+ * @param {string} userDisplayName 
+ */
+function createHeaderElement(viewWriter, elementName, headerAttributes, userDisplayName) {
+    return viewWriter.createUIElement(elementName, headerAttributes, function (domDocument) {
+        const domElement = this.toDomElement(domDocument);
+        domElement.contentEditable = 'false';
+        domElement.append(userDisplayName);
+
+        return domElement;
+    });
+}
+
+/**
+ * @param {RootElement} root 
+ */
+function findMessageInputs(root) {
+    const rootChildren = Array.from(root.getChildren());
+    // For backwards compatibility, when we didn't have a wrapper around the message inputs
+    const rootInputs = rootChildren.filter(child => child.is('element', 'dialogueMessageInput'));
+    /**
+     * @type {Element}
+     */
+    const dialogueMessageInputWrapper = rootChildren.find(child => child.is('element', 'dialogueMessageInputWrapper'));
+
+    if (!dialogueMessageInputWrapper) return rootInputs;
+
+    const wrapperInputs = Array.from(dialogueMessageInputWrapper.getChildren()).filter(child => child.is('element', 'dialogueMessageInput'));
+    return [...rootInputs, ...wrapperInputs];
+}
+
+/**
+ * 
+ * @param {string} className 
+ * @param {string[]} attributeList
+ * @returns {ContainerElementDefinitionGenerator}
+ */
+function getDataDowncastViewGenerator(className, attributeList) {
     return (modelElement, { writer: viewWriter }) => {
-        const attributeList = [
-            'message-id',
-            'user-id',
-            'display-name',
-            'submitted-date',
-        ];
-
         const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
-
         return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
     };
 }
 
 /**
- * @param {import('@ckeditor/ckeditor5-engine').Element} modelElement 
+ * @type {ContainerElementDefinitionGenerator}
+ */
+function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter }) {
+    const editor = this.editor;
+
+    const buttonAttributes = { type: 'button', class: 'CommentsNewForm-formButton MuiButton-root MuiButtonBase-root' };
+    const button = createButtonElement(viewWriter, buttonAttributes, editor);
+
+    const userDisplayName = getUserDisplayName(modelElement);
+    const headerAttributes = { class: 'dialogue-message-input-header CommentUserName-author UsersNameDisplay-noColor' };
+    const headerElement = createHeaderElement(viewWriter, 'div', headerAttributes, userDisplayName);
+
+    const userOrder = getUserOrder(modelElement);
+    const userId = modelElement.getAttribute('user-id');
+    const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId, 'display-name': userDisplayName };
+    const section = viewWriter.createContainerElement( 'section', sectionAttributes );
+
+    viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
+    viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+
+    return toWidgetEditable(section, viewWriter);
+}
+
+/**
+ * @type {ContainerElementDefinitionGenerator}
+ */
+function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter }) {
+    const userOrder = getUserOrder(modelElement);
+    const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
+    const section = viewWriter.createContainerElement( 'section', sectionAttributes );
+
+    const userDisplayName = getUserDisplayName(modelElement);
+    const headerAttributes = {
+        class: 'dialogue-message-header CommentUserName-author UsersNameDisplay-noColor',
+        contenteditable: 'false'
+    };
+    const headerElement = createHeaderElement(viewWriter, 'section', headerAttributes, userDisplayName);
+
+    viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+
+    return toWidget(section, viewWriter, { hasSelectionHandle: true });
+}
+
+/**
+ * @type {ContainerElementDefinitionGenerator}
+ */
+function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
+    const contentElement = viewWriter.createEditableElement('div', { class: 'dialogue-message-content' });
+    return toWidgetEditable(contentElement, viewWriter);
+}
+
+/**
+ * @param {Element} modelElement 
  */
 function getUserOrder(modelElement) {
     return (modelElement.getAttribute('user-order') || '1').toString();
 }
 
 /**
- * @param {import('@ckeditor/ckeditor5-engine').Element} modelElement 
+ * @param {Element} modelElement 
  */
 function getUserDisplayName(modelElement) {
     return (modelElement.getAttribute('display-name') || '').toString();

@@ -168,7 +168,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     })
   }
 
-  function toggleReaction(name: string, quote?: string) {
+  async function toggleReaction(name: string, quote?: string) {
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -178,17 +178,17 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
     if (shouldClearUserReaction) {
       if (quote && currentUserReaction) {
-        clearQuoteFromCurrentUserReaction(currentUserReaction, quote);
+        await clearQuoteFromCurrentUserReaction(currentUserReaction, quote);
       } else {
-        clearCurrentUserReaction(name);
+        await clearCurrentUserReaction(name);
       }
     } else {
       const initialVote = "created"; //TODO: "created" vs "seconded"
-      addCurrentUserReaction(name, initialVote, quote);
+      await addCurrentUserReaction(name, initialVote, quote);
     }
   }
-  
-  function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType, quote?: string) {
+
+  async function addCurrentUserReaction(reactionName: string, vote: VoteOnReactionType, quote?: string) {
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -209,28 +209,27 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       reacts: newReacts
     };
 
-
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
       currentUser,
     });
   }
-  
-  function clearCurrentUserReaction(reactionName: string) {
+
+  async function clearCurrentUserReaction(reactionName: string) {
     if (!currentUser) {
       openLoginDialog();
       return;
     }
-    
+
     const oldReacts = currentUserExtendedVote?.reacts ?? [];
     const newExtendedVote: NamesAttachedReactionsVote = {
       ...currentUserExtendedVote,
       reacts: filter(oldReacts, r=>r.react!==reactionName)
     };
 
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
@@ -238,7 +237,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     });
   }
 
-  function clearQuoteFromCurrentUserReaction(reaction: UserVoteOnSingleReaction, quote: string) {
+  async function clearQuoteFromCurrentUserReaction(reaction: UserVoteOnSingleReaction, quote: string) {
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -263,22 +262,22 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
         reacts: newReacts
       };
 
-      voteProps.vote({
+      await voteProps.vote({
         document: voteProps.document,
         voteType: voteProps.document.currentUserVote || null,
         extendedVote: newExtendedVote,
         currentUser,
       });
     } else {
-      clearCurrentUserReaction(reaction.react)
+      await clearCurrentUserReaction(reaction.react)
     }
   }
-  
-  function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote?: string) {
+
+  async function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote?: string) {
     if (reaction) {
-      addCurrentUserReaction(reactionName, reaction, quote);
-    } else {  
-      clearCurrentUserReaction(reactionName);
+      await addCurrentUserReaction(reactionName, reaction, quote);
+    } else {
+      await clearCurrentUserReaction(reactionName);
     }
   }
 

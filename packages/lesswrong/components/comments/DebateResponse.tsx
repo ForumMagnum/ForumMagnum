@@ -52,19 +52,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '100%'
   },
   greenBorder: {
-    borderColor: theme.palette.border.debateComment
+    borderColor: theme.palette.text.debateComment
   },
   redBorder: {
-    borderColor: theme.palette.border.debateComment2
+    borderColor: theme.palette.text.debateComment2
   },
   blueBorder: {
-    borderColor: theme.palette.border.debateComment3
+    borderColor: theme.palette.text.debateComment3
   },
   purpleBorder: {
-    borderColor: theme.palette.border.debateComment4
+    borderColor: theme.palette.text.debateComment4
   },
   yellowBorder: {
-    borderColor: theme.palette.border.debateComment5
+    borderColor: theme.palette.text.debateComment5
   },
   bottomUI: {
     position: 'absolute',
