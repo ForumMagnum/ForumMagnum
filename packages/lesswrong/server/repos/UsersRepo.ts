@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueSuggestionsPage";
+import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *

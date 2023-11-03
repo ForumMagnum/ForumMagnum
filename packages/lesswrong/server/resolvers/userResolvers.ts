@@ -24,7 +24,7 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { TagsRepo, UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import { UserDialogueUsefulData } from "../../components/users/DialogueSuggestionsPage";
+import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 
 
 addGraphQLSchema(`

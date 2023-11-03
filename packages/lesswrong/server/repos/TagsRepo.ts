@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
-import { CommentCountTag } from "../../components/users/DialogueSuggestionsPage";
+import { CommentCountTag } from "../../components/users/DialogueMatchingPage";
 
 
 export default class TagsRepo extends AbstractRepo<DbTag> {

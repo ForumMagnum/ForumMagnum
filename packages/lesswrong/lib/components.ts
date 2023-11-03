@@ -595,7 +595,7 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
-importComponent("DialogueSuggestionsPage", () => require('../components/users/DialogueSuggestionsPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
