@@ -174,6 +174,9 @@ Users.toAlgolia = async (user: DbUser): Promise<Array<AlgoliaUser>|null> => {
       lat: user.mapLocation.geometry.location.lat,
       lng: user.mapLocation.geometry.location.lng,
     }}),
+    firstName: user.first_name,
+    lastName: user.last_name,
+    wuCreatedAt: user.wu_created_at,
     ...(user.mapLocation?.formatted_address && {mapLocationAddress: user.mapLocation.formatted_address})
   }
   return [algoliaUser];

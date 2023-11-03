@@ -90,7 +90,9 @@ export const algoliaConfigureIndexes = async () => {
     'jobTitle',
     'organization',
     'howICanHelpOthers',
-    'howOthersCanHelpMe'
+    'howOthersCanHelpMe',
+    'firstName',
+    'lastName',
   ]
   const eaForumUsersRanking = [
     'typo','geo','words','filters','proximity','attribute','exact',
