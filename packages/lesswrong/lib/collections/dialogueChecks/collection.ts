@@ -12,11 +12,22 @@ export const DialogueChecks: DialogueChecksCollection = createCollection({
   logChanges: true,
 })
 
-
-// TODO!!!: 
 DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck, context: ResolverContext|null): Promise<boolean> => {
-  // You can only access ones that belong to you
-  return document.userId === user?._id;
+  // Case 1: A user can see their own checks
+  if (document.userId === user?._id) {
+    return true;
+  }
+
+  // Case 2: A user can see the checks of people they themselves have checked... 
+  const existingCheck = await DialogueChecks.findOne({ userId: user?._id, targetUserId: document.userId, checked: true });
+  // ...but only the checks concerning themselves
+  const selfConcerningCheck = (document.targetUserId === user?._id)
+  if (existingCheck && selfConcerningCheck) {
+    return true;
+  }
+
+  // If none of the above conditions are met, deny access
+  return false;
 };
 
 addUniversalFields({ collection: DialogueChecks })

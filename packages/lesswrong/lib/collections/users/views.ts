@@ -283,3 +283,5 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
     }
   }
 })
+
+ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
