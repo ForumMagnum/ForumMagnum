@@ -1,19 +1,17 @@
 
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import {randomId} from "../../lib/random";
-import AbstractRepo from "./AbstractRepo";
+import AbstractRepo from "./AbstractRepo";;
 
-interface DialogueCheckPostInfo extends DbDialogueCheck {
-  postUserId: string,
-  hasCoauthorPermission: DbPost['hasCoauthorPermission'],
-  coauthorStatuses: DbPost['coauthorStatuses']
-}
 export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
   constructor() {
     super(DialogueChecks);
   }
 
-  async upsertDialogueCheck(recordId: string,userId: string, targetUserId: string, checked: boolean, checkedAt: Date) {
+  async upsertDialogueCheck(recordId: string, userId: string, targetUserId: string, checked: boolean) {
+    const existingCheck = await DialogueChecks.findOne({targetUserId, userId})
+ //   const recordId = existingCheck ? existingCheck._id : randomId()
+    const checkedAt = new Date() // now
     return this.none(`
       INSERT INTO "DialogueChecks" (
         "_id",

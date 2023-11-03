@@ -1,7 +1,7 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import { randomId } from "../../lib/random";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
-import {defineMutation, defineQuery} from "../utils/serverGraphqlUtil";
+import { defineMutation } from "../utils/serverGraphqlUtil";
 
 defineMutation({
   name: "upsertUserDialogueCheck",
@@ -12,14 +12,12 @@ defineMutation({
     if (!targetUserId) throw new Error("No target user was provided")
     const existingCheck = await DialogueChecks.findOne({targetUserId, userId: currentUser._id})
     const id = existingCheck ? existingCheck._id : randomId()
-    const now = new Date()
-    await repos.dialogueChecks.upsertDialogueCheck(id, currentUser._id, targetUserId, checked, now)
+    const resposne = await repos.dialogueChecks.upsertDialogueCheck(id, currentUser._id, targetUserId, checked)
     return {
       _id: id,
       userId: currentUser._id,
       targetUserId,
       checked,
-      checkedAt: now
     }
   } 
 })
