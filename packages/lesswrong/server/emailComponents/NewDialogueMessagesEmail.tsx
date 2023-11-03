@@ -42,7 +42,6 @@ const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}
     const editUrl = postGetEditUrl(post._id)
 
     if (dialogueMessageEmailInfo && author) {
-
       const authorDisplayName = userGetDisplayName(author)
 
       return (<React.Fragment>
@@ -58,10 +57,10 @@ const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}
     </React.Fragment>);
   }
   else {
-    return (<React.Fragment>
+    return <>
       <p>There are new responses in the dialogue you are subscribed to, <a href={postGetPageUrl(post)}>{post.title}</a>.
       </p>
-    </React.Fragment>);
+    </>;
   }
 }
 

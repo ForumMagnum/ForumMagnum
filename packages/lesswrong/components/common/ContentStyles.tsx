@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: isEAForum ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlickStart: "0 !important",
-        },
+    },
   },
   commentBody: {
     ...commentBodyStyles(theme),

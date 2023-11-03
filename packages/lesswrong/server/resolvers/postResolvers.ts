@@ -33,8 +33,7 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
 
   const $ = cheerioParse(html)
   const message = $(`[message-id="${messageId}"]`);
-  const messageContents =  message.html();
-  return messageContents
+  return  message.html();
 }
 
 augmentFieldsDict(Posts, {
@@ -236,7 +235,8 @@ augmentFieldsDict(Posts, {
         const { dialogueMessageId } = args
         if (!post.collabEditorDialogue) return null;
         if (!dialogueMessageId) return null;
-        const isParticipant = currentUser ? isDialogueParticipant(currentUser?._id, post) : false
+        if (!currentUser) return null;
+        const isParticipant = isDialogueParticipant(currentUser._id, post)
         if (!isParticipant) return null;
 
         return getDialogueMessageContents(post, dialogueMessageId)

@@ -55,8 +55,6 @@ defineQuery({
   }
 });
 
-
-
 const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string): Promise<DialogueMessageInfo|undefined> => {
   const html = await handleDialogueHtml(dialogueHtml)
   const $ = cheerioParse(html);

@@ -308,7 +308,7 @@ export const NewDialogueMessagesBatchNotification = registerNotificationType({
   //using same setting as regular NewDialogueMessageNotification, since really the same
   userSettingField: "notificationDialogueMessages",
   async getMessage({documentType, documentId}: GetMessageProps) {
-    let post = await getDocument(documentType, documentId) as DbPost;
+    const post = await getDocument(documentType, documentId) as DbPost;
 
     return 'Multiple new messages in your dialogue "' + post.title + '"';
   },

@@ -162,7 +162,7 @@ const LWPostsPreviewTooltip = ({
 
   const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
 
-  const {document: postWithDialogueMessage, loading: postWithDialogueMessageLoading} = useSingle({
+  const {document: postWithDialogueMessage} = useSingle({
     collectionName: "Posts",
     fragmentName: "PostWithDialogueMessage",
     documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,

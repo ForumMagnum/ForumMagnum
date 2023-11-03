@@ -41,7 +41,7 @@ export const DialogueMessagePreviewTooltip = ({postId, postsList=false, dialogue
     return <PostsPreviewLoading />
   }
 
-  if (!post) {return null;}
+  if (!post) return null;
 
   return <PostsPreviewTooltip post={post} postsList={postsList} dialogueMessageInfo={dialogueMessageInfo}/>
 }
