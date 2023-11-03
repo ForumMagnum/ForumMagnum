@@ -80,7 +80,7 @@ const DialogueSubmit = ({
     collectionName: "Comments",
     fragmentName: 'CommentEdit',
   })
-  const userShortfeed = currentUser?.shortformFeedId;
+  const userShortformId = currentUser?.shortformFeedId;
   const [editor, _] = React.useContext(EditorContext)
 
   const { SectionFooterCheckbox, Row } = Components;
@@ -91,7 +91,7 @@ const DialogueSubmit = ({
   }, {});
 
   const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
-  
+
   const { history } = useNavigation();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
@@ -118,12 +118,12 @@ const DialogueSubmit = ({
         >
           {saveDraftLabel}
         </Button>
-        {userShortfeed && <Button
+        {userShortformId && <Button
           className={classNames(classes.formButton)}
           disabled={loading || !!error}
           onClick={async e => {
             e.preventDefault()
-            
+
             // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
             // @ts-ignore
             const shortformString = editor && editor.getData()
@@ -132,17 +132,14 @@ const DialogueSubmit = ({
 
             const response = await createShortform({
               data: {
-                // When Ollie Etherington wrote ff6296e he ts-ignore'd the annoying error.
-                // And he's definitely a real developer. So I'm going to do the same.
-                // @ts-ignore
                 contents: shortformContents,
                 shortform: true,
-                postId: userShortfeed,
+                postId: userShortformId,
                 originalDialogueId: document._id,
               }
             })
 
-            response.data && history.push(`/posts/${userShortfeed}?commentId=${response.data.createComment.data._id}`)
+            response.data && history.push(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
           }}
         >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
         }

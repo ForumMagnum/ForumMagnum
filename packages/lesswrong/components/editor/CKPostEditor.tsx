@@ -184,7 +184,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
     const dialogueMessages = children.filter(isElementOfType(DIALOGUE_MESSAGE));
 
     const inputWrappers = children.filter(isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER));
-    
+
     // We check that we have a wrapper div for the inputs
     if (inputWrappers.length === 0) {
       writer.appendElement(DIALOGUE_MESSAGE_INPUT_WRAPPER, root);
@@ -278,17 +278,17 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null ) => {
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
-  
+
   if ( window.innerWidth < 1400 ) {
     sidebarElement.classList.remove( 'hidden' );
     sidebarElement.classList.add( 'narrow' );
-    
+
     annotationsUIs.deactivateAll();
     annotationsUIs.activate('narrowSidebar');
   }
   else {
     sidebarElement.classList.remove( 'hidden', 'narrow' );
-    
+
     annotationsUIs.deactivateAll();
     annotationsUIs.activate('wideSidebar');
   }
@@ -339,7 +339,7 @@ const CKPostEditor = ({
   const { flash } = useMessages();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  
+
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
@@ -358,7 +358,7 @@ const CKPostEditor = ({
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
-  
+
   const [sendNewDialogueMessageNotification] = useMutation(gql`
     mutation sendNewDialogueMessageNotification($postId: String!) {
       sendNewDialogueMessageNotification(postId: $postId)
@@ -371,9 +371,9 @@ const CKPostEditor = ({
       }
     });
   }
-  
+
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
+
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -389,7 +389,7 @@ const CKPostEditor = ({
   const initData = typeof(data) === "string" ? data : ""
 
   const [_, setEditor] = useContext(EditorContext);
-  
+
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
     switch(mode) {
@@ -429,14 +429,14 @@ const CKPostEditor = ({
       ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] {
         order: 1;
       }` : ``}
-      
+
       ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] button {
         display: block;
       }` : ``}
       `}
      </style>
     </>}
-    
+
     {isCollaborative && <EditorTopBar
       accessLevel={accessLevel||"none"}
       collaborationMode={collaborationMode}
@@ -444,7 +444,7 @@ const CKPostEditor = ({
       post={post}
       connectedUsers={connectedUsers}
     />}
-    
+
     <div className={classes.hidden} ref={hiddenPresenceListRef}/>
     <div ref={sidebarRef} className={classes.sidebar}/>
 
@@ -458,14 +458,14 @@ const CKPostEditor = ({
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
-          
+
           // We listen to the current window size to determine how to show comments
           window.addEventListener( 'resize', () => refreshDisplayMode(editor, sidebarRef.current) );
           // We then call the method once to determine the current window size
           refreshDisplayMode(editor, sidebarRef.current);
-          
+
           applyCollabModeToCkEditor(editor, collaborationMode);
-          
+
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
 
           // We need this context for Dialogues, which should always be collaborative.
@@ -523,14 +523,14 @@ const CKPostEditor = ({
                   return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
-                  const owner = getBlockUserId(parentDialogueElement);  
+                  const owner = getBlockUserId(parentDialogueElement);
                   if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
                 }
               }
             }
-            
+
             if (collaborationModeRef.current !== "Editing (override)") {
               if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
                 changeCollaborationMode("Commenting");

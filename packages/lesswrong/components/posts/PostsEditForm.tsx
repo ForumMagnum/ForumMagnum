@@ -126,7 +126,7 @@ const PostsEditForm = ({ documentId, classes }: {
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
-          <EditorContext.Provider value={[editorState, e => setEditorState(e)]}>
+          <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"
               removeFields={removedFields}
