@@ -171,7 +171,14 @@ export const AuthorizationError = createError(
   }
 )
 
-const whitelistedErrors = ["SimpleValidationError", "AuthorizationError"]
+export const RateLimitError = createError(
+  'RateLimitError',
+  {
+    message: "You can't do that again yet.",
+  }
+)
+
+const whitelistedErrors = ["SimpleValidationError", "AuthorizationError", "RateLimitError"]
 
 // Most errors shouldn't be shown to the user. Only a few specific ones should,
 // and they're whitelisted here.

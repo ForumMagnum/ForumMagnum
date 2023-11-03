@@ -4,6 +4,7 @@ import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { interpolateRateLimitMessage } from '../../lib/rateLimits/utils';
+import { RateLimitError } from '../vulcan-lib';
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -87,7 +88,7 @@ async function enforceCommentRateLimit({user, comment, context}:{
         interpolateRateLimitMessage(rateLimit.rateLimitMessage, nextEligible) :
         `Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`
 
-      throw new Error(message);
+      throw new RateLimitError({message: message})
     }
   }
 }
