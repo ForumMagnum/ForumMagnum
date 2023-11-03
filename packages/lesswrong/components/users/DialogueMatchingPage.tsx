@@ -14,6 +14,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 import { Link } from '../../lib/reactRouterWrapper';
+import classNames from 'classnames';
 
 export type UpvotedUser = {
   _id: string;
@@ -372,10 +373,12 @@ const DialogueCheckBox: React.FC<{
       <FormControlLabel
         control={ 
           <Checkbox 
-            classes={{
-              root: checkboxClass,
-              checked: classes.checked,
-            }}
+            className={classNames({
+              [classes.checkbox]: !isChecked,
+              [classes.checkboxCheckedMatched]: isChecked && isMatched,
+              [classes.checkboxCheckedNotMatched]: isChecked && !isMatched,
+              checked: classes.checked
+            })}
             onChange={event => updateDatabase(event, targetUserId, setShowConfetti, checkId) } 
             checked={isChecked}
           />
