@@ -167,20 +167,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   
   rootGivingSeason: {
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
+    [theme.breakpoints.down('sm')]: {
+      height: EA_FORUM_HEADER_HEIGHT,
+    }
   },
   appBarGivingSeason: {
     color: theme.palette.givingPortal.alwaysLight,
-    background: `linear-gradient(to right, ${theme.palette.givingPortal[1100]} 10%, ${theme.palette.givingPortal.button.alwaysDark} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.button.alwaysDark} 72%, ${theme.palette.givingPortal[1100]} 90%), center no-repeat url(${gsImg}), ${theme.palette.givingPortal.button.alwaysDark}`,
+    background: `center no-repeat url(${gsImg}), ${theme.palette.givingPortal[1100]}`,
     position: "static",
     width: "100%",
+    height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     display: "flex",
     zIndex: 1100,
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
     padding: '1px 20px',
+    '@media (max-width: 1200px)': {
+      background: `right no-repeat url(${gsImg}), ${theme.palette.givingPortal[1100]}`,
+    },
     [theme.breakpoints.down('sm')]: {
+      height: EA_FORUM_HEADER_HEIGHT,
       padding: '1px 11px',
+    },
+    '@media (max-width: 840px)': {
+      background: theme.palette.givingPortal.button.alwaysDark,
     },
     [theme.breakpoints.down('xs')]: {
       padding: '9px 11px',
@@ -219,21 +230,66 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
   },
+  toolbarGivingSeason: {
+    zIndex: theme.zIndexes.spotlightItem
+  },
   siteLogoGivingSeason: {
-    width: 34
+    width: 34,
+    [theme.breakpoints.down('sm')]: {
+      width: 30,
+    },
   },
   titleLinkGivingSeason: {
     color: theme.palette.givingPortal.alwaysLight,
+  },
+  givingSeasonSubtitle: {
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      marginLeft: '1em',
+      paddingLeft: '1em',
+      borderLeft: `1px solid ${theme.palette.givingPortal.alwaysLight}`,
+    },
+    '@media (max-width: 640px)': {
+      display: 'none',
+    }
+  },
+  givingSeasonMobileLink: {
+    color: theme.palette.givingPortal.alwaysLight,
+  },
+  givingSeasonGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    background: `linear-gradient(to right, ${theme.palette.givingPortal[1100]} 10%, ${theme.palette.givingPortal.button.alwaysDark} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.button.alwaysDark} 72%, ${theme.palette.givingPortal[1100]} 90%)`,
+    maxWidth: 1740,
+    width: '100%',
+    height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
+    margin: '0 auto',
+    '@media (max-width: 1200px)': {
+      background: `linear-gradient(76deg, ${theme.palette.givingPortal[1100]} 10%, ${theme.palette.givingPortal.button.alwaysDark} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.button.alwaysDark})`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      height: EA_FORUM_HEADER_HEIGHT,
+    },
+    '@media (max-width: 840px)': {
+      display: 'none'
+    }
   },
   givingSeasonContent: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 16
+    marginTop: 16,
+    zIndex: theme.zIndexes.spotlightItem,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    }
   },
   givingSeasonOverview: {
     maxWidth: 500,
-    padding: '0 20px 38px 50px'
+    padding: '0 20px 0 50px'
   },
   givingSeasonHeading: {
     color: theme.palette.givingPortal.alwaysLight,
@@ -259,8 +315,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.givingPortal.alwaysLight,
     fontSize: 13,
     fontWeight: 500,
-    paddingBottom: 38,
-    marginRight: -20
+    marginRight: -20,
+    '@media (max-width: 1400px)': {
+      maxWidth: 480,
+      gridTemplateColumns: 'repeat(3, auto)',
+    },
+    '@media (max-width: 1200px)': {
+      display: 'none'
+    },
   },
   gsTimelineLabel: {
     backgroundColor: theme.palette.givingPortal.button.headerBannerSecondary,
@@ -438,7 +500,8 @@ const Header = ({
             disable={stayAtTop}
           >
             <header className={classes.appBarGivingSeason}>
-              <Toolbar disableGutters={isEAForum}>
+              <div className={classes.givingSeasonGradient}></div>
+              <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
                 {renderNavigationMenuButton()}
                 <Typography className={classes.title} variant="title">
                   <div className={classes.hideSmDown}>
@@ -447,14 +510,20 @@ const Header = ({
                         {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>{lightbulbIcon}</div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
-                      <HeaderSubtitle />
                     </div>
                   </div>
                   <div className={classes.hideMdUp}>
-                    <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                      {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>{lightbulbIcon}</div>}
-                      {forumShortTitleSetting.get()}
-                    </Link>
+                    <div className={classes.titleSubtitleContainer}>
+                      <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
+                        {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>{lightbulbIcon}</div>}
+                        {forumShortTitleSetting.get()}
+                      </Link>
+                      <div className={classes.givingSeasonSubtitle}>
+                        <Link to="/giving-portal" className={classes.givingSeasonMobileLink}>
+                          Giving season 2023
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </Typography>
                 <div className={classes.rightHeaderItems}>
@@ -485,7 +554,7 @@ const Header = ({
                 <div className={classes.givingSeasonTimeline}>
                   {timelineSpec.spans.map(span => {
                     if (span.hatched) return null
-                    const now = moment().add(5,'days')
+                    const now = moment().add(20,'days')
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
                     return <div
                       key={`${span.description}-label`}
@@ -503,7 +572,19 @@ const Header = ({
                 </div>
               </div>
             </header>
+            <NavigationDrawer
+              open={navigationOpen}
+              handleOpen={() => setNavigationOpen(true)}
+              handleClose={() => setNavigationOpen(false)}
+              toc={toc?.sectionData ?? null}
+            />
           </Headroom>
+          {currentUser && <NotificationsMenu
+            unreadPrivateMessages={unreadPrivateMessages}
+            open={notificationOpen}
+            hasOpened={notificationHasOpened}
+            setIsOpen={handleSetNotificationDrawerOpen}
+          />}
         </div>
       </AnalyticsContext>
     )
