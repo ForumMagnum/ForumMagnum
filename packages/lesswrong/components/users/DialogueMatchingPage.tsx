@@ -198,7 +198,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
 
 
   const { loading, error, data } = useQuery(gql`
-    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, limit: Int) {
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         title
