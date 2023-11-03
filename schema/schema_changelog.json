@@ -358,5 +358,10 @@
     "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
     "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
     "timestamp": "2023-10-28T01:20:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1e3a27dd5e7df23c64a524f8fdef9856",
+    "acceptedByMigration": "20231103T202008.originalDialogueIdForShortform.ts",
+    "timestamp": "2023-11-03T20:20:08.000Z"
   }
 ]
