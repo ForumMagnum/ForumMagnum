@@ -62,7 +62,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   const {LWPopper, ForumIcon} = Components;
   return (
     <>
-      {everHovered &&
+      {/* {everHovered &&
         <LWPopper
           placement="bottom"
           open={hover}
@@ -73,7 +73,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
         >
           {tooltip}
         </LWPopper>
-      }
+      } */}
       <ForumIcon
         {...eventHandlers}
         onClick={onVote}
