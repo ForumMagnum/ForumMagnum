@@ -50,5 +50,4 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Tags"`);
     return count;
   }
-
 }
