@@ -360,20 +360,19 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return count;
   }
 
-  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string): Promise<DbPost[]> {
+  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
     return this.any(`
-      SELECT public."Posts".*
-      FROM public."ReadStatuses"
-      INNER JOIN public."Posts" ON public."ReadStatuses"."postId" = public."Posts"._id
+      SELECT p.*
+      FROM "ReadStatuses" rs
+      INNER JOIN "Posts" p 
+      ON rs."postId" = p._id
       WHERE
-          public."ReadStatuses"."userId" = $1
-          AND public."Posts"."userId" = $2
-          AND public."ReadStatuses"."isRead" = true
-      ORDER BY public."ReadStatuses"."lastUpdated" DESC
-      LIMIT 20
-    
-    `, [userId, targetUserId]);
+          rs."userId" = $1
+          AND p."userId" = $2
+          AND rs."isRead" IS TRUE
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
   }
 }
-//addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!): [Post]");
 ensureIndex(Posts, {debate:-1})

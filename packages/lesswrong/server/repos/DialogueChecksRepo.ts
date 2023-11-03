@@ -33,11 +33,16 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     return this.any(`
       SELECT 
         * 
-      FROM public."DialogueChecks" 
-      WHERE "targetUserId" = $1 AND "userId" = $2 AND "checked" = true
+      FROM "DialogueChecks" 
+      WHERE "targetUserId" = $1 
+      AND "userId" = $2 
+      AND "checked" = true
       AND EXISTS (
-        SELECT 1 FROM public."DialogueChecks" 
-        WHERE "targetUserId" = $2 AND "userId" = $1 AND "checked" = true
+        SELECT 1 
+        FROM "DialogueChecks" 
+        WHERE "targetUserId" = $2 
+        AND "userId" = $1 
+        AND "checked" = true
       );
     `, [userId1, userId2])
   }
