@@ -29,4 +29,4 @@ Misc:
 `DELETE /*` on ElasticSearch (which deletes all indexes and aliases) and then re-run `elasticConfigureIndexes` 
 
 ---
-How to add a new field to be indexed: see the commit this edit was made in for example. 
+How to add a new field to be indexed: see the `09ccacdf` commit for an example
