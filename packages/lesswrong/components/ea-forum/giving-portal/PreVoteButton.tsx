@@ -7,12 +7,16 @@ import { useHover } from "../../common/withHover";
 import type { VotingProps } from "../../votes/votingProps";
 import classNames from "classnames";
 import { useTracking } from "../../../lib/analyticsEvents";
+import { isMobile } from "../../../lib/utils/isMobile";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.givingPortal[1000],
-    fontSize: 20,
+    fontSize: 28,
+    padding: 4,
+    // Translate to offset the padding
+    transform: "translate(4px, -4px)",
     "&:hover": {
       opacity: 0.5,
     },
@@ -35,7 +39,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   const { captureEvent } = useTracking();
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
-  const icon = hasVoted || hover ? "Heart" : "HeartOutline";
+  const icon = hasVoted || (hover && !isMobile()) ? "Heart" : "HeartOutline";
   const tooltip = hasVoted ? "Remove pre-vote" : "Pre-vote";
 
   const onVote = useCallback(async () => {
