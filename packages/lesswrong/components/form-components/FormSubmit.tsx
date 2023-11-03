@@ -93,7 +93,7 @@ const FormSubmit = ({
         className={classNames(classes.formButton, classes.secondaryButton)}
         onClick={() => updateCurrentValues({draft: true})}
       >
-        Save as draft
+        Save as Draft
       </Button>
 
       {userCanDo(currentUser, 'posts.curate.all') && !document.meta && !document.question &&
