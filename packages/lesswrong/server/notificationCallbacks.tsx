@@ -261,7 +261,6 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
 
   //no previous dialogue notifications, send notification with individual message preview
   if (!mostRecentNotification) {
-    console.log("no previous dialogue notifications, send notification with individual message preview")
     return await sendSingleDialogueMessageNotification(props)
   }
 
@@ -270,20 +269,16 @@ async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticip
   //most recent notification is a batch notifcation
   if (mostRecentNotification.type === 'newDialogueBatchMessages') {
     //if unread, don't send another
-    console.log("most recent notification is an unread batch notifcation")
     if (isLastNotificationUnread) return
     //if read, go back to sending individual message preview
-    console.log("most recent notification is a read batch notifcation")
     return await sendSingleDialogueMessageNotification(props)
   //most recent notification is an individual message preview
   } else {
     //if unread, send batch notification
     if (isLastNotificationUnread) {
-      console.log("most recent notification is an unread individual message preview, send batch notification")
       return await sendBatchDialogueMessageNotification(props)
     }
     //if read, send another individual message preview
-    console.log("most recent notification is a read individual message preview, send another individual message preview")
     return await sendSingleDialogueMessageNotification(props)
   }
 }
@@ -309,10 +304,8 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
       notificationsByUserId[userId] = []
     }
   })
-  console.log({notificationsByUserId, notifications})
   const notificationPromises = Object.entries(notificationsByUserId).map(async ([userId, previousNotifications]) => {
     const participant = debateParticipants.find(user => user._id === userId)
-    console.log({participant, userId, previousNotifications})
     if (participant) {
       return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo})
     }

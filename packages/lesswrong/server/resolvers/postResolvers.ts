@@ -30,7 +30,6 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
   // fetch remote document from storage / fetch latest revision / post latest contents
   const latestRevision = await getLatestRev(post._id, "contents")
   const html = latestRevision?.html ?? post.contents.html ?? ""
-  console.log({latestRevision, html, postId: post._id})
 
   const $ = cheerioParse(html)
   const message = $(`[message-id="${messageId}"]`);

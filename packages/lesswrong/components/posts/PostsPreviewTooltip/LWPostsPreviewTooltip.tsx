@@ -38,6 +38,9 @@ const highlightStyles = (theme: ThemeType) => ({
   '& li': {
     fontSize: "1.1rem"
   },
+  '& .dialogue-message-header': {
+    position: 'relative !important',
+  },
   ...highlightSimplifiedStyles
 })
 
@@ -169,8 +172,6 @@ const LWPostsPreviewTooltip = ({
     extraVariablesValues: {dialogueMessageId},
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
-
-  console.log({postWithDialogueMessage, dialogueMessageContents})
 
   if (!post) return null
   

@@ -7,6 +7,7 @@ import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPag
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { handleDialogueHtml } from '../editor/conversionUtils';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -56,8 +57,9 @@ defineQuery({
 
 
 
-const extractLatestDialogueMessageByUser = (dialogueHtml: string, userId: string): DialogueMessageInfo|undefined => {
-  const $ = cheerioParse(dialogueHtml);
+const extractLatestDialogueMessageByUser = async (dialogueHtml: string, userId: string): Promise<DialogueMessageInfo|undefined> => {
+  const html = await handleDialogueHtml(dialogueHtml)
+  const $ = cheerioParse(html);
   const messages = $('.dialogue-message');
   let latestMessage: DialogueMessageInfo|undefined
   messages.each((_, message) => {
@@ -83,10 +85,8 @@ defineMutation({
     if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue")
     if (!isDialogueParticipant(currentUser._id, post)) throw new Error("User is not a dialogue participant")
 
-    const messageInfo = extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id) 
+    const messageInfo = await extractLatestDialogueMessageByUser(dialogueHtml, currentUser._id) 
 
-    console.log("inside sendNewDialogueMessageNotification", {messageInfo, dialogueHtml})
-  
     await notifyDialogueParticipantsNewMessage(currentUser._id, messageInfo, post)
     
     return true
