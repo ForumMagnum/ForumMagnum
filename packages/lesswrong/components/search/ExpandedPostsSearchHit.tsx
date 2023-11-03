@@ -57,8 +57,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ExpandedPostsSearchHit = ({hit, classes}: {
+const ExpandedPostsSearchHit = ({hit, showKarma = false, classes}: {
   hit: Hit<any>,
+  showKarma?: boolean,
   classes: ClassesType,
 }) => {
   const { history } = useNavigation()
@@ -80,7 +81,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
       {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
         {post.authorDisplayName}
       </Link> : <UserNameDeleted />}
-      <span>{post.baseScore ?? 0} karma</span>
+      {showKarma && <span>{post.baseScore ?? 0} karma</span>}
       <FormatDate date={post.postedAt} />
     </div>
     <div className={classes.snippet}>

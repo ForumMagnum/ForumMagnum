@@ -66,8 +66,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ExpandedCommentsSearchHit = ({hit, classes}: {
+const ExpandedCommentsSearchHit = ({hit, showKarma = false, classes}: {
   hit: Hit<any>,
+  showKarma?: boolean,
   classes: ClassesType,
 }) => {
   const { history } = useNavigation()
@@ -108,7 +109,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
       {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
         {comment.authorDisplayName}
       </Link> : <UserNameDeleted />}
-      <span>{comment.baseScore ?? 0} karma</span>
+      {showKarma && <span>{comment.baseScore ?? 0} karma</span>}
       <FormatDate date={comment.createdAt} />
     </div>
   </div>
