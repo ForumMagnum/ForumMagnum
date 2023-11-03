@@ -14,10 +14,11 @@ import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -55,7 +56,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 6,
   },
   individualAddedReact: {
+    color: isEAForum ? theme.palette.primary.main : undefined,
     marginLeft: 2,
+    marginRight: isEAForum ? 6 : undefined,
   },
   votedItemDescription: {
     display: "inline-block",
@@ -157,9 +160,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 // but actually we know it will always be a TagCommentType because the db schema constrains it
                 to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
               >
-                <span className={classes.votedItemScoreChange}>
+                {(commentChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
-                </span>
+                </span>}
                 <span className={classes.votedItemReacts}>
                   <NewReactions reactionChanges={commentChange.addedReacts} classes={classes}/>
                 </span>
@@ -306,24 +309,28 @@ const NewReactions = ({reactionChanges, classes}: {
     distinctReactionTypes.add(reactionChange.reactionType);
   
   return <span>
-    {[...distinctReactionTypes.keys()].map(reactionType => <span
-      className={classes.individualAddedReact}
-      key={reactionType}
-    >
-      <LWTooltip
-        title={
-          reactionChanges.filter(r=>r.reactionType===reactionType)
-            .map((r,i) => <>
-              {i>0 && <>{", "}</>}
-              <Components.UsersName documentId={r.userId}/>
-            </>)
-        }
+    {[...distinctReactionTypes.keys()].map(reactionType => {
+      const EAEmojiComponent = eaEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+    
+      return <span
+        className={classes.individualAddedReact}
+        key={reactionType}
       >
-        <ReactionIcon
-          react={reactionType}
-        />
-      </LWTooltip>
-    </span>)}
+        <LWTooltip
+          title={
+            reactionChanges.filter(r=>r.reactionType===reactionType)
+              .map((r,i) => <>
+                {i>0 && <>{", "}</>}
+                <Components.UsersName documentId={r.userId}/>
+              </>)
+          }
+        >
+          {(EAEmojiComponent && isEAForum) ? <EAEmojiComponent /> : <ReactionIcon
+            react={reactionType}
+          />}
+        </LWTooltip>
+      </span>
+    })}
   </span>
 }
 
