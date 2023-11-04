@@ -581,6 +581,9 @@ export const DialogueMatchingPage = ({classes}: {
     isMobile = window.innerWidth <= 768; // Adjust this value as needed
   }
 
+  const headerTitlesV1 = ["Dialogue", "Name", "Message", "Match", "Karma", "Agreement", "Posts you've read"] 
+  const headerTitlesV2 = ["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]
+
   return (
     
     <div className={classes.root}>
@@ -615,22 +618,24 @@ export const DialogueMatchingPage = ({classes}: {
           </div> 
         <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, 
           to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
-          the other part of the match has also opted in.</p>      
+          the other part of the match has also opted in.</p>     
         <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Your top upvoted users (last 1.5 years)</h3>
           <div className={classes.matchContainerGridV1}>
-            <Headers titles={["Dialogue", "Name", "Message", "Match", "Karma", "Agreement", "Posts you've read"]} className={classes.header} />
+            <Headers titles={headerTitlesV1} className={classes.header} />
             {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
+              const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
+              const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
               return (
                 <React.Fragment key={targetUser._id}>
                   <DialogueCheckBox 
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
-                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
                     classes={classes}
                   />
                   <UsersName 
@@ -642,7 +647,7 @@ export const DialogueMatchingPage = ({classes}: {
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isMatched={userIsMatched}
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
@@ -668,18 +673,19 @@ export const DialogueMatchingPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Users who published dialogues</h3>
           <div className={classes.matchContainerGridV2}>
-            <Headers titles={["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]} className={classes.header} />
+            <Headers titles={headerTitlesV2} className={classes.header} />
             {userDialogueUsefulData.dialogueUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-              
+              const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
+              const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
               return (
                 <React.Fragment key={`${targetUser._id}_other`}> 
                   <DialogueCheckBox 
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
-                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
                     classes={classes}
                   />
                   <UsersName 
@@ -691,7 +697,7 @@ export const DialogueMatchingPage = ({classes}: {
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isMatched={userIsMatched}
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
@@ -720,17 +726,19 @@ export const DialogueMatchingPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Users who opted in to dialogue invitations on frontpage</h3>
           <div className={classes.matchContainerGridV2}> 
-          <Headers titles={["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]} className={classes.header} />
+          <Headers titles={headerTitlesV2} className={classes.header} />
             {UsersOptedInToDialogueFacilitation?.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
+              const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
+              const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
               return (
                 <React.Fragment key={`${targetUser._id}_other`}> 
                   <DialogueCheckBox 
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName} 
                     checkId={checkId} 
-                    isChecked={isChecked(userDialogueChecks, targetUser._id)}
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
                     classes={classes}
                   />
                   <UsersName 
@@ -742,7 +750,7 @@ export const DialogueMatchingPage = ({classes}: {
                     currentUser={currentUser} 
                     classes={classes} />
                   <MatchDialogueButton
-                    isMatched={isMatched(userDialogueChecks, targetUser._id)}
+                    isMatched={userIsMatched}
                     targetUserId={targetUser._id}
                     targetUserDisplayName={targetUser.displayName}
                     currentUser={currentUser}
