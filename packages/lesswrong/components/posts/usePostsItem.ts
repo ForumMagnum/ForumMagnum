@@ -149,7 +149,7 @@ export const usePostsItem = ({
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const showDismissButton = Boolean(currentUser && resumeReading);
-  const onArchive = toggleDeleteDraft?.bind(null, post);
+  const onArchive = toggleDeleteDraft && (() => toggleDeleteDraft(post));
   const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post) && onArchive);
 
   const commentTerms: CommentsViewTerms = {
