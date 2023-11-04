@@ -322,16 +322,13 @@ const DialogueCheckBox: React.FC<{
   const [showConfetti, setShowConfetti] = useState(false);
 
 
-  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
+  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, isChecked: boolean, checkId?: string) {
     if (!currentUser) return;
-
-    const tgt = event.target;
-    if (!(tgt instanceof HTMLInputElement)) return;
 
     const response = await upsertDialogueCheck({
       variables: {
         targetUserId: targetUserId, 
-        checked: tgt.checked
+        checked: isChecked
       },
       update(cache, { data }) {
         if (!checkId) {
@@ -377,10 +374,6 @@ const DialogueCheckBox: React.FC<{
     }
   }
 
-  const checkboxClass = isChecked 
-    ? (isMatched ? classes.checkboxCheckedMatched : classes.checkboxCheckedNotMatched)
-    : classes.checkbox
-
   return (
     <>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} />}
@@ -388,10 +381,14 @@ const DialogueCheckBox: React.FC<{
         control={ 
           <Checkbox 
             classes={{
-              root: checkboxClass,
+              root: classNames({
+                [classes.checkbox]: !isChecked,
+                [classes.checkboxCheckedMatched]: isChecked && isMatched,
+                [classes.checkboxCheckedNotMatched]: isChecked && !isMatched
+              }),
               checked: classes.checked
-              }}
-            onChange={event => updateDatabase(event, targetUserId, checkId) } 
+            }}
+            onChange={event => updateDatabase(event, targetUserId, isChecked, checkId) } 
             checked={isChecked}
           />
         }
@@ -585,11 +582,8 @@ export const DialogueMatchingPage = ({classes}: {
   const headerTitlesV2 = ["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]
 
   return (
-    
     <div className={classes.root}>
-      
       <div style={{ maxWidth: '1100px', margin: 'auto' }}>
-
       {isMobile && (
         <div style={{ backgroundColor: 'yellow', padding: '10px', marginBottom: '20px', maxWidth: '40vw' }}>
           Dialogues matching doesn't render well on mobile right now. <br/> <br /> Please view on laptop or tablet!
