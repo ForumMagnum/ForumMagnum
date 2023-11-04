@@ -342,7 +342,7 @@ const DialogueCheckBox: React.FC<{
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
 
     // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
-    const webhookURL = "https://hooks.slack.com/triggers/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"; // TODO dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
+    const webhookURL = "https://hooks.slack.com/triggers/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";
     const data = {} // Not sending any data for now 
     void pingSlackWebhook(webhookURL, data)
   }
@@ -578,7 +578,7 @@ export const DialogueMatchingPage = ({classes}: {
   if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
-    console.log("Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...")
+    throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }
 
   const handleOptInToRevealDialogueChecks = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -588,7 +588,7 @@ export const DialogueMatchingPage = ({classes}: {
     
     if (event.target.checked) {
        // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-      const webhookURL = "https://hooks.slack.com/triggers/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" // TODO dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
+      const webhookURL = "https://hooks.slack.com/triggers/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" 
       const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
       const data = { user: userDetailString };
       void pingSlackWebhook(webhookURL, data)
