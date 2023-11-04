@@ -198,7 +198,13 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(bioContainerRef);
 
   return (
-    <div className={`${classes.gradientBigTextContainer} ${isScrolledToTop ? 'scrolled-to-top' : ''} ${isScrolledToBottom ? 'scrolled-to-bottom' : ''}`} ref={bioContainerRef}>
+    <div 
+      className={classNames(classes.gradientBigTextContainer, {
+        'scrolled-to-top': isScrolledToTop,
+        'scrolled-to-bottom': isScrolledToBottom
+      })} 
+      ref={bioContainerRef}
+    >
       {userData?.biography?.plaintextDescription }
     </div>
   )
@@ -229,16 +235,20 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
   if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <div className={`${classes.gradientBigTextContainer} ${isScrolledToTop ? 'scrolled-to-top' : ''} ${isScrolledToBottom ? 'scrolled-to-bottom' : ''}`} ref={readPostsContainerRef}>
+    <div 
+      className={classNames(classes.gradientBigTextContainer, {
+        'scrolled-to-top': isScrolledToTop,
+        'scrolled-to-bottom': isScrolledToBottom
+      })} 
+      ref={readPostsContainerRef}
+    >
       {readPosts.length > 0 ? (
-        readPosts.map((post, index) => {
-            return (
-              <PostsTooltip key={index} postId={post._id}>
-                <Link key={index} to={"https://www.lesswrong.com/posts/"+post._id}>• {post.title}</Link>
-                <br/>
-              </PostsTooltip>
-            )
-          })
+        readPosts.map((post, index) => (
+          <PostsTooltip key={index} postId={post._id}>
+            <Link key={index} to={`https://www.lesswrong.com/posts/${post._id}`}>• {post.title}</Link>
+            <br/>
+          </PostsTooltip>
+        ))
       ) : (
         <p>(no posts read...)</p>
       )}
