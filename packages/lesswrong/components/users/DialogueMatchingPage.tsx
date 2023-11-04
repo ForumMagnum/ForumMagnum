@@ -613,61 +613,62 @@ export const DialogueMatchingPage = ({classes}: {
                   style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
                 />
               }
-              label={<span className={classes.prompt} >{prompt}</span>}
+              label={<span className={classes.prompt}>{prompt}</span>}
             />
           </div> 
         <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, 
           to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
           the other part of the match has also opted in.</p>     
         <div className={classes.rootFlex}>
-        <div className={classes.matchContainer}>
-          <h3>Your top upvoted users (last 1.5 years)</h3>
-          <div className={classes.matchContainerGridV1}>
-            <Headers titles={headerTitlesV1} className={classes.header} />
-            {userDialogueUsefulData.topUsers.map(targetUser => {
-              const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-              const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
-              const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
-              return (
-                <React.Fragment key={targetUser._id}>
-                  <DialogueCheckBox 
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName} 
-                    checkId={checkId} 
-                    isChecked={userIsChecked}
-                    isMatched={userIsMatched}
-                    classes={classes}
-                  />
-                  <UsersName 
-                    className={classes.displayName} 
-                    documentId={targetUser._id} 
-                    simple={false}/>
-                  <MessageButton 
-                    targetUserId={targetUser._id} 
-                    currentUser={currentUser} 
-                    classes={classes} />
-                  <MatchDialogueButton
-                    isMatched={userIsMatched}
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName}
-                    currentUser={currentUser}
-                    loadingNewDialogue={loadingNewDialogue}
-                    createDialogue={createDialogue}
-                    classes={classes}
-                  />
-                  <div className={classes.centeredText}>{targetUser.total_power}</div>
-                  <div className={classes.centeredText}>{targetUser.total_agreement}</div>
-                  <UserPostsYouveRead 
-                    classes={classes} 
-                    targetUserId={targetUser._id} 
-                    limit={8} 
-                  />
-                </React.Fragment> 
+          <div className={classes.matchContainer}>
+            <h3>Your top upvoted users (last 1.5 years)</h3>
+            <div className={classes.matchContainerGridV1}>
+              <Headers titles={headerTitlesV1} className={classes.header} />
+              {userDialogueUsefulData.topUsers.map(targetUser => {
+                const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
+                const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
+                const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
+                
+                return (
+                  <React.Fragment key={targetUser._id}>
+                    <DialogueCheckBox 
+                      targetUserId={targetUser._id}
+                      targetUserDisplayName={targetUser.displayName} 
+                      checkId={checkId} 
+                      isChecked={userIsChecked}
+                      isMatched={userIsMatched}
+                      classes={classes}
+                    />
+                    <UsersName 
+                      className={classes.displayName} 
+                      documentId={targetUser._id} 
+                      simple={false}/>
+                    <MessageButton 
+                      targetUserId={targetUser._id} 
+                      currentUser={currentUser} 
+                      classes={classes} />
+                    <MatchDialogueButton
+                      isMatched={userIsMatched}
+                      targetUserId={targetUser._id}
+                      targetUserDisplayName={targetUser.displayName}
+                      currentUser={currentUser}
+                      loadingNewDialogue={loadingNewDialogue}
+                      createDialogue={createDialogue}
+                      classes={classes}
+                    />
+                    <div className={classes.centeredText}>{targetUser.total_power}</div>
+                    <div className={classes.centeredText}>{targetUser.total_agreement}</div>
+                    <UserPostsYouveRead 
+                      classes={classes} 
+                      targetUserId={targetUser._id} 
+                      limit={8} 
+                    />
+                  </React.Fragment> 
+                )}
               )}
-            )}
+            </div>
           </div>
         </div>
-      </div>
       <br />
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
