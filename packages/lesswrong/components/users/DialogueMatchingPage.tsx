@@ -633,7 +633,7 @@ export const DialogueMatchingPage = ({classes}: {
           <h3>Your top upvoted users (last 1.5 years)</h3>
           <div className={classes.matchContainerGridV1}>
             <Headers titles={headerTitlesV1} className={classes.header} />
-            {userDialogueUsefulData.topUsers.slice(0,20).map(targetUser => {
+            {userDialogueUsefulData.topUsers.map(targetUser => {
               const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
               const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
               const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
