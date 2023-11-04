@@ -383,12 +383,10 @@ const DialogueCheckBox: React.FC<{
       <FormControlLabel
         control={ 
           <Checkbox 
-            className={classNames({
-              [classes.checkbox]: !isChecked,
-              [classes.checkboxCheckedMatched]: isChecked && isMatched,
-              [classes.checkboxCheckedNotMatched]: isChecked && !isMatched,
+            classes={{
+              root: checkboxClass,
               checked: classes.checked
-            })}
+              }}
             onChange={event => updateDatabase(event, targetUserId, setShowConfetti, checkId) } 
             checked={isChecked}
           />
