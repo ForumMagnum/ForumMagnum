@@ -1,13 +1,22 @@
 import React from 'react';
 import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
 
+export interface DialogueMessageEmailInfo {
+  messageContents: string,
+  messageAuthorId: string,
+}
 
-const NewDialogueMessagesEmail = ({documentId, userId}: {
+const NewDialogueMessagesEmail = ({documentId, userId, dialogueMessageEmailInfo}: {
   documentId: string,
   userId: string,
+  dialogueMessageEmailInfo?: DialogueMessageEmailInfo
 }) => {
+
+  const { EmailContentItemBody } = Components;
+
   const { document: post } = useSingle({
     documentId,
     collectionName: "Posts",
@@ -16,6 +25,14 @@ const NewDialogueMessagesEmail = ({documentId, userId}: {
       version: 'String'
     }
   });
+      
+  const { document: author } = useSingle({
+    documentId: dialogueMessageEmailInfo?.messageAuthorId,
+    collectionName: "Users",
+    fragmentName: "UsersMinimumInfo",
+    skip: !dialogueMessageEmailInfo
+  })
+
   if (!post) return null;
   if (!post.collabEditorDialogue) return null;
   
@@ -23,6 +40,16 @@ const NewDialogueMessagesEmail = ({documentId, userId}: {
   
   if (dialogueParticipantIds.includes(userId)) {
     const editUrl = postGetEditUrl(post._id)
+
+    if (dialogueMessageEmailInfo && author) {
+      const authorDisplayName = userGetDisplayName(author)
+
+      return (<React.Fragment>
+        <p>{authorDisplayName} left a new reply in your dialogue "<a href={editUrl}>{post.title}</a>".</p>
+        <EmailContentItemBody dangerouslySetInnerHTML={{ __html: dialogueMessageEmailInfo.messageContents }}/> 
+        <p><a href={editUrl}>Click here</a>to respond!</p>
+      </React.Fragment>);
+    }
     
     return (<React.Fragment>
       <p>There are new responses in your dialogue "<a href={editUrl}>{post.title}</a>".</p>
@@ -30,10 +57,10 @@ const NewDialogueMessagesEmail = ({documentId, userId}: {
     </React.Fragment>);
   }
   else {
-    return (<React.Fragment>
-      <p>There are new responses in the dialogue you are subscribed, <a href={postGetPageUrl(post)}>{post.title}</a>.
+    return <>
+      <p>There are new responses in the dialogue you are subscribed to, <a href={postGetPageUrl(post)}>{post.title}</a>.
       </p>
-    </React.Fragment>);
+    </>;
   }
 }
 
