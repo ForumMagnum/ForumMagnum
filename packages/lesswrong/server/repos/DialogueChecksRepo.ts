@@ -8,8 +8,7 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     super(DialogueChecks);
   }
 
-  async upsertDialogueCheck(recordId:string, userId: string, targetUserId: string, checked: boolean) {
-
+  async upsertDialogueCheck(userId: string, targetUserId: string, checked: boolean) {
     const checkedAt = new Date() // now
     return this.one(`
       INSERT INTO "DialogueChecks" (
@@ -24,7 +23,7 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
         "checked" = $4,
         "checkedAt" = $5
       RETURNING *
-    `, [recordId, userId, targetUserId, checked, checkedAt])
+    `, [randomId(), userId, targetUserId, checked, checkedAt])
   }
 
   async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck[]> {

@@ -11,17 +11,17 @@ defineMutation({
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")
     const userId = currentUser._id
-    const existingCheck = await DialogueChecks.findOne({targetUserId, userId}) //
-    const recordId = existingCheck ? existingCheck._id : randomId() //
+    // const existingCheck = await DialogueChecks.findOne({targetUserId, userId}) //
+    // const recordId = existingCheck ? existingCheck._id : randomId() //
     
-    const response = await repos.dialogueChecks.upsertDialogueCheck(recordId, currentUser._id, targetUserId, checked)
-    //return response
-    return {
-      _id: recordId,
-      userId: currentUser._id,
-      targetUserId,
-      checked,
-    }
+    const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)
+    return response
+    // return {
+    //   _id: recordId,
+    //   userId: currentUser._id,
+    //   targetUserId,
+    //   checked,
+    // }
   } 
 })
 

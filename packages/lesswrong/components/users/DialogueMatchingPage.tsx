@@ -350,13 +350,13 @@ const DialogueCheckBox: React.FC<{
   const [showConfetti, setShowConfetti] = useState(false);
 
 
-  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, isChecked: boolean, checkId?: string) {
+  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
 
     const response = await upsertDialogueCheck({
       variables: {
         targetUserId: targetUserId, 
-        checked: isChecked
+        checked: event.target.checked
       },
       update(cache, { data }) {
         if (!checkId) {
