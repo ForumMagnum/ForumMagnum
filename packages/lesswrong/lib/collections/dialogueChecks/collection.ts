@@ -19,10 +19,10 @@ DialogueChecks.checkAccess = async (user: DbUser|null, document: DbDialogueCheck
   }
 
   // Case 2: A user can see the checks of people they themselves have checked... 
-  const existingCheck = await DialogueChecks.findOne({ userId: user?._id, targetUserId: document.userId, checked: true });
+  const outgoingCheck = await DialogueChecks.findOne({ userId: user?._id, targetUserId: document.userId, checked: true });
   // ...but only the checks concerning themselves
-  const selfConcerningCheck = (document.targetUserId === user?._id)
-  if (existingCheck && selfConcerningCheck) {
+  const targetOfOtherCheck = (document.targetUserId === user?._id)
+  if (outgoingCheck && targetOfOtherCheck) {
     return true;
   }
 
