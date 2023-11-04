@@ -218,8 +218,8 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
 
   useEffect(() => {
+    const element = ref.current;
     const handleScroll = () => {
-      const element = ref.current;
       if (element) {
         const atTop = element.scrollTop <= (element.scrollHeight * 0.10);
         const atBottom = (element.scrollHeight - element.scrollTop) <= (element.clientHeight * 1.10);
@@ -228,8 +228,8 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
       }
     };
 
-    ref.current?.addEventListener('scroll', handleScroll);
-    return () => ref.current?.removeEventListener('scroll', handleScroll);
+    element?.addEventListener('scroll', handleScroll);
+    return () => element?.removeEventListener('scroll', handleScroll);
   }, [ref]);
 
   return { isScrolledToTop, isScrolledToBottom };
@@ -537,8 +537,7 @@ export const DialogueMatchingPage = ({classes}: {
     terms: { 
       view: 'usersWithOptedInToDialogueFacilitation',
       limit: 10, 
-      sort: { karma: -1 } 
-    },
+        },
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users'  
   });
