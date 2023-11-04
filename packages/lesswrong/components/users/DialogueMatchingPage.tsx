@@ -165,6 +165,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+async function pingSlackWebhook(webhookURL: string, data: any) {
+  // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
+  try {
+    const response = await fetch(webhookURL, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response
+  } catch (error) {
+    //eslint-disable-next-line no-console
+    console.error('There was a problem with the fetch operation: ', error);
+  }
+}
+
 const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   const [isScrolledToTop, setIsScrolledToTop] = useState(true);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
@@ -295,30 +314,15 @@ const DialogueCheckBox: React.FC<{
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
 
     // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
-    const data = { // Not sending any data for now
-    };
-
-    try {
-      const response = await fetch(webhookURL, {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error) {
-      //eslint-disable-next-line no-console
-      console.error('There was a problem with the fetch operation: ', error);
-    }
-    
+    const webhookURL = "https://hooks.slack.com/triggers/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"; // TODO dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
+    const data = {} // Not sending any data for now 
+    void pingSlackWebhook(webhookURL, data)
   }
 
   const [showConfetti, setShowConfetti] = useState(false);
 
 
-  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId:string, handleConfetti:React.Dispatch<React.SetStateAction<boolean>>, checkId?:string, ) {
+  async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
 
     const tgt = event.target;
@@ -368,8 +372,8 @@ const DialogueCheckBox: React.FC<{
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
-      handleConfetti(true);
-      setTimeout(() => handleConfetti(false), 5000); // Reset the variable after 5 so it can be clicked again
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000); // Reset the variable after 5 so it can be clicked again
     }
   }
 
@@ -387,7 +391,7 @@ const DialogueCheckBox: React.FC<{
               root: checkboxClass,
               checked: classes.checked
               }}
-            onChange={event => updateDatabase(event, targetUserId, setShowConfetti, checkId) } 
+            onChange={event => updateDatabase(event, targetUserId, checkId) } 
             checked={isChecked}
           />
         }
@@ -424,21 +428,21 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   createDialogue,
   classes,
 }) => {
+  if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
+
   return (
     <div>
-      {isMatched ? (
-        <button
-          className={classes.newDialogueButton}
-          onClick={(e) =>
-            createDialogue(
-              `${currentUser?.displayName}/${targetUserDisplayName}`,
-              [targetUserId]
-            )
-          }
-        >
-          {loadingNewDialogue ? <a data-cy="message">Creating New Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
-        </button>
-      ) : null}
+      <button
+        className={classes.newDialogueButton}
+        onClick={(e) =>
+          createDialogue(
+            `${currentUser?.displayName}/${targetUserDisplayName}`,
+            [targetUserId]
+          )
+        }
+      >
+        {loadingNewDialogue ? <a data-cy="message">Creating New Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
+      </button>
     </div>
   );
 };
@@ -561,34 +565,21 @@ export const DialogueMatchingPage = ({classes}: {
     void updateCurrentUser({revealChecksToAdmins: event.target.checked})
     captureEvent("optInToRevealDialogueChecks", {optIn: event.target.checked})
     
-    const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
-  
-    // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-    const webhookURL = "https://hooks.slack.com/triggers/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" // dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
-    const data = {
-      user: userDetailString,
-    };
-  
     if (event.target.checked) {
-      try {
-        const response = await fetch(webhookURL, {
-          method: 'POST',
-          body: JSON.stringify(data),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        //eslint-disable-next-line no-console
-        console.error('There was a problem with the fetch operation: ', error);
-      }
+       // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
+      const webhookURL = "https://hooks.slack.com/triggers/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" // TODO dev mode link for now, update before pushing to prod "https://hooks.slack.com/triggers/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";
+      const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
+      const data = { user: userDetailString };
+      void pingSlackWebhook(webhookURL, data)
     }
   };
 
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
-  const isMobile = window.innerWidth <= 768; // Adjust this value as needed
+  let isMobile = false;
+  if (typeof window !== 'undefined') {
+    isMobile = window.innerWidth <= 768; // Adjust this value as needed
+  }
 
   const headerTitlesV1 = ["Dialogue", "Name", "Message", "Match", "Karma", "Agreement", "Posts you've read"] 
   const headerTitlesV2 = ["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]
