@@ -296,7 +296,6 @@ const DialogueCheckBox: React.FC<{
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
-  const [localChecked, setLocalChecked] = useState(false);
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
       upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
@@ -410,7 +409,7 @@ type MatchDialogueButtonProps = {
   isMatched: boolean;
   targetUserId: string;
   targetUserDisplayName: string;
-  currentUser: any; // replace with the correct type
+  currentUser: UsersCurrent; // replace with the correct type
   loadingNewDialogue: boolean;
   createDialogue: (title: string, participants: string[]) => void;
   classes: ClassesType;
@@ -446,7 +445,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
 const MessageButton: React.FC<{
   targetUserId: string;
-  currentUser: any; // replace with the correct type
+  currentUser: UsersCurrent; // replace with the correct type
   classes: ClassesType;
 }> = ({ targetUserId, currentUser, classes }) => {
   const { NewConversationButton } = Components;
@@ -492,10 +491,10 @@ export const DialogueMatchingPage = ({classes}: {
     }
   `);
 
-  const userDialogueUsefulData : UserDialogueUsefulData = data?.GetUserDialogueUsefulData
+  const userDialogueUsefulData:UserDialogueUsefulData = data?.GetUserDialogueUsefulData
   const currentUser = useCurrentUser();
 
-  const {loading: userLoading, results : userDialogueChecks} = useMulti({
+  const {loading: userLoading, results: userDialogueChecks} = useMulti({
     terms: {
       view: "userDialogueChecks",
       userId: currentUser?._id,
