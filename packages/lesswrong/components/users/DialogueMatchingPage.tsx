@@ -166,6 +166,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
   },
 
+  container: {
+    maxWidth: '1100px',
+  },
+
   // mobile warning stuff
   mobileWarning: {
     backgroundColor: 'yellow',
@@ -173,11 +177,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: '20px',
     maxWidth: '40vw',
   },
-  mobileContainer: {
-    maxWidth: '1100px',
-    margin: 'auto',
-  },
-
+  
   // opt-in stuff
   optInContainer: {
     height: '20px',
@@ -497,7 +497,7 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
 
-  const { UsersName, Loading, LoadMore } = Components;
+  const { UsersName, Loading, LoadMore, IntercomWrapper } = Components;
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const { history } = useNavigation();
@@ -792,6 +792,7 @@ export const DialogueMatchingPage = ({classes}: {
         <LoadMore {...loadMoreProps} />
       </div>
     </div>
+    <IntercomWrapper />
   </div>)
 }
 
