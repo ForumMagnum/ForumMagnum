@@ -2,7 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
 import {calculateVotePower} from "../../lib/voting/voteTypes";
-import {getUser} from "../../lib/vulcan-users";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *

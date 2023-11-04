@@ -1,7 +1,7 @@
 
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import {randomId} from "../../lib/random";
-import AbstractRepo from "./AbstractRepo";;
+import AbstractRepo from "./AbstractRepo";
 
 export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
   constructor() {

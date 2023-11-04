@@ -416,7 +416,7 @@ const DialogueCheckBox: React.FC<{
               }),
               checked: classes.checked
             }}
-            onChange={event => updateDatabase(event, targetUserId, isChecked, checkId) } 
+            onChange={event => updateDatabase(event, targetUserId, checkId) } 
             checked={isChecked}
           />
         }
