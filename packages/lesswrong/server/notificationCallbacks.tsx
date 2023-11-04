@@ -24,7 +24,7 @@ import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
 import { forumTypeSetting } from '../lib/instanceSettings';
-import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
+import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius, createNotification } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
@@ -35,6 +35,7 @@ import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
+import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -223,22 +224,94 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   }
 });
 
-export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, post: DbPost) {
+
+interface NotifyDialogueParticipantProps {
+  participant: DbUser,
+  post: DbPost,
+  previousNotifications: DbNotification[],
+  newMessageAuthorId: string,
+  dialogueMessageInfo: DialogueMessageInfo|undefined,
+}
+
+async function sendSingleDialogueMessageNotification(props: Omit<NotifyDialogueParticipantProps, "previousNotifications">) {
+  const { participant, post, newMessageAuthorId, dialogueMessageInfo } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+    extraData: {newMessageAuthorId, dialogueMessageInfo} 
+  })
+}
+
+async function sendBatchDialogueMessageNotification(props: Pick<NotifyDialogueParticipantProps, "participant"|"post">) {
+  const { participant, post } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueBatchMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+  })
+}
+
+async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticipantProps) {
+  const { participant, previousNotifications } = props
+  const lastNotificationCheckedAt = participant.lastNotificationsCheck;
+  const mostRecentNotification = previousNotifications[0]
+
+  //no previous dialogue notifications, send notification with individual message preview
+  if (!mostRecentNotification) {
+    return await sendSingleDialogueMessageNotification(props)
+  }
+
+  const isLastNotificationUnread = moment(mostRecentNotification.createdAt).isAfter(lastNotificationCheckedAt)
+
+  //most recent notification is a batch notifcation
+  if (mostRecentNotification.type === 'newDialogueBatchMessages') {
+    //if unread, don't send another
+    if (isLastNotificationUnread) return
+    //if read, go back to sending individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  //most recent notification is an individual message preview
+  } else {
+    //if unread, send batch notification
+    if (isLastNotificationUnread) {
+      return await sendBatchDialogueMessageNotification(props)
+    }
+    //if read, send another individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  }
+}
+
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
   // Get all the debate participants, but exclude the comment author if they're a debate participant
   const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
   const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
   const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
 
-  const notifications = await Notifications.find({userId: {$in: debateParticipantIds}, documentId: post._id, documentType: 'post', type: 'newDialogueMessages', createdAt: {$gt: earliestLastNotificationsCheck }}).fetch();
+  const notifications = await Notifications.find({
+    userId: {$in: debateParticipantIds}, 
+    documentId: post._id,
+    documentType: 'post', 
+    type: {$in: ['newDialogueMessages', 'newDialogueBatchMessages']}, 
+    createdAt: {$gt: earliestLastNotificationsCheck}
+  }, {sort: {createdAt: -1}}).fetch();
 
-  // Only notify users who haven't checked their notifications since the last message was posted.
-  const userIdsToNotify = debateParticipants.filter(user => {
-    const userNotifications = notifications.filter(notification => notification.userId === user._id);
-    const userLastNotificationCreatedAt = _.max([...userNotifications.map(notification => notification.createdAt), post.createdAt]);
-    return moment(userLastNotificationCreatedAt).isBefore(moment(user.lastNotificationsCheck));
-  }).map(user => user._id);
 
-  await createNotifications({ userIds: userIdsToNotify, notificationType: 'newDialogueMessages', documentType: 'post', documentId: post._id });
+  const notificationsByUserId = _.groupBy(notifications, notification => notification.userId);
+  debateParticipantIds.forEach(userId => {
+    if (!notificationsByUserId[userId]) {
+      notificationsByUserId[userId] = []
+    }
+  })
+  const notificationPromises = Object.entries(notificationsByUserId).map(async ([userId, previousNotifications]) => {
+    const participant = debateParticipants.find(user => user._id === userId)
+    if (participant) {
+      return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo})
+    }
+  })
+
+  await Promise.all(notificationPromises)
 }
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {

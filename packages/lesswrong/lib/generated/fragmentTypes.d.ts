@@ -435,6 +435,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly afDate: Date,
   readonly moveToAlignmentUserId: string,
   readonly agentFoundationsId: string,
+  readonly originalDialogueId: string,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
@@ -745,6 +746,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
+  readonly dialogueMessageContents: string,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1422,6 +1424,11 @@ interface HighlightWithHash_contents { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
 }
 
+interface PostWithDialogueMessage { // fragment on Posts
+  readonly _id: string,
+  readonly dialogueMessageContents: string,
+}
+
 interface PostSideComments { // fragment on Posts
   readonly _id: string,
   readonly sideComments: any,
@@ -1514,6 +1521,7 @@ interface CommentsList { // fragment on Comments
   readonly rejected: boolean,
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
+  readonly originalDialogueId: string,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -3382,6 +3390,7 @@ interface FragmentTypes {
   SunshinePostsList: SunshinePostsList
   WithVotePost: WithVotePost
   HighlightWithHash: HighlightWithHash
+  PostWithDialogueMessage: PostWithDialogueMessage
   PostSideComments: PostSideComments
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsEditCriticismTips: PostsEditCriticismTips
@@ -3593,6 +3602,7 @@ interface CollectionNamesByFragmentName {
   SunshinePostsList: "Posts"
   WithVotePost: "Posts"
   HighlightWithHash: "Posts"
+  PostWithDialogueMessage: "Posts"
   PostSideComments: "Posts"
   PostWithGeneratedSummary: "Posts"
   PostsEditCriticismTips: "Posts"
