@@ -166,6 +166,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   
+  // Below are custom styles for the special EA Forum Giving Season 2023 homepage header
+  // TODO: delete after 2023
   rootGivingSeason: {
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     [theme.breakpoints.down('sm')]: {
@@ -539,7 +541,8 @@ const Header = ({
     setIsOpen={handleSetNotificationDrawerOpen}
   />
   
-  // special case for the home page of EA Forum Giving Season 2023
+  // special case for the homepage header of EA Forum Giving Season 2023
+  // TODO: delete after 2023
   const now = moment()
   const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
   if (isGivingSeason && pathname === '/') {
@@ -603,7 +606,7 @@ const Header = ({
                   {timelineSpec.spans.map(span => {
                     // ignore the voting time period
                     if (span.hatched) return null
-                    const now = moment()
+                    const now = moment().add(5,'days')
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
                     return <Link
                       key={`${span.description}-label`}

@@ -513,6 +513,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverOutlined: "#f5f5f5",
       borderColor: "#d0d0d0",
     },
+    // the special homepage header has the exact same colors in light and dark mode
     homepageHeader: {
       light4: "#fdfcfc",
       light3: "#fcf5f3",
