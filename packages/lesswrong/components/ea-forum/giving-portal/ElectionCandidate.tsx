@@ -11,12 +11,14 @@ const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    position: "relative",
     backgroundColor: theme.palette.givingPortal.candidate,
     borderRadius: theme.borderRadius.default,
     padding: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.givingPortal[1000],
     display: "flex",
+    alignItems: 'center',
     gap: "16px",
     width: 360,
     maxWidth: "100%",
@@ -38,7 +40,6 @@ const styles = (theme: ThemeType) => ({
     height: imageSize,
   },
   details: {
-    position: "relative",
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
@@ -53,13 +54,18 @@ const styles = (theme: ThemeType) => ({
   },
   preVoteButton: {
     position: "absolute",
-    top: 0,
-    right: 0,
+    top: 8,
+    right: 8,
   },
   name: {
     fontWeight: 600,
     fontSize: 16,
     letterSpacing: "-0.16px",
+    position: "relative",
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
   },
   metaInfo: {
     fontWeight: 500,
@@ -96,7 +102,7 @@ const ElectionCandidate = ({candidate, classes}: {
   );
 
   const {
-    name, logoSrc, href, postCount, tag, extendedScore, currentUserExtendedVote,
+    name, logoSrc, fundraiserLink, postCount, tag, extendedScore, currentUserExtendedVote,
   } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
   const hasVoted = !!currentUserExtendedVote?.preVote;
@@ -112,14 +118,13 @@ const ElectionCandidate = ({candidate, classes}: {
         [classes.rootVoted]: hasVoted,
       })}>
         <div className={classes.imageContainer}>
-          <Link to={href}>
+          <Link to={fundraiserLink}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
-          <PreVoteButton {...votingProps} className={classes.preVoteButton} />
           <div className={classes.name}>
-            <Link to={href}>
+            <Link to={fundraiserLink}>
               {name}
             </Link>
           </div>
@@ -144,6 +149,7 @@ const ElectionCandidate = ({candidate, classes}: {
             }
           </div>
         </div>
+        <PreVoteButton {...votingProps} className={classes.preVoteButton} />
       </div>
     </AnalyticsContext>
   );

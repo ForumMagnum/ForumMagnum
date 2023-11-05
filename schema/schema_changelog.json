@@ -363,5 +363,10 @@
     "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
     "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
     "timestamp": "2023-11-01T21:57:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e02a31666a33984e158e485e3a0c5f30",
+    "acceptedByMigration": "20231103T202008.originalDialogueIdForShortform.ts",
+    "timestamp": "2023-11-03T20:20:08.000Z"
   }
 ]

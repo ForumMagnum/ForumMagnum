@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
@@ -15,6 +15,26 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
+import { ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
+import { getLatestRev } from '../editor/make_editable_callbacks';
+import { cheerioParse } from '../utils/htmlUtil';
+import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+
+/**
+ * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
+ * Do not use this for anyone who doesn't have privileged access to document since it can return unpublished edits
+*/
+const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string|null> => {
+  if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
+
+  // fetch remote document from storage / fetch latest revision / post latest contents
+  const latestRevision = await getLatestRev(post._id, "contents")
+  const html = latestRevision?.html ?? post.contents.html ?? ""
+
+  const $ = cheerioParse(html)
+  const message = $(`[message-id="${messageId}"]`);
+  return message.html();
+}
 
 
 augmentFieldsDict(Posts, {
@@ -207,6 +227,23 @@ augmentFieldsDict(Posts, {
       }
     },
   },
+  dialogueMessageContents: {
+    resolveAs: {
+      type: 'String',
+      arguments: 'dialogueMessageId: String',
+      resolver: async (post: DbPost, args: {dialogueMessageId?: string}, context: ResolverContext): Promise<string|null> => {
+        const { currentUser } = context
+        const { dialogueMessageId } = args
+        if (!post.collabEditorDialogue) return null;
+        if (!dialogueMessageId) return null;
+        if (!currentUser) return null;
+        const isParticipant = isDialogueParticipant(currentUser._id, post)
+        if (!isParticipant) return null;
+
+        return getDialogueMessageContents(post, dialogueMessageId)
+      }
+    }
+  }
 })
 
 

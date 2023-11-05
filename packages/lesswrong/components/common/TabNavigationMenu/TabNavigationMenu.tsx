@@ -91,6 +91,7 @@ const TabNavigationMenu = ({
               const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
+                tab={tab}
                 onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />
