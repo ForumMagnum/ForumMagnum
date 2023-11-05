@@ -495,6 +495,42 @@ const Header = ({
     </AnalyticsContext>
   </div>
   
+  // the items on the right-hand side (search, notifications, user menu)
+  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
+    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    </NoSSR>
+    {!isEAForum && usersMenuNode}
+    {!currentUser && <UsersAccountMenu />}
+    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+      currentUser={currentUser}
+      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+      unreadNotifications={unreadNotifications}
+      toggle={handleNotificationToggle}
+      open={notificationOpen}
+      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {isEAForum && usersMenuNode}
+  </div>
+  
+  // the left side nav menu
+  const navigationDrawer = <NavigationDrawer
+    open={navigationOpen}
+    handleOpen={() => setNavigationOpen(true)}
+    handleClose={() => setNavigationOpen(false)}
+    toc={toc?.sectionData ?? null}
+  />
+  
+  // the right side notifications menu
+  const notificationsMenu = currentUser && <NotificationsMenu
+    unreadPrivateMessages={unreadPrivateMessages}
+    open={notificationOpen}
+    hasOpened={notificationHasOpened}
+    setIsOpen={handleSetNotificationDrawerOpen}
+  />
+  
   // special case for the home page of EA Forum Giving Season 2023
   const now = moment()
   const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
@@ -521,7 +557,9 @@ const Header = ({
                   <div className={classes.hideSmDown}>
                     <div className={classes.titleSubtitleContainer}>
                       <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                        {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>{lightbulbIcon}</div>}
+                        {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                          {lightbulbIcon}
+                        </div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
@@ -529,7 +567,9 @@ const Header = ({
                   <div className={classes.hideMdUp}>
                     <div className={classes.titleSubtitleContainer}>
                       <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                        {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>{lightbulbIcon}</div>}
+                        {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                          {lightbulbIcon}
+                        </div>}
                         {forumShortTitleSetting.get()}
                       </Link>
                       <div className={classes.givingSeasonSubtitle}>
@@ -540,33 +580,20 @@ const Header = ({
                     </div>
                   </div>
                 </Typography>
-                <div className={classes.rightHeaderItems}>
-                  <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-                    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-                  </NoSSR>
-                  {!currentUser && <UsersAccountMenu />}
-                  {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
-                    currentUser={currentUser}
-                    className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                  />}
-                  {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-                    unreadNotifications={unreadNotifications}
-                    toggle={handleNotificationToggle}
-                    open={notificationOpen}
-                    className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                  />}
-                  {usersMenuNode}
-                </div>
+                {rightHeaderItemsNode}
               </Toolbar>
               <div className={classes.givingSeasonContent}>
                 <div className={classes.givingSeasonOverview}>
-                  <Typography variant="display1" className={classes.givingSeasonHeading}>Giving season 2023</Typography>
+                  <Typography variant="display1" className={classes.givingSeasonHeading}>
+                    Giving season 2023
+                  </Typography>
                   <Typography variant="body2" className={classes.givingSeasonDescription} component='div'>
                     Donate to the Election Fund and discuss where the donations should go. <Link to="/giving-portal" className={classes.givingSeasonLink}>Learn more in the Giving portal.</Link>
                   </Typography>
                 </div>
                 <div className={classes.givingSeasonTimeline}>
                   {timelineSpec.spans.map(span => {
+                    // ignore the voting time period
                     if (span.hatched) return null
                     const now = moment()
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
@@ -574,7 +601,7 @@ const Header = ({
                       key={`${span.description}-label`}
                       className={classNames(classes.gsTimelineLabel, {[classes.gsTimelineLabelActive]: isActive})}
                     >
-                      {span.description}
+                      {span.href ? <Link to={span.href}>{span.description}</Link> : span.description}
                     </div>
                   })}
                   {timelineSpec.spans.map(span => {
@@ -586,19 +613,9 @@ const Header = ({
                 </div>
               </div>
             </header>
-            <NavigationDrawer
-              open={navigationOpen}
-              handleOpen={() => setNavigationOpen(true)}
-              handleClose={() => setNavigationOpen(false)}
-              toc={toc?.sectionData ?? null}
-            />
+            {navigationDrawer}
           </Headroom>
-          {currentUser && <NotificationsMenu
-            unreadPrivateMessages={unreadPrivateMessages}
-            open={notificationOpen}
-            hasOpened={notificationHasOpened}
-            setIsOpen={handleSetNotificationDrawerOpen}
-          />}
+          {notificationsMenu}
         </div>
       </AnalyticsContext>
     )
@@ -638,39 +655,12 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-                  <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-                </NoSSR>
-                {!isEAForum && usersMenuNode}
-                {!currentUser && <UsersAccountMenu />}
-                {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
-                  currentUser={currentUser}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                />}
-                {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-                  unreadNotifications={unreadNotifications}
-                  toggle={handleNotificationToggle}
-                  open={notificationOpen}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                />}
-                {isEAForum && usersMenuNode}
-              </div>
+              {rightHeaderItemsNode}
             </Toolbar>
           </header>
-          <NavigationDrawer
-            open={navigationOpen}
-            handleOpen={() => setNavigationOpen(true)}
-            handleClose={() => setNavigationOpen(false)}
-            toc={toc?.sectionData ?? null}
-          />
+          {navigationDrawer}
         </Headroom>
-        {currentUser && <NotificationsMenu
-          unreadPrivateMessages={unreadPrivateMessages}
-          open={notificationOpen}
-          hasOpened={notificationHasOpened}
-          setIsOpen={handleSetNotificationDrawerOpen}
-        />}
+        {notificationsMenu}
       </div>
     </AnalyticsContext>
   )
