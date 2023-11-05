@@ -176,8 +176,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   appBarGivingSeason: {
-    color: theme.palette.givingPortal.alwaysLight,
-    background: `center no-repeat url(${gsImg}), ${theme.palette.givingPortal[1100]}`,
+    color: theme.palette.givingPortal.homepageHeader.light4,
+    background: `center no-repeat url(${gsImg}), ${theme.palette.givingPortal.homepageHeader.dark}`,
     position: "static",
     width: "100%",
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -188,58 +188,58 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     padding: '1px 20px',
     '@media (max-width: 1200px)': {
-      background: `right no-repeat url(${gsImg}), ${theme.palette.givingPortal[1100]}`,
+      background: `right no-repeat url(${gsImg}), ${theme.palette.givingPortal.homepageHeader.dark}`,
     },
     [theme.breakpoints.down('sm')]: {
       height: EA_FORUM_HEADER_HEIGHT,
       padding: '1px 11px',
     },
     '@media (max-width: 840px)': {
-      background: theme.palette.givingPortal.button.alwaysDark,
+      background: theme.palette.givingPortal.homepageHeader.main,
     },
     [theme.breakpoints.down('xs')]: {
       padding: '9px 11px',
     },
     
     "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .SearchBar-searchIcon": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .ais-SearchBox-input": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .NotificationsMenuButton-badge": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .UsersMenu-arrowIcon": {
-      color: theme.palette.givingPortal.alwaysLight,
+      color: theme.palette.givingPortal.homepageHeader.light4,
     },
     "& .EAButton-variantContained": {
-      backgroundColor: theme.palette.givingPortal[800],
-      color: theme.palette.givingPortal[1000],
+      backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
+      color: theme.palette.givingPortal.homepageHeader.main,
       '&:hover': {
-        backgroundColor: theme.palette.givingPortal[800],
+        backgroundColor: theme.palette.givingPortal.homepageHeader.light1,
       },
     },
     "& .EAButton-greyContained": {
-      backgroundColor: theme.palette.givingPortal.button.headerBannerSecondary,
-      color: theme.palette.givingPortal[200],
+      backgroundColor: theme.palette.givingPortal.homepageHeader.secondary,
+      color: theme.palette.givingPortal.homepageHeader.light3,
       '&:hover': {
-        backgroundColor: `${theme.palette.givingPortal.button.headerBannerSecondary} !important`,
+        backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryDark} !important`,
       },
     },
   },
@@ -253,7 +253,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   titleLinkGivingSeason: {
-    color: theme.palette.givingPortal.alwaysLight,
+    color: theme.palette.givingPortal.homepageHeader.light4,
   },
   givingSeasonSubtitle: {
     display: 'none',
@@ -261,27 +261,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block',
       marginLeft: '1em',
       paddingLeft: '1em',
-      borderLeft: `1px solid ${theme.palette.givingPortal.alwaysLight}`,
+      borderLeft: `1px solid ${theme.palette.givingPortal.homepageHeader.light4}`,
     },
     '@media (max-width: 640px)': {
       display: 'none',
     }
   },
   givingSeasonMobileLink: {
-    color: theme.palette.givingPortal.alwaysLight,
+    color: theme.palette.givingPortal.homepageHeader.light4,
   },
   givingSeasonGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    background: `linear-gradient(to right, ${theme.palette.givingPortal[1100]} 10%, ${theme.palette.givingPortal.button.alwaysDark} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.button.alwaysDark} 72%, ${theme.palette.givingPortal[1100]} 90%)`,
+    background: `linear-gradient(to right, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.homepageHeader.main} 72%, ${theme.palette.givingPortal.homepageHeader.dark} 90%)`,
     maxWidth: 1740,
     width: '100%',
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     margin: '0 auto',
     '@media (max-width: 1200px)': {
-      background: `linear-gradient(76deg, ${theme.palette.givingPortal[1100]} 10%, ${theme.palette.givingPortal.button.alwaysDark} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.button.alwaysDark})`,
+      background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
     },
     [theme.breakpoints.down('sm')]: {
       height: EA_FORUM_HEADER_HEIGHT,
@@ -305,14 +305,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '0 20px 0 48px'
   },
   givingSeasonHeading: {
-    color: theme.palette.givingPortal.alwaysLight,
+    color: theme.palette.givingPortal.homepageHeader.light4,
     fontSize: 40,
     lineHeight: '48px',
     marginTop: 0,
     marginBottom: 8
   },
   givingSeasonDescription: {
-    color: theme.palette.givingPortal.alwaysLight,
+    color: theme.palette.givingPortal.homepageHeader.light4,
     paddingLeft: 3
   },
   givingSeasonLink: {
@@ -325,7 +325,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     textAlign: 'center',
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.givingPortal.alwaysLight,
+    color: theme.palette.givingPortal.homepageHeader.light4,
     fontSize: 13,
     fontWeight: 500,
     marginRight: -20,
@@ -338,21 +338,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   gsTimelineLabel: {
-    backgroundColor: theme.palette.givingPortal.button.headerBannerSecondary,
+    backgroundColor: theme.palette.givingPortal.homepageHeader.secondaryOpaque,
     padding: '6px 12px',
-    borderLeft: `1px solid ${theme.palette.givingPortal.button.alwaysDark}`,
+    borderLeft: `1px solid ${theme.palette.givingPortal.homepageHeader.main}`,
     '&:first-of-type': {
       borderLeft: 'none'
-    }
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.givingPortal.homepageHeader.secondaryOpaqueDark,
+      opacity: 1
+    },
   },
   gsTimelineLabelActive: {
-    backgroundColor: theme.palette.givingPortal.alwaysLight,
-    color: theme.palette.givingPortal.button.alwaysDark,
+    backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
+    color: theme.palette.givingPortal.homepageHeader.main,
     fontSize: 16,
     fontWeight: 600,
     padding: '10px 20px',
     borderRadius: theme.borderRadius.default,
-    borderLeft: 'none'
+    borderLeft: 'none',
+    '&:hover': {
+      backgroundColor: theme.palette.givingPortal.homepageHeader.light1,
+      opacity: 1
+    },
   },
   gsTimelineDates: {
     paddingTop: 8
@@ -495,7 +503,7 @@ const Header = ({
     </AnalyticsContext>
   </div>
   
-  // the items on the right-hand side (search, notifications, user menu)
+  // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
       <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
@@ -597,12 +605,13 @@ const Header = ({
                     if (span.hatched) return null
                     const now = moment()
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
-                    return <div
+                    return <Link
                       key={`${span.description}-label`}
+                      to={span.href}
                       className={classNames(classes.gsTimelineLabel, {[classes.gsTimelineLabelActive]: isActive})}
                     >
-                      {span.href ? <Link to={span.href}>{span.description}</Link> : span.description}
-                    </div>
+                      {span.description}
+                    </Link>
                   })}
                   {timelineSpec.spans.map(span => {
                     if (span.hatched) return null
