@@ -2,13 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
-import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
-import classNames from 'classnames';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { usePersistentToggle } from '../hooks/usePersistentToggle';
-import { COLLAPSE_COMMENTS_TOC } from '../../lib/cookies/cookies';
 import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,12 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   collapseButtonCollapsed: {
     transform: "rotate(-90deg)",
   },
-  titleAndCollapseButton: {
-    display: "flex",
-    alignItems: "end",
-  },
   postTitle: {
-    flexGrow: 1,
     minHeight: 24,
     paddingTop: 4,
   },
@@ -56,7 +47,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
-  const {value: collapsed, toggle: toggleCollapsed} = usePersistentToggle(COLLAPSE_COMMENTS_TOC);
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -81,29 +71,12 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
       highlighted={highlightedLandmarkName==="above"}
       title
     >
-      <div className={classes.titleAndCollapseButton}>
-        <div className={classes.postTitle}>
-          {post.title?.trim()}
-        </div>
-        
-        <div
-          className={classes.collapseButtonWrapper}
-          onClick={ev => {
-            toggleCollapsed();
-            ev.preventDefault();
-            ev.stopPropagation();
-          }
-        }>
-          <ArrowDropDown className={classNames(
-            classes.collapseButton, {
-              [classes.collapseButtonExpanded]: !collapsed,
-              [classes.collapseButtonCollapsed]: collapsed,
-          })}/>
-        </div>
+      <div className={classes.postTitle}>
+        {post.title?.trim()}
       </div>
     </TableOfContentsRow>
 
-    {!collapsed && answersTree && answersTree.map(answer => <>
+    {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
         key={answer.item._id}
         commentTree={answer} indentLevel={1} classes={classes}
@@ -111,7 +84,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
       />
       <Components.TableOfContentsDivider/>
     </>)}
-    {!collapsed && commentTree && commentTree.map(comment => comment.item
+    {commentTree && commentTree.map(comment => comment.item
       ? <ToCCommentBlock
           key={comment.item._id}
           commentTree={comment} indentLevel={1} classes={classes}
@@ -204,7 +177,7 @@ function flattenCommentTree(commentTree: CommentTreeNode<CommentsList>[]): Comme
 }
 
 
-const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, {styles});
+const CommentsTableOfContentsComponent = registerComponent('CommentsTableOfContents', CommentsTableOfContents, { styles });
 
 declare global {
   interface ComponentTypes {

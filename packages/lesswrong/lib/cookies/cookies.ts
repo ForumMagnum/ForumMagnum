@@ -116,12 +116,6 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   description: "Don't show the how-to guide on the new post page",
 });
 
-export const COLLAPSE_COMMENTS_TOC = registerCookie({
-  name: "CollapseCommentsToC",
-  type: "functional",
-  description: "Controls whether the comments section of the table of contents is expanded",
-});
-
 
 // Third party cookies
 
