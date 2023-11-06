@@ -179,6 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
+  originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -250,6 +251,19 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueChecksCollection extends CollectionBase<DbDialogueCheck, "DialogueChecks"> {
+}
+
+interface DbDialogueCheck extends DbObject {
+  __collectionName?: "DialogueChecks"
+  userId: string
+  targetUserId: string
+  checked: boolean
+  checkedAt: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -285,6 +299,8 @@ interface DbElectionCandidate extends DbObject {
   name: string
   logoSrc: string
   href: string
+  fundraiserLink: string | null
+  gwwcLink: string | null
   description: string
   userId: string
   postCount: number
@@ -1351,6 +1367,8 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   hideDialogueFacilitation: boolean
+  revealChecksToAdmins: boolean
+  optedInToDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1359,6 +1377,7 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
+  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
@@ -1548,6 +1567,7 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DialogueChecks: DialogueChecksCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
@@ -1605,6 +1625,7 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueChecks: DbDialogueCheck
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate

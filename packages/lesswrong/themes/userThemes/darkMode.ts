@@ -253,6 +253,25 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
+    givingPortal: {
+      [0]: "#202020",
+      [200]: "#34201E",
+      [800]: "#49201C",
+      [900]: "#5B3633",
+      [1000]: "#FFF",
+      button: {
+        alwaysDark: "#862115",
+        dark: "#FFF",
+        light: "#862115",
+        hoverOutlined: "#744843",
+        borderColor: "#FFF",
+      },
+      candidate: "#64342E",
+      votedCandidate: "#8A5751",
+      ctaBackground: "#64342E",
+      ctaText: "#FFF",
+      rhsLink: '#E7714E',
+    },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {

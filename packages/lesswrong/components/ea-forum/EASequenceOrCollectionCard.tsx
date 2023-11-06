@@ -2,6 +2,7 @@ import React, { FC, MouseEvent, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -84,6 +85,7 @@ const EASequenceOrCollectionCard = ({
   imageId,
   href,
   eventHandlers,
+  className,
   classes,
 }: {
   title: string,
@@ -97,6 +99,7 @@ const EASequenceOrCollectionCard = ({
     onMouseOver: (event: MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: () => void,
   },
+  className?: string,
   classes: ClassesType,
 }) => {
   const {onClick} = useClickableCell({href});
@@ -112,7 +115,11 @@ const EASequenceOrCollectionCard = ({
     : ({children}) => <>{children}</>;
 
   return (
-    <div {...eventHandlers} onClick={onClick} className={classes.root}>
+    <div
+      {...eventHandlers}
+      onClick={onClick}
+      className={classNames(classes.root, className)}
+    >
       <div className={classes.sequenceCardImageWrapper}>
         <CloudinaryImage2
           publicId={imageId}
@@ -147,7 +154,7 @@ const EASequenceOrCollectionCard = ({
 const EASequenceOrCollectionCardComponent = registerComponent(
   "EASequenceOrCollectionCard",
   EASequenceOrCollectionCard,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

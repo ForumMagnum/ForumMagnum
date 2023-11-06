@@ -42,6 +42,13 @@ importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EA
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
+importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
+importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
+importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
+importComponent("ElectionCandidate", () => require('../components/ea-forum/giving-portal/ElectionCandidate'));
+importComponent("ElectionCandidatesList", () => require('../components/ea-forum/giving-portal/ElectionCandidatesList'));
+importComponent("DonationOpportunity", () => require('../components/ea-forum/giving-portal/DonationOpportunity'));
+importComponent("PreVoteButton", () => require('../components/ea-forum/giving-portal/PreVoteButton'));
 importComponent("EAHoverOver", () => require('../components/ea-forum/EAHoverOver'));
 importComponent("EASequenceOrCollectionCard", () => require('../components/ea-forum/EASequenceOrCollectionCard'));
 importComponent("EASequenceCard", () => require('../components/ea-forum/EASequenceCard'));
@@ -270,6 +277,7 @@ importComponent("NavigationDrawer", () => require('../components/common/TabNavig
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
+importComponent("GivingPortalMobileMenuItem", () => require('../components/common/TabNavigationMenu/GivingPortalMobileMenuItem'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -596,6 +604,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
