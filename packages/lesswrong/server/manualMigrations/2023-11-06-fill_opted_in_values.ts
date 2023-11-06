@@ -33,7 +33,7 @@ const targetUserIds = ["2HL96yNHSLfzYbncR", "2YDxEr2R8qbqp4BwC", "2ZFPtLBvpev34u
 
 registerMigration({
   name: "fillOptInValues",
-  dateWritten: "2023-10-30",
+  dateWritten: "2023-11-06",
   idempotent: true,
   action: async () => {
     for (const userId of targetUserIds) {
