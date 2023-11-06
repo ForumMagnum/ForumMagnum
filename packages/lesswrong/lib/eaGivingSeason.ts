@@ -65,7 +65,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023/11/07"),
       end: new Date("2023/11/14"),
       description: "Effective Giving Spotlight",
-      href: `${donationElectionLink}#Effective_Giving_Spotlight`,
+      href: `/s/YvGiiYnekY7anj5FB`,
       consecutive: true,
     },
     {
