@@ -3,7 +3,6 @@ import { Components, getFragment, registerComponent } from "../../../lib/vulcan-
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { useLocation } from "../../../lib/routeUtil";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { useMessages } from "../../common/withMessages";
 import { Link } from "../../../lib/reactRouterWrapper";
 
@@ -42,15 +41,17 @@ const EditElectionCandidate = ({classes}: {
     );
   }
 
+  const fragment = getFragment("ElectionCandidateBasicInfo");
+
   const {WrappedSmartForm} = Components;
   return (
     <div className={classes.root}>
       <WrappedSmartForm
         key={candidateId}
         collectionName="ElectionCandidates"
-        documentId={candidateId}
-        queryFragment={getFragment("ElectionCandidateBasicInfo")}
-        mutationFragment={getFragment("ElectionCandidateBasicInfo")}
+        documentId={candidateId === "new" ? undefined : candidateId}
+        queryFragment={fragment}
+        mutationFragment={fragment}
         successCallback={successCallback}
       />
       <div>

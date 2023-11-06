@@ -1,3 +1,4 @@
+import { schemaDefaultValue } from "../../collectionUtils";
 import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 import { foreignKeyField } from "../../utils/schemaUtils";
 
@@ -62,6 +63,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    label: "GWWC link",
   },
   /** Short plaintext description */
   description: {
@@ -81,7 +83,7 @@ const schema: SchemaType<DbElectionCandidate> = {
       type: "User",
       nullable: true,
     }),
-    optional: false,
+    optional: true,
     nullable: false,
     canRead: ["guests"],
     canCreate: ["sunshineRegiment", "admins"],
@@ -93,9 +95,9 @@ const schema: SchemaType<DbElectionCandidate> = {
   postCount: {
     type: Number,
     canRead: ["guests"],
-    optional: false,
+    optional: true,
     nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
   },
   /** The tag user for marking posts as being relevant to this candidate */
   tagId: {
@@ -106,10 +108,12 @@ const schema: SchemaType<DbElectionCandidate> = {
       type: "Tag",
       nullable: true,
     }),
-    optional: true,
+    optional: false,
     nullable: true,
     canRead: ["guests"],
     canCreate: ["sunshineRegiment", "admins"],
+    control: "TagSelect",
+    label: "Tag",
   },
 };
 

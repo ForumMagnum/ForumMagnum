@@ -4,6 +4,7 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionCandidates } from "./hooks";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { randomId } from "../../../lib/random";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,13 +28,14 @@ const AdminElectionCandidates = ({classes}: {
   const currentUser = useCurrentUser();
   const {results, loading} = useElectionCandidates("name");
 
-  const {Error404, SectionTitle, Loading} = Components;
   if (!userIsAdmin(currentUser)) {
+    const {Error404} = Components;
     return (
       <Error404 />
     );
   }
 
+  const {SectionTitle, Loading, EAButton, ForumIcon} = Components;
   return (
     <div className={classes.root}>
       <SectionTitle
@@ -53,6 +55,9 @@ const AdminElectionCandidates = ({classes}: {
           </div>
         ))}
       </div>
+      <EAButton href={`/admin/election-candidates/new`}>
+        <ForumIcon icon="Plus" /> Add candidate
+      </EAButton>
     </div>
   );
 }
