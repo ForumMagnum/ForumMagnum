@@ -91,24 +91,4 @@ export const timelineSpec: TimelineSpec = {
       hatched: true,
     },
   ],
-  // We have a lot of events in November and few in December. This function
-  // allows us to space out Novemeber to use most of the timeline and only give
-  // what's left to December. A point `inputSplit` along the timeline will be
-  // linearly mapped to `outputSplit`, with points after `inputSplit` being
-  // squeezed linearly into the remaining space.
-  // This could almost certainly be simplified, but it's too late in the day
-  // for algebra.
-  divisionToPercent: (division: number, divisions: number) => {
-    const inputSplit = 0.5;
-    const outputSplit = 0.65;
-    const multiplier = (100 / inputSplit) * outputSplit;
-    const halfWay = divisions * inputSplit;
-    if (division < halfWay) {
-      return (division / divisions) * multiplier;
-    } else {
-      const multiplier2 = (100 / inputSplit) * (1 - outputSplit);
-      return ((halfWay / divisions) * multiplier) +
-        (((division - halfWay) / divisions) * multiplier2);
-    }
-  },
 };
