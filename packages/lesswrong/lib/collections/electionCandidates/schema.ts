@@ -1,3 +1,4 @@
+import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 import { foreignKeyField } from "../../utils/schemaUtils";
 
 const schema: SchemaType<DbElectionCandidate> = {
@@ -9,6 +10,13 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "select",
+    options: () => [
+      {
+        value: eaGivingSeason23ElectionName,
+        label: "EA Giving Season 2023",
+      },
+    ],
   },
   /** The name of this candidate */
   name: {
@@ -78,6 +86,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canRead: ["guests"],
     canCreate: ["sunshineRegiment", "admins"],
     canUpdate: ["sunshineRegiment", "admins"],
+    onCreate: ({currentUser}) => currentUser!._id,
+    hidden: true,
   },
   /** Denormalized count of posts referencing this candidate in this election */
   postCount: {

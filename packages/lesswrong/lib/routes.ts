@@ -784,6 +784,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Digests',
     },
     {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+    },
+    {
       name: 'EditDigest',
       path: '/admin/digests/:num',
       componentName: 'EditDigest',
