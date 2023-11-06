@@ -198,10 +198,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       return;
     }
     
-    // TODO
     const oldReacts = currentUserExtendedVote?.reacts ?? [];
-    /*const oldQuotes = getCurrentUserReaction(reactionName)?.quotes ?? [];
-    const newQuotes = quote ? [...oldQuotes, quote] : oldQuotes*/
     const newReacts: UserVoteOnSingleReaction[] = [
       ...filter(oldReacts, r => !reactionVoteIsMatch(r, reactionName, quote)),
       {
@@ -275,7 +272,7 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
   if (react.react !== name)
     return false;
   if (quote) {
-    return !!(react.quotes && react.quotes!.indexOf(quote)>=0);
+    return !!(react.quotes && react.quotes.indexOf(quote)>=0);
   } else {
     return !(react.quotes?.length);
   }
