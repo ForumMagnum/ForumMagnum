@@ -333,6 +333,7 @@ const DialogueCheckBox: React.FC<{
           userId
           targetUserId
           checked
+          checkedAt
           match
         }
       }
@@ -362,22 +363,24 @@ const DialogueCheckBox: React.FC<{
         if (!checkId) {
           cache.modify({
             fields: {
-              getUsersDialogueChecks(existingChecksRefs = []) {
+              dialogueChecks(existingChecksRef) {
                 const newCheckRef = cache.writeFragment({
                   data: data.upsertUserDialogueCheck,
                   fragment: gql`
-                    fragment NewCheck on DialogueChecks {
+                    fragment DialogueCheckInfo on DialogueCheck {
                       _id
-                      __typename
                       userId
                       targetUserId
                       checked
+                      checkedAt
                       match
                     }
                   `
                 });
-                const newData = [...existingChecksRefs, newCheckRef]
-                return newData;
+                return {
+                  ...existingChecksRef,
+                  results: [...existingChecksRef.results, newCheckRef]
+                }
               }
             }
           });
@@ -390,6 +393,7 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser._id,
           targetUserId: targetUserId,
           checked: event.target.checked,
+          checkedAt: new Date(),
           match: false 
         }
       }
