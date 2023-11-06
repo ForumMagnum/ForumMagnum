@@ -128,6 +128,7 @@ export type AnalyticsProps = {
   hoverPreviewType?: string,
   sortedBy?: string,
   branch?: string,
+  siteEvent?: string,
   href?: string,
   limit?: number,
   capturePostItemOnMount?: boolean,

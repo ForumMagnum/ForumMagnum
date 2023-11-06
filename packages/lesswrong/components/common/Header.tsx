@@ -547,7 +547,7 @@ const Header = ({
   const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
   if (isGivingSeason && pathname === '/') {
     return (
-      <AnalyticsContext pageSectionContext="header">
+      <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
         <div className={classes.rootGivingSeason}>
           <Headroom
             disableInlineStyles
