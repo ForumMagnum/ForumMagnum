@@ -570,8 +570,10 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
+/**
+ * At one point, we disabled voting for users with less than 1 karma
+ * Keeping this function and its uses around will make it easier to do that kind of thing in the future
+ */
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
-  // At one point, we disabled voting for users with less than 1 karma
-  // Keeping this function and its uses around will make it easier to do that kind of thing in the future
   return { fail: false };
 };
