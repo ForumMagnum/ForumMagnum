@@ -535,7 +535,6 @@ export const DialogueMatchingPage = ({classes}: {
     },
     fragmentName: "DialogueCheckInfo",
     collectionName: "DialogueChecks",
-    ssr: false 
   });
 
   const {loading: userOptedInLoading, results: UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
