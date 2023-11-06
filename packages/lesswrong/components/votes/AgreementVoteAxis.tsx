@@ -5,7 +5,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
-import { userCanVote } from '../../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -50,7 +50,7 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
   const currentUser = useCurrentUser();
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
   let documentTypeName = "comment";

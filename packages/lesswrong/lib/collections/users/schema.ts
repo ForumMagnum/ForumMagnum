@@ -1381,6 +1381,10 @@ const schema: SchemaType<DbUser> = {
     label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField()
   },
+  notificationAddedAsCoauthor: {
+    label: "Someone has added me as a coauthor to a post",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
@@ -1391,6 +1395,7 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
+  
 
   hideDialogueFacilitation: {
     type: Boolean,
@@ -1402,6 +1407,19 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
+  },
+
+  revealChecksToAdmins: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Allow users to reveal their checks for better facilitation",
     ...schemaDefaultValue(false)
   },
 
@@ -1451,6 +1469,17 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
     logChanges: false,
+  },
+
+  // User wants to get notifications when giving season voting begins
+  givingSeasonNotifyForVoting: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
 
   // Email settings

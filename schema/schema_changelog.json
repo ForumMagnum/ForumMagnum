@@ -355,8 +355,23 @@
     "timestamp": "2023-10-27T15:43:13.000Z"
   },
   {
-    "acceptsSchemaHash": "8906155f2e34f2b130266760ca58b508",
-    "acceptedByMigration": "20231030T233405.add_Dialogue_OptIn_Field_To_User_Schema.ts",
-    "timestamp": "2023-10-30T23:34:05.000Z"
+    "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
+    "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
+    "timestamp": "2023-10-28T01:20:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
+    "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
+    "timestamp": "2023-11-01T21:57:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e02a31666a33984e158e485e3a0c5f30",
+    "acceptedByMigration": "20231103T202008.originalDialogueIdForShortform.ts",
+    "timestamp": "2023-11-03T20:20:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f5e4a3d5459008e1e5f5e83555a849b1",
+    "acceptedByMigration": "20231104T020734.add_DialogueCheck_table_and_check_fields.ts",
+    "timestamp": "2023-11-04T02:07:34.000Z"
   }
 ]

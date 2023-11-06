@@ -123,9 +123,9 @@ const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming =>
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>) => {
   return await getNotificationTypeByName(notificationType)
-    .getMessage({documentType, documentId});
+    .getMessage({documentType, documentId, extraData});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
@@ -189,7 +189,7 @@ export const createNotification = async ({userId, notificationType, documentType
     userId: userId,
     documentId: documentId||undefined,
     documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId),
+    message: await notificationMessage(notificationType, documentType, documentId, extraData),
     type: notificationType,
     link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,

@@ -568,7 +568,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
     : null;
 
-  const rightColumnChildren = <>
+  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
   </>;
@@ -579,6 +579,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
+
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
@@ -612,7 +615,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.collabEditorDialogue && <Row justifyContent="center">
+        {showSubscribeToDialogueButton && <Row justifyContent="center">
           <div className={classes.subscribeToDialogue}>
             <NotifyMeDropdownItem
               document={post}

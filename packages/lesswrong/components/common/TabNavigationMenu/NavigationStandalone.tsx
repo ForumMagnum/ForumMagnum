@@ -55,21 +55,21 @@ const NavigationStandalone = ({
   const background = location.pathname === communityPath;
 
   return <>
-    <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
-      <Slide
-        direction='right'
-        in={!sidebarHidden}
-        appear={false}
-        mountOnEnter
-        unmountOnExit
-      >
+    <Slide
+      direction='right'
+      in={!sidebarHidden}
+      appear={false}
+      mountOnEnter
+      unmountOnExit
+    >
+      <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
         {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
         <TabNavigationMenu
           transparentBackground={unspacedGridLayout}
           noTopMargin={noTopMargin}
         />
-      </Slide>
-    </div>
+      </div>
+    </Slide>
     {!isEAForum && <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>}

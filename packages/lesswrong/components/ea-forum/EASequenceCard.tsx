@@ -5,7 +5,10 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const EASequenceCard = ({sequence}: {sequence: SequencesPageFragment}) => {
+const EASequenceCard = ({sequence, className}: {
+  sequence: SequencesPageFragment,
+  className?: string,
+}) => {
   // Note: this is not a real slug, it's just so we can recognise the sequence
   // in the analytics, without risking any weirdness due to titles having spaces
   // in them.
@@ -38,6 +41,7 @@ const EASequenceCard = ({sequence}: {sequence: SequencesPageFragment}) => {
         imageId={imageId}
         href={href}
         eventHandlers={eventHandlers}
+        className={className}
       />
     </AnalyticsContext>
   );

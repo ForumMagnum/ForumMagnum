@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
 import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
 import { Posts } from '../lib/collections/posts/collection';
-import { postGetPageUrl, postGetAuthorName } from '../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection';
 import { Localgroups } from '../lib/collections/localgroups/collection';
 import { Messages } from '../lib/collections/messages/collection';
@@ -26,6 +26,7 @@ import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
+import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
 
 interface ServerNotificationType {
   name: string,
@@ -214,8 +215,38 @@ export const NewDialogueMessageNotification = serverRegisterNotificationType({
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
+    const authorId = notifications[0].extraData?.newMessageAuthorId
+    const author = authorId && await Users.findOne(authorId)
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
-    return `New content in the dialogue you are participating in, ${post.title}`;
+
+    if (author) {
+      return `${userGetDisplayName(author)} left a new reply in your dialogue, ${post.title}`
+    }      
+
+    return `New reply in your dialogue, ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
+    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+  },
+});
+
+function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessageEmailInfo|undefined {
+  if (!extraData) return undefined
+  const messageContents = extraData.dialogueMessageInfo.dialogueMessageContents
+  const messageAuthorId = extraData.newMessageAuthorId
+  if (!messageContents || !messageAuthorId) return undefined
+  return { messageContents, messageAuthorId }
+}
+
+export const NewDialogueMessageBatchNotification = serverRegisterNotificationType({
+  name: "newDialogueBatchMessages",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `Multiple new messages in the dialogue you are participating in, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
@@ -440,6 +471,29 @@ export const PostSharedWithUserNotification = serverRegisterNotificationType({
     const name = await postGetAuthorName(post);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
+    </p>
+  },
+});
+
+export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
+  name: "addedAsCoauthor",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    let post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const name = await postGetAuthorName(post);
+    const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
+    return `${name} added you as a coauthor to the ${postOrDialogue} "${post.title}"`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const link = postGetEditUrl(post._id, true);
+    const name = await postGetAuthorName(post);
+    const postOrDialogue = post.collabEditorDialogue ? 'dialogue' : 'post';
+
+    return <p>
+      {name} added you as a coauthor to the {postOrDialogue} <a href={link}>{post.title}</a>.
     </p>
   },
 });

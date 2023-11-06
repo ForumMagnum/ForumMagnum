@@ -111,7 +111,7 @@ const CloudinaryImage2 = ({
   if (fullWidthHeader) {
     // We always double the height, to account for high dpi screens. We can't
     // combine srcset width-checking with DPI-checking unfortunately.
-    const srcSetHeight = ((height || DEFAULT_HEADER_HEIGHT)*2).toString()
+    const srcSetHeight = (cloudinaryProps.h || (DEFAULT_HEADER_HEIGHT*2).toString())
     // NB: we lie about the final width here, we don't know it
     srcSetFunc = (imgId) => `
       ${makeCloudinaryImageUrl(imgId, {...cloudinaryProps, ...{w: '450', h: srcSetHeight}})} 450w,
