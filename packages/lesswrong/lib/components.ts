@@ -277,6 +277,7 @@ importComponent("NavigationDrawer", () => require('../components/common/TabNavig
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
+importComponent("GivingPortalMobileMenuItem", () => require('../components/common/TabNavigationMenu/GivingPortalMobileMenuItem'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -602,6 +603,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));

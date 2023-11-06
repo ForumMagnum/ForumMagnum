@@ -372,6 +372,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
   }
-}
 
+  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "ReadStatuses" rs
+      INNER JOIN "Posts" p 
+      ON rs."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND p."userId" = $2
+          AND rs."isRead" IS TRUE
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
+}
 ensureIndex(Posts, {debate:-1})
