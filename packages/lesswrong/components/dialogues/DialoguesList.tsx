@@ -77,7 +77,10 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 
   const handleOptInChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setOptIn(event.target.checked);
-    void updateCurrentUser({hideDialogueFacilitation: event.target.checked}) // show people they have clicked, but remove component from view upon refresh
+    void updateCurrentUser({
+      hideDialogueFacilitation: event.target.checked, // we hide the item if the user has opted in to it
+      optedInToDialogueFacilitation: event.target.checked
+    }) 
     captureEvent("optInToDialogueFacilitation", {optIn: event.target.checked})
     
     const userDetailString = currentUser?.displayName + " / " + currentUser?.slug

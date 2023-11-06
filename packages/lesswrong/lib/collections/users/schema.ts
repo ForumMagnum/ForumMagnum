@@ -1405,7 +1405,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: false,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the widget for opting in to being approached about dialogues",
     ...schemaDefaultValue(false)
   },
@@ -1747,7 +1747,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 44,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the frontpage map"
   },
 
