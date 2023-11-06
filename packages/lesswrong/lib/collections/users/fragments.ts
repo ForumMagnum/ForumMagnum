@@ -213,6 +213,8 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 
@@ -551,3 +553,11 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+    karma
+  }
+`);
