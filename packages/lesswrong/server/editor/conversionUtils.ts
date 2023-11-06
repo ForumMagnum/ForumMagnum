@@ -79,7 +79,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
+export const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
   if (toWrap.length < 1) {
     return toWrap;
   }
@@ -136,7 +136,7 @@ function wrapSpoilerTags(html: string): string {
   return $.html()
 }
 
-const handleDialogueHtml = async (html: string): Promise<string> => {
+export const handleDialogueHtml = async (html: string): Promise<string> => {
   const $ = cheerioParse(html);
 
   $('.dialogue-message-input-wrapper').remove();

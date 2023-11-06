@@ -861,6 +861,22 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  originalDialogueId: {
+    ...foreignKeyField({
+      idFieldName: "originalDialogueId",
+      resolverName: "originalDialogue",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    hidden: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+  } 
 };
 
 export default schema;

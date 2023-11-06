@@ -2,7 +2,7 @@ import React from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
-import { getPostCollaborateUrl, postGetAuthorName } from './collections/posts/helpers';
+import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { Comments } from './collections/comments/collection';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { TagRels } from './collections/tagRels/collection';
@@ -23,8 +23,8 @@ import DoneIcon from '@material-ui/icons/Done';
 import { NotificationChannelOption } from './collections/users/schema';
 import startCase from 'lodash/startCase';
 import { GiftIcon } from '../components/icons/giftIcon';
-import {userGetDisplayName} from './collections/users/helpers'
-import {TupleSet, UnionOf} from './utils/typeGuardUtils'
+import { userGetDisplayName } from './collections/users/helpers'
+import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const)
@@ -33,16 +33,24 @@ export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 interface GetMessageProps {
   documentType: NotificationDocument | null
   documentId: string | null
+  extraData?: Record<string,any>
+}
+
+interface GetDialogueMessageProps {
+  documentType: NotificationDocument | null
+  documentId: string | null
+  newMessageAuthorId: string
+  newMessageContents: string
 }
 
 interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
-  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null})=>Promise<string>
+  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>})=>Promise<string>
   getIcon: ()=>React.ReactNode
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: any })=>string
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
   causesRedBadge?: boolean
 }
 
@@ -274,9 +282,13 @@ export const NewSubforumCommentNotification = registerNotificationType({
 export const NewDialogueMessagesNotification = registerNotificationType({
   name: "newDialogueMessages",
   userSettingField: "notificationDialogueMessages",
-  async getMessage({documentType, documentId}: GetMessageProps) {
+  async getMessage({documentType, documentId, extraData}: GetMessageProps) {
+
+    const newMessageAuthorId = extraData?.newMessageAuthorId
     let post = await getDocument(documentType, documentId) as DbPost;
-    return `New response in your dialogue "${post.title}"`;
+    let author = await getDocument("user", newMessageAuthorId) as DbUser ?? '[Missing Author Name]';
+
+    return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
@@ -287,6 +299,27 @@ export const NewDialogueMessagesNotification = registerNotificationType({
     return `/editPost?postId=${documentId}`;
   },
   causesRedBadge: true,
+});
+
+// Used when a user already has unread dialogue message notification. Primitive batching to prevent spamming the user.
+// Send instead of NewDialogueMessageNotifications when there is already one already unread. Not sent if another instance of itself is unread.
+export const NewDialogueMessagesBatchNotification = registerNotificationType({
+  name: "newDialogueBatchMessages",
+  //using same setting as regular NewDialogueMessageNotification, since really the same
+  userSettingField: "notificationDialogueMessages",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const post = await getDocument(documentType, documentId) as DbPost;
+
+    return 'Multiple new messages in your dialogue "' + post.title + '"';
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink: ({documentId}: {
+    documentId: string|null,
+  }): string => {
+    return `/editPost?postId=${documentId}`;
+  },
 });
 
 // New published dialogue message(s) on a dialogue post you're subscribed to. 
@@ -477,6 +510,31 @@ export const PostSharedWithUserNotification = registerNotificationType({
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
     return getPostCollaborateUrl(documentId, false)
+  }
+});
+
+export const PostAddedAsCoauthorNotification = registerNotificationType({
+  name: "addedAsCoauthor",
+  userSettingField: "notificationAddedAsCoauthor",
+  allowedChannels: ["onsite", "email", "both"],
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document = await getDocument(documentType, documentId) as DbPost;
+    const name = await postGetAuthorName(document);
+    const postOrDialogue = document.collabEditorDialogue ? 'dialogue' : 'post';
+    return `${name} added you as a coauthor to the ${postOrDialogue} "${document.title}"`;
+  },
+  getIcon() {
+    return <GroupAddIcon style={iconStyles} />
+  },
+  getLink: ({documentType, documentId, extraData}: {
+    documentType: string|null,
+    documentId: string|null,
+    extraData: any
+  }): string => {
+    if (!documentId) {
+      throw new Error("PostAddedAsCoauthorNotification documentId is missing")
+    }
+    return postGetEditUrl(documentId, false)
   }
 });
 

@@ -365,6 +365,13 @@ addRoute(
     componentName: 'UserSuggestNominations',
     title: "Your Past Votes"
   },
+  {
+    name:'users.dialogueMatching',
+    path:'/dialogueMatching',
+    componentName: 'DialogueMatchingPage',
+    title: "Dialogue matching",
+    background: "white"
+  },
 );
 
 if (taggingNameIsSet.get()) {
@@ -640,6 +647,16 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/bestOf',
       componentName: 'EABestOfPage',
       redirect: () => '/best-of',
+    },
+    {
+      name: 'GivingPortal',
+      path: '/giving-portal',
+      componentName: 'EAGivingPortalPage',
+      title: 'Giving portal',
+      subtitle: 'Giving portal',
+      subtitleLink: '/giving-portal',
+      unspacedGrid: true,
+      fullscreen: true,
     },
     {
       name: 'contact',

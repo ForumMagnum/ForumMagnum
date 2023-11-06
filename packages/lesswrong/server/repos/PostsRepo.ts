@@ -213,6 +213,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [limit]);
   }
 
+  getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT * 
+      FROM (
+          SELECT DISTINCT ON (p._id) p.* 
+          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
+          WHERE p."collabEditorDialogue" IS TRUE 
+          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+      ) dialogues
+      ORDER BY "modifiedAt" DESC
+      LIMIT $2
+    `, [userId, limit]);
+  }
+
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"
@@ -358,6 +372,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
   }
-}
 
+  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "ReadStatuses" rs
+      INNER JOIN "Posts" p 
+      ON rs."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND p."userId" = $2
+          AND rs."isRead" IS TRUE
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
+}
 ensureIndex(Posts, {debate:-1})

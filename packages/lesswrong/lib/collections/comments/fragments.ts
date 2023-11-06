@@ -72,6 +72,7 @@ registerFragment(`
     rejected
     rejectedReason
     modGPTRecommendation
+    originalDialogueId
   }
 `);
 

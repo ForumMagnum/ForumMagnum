@@ -17,7 +17,7 @@ import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
   results: SubscriptionState[]|undefined,
-  subscriptionType: AnyBecauseTodo,
+  subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
   document: AnyBecauseTodo,
 ) => {

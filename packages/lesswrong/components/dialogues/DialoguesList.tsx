@@ -4,6 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import { useSingle } from '../../lib/crud/withSingle';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -11,8 +12,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
-import { dialogueFacilitationMessagesABTest, useABTest } from '../../lib/abTests';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogueFacilitationItem: {
@@ -58,12 +57,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   prompt: {
     color: theme.palette.lwTertiary.main,
     fontWeight: 645,
+  },
+
+  subheading: {
+    marginTop: '10px',
   }
 });
 
 const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const { captureEvent } = useTracking();
-  const optInMessageABTestGroup = useABTest(dialogueFacilitationMessagesABTest);
 
   const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
   const updateCurrentUser = useUpdateCurrentUser()
@@ -75,7 +77,10 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 
   const handleOptInChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setOptIn(event.target.checked);
-    void updateCurrentUser({hideDialogueFacilitation: event.target.checked}) // show people they have clicked, but remove component from view upon refresh
+    void updateCurrentUser({
+      hideDialogueFacilitation: event.target.checked, // we hide the item if the user has opted in to it
+      optedInToDialogueFacilitation: event.target.checked
+    }) 
     captureEvent("optInToDialogueFacilitation", {optIn: event.target.checked})
     
     const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
@@ -84,7 +89,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
     const webhookURL = "https://hooks.slack.com/triggers/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";
     const data = {
       user: userDetailString,
-      abTestGroup: optInMessageABTestGroup,
+      abTestGroup: "optIn (no more AB test)",
     };
   
     if (event.target.checked) {
@@ -104,7 +109,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
     }
   };
 
-  const prompt = optInMessageABTestGroup === "getHelp" ? "Get help having a dialogue" : "Opt-in to dialogue invitations" 
+  const prompt = "Opt-in to dialogue invitations" 
  
   return (
       <div className={classes.dialogueFacilitationItem}>
@@ -136,23 +141,40 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 };
 
 const DialoguesList = ({ classes }: { classes: ClassesType }) => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
+  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
   const [showOptIn, setShowOptIn] = useState(optInStartState);
 
   const { results: dialoguePosts } = usePaginatedResolver({
-    fragmentName: "PostsPage",
+    fragmentName: "PostsListWithVotes",
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
   }); 
 
+  const { results: myDialogues } = usePaginatedResolver({
+    fragmentName: "PostsListWithVotes",
+    resolverName: "MyDialogues",
+    limit: 3,
+  }); 
+
+  const {
+    document: party,
+  } = useSingle({
+    documentId: "BJcNeJss4jxc68GQR",
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+  });
+
   const dialoguesTooltip = <div>
-    <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
+    <p>Dialogues between a small group of users. Click to see more.</p>
   </div>
 
-  const updateCurrentUser = useUpdateCurrentUser()
-  //void updateCurrentUser({hideDialogueFacilitation: false})
+  const renderMyDialogues = !!currentUser && myDialogues?.length 
+
+  const myDialoguesTooltip = <div>
+      <div>These are the dialoges you are involved in (both drafts and published)</div>
+    </div>
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -161,15 +183,38 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
           Dialogues
         </LWTooltip>}
       />
-
       {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
+
+      {party && <PostsItem post={party}/>}
       
-      {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
+      {dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
+
+      {renderMyDialogues && (
+          <div className={classes.subsection}>
+            <AnalyticsContext pageSubSectionContext="myDialogues">
+              <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+                <Link to={"/dialogues"}>
+                  <SectionSubtitle className={classes.subheading}>
+                    My Dialogues (only visible to you)
+                  </SectionSubtitle>
+                </Link>
+              </LWTooltip>
+              {myDialogues?.map((post, i: number) =>
+                <PostsItem
+                  key={post._id} post={post}
+                  showBottomBorder={i < myDialogues.length-1}
+                />
+              )}
+            </AnalyticsContext>
+          </div>
+        )}
+      
+
    </SingleColumnSection>
   </AnalyticsContext>
 }

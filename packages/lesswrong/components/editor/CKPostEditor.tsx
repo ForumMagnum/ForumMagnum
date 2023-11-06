@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -18,6 +18,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import { EditorContext } from '../posts/PostsEditForm';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -339,7 +340,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
-  const { EditorTopBar, DialogueEditorGuidelines } = Components;
+  const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -358,21 +359,6 @@ const CKPostEditor = ({
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId)
-    }
-  `);
-  const dialogueParticipantNotificationCallback = async () => {
-    await sendNewDialogueMessageNotification({
-      variables: {
-        postId: post._id
-      }
-    });
-  }
-  
-  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -386,6 +372,28 @@ const CKPostEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
+
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
+      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
+    }
+  `);
+
+  const dialogueParticipantNotificationCallback = async () => {
+  const editorContents =  editorRef?.current?.editor.getData()
+
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id,
+        dialogueHtml: editorContents
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+    
+  
+  const [_, setEditor] = useContext(EditorContext);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
@@ -464,6 +472,9 @@ const CKPostEditor = ({
           applyCollabModeToCkEditor(editor, collaborationMode);
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+          
+          // We need this context for Dialogues, which should always be collaborative.
+          setEditor(editor);
         }
 
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
@@ -517,7 +528,7 @@ const CKPostEditor = ({
                   return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
-                  const owner = getBlockUserId(parentDialogueElement);  
+                  const owner = getBlockUserId(parentDialogueElement);
                   if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
@@ -566,7 +577,7 @@ const CKPostEditor = ({
           'mathDisplay',
           'mediaEmbed',
           'footnote',
-          'dialogueMessageInput'
+          'rootParagraphBox',
         ]} : {}),
         autosave: {
           save (editor: any) {
@@ -595,6 +606,7 @@ const CKPostEditor = ({
         dialogues: dialogueConfiguration
       }}
     />}
+    {post.collabEditorDialogue ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

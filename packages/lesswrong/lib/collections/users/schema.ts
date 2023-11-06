@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -1381,6 +1381,10 @@ const schema: SchemaType<DbUser> = {
     label: "New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField()
   },
+  notificationAddedAsCoauthor: {
+    label: "Someone has added me as a coauthor to a post",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
@@ -1391,6 +1395,7 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
+  
 
   hideDialogueFacilitation: {
     type: Boolean,
@@ -1400,8 +1405,33 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: false,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
+  },
+
+  revealChecksToAdmins: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Allow users to reveal their checks for better facilitation",
+    ...schemaDefaultValue(false)
+  },
+
+  optedInToDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    hidden: !isLW,
+    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
     ...schemaDefaultValue(false)
   },
 
@@ -1439,6 +1469,17 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
     logChanges: false,
+  },
+
+  // User wants to get notifications when giving season voting begins
+  givingSeasonNotifyForVoting: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
 
   // Email settings
@@ -1706,7 +1747,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 44,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the frontpage map"
   },
 

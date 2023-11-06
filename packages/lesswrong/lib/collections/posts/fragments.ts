@@ -642,6 +642,13 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostWithDialogueMessage on Post {
+    _id
+    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
+  }
+`);
+
+registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments

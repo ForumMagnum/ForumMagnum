@@ -177,7 +177,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     })
   }
 
-  function toggleReaction(name: string, quote: QuoteLocator|null) {
+  async function toggleReaction(name: string, quote: QuoteLocator|null) {
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -185,14 +185,14 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
     const shouldClearUserReaction = !!getCurrentUserReactionVote(name, quote);
 
     if (shouldClearUserReaction) {
-      clearCurrentUserReaction(name, quote);
+      await clearCurrentUserReaction(name, quote);
     } else {
       const initialVote = "created"; //TODO: "created" vs "seconded"
-      addCurrentUserReaction(name, initialVote, quote);
+      await addCurrentUserReaction(name, initialVote, quote);
     }
   }
-  
-  function addCurrentUserReaction(reactionName: EmojiReactName, vote: VoteOnReactionType, quote: QuoteLocator|null) {
+
+  async function addCurrentUserReaction(reactionName: EmojiReactName, vote: VoteOnReactionType, quote: QuoteLocator|null) {
     if (!currentUser) {
       openLoginDialog();
       return;
@@ -215,35 +215,35 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
       reacts: newReacts
     };
 
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
       currentUser,
     });
   }
-  
-  function clearCurrentUserReaction(reactionName: string, quote: QuoteLocator|null) {
+
+  async function clearCurrentUserReaction(reactionName: string, quote: QuoteLocator|null) {
     if (!currentUser) {
       openLoginDialog();
       return;
     }
-    
+
     const oldReacts = currentUserExtendedVote?.reacts ?? [];
     const newExtendedVote: NamesAttachedReactionsVote = {
       ...currentUserExtendedVote,
       reacts: filter(oldReacts, r => !reactionVoteIsMatch(r, reactionName, quote))
     };
 
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote || null,
       extendedVote: newExtendedVote,
       currentUser,
     });
   }
-  
-  function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) {
+
+  async function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) {
     if (reaction) {
       addCurrentUserReaction(reactionName, reaction, quote);
     } else {

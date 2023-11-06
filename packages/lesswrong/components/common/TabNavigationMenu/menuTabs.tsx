@@ -261,6 +261,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'giving-portal',
+      title: 'Giving portal',
+      link: '/giving-portal',
+      iconComponent: TakeActionSelectedIcon,
+      customComponentName: 'GivingPortalMobileMenuItem'
+    }, {
       id: 'bestOf',
       title: 'Best of the Forum',
       link: '/best-of',

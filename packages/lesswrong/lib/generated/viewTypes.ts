@@ -10,8 +10,10 @@ type ConversationsViewName = "moderatorConversations"|"userConversations"|"userG
 type CronHistoriesViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
+type DialogueChecksViewName = "userDialogueChecks";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
+type ElectionCandidatesViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
@@ -49,7 +51,7 @@ type UserActivitiesViewName = never
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "userRateLimits"|"activeUserRateLimits";
 type UserTagRelsViewName = "single";
-type UsersViewName = "usersByUserIds"|"usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"recentlyActive"|"allUsers"|"usersMapLocations"|"tagCommunityMembers"|"reviewAdminUsers"|"usersWithPaymentInfo"|"walledGardenInvitees"|"alignmentSuggestedUsers";
+type UsersViewName = "usersByUserIds"|"usersProfile"|"LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"usersWithBannedUsers"|"sunshineNewUsers"|"recentlyActive"|"allUsers"|"usersMapLocations"|"tagCommunityMembers"|"reviewAdminUsers"|"usersWithPaymentInfo"|"walledGardenInvitees"|"usersWithOptedInToDialogueFacilitation"|"alignmentSuggestedUsers";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 
 interface ViewTermsByCollectionName {
@@ -65,8 +67,10 @@ interface ViewTermsByCollectionName {
   CronHistories: ViewTermsBase
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
+  DialogueChecks: DialogueChecksViewTerms
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
+  ElectionCandidates: ElectionCandidatesViewTerms
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
@@ -109,4 +113,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
