@@ -245,9 +245,9 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
   async function setCurrentUserReaction(reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) {
     if (reaction) {
-      addCurrentUserReaction(reactionName, reaction, quote);
+      await addCurrentUserReaction(reactionName, reaction, quote);
     } else {
-      clearCurrentUserReaction(reactionName, quote);
+      await clearCurrentUserReaction(reactionName, quote);
     }
   }
 
