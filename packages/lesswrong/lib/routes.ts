@@ -365,6 +365,13 @@ addRoute(
     componentName: 'UserSuggestNominations',
     title: "Your Past Votes"
   },
+  {
+    name:'users.dialogueMatching',
+    path:'/dialogueMatching',
+    componentName: 'DialogueMatchingPage',
+    title: "Dialogue matching",
+    background: "white"
+  },
 );
 
 if (taggingNameIsSet.get()) {

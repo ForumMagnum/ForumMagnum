@@ -247,6 +247,11 @@ import './collections/sessions';
 import './collections/typingIndicators/collection';
 import './collections/typingIndicators/fragments';
 
+// dialogue checks
+import './collections/dialogueChecks/collection';
+import './collections/dialogueChecks/fragments';
+import './collections/dialogueChecks/views';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

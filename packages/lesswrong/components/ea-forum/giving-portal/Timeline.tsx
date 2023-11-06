@@ -98,8 +98,8 @@ const defaultDivisionToPercent = (division: number, divisions: number) =>
   (division / divisions) * 100;
 
 const formatSpanDates = (startDate: Date, endDate: Date) => {
-  const start = moment(startDate);
-  const end = moment(endDate);
+  const start = moment.utc(startDate);
+  const end = moment.utc(endDate);
   const startFormat = start.year() !== end.year() ? "MMM D YYYY" : "MMM D";
   const endFormat = start.month() !== end.month() ? "MMM D" : "D";
   return `${start.format(startFormat)} – ${end.format(endFormat)}`;
@@ -121,12 +121,12 @@ const Timeline = ({
   const showCurrentDate = currentDate.getTime() > start.getTime() &&
     currentDate.getTime() < end.getTime();
 
-  const startMoment = moment(start);
-  const endMoment = moment(end);
+  const startMoment = moment.utc(start);
+  const endMoment = moment.utc(end);
   const divisions = endMoment.diff(startMoment, "days");
 
   const getDatePercent = (date: Date) => {
-    const dateMoment = moment(date);
+    const dateMoment = moment.utc(date);
     const division = dateMoment.diff(startMoment, "days");
     const percent = divisionToPercent(division, divisions);
     return percent < 0 ? 0 : percent > 100 ? 100 : percent;

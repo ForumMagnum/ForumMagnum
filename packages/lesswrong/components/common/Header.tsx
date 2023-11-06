@@ -606,7 +606,7 @@ const Header = ({
                   {timelineSpec.spans.map(span => {
                     // ignore the voting time period
                     if (span.hatched) return null
-                    const now = moment().add(5,'days')
+                    const now = moment()
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
                     return <Link
                       key={`${span.description}-label`}
