@@ -20,9 +20,9 @@ class CloudinaryAdapter {
 		const file = await this.loader.file
 		const response = await this._sendRequest(file)
 
-		if (!response || !response.url) throw new Error('Image upload failed')
-
-		return {default: response.url}
+		if (!response || !response.secure_url) throw new Error('Image upload failed')
+		
+		return {default: response.secure_url}
 	}
 
 	abort() {
