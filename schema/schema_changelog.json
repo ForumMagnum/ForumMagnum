@@ -355,24 +355,9 @@
     "timestamp": "2023-10-27T15:43:13.000Z"
   },
   {
-    "acceptsSchemaHash": "2e0ba043f057e511aa882172641097b4",
-    "acceptedByMigration": "20231027T213216.add_dialoguecheck_collection.ts",
-    "timestamp": "2023-10-27T21:32:16.000Z"
-  },
-  {
     "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
     "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
     "timestamp": "2023-10-28T01:20:12.000Z"
-  },
-  {
-    "acceptsSchemaHash": "2e14526f8bb387a6f320a68329fcb9e0",
-    "acceptedByMigration": "20231030T233405.add_Dialogue_OptIn_Field_To_User_Schema.ts",
-    "timestamp": "2023-10-30T23:34:05.000Z"
-  },
-  {
-    "acceptsSchemaHash": "b669c5d8be042559b7862036de5bb3b4",
-    "acceptedByMigration": "20231031T230223.add_dialogue_reveal_checks_to_admin.ts",
-    "timestamp": "2023-10-31T23:02:23.000Z"
   },
   {
     "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
