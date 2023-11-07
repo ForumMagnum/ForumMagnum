@@ -269,6 +269,23 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   },
 });
 
+// Ricki: need to change a bunch of details here
+export const NewDialogueMatchNotification = serverRegisterNotificationType({
+  name: "newDialogueMatch",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const newMessageAuthorId = notifications[0].extraData?.newMessageAuthorId;
+    const author = newMessageAuthorId && await Users.findOne(newMessageAuthorId);
+    if (!author) throw Error(`Can't find author for notification: ${notifications[0]}`)
+    return `You matched with ${userGetDisplayName(author)} started a dialogue with you`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
+    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+  },
+});
+
 export const NewDebateCommentNotification = serverRegisterNotificationType({
   name: "newDebateComment",
   canCombineEmails: true,
