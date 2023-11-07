@@ -14,7 +14,18 @@ const fetchNewAmounts = async (gwwcId: string): Promise<ElectionCandidateAmounts
       "content-type": "application/json",
       pragma: "no-cache",
     },
-    body: `{"query":"{\\n  getFundraiserStatsList(fundraiserId: \\"${gwwcId}\\") {\\n    fundraiserId\\n    amountRaisedNormalized\\n    numDonors\\n  }\\n}\\n","variables":null}`,
+    body: JSON.stringify({
+      query: `
+        {
+          getFundraiserStatsList(fundraiserId: "${gwwcId}") {
+            fundraiserId
+            amountRaisedNormalized
+            numDonors
+          }
+        }
+      `,
+      variables: null
+    }),
     method: "POST",
   });
 
