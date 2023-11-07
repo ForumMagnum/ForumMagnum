@@ -32,12 +32,10 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
   });
 
   const setSelectedTagId = useCallback((value?: string) => {
-    if (!loading) {
-      updateCurrentValues({
-        [path]: value,
-      });
-    }
-  }, [loading, updateCurrentValues, path]);
+    updateCurrentValues({
+      [path]: value,
+    });
+  }, [updateCurrentValues, path]);
 
   return (
     <div className={classes.root}>
