@@ -25,7 +25,9 @@ const AdminElectionCandidates = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {results, loading} = useElectionCandidates("name");
+  const {results, loading} = useElectionCandidates("name", {
+    fetchPolicy: "network-only",
+  });
 
   if (!userIsAdmin(currentUser)) {
     const {Error404} = Components;

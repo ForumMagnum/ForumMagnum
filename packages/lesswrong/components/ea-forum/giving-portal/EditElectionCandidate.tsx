@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { Components, getFragment, registerComponent } from "../../../lib/vulcan-lib";
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
-import { useLocation } from "../../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../../lib/routeUtil";
 import { useMessages } from "../../common/withMessages";
 import { useDialog } from "../../common/withDialog";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -41,6 +41,7 @@ const EditElectionCandidate = ({classes}: {
   classes: ClassesType,
 }) => {
   const {flash} = useMessages();
+  const {history} = useNavigation();
   const {openDialog} = useDialog();
   const {params} = useLocation();
   const candidateId = params.id;
@@ -49,7 +50,8 @@ const EditElectionCandidate = ({classes}: {
 
   const successCallback = useCallback(() => {
     flash("Success");
-  }, [flash]);
+    history.push({pathname: "/admin/election-candidates"});
+  }, [flash, history]);
 
   const deleteCallback = useCallback(() => {
     if (!isNewForm) {
