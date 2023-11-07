@@ -1,5 +1,6 @@
 import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from "./algoliaUtil";
+import capitalize from 'lodash/capitalize'
 
 export const elasticCollectionIsCustomSortable = (
   collectionName: AlgoliaIndexCollectionName,
@@ -30,8 +31,7 @@ export const getElasticSortingsForCollection = (
 export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
   elasticSortings.has(sorting);
 
-const snakeToTitleCase = (str: string) => 
-  str.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+const snakeToTitleCase = (str: string) => str.split('_').map(capitalize).join(' ')
 
 export const formatElasticSorting = (sorting: ElasticSorting): string => {
   if(sorting === "karma") return "Top"

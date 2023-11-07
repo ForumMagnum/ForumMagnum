@@ -23,7 +23,7 @@ const ExpandedPostsSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}
   return <PostsItem
     post={{
       ...post,
-      contents: {_id: post._id, htmlHighlight: post.body, wordCount: post.body.split(/\s/).length, version: ''},
+      contents: {_id: post._id, htmlHighlight: post.body, wordCount: post.body.trim().split(/\s+/g).length, version: ''},
       // @ts-ignore
       user: {slug: post.authorSlug, displayName: post.authorDisplayName, _id: post.userId},
       __typename: 'Post',
