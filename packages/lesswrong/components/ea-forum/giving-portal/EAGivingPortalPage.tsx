@@ -273,7 +273,8 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
   algoDecayFactorFastest: 3.0,
 });
 
-const formatDollars = (amount: number) => "$" + formatStat(amount);
+/** Format as dollars with no cents */
+const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
