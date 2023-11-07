@@ -64,6 +64,7 @@ export const pgPromiseLib = pgp({
  * connections will hit a limit of 100), and you probably want to leave a couple free
  * for connecting extenal clients for debugging/testing/migrations/etc.
  */
+
 const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
 declare global {
@@ -272,6 +273,7 @@ export const createSqlConnection = async (
     throw new Error("PG_URL not configured");
   }
 
+  console.log("jakey PG_MAX_CONNECTIONS:", process.env.PG_MAX_CONNECTIONS);
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
