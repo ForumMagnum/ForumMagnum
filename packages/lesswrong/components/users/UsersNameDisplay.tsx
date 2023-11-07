@@ -30,6 +30,7 @@ const UsersNameDisplay = ({
   nofollow=false,
   simple=false,
   classes,
+  showTooltip=true,
   tooltipPlacement="left",
   pageSectionContext,
   className,
@@ -39,6 +40,7 @@ const UsersNameDisplay = ({
   nofollow?: boolean,
   simple?: boolean,
   classes: ClassesType,
+  showTooltip?: boolean,
   tooltipPlacement?: PopperPlacementType,
   pageSectionContext?: string,
   className?: string,
@@ -80,6 +82,7 @@ const UsersNameDisplay = ({
           user={user}
           placement={tooltipPlacement}
           inlineBlock={false}
+          showTooltip={showTooltip}
         >
           <Link to={profileUrl} className={colorClass}
             {...(nofollow ? {rel:"nofollow"} : {})}

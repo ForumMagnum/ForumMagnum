@@ -1,61 +1,10 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
-import React from 'react';
-import type { Hit } from 'react-instantsearch-core';
-import { Snippet } from 'react-instantsearch-dom';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
+import {Components, registerComponent} from '../../lib/vulcan-lib'
+import React from 'react'
+import type {Hit} from 'react-instantsearch-core'
 import {showKarmaSetting} from '../../lib/publicSettings.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    maxWidth: 600,
-    paddingTop: 2,
-    paddingBottom: 2,
-    marginBottom: 18,
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.5
-    }
-  },
-  link: {
-    '&:hover': {
-      opacity: 1
-    }
-  },
-  title: {
-    fontSize: 18,
-    lineHeight: '24px',
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
-    fontWeight: 600,
-    marginBottom: 2
-  },
-  metaInfoRow: {
-    display: "flex",
-    flexWrap: 'wrap',
-    alignItems: 'baseline',
-    columnGap: 16,
-    rowGap: '3px',
-    color: theme.palette.grey[600],
-    fontSize: 12,
-    fontFamily: theme.typography.fontFamily,
-  },
-  metaInfo: {
-    display: "flex",
-    alignItems: 'center',
-    columnGap: 3
-  },
-  snippet: {
-    overflowWrap: "break-word",
-    fontFamily: theme.typography.postStyle.fontFamily,
-    wordBreak: "break-word",
-    fontSize: 14,
-    lineHeight: '22px',
-    color: theme.palette.grey[700],
-    marginTop: 7
-  }
+  root: {},
 })
 
 const ExpandedPostsSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}: {
@@ -63,35 +12,30 @@ const ExpandedPostsSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}
   showKarma?: () => boolean,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation()
-  
-  const { FormatDate, UserNameDeleted } = Components
-  const post: AlgoliaPost = hit
-  
-  const handleClick = () => {
-    history.push(postGetPageUrl(post))
-  }
 
-  return <div className={classes.root} onClick={handleClick}>
-    <div className={classes.title}>
-      <Link to={postGetPageUrl(post)} className={classes.link} onClick={(e) => e.stopPropagation()}>
-        {post.title}
-      </Link>
-    </div>
-    <div className={classes.metaInfoRow}>
-      {post.authorSlug ? <Link to={userGetProfileUrlFromSlug(post.authorSlug)} onClick={(e) => e.stopPropagation()}>
-        {post.authorDisplayName}
-      </Link> : <UserNameDeleted />}
-      {showKarma() && <span>{post.baseScore ?? 0} karma</span>}
-      <FormatDate date={post.postedAt} />
-    </div>
-    <div className={classes.snippet}>
-      <Snippet className={classes.snippet} attribute="body" hit={post} tagName="mark" />
-    </div>
-  </div>
+  const {PostsItem} = Components
+  const post: AlgoliaPost = hit
+
+  /**
+   * Very hacky way to reuse PostsItem by reshaping the AlgoliaPost into a Post (with a lot of missing fields).
+   * context: https://wakingup-vlad.slack.com/archives/C05MHUVM2SY/p1698969015310619
+   */
+  return <PostsItem
+    post={{
+      ...post,
+      contents: {_id: post._id, htmlHighlight: post.body, wordCount: post.body.split(/\s/).length, version: ''},
+      // @ts-ignore
+      user: {slug: post.authorSlug, displayName: post.authorDisplayName, _id: post.userId},
+      __typename: 'Post',
+    }}
+    showKarma={showKarma()}
+    hideTag={true}
+    show
+    showAuthorTooltip={false}
+  />
 }
 
-const ExpandedPostsSearchHitComponent = registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHit, {styles});
+const ExpandedPostsSearchHitComponent = registerComponent('ExpandedPostsSearchHit', ExpandedPostsSearchHit, {styles})
 
 declare global {
   interface ComponentTypes {

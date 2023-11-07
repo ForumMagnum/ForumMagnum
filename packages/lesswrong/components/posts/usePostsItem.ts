@@ -63,6 +63,7 @@ export type PostsItemConfig = {
   /** hideAuthor: hide the post author. Used on user-profile pages
    * where there's a list of posts all by the same author, to avoid the redundancy. */
   hideAuthor?: boolean,
+  showAuthorTooltip?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
   tooltipPlacement?: PopperPlacementType,
@@ -100,6 +101,7 @@ export const usePostsItem = ({
   showNominationCount = false,
   showReviewCount = false,
   hideAuthor = false,
+  showAuthorTooltip = true,
   hideTag = false,
   hideTrailingButtons = false,
   tooltipPlacement = "bottom-end",
@@ -180,6 +182,7 @@ export const usePostsItem = ({
     condensedAndHiddenComments: defaultToShowUnreadComments && !showComments,
     toggleComments,
     showAuthor: !post.isEvent && !hideAuthor,
+    showAuthorTooltip,
     showDate: showPostedAt && !resumeReading,
     showTrailingButtons: !hideTrailingButtons,
     showMostValuableCheckbox,
