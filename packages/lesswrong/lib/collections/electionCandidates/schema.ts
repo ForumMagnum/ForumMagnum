@@ -27,6 +27,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
     label: "Candidate name",
   },
   /** URL for this candidates logo */
@@ -37,6 +38,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
     label: "Logo image URL",
   },
   /** Link for this candidate (i.e. to the org's website) */
@@ -47,6 +49,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
     label: "Candidate website URL",
   },
   /** Link for this candidate's GWWC fundraiser page */
@@ -57,6 +60,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    control: "MuiTextField",
     label: "GWWC fundraiser URL",
   },
   /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
@@ -67,6 +71,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    control: "MuiTextField",
     label: "GWWC charity link",
   },
   /** Short plaintext description */
@@ -77,6 +82,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
     label: "Candidate description",
   },
   /** The user who created this candidate (this is required by makeVoteable) */
@@ -102,6 +108,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canRead: ["guests"],
     optional: true,
     nullable: false,
+    hidden: true,
     ...schemaDefaultValue(0),
   },
   /** The tag user for marking posts as being relevant to this candidate */
