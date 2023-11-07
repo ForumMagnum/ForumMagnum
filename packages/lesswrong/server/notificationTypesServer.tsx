@@ -27,6 +27,7 @@ import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
+import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 
 interface ServerNotificationType {
   name: string,
@@ -274,15 +275,17 @@ export const NewDialogueMatchNotification = serverRegisterNotificationType({
   name: "newDialogueMatch",
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const newMessageAuthorId = notifications[0].extraData?.newMessageAuthorId;
-    const author = newMessageAuthorId && await Users.findOne(newMessageAuthorId);
-    if (!author) throw Error(`Can't find author for notification: ${notifications[0]}`)
-    return `You matched with ${userGetDisplayName(author)} started a dialogue with you`;
+    // const dialogueCheck = await DialogueChecks.findOne(notifications[0].documentId);
+    // if (!dialogueCheck) throw Error(`Can't find dialogue check for notification: ${notifications[0]}`)
+    // const targetUserId = dialogueCheck.targetUserId;
+    const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
+    if (!summary) throw Error(`Can't find summary for notification: ${notifications[0]}`)
+    const targetUserDisplayName = summary.associatedUserName
+    return `You matched with ${targetUserDisplayName} for dialogues!`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postId = notifications[0].documentId;
-    const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
-    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+    const dialogueCheckId = notifications[0].documentId;
+    return <Components.NewDialogueMatchEmail documentId={dialogueCheckId}/>;
   },
 });
 
