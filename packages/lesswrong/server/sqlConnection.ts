@@ -274,6 +274,7 @@ export const createSqlConnection = async (
   }
 
   console.log("jakey PG_MAX_CONNECTIONS:", process.env.PG_MAX_CONNECTIONS);
+  console.log("creating new collection with url:", url)
   const db = pgPromiseLib({
     connectionString: url,
     max: MAX_CONNECTIONS,
