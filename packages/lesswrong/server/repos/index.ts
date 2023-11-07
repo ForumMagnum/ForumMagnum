@@ -3,6 +3,7 @@ import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
+import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
@@ -34,6 +35,7 @@ const getAllRepos = () => ({
   tags: new TagsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
+  dialogueChecks: new DialogueChecksRepo(),
 } as const);
 
 export {
@@ -51,5 +53,6 @@ export {
   TagsRepo,
   UsersRepo,
   VotesRepo,
+  DialogueChecksRepo,
   getAllRepos,
 };

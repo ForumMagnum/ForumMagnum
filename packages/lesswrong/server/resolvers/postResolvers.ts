@@ -305,9 +305,22 @@ addGraphQLResolvers({
           rating: 0
         }
       })
-    }
+    },
+    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId, limit = 20 }: { userId: string, targetUserId: string, limit: number }, context: ResolverContext) {
+      const { currentUser, repos } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read posts of target user')
+      }
+
+      let posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
+      posts = await accessFilterMultiple(currentUser, Posts, posts, context)
+
+      return posts
+    }, 
   },
 })
+
+addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {

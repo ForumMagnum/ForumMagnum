@@ -824,6 +824,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "All Dialogues",
     },
     {
+      name:'users.dialogueMatching',
+      path:'/dialogueMatching',
+      componentName: 'DialogueMatchingPage',
+      title: "Dialogue Matching",
+      background: "white"
+    },
+    {
       name: 'about',
       path: '/about',
       componentName: 'PostsSingleRoute',

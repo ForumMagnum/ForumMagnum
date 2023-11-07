@@ -179,7 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
-  originalDialogueId: string
+  originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -247,6 +247,19 @@ interface DbDebouncerEvents extends DbObject {
   upperBoundTime: Date
   key: string
   pendingEvents: Array<string>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface DialogueChecksCollection extends CollectionBase<DbDialogueCheck, "DialogueChecks"> {
+}
+
+interface DbDialogueCheck extends DbObject {
+  __collectionName?: "DialogueChecks"
+  userId: string
+  targetUserId: string
+  checked: boolean
+  checkedAt: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1354,6 +1367,8 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   hideDialogueFacilitation: boolean
+  revealChecksToAdmins: boolean
+  optedInToDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1552,6 +1567,7 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DialogueChecks: DialogueChecksCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
@@ -1609,6 +1625,7 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueChecks: DbDialogueCheck
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate

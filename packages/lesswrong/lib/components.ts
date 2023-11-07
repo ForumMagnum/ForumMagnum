@@ -481,7 +481,7 @@ importComponent("InlineReactHoverInfo", () => require('../components/votes/lwRea
 importComponent("ReactionDescription", () => require('../components/votes/lwReactions/ReactionDescription'));
 importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 importComponent("HoveredReactionContextProvider", () => require('../components/votes/lwReactions/HoveredReactionContextProvider'));
-importComponent("HoverBallotReactionRow", () => require('../components/votes/lwReactions/HoverBallotReactionRow'));
+importComponent("ReactionHoverTopRow", () => require('../components/votes/lwReactions/ReactionHoverTopRow'));
 importComponent("ReactOrAntireactVote", () => require('../components/votes/lwReactions/ReactOrAntireactVote'));
 importComponent("UsersWhoReacted", () => require('../components/votes/lwReactions/UsersWhoReacted'));
 
@@ -603,6 +603,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
