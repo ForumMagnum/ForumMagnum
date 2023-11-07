@@ -36,6 +36,7 @@ import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils'
 import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { DialogueChecks } from '../lib/collections/dialogueChecks/collection';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -725,14 +726,19 @@ getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAd
   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 });
 
-getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (dialogueCheckInfo: DialogueCheckInfo) {
-  const {userId, targetUserId, match} = dialogueCheckInfo;
-
-  await createNotifications({
-    userIds: [userId], 
-    notificationType: "newDialogueMatch", 
-    documentType: "dialogueCheckInfo", 
-    documentId: dialogueCheckInfo._id,})
+getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (dialogueCheck: DbDialogueCheck) {
+  const {userId, targetUserId, checked} = dialogueCheck;
+  // // If I can get a DialogueChecksRepo then can use checkForMatch method
+  // const matchedUsers = await context.repos.dialogueChecks.checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId);
+  // return matchedUsers.length > 0'
+  
+  const match = await DialogueChecks.findOne({userId: targetUserId, targetUserId: userId, checked: true});
+  if (match) // don't notify if there isn't a match
+    await createNotifications({
+      userIds: [userId], 
+      notificationType: "newDialogueMatch", 
+      documentType: "dialogueCheck", 
+      documentId: dialogueCheck._id,})
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {

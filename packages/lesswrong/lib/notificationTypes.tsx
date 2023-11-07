@@ -28,7 +28,7 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheckInfo'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -153,16 +153,16 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         displayName: null,
         associatedUserName: null,
       }
-    case 'dialogueCheckInfo':
+    case 'dialogueCheck':
       // we want to find the dialogueCheckInfo that has dialogueCheckInfo._id === documentId
       // but we don't have a collection "dialogueCheckInfos" with all of them
       // we can either make one (ugh), or we can have the documentSummary type be 
-      // DbDialogueCheck instead and figure out some way to look through all of them for matches
-      const dialogueCheckInfo = await DialogueChecks.findOne({ _id: documentId })
-      const targetUser = await Users.findOne(dialogueCheckInfo.targetUserId)
-      return dialogueCheckInfo && {
+      // DbDialogueCheck instead and look through all of them for matches
+      const dialogueCheck = await DialogueChecks.findOne({ _id: documentId })
+      const targetUser = await Users.findOne(dialogueCheck?.targetUserId)
+      return dialogueCheck && {
         type: documentType,
-        document: dialogueCheckInfo,
+        document: dialogueCheck,
         associatedUserName: userGetDisplayName(targetUser),
         displayName: null,
       }
