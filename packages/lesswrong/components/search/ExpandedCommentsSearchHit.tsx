@@ -1,25 +1,34 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
-import React from 'react';
-import type { Hit } from 'react-instantsearch-core';
-import { Snippet } from 'react-instantsearch-dom';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
-import TagIcon from '@material-ui/icons/LocalOffer';
-import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
+import {Components, registerComponent} from '../../lib/vulcan-lib'
+import {Link} from '../../lib/reactRouterWrapper'
+import React from 'react'
+import type {Hit} from 'react-instantsearch-core'
+import {Snippet} from 'react-instantsearch-dom'
+import TagIcon from '@material-ui/icons/LocalOffer'
+import {userGetProfileUrlFromSlug} from '../../lib/collections/users/helpers'
+import {useNavigation} from '../../lib/routeUtil'
 import {showKarmaSetting} from '../../lib/publicSettings.ts'
+import {getCommentSearchHitUrl} from './CommentsSearchHit.tsx'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 600,
-    paddingTop: 2,
-    paddingBottom: 2,
     marginBottom: 18,
     cursor: 'pointer',
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 6,
+    paddingBottom: "1.3em",
     '&:hover': {
       opacity: 0.5
     }
+  },
+  title: {
+    fontWeight: 600,
+    fontSize: 16,
+    fontFamily: theme.typography.fontFamily,
+    backgroundColor: theme.palette.panelBackground.default,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    borderBottom: `1px solid ${theme.palette.grey[250]}`,
+    padding: "1em 1.7rem",
   },
   link: {
     '&:hover': {
@@ -30,41 +39,33 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: 'wrap',
     alignItems: 'baseline',
-    columnGap: 16,
+    columnGap: 6,
     rowGap: '3px',
     color: theme.palette.grey[600],
+    fontWeight: 500,
     fontSize: 12,
     fontFamily: theme.typography.fontFamily,
-    marginTop: 6
+    marginTop: "1em",
+    paddingLeft: "1.7rem",
   },
   metaInfo: {
     display: "flex",
     alignItems: 'center',
     columnGap: 3
   },
-  title: {
-    display: 'flex',
-    alignItems: 'center',
-    columnGap: 6,
-    fontSize: 15,
-    lineHeight: '22px',
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
-    fontWeight: 600,
-  },
   tagIcon: {
     fontSize: 14,
     color: theme.palette.grey[600],
   },
-  snippet: {
-    overflowWrap: "break-word",
+  snippetContainer: {
     fontFamily: theme.typography.fontFamily,
-    wordBreak: "break-word",
     fontSize: 14,
     lineHeight: '21px',
-    color: theme.palette.grey[700],
-    marginTop: 5
-  }
+    color: theme.palette.text.normal,
+    marginTop: "1em",
+    paddingLeft: "1.7rem",
+    paddingRight: "1.7rem",
+  },
 })
 
 const ExpandedCommentsSearchHit = ({hit, showKarma = showKarmaSetting.get, classes}: {
@@ -76,19 +77,8 @@ const ExpandedCommentsSearchHit = ({hit, showKarma = showKarmaSetting.get, class
 
   const { FormatDate, UserNameDeleted } = Components
   const comment: AlgoliaComment = hit
-  
-  let url = "";
-  if (comment.postId && comment.postSlug) {
-    url = `${postGetPageUrl({
-      _id: comment.postId ?? "",
-      slug: comment.postSlug ?? "",
-      isEvent: comment.postIsEvent,
-      groupId: comment.postGroupId,
-    })}#${comment._id}`
-  } else if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
-  }
-  
+
+  const url = getCommentSearchHitUrl(comment)  
   const handleClick = () => {
     history.push(url)
   }
@@ -102,14 +92,15 @@ const ExpandedCommentsSearchHit = ({hit, showKarma = showKarmaSetting.get, class
         <TagIcon className={classes.tagIcon} />
         {comment.tagName}
       </div>}
-      <div className={classes.snippet}>
-        <Snippet className={classes.snippet} attribute="body" hit={comment} tagName="mark" />
+      <div className={classes.snippetContainer}>
+        <Snippet attribute="body" hit={comment} tagName="mark" />
       </div>
     </Link>
     <div className={classes.authorRow}>
       {comment.authorSlug ? <Link to={userGetProfileUrlFromSlug(comment.authorSlug)} onClick={(e) => e.stopPropagation()}>
         {comment.authorDisplayName}
       </Link> : <UserNameDeleted />}
+      ·
       {showKarma() && <span>{comment.baseScore ?? 0} karma</span>}
       <FormatDate date={comment.createdAt} />
     </div>

@@ -16,10 +16,11 @@ const styles = (theme: ThemeType) => ({
     : {},
 });
 
-const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, showTooltip = true, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
+  showTooltip?: boolean,
   children: ReactNode,
   classes: ClassesType,
 }) => {
@@ -31,6 +32,7 @@ const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
       title={<Main user={user} />}
       placement={placement}
       inlineBlock={inlineBlock}
+      disabled={!showTooltip}
       popperClassName={classes.tooltip}
     >
       {children}

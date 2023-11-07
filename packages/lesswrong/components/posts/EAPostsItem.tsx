@@ -211,6 +211,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
     hasUnreadComments,
     sticky,
     showDraftTag,
+    showAuthorTooltip,
     showPersonalIcon,
     showTrailingButtons,
     showMostValuableCheckbox,
@@ -321,6 +322,7 @@ const EAPostsItem = ({classes, ...props}: EAPostsItemProps) => {
                   <InteractionWrapper className={classes.interactionWrapper}>
                     <TruncatedAuthorsList
                       post={post}
+                      showAuthorTooltip={showAuthorTooltip}
                       expandContainer={authorExpandContainer}
                     />
                   </InteractionWrapper>

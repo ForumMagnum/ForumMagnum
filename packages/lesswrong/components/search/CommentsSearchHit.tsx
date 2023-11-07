@@ -34,21 +34,25 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
+export const getCommentSearchHitUrl = (comment: AlgoliaComment) => {
+  if (comment.postId && comment.postSlug) {
+    return `${postGetPageUrl({
+      _id: comment.postId ?? '',
+      slug: comment.postSlug ?? '',
+      isEvent: comment.postIsEvent,
+      groupId: comment.postGroupId,
+    })}#${comment._id}`
+  } else if (comment.tagSlug && comment.tagCommentType) {
+    return tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
+  }
+  
+  return ''
+}
+
 const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const comment = (hit as AlgoliaComment);
   const { LWTooltip } = Components
-
-  let url = "";
-  if (comment.postId && comment.postSlug) {
-    url = `${postGetPageUrl({
-      _id: comment.postId ?? "",
-      slug: comment.postSlug ?? "",
-      isEvent: comment.postIsEvent,
-      groupId: comment.postGroupId,
-    })}#${comment._id}`;
-  } else if (comment.tagSlug && comment.tagCommentType) {
-    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
-  }
+  const url = getCommentSearchHitUrl(comment)
 
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="Comment">

@@ -131,9 +131,10 @@ const recalculate = (
   ref.current.appendChild(scratch);
 }
 
-const TruncatedAuthorsList = ({post, expandContainer, classes}: {
+const TruncatedAuthorsList = ({post, expandContainer, showAuthorTooltip = true, classes}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement>,
+  showAuthorTooltip?: boolean,
   classes: ClassesType,
 }) => {
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
@@ -153,20 +154,20 @@ const TruncatedAuthorsList = ({post, expandContainer, classes}: {
     : (
       <div className={classes.root} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
-          <UsersNameDisplay user={authors[0]} />
+          <UsersNameDisplay user={authors[0]} showTooltip={showAuthorTooltip}/>
         </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UsersNameDisplay user={author} />
+              <UsersNameDisplay user={author} showTooltip={showAuthorTooltip}/>
             </span>
           )}
           <LWTooltip
             title={
               <div className={classes.tooltip}>
                   {authors.map((author) =>
-                    <UsersNameDisplay key={author._id} user={author} />
+                    <UsersNameDisplay key={author._id} user={author} showTooltip={showAuthorTooltip} />
                   )}
               </div>
             }
