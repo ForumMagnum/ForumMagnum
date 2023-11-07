@@ -17,7 +17,7 @@ import sortBy from 'lodash/sortBy'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
@@ -54,11 +54,12 @@ type InputWrapper = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT_WRAPPER>;
 type Input = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT>;
 
 function isElementOfType<T extends string>(type: T) {
-  return function(node: Node | undefined): node is ElementOfType<T> {
+  return function(node: Node | DocumentFragment | undefined): node is ElementOfType<T> {
     return !!(node?.is('element', type));
   }
 }
 
+const isInput = isElementOfType(DIALOGUE_MESSAGE_INPUT);
 const isInputWrapper = isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER);
 
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
@@ -294,6 +295,23 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   }
 }
 
+function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | null, event: KeyboardEvent) {
+  const selectedBlocks = Array.from(editor.model.document.selection.getSelectedBlocks());
+  const ancestors = selectedBlocks.flatMap((block) => block.getAncestors({ includeSelf: true }));
+  const parentInputElement = ancestors.find(isInput);
+
+  if (parentInputElement) {
+    const owner = getBlockUserId(parentInputElement);
+    if (owner === currentUser?._id) {
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13 && parentInputElement) {
+        event.stopPropagation();
+        event.preventDefault();
+        editor.execute('submitDialogueMessage');
+      }
+    }
+  }
+}
+
 export type ConnectedUserInfo = {
   _id: string
   name: string
@@ -472,6 +490,10 @@ const CKPostEditor = ({
           applyCollabModeToCkEditor(editor, collaborationMode);
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+
+          editorRef.current?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+            handleSubmitWithoutNewline(editor, currentUser, event);
+          }, { capture: true });
           
           // We need this context for Dialogues, which should always be collaborative.
           setEditor(editor);
@@ -616,3 +638,4 @@ declare global {
     CKPostEditor: typeof CKPostEditorComponent
   }
 }
+
