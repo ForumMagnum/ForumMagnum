@@ -324,7 +324,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType, targetUs
     variables: { userId: targetUserId },
   });
 
-  const topTags = data?.UserTopTags;
+  const topTags:[UserTopTag] = data?.UserTopTags;
 
   const bioContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(bioContainerRef);
