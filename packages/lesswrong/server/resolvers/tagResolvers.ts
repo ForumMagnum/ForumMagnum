@@ -28,6 +28,7 @@ import {
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
 import { VotesRepo } from '../repos';
+import { TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
@@ -447,3 +448,23 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
+
+addGraphQLResolvers({
+  Query: {
+    async UserTopTags(root: void, {userId}: {userId: string}, context: ResolverContext) {
+      const tagsRepo = new TagsRepo();
+      const topTags = await tagsRepo.getUserTopTags(userId);
+      return topTags;
+    },
+  },
+});
+
+addGraphQLSchema(`
+  type UserTopTag {
+    tagId: String!
+    name: String!
+    count: Int!
+  }
+`);
+
+addGraphQLQuery('UserTopTags(userId: String!): [UserTopTag!]');
