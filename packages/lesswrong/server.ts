@@ -171,6 +171,7 @@ import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
+import './server/resolvers/electionCandidateResolvers';
 
 
 import './server/intercomSetup';

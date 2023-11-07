@@ -305,6 +305,10 @@ interface DbElectionCandidate extends DbObject {
   userId: string
   postCount: number
   tagId: string | null
+  isElectionFundraiser: boolean
+  gwwcId: string | null
+  amountRaised: number | null
+  targetAmount: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number

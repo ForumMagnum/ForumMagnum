@@ -523,6 +523,10 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly userId: string,
   readonly postCount: number,
   readonly tagId: string | null,
+  readonly isElectionFundraiser: boolean,
+  readonly gwwcId: string | null,
+  readonly amountRaised: number | null,
+  readonly targetAmount: number | null,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
