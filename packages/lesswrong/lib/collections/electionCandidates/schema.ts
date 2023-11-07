@@ -84,6 +84,10 @@ const schema: SchemaType<DbElectionCandidate> = {
     nullable: false,
     control: "MuiTextField",
     label: "Candidate description",
+    form: {
+      multiLine: true,
+      rows: 4,
+    },
   },
   /** The user who created this candidate (this is required by makeVoteable) */
   userId: {
