@@ -181,12 +181,13 @@ const schema: SchemaType<DbVote> = {
     ...schemaDefaultValue(false)
   },
 
-  // Whether to notify users of the karma changes from this vote. This is set to false for votes that are
+  // Whether to silence notifications of the karma changes from this vote. This is set to true for votes that are
   // nullified by mod actions
-  notify: {
+  silenceNotification: {
     type: Boolean,
     canRead: ['guests'],
-    ...schemaDefaultValue(true)
+    nullable: false,
+    ...schemaDefaultValue(false)
   }
 };
 

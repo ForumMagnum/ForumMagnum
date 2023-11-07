@@ -115,7 +115,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           "votedAt" >= $2 AND
           "votedAt" <= $3 AND
           "userId" <> $1 AND
-          "notify" IS TRUE
+          "silenceNotification" IS NOT TRUE
         GROUP BY "Votes"."documentId", "Votes"."collectionName"
       ) v
       LEFT JOIN "Comments" comment ON (

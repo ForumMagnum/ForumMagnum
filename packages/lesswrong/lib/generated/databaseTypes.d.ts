@@ -1534,7 +1534,7 @@ interface DbVote extends DbObject {
   isUnvote: boolean
   votedAt: Date
   documentIsAf: boolean
-  notify: boolean
+  silenceNotification: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

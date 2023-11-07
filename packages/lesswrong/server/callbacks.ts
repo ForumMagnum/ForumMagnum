@@ -78,7 +78,7 @@ export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({ document, collection, user, notify: false, context });
+    await clearVotesServer({ document, collection, user, silenceNotification: true, context });
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
