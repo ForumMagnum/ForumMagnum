@@ -1,13 +1,13 @@
 import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useNavigation } from '../../lib/routeUtil';
 import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import qs from 'qs';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 export interface TemplateQueryStrings {
   templateId: string;
@@ -26,7 +26,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   includeModerators?: boolean,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { flash } = useMessages()
   const { openDialog } = useDialog()
   const { create: createConversation } = useCreate({
@@ -87,7 +87,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       embedConversation(conversationId, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      history.push({pathname: `/inbox/${conversationId}`, ...templateParams})
+      navigate({pathname: `/inbox/${conversationId}`, ...templateParams})
     }
   }
 
