@@ -83,8 +83,6 @@ export const useNotifyMe = ({
     eventProps: {documentId: document._id, documentType: documentType},
   });
 
-  const skip = !currentUser;
-
   // Get existing subscription, if there is one
   const {results, loading, invalidateCache} = useMulti({
     terms: {
@@ -98,7 +96,7 @@ export const useNotifyMe = ({
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
     enableTotal: false,
-    skip
+    skip: !currentUser
   });
   
   const onSubscribe = async (e: MouseEvent) => {
@@ -136,9 +134,15 @@ export const useNotifyMe = ({
     }
   }
   
-  // By default, we want to allow logged out users to see the element and click on it,
+  // If we are hiding the notify element, don't return an onSubscribe.
+  if (!currentUser && hideForLoggedOutUsers) {
+    return {
+      loading: false
+    }
+  }
+  // By default, we allow logged out users to see the element and click on it,
   // so that we can prompt them with the login/sign up buttons.
-  if (!currentUser && !hideForLoggedOutUsers) {
+  if (!currentUser) {
     return {
       loading: false,
       disabled: false,
@@ -149,9 +153,7 @@ export const useNotifyMe = ({
 
   if (loading) {
     return {
-      // Apollo (sometimes?) returns `loading: true` when you skip the query.
-      // If we skipped fetching subscription state because there's no logged-in user, don't return loading: true.
-      loading: skip ? false : true,
+      loading: true,
     };
   };
 
