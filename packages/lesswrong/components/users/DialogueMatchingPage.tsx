@@ -402,13 +402,12 @@ const DialogueCheckBox: React.FC<{
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
       setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 4000); // Reset the variable after 5 so it can be clicked again
     }
   }
 
   return (
     <>
-      {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} />}
+      {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       <FormControlLabel
         control={ 
           <Checkbox 
@@ -746,7 +745,7 @@ export const DialogueMatchingPage = ({classes}: {
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>Users who opted in to dialogue invitations on frontpage</h3>
+        <h3>Users who opted in to dialogue matchmaking on frontpage</h3>
         <div className={classes.matchContainerGridV2}> 
         <Headers titles={headerTitlesV2} className={classes.header} />
           {UsersOptedInToDialogueFacilitation?.map(targetUser => {
