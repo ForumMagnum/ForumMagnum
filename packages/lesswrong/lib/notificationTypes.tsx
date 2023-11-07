@@ -95,7 +95,7 @@ type DocumentSummary =
   | { type: 'message'; associatedUserName: string; displayName: string | undefined; document: DbMessage }
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
-  | { type: 'dialogueCheckInfo'; document: DialogueCheckInfo; associatedUserName: string; displayName: null }
+  | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -357,9 +357,9 @@ export const NewDialogueMatchNotification = registerNotificationType({
   name: "newDialogueMatch",
   userSettingField: "notificationDialogueMatch",
   async getMessage({documentType, documentId}: GetMessageProps) {
-    // let dialogueCheck = await getDocument(documentType, documentId) as DbDialogueCheck;
-    const summary = await getDocumentSummary(documentType, documentId)
-    return `You matched with ${summary?.associatedUserName} for Dialogue Matching!`
+    let dialogueCheck = await getDocument(documentType, documentId) as DbDialogueCheck;
+    // should I be confirming here that they truly matched? Or is it sufficient to have done that via callback?
+    return `You matched with ${dialogueCheck?.targetUserId} for Dialogue Matching!`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

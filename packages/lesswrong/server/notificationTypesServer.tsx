@@ -277,16 +277,9 @@ export const NewDialogueMatchNotification = serverRegisterNotificationType({
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const dialogueCheck = await DialogueChecks.findOne(notifications[0].documentId);
     if (!dialogueCheck) throw Error(`Can't find dialogue check for notification: ${notifications[0]}`)
-    const targetUserId = dialogueCheck.targetUserId;
-    const targetUserDialogueChecks = await DialogueChecks.find({ userId: targetUserId }).fetch();    
-
-
-    // const summary = await getDocumentSummary(notifications[0].documentType as NotificationDocument, notifications[0].documentId);
-    // if (!summary) throw Error(`Can't find summary for notification: ${notifications[0]}`)
-
-
-    const targetUserDisplayName = summary.associatedUserName
-    return `You matched with ${targetUserDisplayName} for dialogues!`;
+    const targetUser = await Users.findOne(dialogueCheck.targetUserId);
+    if (!targetUser) throw Error(`Can't find dialogue match user for notification: ${notifications[0]}`)
+    return `You matched with ${userGetDisplayName(targetUser)} for dialogues!`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const dialogueCheckId = notifications[0].documentId;

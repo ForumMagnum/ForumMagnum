@@ -16,6 +16,7 @@ export interface DialogueMatchEmailInfo {
     const { EmailContentItemBody } = Components;
         
     const { document: dialogueCheckInfo } = useSingle({
+      // is this documentId for the DbDialogueCheck going to be the same one as the documentId for the DialogueCheckInfo?
       documentId: documentId,
       collectionName: "DialogueChecks",
       fragmentName: "DialogueCheckInfo",
