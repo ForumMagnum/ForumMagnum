@@ -186,6 +186,7 @@ const schema: SchemaType<DbVote> = {
   silenceNotification: {
     type: Boolean,
     canRead: ['guests'],
+    optional: true,
     nullable: false,
     ...schemaDefaultValue(false)
   }
