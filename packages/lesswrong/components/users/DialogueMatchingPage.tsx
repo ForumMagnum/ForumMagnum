@@ -498,7 +498,9 @@ export const DialogueMatchingPage = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
   const updateCurrentUser = useUpdateCurrentUser()
-  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
+  const currentUser = useCurrentUser();
+  const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
+  
 
   const { UsersName, Loading, LoadMore, IntercomWrapper } = Components;
 
@@ -524,7 +526,6 @@ export const DialogueMatchingPage = ({classes}: {
   `);
 
   const userDialogueUsefulData:UserDialogueUsefulData = data?.GetUserDialogueUsefulData
-  const currentUser = useCurrentUser();
 
   const {loading: userLoading, results: userDialogueChecks} = useMulti({
     terms: {
