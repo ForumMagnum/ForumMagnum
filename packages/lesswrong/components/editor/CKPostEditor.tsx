@@ -303,6 +303,7 @@ function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | 
   if (parentInputElement) {
     const owner = getBlockUserId(parentInputElement);
     if (owner === currentUser?._id) {
+      // This looks a bit deprecated but it's the same way we handle it in `Form.tsx` for form submission
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 13 && parentInputElement) {
         event.stopPropagation();
         event.preventDefault();
