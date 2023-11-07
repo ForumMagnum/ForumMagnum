@@ -11,7 +11,9 @@ export const getDatabase = () => db;
 export const getMongoClient = () => client
 export const databaseIsConnected = () => (db !== null);
 export const closeDatabaseConnection = async () => {
+  console.log("inside closeDatabaseConnection !!client client", !!client, client)
   if (client) {
+    
     await client.close();
     client = null;
     db = null;
