@@ -725,6 +725,16 @@ getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAd
   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 });
 
+getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (dialogueCheckInfo: DialogueCheckInfo) {
+  const {userId, targetUserId, match} = dialogueCheckInfo;
+
+  await createNotifications({
+    userIds: [userId], 
+    notificationType: "newDialogueMatch", 
+    documentType: "dialogueCheckInfo", 
+    documentId: dialogueCheckInfo._id,})
+});
+
 getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {
   const newCoauthorIds = getConfirmedCoauthorIds(newPost);
   const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
@@ -790,6 +800,3 @@ async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
 
 getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)
 
-getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (user: DbUser, otherUser : DbUser) {
-  await createNotifications({userIds: [user._id], notificationType: "newDialogueMatch", documentType: "DialogueChecks", documentId: otherUser._id})
-});
