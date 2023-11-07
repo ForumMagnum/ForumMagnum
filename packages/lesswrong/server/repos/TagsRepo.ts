@@ -64,13 +64,13 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
           SELECT public."Comments"."postId"
           FROM public."Comments"
           WHERE public."Comments"."userId" = $1
-          AND public."Comments"."postedAt" > NOW() - INTERVAL '2 years'
+          AND public."Comments"."postedAt" > NOW() - INTERVAL '3 years'
         )
         AND public."Tags".name NOT IN (
           'Community', 'Rationality', 'World Modeling', 'Site Meta', 'Covid-19', 'Practical', 
           'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
           'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
-          'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments'
+          'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments', 'Dialogue (format)', 'LW Team Announcements'
         )
       GROUP BY public."TagRels"."tagId", public."Tags".name
       ORDER BY count DESC
