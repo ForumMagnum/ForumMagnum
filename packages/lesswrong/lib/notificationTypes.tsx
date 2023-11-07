@@ -337,6 +337,27 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
   causesRedBadge: false,
 });
 
+// New dialogue match between you and another user
+export const NewDialogueMatchNotification = registerNotificationType({
+  name: "newDialogueMatch",
+  userSettingField: "notificationDialogueMatch",
+
+  async getMessage({documentType, documentId, extraData}: GetMessageProps) {
+
+    const newMessageAuthorId = extraData?.newMessageAuthorId
+    // let post = await getDocument(documentType, documentId) as DbPost;
+    let user = await getDocument("user", newMessageAuthorId) as DbUser ?? '[Missing Author Name]';
+
+    return 'You matched with ' + userGetDisplayName(user) + ' for Dialogue Matching!';
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() {
+    return "/dialogueMatching"
+  }
+});
+
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.

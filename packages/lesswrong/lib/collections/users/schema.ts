@@ -1395,7 +1395,11 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
-  
+  notificationDialogueMatch: {
+    label: "Another user and I have matched for a dialogue",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    // DO WE WANT THIS? // hidden: forumTypeSetting.get() === 'EAForum',
+  },
 
   hideDialogueFacilitation: {
     type: Boolean,
