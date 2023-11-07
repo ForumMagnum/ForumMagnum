@@ -136,7 +136,7 @@ function wrapSpoilerTags(html: string): string {
   return $.html()
 }
 
-const handleDialogueHtml = async (html: string): Promise<string> => {
+export const handleDialogueHtml = async (html: string): Promise<string> => {
   const $ = cheerioParse(html);
 
   $('.dialogue-message-input-wrapper').remove();

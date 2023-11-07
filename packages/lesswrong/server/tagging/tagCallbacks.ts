@@ -13,6 +13,7 @@ import {
   donationElectionTagId,
   eaGivingSeason23ElectionName,
 } from '../../lib/eaGivingSeason';
+import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -55,7 +56,7 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
-
+  void elasticSyncDocument("Posts", postId);
   void updateDonationElectionPostCounts(tagRelDict);
 }
 

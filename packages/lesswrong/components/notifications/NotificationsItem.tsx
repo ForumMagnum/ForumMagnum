@@ -134,6 +134,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       );
     }
 
+    if (notification.type == "newDialogueMessages") {
+      const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
+      const postId = notification.documentId
+      return (
+        <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
+          {children}
+        </PostsTooltip>
+      )
+    }
+
     const parsedPath = parseRouteWithErrors(notificationLink);
     switch (notification.documentType) {
       case "tagRel":

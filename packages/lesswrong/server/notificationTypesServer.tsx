@@ -26,6 +26,7 @@ import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
+import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
 
 interface ServerNotificationType {
   name: string,
@@ -214,8 +215,38 @@ export const NewDialogueMessageNotification = serverRegisterNotificationType({
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
+    const authorId = notifications[0].extraData?.newMessageAuthorId
+    const author = authorId && await Users.findOne(authorId)
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
-    return `New content in the dialogue you are participating in, ${post.title}`;
+
+    if (author) {
+      return `${userGetDisplayName(author)} left a new reply in your dialogue, ${post.title}`
+    }      
+
+    return `New reply in your dialogue, ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
+    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+  },
+});
+
+function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessageEmailInfo|undefined {
+  if (!extraData) return undefined
+  const messageContents = extraData.dialogueMessageInfo.dialogueMessageContents
+  const messageAuthorId = extraData.newMessageAuthorId
+  if (!messageContents || !messageAuthorId) return undefined
+  return { messageContents, messageAuthorId }
+}
+
+export const NewDialogueMessageBatchNotification = serverRegisterNotificationType({
+  name: "newDialogueBatchMessages",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `Multiple new messages in the dialogue you are participating in, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;

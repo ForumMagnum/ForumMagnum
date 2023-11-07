@@ -22,7 +22,38 @@ import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { UsersRepo } from '../repos';
+import { TagsRepo, UsersRepo } from '../repos';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
+
+
+addGraphQLSchema(`
+  type CommentCountTag {
+    name: String!
+    comment_count: Int!
+  }
+  type TopCommentedTagUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    tag_comment_counts: [CommentCountTag!]!
+  }
+  type UpvotedUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    power_values: String!
+    vote_counts: Int!
+    total_agreement: Float!
+    agreement_values: String!
+  }
+  type UserDialogueUsefulData {
+    dialogueUsers: [User],
+    topUsers: [UpvotedUser]
+  }
+`)
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -465,3 +496,25 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
+
+defineQuery({
+  name: "GetUserDialogueUsefulData",
+  resultType: "UserDialogueUsefulData",
+  fn: async (root:void, _:any, context: ResolverContext) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get top upvoted users');
+    }
+
+    const [dialogueUsers, topUsers] = await Promise.all([
+      new UsersRepo().getUsersWhoHaveMadeDialogues(),
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser)
+    ]);
+
+    const results: UserDialogueUsefulData = {
+      dialogueUsers: dialogueUsers,
+      topUsers: topUsers,
+    }
+    return results
+  }
+});

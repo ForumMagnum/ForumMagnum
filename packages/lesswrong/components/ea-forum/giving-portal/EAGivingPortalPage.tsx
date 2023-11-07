@@ -211,7 +211,6 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "16px",
     rowGap: "16px",
-    justifyContent: "center",
   },
   totalRaised: {
     fontSize: 24,

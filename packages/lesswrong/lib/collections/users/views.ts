@@ -270,3 +270,18 @@ Users.addView("walledGardenInvitees", function () {
   }
 })
 ensureIndex(Users, {walledGardenInvite: 1})
+
+Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      optedInToDialogueFacilitation: true
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+
+ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });

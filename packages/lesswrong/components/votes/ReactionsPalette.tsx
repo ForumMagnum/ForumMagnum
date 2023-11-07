@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
-import { UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
+import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
 import AppsIcon from '@material-ui/icons/Apps';
@@ -116,6 +116,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltipLabel: {
     fontSize: 15
   },
+  primarySection: {
+    marginBottom: 13,
+  },
   iconSection: {
     borderBottom: theme.palette.border.faint,
     paddingBottom: 6,
@@ -123,6 +126,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 7,
     display: "flex",
     flexWrap: "wrap",
+  },
+  bottomSection: {
+    marginTop: 13,
   },
   tooltipRoot: {
     display: "flex",
@@ -139,10 +145,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 type paletteView = "listView"|"gridView";
 
 const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
-  getCurrentUserReaction: (name: string) => UserVoteOnSingleReaction|null,
-  getCurrentUserReactionVote: (name: string) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string, quote?: string)=>void,
-  quote?: string,
+  getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
+  toggleReaction: (reactionName: string, quote: QuoteLocator|null)=>void,
+  quote: QuoteLocator|null,
   classes: ClassesType,
 }) => {
   const { ReactionIcon, LWTooltip, Row, ReactionDescription, MetaInfo } = Components;
@@ -234,16 +239,21 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   ].map(r => getReactionFromName(r)).filter(r => r );
 
   const gridReactButton = (reaction: NamesAttachedReactionType, size=24) => {
-    const currentUserVote = getCurrentUserReactionVote(reaction.name);
+    const currentUserVote = getCurrentUserReactionVote(reaction.name, quote);
     return <LWTooltip title={tooltip(reaction)} key={`icon-${reaction.name}`}>
-      <div className={classNames(classes.paletteIcon1, {[classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-            [classes.selectedAnti]: currentUserVote==="disagreed"})} onClick={_ev => toggleReaction(reaction.name, quote)}>
+      <div className={classNames(
+        classes.paletteIcon1, {
+          [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+          [classes.selectedAnti]: currentUserVote==="disagreed"}
+        )}
+        onClick={_ev => toggleReaction(reaction.name, quote)}
+      >
         <ReactionIcon react={reaction.name} size={size}/>
       </div>
     </LWTooltip>
   }
   const listReactButton = (reaction: NamesAttachedReactionType, placement: PopperPlacementType="left", size=22, ) => {
-    const currentUserVote = getCurrentUserReactionVote(reaction.name);
+    const currentUserVote = getCurrentUserReactionVote(reaction.name, quote);
     return <LWTooltip
       key={reaction.name} placement={placement}
       title={tooltip(reaction)}
@@ -252,12 +262,16 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
         onClick={_ev => toggleReaction(reaction.name, quote)}
         key={reaction.name}
       >
-        <span className={classNames(classes.paletteIcon2, {[classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
-          [classes.selectedAnti]: currentUserVote==="disagreed"})}>
+        <span className={classNames(classes.paletteIcon2, {
+          [classes.selected]: (currentUserVote==="created" || currentUserVote==="seconded"),
+          [classes.selectedAnti]: currentUserVote==="disagreed"})
+        }>
           <ReactionIcon react={reaction.name} size={size}/>
         </span>
-        <span className={classes.hoverBallotLabel}>{reaction.label}</span>
-      </div>    
+        <span className={classes.hoverBallotLabel}>
+          {reaction.label}
+        </span>
+      </div>
     </LWTooltip>
   }
 
@@ -290,9 +304,9 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
     </Row>
     <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
       {displayStyle == "listView" && <div>
-        <p>
+        <div className={classes.primarySection}>
           {primary.map(react => react && gridReactButton(react, 24))}
-        </p>
+        </div>
         <div className={classes.iconSection}>
           {listViewSectionB.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </div>
@@ -302,10 +316,10 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
         <div>
           {listViewSectionD.map((react, i) => react && listReactButton(react, i%2 === 0 ? "left" : "right"))}
         </div>
-        <p>
+        <div className={classes.bottomSection}>
           {likelihoods.map(react => react && gridReactButton(react, 24))}
           {emotions.map(react => react && gridReactButton(react, 24))}
-        </p>
+        </div>
       </div>}
       {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>

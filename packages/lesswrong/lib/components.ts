@@ -277,6 +277,7 @@ importComponent("NavigationDrawer", () => require('../components/common/TabNavig
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
+importComponent("GivingPortalMobileMenuItem", () => require('../components/common/TabNavigationMenu/GivingPortalMobileMenuItem'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -480,7 +481,7 @@ importComponent("InlineReactHoverInfo", () => require('../components/votes/lwRea
 importComponent("ReactionDescription", () => require('../components/votes/lwReactions/ReactionDescription'));
 importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 importComponent("HoveredReactionContextProvider", () => require('../components/votes/lwReactions/HoveredReactionContextProvider'));
-importComponent("HoverBallotReactionRow", () => require('../components/votes/lwReactions/HoverBallotReactionRow'));
+importComponent("ReactionHoverTopRow", () => require('../components/votes/lwReactions/ReactionHoverTopRow'));
 importComponent("ReactOrAntireactVote", () => require('../components/votes/lwReactions/ReactOrAntireactVote'));
 importComponent("UsersWhoReacted", () => require('../components/votes/lwReactions/UsersWhoReacted'));
 
@@ -602,6 +603,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
@@ -639,6 +642,7 @@ importComponent("SearchBarResults", () => require('../components/search/SearchBa
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
 importComponent("SearchPage", () => require('../components/search/SearchPage'));
 importComponent("SearchPageTabbed", () => require('../components/search/SearchPageTabbed'));
+importComponent("SearchFilters", () => require('../components/search/SearchFilters'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));

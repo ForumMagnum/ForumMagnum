@@ -5,7 +5,10 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
 import { useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, isLW} from "../../../lib/instanceSettings";
+import { isEAForum, isLW } from "../../../lib/instanceSettings";
+import { useCreate } from '../../../lib/crud/withCreate';
+import { useNavigation } from '../../../lib/routeUtil';
+import { EditorContext } from '../PostsEditForm';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -73,6 +76,13 @@ const DialogueSubmit = ({
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
+  const { create: createShortform, loading, error } = useCreate({
+    collectionName: "Comments",
+    fragmentName: 'CommentEdit',
+  })
+  const userShortformId = currentUser?.shortformFeedId;
+  const [editor, _] = React.useContext(EditorContext)
+
   const { SectionFooterCheckbox, Row } = Components;
 
   const defaultCoauthorSignoffs = document.coauthors.reduce((result: Record<string, CoauthorSignoff>, coauthor: UsersMinimumInfo) => {
@@ -81,7 +91,8 @@ const DialogueSubmit = ({
   }, {});
 
   const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
-  
+
+  const { history } = useNavigation();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -107,6 +118,31 @@ const DialogueSubmit = ({
         >
           {saveDraftLabel}
         </Button>
+        {userShortformId && <Button
+          className={classNames(classes.formButton)}
+          disabled={loading || !!error}
+          onClick={async e => {
+            e.preventDefault()
+
+            // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
+            // @ts-ignore
+            const shortformString = editor && editor.getData()
+            // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
+            const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
+
+            const response = await createShortform({
+              data: {
+                contents: shortformContents,
+                shortform: true,
+                postId: userShortformId,
+                originalDialogueId: document._id,
+              }
+            })
+
+            response.data && history.push(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
+          }}
+        >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
+        }
         <Button
           type="submit"
           onClick={onSubmitClick}
