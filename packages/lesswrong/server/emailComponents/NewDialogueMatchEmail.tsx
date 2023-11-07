@@ -4,16 +4,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 
-const NewDialogueMatchEmail = ({documentId, userId, targerUserId}: {
+const NewDialogueMatchEmail = ({documentId, userId, targetUserDisplayName}: {
   documentId: string,
   userId?: string,
-  targerUserId?: string,
+  targetUserDisplayName?: string,
 }) => {
-
-  const { EmailContentItemBody } = Components;
       
   const { document: dialogueCheckInfo } = useSingle({
-    // is this documentId for the DbDialogueCheck going to be the same one as the documentId for the DialogueCheckInfo?
     documentId: documentId,
     collectionName: "DialogueChecks",
     fragmentName: "DialogueCheckInfo",
@@ -23,7 +20,7 @@ const NewDialogueMatchEmail = ({documentId, userId, targerUserId}: {
   if (!dialogueCheckInfo.match) return null;
   
   return (<React.Fragment>
-      <p>There is a new dialogue match for you!</p>
+      <p>There is a new dialogue match for you! Both you and {targetUserDisplayName} have indicated that you would be interested in having a dialogue. </p>
       </React.Fragment>);
 }
 
