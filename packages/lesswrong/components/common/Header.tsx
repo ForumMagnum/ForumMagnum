@@ -545,7 +545,7 @@ const Header = ({
   
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
-  const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
+  const isGivingSeason = isEAForum && moment.utc(timelineSpec.start).isBefore(now) && moment.utc(timelineSpec.end).isAfter(now)
   if (isGivingSeason && pathname === '/') {
     return (
       <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -607,7 +607,7 @@ const Header = ({
                   {timelineSpec.spans.map(span => {
                     // ignore the voting time period
                     if (span.hatched) return null
-                    const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
+                    const isActive = moment.utc(span.start).isBefore(now) && moment.utc(span.end).isAfter(now)
                     return <Link
                       key={`${span.description}-label`}
                       to={span.href}
@@ -619,7 +619,7 @@ const Header = ({
                   {timelineSpec.spans.map(span => {
                     if (span.hatched) return null
                     return <div key={`${span.description}-dates`} className={classes.gsTimelineDates}>
-                      {moment(span.start).format('MMM D')}-{moment(span.end).format('D')}
+                      {moment.utc(span.start).format('MMM D')}-{moment.utc(span.end).format('D')}
                     </div>
                   })}
                 </div>
