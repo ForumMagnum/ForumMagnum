@@ -790,6 +790,6 @@ async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
 
 getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)
 
-getCollectionHooks("Users").newAsync.add(async function DialogueMatchNewNotification (user: DbUser, otherUser : DbUser) {
-  await createNotifications({userIds: [user._id], notificationType: "newDialogueMatch", documentType: "user", documentId: otherUser._id})
+getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (user: DbUser, otherUser : DbUser) {
+  await createNotifications({userIds: [user._id], notificationType: "newDialogueMatch", documentType: "DialogueChecks", documentId: otherUser._id})
 });

@@ -26,8 +26,9 @@ import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
+import DialogueChecks from './collections/dialogueChecks/collection';
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -94,6 +95,7 @@ type DocumentSummary =
   | { type: 'message'; associatedUserName: string; displayName: string | undefined; document: DbMessage }
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
+  | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -150,6 +152,16 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         document: tagRel,
         displayName: null,
         associatedUserName: null,
+      }
+    case 'dialogueCheck':
+      const dialogueCheck = await DialogueChecks.findOne(documentId)
+      if (!dialogueCheck) return null
+      const targetUser = await Users.findOne(dialogueCheck.targetUserId)
+      return dialogueCheck && {
+        type: documentType,
+        document: dialogueCheck,
+        associatedUserName: userGetDisplayName(targetUser),
+        displayName: null,
       }
     default:
       //eslint-disable-next-line no-console
@@ -341,14 +353,10 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
 export const NewDialogueMatchNotification = registerNotificationType({
   name: "newDialogueMatch",
   userSettingField: "notificationDialogueMatch",
-
-  async getMessage({documentType, documentId, extraData}: GetMessageProps) {
-
-    const newMessageAuthorId = extraData?.newMessageAuthorId
-    // let post = await getDocument(documentType, documentId) as DbPost;
-    let user = await getDocument("user", newMessageAuthorId) as DbUser ?? '[Missing Author Name]';
-
-    return 'You matched with ' + userGetDisplayName(user) + ' for Dialogue Matching!';
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    // let dialogueCheck = await getDocument(documentType, documentId) as DbDialogueCheck;
+    const summary = await getDocumentSummary(documentType, documentId)
+    return `You matched with ${summary?.associatedUserName} for Dialogue Matching!`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
