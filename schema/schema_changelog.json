@@ -373,5 +373,10 @@
     "acceptsSchemaHash": "f5e4a3d5459008e1e5f5e83555a849b1",
     "acceptedByMigration": "20231104T020734.add_DialogueCheck_table_and_check_fields.ts",
     "timestamp": "2023-11-04T02:07:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d4a095687905a1829b18c8200181c1f7",
+    "acceptedByMigration": "20231107T135708.add_fundraiser_amounts.ts",
+    "timestamp": "2023-11-07T13:57:08.000Z"
   }
 ]
