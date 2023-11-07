@@ -727,20 +727,31 @@ getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAd
   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
 });
 
-getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (dialogueCheck: DbDialogueCheck) {
+async function notifyUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
   const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (match) {// don't notify if there isn't a match
+  if (match) {
     await createNotifications({
-      userIds: [dialogueCheck.userId], 
-      notificationType: "newDialogueMatch", 
-      documentType: "dialogueCheck", 
-      documentId: dialogueCheck._id,})
+      userIds: [dialogueCheck.userId],
+      notificationType: "newDialogueMatch",
+      documentType: "dialogueCheck",
+      documentId: dialogueCheck._id,
+    });
     await createNotifications({
       userIds: [match.userId],
       notificationType: "newDialogueMatch",
       documentType: "dialogueCheck",
       documentId: match._id,
-    })
+    });
+  }
+}
+
+getCollectionHooks("DialogueChecks").createAsync.add(async function DialogueMatchNewNotification ({ document : dialogueCheck }) {
+  void notifyUsersIfMatchingDialogueChecks(dialogueCheck)
+});
+
+getCollectionHooks("DialogueChecks").updateAsync.add(async function UpdateDialogueMatchNotification ({ oldDocument: oldDialogueCheck, newDocument: newDialogueCheck }) {
+  if (!oldDialogueCheck.checked && newDialogueCheck.checked) {
+    void notifyUsersIfMatchingDialogueChecks(newDialogueCheck)
   }
 });
 
