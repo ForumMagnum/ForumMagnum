@@ -26,7 +26,6 @@ const ensurePgConnection = async () => {
       preparePgTables();
       const {sql} = await createTestingSqlClientFromTemplate("unittest_jest_template");
       setSqlClient(sql);
-      console.log("Connected to postgres via ", sql)
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("Failed to connect to postgres:", err.message);
