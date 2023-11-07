@@ -30,10 +30,13 @@ export const getElasticSortingsForCollection = (
 export const isValidElasticSorting = (sorting: string): sorting is ElasticSorting =>
   elasticSortings.has(sorting);
 
+const snakeToTitleCase = (str: string) => 
+  str.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+
 export const formatElasticSorting = (sorting: ElasticSorting): string => {
   if(sorting === "karma") return "Top"
   
-  return sorting[0].toUpperCase() + sorting.slice(1).replace(/_/g, ' ')
+  return snakeToTitleCase(sorting)
 };
 
 export const elasticSortingToUrlParam = (sorting: ElasticSorting): string|undefined =>
