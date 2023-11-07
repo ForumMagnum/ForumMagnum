@@ -70,7 +70,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
           'Community', 'Rationality', 'World Modeling', 'Site Meta', 'Covid-19', 'Practical', 
           'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
           'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
-          'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation'
+          'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments'
         )
       GROUP BY public."TagRels"."tagId", public."Tags".name
       ORDER BY count DESC
