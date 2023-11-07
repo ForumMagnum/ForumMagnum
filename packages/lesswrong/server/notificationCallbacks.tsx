@@ -36,8 +36,6 @@ import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils'
 import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
-import { DialogueChecks } from '../lib/collections/dialogueChecks/collection';
-import { getMatchingDialogueCheck } from './resolvers/dialogueChecksResolvers';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -725,35 +723,6 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
 getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAddedAsCoauthors ({ document: post }) {
   const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
   await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
-});
-
-async function notifyUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-  const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (match) {
-    await createNotifications({
-      userIds: [dialogueCheck.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: dialogueCheck._id,
-    });
-    await createNotifications({
-      userIds: [match.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: match._id,
-    });
-  }
-}
-
-getCollectionHooks("DialogueChecks").createAsync.add(async function DialogueMatchNewNotification ({ document : dialogueCheck }) {
-  void notifyUsersIfMatchingDialogueChecks(dialogueCheck)
-});
-
-getCollectionHooks("DialogueChecks").updateAsync.add(async function UpdateDialogueMatchNotification ({ oldDocument: oldDialogueCheck, newDocument: newDialogueCheck }) {
-  console.log("UpdateDialogueMatchNotification", oldDialogueCheck, newDialogueCheck)
-  if (!oldDialogueCheck.checked && newDialogueCheck.checked) {
-    void notifyUsersIfMatchingDialogueChecks(newDialogueCheck)
-  }
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {
