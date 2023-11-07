@@ -69,14 +69,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   matchContainerGridV1: {
     display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement           tags    posts read   
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  250px     550px`,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  200px     550px`,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  250px     550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     550px `,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
