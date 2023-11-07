@@ -750,6 +750,7 @@ getCollectionHooks("DialogueChecks").createAsync.add(async function DialogueMatc
 });
 
 getCollectionHooks("DialogueChecks").updateAsync.add(async function UpdateDialogueMatchNotification ({ oldDocument: oldDialogueCheck, newDocument: newDialogueCheck }) {
+  console.log("UpdateDialogueMatchNotification", oldDialogueCheck, newDialogueCheck)
   if (!oldDialogueCheck.checked && newDialogueCheck.checked) {
     void notifyUsersIfMatchingDialogueChecks(newDialogueCheck)
   }
