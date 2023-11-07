@@ -1,5 +1,4 @@
 import cheerio from 'cheerio';
-import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
@@ -14,7 +13,7 @@ import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
-import GraphQLJSON from 'graphql-type-json';
+import { htmlToTextDefault } from '../lib/htmlToText';
 
 // Number of headings below which a table of contents won't be generated.
 const MIN_HEADINGS_FOR_TOC = 3;
@@ -232,7 +231,7 @@ async function getTocAnswers (document: DbPost) {
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
     
     return {
       title: `${answer.baseScore} ${answer.author}`,

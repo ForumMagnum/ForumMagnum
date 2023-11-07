@@ -4,18 +4,29 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
 export default function ScrollToTop() {
-  const { pathname, currentRoute } = useSubscribedLocation();
-  const didMountRef = useRef(false)
+  const location = useSubscribedLocation();
+  const { pathname, query, currentRoute } = location;
+  const isNotFirstMountRef = useRef(false)
+  
+  // Stringify `query` to guarantee referential stability for the useEffect dependency
+  const queryAsStr = JSON.stringify(query);
   
   useEffect(() => {
-    if (didMountRef.current) {
+    // Skip scrolling to the top the first time this useEffect runs, because that's
+    // the initial pageload, for which the browser is choosing a scroll position
+    // based on its own (mostly sensible) heuristics. But scroll when any of the
+    // dependencies of this useEffect change, because those are client-side
+    // navigations, which the browser won't handle.
+    if (isNotFirstMountRef.current) {
       if (currentRoute?.initialScroll == "bottom") {
         window.scrollTo(0, document.body.scrollHeight);
       } else {
         window.scrollTo(0, 0);
       }
-    } else didMountRef.current = true
-  }, [pathname, currentRoute?.initialScroll])
+    } else {
+      isNotFirstMountRef.current = true
+    }
+  }, [pathname, queryAsStr, currentRoute?.initialScroll])
 
   return null;
 }

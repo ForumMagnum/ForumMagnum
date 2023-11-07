@@ -10,7 +10,9 @@ export const subscriptionTypes = {
   newEvents: 'newEvents',
   newReplies: 'newReplies',
   newTagPosts: 'newTagPosts',
-  newDebateComments: 'newDebateComments'
+  newDebateComments: 'newDebateComments',
+  newDialogueMessages: 'newDialogueMessages',
+  newPublishedDialogueMessages: 'newPublishedDialogueMessages',
 } as const
 
 export type SubscriptionType = typeof subscriptionTypes[keyof typeof subscriptionTypes];

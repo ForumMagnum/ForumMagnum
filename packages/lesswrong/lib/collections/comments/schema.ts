@@ -807,7 +807,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: alignmentOptionsGroup,
     hidden: true
   },
@@ -861,6 +861,22 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  originalDialogueId: {
+    ...foreignKeyField({
+      idFieldName: "originalDialogueId",
+      resolverName: "originalDialogue",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    hidden: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+  } 
 };
 
 export default schema;

@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import RSSFeeds from '../../lib/collections/rssfeeds/collection';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 
@@ -56,10 +55,10 @@ const NewFeedButton = ({classes, user, closeModal}: {
   }
 }
 
-const newFeedButtonComponent = registerComponent('newFeedButton', NewFeedButton, {styles});
+const NewFeedButtonComponent = registerComponent('NewFeedButton', NewFeedButton, {styles});
 
 declare global {
   interface ComponentTypes {
-    newFeedButton: typeof newFeedButtonComponent
+    NewFeedButton: typeof NewFeedButtonComponent
   }
 }

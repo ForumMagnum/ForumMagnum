@@ -163,4 +163,9 @@ export interface CommentTreeOptions {
    * Used for displaying inline replies to debate comments
    */
   hideParentCommentToggle?: boolean,
+  /**
+   * If set, hide the `ShowParentComment` toggle when we reach the top level comment
+   * Used to prevent us displaying quick takes multiple times
+   */
+  hideParentCommentToggleForTopLevel?: boolean,
 }

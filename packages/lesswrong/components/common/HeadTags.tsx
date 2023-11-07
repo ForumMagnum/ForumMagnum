@@ -57,8 +57,9 @@ const HeadTags = ({
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
-          {/* twitter */}
-          <meta name='twitter:card' content={useSmallImage ? 'summary' : 'summary_large_image'}/>
+          {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
+            * instead of here because it involves a user-agent sniffing hack :( */}
+          
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>

@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -21,12 +21,16 @@ import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
-import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
+// import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
+import { useHeaderVisible } from './hooks/useHeaderVisible';
+import StickyBox from '../lib/vendor/react-sticky-box';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+
+const STICKY_SECTION_TOP_MARGIN = 20;
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -65,6 +69,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  mainNoFooter: {
+    paddingBottom: 0,
   },
   mainFullscreen: {
     height: "100%",
@@ -128,29 +135,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  eaHomeGrid: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar ... main rhs ..."
-      `,
-      gridTemplateColumns: `
-        min-content
-        1fr
-        min-content
-        minmax(50px, max-content)
-        1fr
-      `,
-    },
+  eaHomeLayout: {
+    display: "flex",
+    alignItems: "start",
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
   },
   navSidebar: {
     gridArea: 'navSidebar'
-  },
-  rhs: {
-    gridArea: 'rhs',
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -188,7 +181,34 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-})
+  stickyWrapper: {
+    transition: "transform 200ms ease-in-out",
+    transform: `translateY(${STICKY_SECTION_TOP_MARGIN}px)`,
+    marginBottom: 20,
+  },
+  stickyWrapperHeaderVisible: {
+    transform: `translateY(${EA_FORUM_HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+  },
+});
+
+const StickyWrapper: FC<{
+  eaHomeLayout: boolean,
+  headerVisible: boolean,
+  headerAtTop: boolean,
+  children: ReactNode,
+  classes: ClassesType,
+}> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
+  eaHomeLayout
+    ? (
+      <StickyBox offsetTop={0} offsetBottom={20}>
+        <div className={classNames(classes.stickyWrapper, {
+          [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
+        })}>
+          {children}
+        </div>
+      </StickyBox>
+    )
+    : <>{children}</>;
 
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
@@ -196,14 +216,14 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [sideCommentsActive,setSideCommentsActive] = useState(false);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const { currentRoute, params: { slug }, pathname} = useLocation();
+  const { currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+  const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -295,7 +315,10 @@ const Layout = ({currentUser, children, classes}: {
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeGridLayout = isEAForum && currentRoute?.name === 'home'
+    const eaHomeLayout = isEAForum && currentRoute?.name === 'home'
+
+    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
+      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -354,18 +377,28 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
+                [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
               )}>
                 {isEAForum && <AdminToggle />}
-                {standaloneNavigation && <NavigationStandalone
-                  sidebarHidden={hideNavigationSidebar}
-                  unspacedGridLayout={unspacedGridLayout}
-                  className={classes.standaloneNav}
-                />}
+                {standaloneNavigation &&
+                  <StickyWrapper
+                    eaHomeLayout={eaHomeLayout}
+                    headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
+                    classes={classes}
+                  >
+                    <NavigationStandalone
+                      sidebarHidden={hideNavigationSidebar}
+                      unspacedGridLayout={unspacedGridLayout}
+                      noTopMargin={eaHomeLayout}
+                    />
+                  </StickyWrapper>
+                }
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
+                  [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
@@ -373,16 +406,25 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name ?? "404")
+                    {showNewUserCompleteProfile
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && <Footer />}
+                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
-                  <EAHomeRightHandSide />
-                </div>}
+                {!renderSunshineSidebar &&
+                  eaHomeLayout &&
+                  !showNewUserCompleteProfile &&
+                  <StickyWrapper
+                    eaHomeLayout={eaHomeLayout}
+                    headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
+                    classes={classes}
+                  >
+                    <EAHomeRightHandSide />
+                  </StickyWrapper>
+                }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
                     <SunshineSidebar/>

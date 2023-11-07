@@ -1,35 +1,25 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useMulti } from '../../lib/crud/withMulti';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
+import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
 
 export const DismissibleSpotlightItem = ({
   current,
   spotlight,
   className,
-  classes,
 }: {
   current?: boolean,
   spotlight?: SpotlightDisplay,
   className?: string,
-  classes: ClassesType,
 }) => {
   const { SpotlightItem } = Components
   const { captureEvent } = useTracking()
 
-  const { results: currentSpotlightResults } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: 'mostRecentlyPromotedSpotlights',
-      limit: 1
-    },
-    skip: !current,
-  });
-  const displaySpotlight = currentSpotlightResults?.[0] ?? spotlight;
+  const currentSpotlight = useCurrentFrontpageSpotlight({skip: !current});
+  const displaySpotlight = currentSpotlight ?? spotlight;
 
   const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${displaySpotlight?.document._id}`, [displaySpotlight]); //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);

@@ -56,6 +56,7 @@ import './server/scripts/sendWrappedNotifications';
 import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
+import './server/scripts/convertAllPostsToEAEmojis';
 
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
@@ -169,6 +170,8 @@ import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
+import './server/resolvers/dialogueChecksResolvers';
+
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -85,6 +85,15 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RecentDiscussionRevisionTagFragment on Revision {
+    ...RevisionHistoryEntry
+    tag {
+      ...TagRecentDiscussion
+    }
+  }
+`);
+
+registerFragment(`
   fragment WithVoteRevision on Revision {
     __typename
     _id

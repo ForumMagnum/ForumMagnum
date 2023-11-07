@@ -188,6 +188,8 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
+    givingSeasonNotifyForVoting
+
     abTestKey
     abTestOverrides
 
@@ -209,6 +211,10 @@ registerFragment(`
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 
@@ -473,6 +479,8 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
 
+    givingSeasonNotifyForVoting
+
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
@@ -545,3 +553,11 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+    karma
+  }
+`);

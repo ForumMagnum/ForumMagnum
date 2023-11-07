@@ -118,14 +118,20 @@ class ElasticService {
 
     for (const group of facetFilters ?? []) {
       for (const facet of group) {
-        const [field, value] = facet.split(":");
+        let [field, value] = facet.split(":");
         if (!field || !value) {
           throw new Error("Invalid facet: " + facet);
+        }
+        let negated = false;
+        if (value[0] === "-") {
+          negated = true;
+          value = value.slice(1);
         }
         result.push({
           type: "facet",
           field,
           value: this.parseFacetValue(value),
+          negated,
         });
       }
     }

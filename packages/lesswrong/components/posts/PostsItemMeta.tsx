@@ -1,5 +1,5 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { FC } from 'react';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DateWithoutTime = ({date}: {date: Date}) => {
+export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }

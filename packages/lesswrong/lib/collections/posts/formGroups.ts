@@ -25,7 +25,8 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   coauthors: {
     order: 21,
     name: "coauthors",
-    label: "Coauthors"
+    label: "Coauthors",
+    hideHeader: true,
   },
   event: {
     name: "event details",

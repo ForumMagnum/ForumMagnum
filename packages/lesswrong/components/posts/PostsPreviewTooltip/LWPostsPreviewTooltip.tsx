@@ -1,15 +1,15 @@
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { truncate } from '../../lib/editor/ellipsize';
-import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { truncate } from '../../../lib/editor/ellipsize';
+import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import Card from '@material-ui/core/Card';
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
-import { sortTags } from '../tagging/FooterTagList';
-import { useSingle } from '../../lib/crud/withSingle';
-import {useForeignApolloClient} from '../hooks/useForeignApolloClient';
-
-export const POST_PREVIEW_WIDTH = 400
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { Link } from '../../../lib/reactRouterWrapper';
+import { sortTags } from '../../tagging/FooterTagList';
+import { useSingle } from '../../../lib/crud/withSingle';
+import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
+import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
+import type { PostsPreviewTooltipProps } from './PostsPreviewTooltip';
 
 export const highlightSimplifiedStyles = {
   '& img': {
@@ -37,6 +37,9 @@ const highlightStyles = (theme: ThemeType) => ({
   },
   '& li': {
     fontSize: "1.1rem"
+  },
+  '& .dialogue-message-header': {
+    position: 'relative !important',
   },
   ...highlightSimplifiedStyles
 })
@@ -128,13 +131,18 @@ const getPostCategory = (post: PostsBase) => {
     return null;
 }
 
-const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
-  postsList?: boolean,
-  hash?: string|null,
-  post: PostsList|SunshinePostsList|null,
+type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType,
-  comment?: any,
-}) => {
+}
+
+const LWPostsPreviewTooltip = ({
+  postsList,
+  post,
+  hash,
+  comment,
+  dialogueMessageInfo,
+  classes,
+}: LWPostsPreviewTooltipProps) => {
   const { PostsUserAndCoauthors, PostsTitle, ContentItemBody, CommentsNode, BookmarkButton, FormatDate,
     Loading, ContentStyles, EventTime } = Components
   const [expanded, setExpanded] = useState(false)
@@ -152,13 +160,33 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
     apolloClient: isForeign ? foreignApolloClient : undefined,
   });
 
+  const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
+
+  const {document: postWithDialogueMessage} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "PostWithDialogueMessage",
+    documentId: post?.fmCrosspost?.foreignPostId ?? post?._id,
+    skip: !post || !dialogueMessageId,
+    fetchPolicy: "cache-first",
+    extraVariables: { dialogueMessageId: "String" },
+    extraVariablesValues: {dialogueMessageId},
+    apolloClient: isForeign ? foreignApolloClient : undefined,
+  });
+
   if (!post) return null
   
   const { wordCount = 0, htmlHighlight = "" } = post.contents || {}
 
-  const highlight = post.debate
-    ? post.dialogTooltipPreview
-    : postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+  const highlightContents = postWithHighlight?.contents?.htmlHighlightStartingAtHash || post.customHighlight?.html || htmlHighlight
+
+  let highlight;
+  if (post.collabEditorDialogue) {
+    highlight = postWithDialogueMessage?.dialogueMessageContents ?? dialogueMessageContents ?? highlightContents
+  } else if (post.debate) {
+    highlight = post.dialogTooltipPreview
+  } else {
+    highlight = highlightContents
+  }
 
   const renderWordCount = !comment && !post.isEvent && (wordCount > 0)
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
@@ -173,7 +201,7 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
   }
   const postCategory: string|null = getPostCategory(post);
 
-  return <AnalyticsContext pageElementContext="hoverPreview">
+  return <AnalyticsContext pageElementContext={POST_PREVIEW_ELEMENT_CONTEXT}>
       <Card className={classes.root}>
         <div className={classes.header}>
           <div>
@@ -238,10 +266,10 @@ const PostsPreviewTooltip = ({ postsList, post, hash, classes, comment }: {
 
 }
 
-const PostsPreviewTooltipComponent = registerComponent('PostsPreviewTooltip', PostsPreviewTooltip, {styles});
+const LWPostsPreviewTooltipComponent = registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostsPreviewTooltip: typeof PostsPreviewTooltipComponent
+    LWPostsPreviewTooltip: typeof LWPostsPreviewTooltipComponent
   }
 }

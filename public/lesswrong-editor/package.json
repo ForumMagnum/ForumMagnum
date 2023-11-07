@@ -25,10 +25,10 @@
     "build"
   ],
   "scripts": {
-	"build": "webpack --config webpack-client.config.js --mode production; webpack --config webpack-cloud.config.js --mode production",
-	"build-dev": "webpack --mode development --watch --config webpack-client.config.js",
-	"lint": "eslint --quiet '**/*.js'",
-	"preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack-client.config.js --mode production; webpack --config webpack-cloud.config.js --mode production",
+    "build-dev": "webpack --mode development --watch --config webpack-client.config.js",
+    "lint": "eslint --quiet '**/*.js'",
+    "preversion": "npm run build; if [ -n \"$(git status src/ckeditor.js build/ --porcelain)\" ]; then git add -u src/ckeditor.js build/ && git commit -m 'Internal: Build.'; fi"
   },
   "devDependencies": {
     "@ckeditor/ckeditor5-adapter-ckfinder": "^31.0.0",
@@ -48,20 +48,20 @@
     "@ckeditor/ckeditor5-essentials": "^31.0.0",
     "@ckeditor/ckeditor5-font": "^31.0.0",
     "@ckeditor/ckeditor5-heading": "^31.0.0",
-	"@ckeditor/ckeditor5-mention": "^31.0.0",
-	"@ckeditor/ckeditor5-horizontal-line": "^31.0.0",
+    "@ckeditor/ckeditor5-horizontal-line": "^31.0.0",
     "@ckeditor/ckeditor5-image": "^31.0.0",
     "@ckeditor/ckeditor5-indent": "^31.0.0",
     "@ckeditor/ckeditor5-link": "^31.0.0",
     "@ckeditor/ckeditor5-list": "^31.0.0",
     "@ckeditor/ckeditor5-media-embed": "^31.0.0",
+    "@ckeditor/ckeditor5-mention": "^31.0.0",
     "@ckeditor/ckeditor5-paragraph": "^31.0.0",
-    "@ckeditor/ckeditor5-track-changes":  "^31.0.0",
     "@ckeditor/ckeditor5-paste-from-office": "^31.0.0",
     "@ckeditor/ckeditor5-real-time-collaboration": "^31.0.0",
     "@ckeditor/ckeditor5-remove-format": "^31.0.0",
     "@ckeditor/ckeditor5-table": "^31.0.0",
     "@ckeditor/ckeditor5-theme-lark": "^31.0.0",
+    "@ckeditor/ckeditor5-track-changes": "^31.0.0",
     "@ckeditor/ckeditor5-ui": "^31.0.0",
     "@ckeditor/ckeditor5-watchdog": "^31.0.0",
     "eslint": "^6.8.0",
@@ -97,5 +97,6 @@
   "eslintIgnore": [
     "build/**",
     "packages/**"
-  ]
+  ],
+  "dependencies": {}
 }

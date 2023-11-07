@@ -36,28 +36,40 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NavigationStandalone = (
-  {sidebarHidden, unspacedGridLayout, className, classes}:
-  {sidebarHidden: boolean, unspacedGridLayout?: boolean, className: string, classes: ClassesType}
-) => {
+const NavigationStandalone = ({
+  sidebarHidden,
+  unspacedGridLayout,
+  noTopMargin,
+  className,
+  classes,
+}: {
+  sidebarHidden: boolean,
+  unspacedGridLayout?: boolean,
+  noTopMargin?: boolean,
+  className?: string,
+  classes: ClassesType,
+}) => {
   const { TabNavigationMenu, TabNavigationMenuFooter } = Components
   const { location } = useLocation();
 
   const background = location.pathname === communityPath;
 
   return <>
-    <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
-      <Slide
-        direction='right'
-        in={!sidebarHidden}
-        appear={false}
-        mountOnEnter
-        unmountOnExit
-      >
+    <Slide
+      direction='right'
+      in={!sidebarHidden}
+      appear={false}
+      mountOnEnter
+      unmountOnExit
+    >
+      <div className={classNames(classes.sidebar, className, {[classes.background]: background, [classes.navSidebarTransparent]: unspacedGridLayout})}>
         {/* In the unspaced grid layout the sidebar can appear on top of other componenents, so make the background transparent */}
-        <TabNavigationMenu transparentBackground={unspacedGridLayout}/>
-      </Slide>
-    </div>
+        <TabNavigationMenu
+          transparentBackground={unspacedGridLayout}
+          noTopMargin={noTopMargin}
+        />
+      </div>
+    </Slide>
     {!isEAForum && <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>}

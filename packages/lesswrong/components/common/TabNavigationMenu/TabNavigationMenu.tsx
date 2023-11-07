@@ -17,10 +17,19 @@ const styles = (theme: ThemeType): JssStyles => {
     root: {
       display: "flex",
       flexDirection: "column",
-      justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      paddingLeft: isEAForum ? 6 : undefined,
+      ...(isEAForum
+        ? {
+          paddingLeft: 6,
+          height: "100%",
+        }
+        : {
+          justifyContent: "space-around",
+        }),
+    },
+    noTopMargin: {
+      paddingTop: "0px !important",
     },
     navSidebarTransparent: {
       zIndex: 10,
@@ -44,14 +53,20 @@ const styles = (theme: ThemeType): JssStyles => {
   }
 }
 
-const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
+const TabNavigationMenu = ({
+  onClickSection,
+  transparentBackground,
+  noTopMargin,
+  classes,
+}: {
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
+  noTopMargin?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { TabNavigationItem, FeaturedResourceBanner } = Components
+  const { TabNavigationItem } = Components
   const customComponentProps = {currentUser}
   
   const handleClick = (e: React.BaseSyntheticEvent, tabId: string) => {
@@ -61,10 +76,13 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
 
   return (
       <AnalyticsContext pageSectionContext="navigationMenu">
-        <div className={classNames(classes.root, {[classes.navSidebarTransparent]: transparentBackground})}>
+        <div className={classNames(classes.root, {
+          [classes.navSidebarTransparent]: transparentBackground,
+          [classes.noTopMargin]: noTopMargin,
+        })}>
           {forumSelect(menuTabs).map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUser) return null
-            
+
             if ('divider' in tab) {
               return <div key={tab.id} className={classes.divider} />
             }
@@ -73,6 +91,7 @@ const TabNavigationMenu = ({onClickSection, transparentBackground, classes}: {
               const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
+                tab={tab}
                 onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />

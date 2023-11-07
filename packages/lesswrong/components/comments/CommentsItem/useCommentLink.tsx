@@ -51,7 +51,7 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    history.replace({
+    history.push({
       ...location,
       search: qs.stringify({...query, commentId: comment._id}),
       hash: null,

@@ -84,8 +84,6 @@ const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   ]);
 
 const initSettings = () => {
-  // eslint-disable-next-line no-console
-  console.log("Loading settings");
   return refreshSettingsCaches();
 }
 
@@ -93,8 +91,6 @@ const initPostgres = async () => {
   if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
     await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
 
-    // eslint-disable-next-line no-console
-    console.log("Building postgres tables");
     for (const collection of Collections) {
       if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
         collection.buildPostgresTable();
@@ -102,8 +98,6 @@ const initPostgres = async () => {
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.log("Initializing switching collections from lock table");
   const polls: Promise<void>[] = [];
   for (const collection of Collections) {
     if (collection instanceof SwitchingCollection) {
@@ -127,8 +121,6 @@ const initPostgres = async () => {
 }
 
 const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments) => {
-  // eslint-disable-next-line no-console
-  console.log("Running onStartup functions");
   await runStartupFunctions();
 
   // define executableSchema
@@ -145,8 +137,6 @@ const executeServerWithArgs = async ({shellMode, command}: CommandLineArguments)
     process.kill(estrellaPid, 'SIGQUIT');
   } else if (!isAnyTest && !isMigrations) {
     watchForShellCommands();
-    // eslint-disable-next-line no-console
-    console.log("Starting webserver");
     startWebserver();
   }
 }
@@ -167,7 +157,6 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
 export const serverStartup = async () => {
   // Run server directly if not in cluster mode
   if (!clusterSetting.get()) {
-    console.log(`Running in non-cluster mode`);
     await serverStartupWorker();
     return;
   }
@@ -201,7 +190,6 @@ export const serverStartup = async () => {
 }
 
 export const serverStartupWorker = async () => {
-  console.log("Starting server");
   const commandLineArguments = await initServer();
   await executeServerWithArgs(commandLineArguments);
 }

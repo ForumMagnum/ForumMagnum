@@ -234,6 +234,11 @@ import './collections/postRelations';
 // PostRecommendations
 import './collections/postRecommendations/collection';
 
+// ElectionCandidates
+import './collections/electionCandidates/collection';
+import './collections/electionCandidates/fragments';
+import './collections/electionCandidates/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';
@@ -247,6 +252,11 @@ import './collections/elicitQuestions/collection';
 
 // elicit predictions
 import './collections/elicitQuestionPredictions/collection';
+
+// dialogue checks
+import './collections/dialogueChecks/collection';
+import './collections/dialogueChecks/fragments';
+import './collections/dialogueChecks/views';
 
 // Alignment Forum
 import './alignment-forum/permissions';

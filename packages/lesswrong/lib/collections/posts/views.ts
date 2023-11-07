@@ -55,6 +55,7 @@ declare global {
     after?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
+    notPostIds?: Array<string>,
     reviewYear?: number,
     reviewPhase?: ReviewPhase,
     excludeContents?: boolean,
@@ -166,7 +167,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
+Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
@@ -189,6 +190,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       hiddenRelatedQuestion: false,
       groupId: viewFieldNullOrMissing,
       ...(terms.postIds && {_id: {$in: terms.postIds}}),
+      ...(terms.notPostIds && {_id: {$nin: terms.notPostIds}}),
       ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum
@@ -320,7 +322,7 @@ export function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -352,7 +354,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context.currentUser && isEAForum
+  const useSlowerFrontpage = !!context?.currentUser && isEAForum
 
   const syntheticFields = {
     score: {$divide:[

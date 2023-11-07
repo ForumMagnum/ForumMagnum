@@ -4,7 +4,7 @@ export const Link = reactRouter3.Link;
 
 export const withRouter = reactRouter3.withRouter;*/
 
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
 // eslint-disable-next-line no-restricted-imports
 import * as reactRouter from 'react-router';
@@ -36,6 +36,7 @@ type LinkProps = {
   rel?: string
   eventProps?: Record<string, string>
   className?: string
+  style?: CSSProperties,
   dangerouslySetInnerHTML?: {__html: string}
   target?: string
   smooth?: boolean,

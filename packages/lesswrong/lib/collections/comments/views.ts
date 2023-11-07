@@ -5,6 +5,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 
 declare global {
@@ -24,6 +25,7 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    showCommunity?: boolean,
   }
   
   /**
@@ -502,6 +504,7 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 });
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   return {
     selector: {
       shortform: true,
@@ -509,6 +512,21 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
       createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      ...(!terms.showCommunity && {
+        relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+      }),
+      // Quick takes older than 2 hours must have at least 1 karma, quick takes
+      // younger than 2 hours must have at least -5 karma
+      $or: [
+        {
+          baseScore: {$gte: 1},
+          createdAt: {$lt: twoHoursAgo},
+        },
+        {
+          baseScore: {$gte: -5},
+          createdAt: {$gte: twoHoursAgo},
+        },
+      ],
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

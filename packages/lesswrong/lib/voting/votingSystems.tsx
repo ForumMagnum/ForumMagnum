@@ -10,6 +10,8 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
+import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import { assertUserCanVoteInDonationElection } from '../eaGivingSeason';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -18,7 +20,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }
@@ -40,8 +42,8 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getCommentVotingComponent?: () => CommentVotingComponent,
+  getCommentBottomComponent?: () => CommentVotingBottomComponent,
   getPostBottomVotingComponent?: () => PostVotingComponent,
   getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
@@ -61,6 +63,14 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
   isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
+  getCommentHighlights?: (props: {
+    comment: CommentsList
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
+  getPostHighlights?: (props: {
+    post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
@@ -329,6 +339,68 @@ registerVotingSystem({
   },
 });
 
+registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
+  name: "eaDonationElection",
+  description: "Donation election voting for the EA Forum",
+  userCanActivate: false,
+  isAllowedExtendedVote: (user) => {
+    try {
+      assertUserCanVoteInDonationElection(user);
+      return {allowed: true};
+    } catch (e) {
+      return {
+        allowed: false,
+        reason: e.message(),
+      };
+    }
+  },
+  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {
+    oldExtendedScore?: Record<string, number>,
+    extendedVote?: {preVote: boolean},
+    currentUser: UsersCurrent,
+    document: VoteableType,
+    voteType: string | null,
+  }) => {
+    assertUserCanVoteInDonationElection(currentUser);
+    const oldPreVoteCount =
+      oldExtendedScore && "preVoteCount" in oldExtendedScore
+        ? oldExtendedScore.preVoteCount
+        : 0;
+    const {preVote} = extendedVote ?? {};
+    return {
+      preVoteCount: oldPreVoteCount + (preVote ? 1 : 0),
+    };
+  },
+  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {
+    oldExtendedScore?: Record<string, number>,
+    cancelledExtendedVote?: {preVote: boolean},
+    currentUser: UsersCurrent,
+  }) => {
+    assertUserCanVoteInDonationElection(currentUser);
+    const oldPreVoteCount =
+      oldExtendedScore && "preVoteCount" in oldExtendedScore
+        ? oldExtendedScore.preVoteCount
+        : 0;
+    const {preVote} = cancelledExtendedVote ?? {};
+    return {
+      preVoteCount: oldPreVoteCount - (preVote ? 1 : 0),
+    };
+  },
+  computeExtendedScore: async (votes: DbVote[], {currentUser}: ResolverContext) => {
+    assertUserCanVoteInDonationElection(currentUser);
+    let preVoteCount = 0;
+    for (const vote of votes) {
+      if (vote?.extendedVoteType?.preVote) {
+        preVoteCount++;
+      }
+    }
+    return {preVoteCount};
+  },
+  isNonblankExtendedVote: (vote: DbVote) => {
+    return typeof vote?.extendedVoteType?.preVote === "boolean";
+  },
+});
+
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
@@ -349,6 +421,9 @@ export function getVotingSystems(): VotingSystem[] {
 }
 
 export async function getVotingSystemNameForDocument(document: VoteableType, context: ResolverContext): Promise<string> {
+  if ((document as DbElectionCandidate).electionName) {
+    return "eaDonationElection";
+  }
   if ((document as DbComment).tagId) {
     return "twoAxis";
   }

@@ -21,6 +21,7 @@ registerFragment(`
     hasCoauthorPermission
     rejected
     debate
+    collabEditorDialogue
   }
 `);
 
@@ -221,7 +222,12 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageUrl
+    }
 
+    feedId
+    totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
   }
@@ -500,6 +506,15 @@ registerFragment(`
       text
     }
     criticismTipsDismissed
+    user {
+      ...UsersMinimumInfo
+    }
+    usersSharedWith {
+      ...UsersMinimumInfo
+    }
+    coauthors {
+      ...UsersMinimumInfo
+    }
   }
 `);
 
@@ -534,6 +549,15 @@ registerFragment(`
     ...PostsList
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
+    }
+  }
+`);
+
+registerFragment(`
+  fragment ShortformRecentDiscussion on Post {
+    ...PostsList
+    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+      ...CommentsListWithTopLevelComment
     }
   }
 `);
@@ -618,6 +642,13 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment PostWithDialogueMessage on Post {
+    _id
+    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
+  }
+`);
+
+registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments
@@ -640,8 +671,9 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsBestOfList on Post {
-    ...PostsBase
+    ...PostsListWithVotes
     podcastEpisode {
+      _id
       title
       podcast {
         title
@@ -654,26 +686,6 @@ registerFragment(`
     socialPreviewData {
       text
       imageUrl
-    }
-    readTimeMinutes
-    contents {
-      _id
-      plaintextDescription
-      wordCount
-    }
-    user {
-      ...UsersMinimumInfo
-    }
-    bestAnswer {
-      ...CommentsList
-    }
-    lastPromotedComment {
-      user {
-        ...UsersMinimumInfo
-      }
-    }
-    coauthors {
-      ...UsersMinimumInfo
     }
   }
 `);

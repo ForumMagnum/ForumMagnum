@@ -12,6 +12,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { formatFacetFilters } from '../search/SearchAutoComplete';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -59,6 +60,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: 'relative',
       bottom: 3
     }
+  },
+  searchBox: {
+    "& form": {
+      display: "flex",
+      gap: "6px",
+    },
+    "& svg": {
+      fill: theme.palette.grey[1000],
+    },
+    "& input": {
+      background: theme.palette.grey[55],
+      borderRadius: theme.borderRadius.small,
+      padding: 6,
+    },
   },
   closeIcon: {
     fontSize: '16px',
@@ -139,13 +154,13 @@ const AddPostsToTag = ({classes, tag}: {
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
-            <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} />
+            <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} className={classes.searchBox} />
             <CloseIcon className={classes.closeIcon} onClick={() => setSearchOpen(false)}/>
           </div>
           <SearchPagination />
         </div>
         <Configure
-          facetFilters={`tags:-zxmLyuTr7nujF523s`}
+          facetFilters={formatFacetFilters({tags: `-${tag._id}`})}
           hitsPerPage={10}
         />
         <Hits hitComponent={({hit}: {hit: any}) => <span className={classes.postHit} onClick={() => onPostSelected(hit._id)}>

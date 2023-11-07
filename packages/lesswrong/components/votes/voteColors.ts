@@ -1,6 +1,6 @@
 import { requireCssVar } from '../../themes/cssVars';
 
-const voteColors = ["error", "primary", "secondary", "greenUpvote"] as const;
+const voteColors = ["error", "primary", "secondary"] as const;
 
 export type VoteColor = typeof voteColors[number];
 

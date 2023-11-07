@@ -1,9 +1,11 @@
 import Posts from "../../lib/collections/posts/collection";
+import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
 export type MeanPostKarma = {
   _id: number,
@@ -106,12 +108,12 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         SELECT
           "key",
           (ARRAY_AGG(
-            "displayName" ORDER BY COALESCE("karma", 0) DESC)
+            "displayName" ORDER BY "createdAt" ASC)
           ) AS "displayNames"
         FROM (
           SELECT
             u."displayName",
-            u."karma",
+            v."createdAt",
             (JSONB_EACH(v."extendedVoteType")).*
           FROM "Votes" v
           JOIN "Users" u ON u."_id" = v."userId"
@@ -122,7 +124,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
             v."isUnvote" IS NOT TRUE AND
             v."extendedVoteType" IS NOT NULL
         ) q
-        WHERE "key" IN ($2:csv)
+        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
         GROUP BY "key"
       ) q
     `, [postId, eaPublicEmojiNames]);
@@ -153,13 +155,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
             "commentId",
             "key",
             (ARRAY_AGG(
-              "displayName" ORDER BY COALESCE("karma", 0) DESC)
+              "displayName" ORDER BY "createdAt" ASC)
             ) AS "displayNames"
           FROM (
             SELECT
               c."_id" AS "commentId",
               u."displayName",
-              u."karma",
+              v."createdAt",
               (JSONB_EACH(v."extendedVoteType")).*
             FROM "Comments" c
             JOIN "Votes" v ON
@@ -190,6 +192,41 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     return emojiReactors;
   }
 
+  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+      JOIN "Digests" d ON d."_id" = dp."digestId"
+      ORDER BY d."num" DESC, p."baseScore" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
+  getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      WHERE p."collabEditorDialogue" IS TRUE AND p.draft IS NOT TRUE
+      ORDER BY GREATEST(p."postedAt", p."mostRecentPublishedDialogueResponseDate") DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
+  getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
+    return this.any(`
+      SELECT * 
+      FROM (
+          SELECT DISTINCT ON (p._id) p.* 
+          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
+          WHERE p."collabEditorDialogue" IS TRUE 
+          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
+      ) dialogues
+      ORDER BY "modifiedAt" DESC
+      LIMIT $2
+    `, [userId, limit]);
+  }
+
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
     const results = await this.getRawDb().any(`
       SELECT p."_id"
@@ -200,6 +237,80 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
+  }
+
+  getDigestHighlights({
+    maxAgeInDays = 31,
+    numPostsPerDigest = 2,
+    limit = 10,
+  }): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM (
+        SELECT
+          p."_id",
+          d."num" AS "digestNum",
+          ROW_NUMBER() OVER(
+            PARTITION BY dp."digestId" ORDER BY p."baseScore" DESC
+          ) AS "rowNum"
+        FROM "Posts" p
+        JOIN "DigestPosts" dp ON p."_id" = dp."postId"
+        JOIN "Digests" d ON
+          dp."digestId" = d."_id" AND
+          FLOOR(EXTRACT(EPOCH FROM NOW() - d."startDate") / 86400) <= $1
+      ) q
+      JOIN "Posts" p ON q."_id" = p."_id"
+      WHERE q."rowNum" <= $2
+      ORDER BY q."digestNum" DESC, q."rowNum" ASC
+      LIMIT $3
+    `, [maxAgeInDays, numPostsPerDigest, limit]);
+  }
+
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+    currentUser?: DbUser | null,
+    days?: number,
+    limit?: number,
+  } = {}) {
+    const postFilter = getViewablePostsSelector("p");
+    const readFilter = currentUser
+      ? {
+        join: `
+          LEFT JOIN "ReadStatuses" rs ON
+            p."_id" = rs."postId" AND
+            rs."userId" = $3
+        `,
+        filter: `rs."isRead" IS NOT TRUE AND`,
+      }
+      : {join: "", filter: ""};
+    return this.any(`
+      SELECT p.*
+      FROM "Posts" p
+      ${readFilter.join}
+      WHERE
+        NOW() - p."curatedDate" < ($1 || ' days')::INTERVAL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      UNION
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Users" u ON p."userId" = u."_id"
+      ${readFilter.join}
+      WHERE
+        p."curatedDate" IS NULL AND
+        NOW() - p."frontpageDate" < ($1 || ' days')::INTERVAL AND
+        COALESCE(
+          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
+          0
+        ) < 1 AND
+        p."groupId" IS NULL AND
+        p."disableRecommendation" IS NOT TRUE AND
+        u."deleted" IS NOT TRUE AND
+        ${readFilter.filter}
+        ${postFilter}
+      ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
+      LIMIT $2
+    `, [String(days), limit, currentUser?._id]);
   }
 
   private getSearchDocumentQuery(): string {
@@ -261,4 +372,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Posts"`);
     return count;
   }
+
+  async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
+    return this.any(`
+      SELECT p.*
+      FROM "ReadStatuses" rs
+      INNER JOIN "Posts" p 
+      ON rs."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND p."userId" = $2
+          AND rs."isRead" IS TRUE
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
 }
+ensureIndex(Posts, {debate:-1})

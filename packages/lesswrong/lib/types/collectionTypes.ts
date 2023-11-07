@@ -250,7 +250,8 @@ interface ResolverContext extends CollectionsByName {
 
 type FragmentName = keyof FragmentTypes;
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"ElectionCandidates";
+
 interface EditableFieldContents {
   html: string
   wordCount: number

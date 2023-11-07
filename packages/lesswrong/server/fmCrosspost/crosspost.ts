@@ -3,10 +3,11 @@ import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { UpdateCallbackProperties } from "../mutationCallbacks";
-import { DenormalizedCrosspostData, denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
+import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import { signToken } from "./tokens";
 import type { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
+import { DenormalizedCrosspostData } from "./types";
 
 export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
@@ -147,11 +148,15 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
+  /**
+   * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
+   * Hacky fix for now. Search 84b2 to find all instances of this casting.
+   */
   return performCrosspost({
     _id,
     userId,
     fmCrosspost,
     ...extractDenormalizedData(newDocument),
     ...data,
-  });
+  }) as Partial<DbPost>; 
 }

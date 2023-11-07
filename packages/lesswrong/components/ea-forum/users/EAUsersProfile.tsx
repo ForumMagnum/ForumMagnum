@@ -110,6 +110,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
+    overflowWrap: "break-word",
   },
   deletedUsername: {
     textDecoration: 'line-through'

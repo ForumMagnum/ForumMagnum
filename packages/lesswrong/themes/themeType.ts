@@ -107,10 +107,6 @@ declare global {
     warning: {
       main: ColorString,
     }
-    greenUpvote: {
-      main: ColorString,
-      light: ColorString,
-    },
     text: {
       primary: ColorString,
       secondary: ColorString
@@ -156,6 +152,7 @@ declare global {
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
+      contentHeader?: ColorString,
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
@@ -166,10 +163,12 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
-      currentEventHeader: {
-        start: ColorString,
-        stop: ColorString,
-      },
+
+      debateComment: ColorString,
+      debateComment2: ColorString,
+      debateComment3: ColorString,
+      debateComment4: ColorString,
+      debateComment5: ColorString,
     },
     linkHover: {
       dim: ColorString,
@@ -184,6 +183,7 @@ declare global {
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
       visited: ColorString
+      visitedHover?: ColorString,
     },
     icon: {
       normal: ColorString,
@@ -213,7 +213,9 @@ declare global {
       navigationSidebarIcon: ColorString,
       sprout: ColorString,
       yellow: ColorString,
-      
+      recentDiscussionGreen: ColorString,
+      recentDiscussionGrey: ColorString,
+
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -248,11 +250,6 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
-      debateComment: string,
-      debateComment2: string,
-      debateComment3: string,
-      debateComment4: string,
-      debateComment5: string,
       dashed500: string,
       mentionsBaloon: string,
     },
@@ -454,6 +451,34 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
+
+    givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
+      ctaBackground: ColorString,
+      ctaText: ColorString,
+      candidate: ColorString,
+      votedCandidate: ColorString,
+      rhsLink: ColorString,
+      secondary: ColorString,
+      button: {
+        alwaysDark: ColorString,
+        dark: ColorString,
+        light: ColorString,
+        hoverOutlined: ColorString,
+        borderColor: ColorString,
+      },
+      homepageHeader: {
+        light4: ColorString,
+        light3: ColorString,
+        light2: ColorString,
+        light1: ColorString,
+        main: ColorString,
+        dark: ColorString,
+        secondary: ColorString,
+        secondaryDark: ColorString,
+        secondaryOpaque: ColorString,
+        secondaryOpaqueDark: ColorString,
+      }
+    },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

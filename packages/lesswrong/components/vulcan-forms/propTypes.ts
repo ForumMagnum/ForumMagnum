@@ -95,7 +95,8 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   
   alignmentForumPost?: boolean
   eventForm?: any,
-  debateForm?: boolean
+  debateForm?: boolean, // note: this is an old version of debates which is deprecated in favor of collabEditorDialogue
+  collabEditorDialogue?: boolean,
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean

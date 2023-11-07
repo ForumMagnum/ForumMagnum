@@ -333,6 +333,9 @@ export const sanitize = function(s: string): string {
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
+
+      // Attributes for dialogues
+      section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
       // Attributes for MathML elements
       math: [...allowedMathMLGlobalAttributes, 'display'],

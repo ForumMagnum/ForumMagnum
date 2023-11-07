@@ -9,9 +9,12 @@ import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
 import DropTableQuery from "../../../lib/sql/DropTableQuery";
 import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
+import type { ITask } from "pg-promise";
+
+type SqlClientOrTx = SqlClient | ITask<{}>;
 
 export const addField = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
@@ -26,7 +29,7 @@ export const addField = async <T extends DbObject>(
  * when the field is not currently in the schema (ex. it was subsequently removed).
  */
 export const addRemovedField = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: string,
 ): Promise<void> => {
@@ -35,7 +38,7 @@ export const addRemovedField = async <T extends DbObject>(
 }
 
 export const dropField = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
@@ -50,7 +53,7 @@ export const dropField = async <T extends DbObject>(
  * when the field is not currently in the schema (ex. it was subsequently removed).
  */
 export const dropRemovedField = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: string,
 ): Promise<void> => {
@@ -59,7 +62,7 @@ export const dropRemovedField = async <T extends DbObject>(
 }
 
 export const updateDefaultValue = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
@@ -68,7 +71,7 @@ export const updateDefaultValue = async <T extends DbObject>(
 }
 
 export const dropDefaultValue = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
@@ -77,7 +80,7 @@ export const dropDefaultValue = async <T extends DbObject>(
 }
 
 export const updateFieldType = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
 ): Promise<void> => {
@@ -86,7 +89,7 @@ export const updateFieldType = async <T extends DbObject>(
 }
 
 export const dropIndex = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   index: TableIndex<T>,
 ): Promise<void> => {
@@ -95,7 +98,7 @@ export const dropIndex = async <T extends DbObject>(
 }
 
 export const createIndex = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   index: TableIndex<T>,
   ifNotExists = true,
@@ -105,7 +108,7 @@ export const createIndex = async <T extends DbObject>(
 }
 
 export const dropTable = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
 ): Promise<void> => {
   const {sql, args} = new DropTableQuery(collection.getTable()).compile();
@@ -113,7 +116,7 @@ export const dropTable = async <T extends DbObject>(
 }
 
 export const createTable = async <T extends DbObject>(
-  db: SqlClient,
+  db: SqlClientOrTx,
   collection: PgCollection<T>,
   ifNotExists = true,
 ): Promise<void> => {

@@ -185,4 +185,3 @@ export const commentEditorConfig = {
 	math: mathConfig,
 	mediaEmbed: embedConfig,
 };
-

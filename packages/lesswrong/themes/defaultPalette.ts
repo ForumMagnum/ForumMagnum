@@ -215,10 +215,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
-    currentEventHeader: {
-      start: "#6987B8",
-      stop: "#536CA4",
-    },
+
+    debateComment: '#1192e8',
+    debateComment2: '#198038',
+    debateComment3: '#b28600',
+    debateComment4: '#9f1853',
+    debateComment5: '#a56eff',
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -263,7 +265,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     navigationSidebarIcon: shades.greyAlpha(1.0),
     sprout: '#69886e',
     yellow: '#ffc500',
-    
+    recentDiscussionGreen: "#72B065",
+    recentDiscussionGrey: "#757575",
+
     commentsBubble: {
       commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),
@@ -298,11 +302,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
     primaryTranslucent: 'rgba(12,134,155,.7)',
-    debateComment: '#1c912766',
-    debateComment2: '#df1d4566',
-    debateComment3: '#2671ff66',
-    debateComment4: '#eb26ff66',
-    debateComment5: '#efdc0066',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
   },
@@ -494,7 +493,41 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  
+
+  givingPortal: {
+    [0]: "#fdfcfc",
+    [200]: "#fcf5f3",
+    [800]: "#f8e7e2",
+    [900]: "#EDD3CE",
+    [1000]: "#862115",
+    candidate: "#fef4ef",
+    votedCandidate: "#fff",
+    ctaBackground: "#fdfcfc",
+    ctaText: "#757575",
+    rhsLink: '#862115',
+    secondary: '#E7714E',
+    button: {
+      alwaysDark: "#862115",
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    // the special homepage header has the exact same colors in light and dark mode
+    homepageHeader: {
+      light4: "#fdfcfc",
+      light3: "#fcf5f3",
+      light2: "#f8e7e2",
+      light1: "#EDD3CE",
+      main: "#862115",
+      dark: "#6C0C00",
+      secondary: "#b44c42",
+      secondaryDark: "#a0443c",
+      secondaryOpaque: "rgba(253, 139, 132, 0.40)",
+      secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
+    },
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',
@@ -523,9 +556,5 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   warning: {
     main: "#ff9800",
-  },
-  greenUpvote: {
-    main: "#05b600",
-    light: "#05b600",
   },
 })

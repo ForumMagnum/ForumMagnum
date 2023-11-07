@@ -179,6 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
+  originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -250,6 +251,19 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueChecksCollection extends CollectionBase<DbDialogueCheck, "DialogueChecks"> {
+}
+
+interface DbDialogueCheck extends DbObject {
+  __collectionName?: "DialogueChecks"
+  userId: string
+  targetUserId: string
+  checked: boolean
+  checkedAt: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -274,6 +288,33 @@ interface DbDigest extends DbObject {
   publishedDate: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface ElectionCandidatesCollection extends CollectionBase<DbElectionCandidate, "ElectionCandidates"> {
+}
+
+interface DbElectionCandidate extends DbObject {
+  __collectionName?: "ElectionCandidates"
+  electionName: string
+  name: string
+  logoSrc: string
+  href: string
+  fundraiserLink: string | null
+  gwwcLink: string | null
+  description: string
+  userId: string
+  postCount: number
+  tagId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
 }
 
 interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
@@ -717,6 +758,7 @@ interface DbPost extends DbObject {
   defaultRecommendation: boolean
   hideFromPopularComments: boolean
   draft: boolean
+  wasEverUndrafted: boolean
   meta: boolean
   hideFrontpageComments: boolean
   maxBaseScore: number
@@ -768,6 +810,8 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
+  mostRecentPublishedDialogueResponseDate: Date | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -946,6 +990,9 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  headerTitle: string | null
+  headerTitleLeftColor: string | null
+  headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
@@ -968,7 +1015,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1177,6 +1224,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
@@ -1318,6 +1366,24 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationPublishedDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationAddedAsCoauthor: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   notificationDebateCommentsOnSubscribedPost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -1330,6 +1396,9 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  hideDialogueFacilitation: boolean
+  revealChecksToAdmins: boolean
+  optedInToDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1338,6 +1407,7 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
+  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
@@ -1510,6 +1580,7 @@ interface DbVote extends DbObject {
   isUnvote: boolean
   votedAt: Date
   documentIsAf: boolean
+  silenceNotification: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1527,8 +1598,10 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DialogueChecks: DialogueChecksCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  ElectionCandidates: ElectionCandidatesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
@@ -1585,8 +1658,10 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueChecks: DbDialogueCheck
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  ElectionCandidates: DbElectionCandidate
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
