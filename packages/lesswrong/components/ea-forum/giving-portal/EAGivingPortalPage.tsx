@@ -384,7 +384,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <ElectionFundCTA
                   image={<DonateIcon />}
                   title="Donate"
-                  description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
+                  description="The fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
                   href={donationElectionFundraiserLink}
                   solidButton
