@@ -154,10 +154,6 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         associatedUserName: null,
       }
     case 'dialogueCheck':
-      // we want to find the dialogueCheckInfo that has dialogueCheckInfo._id === documentId
-      // but we don't have a collection "dialogueCheckInfos" with all of them
-      // we can either make one (ugh), or we can have the documentSummary type be 
-      // DbDialogueCheck instead and look through all of them for matches
       const dialogueCheck = await DialogueChecks.findOne({ _id: documentId })
       const targetUser = await Users.findOne(dialogueCheck?.targetUserId)
       return dialogueCheck && {
@@ -358,8 +354,10 @@ export const NewDialogueMatchNotification = registerNotificationType({
   userSettingField: "notificationDialogueMatch",
   async getMessage({documentType, documentId}: GetMessageProps) {
     const summary = await getDocumentSummary(documentType, documentId)
-    summary?.associatedUserName
-    return `You matched with ${summary?.associatedUserName} for Dialogue Matching!`
+    if (summary && summary?.associatedUserName) {
+      return `You matched with ${summary.associatedUserName} for Dialogue Matching!`
+    }
+    return "You have a new Dialogue Match!"
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
