@@ -70,12 +70,15 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
-const reverseVote = async (vote: DbVote, context: ResolverContext) => {
+/**
+ * Reverse the given vote, without triggering any karma change notifications
+ */
+export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user, context})
+    await clearVotesServer({ document, collection, user, silenceNotification: true, context });
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -110,7 +113,7 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote, context);
+    await silentlyReverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
@@ -132,7 +135,7 @@ const nullifyVotesForUserAndCollectionByTarget = async (user: DbUser, collection
     const { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt } = vote;
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt });
-    await reverseVote(vote, context);
+    await silentlyReverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username} in collection ${collectionName}`);
