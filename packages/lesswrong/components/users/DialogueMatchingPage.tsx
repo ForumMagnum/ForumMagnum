@@ -683,7 +683,7 @@ export const DialogueMatchingPage = ({classes}: {
     collectionName: "DialogueChecks",
   });
 
-  const {loading: userOptedInLoading, results: UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
+  const {loading: userOptedInLoading, results: usersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
     terms: { 
       view: 'usersWithOptedInToDialogueFacilitation',
       limit: 10, 
@@ -692,7 +692,7 @@ export const DialogueMatchingPage = ({classes}: {
     collectionName: 'Users'  
   });
 
-  if (!UsersOptedInToDialogueFacilitation) return <p>Error...</p>
+  if (!usersOptedInToDialogueFacilitation) return <p>Error...</p>
 
   const targetUserIds = userDialogueChecks?.map(check => check.targetUserId) ?? [];
 
@@ -829,7 +829,7 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h3>Users who opted in to dialogue matchmaking on frontpage</h3>
         <UserTable
-          users={UsersOptedInToDialogueFacilitation}
+          users={usersOptedInToDialogueFacilitation}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}

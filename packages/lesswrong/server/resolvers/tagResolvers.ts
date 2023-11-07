@@ -27,8 +27,7 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { VotesRepo } from '../repos';
-import { TagsRepo } from '../repos';
+import { VotesRepo, TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
