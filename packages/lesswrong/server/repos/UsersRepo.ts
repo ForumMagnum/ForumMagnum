@@ -306,6 +306,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             v."userId" = $1
             AND u._id != $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
+            AND v."cancelled" IS FALSE
     
         UNION ALL
     
@@ -330,6 +331,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             v."userId" = $1
             AND u._id != $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
+            AND v."cancelled" IS FALSE
     )
   
     SELECT
