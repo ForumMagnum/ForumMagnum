@@ -365,13 +365,6 @@ addRoute(
     componentName: 'UserSuggestNominations',
     title: "Your Past Votes"
   },
-  {
-    name:'users.dialogueMatching',
-    path:'/dialogueMatching',
-    componentName: 'DialogueMatchingPage',
-    title: "Dialogue matching",
-    background: "white"
-  },
 );
 
 if (taggingNameIsSet.get()) {
@@ -829,6 +822,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/dialogues',
       componentName: 'DialoguesPage',
       title: "All Dialogues",
+    },
+    {
+      name:'users.dialogueMatching',
+      path:'/dialogueMatching',
+      componentName: 'DialogueMatchingPage',
+      title: "Dialogue Matching",
+      background: "white"
     },
     {
       name: 'about',
