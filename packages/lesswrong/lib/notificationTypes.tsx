@@ -357,9 +357,9 @@ export const NewDialogueMatchNotification = registerNotificationType({
   name: "newDialogueMatch",
   userSettingField: "notificationDialogueMatch",
   async getMessage({documentType, documentId}: GetMessageProps) {
-    let dialogueCheck = await getDocument(documentType, documentId) as DbDialogueCheck;
-    // should I be confirming here that they truly matched? Or is it sufficient to have done that via callback?
-    return `You matched with ${dialogueCheck?.targetUserId} for Dialogue Matching!`
+    const summary = await getDocumentSummary(documentType, documentId)
+    summary?.associatedUserName
+    return `You matched with ${summary?.associatedUserName} for Dialogue Matching!`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

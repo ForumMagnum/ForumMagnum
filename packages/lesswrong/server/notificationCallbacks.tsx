@@ -37,6 +37,7 @@ import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { DialogueChecks } from '../lib/collections/dialogueChecks/collection';
+import { getMatchingDialogueCheck } from './resolvers/dialogueChecksResolvers';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -727,18 +728,20 @@ getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAd
 });
 
 getCollectionHooks("DialogueChecks").newAsync.add(async function DialogueMatchNewNotification (dialogueCheck: DbDialogueCheck) {
-  const {userId, targetUserId, checked} = dialogueCheck;
-  // // If I can get a DialogueChecksRepo then can use checkForMatch method
-  // const matchedUsers = await context.repos.dialogueChecks.checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId);
-  // return matchedUsers.length > 0'
-  
-  const match = await DialogueChecks.findOne({userId: targetUserId, targetUserId: userId, checked: true});
-  if (match) // don't notify if there isn't a match
+  const match = await getMatchingDialogueCheck(dialogueCheck);
+  if (match) {// don't notify if there isn't a match
     await createNotifications({
-      userIds: [userId], 
+      userIds: [dialogueCheck.userId], 
       notificationType: "newDialogueMatch", 
       documentType: "dialogueCheck", 
       documentId: dialogueCheck._id,})
+    await createNotifications({
+      userIds: [match.userId],
+      notificationType: "newDialogueMatch",
+      documentType: "dialogueCheck",
+      documentId: match._id,
+    })
+  }
 });
 
 getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {

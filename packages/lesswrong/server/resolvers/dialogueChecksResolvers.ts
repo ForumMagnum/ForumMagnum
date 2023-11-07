@@ -1,6 +1,7 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import { randomId } from "../../lib/random";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
+import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 
 defineMutation({
@@ -15,6 +16,10 @@ defineMutation({
   } 
 })
 
+export const getMatchingDialogueCheck = async (dialogueCheck : DbDialogueCheck) => {
+  return await new DialogueChecksRepo().checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId) 
+}
+
 augmentFieldsDict(DialogueChecks, {
   match: {
     resolveAs: {
@@ -23,8 +28,8 @@ augmentFieldsDict(DialogueChecks, {
       resolver: async (check: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")
-        const matchedUsers = await context.repos.dialogueChecks.checkForMatch(check.userId, check.targetUserId);
-        return matchedUsers.length > 0
+        const match = await getMatchingDialogueCheck(check)
+        return !!match
       },
     }
   }
