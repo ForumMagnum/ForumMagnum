@@ -273,7 +273,7 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
   algoDecayFactorFastest: 3.0,
 });
 
-const SHOW_AMOUNT_RAISED = true;
+const SHOW_AMOUNT_RAISED = false;
 
 /** Format as dollars with no cents */
 const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
