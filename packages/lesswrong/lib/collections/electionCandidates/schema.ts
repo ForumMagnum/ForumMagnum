@@ -27,6 +27,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    label: "Candidate name",
   },
   /** URL for this candidates logo */
   logoSrc: {
@@ -36,6 +37,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    label: "Logo image URL",
   },
   /** Link for this candidate (i.e. to the org's website) */
   href: {
@@ -45,6 +47,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    label: "Candidate website URL",
   },
   /** Link for this candidate's GWWC fundraiser page */
   fundraiserLink: {
@@ -54,6 +57,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    label: "GWWC fundraiser URL",
   },
   /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
   gwwcLink: {
@@ -63,7 +67,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
-    label: "GWWC link",
+    label: "GWWC charity link",
   },
   /** Short plaintext description */
   description: {
@@ -73,6 +77,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    label: "Candidate description",
   },
   /** The user who created this candidate (this is required by makeVoteable) */
   userId: {
