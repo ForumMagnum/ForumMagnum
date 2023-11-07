@@ -4,8 +4,8 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { useLocation } from "../../../lib/routeUtil";
 import { useMessages } from "../../common/withMessages";
+import { useDialog } from "../../common/withDialog";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { useDelete } from "../../../lib/crud/withDelete";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,21 +41,26 @@ const EditElectionCandidate = ({classes}: {
   classes: ClassesType,
 }) => {
   const {flash} = useMessages();
+  const {openDialog} = useDialog();
   const {params} = useLocation();
   const candidateId = params.id;
   const isNewForm = candidateId === "new";
   const fragment = getFragment("ElectionCandidateBasicInfo");
-  const {deleteDocument} = useDelete({
-    collectionName: "ElectionCandidates",
-    fragment,
-  });
 
   const successCallback = useCallback(() => {
     flash("Success");
   }, [flash]);
 
   const deleteCallback = useCallback(() => {
-  }, [deleteDocument, candidateId]);
+    if (!isNewForm) {
+      openDialog({
+        componentName: "DeleteElectionCandidateDialog",
+        componentProps: {
+          candidateId,
+        },
+      });
+    }
+  }, [isNewForm, openDialog, candidateId]);
 
   const currentUser = useCurrentUser();
   if (!userIsAdmin(currentUser)) {

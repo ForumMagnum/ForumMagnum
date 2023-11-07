@@ -113,7 +113,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canRead: ["guests"],
     canCreate: ["sunshineRegiment", "admins"],
     control: "TagSelect",
-    label: "Tag",
+    label: "Tag (type to search)",
   },
 };
 

@@ -4,7 +4,6 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionCandidates } from "./hooks";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { randomId } from "../../../lib/random";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,10 +37,7 @@ const AdminElectionCandidates = ({classes}: {
   const {SectionTitle, Loading, EAButton, ForumIcon} = Components;
   return (
     <div className={classes.root}>
-      <SectionTitle
-        title="Election Candidates"
-        noTopMargin
-      />
+      <SectionTitle title="Election Candidates" centered />
       {loading && <Loading />}
       <div>
         {results?.map(({_id, name}) => (
