@@ -117,6 +117,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     nullable: true,
     canRead: ["guests"],
     canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
     control: "TagSelect",
     label: "Tag (type to search)",
   },

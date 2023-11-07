@@ -10,6 +10,7 @@ registerFragment(`
     fundraiserLink
     gwwcLink
     description
+    tagId
     tag {
       ...TagBasicInfo
     }
