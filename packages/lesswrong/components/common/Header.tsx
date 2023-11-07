@@ -19,6 +19,7 @@ import { timelineSpec } from '../../lib/eaGivingSeason';
 import moment from 'moment';
 import { useLocation } from '../../lib/routeUtil';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -394,6 +395,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
   const { pathname } = useLocation()
+  const now = useCurrentTime()
   const isDesktop = useIsAboveBreakpoint('md')
 
   const setNavigationOpen = (open: boolean) => {
@@ -543,7 +545,6 @@ const Header = ({
   
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
-  const now = moment()
   const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
   if (isGivingSeason && pathname === '/') {
     return (
@@ -606,7 +607,6 @@ const Header = ({
                   {timelineSpec.spans.map(span => {
                     // ignore the voting time period
                     if (span.hatched) return null
-                    const now = moment()
                     const isActive = moment(span.start).isBefore(now) && moment(span.end).isAfter(now)
                     return <Link
                       key={`${span.description}-label`}
