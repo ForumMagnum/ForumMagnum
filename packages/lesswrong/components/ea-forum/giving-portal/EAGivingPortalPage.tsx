@@ -274,8 +274,6 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
   algoDecayFactorFastest: 3.0,
 });
 
-const SHOW_AMOUNT_RAISED = false;
-
 /** Format as dollars with no cents */
 const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
@@ -412,7 +410,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   href={donationElectionFundraiserLink}
                   solidButton
                 >
-                  {!amountRaisedLoading && SHOW_AMOUNT_RAISED &&
+                  {!amountRaisedLoading &&
                     <>
                       <div className={classes.progressBar}>
                         <div
@@ -528,7 +526,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
             <a href={setupFundraiserLink}>run custom fundraisers</a>, or <a href="https://www.givingwhatwecan.org">more</a>.
           </div>
-          {!amountRaisedLoading && SHOW_AMOUNT_RAISED &&
+          {!amountRaisedLoading &&
             <div className={classes.text}>
               Total donations raised through the Forum:{" "}
               <span className={classes.totalRaised}>{totalRaisedFormatted}</span>
