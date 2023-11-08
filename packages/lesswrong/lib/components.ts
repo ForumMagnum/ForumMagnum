@@ -83,6 +83,7 @@ importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/E
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
 
+// Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
@@ -95,6 +96,13 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
+// "Friendly UI" messaging components
+importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
+importComponent("FriendlyInboxNavigation", () => require('../components/messaging/FriendlyInboxNavigation'));
+importComponent("ConversationContents", () => require('../components/messaging/ConversationContents'));
+importComponent("FriendlyConversationItem", () => require('../components/messaging/FriendlyConversationItem'));
+importComponent("NewConversationDialog", () => require('../components/messaging/NewConversationDialog'));
+
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
@@ -628,6 +636,7 @@ importComponent("ExpandedCommentsSearchHit", () => require('../components/search
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
 importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
+importComponent("ExpandedUsersConversationSearchHit", () => require('../components/search/ExpandedUsersConversationSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("ExpandedTagsSearchHit", () => require('../components/search/ExpandedTagsSearchHit'));
 importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
