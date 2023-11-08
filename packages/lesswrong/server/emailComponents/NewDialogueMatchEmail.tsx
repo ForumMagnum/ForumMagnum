@@ -22,8 +22,8 @@ const NewDialogueMatchEmail = ({documentId, userId, targetUser}: {
   if (!dialogueCheckInfo.match) return null;
 
   return (<React.Fragment>
-      <p>There is a new dialogue match for you! Both you and <EmailUsername user={targetUser}/> have indicated that you would be interested in having a dialogue. </p>
-      <p>To see all matches, visit the <Link to="/dialogueMatching">Dialogue Matching page</Link>.</p>
+      <p>There is a new dialogue match for you! Both you and <EmailUsername user={targetUser}/> have indicated that you would be potentially interested in having a dialogue. </p>
+      <p>To see all matches, visit the <a href="/dialogueMatching">Dialogue Matching page</a>.</p>
       </React.Fragment>);
 }
 
