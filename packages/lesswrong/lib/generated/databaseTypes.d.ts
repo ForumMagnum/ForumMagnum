@@ -305,6 +305,10 @@ interface DbElectionCandidate extends DbObject {
   userId: string
   postCount: number
   tagId: string | null
+  isElectionFundraiser: boolean
+  gwwcId: string | null
+  amountRaised: number | null
+  targetAmount: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -315,6 +319,38 @@ interface DbElectionCandidate extends DbObject {
   afBaseScore: number
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number
+}
+
+interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
+}
+
+interface DbElicitQuestionPrediction extends DbObject {
+  __collectionName?: "ElicitQuestionPredictions"
+  prediction: number
+  createdAt: Date
+  notes: string | null
+  creator: {
+    _id: string,
+    displayName: string,
+    isQuestionCreator: boolean,
+    sourceUserId: string | null,
+  }
+  userId: string | null
+  sourceUrl: string | null
+  sourceId: string | null
+  binaryQuestionId: string
+}
+
+interface ElicitQuestionsCollection extends CollectionBase<DbElicitQuestion, "ElicitQuestions"> {
+}
+
+interface DbElicitQuestion extends DbObject {
+  __collectionName?: "ElicitQuestions"
+  title: string
+  notes: string | null
+  resolution: string | null
+  resolvesBy: Date
+  createdAt: Date
 }
 
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
@@ -1366,6 +1402,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationDialogueMatch: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   hideDialogueFacilitation: boolean
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
@@ -1572,6 +1614,8 @@ interface CollectionsByName {
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
+  ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
+  ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1630,6 +1674,8 @@ interface ObjectsByCollectionName {
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
+  ElicitQuestionPredictions: DbElicitQuestionPrediction
+  ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
