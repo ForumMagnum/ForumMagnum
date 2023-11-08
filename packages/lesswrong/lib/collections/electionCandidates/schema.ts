@@ -74,6 +74,20 @@ const schema: SchemaType<DbElectionCandidate> = {
     control: "MuiTextField",
     label: "GWWC charity link",
   },
+  /**
+   * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
+   * (although they are often the same)
+   */
+  gwwcId: {
+    type: String,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
+    control: "MuiTextField",
+    label: "GWWC fundraiser ID (\"Parfit slug\")",
+  },
   /** Short plaintext description */
   description: {
     type: String,
@@ -139,18 +153,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canCreate: ["sunshineRegiment", "admins"],
     canUpdate: ["sunshineRegiment", "admins"],
     ...schemaDefaultValue(false),
-  },
-  /**
-   * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
-   * (although they are often the same)
-   */
-  gwwcId: {
-    type: String,
-    canRead: ["guests"],
-    canCreate: ["sunshineRegiment", "admins"],
-    canUpdate: ["sunshineRegiment", "admins"],
-    optional: true,
-    nullable: true,
+    hidden: true,
   },
   /** The amount of money raised in the fundraiser for this candidate */
   amountRaised: {
@@ -160,6 +163,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    hidden: true,
   },
   /** The target amount of money to raise in the fundraiser for this candidate */
   targetAmount: {
@@ -169,6 +173,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    hidden: true,
   },
 };
 
