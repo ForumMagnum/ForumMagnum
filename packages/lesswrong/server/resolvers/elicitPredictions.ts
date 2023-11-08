@@ -6,7 +6,7 @@ import { encode } from 'querystring'
 import { onStartup } from '../../lib/executionEnvironment';
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
-import { isLW, isLWorAF } from '../../lib/instanceSettings';
+import { useElicitApi } from '../../lib/betas';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -201,7 +201,7 @@ onStartup(() => {
       },
       Query: {
         async ElicitBlockData(root: void, {questionId}: {questionId: string}, context: ResolverContext) {
-          if (!isLWorAF) return await getElicitQuestionWithPredictions(questionId);
+          if (useElicitApi) return await getElicitQuestionWithPredictions(questionId);
           
           return await getLocalElicitQuestionWithPredictions(questionId);
         }
@@ -209,15 +209,14 @@ onStartup(() => {
       Mutation: {
         async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {                  
           if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-          if (isLWorAF) {
-            // Elicit API is (to be) shut down. We don't support predictions (yet?)
-            return await getLocalElicitQuestionWithPredictions(questionId);
-          }
-          if (prediction) {
-            const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
-            if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
-          } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
-            await cancelElicitPrediction(questionId, currentUser)
+          // Elicit API is (to be) shut down. We don't support predictions (yet?)
+          if (useElicitApi) {
+            if (prediction) {
+              const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
+              if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
+            } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
+              await cancelElicitPrediction(questionId, currentUser)
+            }  
           }
           const newData = await getLocalElicitQuestionWithPredictions(questionId)
           return newData
