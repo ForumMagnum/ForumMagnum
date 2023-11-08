@@ -373,5 +373,20 @@
     "acceptsSchemaHash": "f5e4a3d5459008e1e5f5e83555a849b1",
     "acceptedByMigration": "20231104T020734.add_DialogueCheck_table_and_check_fields.ts",
     "timestamp": "2023-11-04T02:07:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5ec9053a5ae6f6135087becd69fa485e",
+    "acceptedByMigration": "20231107T174131.add_notify_votes.ts",
+    "timestamp": "2023-11-07T17:41:31.000Z"
+  },
+  {
+    "acceptsSchemaHash": "060a65a6bb00ba7b0a4da5397165f444",
+    "acceptedByMigration": "20231107T231716.addElicitTables.ts",
+    "timestamp": "2023-11-07T23:17:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0d5156717800f18b4407edd0caa14def",
+    "acceptedByMigration": "20231108T032435.add_notificationDialogueMatch.ts",
+    "timestamp": "2023-11-08T03:24:35.000Z"
   }
 ]

@@ -247,6 +247,12 @@ import './collections/sessions';
 import './collections/typingIndicators/collection';
 import './collections/typingIndicators/fragments';
 
+// elicit questions
+import './collections/elicitQuestions/collection';
+
+// elicit predictions
+import './collections/elicitQuestionPredictions/collection';
+
 // dialogue checks
 import './collections/dialogueChecks/collection';
 import './collections/dialogueChecks/fragments';
