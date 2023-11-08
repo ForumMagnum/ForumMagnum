@@ -18,7 +18,6 @@ import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { timelineSpec } from '../../lib/eaGivingSeason';
 import moment from 'moment';
 import { useLocation } from '../../lib/routeUtil';
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -166,14 +165,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: "fixed !important",
     },
   },
-  
+
   // Below are custom styles for the special EA Forum Giving Season 2023 homepage header
   // TODO: delete after 2023
   rootGivingSeason: {
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
-    [theme.breakpoints.down('sm')]: {
-      height: EA_FORUM_HEADER_HEIGHT,
-    },
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
     },
@@ -190,20 +186,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexShrink: 0,
     flexDirection: "column",
     padding: '1px 20px',
+    overflow: "hidden",
     '@media (max-width: 1200px)': {
       background: `right no-repeat url(${gsImg}), ${theme.palette.givingPortal.homepageHeader.dark}`,
     },
-    [theme.breakpoints.down('sm')]: {
-      height: EA_FORUM_HEADER_HEIGHT,
-      padding: '1px 11px',
-    },
-    '@media (max-width: 840px)': {
+    [theme.breakpoints.down("sm")]: {
       background: theme.palette.givingPortal.homepageHeader.main,
     },
     [theme.breakpoints.down('xs')]: {
       padding: '9px 11px',
     },
-    
+
     "& .HeaderSubtitle-subtitle": {
       color: theme.palette.givingPortal.homepageHeader.light4,
     },
@@ -286,37 +279,49 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@media (max-width: 1200px)': {
       background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
     },
-    [theme.breakpoints.down('sm')]: {
-      height: EA_FORUM_HEADER_HEIGHT,
+    [theme.breakpoints.down("sm")]: {
+      display: 'none',
     },
-    '@media (max-width: 840px)': {
-      display: 'none'
-    }
   },
   givingSeasonContent: {
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 16,
     zIndex: theme.zIndexes.spotlightItem,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    }
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "12px",
+      height: "100%",
+      marginTop: 0,
+    },
   },
   givingSeasonOverview: {
-    maxWidth: 500,
-    padding: '0 20px 0 48px'
+    padding: '0 20px 0 48px',
+    flexGrow: 1,
+    [theme.breakpoints.down("sm")]: {
+      padding: 0,
+    },
   },
   givingSeasonHeading: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     fontSize: 40,
     lineHeight: '48px',
     marginTop: 0,
-    marginBottom: 8
+    marginBottom: 8,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 26,
+      lineHeight: "30px",
+    },
   },
   givingSeasonDescription: {
     color: theme.palette.givingPortal.homepageHeader.light4,
-    paddingLeft: 3
+    paddingLeft: 3,
+    maxWidth: 500,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "1rem",
+      lineHeight: "1.4rem",
+    },
   },
   givingSeasonLink: {
     textDecoration: 'underline'
@@ -336,8 +341,18 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: 480,
       gridTemplateColumns: 'repeat(3, auto)',
     },
-    '@media (max-width: 1200px)': {
-      display: 'none'
+    [theme.breakpoints.down("sm")]: {
+      alignSelf: "flex-end",
+      marginBottom: 16,
+    },
+    ["@media (max-width: 600px)"]: {
+      marginBottom: 10,
+    },
+    ["@media (max-width: 500px)"]: {
+      alignSelf: "flex-start",
+    },
+    ["@media (max-width: 280px)"]: {
+      display: "none",
     },
   },
   gsTimelineLabel: {
@@ -350,6 +365,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       backgroundColor: theme.palette.givingPortal.homepageHeader.secondaryOpaqueDark,
       opacity: 1
+    },
+    [theme.breakpoints.down("sm")]: {
+      whiteSpace: "nowrap",
+      padding: "6px 10px",
     },
   },
   gsTimelineLabelActive: {
@@ -364,9 +383,17 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.givingPortal.homepageHeader.light1,
       opacity: 1
     },
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
+      lineHeight: "14px",
+      padding: "10px 12px",
+    },
   },
   gsTimelineDates: {
-    paddingTop: 8
+    paddingTop: 8,
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
 });
 
@@ -396,7 +423,6 @@ const Header = ({
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
   const { pathname } = useLocation()
   const now = useCurrentTime()
-  const isDesktop = useIsAboveBreakpoint('md')
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -553,13 +579,13 @@ const Header = ({
           <Headroom
             disableInlineStyles
             downTolerance={10} upTolerance={10}
-            height={isDesktop ? EA_FORUM_GIVING_SEASON_HEADER_HEIGHT : EA_FORUM_HEADER_HEIGHT}
+            height={EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}
             className={classNames(classes.headroom, {
               [classes.headroomPinnedOpen]: searchOpen,
             })}
             onUnfix={() => setUnFixed(true)}
             onUnpin={() => setUnFixed(false)}
-            disable={isDesktop}
+            disable
           >
             <header className={classes.appBarGivingSeason}>
               <div className={classes.givingSeasonGradient}></div>
