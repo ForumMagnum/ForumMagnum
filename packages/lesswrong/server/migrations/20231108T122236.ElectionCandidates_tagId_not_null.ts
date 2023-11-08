@@ -1,6 +1,6 @@
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
 
-export const acceptsSchemaHash = "ad4c1482bc5f8277eff9e3078a020a9a";
+export const acceptsSchemaHash = "9993689a4229639120ef85f8531151ad";
 
 export const up = async ({db}: MigrationContext) => {
   if (ElectionCandidates.isPostgres()) {
