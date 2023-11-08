@@ -4,23 +4,75 @@ import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import { defineMutation } from "../utils/serverGraphqlUtil";
+import { createMutator } from '../vulcan-lib';
+import Messages from '../../lib/collections/messages/collection';
+import Conversations from "../../lib/collections/conversations/collection";
+import { getUser } from '../../lib/vulcan-users/helpers';
+import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
 
-async function notifyUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-  const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (match) {
-    await createNotifications({
-      userIds: [dialogueCheck.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: dialogueCheck._id,
-    });
-    await createNotifications({
-      userIds: [match.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: match._id,
-    });
+async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, match: DbDialogueCheck, associatedMessage?: DbMessage) {
+  await createNotifications({
+    userIds: [dialogueCheck.userId],
+    notificationType: "newDialogueMatch",
+    documentType: "dialogueCheck",
+    documentId: dialogueCheck._id,
+    extraData: {associatedMessage}
+  });
+  await createNotifications({
+    userIds: [match.userId],
+    notificationType: "newDialogueMatch",
+    documentType: "dialogueCheck",
+    documentId: match._id,
+    extraData: {associatedMessage}
+  });
+}
+
+async function messageUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
+
+  const lwAccount = await getAdminTeamAccount();
+  const currentUser = await getUser(dialogueCheck.userId);
+  const targetUser = await getUser(dialogueCheck.targetUserId);
+
+  // Create a new conversation with both users
+  const conversationData = {
+    participantIds: [dialogueCheck.userId, dialogueCheck.targetUserId, lwAccount._id],
+    title: `Dialogue Match between ${currentUser?.displayName} and ${targetUser?.displayName}!`
   }
+
+  const conversation = await createMutator({
+    collection: Conversations,
+    document: conversationData,
+    currentUser: lwAccount,
+    validate: false,
+  });
+
+
+  let messageContents =
+      `<div>
+        <p>You two have matched via Dialogue Matching! You can now message each other to brainstorm potential dialogue topics or set up a time to talk.</p>
+        <p>For some ideas of conversation topics, feel free to look at <a href="https://www.lesswrong.com/posts/hc9nMipTXy2sm3tJb/vote-on-interesting-disagreements">this list of interesting disagreements</a>.</p>
+      </div>`
+
+  // Add a message to the conversation
+  const messageData = {
+    userId: lwAccount._id,
+    contents: {
+      originalContents: {
+        type: "html",
+        data: messageContents
+      }
+    },
+    conversationId: conversation.data._id
+  }
+
+  const message = await createMutator({
+    collection: Messages,
+    document: messageData,
+    currentUser: lwAccount,
+    validate: false,
+  });
+
+  return message;
 }
 
 defineMutation({
@@ -31,7 +83,11 @@ defineMutation({
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)    
-    void notifyUsersIfMatchingDialogueChecks(response)
+    const match = await getMatchingDialogueCheck(response);
+    if (match) {
+      const message = await messageUsersMatchingDialogueChecks(response)
+      void notifyUsersMatchingDialogueChecks(response, match, message.data)
+    }
     return response
   } 
 })
