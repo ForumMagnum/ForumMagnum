@@ -216,6 +216,11 @@ export const createNotification = async ({userId, notificationType, documentType
       });
     }
   }
+  
+  if (userSettingField === "notificationDialogueMatch") {
+    notificationTypeSettings.channel = "both"
+  }
+
   if ((notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") && !noEmail) {
     const createdNotification = await createMutator({
       collection: Notifications,
@@ -227,6 +232,8 @@ export const createNotification = async ({userId, notificationType, documentType
       currentUser: user,
       validate: false
     });
+    // eslint-disable-next-line no-console
+    console.log("Created notification", createdNotification.data._id);
     if (!notificationDebouncers[notificationType])
       throw new Error("Invalid notification type");
     await notificationDebouncers[notificationType]!.recordEvent({

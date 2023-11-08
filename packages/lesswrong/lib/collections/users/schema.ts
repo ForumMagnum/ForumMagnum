@@ -1397,7 +1397,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
-    ...notificationTypeSettingsField({ channel: "onsite" }),
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
 
   hideDialogueFacilitation: {

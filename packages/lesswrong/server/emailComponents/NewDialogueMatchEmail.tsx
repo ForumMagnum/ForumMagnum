@@ -8,7 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 const NewDialogueMatchEmail = ({documentId, userId, targetUser}: {
   documentId: string,
   userId?: string,
-  targetUser?: DbUser,
+  targetUser?: DbUser | null,
 }) => {
   const { EmailUsername } = Components;
       
