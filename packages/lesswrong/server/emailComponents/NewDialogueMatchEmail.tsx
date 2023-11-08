@@ -1,9 +1,7 @@
 import React from 'react';
-import { getConfirmedCoauthorIds, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useSingle } from '../../lib/crud/withSingle';
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../lib/vulcan-lib/components';
+import { getSiteUrl } from '../vulcan-lib';
 
 const NewDialogueMatchEmail = ({documentId, targetUser}: {
   documentId: string,
@@ -22,7 +20,7 @@ const NewDialogueMatchEmail = ({documentId, targetUser}: {
 
   return (<React.Fragment>
       <p>There is a new dialogue match for you! Both you and <EmailUsername user={targetUser}/> have indicated that you would be potentially interested in having a dialogue. </p>
-      <p>To see all matches, visit the <a href="/dialogueMatching">Dialogue Matching page</a>.</p>
+      <p>To see all matches, visit the <a href={`${getSiteUrl()}dialogueMatching`}>Dialogue Matching page</a>.</p>
       </React.Fragment>);
 }
 
