@@ -51,6 +51,10 @@ export type UserDialogueUsefulData = {
   topUsers: UpvotedUser[],
 }
 
+export type TagWithCommentCount = {
+  tag: DbTag,
+  commentCount: number
+}
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -64,15 +68,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement        posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  550px `,
+    display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement           tags    posts read   
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  200px     550px`,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
-    display: 'grid',    //        checkbox         name         message                match                    bio  posts read
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  550px `,
+    display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     550px `,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
@@ -305,6 +309,51 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
   );
 };
 
+const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string }) => {
+  const { Loading } = Components;
+
+  const { loading, error, data } = useQuery(gql`
+    query UserTopTags($userId: String!) {
+      UserTopTags(userId: $userId) {
+        tag {
+          name
+          _id
+        }
+        commentCount
+      }
+    }
+  `, {
+    variables: { userId: targetUserId },
+  });
+
+  const topTags:[TagWithCommentCount] = data?.UserTopTags;
+
+  const tagContainerRef = useRef<HTMLDivElement | null>(null);
+  const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(tagContainerRef);
+
+  if (loading) return <Loading/>
+  if (error) return <p>Error: {error.message} </p>;
+
+  return (
+    <div 
+      className={classNames(classes.gradientBigTextContainer, {
+        'scrolled-to-top': isScrolledToTop,
+        'scrolled-to-bottom': isScrolledToBottom
+      })}> 
+      {topTags.length > 0 ? (
+        topTags.map((tag, index) => (
+          <div key={index}>
+            • {tag.tag.name}
+            <br/>
+          </div>
+        ))
+      ) : (
+        <p>(no comments...)</p>
+      )}
+    </div>
+  );
+};
+
 const Headers = ({ titles, className }: { titles: string[], className: string }) => {
   return (
     <>
@@ -493,6 +542,104 @@ const MessageButton: React.FC<{
   );
 };
 
+type UserTableProps = {
+  users: any[]; // replace with the correct type
+  classes: ClassesType;
+  gridClassName: string,
+  currentUser: UsersCurrent;
+  userDialogueChecks: DialogueCheckInfo[];
+  loadingNewDialogue: boolean;
+  createDialogue: (title: string, participants: string[]) => void;
+  showBio?: boolean;
+  showKarma?: boolean;
+  showAgreement?: boolean;
+  showPostsYouveRead?: boolean;
+  showFrequentCommentedTopics?: boolean;
+};
+
+const UserTable: React.FC<UserTableProps> = ({
+  users,
+  classes,
+  gridClassName,
+  currentUser,
+  userDialogueChecks,
+  loadingNewDialogue,
+  createDialogue,
+  showBio,
+  showKarma,
+  showAgreement,
+  showPostsYouveRead,
+  showFrequentCommentedTopics,
+}) => {
+
+  const { UsersName } = Components;
+
+  const headers = [
+    "Dialogue",
+    "Name",
+    "Message",
+    "Match",
+    ...(showKarma ? ["Karma"] : []),
+    ...(showAgreement ? ["Agreement"] : []),
+    ...(showBio ? ["Bio"] : []),
+    ...(showFrequentCommentedTopics ? ["Frequent commented topics"] : []),
+    ...(showPostsYouveRead ? ["Posts you've read"] : []),
+  ];
+
+  return (
+    <div className={gridClassName}>
+      <Headers titles={headers} className={classes.header} />
+      {users.map(targetUser => {
+        const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
+        const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
+        const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
+        return (
+          <React.Fragment key={`${targetUser._id}_other`}> 
+            <DialogueCheckBox 
+              targetUserId={targetUser._id}
+              targetUserDisplayName={targetUser.displayName} 
+              checkId={checkId} 
+              isChecked={userIsChecked}
+              isMatched={userIsMatched}
+              classes={classes}
+            />
+            <UsersName 
+              className={classes.displayName} 
+              documentId={targetUser._id} 
+              simple={false}/>
+            <MessageButton 
+              targetUserId={targetUser._id} 
+              currentUser={currentUser} 
+              classes={classes} />
+            <MatchDialogueButton
+              isMatched={userIsMatched}
+              targetUserId={targetUser._id}
+              targetUserDisplayName={targetUser.displayName}
+              currentUser={currentUser}
+              loadingNewDialogue={loadingNewDialogue}
+              createDialogue={createDialogue}
+              classes={classes}
+            />
+            {showKarma && <div className={classes.centeredText}> {targetUser.total_power} </div>}
+            {showAgreement && <div className={classes.centeredText}> {targetUser.total_agreement} </div>}    
+            {showBio && <UserBio 
+              key={targetUser._id} 
+              classes={classes} 
+              userId={targetUser._id} />}
+            {showFrequentCommentedTopics && <UserTopTags 
+              classes={classes} 
+              targetUserId={targetUser._id}/>}
+            {showPostsYouveRead && <UserPostsYouveRead 
+              classes={classes} 
+              targetUserId={targetUser._id}
+              limit={8} />}
+          </React.Fragment> 
+        )}
+      )}
+    </div>
+  );
+};
+
 export const DialogueMatchingPage = ({classes}: {
   classes: ClassesType,
 }) => {
@@ -539,7 +686,7 @@ export const DialogueMatchingPage = ({classes}: {
     collectionName: "DialogueChecks",
   });
 
-  const {loading: userOptedInLoading, results: UsersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
+  const {loading: userOptedInLoading, results: usersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
     terms: { 
       view: 'usersWithOptedInToDialogueFacilitation',
       limit: 10, 
@@ -547,6 +694,12 @@ export const DialogueMatchingPage = ({classes}: {
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users'  
   });
+
+  if (loading) {
+    return <Loading />;
+  } else if (!usersOptedInToDialogueFacilitation) {
+    return <p>Error...</p>;
+  }
 
   const targetUserIds = userDialogueChecks?.map(check => check.targetUserId) ?? [];
 
@@ -603,9 +756,6 @@ export const DialogueMatchingPage = ({classes}: {
 
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
-  const headerTitlesV1 = ["Dialogue", "Name", "Message", "Match", "Karma", "Agreement", "Posts you've read"] 
-  const headerTitlesV2 = ["Dialogue", "Name", "Message", "Match", "Bio", "Posts you've read"]
-
   return (
   <div className={classes.root}>
     <div className={classes.container}>
@@ -645,156 +795,60 @@ export const DialogueMatchingPage = ({classes}: {
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Your top upvoted users (last 1.5 years)</h3>
-        <div className={classes.matchContainerGridV1}>
-          <Headers titles={headerTitlesV1} className={classes.header} />
-          {userDialogueUsefulData.topUsers.map(targetUser => {
-            const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-            const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
-            const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
-            
-            return (
-              <React.Fragment key={targetUser._id}>
-                <DialogueCheckBox 
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName} 
-                  checkId={checkId} 
-                  isChecked={userIsChecked}
-                  isMatched={userIsMatched}
-                  classes={classes}
-                />
-                <UsersName 
-                  className={classes.displayName} 
-                  documentId={targetUser._id} 
-                  simple={false}/>
-                <MessageButton 
-                  targetUserId={targetUser._id} 
-                  currentUser={currentUser} 
-                  classes={classes} />
-                <MatchDialogueButton
-                  isMatched={userIsMatched}
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName}
-                  currentUser={currentUser}
-                  loadingNewDialogue={loadingNewDialogue}
-                  createDialogue={createDialogue}
-                  classes={classes}
-                />
-                <div className={classes.centeredText}> {targetUser.total_power} </div>
-                <div className={classes.centeredText}> {targetUser.total_agreement} </div>
-                <UserPostsYouveRead 
-                  classes={classes} 
-                  targetUserId={targetUser._id} 
-                  limit={8} 
-                />
-              </React.Fragment> 
-            )}
-          )}
-        </div>
+        <UserTable
+          users={userDialogueUsefulData.topUsers}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV1}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          loadingNewDialogue={loadingNewDialogue}
+          createDialogue={createDialogue}
+          showBio={false}
+          showKarma={true}
+          showAgreement={true}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+        />
       </div>
     </div>
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Users who published dialogues</h3>
-        <div className={classes.matchContainerGridV2}>
-          <Headers titles={headerTitlesV2} className={classes.header} />
-          {userDialogueUsefulData.dialogueUsers.map(targetUser => {
-            const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-            const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
-            const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
-            return (
-              <React.Fragment key={`${targetUser._id}_other`}> 
-                <DialogueCheckBox 
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName} 
-                  checkId={checkId} 
-                  isChecked={userIsChecked}
-                  isMatched={userIsMatched}
-                  classes={classes}
-                />
-                <UsersName 
-                  className={classes.displayName} 
-                  documentId={targetUser._id} 
-                  simple={false}/>
-                <MessageButton 
-                  targetUserId={targetUser._id} 
-                  currentUser={currentUser} 
-                  classes={classes} />
-                <MatchDialogueButton
-                  isMatched={userIsMatched}
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName}
-                  currentUser={currentUser}
-                  loadingNewDialogue={loadingNewDialogue}
-                  createDialogue={createDialogue}
-                  classes={classes}
-                />
-                <UserBio 
-                  key={targetUser._id} 
-                  classes={classes} 
-                  userId={targetUser._id} 
-                />
-                <UserPostsYouveRead 
-                  classes={classes} 
-                  targetUserId={targetUser._id}
-                  limit={8} 
-                />
-              </React.Fragment> 
-            )}
-          )}
-        </div>
+        <UserTable
+          users={userDialogueUsefulData.dialogueUsers}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV2}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          loadingNewDialogue={loadingNewDialogue}
+          createDialogue={createDialogue}
+          showBio={true}
+          showKarma={false}
+          showAgreement={false}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+        />
       </div>
     </div>
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Users who opted in to dialogue matchmaking on frontpage</h3>
-        <div className={classes.matchContainerGridV2}> 
-        <Headers titles={headerTitlesV2} className={classes.header} />
-          {UsersOptedInToDialogueFacilitation?.map(targetUser => {
-            const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id
-            const userIsChecked = isChecked(userDialogueChecks, targetUser._id)
-            const userIsMatched = isMatched(userDialogueChecks, targetUser._id)
-            return (
-              <React.Fragment key={`${targetUser._id}_other`}> 
-                <DialogueCheckBox 
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName} 
-                  checkId={checkId} 
-                  isChecked={userIsChecked}
-                  isMatched={userIsMatched}
-                  classes={classes}
-                />
-                <UsersName 
-                  className={classes.displayName} 
-                  documentId={targetUser._id} 
-                  simple={false}/>
-                <MessageButton 
-                  targetUserId={targetUser._id} 
-                  currentUser={currentUser} 
-                  classes={classes} />
-                <MatchDialogueButton
-                  isMatched={userIsMatched}
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName}
-                  currentUser={currentUser}
-                  loadingNewDialogue={loadingNewDialogue}
-                  createDialogue={createDialogue}
-                  classes={classes}
-                />
-                <UserBio 
-                  key={targetUser._id} 
-                  classes={classes} 
-                  userId={targetUser._id} />
-                <UserPostsYouveRead 
-                  classes={classes} 
-                  targetUserId={targetUser._id}
-                  limit={8} 
-                />
-              </React.Fragment> 
-            )}
-          )}
-        </div>
+        <UserTable
+          users={usersOptedInToDialogueFacilitation}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV2}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          loadingNewDialogue={loadingNewDialogue}
+          createDialogue={createDialogue}
+          showBio={true}
+          showKarma={false}
+          showAgreement={false}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+        />
         <LoadMore {...loadMoreProps} />
       </div>
     </div>

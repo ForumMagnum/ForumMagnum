@@ -216,10 +216,13 @@ onStartup(() => {
               if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
             } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
               await cancelElicitPrediction(questionId, currentUser)
-            }  
+            }
+
+            return await getElicitQuestionWithPredictions(questionId);
           }
-          const newData = await getLocalElicitQuestionWithPredictions(questionId)
-          return newData
+
+          // When not using their API, use the imported data
+          return await getLocalElicitQuestionWithPredictions(questionId)
         }
       }
     };
