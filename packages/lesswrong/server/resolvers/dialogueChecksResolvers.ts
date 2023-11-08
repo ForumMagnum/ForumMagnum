@@ -10,32 +10,26 @@ import Conversations from "../../lib/collections/conversations/collection";
 import { getUser } from '../../lib/vulcan-users/helpers';
 import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
 
-async function notifyUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-  const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (match) {
-    await createNotifications({
-      userIds: [dialogueCheck.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: dialogueCheck._id,
-    });
-    await createNotifications({
-      userIds: [match.userId],
-      notificationType: "newDialogueMatch",
-      documentType: "dialogueCheck",
-      documentId: match._id,
-    });
-  }
+async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, match: DbDialogueCheck, associatedMessage?: DbMessage) {
+  await createNotifications({
+    userIds: [dialogueCheck.userId],
+    notificationType: "newDialogueMatch",
+    documentType: "dialogueCheck",
+    documentId: dialogueCheck._id,
+    extraData: {associatedMessage}
+  });
+  await createNotifications({
+    userIds: [match.userId],
+    notificationType: "newDialogueMatch",
+    documentType: "dialogueCheck",
+    documentId: match._id,
+    extraData: {associatedMessage}
+  });
 }
 
-async function messageUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-
-    // check if there is a matching dialogue check
-  const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (!match) return;
+async function messageUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
 
   const lwAccount = await getAdminTeamAccount();
-
   const currentUser = await getUser(dialogueCheck.userId);
   const targetUser = await getUser(dialogueCheck.targetUserId);
 
@@ -71,12 +65,14 @@ async function messageUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCh
     conversationId: conversation.data._id
   }
 
-  await createMutator({
+  const message = await createMutator({
     collection: Messages,
     document: messageData,
     currentUser: lwAccount,
     validate: false,
   });
+
+  return message;
 }
 
 defineMutation({
@@ -87,8 +83,11 @@ defineMutation({
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)    
-    void notifyUsersIfMatchingDialogueChecks(response)
-    void messageUsersIfMatchingDialogueChecks(response)
+    const match = await getMatchingDialogueCheck(response);
+    if (match) {
+      const message = await messageUsersMatchingDialogueChecks(response)
+      void notifyUsersMatchingDialogueChecks(response, match, message.data)
+    }
     return response
   } 
 })
