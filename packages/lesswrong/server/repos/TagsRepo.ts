@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
-import { UserTopTag } from "../../components/users/DialogueMatchingPage";
+import { TagWithCommentCount } from "../../components/users/DialogueMatchingPage";
 export default class TagsRepo extends AbstractRepo<DbTag> {
   constructor() {
     super(Tags);
@@ -51,30 +51,38 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
     return count;
   }
 
-  async getUserTopTags(userId: string, limit = 15): Promise<UserTopTag[]> {
-    return this.getRawDb().any(`
+  async getUserTopTags(userId: string, limit = 15): Promise<TagWithCommentCount[]> {
+    const tags = await this.getRawDb().any(`
       SELECT
-        public."Tags".name,
-        public."TagRels"."tagId",
-        COUNT(*) AS count
-      FROM public."TagRels"
-      INNER JOIN public."Tags" ON public."TagRels"."tagId" = public."Tags"._id
+        t.*,
+        COUNT(*) AS "commentCount"
+      FROM "TagRels" tr
+      INNER JOIN "Tags" t ON tr."tagId" = t._id
       WHERE
-        public."TagRels"."postId" IN (
-          SELECT public."Comments"."postId"
-          FROM public."Comments"
-          WHERE public."Comments"."userId" = $1
-          AND public."Comments"."postedAt" > NOW() - INTERVAL '3 years'
+        tr."postId" IN (
+          SELECT c."postId"
+          FROM "Comments" c
+          WHERE c."userId" = $1
+          AND c."postedAt" > NOW() - INTERVAL '3 years'
         )
-        AND public."Tags".name NOT IN (
-          'Community', 'Rationality', 'World Modeling', 'Site Meta', 'Covid-19', 'Practical', 
-          'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
-          'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
-          'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments', 'Dialogue (format)', 'LW Team Announcements'
-        )
-      GROUP BY public."TagRels"."tagId", public."Tags".name
-      ORDER BY count DESC
+      AND t.name NOT IN (
+        'Community', 'Rationality', 'World Modeling', 'Site Meta', 'Covid-19', 'Practical', 
+        'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
+        'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
+        'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments', 'Dialogue (format)', 'LW Team Announcements', 
+        'Bounties & Prizes (active)', 'Training'
+      )
+      GROUP BY t._id
+      ORDER BY "commentCount" DESC
       LIMIT $2
     `, [userId, limit]);
+    return tags.map(tag => {
+      const {commentCount, ...rest} = tag;
+      return ({
+        tag: rest,
+        commentCount
+      })
+    })
   }
+
 }

@@ -50,11 +50,10 @@ export type UserDialogueUsefulData = {
   topUsers: UpvotedUser[],
 }
 
-export type UserTopTag = {
-  name: string;
-  tagId: string;
-  count: number;
-};
+export type TagWithCommentCount = {
+  tag: DbTag,
+  commentCount: number
+}
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -315,19 +314,21 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType, targetUs
   const { loading, error, data } = useQuery(gql`
     query UserTopTags($userId: String!) {
       UserTopTags(userId: $userId) {
-        tagId
-        name
-        count
+        tag {
+          name
+          _id
+        }
+        commentCount
       }
     }
   `, {
     variables: { userId: targetUserId },
   });
 
-  const topTags:[UserTopTag] = data?.UserTopTags;
+  const topTags:[TagWithCommentCount] = data?.UserTopTags;
 
-  const bioContainerRef = useRef<HTMLDivElement | null>(null);
-  const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(bioContainerRef);
+  const tagContainerRef = useRef<HTMLDivElement | null>(null);
+  const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(tagContainerRef);
 
   if (loading) return <Loading/>
   if (error) return <p>Error: {error.message} </p>;
@@ -341,7 +342,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType, targetUs
       {topTags.length > 0 ? (
         topTags.map((tag, index) => (
           <div key={index}>
-            • {tag.name}
+            • {tag.tag.name}
             <br/>
           </div>
         ))
@@ -692,7 +693,11 @@ export const DialogueMatchingPage = ({classes}: {
     collectionName: 'Users'  
   });
 
-  if (!usersOptedInToDialogueFacilitation) return <p>Error...</p>
+  if (loading) {
+    return <Loading />;
+  } else if (!usersOptedInToDialogueFacilitation) {
+    return <p>Error...</p>;
+  }
 
   const targetUserIds = userDialogueChecks?.map(check => check.targetUserId) ?? [];
 
