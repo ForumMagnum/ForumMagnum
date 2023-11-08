@@ -247,6 +247,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationDialogueMatch: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly hideDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
@@ -523,23 +529,6 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly userId: string,
   readonly postCount: number,
   readonly tagId: string | null,
-}
-
-interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
-  readonly _id: string,
-  readonly prediction: number,
-  readonly createdAt: Date,
-  readonly notes: string | null,
-  readonly creator: {
-    _id: string,
-    displayName: string,
-    isQuestionCreator: boolean,
-    sourceUserId: string | null,
-  },
-  readonly userId: string | null,
-  readonly sourceUrl: string | null,
-  readonly sourceId: string | null,
-  readonly binaryQuestionId: string,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -3362,6 +3351,23 @@ interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
   readonly createdAt: Date,
 }
 
+interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
+  readonly _id: string,
+  readonly prediction: number,
+  readonly createdAt: Date,
+  readonly notes: string | null,
+  readonly creator: {
+    _id: string,
+    displayName: string,
+    isQuestionCreator: boolean,
+    sourceUserId: string | null,
+  },
+  readonly userId: string | null,
+  readonly sourceUrl: string | null,
+  readonly sourceId: string | null,
+  readonly binaryQuestionId: string,
+}
+
 interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly _id: string,
   readonly userId: string,
@@ -3392,7 +3398,6 @@ interface FragmentTypes {
   ConversationsDefaultFragment: ConversationsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
-  ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -3595,6 +3600,7 @@ interface FragmentTypes {
   WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3609,7 +3615,6 @@ interface CollectionNamesByFragmentName {
   ConversationsDefaultFragment: "Conversations"
   DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
-  ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
@@ -3812,6 +3817,7 @@ interface CollectionNamesByFragmentName {
   WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueCheckInfo: "DialogueChecks"
   SuggestAlignmentComment: "Comments"
 }
