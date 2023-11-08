@@ -5,9 +5,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const NewDialogueMatchEmail = ({documentId, userId, targetUser}: {
+const NewDialogueMatchEmail = ({documentId, targetUser}: {
   documentId: string,
-  userId?: string,
   targetUser?: DbUser | null,
 }) => {
   const { EmailUsername } = Components;
