@@ -98,9 +98,9 @@ importComponent("ModeratorInboxWrapper", () => require('../components/messaging/
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
 // "Friendly UI" messaging components
 importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
-importComponent("InboxNavigation2", () => require('../components/messaging/InboxNavigation2'));
+importComponent("FriendlyInboxNavigation", () => require('../components/messaging/FriendlyInboxNavigation'));
 importComponent("ConversationContents", () => require('../components/messaging/ConversationContents'));
-importComponent("ConversationItem2", () => require('../components/messaging/ConversationItem2'));
+importComponent("FriendlyConversationItem", () => require('../components/messaging/FriendlyConversationItem'));
 importComponent("NewConversationDialog", () => require('../components/messaging/NewConversationDialog'));
 
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));

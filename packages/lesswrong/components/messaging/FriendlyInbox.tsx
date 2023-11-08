@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
-import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
+import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import { useLocation, useNavigation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
@@ -170,7 +170,7 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const { InboxNavigation2, ConversationContents, ForumIcon, ConversationDetails } = Components;
+  const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
@@ -207,7 +207,7 @@ const FriendlyInbox = ({
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !isModInbox;
 
   const title = selectedConversation
-    ? conversationGetTitle2(selectedConversation, currentUser)
+    ? conversationGetFriendlyTitle(selectedConversation, currentUser)
     : "No conversation selected";
 
   return (
@@ -228,7 +228,7 @@ const FriendlyInbox = ({
             <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
           </div>
           <div className={classes.navigation}>
-            <InboxNavigation2
+            <FriendlyInboxNavigation
               conversationsResult={conversationsResult}
               currentUser={currentUser}
               selectedConversationId={conversationId}

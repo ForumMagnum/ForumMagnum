@@ -3,7 +3,7 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { truncate } from "../../lib/editor/ellipsize";
 import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
-import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
+import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,7 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 12,
   },
   content: {
-    width: "100%"
+    width: "100%",
+    minWidth: 0,
   },
   titleRow: {
     display: "flex",
@@ -33,9 +34,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 1,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
     color: theme.palette.grey[1000],
     fontSize: 16,
     fontWeight: 700,
@@ -51,9 +51,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   preview: {
     overflow: "hidden",
-    display: "-webkit-box",
-    "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 1,
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
@@ -62,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ConversationItem2 = ({
+const FriendlyConversationItem = ({
   conversation,
   currentUser,
   classes,
@@ -85,7 +84,7 @@ const ConversationItem2 = ({
   const otherParticipants = conversation.participants.filter((u)=> u._id !== currentUser._id)
   // Handle case of conversation with yourself
   const firstParticipant = otherParticipants[0] ?? conversation.participants[0];
-  const title = conversationGetTitle2(conversation, currentUser)
+  const title = conversationGetFriendlyTitle(conversation, currentUser)
 
   const latestMessagePlaintext = conversation.latestMessage?.contents?.plaintextMainText ?? ""
   // This will be truncated further by webkit-line-clamp. This truncation is just to avoid padding
@@ -116,10 +115,10 @@ const ConversationItem2 = ({
   );
 };
 
-const ConversationItem2Component = registerComponent("ConversationItem2", ConversationItem2, { styles });
+const FriendlyConversationItemComponent = registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
 
 declare global {
   interface ComponentTypes {
-    ConversationItem2: typeof ConversationItem2Component;
+    FriendlyConversationItem: typeof FriendlyConversationItemComponent;
   }
 }

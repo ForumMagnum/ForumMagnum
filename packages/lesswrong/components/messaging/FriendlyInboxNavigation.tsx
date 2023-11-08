@@ -9,7 +9,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // The Navigation for the Inbox components
-const InboxNavigation2 = ({
+const FriendlyInboxNavigation = ({
   conversationsResult,
   currentUser,
   selectedConversationId,
@@ -26,7 +26,7 @@ const InboxNavigation2 = ({
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
 
   const {
-    ConversationItem2,
+    FriendlyConversationItem,
     Loading,
     SectionFooter,
     Typography,
@@ -36,7 +36,7 @@ const InboxNavigation2 = ({
   return <>
       {conversations?.length ? (
         conversations.map((conversation, idx) => (
-          <ConversationItem2
+          <FriendlyConversationItem
             key={conversation._id + idx}
             conversation={conversation}
             currentUser={currentUser}
@@ -57,10 +57,10 @@ const InboxNavigation2 = ({
   </>;
 };
 
-const InboxNavigation2Component = registerComponent("InboxNavigation2", InboxNavigation2, {styles});
+const FriendlyInboxNavigationComponent = registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigation, {styles});
 
 declare global {
   interface ComponentTypes {
-    InboxNavigation2: typeof InboxNavigation2Component;
+    FriendlyInboxNavigation: typeof FriendlyInboxNavigationComponent;
   }
 }
