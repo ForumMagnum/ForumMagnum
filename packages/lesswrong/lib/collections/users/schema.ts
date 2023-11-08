@@ -1375,11 +1375,13 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField({ channel: "both"}),
+    hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField()
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
@@ -1388,14 +1390,19 @@ const schema: SchemaType<DbUser> = {
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    hidden: !dialoguesEnabled,
   },
   notificationDebateReplies: {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
-  
+  notificationDialogueMatch: {
+    label: "Another user and I have matched for a dialogue",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !dialoguesEnabled,
+  },
 
   hideDialogueFacilitation: {
     type: Boolean,
@@ -1405,7 +1412,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: false,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the widget for opting in to being approached about dialogues",
     ...schemaDefaultValue(false)
   },
@@ -1747,7 +1754,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 44,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the frontpage map"
   },
 

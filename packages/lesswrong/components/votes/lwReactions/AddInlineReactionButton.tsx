@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
+import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
 
 const styles = (theme: ThemeType): JssStyles => ({
   disabled: {
@@ -20,21 +21,21 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType,
-  quote?: string,
+  quote: QuoteLocator|null,
   disabled?: boolean
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { LWTooltip, ReactionsPalette } = Components;
 
-  const { getCurrentUserReactionVote, toggleReaction, getCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
 
   const handleOpen = () => {
     !disabled && setOpen(true)
   }
 
-  const handleToggleReaction = (reaction: string, quote: string) => {
+  const handleToggleReaction = (reaction: string, quote: QuoteLocator) => {
     setOpen(false)
     toggleReaction(reaction, quote)
   }
@@ -52,7 +53,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
       {!open && <InsertEmoticonOutlined onClick={handleOpen} className={disabled ? classes.disabled : null}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
-          getCurrentUserReaction={getCurrentUserReaction}
           getCurrentUserReactionVote={getCurrentUserReactionVote}
           toggleReaction={handleToggleReaction}
           quote={quote} 

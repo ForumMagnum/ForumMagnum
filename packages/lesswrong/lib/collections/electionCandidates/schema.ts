@@ -1,6 +1,6 @@
 import { schemaDefaultValue } from "../../collectionUtils";
-import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 import { foreignKeyField } from "../../utils/schemaUtils";
+import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 
 const schema: SchemaType<DbElectionCandidate> = {
   /** The name of the election this is a candidate in */
@@ -131,6 +131,44 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     control: "TagSelect",
     label: "Tag (type to search)",
+  },
+  /** Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate */
+  isElectionFundraiser: {
+    type: Boolean,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    ...schemaDefaultValue(false),
+  },
+  /**
+   * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
+   * (although they are often the same)
+   */
+  gwwcId: {
+    type: String,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
+  },
+  /** The amount of money raised in the fundraiser for this candidate */
+  amountRaised: {
+    type: Number,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
+  },
+  /** The target amount of money to raise in the fundraiser for this candidate */
+  targetAmount: {
+    type: Number,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: true,
+    nullable: true,
   },
 };
 

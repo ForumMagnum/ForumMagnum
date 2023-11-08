@@ -247,6 +247,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationDialogueMatch: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly hideDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
@@ -523,6 +529,10 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly userId: string,
   readonly postCount: number,
   readonly tagId: string | null,
+  readonly isElectionFundraiser: boolean,
+  readonly gwwcId: string | null,
+  readonly amountRaised: number | null,
+  readonly targetAmount: number | null,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -781,6 +791,7 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly isUnvote: boolean,
   readonly votedAt: Date,
   readonly documentIsAf: boolean,
+  readonly silenceNotification: boolean,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -3337,6 +3348,32 @@ interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface ElicitQuestionsDefaultFragment { // fragment on ElicitQuestions
+  readonly _id: string,
+  readonly title: string,
+  readonly notes: string | null,
+  readonly resolution: string | null,
+  readonly resolvesBy: Date,
+  readonly createdAt: Date,
+}
+
+interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuestionPredictions
+  readonly _id: string,
+  readonly prediction: number,
+  readonly createdAt: Date,
+  readonly notes: string | null,
+  readonly creator: {
+    _id: string,
+    displayName: string,
+    isQuestionCreator: boolean,
+    sourceUserId: string | null,
+  },
+  readonly userId: string | null,
+  readonly sourceUrl: string | null,
+  readonly sourceId: string | null,
+  readonly binaryQuestionId: string,
+}
+
 interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly _id: string,
   readonly userId: string,
@@ -3568,6 +3605,8 @@ interface FragmentTypes {
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   WithVoteElectionCandidate: WithVoteElectionCandidate
   TypingIndicatorInfo: TypingIndicatorInfo
+  ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
+  ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3783,9 +3822,11 @@ interface CollectionNamesByFragmentName {
   ElectionCandidateBasicInfo: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   TypingIndicatorInfo: "TypingIndicators"
+  ElicitQuestionsDefaultFragment: "ElicitQuestions"
+  ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueCheckInfo: "DialogueChecks"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DigestPosts"|"Digests"|"ElectionCandidates"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

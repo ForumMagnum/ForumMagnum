@@ -1,5 +1,5 @@
 import React from 'react';
-import { VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
+import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -33,25 +33,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const ReactOrAntireactVote = ({reactionName, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
+const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
   reactionName: string
+  quote: QuoteLocator|null,
   netReactionCount: number
   currentUserReaction: VoteOnReactionType|null
-  setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null)=>void
+  setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null)=>void
   classes: ClassesType
 }) => {
   const onClick = (reaction: "reacted"|"disagreed") => {
     if (reaction === "reacted") {
       if (currentUserReaction === "created" || currentUserReaction === "seconded") {
-        setCurrentUserReaction(reactionName, null);
+        setCurrentUserReaction(reactionName, null, quote);
       } else {
-        setCurrentUserReaction(reactionName, "seconded");
+        setCurrentUserReaction(reactionName, "seconded", quote);
       }
     } else {
       if (currentUserReaction === "disagreed") {
-        setCurrentUserReaction(reactionName, null);
+        setCurrentUserReaction(reactionName, null, quote);
       } else {
-        setCurrentUserReaction(reactionName, "disagreed");
+        setCurrentUserReaction(reactionName, "disagreed", quote);
       }
     }
   }
