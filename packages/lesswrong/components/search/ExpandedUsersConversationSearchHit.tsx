@@ -91,7 +91,7 @@ const ExpandedUsersConversationSearchHit = ({
 
   useEffect(() => {
     if (conversation) {
-      history.push({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}?from=new_conversation_dialog` });
+      history.push({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
       onClose();
     }
   }, [conversation, history, isModInbox, onClose]);
