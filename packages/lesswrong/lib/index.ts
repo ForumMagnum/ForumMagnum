@@ -258,9 +258,9 @@ import './collections/dialogueChecks/collection';
 import './collections/dialogueChecks/fragments';
 import './collections/dialogueChecks/views';
 
-// dialogue topics
-import './collections/dialogueTopics/collection';
-import './collections/dialogueTopics/fragments';
+// // dialogue topics
+// import './collections/dialogueTopics/collection';
+// import './collections/dialogueTopics/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

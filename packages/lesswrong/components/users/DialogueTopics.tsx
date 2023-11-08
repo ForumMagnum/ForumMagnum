@@ -1,6 +1,6 @@
 
 // Should this be its own component?
-// yes -- and suggestTopic should probably be moved to helpers.ts
+// I vote yes
 
 type DialogueTopic = {
     topic: string;
