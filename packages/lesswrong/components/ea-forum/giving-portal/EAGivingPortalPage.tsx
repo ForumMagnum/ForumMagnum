@@ -153,6 +153,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
