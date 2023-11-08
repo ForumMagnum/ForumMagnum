@@ -344,11 +344,10 @@ const DialogueCheckBox: React.FC<{
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
 
     // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
-    const webhookURL = "https://hooks.slack.com/triggers/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"; //
+    const webhookURL = isProduction ? "https://hooks.slack.com/triggers/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" : "https://hooks.slack.com/triggers/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"  //
     const data = {} // Not sending any data for now 
-    if (isProduction) {
-      void pingSlackWebhook(webhookURL, data)
-    }
+    void pingSlackWebhook(webhookURL, data)
+    
   }
 
   const [showConfetti, setShowConfetti] = useState(false);
