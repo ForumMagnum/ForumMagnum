@@ -70,7 +70,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
         'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
         'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
         'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments', 'Dialogue (format)', 'LW Team Announcements', 
-        'Bounties & Prizes (active)', 'Training'
+        'Bounties & Prizes (active)', 'Training', 'Distinctions', 'Social & Cultural Dynamics', 'Technological Forecasting'
       )
       GROUP BY t._id
       ORDER BY "commentCount" DESC
