@@ -380,13 +380,13 @@
     "timestamp": "2023-11-07T17:41:31.000Z"
   },
   {
-    "acceptsSchemaHash": "cf6b466524b616c36b629f29b80a65d2",
-    "acceptedByMigration": "20231107T210313.add_notificationDialogueMatch.ts",
-    "timestamp": "2023-11-07T21:03:13.000Z"
-  },
-  {
     "acceptsSchemaHash": "060a65a6bb00ba7b0a4da5397165f444",
     "acceptedByMigration": "20231107T231716.addElicitTables.ts",
     "timestamp": "2023-11-07T23:17:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0d5156717800f18b4407edd0caa14def",
+    "acceptedByMigration": "20231108T032435.add_notificationDialogueMatch.ts",
+    "timestamp": "2023-11-08T03:24:35.000Z"
   }
 ]
