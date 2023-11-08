@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
@@ -29,6 +29,7 @@ import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import moment from "moment";
 import { useTimezone } from "../../common/withTimezone";
 import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
+import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -274,6 +275,22 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
 
 const formatDollars = (amount: number) => "$" + formatStat(amount);
 
+const canonicalUrl = getSiteUrl() + "giving-portal";
+
+const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
+
+const heroImage = "giving_portal_23_hero";
+
+const socialImageProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
+
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   const {
     showAmountRaised,
@@ -344,13 +361,19 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
-        <HeadTags title="Giving portal" />
+        <HeadTags
+          title="Giving portal"
+          canonicalUrl={canonicalUrl}
+          ogUrl={canonicalUrl}
+          description={pageDescription}
+          image={makeCloudinaryImageUrl(heroImage, socialImageProps)}
+        />
         <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
           </div>
           <div className={classNames(classes.text, classes.center)}>
-          It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.
+            {pageDescription}
           </div>
           <div className={classNames(
             classes.h2,
@@ -466,7 +489,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader imgProps={{ h: "1200" }} />
+        <CloudinaryImage2 publicId={heroImage} fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(

@@ -375,8 +375,18 @@
     "timestamp": "2023-11-04T02:07:34.000Z"
   },
   {
+    "acceptsSchemaHash": "5ec9053a5ae6f6135087becd69fa485e",
+    "acceptedByMigration": "20231107T174131.add_notify_votes.ts",
+    "timestamp": "2023-11-07T17:41:31.000Z"
+  },
+  {
     "acceptsSchemaHash": "cf6b466524b616c36b629f29b80a65d2",
     "acceptedByMigration": "20231107T210313.add_notificationDialogueMatch.ts",
     "timestamp": "2023-11-07T21:03:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "060a65a6bb00ba7b0a4da5397165f444",
+    "acceptedByMigration": "20231107T231716.addElicitTables.ts",
+    "timestamp": "2023-11-07T23:17:16.000Z"
   }
 ]

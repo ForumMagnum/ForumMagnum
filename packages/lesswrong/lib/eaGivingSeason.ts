@@ -7,12 +7,12 @@ export const donationElectionFundraiserLink = "https://www.givingwhatwecan.org/f
 export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
 
-export const votingOpensDate = new Date("2023-12-01");
+export const votingOpensDate = new Date("2023/12/01");
 
 export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
-const votingAccountCreationCutoff = new Date("2023-10-23");
+const votingAccountCreationCutoff = new Date("2023/10/23");
 
 const userCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,
@@ -65,7 +65,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
       description: "Effective Giving Spotlight",
-      href: `${donationElectionLink}#Effective_Giving_Spotlight`,
+      href: `/s/YvGiiYnekY7anj5FB`,
       consecutive: true,
     },
     {
