@@ -177,7 +177,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type ExpandedSearchState = SearchState & {
+export type ExpandedSearchState = SearchState & {
   contentType?: AlgoliaIndexCollectionName,
   refinementList?: {
     tags: Array<string>|''

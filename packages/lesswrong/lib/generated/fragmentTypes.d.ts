@@ -1741,6 +1741,13 @@ interface messageListFragment_user extends UsersMinimumInfo { // fragment on Use
 
 interface messageListFragment_contents { // fragment on Revisions
   readonly html: string,
+  readonly plaintextMainText: string,
+}
+
+interface newConversationFragment { // fragment on Conversations
+  readonly _id: string,
+  readonly title: string,
+  readonly participantIds: Array<string>,
 }
 
 interface conversationsListFragment { // fragment on Conversations
@@ -1750,19 +1757,26 @@ interface conversationsListFragment { // fragment on Conversations
   readonly latestActivity: Date,
   readonly participantIds: Array<string>,
   readonly participants: Array<UsersMinimumInfo>,
+  readonly latestMessage: messageListFragment|null,
   readonly archivedByIds: Array<string>,
   readonly messageCount: number,
   readonly moderator: boolean | null,
 }
 
-interface newConversationFragment { // fragment on Conversations
+interface ConversationsMinimumInfo { // fragment on Conversations
   readonly _id: string,
+  readonly createdAt: Date,
+  readonly latestActivity: Date,
   readonly title: string,
   readonly participantIds: Array<string>,
+  readonly archivedByIds: Array<string>,
+  readonly messageCount: number,
+  readonly moderator: boolean | null,
 }
 
-interface conversationIdFragment { // fragment on Conversations
-  readonly _id: string,
+interface ConversationsList extends ConversationsMinimumInfo { // fragment on Conversations
+  readonly participants: Array<UsersMinimumInfo>,
+  readonly latestMessage: messageListFragment|null,
 }
 
 interface RSSFeedMinimumInfo { // fragment on RSSFeeds
@@ -3482,9 +3496,10 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
   messageListFragment: messageListFragment
-  conversationsListFragment: conversationsListFragment
   newConversationFragment: newConversationFragment
-  conversationIdFragment: conversationIdFragment
+  conversationsListFragment: conversationsListFragment
+  ConversationsMinimumInfo: ConversationsMinimumInfo
+  ConversationsList: ConversationsList
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   newRSSFeedFragment: newRSSFeedFragment
   RSSFeedMutationFragment: RSSFeedMutationFragment
@@ -3699,9 +3714,10 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
   messageListFragment: "Messages"
-  conversationsListFragment: "Conversations"
   newConversationFragment: "Conversations"
-  conversationIdFragment: "Conversations"
+  conversationsListFragment: "Conversations"
+  ConversationsMinimumInfo: "Conversations"
+  ConversationsList: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
   newRSSFeedFragment: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"

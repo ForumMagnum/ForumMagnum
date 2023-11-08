@@ -19,9 +19,9 @@ const ConversationTitleEditForm = ({onClose, documentId}: {
         <Components.WrappedSmartForm
           collectionName="Conversations"
           documentId={documentId}
-          fragment={getFragment('conversationsListFragment')}
-          queryFragment={getFragment('conversationsListFragment')}
-          mutationFragment={getFragment('conversationsListFragment')}
+          fragment={getFragment('ConversationsList')}
+          queryFragment={getFragment('ConversationsList')}
+          mutationFragment={getFragment('ConversationsList')}
           successCallback={() => {
             if (onClose)
               onClose();
