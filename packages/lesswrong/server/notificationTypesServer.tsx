@@ -285,7 +285,7 @@ export const NewDialogueMatchNotification = serverRegisterNotificationType({
     const documentId = notifications[0].documentId;
     const dialogueCheck = await DialogueChecks.findOne(documentId);
     const targetUser = await Users.findOne(dialogueCheck?.targetUserId);
-    return <Components.NewDialogueMatchEmail documentId={documentId} userId={dialogueCheck?.userId} targetUserDisplayName={targetUser?.displayName}/>;
+    return <Components.NewDialogueMatchEmail documentId={documentId} userId={dialogueCheck?.userId} targetUser={targetUser}/>;
   },
 });
 
