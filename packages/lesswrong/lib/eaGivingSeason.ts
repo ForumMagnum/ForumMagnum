@@ -52,39 +52,39 @@ export type TimelineSpec = {
 }
 
 export const timelineSpec: TimelineSpec = {
-  start: new Date("2023/11/01"),
-  end: new Date("2023/12/20"),
+  start: new Date("2023-11-01"),
+  end: new Date("2023-12-20"),
   points: [
-    {date: new Date("2023/11/01"), description: ""},
+    {date: new Date("2023-11-01"), description: ""},
     {date: votingOpensDate, description: ""},
-    {date: new Date("2023/12/15"), description: ""},
-    {date: new Date("2023/12/20"), description: ""},
+    {date: new Date("2023-12-15"), description: ""},
+    {date: new Date("2023-12-20"), description: ""},
   ],
   spans: [
     {
-      start: new Date("2023/11/07"),
-      end: new Date("2023/11/14"),
+      start: new Date("2023-11-07"),
+      end: new Date("2023-11-14"),
       description: "Effective Giving Spotlight",
       href: `/s/YvGiiYnekY7anj5FB`,
       consecutive: true,
     },
     {
-      start: new Date("2023/11/14"),
-      end: new Date("2023/11/21"),
+      start: new Date("2023-11-14"),
+      end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
       href: `${donationElectionLink}#Marginal_Funding_Week`,
       consecutive: true,
     },
     {
-      start: new Date("2023/11/21"),
-      end: new Date("2023/11/28"),
+      start: new Date("2023-11-21"),
+      end: new Date("2023-11-28"),
       description: "Donation Debate Week",
       href: `${donationElectionLink}#Donation_Debate_Week`,
       consecutive: true,
     },
     {
-      start: new Date("2023/12/01"),
-      end: new Date("2023/12/15"),
+      start: new Date("2023-12-01"),
+      end: new Date("2023-12-15"),
       description: "Vote in the Election",
       href: `${donationElectionLink}#Voting_opens_December_1___more_information`,
       hideDates: true,

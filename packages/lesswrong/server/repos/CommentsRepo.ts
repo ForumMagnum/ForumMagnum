@@ -206,4 +206,12 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         window_start_key;
     `, [postIds, startDate, endDate]);
   }
+
+  async getCommentsWithElicitData(): Promise<DbComment[]> {
+    return await this.any(`
+      SELECT *
+      FROM "Comments"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+    `);
+  }
 }

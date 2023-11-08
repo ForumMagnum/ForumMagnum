@@ -58,6 +58,8 @@ class SimpleBoxEditing extends Plugin {
         this.editor.commands.add( 'insertRootParagraphBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 
+        // TODO: this is deprecated, see usage of `handleSubmitWithoutNewline` in `CKPostEditor.tsx`
+        // Remove this next time there's an actual reason to update the bundle
         this.editor.keystrokes.set( 'Ctrl+Enter', (evt, cancel) => {
 			const selection = editor.model.document.selection;
 			const selectedBlocks = Array.from(selection.getSelectedBlocks())

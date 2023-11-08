@@ -478,7 +478,7 @@ const NamesAttachedReactionsHoverSingleReaction = ({react, voteProps, classes, c
   const relevantReactions = alreadyUsedReactions[react] ?? [];
 
   // Don't show the "general" (non-quote-specific) ballot for this react if all the instances of this react are inline (quote-specific)
-  const allReactsAreInline = relevantReactions.every(r => !(r.quotes?.length));
+  const allReactsAreInline = relevantReactions.every(r => r.quotes?.length);
 
   const allQuotes = filterNonnull(uniq(relevantReactions?.flatMap(r => r.quotes)))
 
