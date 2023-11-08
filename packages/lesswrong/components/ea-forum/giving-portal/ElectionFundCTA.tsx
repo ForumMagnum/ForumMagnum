@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
     width: 500,
     minHeight: 408,
-    padding: "32px 24px",
+    padding: "24px",
     fontSize: 16,
     lineHeight: '22px',
     letterSpacing: "-0.16px",
