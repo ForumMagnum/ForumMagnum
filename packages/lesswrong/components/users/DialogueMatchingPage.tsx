@@ -377,34 +377,38 @@ const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_st
   let backgroundColor;
   let borderColor;
   let size;
+  let labelColor;
 
   switch (status) {
     case 'done':
       backgroundColor = 'green';
       borderColor = 'green';
       size = '20px';
+      labelColor = 'green';
       break;
     case 'current':
       backgroundColor = 'white';
       borderColor = 'green';
       size = '20px';
+      labelColor = 'black';
       break;
     case 'not_started':
     default:
-      backgroundColor = 'grey';
-      borderColor = 'grey';
+      backgroundColor = '#d3d3d3'; // Lighter shade of gray
+      borderColor = '#d3d3d3'; // Lighter shade of gray
       size = '10px';
+      labelColor = 'gray';
       break;
   }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ height: '20px', width: '2px', backgroundColor: 'grey' }}></div>
-        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}` }}></div>
-        <div style={{ height: '20px', width: '2px', backgroundColor: 'grey' }}></div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
+        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
+        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
+        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
       </div>
-      <div style={{ marginLeft: '10px' }}>{label}</div>
+      <div style={{ marginLeft: '10px', color: labelColor, fontSize: '0.8em' }}>{label}</div>
     </div>
   );
 };
@@ -427,54 +431,60 @@ type NextStepsDialogProps = {
 const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, targetUserDisplayName }) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle  style={{ marginLeft: '20px' }}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
-      <DialogContent style={{ display: 'flex' }}>
-      <DialogueProgress
-        checkpoints={[
-          { label: 'Find partner', status: 'done' },
-          { label: 'Find topic & format', status: 'current' },
-          { label: 'Write dialogue', status: 'not_started' },
-          { label: 'Edit', status: 'not_started' },
-          { label: 'Publish', status: 'not_started' },
-        ]}
-      />
-        <div style={{ marginLeft: '20px' }}>
-          <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p>
-          <h3>Topic</h3>
-          <p>Here are some things we auto-generated that you might be interested in chatting about.</p>
-          <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
-            <p>Ricki suggestion stuff</p>
-          </div>
-          <TextField
-            multiline
-            rows={2}
-            variant="outlined"
-            label={`Feel free to leave any notes on topics for ${targetUserDisplayName}`}
-            fullWidth
-          />
-          <h3>Format</h3>
-          <p>Tick any you'd be open to.</p>
-          <FormControlLabel
-            control={<Checkbox />}
-            label="Find a synchronous 2h block to sit down and dialogue"
-          />
-          <FormControlLabel
-            control={<Checkbox />}
-            label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
-          />
-          <FormControlLabel
-            control={<Checkbox />}
-            label="Other"
-          />
-          <TextField
-            multiline
-            rows={2}
-            variant="outlined"
-            label="Notes on your choice..."
-            fullWidth
-          />
+      <div style={{ display: 'flex' }}>
+        <DialogueProgress
+          checkpoints={[
+            { label: 'Find partner', status: 'done' },
+            { label: 'Find topic & format', status: 'current' },
+            { label: 'Write dialogue', status: 'not_started' },
+            { label: 'Edit', status: 'not_started' },
+            { label: 'Publish', status: 'not_started' },
+          ]}
+        />
+        <div>
+          <DialogTitle  style={{ marginLeft: '20px' }}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogContent >
+          
+            <div style={{ marginLeft: '20px' }}>
+              <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p>
+              <h3>Topic</h3>
+              <p>Here are some things we auto-generated that you might be interested in chatting about.</p>
+              <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
+                <p>Ricki suggestion stuff</p>
+              </div>
+              <TextField
+                multiline
+                rows={2}
+                variant="outlined"
+                label={`Feel free to leave any notes on topics for ${targetUserDisplayName}`}
+                fullWidth
+              />
+              <br />
+              <h3>Format</h3>
+              <p>Tick any you'd be open to.</p>
+              <FormControlLabel
+                control={<Checkbox />}
+                label="Find a synchronous 2h block to sit down and dialogue"
+              />
+              <FormControlLabel
+                control={<Checkbox />}
+                label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
+              />
+              <FormControlLabel
+                control={<Checkbox />}
+                label="Other"
+              />
+              <TextField
+                multiline
+                rows={2}
+                variant="outlined"
+                label="Notes on your choice..."
+                fullWidth
+              />
+            </div>
+          </DialogContent>
         </div>
-      </DialogContent>
+      </div>
       <DialogActions>
         <Button onClick={onClose} color="default">
           Close
