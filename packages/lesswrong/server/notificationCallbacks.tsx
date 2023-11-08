@@ -789,4 +789,3 @@ async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
 }
 
 getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)
-

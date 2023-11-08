@@ -271,7 +271,6 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   },
 });
 
-// Ricki: need to change a bunch of details here
 export const NewDialogueMatchNotification = serverRegisterNotificationType({
   name: "newDialogueMatch",
   canCombineEmails: true,

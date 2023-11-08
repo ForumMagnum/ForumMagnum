@@ -216,7 +216,6 @@ export const createNotification = async ({userId, notificationType, documentType
       });
     }
   }
-  
   if ((notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") && !noEmail) {
     const createdNotification = await createMutator({
       collection: Notifications,
