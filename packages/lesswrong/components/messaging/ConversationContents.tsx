@@ -8,6 +8,7 @@ import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
+import { isEAForum } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationTitle: {
@@ -22,7 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       // form-submit has display: block by default, which for some reason makes it take up 0 height
       // on mobile. This fixes that.
       display: "flex",
-    }
+    },
+    ...(isEAForum && {
+      borderTop: theme.palette.border.grey200,
+    })
   },
   backButton: {
     color: theme.palette.lwTertiary.main,
@@ -87,7 +91,8 @@ const ConversationContents = ({
       setTimeout(() => {
         // Always scroll the whole window. This may be a problem in future, but it's here to make
         // scroll work nicely on both desktop (uses inner div) and mobile (uses whole window)
-        window.scroll({top: document.body.scrollHeight-550, behavior: 'smooth'})
+        const scrollPadding = 550; // Stop it scrolling way off the end of the page
+        window.scroll({top: document.body.scrollHeight-scrollPadding, behavior: 'smooth'})
 
         // Also scroll the exact element we are embedded in, if we have a ref to it
         if (scrollRef?.current) {
@@ -113,7 +118,7 @@ const ConversationContents = ({
     }
   }, [query.from, conversation, currentUser._id]);
 
-  const { NewMessageForm, Error404, Loading, MessageItem } = Components;
+  const { NewMessageForm, Error404, Loading, MessageItem, Divider } = Components;
 
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
@@ -130,8 +135,6 @@ const ConversationContents = ({
 
   if (loading && !results) return <Loading />;
   if (!conversation) return <Error404 />;
-
-  const showModInboxLink = userCanDo(currentUser, "conversations.view.all") && conversation.moderator;
 
   return (
     <>

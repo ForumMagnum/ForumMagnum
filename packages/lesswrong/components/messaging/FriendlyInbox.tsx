@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetTitle2 } from "../../lib/collections/conversations/helpers";
@@ -21,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
-    padding: "32px 32px 0px 32px",
+    padding: "32px 32px",
     zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
@@ -83,12 +82,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderLeft: theme.palette.border.grey200,
     borderRight: theme.palette.border.grey200,
+    borderBottom: theme.palette.border.grey200,
     height: "100%",
   },
   conversation: {
     overflowY: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRight: theme.palette.border.grey200,
+    borderBottom: theme.palette.border.grey200,
     padding: "0px 32px",
     flex: "1 1 auto",
     [theme.breakpoints.down('xs')]: {
@@ -148,7 +149,7 @@ const FriendlyInbox = ({
   conversationId?: string;
 }) => {
   const { openDialog } = useDialog();
-  const { currentRoute, location } = useLocation();
+  const { location } = useLocation();
   const { history } = useNavigation();
 
   const selectedConversationRef = useRef<HTMLDivElement>(null);

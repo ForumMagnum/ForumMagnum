@@ -1,8 +1,9 @@
 import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
 import { schemaDefaultValue } from '../../collectionUtils';
+import { preferredHeadingCase } from '../../forumTypeUtils';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -11,7 +12,7 @@ const schema: SchemaType<DbConversation> = {
     canUpdate: ['members'],
     canCreate: ['members'],
     optional: true,
-    label: "Conversation Title"
+    label: isEAForum ? "Conversation title (visible to all)" : "Conversation Title"
   },
   participantIds: {
     ...arrayOfForeignKeysField({

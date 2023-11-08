@@ -48,7 +48,7 @@ const InboxNavigation2 = ({
         <Loading />
       ) : (
         <Typography variant="body2" className={classes.noConversationsMessage}>
-          You are all done! You have no more open conversations.
+          You have no open conversations.
         </Typography>
       )}
       <SectionFooter>
