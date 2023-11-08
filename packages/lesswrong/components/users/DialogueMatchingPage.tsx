@@ -478,7 +478,7 @@ const DialogueCheckBox: React.FC<{
           <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent>
             <p>What do you prefer next?</p> 
-            <p>You can choose multiple. We're also showing this to your match</p>
+            <p>You will be taken to a chat window where you can choose your topic. Assuming you find a topic, what kind of dialogye do you prefer? You can choose multiple. We're also showing this to your match</p>
             <FormControlLabel
               control={<Checkbox />}
               label="Find a synchronous 2h block to sit down and dialogue"
