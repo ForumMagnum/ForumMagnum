@@ -11,10 +11,10 @@ const commonFields = (nullable: boolean) => ({
 });
 
 const creatorSchema = new SimpleSchema({
-  id: { type: String },
+  _id: { type: String },
   displayName: { type: String },
   isQuestionCreator: { type: Boolean },
-  sourceUserId: { type: String }
+  sourceUserId: { type: String, nullable: true, optional: true }
 });
 
 const schema: SchemaType<DbElicitQuestionPrediction> = {
@@ -32,6 +32,7 @@ const schema: SchemaType<DbElicitQuestionPrediction> = {
   },
   createdAt: {
     type: Date,
+    onInsert: (prediction) => prediction.createdAt ?? new Date(),
     ...commonFields(false)
   },
   notes: {
@@ -42,13 +43,23 @@ const schema: SchemaType<DbElicitQuestionPrediction> = {
     type: creatorSchema,
     ...commonFields(false)
   },
+  userId: {
+    ...foreignKeyField({
+      type: 'User',
+      collectionName: 'Users',
+      idFieldName: 'userId',
+      resolverName: 'user',
+      nullable: true
+    }),
+    ...commonFields(true)
+  },
   sourceUrl: {
     type: String,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   sourceId: {
     type: String,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   binaryQuestionId: {
     ...foreignKeyField({

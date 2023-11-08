@@ -326,13 +326,14 @@ interface DbElicitQuestionPrediction extends DbObject {
   createdAt: Date
   notes: string | null
   creator: {
-    id: string,
+    _id: string,
     displayName: string,
     isQuestionCreator: boolean,
-    sourceUserId: string,
+    sourceUserId: string | null,
   }
-  sourceUrl: string
-  sourceId: string
+  userId: string | null
+  sourceUrl: string | null
+  sourceId: string | null
   binaryQuestionId: string
 }
 
@@ -342,9 +343,10 @@ interface ElicitQuestionsCollection extends CollectionBase<DbElicitQuestion, "El
 interface DbElicitQuestion extends DbObject {
   __collectionName?: "ElicitQuestions"
   title: string
-  notes: string
-  resolution: string
+  notes: string | null
+  resolution: string | null
   resolvesBy: Date
+  createdAt: Date
 }
 
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {

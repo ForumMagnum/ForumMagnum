@@ -11,5 +11,4 @@ export const ElicitQuestionPredictions: ElicitQuestionPredictionsCollection = cr
   logChanges: true,
 });
 
-
 export default ElicitQuestionPredictions;

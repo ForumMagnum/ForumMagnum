@@ -46,7 +46,7 @@ const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
-interface ElicitPredictionData {
+export interface ElicitPredictionData {
   id: string,
   prediction: number,
   createdAt: string,
@@ -57,12 +57,12 @@ interface ElicitPredictionData {
   binaryQuestionId: string
 }
 
-type ConvertedElicitPredictionData = Omit<ElicitPredictionData, 'id' | 'createdAt'> & {
+export type ConvertedElicitPredictionData = Omit<ElicitPredictionData, 'id' | 'createdAt'> & {
   _id: string,
   createdAt: Date
 };
 
-async function getPredictionsFromElicit(questionId: string): Promise<null|Array<ElicitPredictionData>> {
+export async function getPredictionsFromElicit(questionId: string): Promise<null|Array<ElicitPredictionData>> {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?${encode({
     user_most_recent: "true",
     expand: "creator",
@@ -80,7 +80,7 @@ async function getPredictionsFromElicit(questionId: string): Promise<null|Array<
   return JSON.parse(responseText)
 }
 
-async function getPredictionDataFromElicit(questionId:string) {
+export async function getPredictionDataFromElicit(questionId:string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
     "binaryQuestion.fields":"notes,resolvesBy,resolution,title"
   })}`, {
@@ -132,7 +132,7 @@ interface ElicitQuestionWithPredictions {
   notes: string | null,
   resolution: boolean,
   resolvesBy: Date,
-  predictions: ConvertedElicitPredictionData[]
+  predictions: DbElicitQuestionPrediction[]
 }
 
 async function getElicitQuestionWithPredictions(questionId: string): Promise<ElicitQuestionWithPredictions | Record<any, never>> {
@@ -148,43 +148,6 @@ async function getElicitQuestionWithPredictions(questionId: string): Promise<Eli
     resolution: questionData.resolution === 'YES',
     predictions: predictionData
   };
-
-  // return questionData;
-  // const elicitData: any = await getPredictionDataFromElicit(questionId)
-  // const predictions = await getPredictionsFromElicit(questionId)
-  // if (!elicitData || !predictions) return {}
-  // const { title, notes, resolvesBy, resolution } = elicitData
-  // const processedPredictions = predictions.map(({
-  //   id,
-  //   prediction,
-  //   createdAt,
-  //   notes,
-  //   creator,
-  //   sourceUrl,
-  //   sourceId,
-  //   binaryQuestionId
-  // }) => ({
-  //   _id: id,
-  //   predictionId: id,
-  //   prediction,
-  //   createdAt: new Date(createdAt),
-  //   notes,
-  //   creator: {
-  //     ...creator,
-  //     _id: creator.id
-  //   },
-  //   sourceUrl,
-  //   sourceId,
-  //   binaryQuestionId
-  // }))
-  // return {
-  //   _id: questionId,
-  //   title,
-  //   notes,
-  //   resolution: resolution === "YES",
-  //   resolvesBy: new Date(resolvesBy),
-  //   predictions: processedPredictions
-  // }
 }
 
 onStartup(() => {
@@ -204,13 +167,17 @@ onStartup(() => {
       },
       Mutation: {
         async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {
-          if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-          if (prediction) {
-            const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
-            if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
-          } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
-            await cancelElicitPrediction(questionId, currentUser)
-          }
+          
+          // Elicit API is (to be) shut down. We don't support predictions (yet?)
+          
+          // Ancient code, as preserved by Robert's wish
+          // if (!currentUser) throw Error("Can only make elicit prediction when logged in")
+          // if (prediction) {
+          //   const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
+          //   if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
+          // } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
+          //   await cancelElicitPrediction(questionId, currentUser)
+          // }
           const newData = await getElicitQuestionWithPredictions(questionId)
           return newData
         }

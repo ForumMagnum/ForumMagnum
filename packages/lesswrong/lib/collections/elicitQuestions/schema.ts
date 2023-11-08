@@ -18,24 +18,21 @@ const schema: SchemaType<DbElicitQuestion> = {
   },
   notes: {
     type: String,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   resolution: {
     type: String,
-    ...commonFields(false)
+    ...commonFields(true)
   },
   resolvesBy: {
     type: Date,
     ...commonFields(false)
   },
-  // predictions: resolverOnlyField({
-  //   type: Array,
-  //   graphQLtype: '[ElicitQuestionPrediction]',
-  //   resolver: (elicitQuestion, _, context) => context.ElicitQuestionPredictions.find({ binaryQuestionId: elicitQuestion._id }).fetch()
-  // }),
-  // 'predictions.$': {
-  //   type: Object
-  // }
+  createdAt: {
+    type: Date,
+    onInsert: question => question.createdAt ?? new Date(),
+    ...commonFields(false)
+  },
 };
 
 export default schema;
