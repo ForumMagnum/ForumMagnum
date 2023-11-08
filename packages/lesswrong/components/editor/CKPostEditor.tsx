@@ -639,4 +639,3 @@ declare global {
     CKPostEditor: typeof CKPostEditorComponent
   }
 }
-
