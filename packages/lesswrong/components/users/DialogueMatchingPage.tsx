@@ -19,6 +19,13 @@ import { isMobile } from '../../lib/utils/isMobile'
 import {postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+
 export type UpvotedUser = {
   _id: string;
   username: string;
@@ -263,9 +270,11 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
   )
 };
 
+
+
 const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number }) => {
   const currentUser = useCurrentUser();
-  const { Loading, PostsTooltip } = Components;
+  const { Loading, PostsTooltip, LWDialog } = Components;
 
 
   const { loading, error, data } = useQuery(gql`
@@ -374,6 +383,8 @@ const DialogueCheckBox: React.FC<{
 }> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const { LWDialog } = Components;
+
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -389,6 +400,8 @@ const DialogueCheckBox: React.FC<{
       }
     `)
 
+  const [openNextSteps, setOpenNextSteps] = useState(false);
+  
   async function handleNewMatchAnonymisedAnalytics() {
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
 
@@ -453,12 +466,48 @@ const DialogueCheckBox: React.FC<{
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
       setShowConfetti(true);
+      setOpenNextSteps(true);
     }
   }
 
   return (
     <>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
+      {openNextSteps && 
+      <Dialog open={openNextSteps} onClose={() => setOpenNextSteps(false)}>
+          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogContent>
+            <p>What do you prefer next?</p> 
+            <p>You can choose multiple. We're also showing this to your match</p>
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Find a synchronous 2h block to sit down and dialogue"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Other"
+            />
+            <TextField
+              multiline
+              rows={4}
+              variant="outlined"
+              label="Notes on your choice..."
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenNextSteps(false)} color="default">
+              Close
+            </Button>
+            <Button onClick={() => setOpenNextSteps(false)} color="primary">
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>}
       <FormControlLabel
         control={ 
           <Checkbox 
