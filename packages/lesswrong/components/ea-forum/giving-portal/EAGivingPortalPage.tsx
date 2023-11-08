@@ -184,7 +184,6 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal[1000],
     borderBottomLeftRadius: theme.borderRadius.small,
     borderTopLeftRadius: theme.borderRadius.small,
-    borderRightRadius: "0px",
     height: "100%",
   },
   raisedSoFar: {
