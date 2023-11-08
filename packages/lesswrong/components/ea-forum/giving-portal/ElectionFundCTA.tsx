@@ -34,7 +34,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal.ctaText,
   },
   image: {
-    width: 100,
     color: theme.palette.givingPortal[1000],
   },
   title: {
