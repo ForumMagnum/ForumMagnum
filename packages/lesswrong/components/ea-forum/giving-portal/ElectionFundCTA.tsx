@@ -63,7 +63,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     padding: 16,
     outline: "none",
-    whiteSpace: "nowrap",
+    textAlign: "center",
     "&:active": {
       opacity: 0.8,
     },
