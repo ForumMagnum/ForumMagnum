@@ -1,4 +1,5 @@
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
+import { isEAForum } from "../../lib/instanceSettings";
 import { addCronJob } from "../cronUtil";
 import { Globals } from "../vulcan-lib";
 
@@ -69,10 +70,12 @@ async function updateFundraiserAmounts() {
   await ElectionCandidates.rawCollection().bulkWrite(updates);
 }
 
-addCronJob({
-  name: 'updateFundraiserAmounts',
-  interval: 'every 5 minutes',
-  job: updateFundraiserAmounts
-});
+if (isEAForum) {
+  addCronJob({
+    name: 'updateFundraiserAmounts',
+    interval: 'every 5 minutes',
+    job: updateFundraiserAmounts
+  });
+}
 
 Globals.updateFundraiserAmounts = updateFundraiserAmounts;
