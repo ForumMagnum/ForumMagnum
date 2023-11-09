@@ -264,6 +264,20 @@ interface DbDialogueCheck extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueMatchPreferencesCollection extends CollectionBase<DbDialogueMatchPreference, "DialogueMatchPreferences"> {
+}
+
+interface DbDialogueMatchPreference extends DbObject {
+  __collectionName?: "DialogueMatchPreferences"
+  dialogueCheckId: string
+  topicNotes: string
+  syncPreference: "Yes" | "Meh" | "No"
+  asyncPreference: "Yes" | "Meh" | "No"
+  formatNotes: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -1611,6 +1625,7 @@ interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
+  DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
@@ -1671,6 +1686,7 @@ interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
+  DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
