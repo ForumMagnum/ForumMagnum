@@ -1,6 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from '../../lib/vulcan-i18n';
 // HACK: withRouter should be removed or turned into withLocation, but
 // FormWrapper passes props around in bulk, and Form has a bunch of prop-name
 // handling by string gluing, so it's hard to be sure this is safe.

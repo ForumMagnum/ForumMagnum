@@ -1,17 +1,15 @@
 import moment from 'moment';
-import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
-import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
-import { MessageContext } from '../common/withMessages';
+import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 import type { History } from 'history';
+import { MessageContextProvider } from '../common/FlashMessages';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -42,48 +40,7 @@ class App extends PureComponent<AppProps,any> {
       properties: [],
     });
     const locale = localeSetting.get();
-    this.state = {
-      locale,
-      messages: [],
-    };
     moment.locale(locale);
-  }
-
-  /*
-
-  Show a flash message
-
-  */
-  flash = (message: AnyBecauseTodo) => {
-    this.setState({
-      messages: [...this.state.messages, message]
-    });
-  }
-
-  /*
-
-  Clear all flash messages
-
-  */
-  clear = () => {
-    // When clearing messages, we first set all current messages to have a hide property
-    // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
-    this.setState({
-      messages: this.state.messages.map((message: AnyBecauseTodo) => ({...message, hide: true}))
-    })
-    setTimeout(() => {
-      this.setState({ messages: []});
-    }, 500)
-  }
-
-  getLocale = (truncate?: boolean) => {
-    return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
-  };
-
-  getChildContext() {
-    return {
-      getLocale: this.getLocale,
-    };
   }
 
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
@@ -96,8 +53,6 @@ class App extends PureComponent<AppProps,any> {
   }
   
   render() {
-    const { flash } = this;
-    const { messages } = this.state;
     const { currentUser, currentUserLoading, serverRequestStatus, timeOverride } = this.props;
 
     // Parse the location into a route/params/query/etc.
@@ -152,15 +107,13 @@ class App extends PureComponent<AppProps,any> {
       <NavigationContext.Provider value={this.navigationContext}>
       <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
       <TimeContext.Provider value={timeOverride}>
-      <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
-        <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
+        <MessageContextProvider>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
           <Components.Layout currentUser={currentUser}>
             <RouteComponent />
           </Components.Layout>
-        </MessageContext.Provider>
-      </IntlProvider>
+        </MessageContextProvider>
       </TimeContext.Provider>
       </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
@@ -170,13 +123,6 @@ class App extends PureComponent<AppProps,any> {
   }
 }
 
-(App as any).childContextTypes = {
-  intl: intlShape,
-  getLocale: PropTypes.func,
-};
-
-//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
-// TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [
     withCurrentUser,
@@ -185,11 +131,10 @@ const AppComponent = registerComponent<ExternalProps>('App', App, {
 });
 
 
-
 declare global {
   interface ComponentTypes {
     App: typeof AppComponent
   }
 }
 
-export default App; 
+export default App;

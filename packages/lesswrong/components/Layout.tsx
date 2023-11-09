@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -9,7 +9,7 @@ import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './common/withCommentBox';
+import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
@@ -277,6 +277,11 @@ const Layout = ({currentUser, children, classes}: {
     throw new Error("LayoutOptionsContext not set");
   }
   
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
   const render = () => {
     const {
       NavigationStandalone,
@@ -340,7 +345,7 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
-      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
+      <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
