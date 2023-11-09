@@ -7,10 +7,10 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
+import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { userHasSideComments } from '../../../lib/betas';
+import { commentsTableOfContentsEnabled, userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -660,8 +660,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    
-    {isLWorAF
+    {commentsTableOfContentsEnabled
       ? <>
           <ToCColumn
             tableOfContents={tableOfContents}

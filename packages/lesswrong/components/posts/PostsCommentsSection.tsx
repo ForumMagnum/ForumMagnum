@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import {forumTypeSetting, isEAForum, isLWorAF} from '../../lib/instanceSettings';
+import {forumTypeSetting, isEAForum} from '../../lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { EagerPostComments } from './PostsPage/PostsPage';
 import { useCurrentUser } from '../common/withUser';
@@ -8,6 +8,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import isEqual from 'lodash/isEqual';
 import { CommentTreeNode, unflattenComments } from '../../lib/utils/unflatten';
 import { ToCSection } from '../../lib/tableOfContents';
+import { commentsTableOfContentsEnabled } from '../../lib/betas';
 
 export const postsCommentsThreadMultiOptions = {
   collectionName: "Comments" as const,
@@ -53,7 +54,7 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answersAnd
   const answersTree = unflattenComments(answersAndReplies ?? []);
   
   // JB: mainColumn is extracted into a variable here to support the forum-gating below. See
-  // also the forum-gating in PostsPage, which must be removed at the same time.
+  // also the forum-gating in PostsPage
   const mainColumn =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
       {/* Answers Section */}
@@ -86,7 +87,7 @@ const PostsCommentsSection = ({post, commentTerms, eagerPostComments, answersAnd
       </div>
     </AnalyticsInViewTracker>
   
-  if (isLWorAF) {
+  if (commentsTableOfContentsEnabled) {
     return <ToCColumn
       tableOfContents={<CommentsTableOfContents
         commentTree={commentTree}

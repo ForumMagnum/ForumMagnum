@@ -5,8 +5,8 @@ import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScroll
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { isLWorAF } from '../../lib/instanceSettings';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { commentsTableOfContentsEnabled } from '../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -56,7 +56,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
   
-  if (!isLWorAF) {
+  if (!commentsTableOfContentsEnabled) {
     return null;
   }
   
@@ -111,7 +111,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
   highlightedCommentId: string|null,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow, UsersNameDisplay } = Components;
+  const { TableOfContentsRow } = Components;
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
