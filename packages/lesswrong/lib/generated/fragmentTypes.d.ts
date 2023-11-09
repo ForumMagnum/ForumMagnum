@@ -3133,8 +3133,8 @@ interface UsersCrosspostInfo { // fragment on Users
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
   readonly _id: string,
+  readonly username: string,
   readonly displayName: string,
-  readonly karma: number,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
