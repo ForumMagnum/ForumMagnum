@@ -291,7 +291,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",
-      gap: "12px",
+      gap: "16px",
       height: "100%",
       marginTop: 0,
     },
@@ -310,7 +310,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
     marginBottom: 8,
     [theme.breakpoints.down("sm")]: {
-      fontSize: 26,
+      marginTop: 12,
+      marginBottom: 16,
+      fontSize: 30,
       lineHeight: "30px",
     },
   },
@@ -319,8 +321,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 3,
     maxWidth: 500,
     [theme.breakpoints.down("sm")]: {
-      fontSize: "1rem",
-      lineHeight: "1.4rem",
+      fontSize: 13,
     },
   },
   givingSeasonLink: {
@@ -346,10 +347,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 16,
     },
     ["@media (max-width: 600px)"]: {
-      marginBottom: 10,
+      marginBottom: 12,
     },
     ["@media (max-width: 500px)"]: {
       alignSelf: "flex-start",
+      marginBottom: 12,
     },
     ["@media (max-width: 280px)"]: {
       display: "none",
@@ -368,7 +370,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down("sm")]: {
       whiteSpace: "nowrap",
-      padding: "6px 10px",
+      padding: "4px 8px",
     },
   },
   gsTimelineLabelActive: {
@@ -384,9 +386,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1
     },
     [theme.breakpoints.down("sm")]: {
-      fontSize: 14,
-      lineHeight: "14px",
-      padding: "10px 12px",
+      fontSize: 13,
+      padding: "8px 10px",
+      borderRadius: theme.borderRadius.default/2,
     },
   },
   gsTimelineDates: {
