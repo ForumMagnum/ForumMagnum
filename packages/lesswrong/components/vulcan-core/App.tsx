@@ -1,13 +1,11 @@
 import moment from 'moment';
-import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 // eslint-disable-next-line no-restricted-imports
 import { withRouter } from 'react-router';
 import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
-import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
+import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import { MessageContext } from '../common/withMessages';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
@@ -76,16 +74,6 @@ class App extends PureComponent<AppProps,any> {
     }, 500)
   }
 
-  getLocale = (truncate?: boolean) => {
-    return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
-  };
-
-  getChildContext() {
-    return {
-      getLocale: this.getLocale,
-    };
-  }
-
   UNSAFE_componentWillUpdate(nextProps: AppProps) {
     if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
       void userChangedCallback.runCallbacks({
@@ -152,7 +140,6 @@ class App extends PureComponent<AppProps,any> {
       <NavigationContext.Provider value={this.navigationContext}>
       <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
       <TimeContext.Provider value={timeOverride}>
-      <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
         <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
           <Components.HeadTags image={siteImageSetting.get()} />
           <Components.ScrollToTop />
@@ -160,7 +147,6 @@ class App extends PureComponent<AppProps,any> {
             <RouteComponent />
           </Components.Layout>
         </MessageContext.Provider>
-      </IntlProvider>
       </TimeContext.Provider>
       </ServerRequestStatusContext.Provider>
       </NavigationContext.Provider>
@@ -170,13 +156,6 @@ class App extends PureComponent<AppProps,any> {
   }
 }
 
-(App as any).childContextTypes = {
-  intl: intlShape,
-  getLocale: PropTypes.func,
-};
-
-//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
-// TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [
     withCurrentUser,
@@ -185,11 +164,10 @@ const AppComponent = registerComponent<ExternalProps>('App', App, {
 });
 
 
-
 declare global {
   interface ComponentTypes {
     App: typeof AppComponent
   }
 }
 
-export default App; 
+export default App;

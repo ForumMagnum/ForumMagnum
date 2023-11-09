@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
+import FormattedMessage from '../../lib/vulcan-i18n/message';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
