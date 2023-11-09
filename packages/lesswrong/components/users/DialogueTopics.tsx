@@ -169,3 +169,11 @@ export const TopicSuggestions: React.FC<TopicSuggestionProps> = ({classes, user1
 //     GetPostsByUserReacts: typeof GetPostsByUserReactsComponent
 //   }
 // }
+
+const TopicSuggestionsComponent = registerComponent("TopicSuggestions", TopicSuggestions);
+
+declare global {
+  interface ComponentTypes {
+    TopicSuggestions: typeof TopicSuggestionsComponent
+  }
+}
