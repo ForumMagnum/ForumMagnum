@@ -27,15 +27,22 @@ async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck
   });
 }
 
-async function messageUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-
+async function messageUsersMatchingDialogueChecks (
+  userId: string,
+  targetUserId: string,
+  topicNotes: string,
+  formatSync: boolean,
+  formatAsync: boolean,
+  formatOther: boolean,
+  formatNotes: string
+) {
   const lwAccount = await getAdminTeamAccount();
-  const currentUser = await getUser(dialogueCheck.userId);
-  const targetUser = await getUser(dialogueCheck.targetUserId);
+  const currentUser = await getUser(userId);
+  const targetUser = await getUser(targetUserId);
 
   // Create a new conversation with both users
   const conversationData = {
-    participantIds: [dialogueCheck.userId, dialogueCheck.targetUserId, lwAccount._id],
+    participantIds: [userId, targetUserId, lwAccount._id],
     title: `Dialogue Match between ${currentUser?.displayName} and ${targetUser?.displayName}!`
   }
 
@@ -46,12 +53,18 @@ async function messageUsersMatchingDialogueChecks (dialogueCheck: DbDialogueChec
     validate: false,
   });
 
-
   let messageContents =
-      `<div>
-        <p>You two have matched via Dialogue Matching! You can now message each other to brainstorm potential dialogue topics or set up a time to talk.</p>
-        <p>For some ideas of conversation topics, feel free to look at <a href="https://www.lesswrong.com/posts/hc9nMipTXy2sm3tJb/vote-on-interesting-disagreements">this list of interesting disagreements</a>.</p>
-      </div>`
+    `<div>
+      <p>You two have matched via Dialogue Matching! You can now message each other to brainstorm potential dialogue topics or set up a time to talk.</p>
+      <p>For some ideas of conversation topics, feel free to look at <a href="https://www.lesswrong.com/posts/hc9nMipTXy2sm3tJb/vote-on-interesting-disagreements">this list of interesting disagreements</a>.</p>
+
+      <p>Notes from ${currentUser?.displayName}:</p>
+      ${topicNotes ? `<p>On topics: "${topicNotes}"</p>` : ''}
+      ${formatSync ? `<p>• Up for sync</p>` : ''}
+      ${formatAsync ? `<p>• Up for async</p>` : ''}
+      ${formatOther ? `<p>• Also interested in other format</p>` : ''}
+      ${formatNotes ? `<p>Format notes: "${formatNotes}"</p>` : ''}
+    </div>`
 
   // Add a message to the conversation
   const messageData = {
@@ -76,6 +89,19 @@ async function messageUsersMatchingDialogueChecks (dialogueCheck: DbDialogueChec
 }
 
 defineMutation({
+  name: "messageUserDialogueMatch",
+  resultType: "Message",
+  argTypes: "(userId: String!, targetUserId: String!, topicNotes: String!, formatSync: Boolean!, formatAsync: Boolean!, formatOther: Boolean!, formatNotes: String!)",
+  fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatOther, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:boolean, formatAsync:boolean, formatOther:boolean, formatNotes:string}, {currentUser, repos}) => {
+    if (!currentUser) throw new Error("No current user was provided")
+
+    const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatOther, formatNotes)
+
+    return message;    
+  } 
+})
+
+defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
   argTypes: "(targetUserId: String!, checked: Boolean!)",
@@ -83,11 +109,6 @@ defineMutation({
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)    
-    const match = await getMatchingDialogueCheck(response);
-    if (match) {
-      const message = await messageUsersMatchingDialogueChecks(response)
-      void notifyUsersMatchingDialogueChecks(response, match, message.data)
-    }
     return response
   } 
 })

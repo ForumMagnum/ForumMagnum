@@ -405,10 +405,10 @@ const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_st
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
         <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
+        <div style={{ height: size, width: size, borderRadius: '40%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
         <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
       </div>
-      <div style={{ marginLeft: '10px', color: labelColor, fontSize: '0.8em' }}>{label}</div>
+      <div style={{ marginLeft: '10px', color: labelColor }}>{label}</div>
     </div>
   );
 };
@@ -425,22 +425,59 @@ const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' 
 type NextStepsDialogProps = {
   open: boolean;
   onClose: () => void;
+  userId: string;
+  targetUserId: string;
   targetUserDisplayName: string;
 };
 
-const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, targetUserDisplayName }) => {
+const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName }) => {
+
+  const [topicNotes, setTopicNotes] = useState("");
+  const [formatSync, setFormatSync] = useState(false);
+  const [formatAsync, setFormatAsync] = useState(false);
+  const [formatOther, setFormatOther] = useState(false);
+  const [formatNotes, setFormatNotes] = useState("");
+
+  const [sendMatchMessage] = useMutation(gql`
+    mutation messageUserDialogueMatch($userId: String!, $targetUserId: String!, $topicNotes: String!, $formatSync: Boolean!, $formatAsync: Boolean!, $formatOther: Boolean!, $formatNotes: String!) {
+      messageUserDialogueMatch(userId: $userId, targetUserId: $targetUserId, topicNotes: $topicNotes, formatSync: $formatSync, formatAsync: $formatAsync, formatOther: $formatOther, formatNotes: $formatNotes) {
+        conversationId
+      }
+    }
+  `)
+
+  const { history } = useNavigation();
+
+  const onSubmit = async () => {
+    const response = await sendMatchMessage({
+      variables: {
+        userId: userId,
+        targetUserId: targetUserId,
+        topicNotes: topicNotes,
+        formatSync: formatSync,
+        formatAsync: formatAsync,
+        formatOther: formatOther,
+        formatNotes: formatNotes,
+      }
+    })
+
+    history.push(`/inbox/${response.data.messageUserDialogueMatch.conversationId}`);
+  }
+
   return (
     <Dialog open={open} onClose={onClose}>
       <div style={{ display: 'flex' }}>
-        <DialogueProgress
-          checkpoints={[
-            { label: 'Find partner', status: 'done' },
-            { label: 'Find topic & format', status: 'current' },
-            { label: 'Write dialogue', status: 'not_started' },
-            { label: 'Edit', status: 'not_started' },
-            { label: 'Publish', status: 'not_started' },
-          ]}
-        />
+        <DialogContent>
+          <DialogueProgress
+            checkpoints={[
+              { label: 'Find partner', status: 'done' },
+              { label: 'Find topic & format', status: 'current' },
+              { label: 'Write dialogue', status: 'not_started' },
+              { label: 'Edit', status: 'not_started' },
+              { label: 'Publish', status: 'not_started' },
+            ]}
+          />
+        </DialogContent>
         <div>
           <DialogTitle  style={{ marginLeft: '20px' }}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent >
@@ -458,20 +495,22 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, target
                 variant="outlined"
                 label={`Feel free to leave any notes on topics for ${targetUserDisplayName}`}
                 fullWidth
+                value={topicNotes}
+                onChange={event => setTopicNotes(event.target.value)}
               />
               <br />
               <h3>Format</h3>
               <p>Tick any you'd be open to.</p>
               <FormControlLabel
-                control={<Checkbox />}
+                control={<Checkbox checked={formatSync} onChange={event => setFormatSync(event.target.checked)} />}
                 label="Find a synchronous 2h block to sit down and dialogue"
               />
               <FormControlLabel
-                control={<Checkbox />}
+                control={<Checkbox checked={formatAsync} onChange={event => setFormatAsync(event.target.checked)} />}
                 label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
               />
               <FormControlLabel
-                control={<Checkbox />}
+                control={<Checkbox checked={formatOther} onChange={event => setFormatOther(event.target.checked)} />}
                 label="Other"
               />
               <TextField
@@ -480,6 +519,8 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, target
                 variant="outlined"
                 label="Notes on your choice..."
                 fullWidth
+                value={formatNotes}
+                onChange={event => setFormatNotes(event.target.value)}
               />
             </div>
           </DialogContent>
@@ -489,7 +530,7 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, target
         <Button onClick={onClose} color="default">
           Close
         </Button>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={onSubmit} color="primary">
           Submit
         </Button>
       </DialogActions>
@@ -599,6 +640,8 @@ const DialogueCheckBox: React.FC<{
         <NextStepsDialog 
           open={openNextSteps} 
           onClose={() => setOpenNextSteps(false)} 
+          userId={currentUser._id}
+          targetUserId={targetUserId}
           targetUserDisplayName={targetUserDisplayName} 
         />
       }
