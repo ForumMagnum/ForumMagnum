@@ -96,7 +96,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
   </div>
 }
 
-function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
+export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark {
   return {
     landmarkName: commentId,
     elementId: commentId,

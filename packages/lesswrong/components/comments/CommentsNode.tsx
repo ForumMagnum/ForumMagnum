@@ -168,7 +168,7 @@ const CommentsNode = ({
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }, []);
+  }, [comment._id]);
 
   const handleExpand = async (event?: React.MouseEvent) => {
     event?.stopPropagation()
