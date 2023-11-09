@@ -61,13 +61,13 @@ const GetPostsByUserReacts: React.FC<GetPostsByUserReactsProps> = ({ classes, ta
     const documentId = vote.documentId
     const isPost = vote.collectionName === "Posts"
     
-    const {document, error, loading} = useSingle({
+    const {document : documentPost, error : errorPost, loading : loadingPost} = useSingle({
       documentId, 
       collectionName: "Posts",
       fragmentName: "PostsMinimumInfo",
       skip: (!isPost),
     })
-    const {document, error, loading} = useSingle({
+    const {document : documentComment, error : errorComment, loading : loadingComment} = useSingle({
       documentId, 
       collectionName: "Comments",
       fragmentName: "CommentsListWithParentMetadata",
@@ -76,28 +76,28 @@ const GetPostsByUserReacts: React.FC<GetPostsByUserReactsProps> = ({ classes, ta
 
     if (isPost) {
 
-      if (loading) return <Loading/>
-      if (error) return <p>Error: {error.message} </p>;
-      if (!document) return <p>Error</p>;
+      if (loadingPost) return <Loading/>
+      if (errorPost) return <p>Error: {errorPost.message} </p>;
+      if (!documentPost) return <p>Error</p>;
 
-      const postMinimumInfo:PostsMinimumInfo = document
+      const postMinimumInfo:PostsMinimumInfo = documentPost
 
       return (
-        <PostsTooltip key={index} postId={document._id}>
+        <PostsTooltip key={index} postId={documentPost._id}>
           <Link key={index} to={postGetPageUrl({_id: postMinimumInfo._id, slug: postMinimumInfo.slug})}>{postMinimumInfo.title} </Link>
           <br/>
         </PostsTooltip>
       )
     }
     else {
-      if (loading) return <Loading/>
-      if (error) return <p>Error: {error.message} </p>;
-      if (!document) return <p>Error</p>;
+      if (loadingComment) return <Loading/>
+      if (errorComment) return <p>Error: {errorComment.message} </p>;
+      if (!documentComment) return <p>Error</p>;
 
-      const commentsListWithParentMetadata:CommentsListWithParentMetadata = document
+      const commentsListWithParentMetadata:CommentsListWithParentMetadata = documentComment
 
       return (
-        <PostsTooltip key={index} postId={document._id}>
+        <PostsTooltip key={index} postId={documentComment._id}>
           <Link key={index} to={commentGetPageUrlFromIds({commentId: commentsListWithParentMetadata._id})}>{commentsListWithParentMetadata.title} </Link>
           <br/>
         </PostsTooltip>
