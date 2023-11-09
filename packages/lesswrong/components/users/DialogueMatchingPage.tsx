@@ -373,6 +373,171 @@ const Headers = ({ titles, className }: { titles: string[], className: string })
   );
 };
 
+const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_started' }> = ({ label, status }) => {
+  let backgroundColor;
+  let borderColor;
+  let size;
+  let labelColor;
+
+  switch (status) {
+    case 'done':
+      backgroundColor = 'green';
+      borderColor = 'green';
+      size = '20px';
+      labelColor = 'green';
+      break;
+    case 'current':
+      backgroundColor = 'white';
+      borderColor = 'green';
+      size = '20px';
+      labelColor = 'black';
+      break;
+    case 'not_started':
+    default:
+      backgroundColor = '#d3d3d3'; // Lighter shade of gray
+      borderColor = '#d3d3d3'; // Lighter shade of gray
+      size = '10px';
+      labelColor = 'gray';
+      break;
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
+        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
+        <div style={{ height: size, width: size, borderRadius: '40%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
+        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
+      </div>
+      <div style={{ marginLeft: '10px', color: labelColor }}>{label}</div>
+    </div>
+  );
+};
+
+const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' | 'current' | 'not_started' }[] }> = ({ checkpoints }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+    {checkpoints.map((checkpoint, index) => (
+      <Checkpoint key={index} label={checkpoint.label} status={checkpoint.status} />
+    ))}
+  </div>
+);
+
+
+type NextStepsDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+  targetUserId: string;
+  targetUserDisplayName: string;
+};
+
+const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName }) => {
+
+  const [topicNotes, setTopicNotes] = useState("");
+  const [formatSync, setFormatSync] = useState(false);
+  const [formatAsync, setFormatAsync] = useState(false);
+  const [formatOther, setFormatOther] = useState(false);
+  const [formatNotes, setFormatNotes] = useState("");
+
+  const [sendMatchMessage] = useMutation(gql`
+    mutation messageUserDialogueMatch($userId: String!, $targetUserId: String!, $topicNotes: String!, $formatSync: Boolean!, $formatAsync: Boolean!, $formatOther: Boolean!, $formatNotes: String!) {
+      messageUserDialogueMatch(userId: $userId, targetUserId: $targetUserId, topicNotes: $topicNotes, formatSync: $formatSync, formatAsync: $formatAsync, formatOther: $formatOther, formatNotes: $formatNotes) {
+        conversationId
+      }
+    }
+  `)
+
+  const { history } = useNavigation();
+
+  const onSubmit = async () => {
+    const response = await sendMatchMessage({
+      variables: {
+        userId: userId,
+        targetUserId: targetUserId,
+        topicNotes: topicNotes,
+        formatSync: formatSync,
+        formatAsync: formatAsync,
+        formatOther: formatOther,
+        formatNotes: formatNotes,
+      }
+    })
+
+    history.push(`/inbox/${response.data.messageUserDialogueMatch.conversationId}`);
+  }
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <div style={{ display: 'flex' }}>
+        <DialogContent>
+          <DialogueProgress
+            checkpoints={[
+              { label: 'Find partner', status: 'done' },
+              { label: 'Find topic & format', status: 'current' },
+              { label: 'Write dialogue', status: 'not_started' },
+              { label: 'Edit', status: 'not_started' },
+              { label: 'Publish', status: 'not_started' },
+            ]}
+          />
+        </DialogContent>
+        <div>
+          <DialogTitle  style={{ marginLeft: '20px' }}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogContent >
+          
+            <div style={{ marginLeft: '20px' }}>
+              <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p>
+              <h3>Topic</h3>
+              <p>Here are some things we auto-generated that you might be interested in chatting about.</p>
+              <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
+                <p>Ricki suggestion stuff</p>
+              </div>
+              <TextField
+                multiline
+                rows={2}
+                variant="outlined"
+                label={`Feel free to leave any notes on topics for ${targetUserDisplayName}`}
+                fullWidth
+                value={topicNotes}
+                onChange={event => setTopicNotes(event.target.value)}
+              />
+              <br />
+              <h3>Format</h3>
+              <p>Tick any you'd be open to.</p>
+              <FormControlLabel
+                control={<Checkbox checked={formatSync} onChange={event => setFormatSync(event.target.checked)} />}
+                label="Find a synchronous 2h block to sit down and dialogue"
+              />
+              <FormControlLabel
+                control={<Checkbox checked={formatAsync} onChange={event => setFormatAsync(event.target.checked)} />}
+                label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
+              />
+              <FormControlLabel
+                control={<Checkbox checked={formatOther} onChange={event => setFormatOther(event.target.checked)} />}
+                label="Other"
+              />
+              <TextField
+                multiline
+                rows={2}
+                variant="outlined"
+                label="Notes on your choice..."
+                fullWidth
+                value={formatNotes}
+                onChange={event => setFormatNotes(event.target.value)}
+              />
+            </div>
+          </DialogContent>
+        </div>
+      </div>
+      <DialogActions>
+        <Button onClick={onClose} color="default">
+          Close
+        </Button>
+        <Button onClick={onSubmit} color="primary">
+          Submit
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const DialogueCheckBox: React.FC<{
   targetUserId : string;
   targetUserDisplayName : string;
@@ -383,8 +548,6 @@ const DialogueCheckBox: React.FC<{
 }> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { LWDialog } = Components;
-
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -474,40 +637,14 @@ const DialogueCheckBox: React.FC<{
     <>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       {openNextSteps && 
-      <Dialog open={openNextSteps} onClose={() => setOpenNextSteps(false)}>
-          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
-          <DialogContent>
-            <p>What do you prefer next?</p> 
-            <p>You will be taken to a chat window where you can choose your topic. Assuming you find a topic, what kind of dialogye do you prefer? You can choose multiple. We're also showing this to your match</p>
-            <FormControlLabel
-              control={<Checkbox />}
-              label="Find a synchronous 2h block to sit down and dialogue"
-            />
-            <FormControlLabel
-              control={<Checkbox />}
-              label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
-            />
-            <FormControlLabel
-              control={<Checkbox />}
-              label="Other"
-            />
-            <TextField
-              multiline
-              rows={4}
-              variant="outlined"
-              label="Notes on your choice..."
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenNextSteps(false)} color="default">
-              Close
-            </Button>
-            <Button onClick={() => setOpenNextSteps(false)} color="primary">
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>}
+        <NextStepsDialog 
+          open={openNextSteps} 
+          onClose={() => setOpenNextSteps(false)} 
+          userId={currentUser._id}
+          targetUserId={targetUserId}
+          targetUserDisplayName={targetUserDisplayName} 
+        />
+      }
       <FormControlLabel
         control={ 
           <Checkbox 
