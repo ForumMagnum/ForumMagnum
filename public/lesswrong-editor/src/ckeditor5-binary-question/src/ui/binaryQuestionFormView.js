@@ -30,13 +30,17 @@ import '@ckeditor/ckeditor5-ui/theme/components/responsive-form/responsiveform.c
 // import '../../theme/binaryquestionform.css';
 
 /**
+ * @typedef {import('../insertbinaryquestioncommand').default} InsertBinaryQuestionCommand
+ * @typedef {import('@ckeditor/ckeditor5-utils').Locale} Locale
+ */
+
+/**
  * The binaryquestion form view controller class.
  *
  * See {@binaryquestion module:binaryquestion/ui/binaryquestionformview~BinaryQuestionFormView}.
  *
  * @extends View
  * @typedef {ReturnType<InstanceType<typeof BinaryQuestionFormView>['_createTitleInput']> } TitleInputView
- * @property {LabeledInputView} titleInputView
  */
 export default class BinaryQuestionFormView extends View {
 	/**
@@ -44,8 +48,8 @@ export default class BinaryQuestionFormView extends View {
 	 *
 	 * Also see {@binaryquestion #render}.
 	 *
-	 * @param {module:utils/locale~Locale} [locale] The localization services instance.
-	 * @param {module:binaryquestion/binaryquestioncommand~BinaryQuestionCommand} binaryquestionCommand Reference to {@binaryquestion module:binaryquestion/binaryquestioncommand~BinaryQuestionCommand}.
+	 * @param {Locale} [locale] The localization services instance.
+	 * @param {InsertBinaryQuestionCommand} binaryquestionCommand Reference to {@binaryquestion module:binaryquestion/binaryquestioncommand~BinaryQuestionCommand}.
 	 */
 	constructor( locale, binaryquestionCommand ) {
 		super( locale );
@@ -56,7 +60,7 @@ export default class BinaryQuestionFormView extends View {
 		 * Tracks information about DOM focus in the form.
 		 *
 		 * @readonly
-		 * @member {module:utils/focustracker~FocusTracker}
+		 * @type {FocusTracker}
 		 */
 		this.focusTracker = new FocusTracker();
 
@@ -64,7 +68,7 @@ export default class BinaryQuestionFormView extends View {
 		 * An instance of the {@binaryquestion module:utils/keystrokehandler~KeystrokeHandler}.
 		 *
 		 * @readonly
-		 * @member {module:utils/keystrokehandler~KeystrokeHandler}
+		 * @type {KeystrokeHandler}
 		 */
 		this.keystrokes = new KeystrokeHandler();
 
@@ -78,16 +82,12 @@ export default class BinaryQuestionFormView extends View {
 
 		/**
 		 * The Save button view.
-		 *
-		 * @member {module:ui/button/buttonview~ButtonView}
 		 */
 		this.saveButtonView = this._createButton( t( 'Save' ), icons.check, 'ck-button-save' );
 		this.saveButtonView.type = 'submit';
 
 		/**
 		 * The Cancel button view.
-		 *
-		 * @member {module:ui/button/buttonview~ButtonView}
 		 */
 		this.cancelButtonView = this._createButton( t( 'Cancel' ), icons.cancel, 'ck-button-cancel', 'cancel' );
 
@@ -106,7 +106,7 @@ export default class BinaryQuestionFormView extends View {
 		 * A collection of child views in the form.
 		 *
 		 * @readonly
-		 * @type {module:ui/viewcollection~ViewCollection}
+		 * @type {ViewCollection}
 		 */
 		this.children = this._createFormChildren( );
 
@@ -115,7 +115,7 @@ export default class BinaryQuestionFormView extends View {
 		 *
 		 * @readonly
 		 * @protected
-		 * @member {module:ui/viewcollection~ViewCollection}
+		 * @type {ViewCollection}
 		 */
 		this._focusables = new ViewCollection();
 
@@ -124,7 +124,7 @@ export default class BinaryQuestionFormView extends View {
 		 *
 		 * @readonly
 		 * @protected
-		 * @member {module:ui/focuscycler~FocusCycler}
+		 * @type {FocusCycler}
 		 */
 		this._focusCycler = new FocusCycler( {
 			focusables: this._focusables,
@@ -227,6 +227,7 @@ export default class BinaryQuestionFormView extends View {
 	 * Creates a labeled input view.
 	 *
 	 * @private
+	 * @returns {LabeledFieldView} Labeled field view instance.
 	 */
 	_createTitleInput() {
 		const t = this.locale.t;
@@ -241,7 +242,7 @@ export default class BinaryQuestionFormView extends View {
 	 * Creates a labeled input view.
 	 *
 	 * @private
-	 * @returns {module:ui/labeledfield/labeledfieldview~LabeledFieldView} Labeled field view instance.
+	 * @returns {LabeledFieldView} Labeled field view instance.
 	 */
 	_createResolvesByInput() {
 		const t = this.locale.t;
@@ -261,7 +262,7 @@ export default class BinaryQuestionFormView extends View {
 	 * @param {String} icon The button icon.
 	 * @param {String} className The additional button CSS class name.
 	 * @param {String} [eventName] An event name that the `ButtonView#execute` event will be delegated to.
-	 * @returns {module:ui/button/buttonview~ButtonView} The button view instance.
+	 * @returns {ButtonView} The button view instance.
 	 */
 	_createButton( label, icon, className, eventName ) {
 		const button = new ButtonView( this.locale );
@@ -290,8 +291,8 @@ export default class BinaryQuestionFormView extends View {
 	 * made based on {@binaryquestion module:binaryquestion/binaryquestioncommand~BinaryQuestionCommand#manualDecorators}.
 	 *
 	 * @private
-	 * @param {module:binaryquestion/binaryquestioncommand~BinaryQuestionCommand} binaryquestionCommand A reference to the binaryquestion command.
-	 * @returns {module:ui/viewcollection~ViewCollection} of switch buttons.
+	 * @param {BinaryQuestionCommand} binaryquestionCommand A reference to the binaryquestion command.
+	 * @returns {ViewCollection} of switch buttons.
 	 */
 	_createManualDecoratorSwitches( binaryquestionCommand ) {
 		const switches = this.createCollection();
@@ -327,7 +328,7 @@ export default class BinaryQuestionFormView extends View {
 	 * to these decorators.
 	 *
 	 * @private
-	 * @returns {module:ui/viewcollection~ViewCollection} The children of binaryquestion form view.
+	 * @returns {ViewCollection} The children of binaryquestion form view.
 	 */
 	_createFormChildren() {
 		const children = this.createCollection();
