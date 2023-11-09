@@ -3,22 +3,27 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { TimelineSpan, timelineSpec } from "../../../lib/eaGivingSeason";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import classNames from "classnames";
-import moment from "moment";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { EA_FORUM_HEADER_HEIGHT } from "../../common/Header";
-import { EA_FORUM_GIVING_SEASON_HEADER_HEIGHT } from "./GivingSeasonHeader";
+import {
+  EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
+  givingSeasonImageBackground,
+} from "./GivingSeasonHeader";
+import classNames from "classnames";
+import moment from "moment";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - EA_FORUM_HEADER_HEIGHT;
 const MAX_SPANS = 3;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    ...givingSeasonImageBackground(theme, "bottom"),
     display: "flex",
     alignItems: "center",
     height: BANNER_HEIGHT,
-    zIndex: theme.zIndexes.spotlightItem,
-    background: theme.palette.givingPortal.homepageHeader.dark,
+    padding: 20,
+    paddingTop: 0,
+    overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",

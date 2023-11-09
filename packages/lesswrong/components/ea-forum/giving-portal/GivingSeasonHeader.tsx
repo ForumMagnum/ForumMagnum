@@ -16,29 +16,46 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 
-const gsImg = makeCloudinaryImageUrl(heroImageId, {
-  h: "300",
+export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
+const BACKGROUND_IMAGE_WIDTH = 531;
+
+const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(heroImageId, {
+  h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
+  w: String(BACKGROUND_IMAGE_WIDTH),
   q: "100",
   f: "auto",
+  dpr: "2",
 });
 
-export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
+export const givingSeasonImageBackground = (
+  theme: ThemeType,
+  position: "top" | "left" | "bottom" | "right" | "center",
+) => {
+  const width = BACKGROUND_IMAGE_WIDTH;
+  const height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT;
+  return {
+    background: [
+      `${position} no-repeat url(${GIVING_SEASON_HEADER_IMAGE})`,
+      theme.palette.givingPortal.homepageHeader.dark,
+    ],
+    backgroundSize: `${width}px ${height}px`,
+  };
+}
 
 const styles = (theme: ThemeType) => ({
   ...headerStyles(theme),
   rootGivingSeason: {
+    overflow: "hidden",
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
     },
   },
   appBarGivingSeason: {
+    ...givingSeasonImageBackground(theme, "top"),
     color: theme.palette.givingPortal.homepageHeader.light4,
-    background: [
-      `center no-repeat url(${gsImg})`,
-      theme.palette.givingPortal.homepageHeader.dark,
-    ],
     position: "static",
     width: "100%",
+    height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     display: "flex",
     zIndex: 1100,
     boxSizing: "border-box",
@@ -48,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     "@media (max-width: 1200px)": {
       background: [
-        `right no-repeat url(${gsImg})`,
+        `right no-repeat url(${GIVING_SEASON_HEADER_IMAGE})`,
         theme.palette.givingPortal.homepageHeader.dark,
       ],
     },
