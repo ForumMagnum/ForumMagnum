@@ -318,10 +318,21 @@ addGraphQLResolvers({
 
       return posts
     }, 
+    async AllReactsForUser(root: void, { userId, reactType = null, limit = 20 }: { userId: string, reactType: string | null, limit: number }, context: ResolverContext) {
+      const { currentUser, repos } = context
+      // if (!currentUser) {
+      //   throw new Error('Must be logged in to view all reacts for user')
+      // }
+
+      const reacts = await repos.votes.getAllReactsForUser({userId, reactType, limit})
+      return reacts
+    }
   },
 })
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
+
+addGraphQLQuery("AllReactsForUser(userId: String!, reactTypes: String, limit: Int): [Vote!]");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
@@ -396,16 +407,4 @@ createPaginatedResolver({
     },
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
-});
-
-createPaginatedResolver({
-  name: "Reacts",
-  graphQLType: "Vote",
-  callback: async (
-    {repos, userId}: ResolverContext,
-    limit: number,
-  ): Promise<DbVote[]> => repos.votes.getAllReactsForUser({
-    userId, 
-    limit,
-  }),
 });
