@@ -51,11 +51,11 @@ registerFragment(`
   }
 `);
 
-registerFragment(`
-  fragment ReactsAll on Vote {
-    _id
-    userId
-    extendedVoteType
-    documentId
-  }
-`);
+// registerFragment(`
+//   fragment ReactsAll on Vote {
+//     _id
+//     userId
+//     extendedVoteType
+//     documentId
+//   }
+// `);
