@@ -197,26 +197,6 @@ addRoute(
     background: "white"
   },
   {
-    name: 'inbox',
-    path: '/inbox',
-    componentName: 'InboxWrapper',
-    title: "Inbox"
-  },
-  {
-    name: 'moderatorInbox',
-    path: '/moderatorInbox',
-    componentName: 'ModeratorInboxWrapper',
-    title: "Moderator Inbox"
-  },
-  {
-    name: 'conversation',
-    path: '/inbox/:_id',
-    componentName: 'ConversationWrapper',
-    title: "Private Conversation",
-    background: "white",
-    initialScroll: "bottom",
-  },
-  {
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
@@ -364,13 +344,6 @@ addRoute(
     path: '/votesByYear/:year',
     componentName: 'UserSuggestNominations',
     title: "Your Past Votes"
-  },
-  {
-    name:'users.dialogueMatching',
-    path:'/dialogueMatching',
-    componentName: 'DialogueMatchingPage',
-    title: "Dialogue matching",
-    background: "white"
   },
 );
 
@@ -831,6 +804,13 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: "All Dialogues",
     },
     {
+      name:'users.dialogueMatching',
+      path:'/dialogueMatching',
+      componentName: 'DialogueMatchingPage',
+      title: "Dialogue Matching",
+      background: "white"
+    },
+    {
       name: 'about',
       path: '/about',
       componentName: 'PostsSingleRoute',
@@ -1228,6 +1208,7 @@ addRoute({
   title: "All Comments"
 });
 
+// Routes where just the EA Forum has an override
 addRoute(...forumSelect<Route[]>({
   EAForum: [
     {
@@ -1242,6 +1223,36 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       redirect: () => "/quicktakes",
     },
+    // The inbox components here use the same components but some of the other
+    // parameters are different.
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInboxConversation',
+      path: '/moderatorInbox/:_id',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
   ],
   default: [
     {
@@ -1249,6 +1260,25 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       componentName: 'ShortformPage',
       title: "Shortform"
+    },
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox"
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'ConversationWrapper',
+      title: "Private Conversation",
+      background: "white",
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox"
     },
   ],
 }));

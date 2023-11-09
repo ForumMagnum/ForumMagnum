@@ -41,6 +41,7 @@ ElectionCandidates.addDefaultView(({
   return {
     selector: {
       electionName,
+      isElectionFundraiser: false,
     },
     options: {
       sort: createSort(sortBy),

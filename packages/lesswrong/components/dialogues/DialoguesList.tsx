@@ -4,7 +4,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -158,14 +157,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
     limit: 3,
   }); 
 
-  const {
-    document: party,
-  } = useSingle({
-    documentId: "BJcNeJss4jxc68GQR",
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-  });
-
   const dialoguesTooltip = <div>
     <p>Dialogues between a small group of users. Click to see more.</p>
   </div>
@@ -184,8 +175,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
         </LWTooltip>}
       />
       {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
-
-      {party && <PostsItem post={party}/>}
       
       {dialoguePosts?.map((post, i: number) =>
         <PostsItem

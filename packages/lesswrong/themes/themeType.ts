@@ -232,6 +232,7 @@ declare global {
       slightlyIntense3: string,
       intense: string,
       faint: string,
+      grey200: string,
       grey300: string,
       grey400: string,
       maxIntensity: string,
@@ -458,6 +459,7 @@ declare global {
       candidate: ColorString,
       votedCandidate: ColorString,
       rhsLink: ColorString,
+      secondary: ColorString,
       button: {
         alwaysDark: ColorString,
         dark: ColorString,
@@ -465,6 +467,18 @@ declare global {
         hoverOutlined: ColorString,
         borderColor: ColorString,
       },
+      homepageHeader: {
+        light4: ColorString,
+        light3: ColorString,
+        light2: ColorString,
+        light1: ColorString,
+        main: ColorString,
+        dark: ColorString,
+        secondary: ColorString,
+        secondaryDark: ColorString,
+        secondaryOpaque: ColorString,
+        secondaryOpaqueDark: ColorString,
+      }
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

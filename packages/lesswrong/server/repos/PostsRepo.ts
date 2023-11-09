@@ -387,5 +387,13 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       LIMIT $3
     `, [userId, targetUserId, limit]);
   }
+
+  async getPostsWithElicitData(): Promise<DbPost[]> {
+    return await this.any(`
+      SELECT *
+      FROM "Posts"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+    `);
+  }
 }
 ensureIndex(Posts, {debate:-1})

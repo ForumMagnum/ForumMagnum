@@ -14,6 +14,8 @@ type DialogueChecksViewName = "userDialogueChecks";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
 type ElectionCandidatesViewName = never
+type ElicitQuestionPredictionsViewName = never
+type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
@@ -71,6 +73,8 @@ interface ViewTermsByCollectionName {
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
+  ElicitQuestionPredictions: ViewTermsBase
+  ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms

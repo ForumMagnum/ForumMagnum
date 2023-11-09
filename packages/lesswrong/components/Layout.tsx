@@ -96,6 +96,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexBasis: 0,
     flexGrow: 1,
     overflow: "auto",
+    [theme.breakpoints.down('xs')]: {
+      overflow: "visible",
+    },
   },
   spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -368,7 +371,7 @@ const Layout = ({currentUser, children, classes}: {
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
+                stayAtTop={!!currentRoute?.staticHeader}
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
@@ -378,7 +381,8 @@ const Layout = ({currentUser, children, classes}: {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen
+              }
               )}>
                 {isEAForum && <AdminToggle />}
                 {standaloneNavigation &&

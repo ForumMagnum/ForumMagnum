@@ -68,12 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
+    "&.open .SearchBar-searchIcon": {
+      position: 'fixed',
+    },
   },
   searchInputAreaSmall: isEAForum ? {
     minWidth: 34,
   } : {},
   searchIcon: {
-    position: 'fixed',
     color: isEAForum ? undefined : theme.palette.header.text,
   },
   searchIconSmall: isEAForum ? {
