@@ -8,9 +8,11 @@ import debounce from 'lodash/debounce';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
-
+import { useIsGivingSeason } from './giving-portal/hooks';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  givingSeasonBanner: {
+  },
   tabsSection: {
     marginTop: 10,
     marginBottom: 26,
@@ -313,9 +315,12 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
     })
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
-  
-  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2, DismissibleSpotlightItem } = Components
-  
+
+  const {
+    SingleColumnSection, ForumIcon, SectionTitle, PostsList2,
+    DismissibleSpotlightItem,
+  } = Components
+
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
     sortedBy: 'magic',

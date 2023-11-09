@@ -43,6 +43,7 @@ importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATerm
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
 importComponent("GivingSeasonHeader", () => require('../components/ea-forum/giving-portal/GivingSeasonHeader'));
+importComponent("GivingSeasonBanner", () => require('../components/ea-forum/giving-portal/GivingSeasonBanner'));
 importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
 importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
 importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
