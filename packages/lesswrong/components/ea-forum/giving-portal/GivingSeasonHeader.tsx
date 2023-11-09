@@ -17,37 +17,75 @@ import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
-const BACKGROUND_IMAGE_WIDTH = 531;
+const BACKGROUND_ASPECT = 3160 / 800;
+const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
 const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(heroImageId, {
   h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
-  w: String(BACKGROUND_IMAGE_WIDTH),
+  w: String(BACKGROUND_WIDTH),
   q: "100",
   f: "auto",
-  dpr: "2",
+  c: "fill",
+  g: "center",
 });
 
 export const givingSeasonImageBackground = (
   theme: ThemeType,
-  position: "top" | "left" | "bottom" | "right" | "center",
+  position: "top" | "bottom",
 ) => {
-  const width = BACKGROUND_IMAGE_WIDTH;
+  const width = BACKGROUND_WIDTH;
   const height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT;
   return {
-    background: [
-      `${position} no-repeat url(${GIVING_SEASON_HEADER_IMAGE})`,
-      theme.palette.givingPortal.homepageHeader.dark,
-    ],
+    transition: "box-shadow 0.2s ease-in-out",
+    backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
+    backgroundImage: `url(${GIVING_SEASON_HEADER_IMAGE})`,
+    backgroundPosition: position,
+    backgroundRepeat: "no-repeat",
     backgroundSize: `${width}px ${height}px`,
+    "@media (max-width: 1200px)": {
+      backgroundPosition: `${position} right`,
+    },
+  };
+}
+
+export const givingSeasonGradient = (
+  theme: ThemeType,
+  height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
+) => {
+  return {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    background: `linear-gradient(to right, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.homepageHeader.main} 72%, ${theme.palette.givingPortal.homepageHeader.dark} 90%)`,
+    maxWidth: 1740,
+    width: "100%",
+    height,
+    margin: "0 auto",
+    "@media (max-width: 1200px)": {
+      background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   };
 }
 
 const styles = (theme: ThemeType) => ({
   ...headerStyles(theme),
   rootGivingSeason: {
-    overflow: "hidden",
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
+      height: EA_FORUM_HEADER_HEIGHT,
+      overflow: "hidden",
+    },
+  },
+  rootScrolled: {
+    "& $appBarGivingSeason": {
+      boxShadow: `inset 0 0 0 1000px ${theme.palette.givingPortal.homepageHeader.dark}`,
+    },
+    "& $givingSeasonGradient": {
+      display: "none",
     },
   },
   appBarGivingSeason: {
@@ -57,18 +95,10 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
     display: "flex",
-    zIndex: 1100,
     boxSizing: "border-box",
-    flexShrink: 0,
     flexDirection: "column",
     padding: "1px 20px",
     overflow: "hidden",
-    "@media (max-width: 1200px)": {
-      background: [
-        `right no-repeat url(${GIVING_SEASON_HEADER_IMAGE})`,
-        theme.palette.givingPortal.homepageHeader.dark,
-      ],
-    },
     [theme.breakpoints.down("sm")]: {
       background: theme.palette.givingPortal.homepageHeader.main,
     },
@@ -145,29 +175,13 @@ const styles = (theme: ThemeType) => ({
   givingSeasonMobileLink: {
     color: theme.palette.givingPortal.homepageHeader.light4,
   },
-  givingSeasonGradient: {
-    display: "none",// TMP TODO
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    background: `linear-gradient(to right, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 28%, ${theme.palette.background.transparent} 50%, ${theme.palette.givingPortal.homepageHeader.main} 72%, ${theme.palette.givingPortal.homepageHeader.dark} 90%)`,
-    maxWidth: 1740,
-    width: "100%",
-    height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
-    margin: "0 auto",
-    "@media (max-width: 1200px)": {
-      background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
-    },
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
+  givingSeasonGradient: givingSeasonGradient(theme),
 });
 
 const GivingSeasonHeader = ({
   searchOpen,
   hasLogo,
+  unFixed,
   setUnFixed,
   NavigationMenuButton,
   RightHeaderItems,
@@ -177,6 +191,7 @@ const GivingSeasonHeader = ({
 }: {
   searchOpen: boolean,
   hasLogo: boolean,
+  unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
   RightHeaderItems: FC,
@@ -187,7 +202,9 @@ const GivingSeasonHeader = ({
   const {Typography} = Components;
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      <div className={classNames(classes.root, classes.rootGivingSeason)}>
+      <div className={classNames(classes.root, classes.rootGivingSeason, {
+        [classes.rootScrolled]: !unFixed,
+      })}>
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
@@ -199,7 +216,7 @@ const GivingSeasonHeader = ({
           onUnpin={() => setUnFixed(false)}
         >
           <header className={classes.appBarGivingSeason}>
-            <div className={classes.givingSeasonGradient}></div>
+            <div className={classes.givingSeasonGradient} />
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <NavigationMenuButton />
               <Typography className={classes.title} variant="title">

@@ -7,6 +7,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { EA_FORUM_HEADER_HEIGHT } from "../../common/Header";
 import {
   EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
+  givingSeasonGradient,
   givingSeasonImageBackground,
 } from "./GivingSeasonHeader";
 import classNames from "classnames";
@@ -18,12 +19,16 @@ const MAX_SPANS = 3;
 const styles = (theme: ThemeType) => ({
   root: {
     ...givingSeasonImageBackground(theme, "bottom"),
+    "@media (max-width: 1200px)": {
+      backgroundPosition: "bottom right",
+    },
+    position: "relative",
     display: "flex",
     alignItems: "center",
     height: BANNER_HEIGHT,
     padding: 20,
     paddingTop: 0,
-    overflow: "hidden",
+    overflowX: "clip",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",
@@ -32,8 +37,18 @@ const styles = (theme: ThemeType) => ({
       marginTop: 0,
     },
   },
+  cover: {
+    position: "absolute",
+    width: "100vw",
+    height: 400,
+    top: -400,
+    left: 0,
+    backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
+  },
+  givingSeasonGradient: givingSeasonGradient(theme, BANNER_HEIGHT),
   overview: {
     padding: "0 20px 0 48px",
+    zIndex: 5,
     flexGrow: 1,
     [theme.breakpoints.down("sm")]: {
       padding: 0,
@@ -55,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   description: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     paddingLeft: 3,
-    maxWidth: 500,
+    maxWidth: 440,
     [theme.breakpoints.down("sm")]: {
       fontSize: 13,
     },
@@ -65,6 +80,7 @@ const styles = (theme: ThemeType) => ({
   },
   timeline: {
     maxWidth: 600,
+    zIndex: 5,
     display: "grid",
     gridTemplateColumns: `repeat(${MAX_SPANS}, max-content)`,
     alignItems: "center",
@@ -168,6 +184,8 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       <div className={classes.root}>
+        <div className={classes.cover} />
+        <div className={classes.givingSeasonGradient} />
         <div className={classes.overview}>
           <Typography
             variant="display1"

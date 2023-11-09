@@ -338,6 +338,7 @@ const Header = ({
       <GivingSeasonHeader
         searchOpen={searchOpen}
         hasLogo={hasLogo}
+        unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
         RightHeaderItems={RightHeaderItems}
