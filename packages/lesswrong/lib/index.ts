@@ -258,6 +258,11 @@ import './collections/dialogueChecks/collection';
 import './collections/dialogueChecks/fragments';
 import './collections/dialogueChecks/views';
 
+// dialogue match preferences
+import './collections/dialogueMatchPreferences/collection';
+import './collections/dialogueMatchPreferences/fragments';
+import './collections/dialogueMatchPreferences/views';
+
 // // dialogue topics
 // import './collections/dialogueTopics/collection';
 // import './collections/dialogueTopics/fragments';
