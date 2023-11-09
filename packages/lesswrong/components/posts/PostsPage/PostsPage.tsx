@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
+import { useLocation, useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -29,6 +29,8 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import isEqual from 'lodash/isEqual';
+import { unflattenComments } from '../../../lib/utils/unflatten';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -285,6 +287,13 @@ export type EagerPostComments = {
   queryResponse: UseMultiResult<'CommentsList'>,
 }
 
+export const postsCommentsThreadMultiOptions = {
+  collectionName: "Comments" as const,
+  fragmentName: 'CommentsList' as const,
+  fetchPolicy: 'cache-and-network' as const,
+  enableTotal: true,
+}
+
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
@@ -413,9 +422,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const defaultCommentTerms = useMemo(() => ({view: defaultView, limit: 1000}), [defaultView])
   const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
     ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
+    : defaultCommentTerms;
 
   // these are the replies to the debate responses (see earlier comment about deprecated feature)
   const { results: debateReplies } = useMulti({
@@ -431,8 +441,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row, PostsCommentsSection,
-    AnalyticsInViewTracker
+    PostBottomRecommendations, NotifyMeDropdownItem, Row,
+    AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
+    CommentsListSection, CommentsTableOfContents
   } = Components
 
   useEffect(() => {
@@ -573,6 +584,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
   </>;
 
+  // check for deep equality between terms and eagerPostComments.terms
+  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
+
+  const lazyResults = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    skip: useEagerResults,
+    ...postsCommentsThreadMultiOptions,
+  });
+
+
   // If this is a non-AF post being viewed on AF, redirect to LW.
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
   if (isAF && !post.af) {
@@ -647,13 +668,49 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </AnalyticsContext>
       }
     </div>
+
+  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  const commentCount = results?.length ?? 0;
+  const commentTree = unflattenComments(results ?? []);
+  const answersTree = unflattenComments(answersAndReplies ?? []);
+  
   const commentsSection =
-    <PostsCommentsSection
+    <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+      {/* Answers Section */}
+      {post.question && <div className={classes.centralColumn}>
+        <div id="answers"/>
+        <AnalyticsContext pageSectionContext="answersSection">
+          <PostsPageQuestionContent post={post} answersTree={answersTree ?? []} refetch={refetch}/>
+        </AnalyticsContext>
+      </div>}
+      {/* Comments Section */}
+      <div className={classes.commentsSection}>
+        <AnalyticsContext pageSectionContext="commentsSection">
+          <CommentsListSection
+            comments={results ?? []}
+            loadMoreComments={loadMore}
+            totalComments={totalCount as number}
+            commentCount={commentCount}
+            loadingMoreComments={loadingMore}
+            post={post}
+            newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+          />
+          {isAF && <AFUnreviewedCommentCount post={post}/>}
+        </AnalyticsContext>
+        {isEAForum && post.commentCount < 1 &&
+          <div className={classes.noCommentsPlaceholder}>
+            <div>No comments on this post yet.</div>
+            <div>Be the first to respond.</div>
+          </div>
+        }
+      </div>
+    </AnalyticsInViewTracker>
+  const commentsToC =
+    <CommentsTableOfContents
+      commentTree={commentTree}
+      answersTree={answersTree}
       post={post}
-      commentTerms={commentTerms}
-      answersAndReplies={answersAndReplies ?? null}
-      refetch={refetch}
-      eagerPostComments={eagerPostComments}
     />
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
@@ -661,19 +718,21 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {commentsTableOfContentsEnabled
-      ? <>
-          <ToCColumn
-            tableOfContents={tableOfContents}
-            header={header}
-            rightColumnChildren={rightColumnChildren}
-          >
-            {postBodySection}
-          </ToCColumn>
-          <ToCColumn tableOfContents={<div/>}>
-            {betweenPostAndCommentsSection}
-          </ToCColumn>
-          {commentsSection}
-        </>
+      ? <Components.MultiToCLayout
+          segments={[
+            {centralColumn: header},
+            {
+              toc: tableOfContents,
+              centralColumn: postBodySection,
+              rightColumn: rightColumnChildren
+            },
+            {centralColumn: betweenPostAndCommentsSection},
+            {
+              toc: commentsToC,
+              centralColumn: commentsSection,
+            },
+          ]}
+        />
       : <ToCColumn
           tableOfContents={tableOfContents}
           header={header}

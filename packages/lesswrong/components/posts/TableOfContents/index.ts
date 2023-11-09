@@ -6,4 +6,5 @@ importComponent("TableOfContentsRow", () => require('./TableOfContentsRow'));
 importComponent("TableOfContentsDivider", () => require('./TableOfContentsDivider'));
 importComponent("AnswerTocRow", () => require('./AnswerTocRow'));
 importComponent("ToCColumn", () => require('./ToCColumn'));
+importComponent("MultiToCLayout", () => require('./MultiToCLayout'));
 importComponent("DynamicTableOfContents", () => require('./DynamicTableOfContents'));
