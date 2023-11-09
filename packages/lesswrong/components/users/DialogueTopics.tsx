@@ -7,9 +7,9 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 // Should this be its own component?
 // I vote yes
 
-const MyComponent = ({idk, idk2=false}: {
-    idk: string,
-    idk2?: boolean
+const GetPostsByUserReacts = ({userId, reactType = null}: {
+    userId: string,
+    reactType?: string | null
   }) => {
     const defaultLimit = 10;
     const pageSize = 30;
@@ -17,6 +17,7 @@ const MyComponent = ({idk, idk2=false}: {
     const currentUser = useCurrentUser();
     const targerUser = useCurrentUser();
 
+    // how do I pass in the userId for the other user?
     const {loadMoreProps, results} = usePaginatedResolver({
         fragmentName: "ReactsAll",
         resolverName: "Reacts",
@@ -24,21 +25,8 @@ const MyComponent = ({idk, idk2=false}: {
         itemsPerPage: 5,
       });
 
-    // console.log(results)
 
-    // const { results: votes, loading, loadMoreProps } = useMulti({
-    //     terms: {
-    //       view: "userReactions",
-    //       collectionNames: ["Posts", "Comments"],
-    //       userId: currentUser?._id,
-    //     },
-    //     collectionName: "Votes",
-    //     fragmentName: 'userReactions',
-    //     limit: defaultLimit,
-    //     itemsPerPage: pageSize,
-    //   })
-
-    //   console.log(votes)
+    
   
     // if (loading) return <div>Loading...</div>
   
