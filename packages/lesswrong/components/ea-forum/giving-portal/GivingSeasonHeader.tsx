@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Link } from "../../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { Link } from "react-router-dom";
 import {
   styles as headerStyles,
   forumHeaderTitleSetting,
@@ -12,7 +12,6 @@ import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { heroImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
-import Typography from "@material-ui/core/Typography";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
@@ -168,6 +167,7 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
+  const {Typography} = Components;
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       <div className={classNames(classes.root, classes.rootGivingSeason)}>

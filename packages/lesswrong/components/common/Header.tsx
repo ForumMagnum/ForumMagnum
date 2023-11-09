@@ -18,7 +18,7 @@ import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const EA_FORUM_HEADER_HEIGHT = 66
+export const EA_FORUM_HEADER_HEIGHT = 66;
 
 export const styles = (theme: ThemeType): JssStyles => ({
   appBar: {

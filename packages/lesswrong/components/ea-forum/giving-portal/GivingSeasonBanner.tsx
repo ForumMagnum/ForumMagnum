@@ -1,9 +1,8 @@
-import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import React, { FC } from "react";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { timelineSpec } from "../../../lib/eaGivingSeason";
+import { TimelineSpan, timelineSpec } from "../../../lib/eaGivingSeason";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import Typography from "@material-ui/core/Typography";
 import classNames from "classnames";
 import moment from "moment";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -11,6 +10,7 @@ import { EA_FORUM_HEADER_HEIGHT } from "../../common/Header";
 import { EA_FORUM_GIVING_SEASON_HEADER_HEIGHT } from "./GivingSeasonHeader";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - EA_FORUM_HEADER_HEIGHT;
+const MAX_SPANS = 3;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,14 +27,14 @@ const styles = (theme: ThemeType) => ({
       marginTop: 0,
     },
   },
-  givingSeasonOverview: {
+  overview: {
     padding: "0 20px 0 48px",
     flexGrow: 1,
     [theme.breakpoints.down("sm")]: {
       padding: 0,
     },
   },
-  givingSeasonHeading: {
+  heading: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     fontSize: 40,
     lineHeight: "48px",
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType) => ({
       lineHeight: "30px",
     },
   },
-  givingSeasonDescription: {
+  description: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     paddingLeft: 3,
     maxWidth: 500,
@@ -58,10 +58,10 @@ const styles = (theme: ThemeType) => ({
   givingSeasonLink: {
     textDecoration: "underline",
   },
-  givingSeasonTimeline: {
+  timeline: {
     maxWidth: 600,
     display: "grid",
-    gridTemplateColumns: "repeat(3, max-content)",
+    gridTemplateColumns: `repeat(${MAX_SPANS}, max-content)`,
     alignItems: "center",
     textAlign: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: -20,
     "@media (max-width: 1400px)": {
       maxWidth: 480,
-      gridTemplateColumns: "repeat(3, auto)",
+      gridTemplateColumns: `repeat(${MAX_SPANS}, auto)`,
     },
     [theme.breakpoints.down("sm")]: {
       alignSelf: "flex-end",
@@ -88,7 +88,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  gsTimelineLabel: {
+  bannerSpan: {
     backgroundColor: theme.palette.givingPortal.homepageHeader.secondaryOpaque,
     padding: "6px 12px",
     borderLeft: `1px solid ${theme.palette.givingPortal.homepageHeader.main}`,
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
       padding: "4px 8px",
     },
   },
-  gsTimelineLabelActive: {
+  bannerSpanActive: {
     backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
     color: theme.palette.givingPortal.homepageHeader.main,
     fontSize: 16,
@@ -122,7 +122,7 @@ const styles = (theme: ThemeType) => ({
       borderRadius: theme.borderRadius.default/2,
     },
   },
-  gsTimelineDates: {
+  bannerDate: {
     paddingTop: 8,
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -130,41 +130,65 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const GivingSeasonBanner = ({className, classes}: {
-  className?: string,
-  classes: ClassesType,
-}) => {
+const BannerSpan: FC<{
+  span: TimelineSpan,
+  classes: ClassesType
+}> = ({span: {start, end, description, href}, classes}) => {
   const now = useCurrentTime();
+  const isActive = moment.utc(start).isBefore(now) && moment.utc(end).isAfter(now);
+  return (
+    <Link to={href ?? "#"} className={classNames(classes.bannerSpan, {
+      [classes.bannerSpanActive]: isActive,
+    })}>
+      {description}
+    </Link>
+  );
+}
+
+const BannerDate: FC<{
+  span: TimelineSpan,
+  classes: ClassesType
+}> = ({span: {start, end}, classes}) => (
+  <div className={classes.bannerDate}>
+    {moment.utc(start).format("MMM D")}-{moment.utc(end).format("D")}
+  </div>
+);
+
+const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
+  const spans = timelineSpec.spans
+    .filter(({hatched}) => !hatched) // Ignore the voting time period
+    .slice(0, MAX_SPANS);
+
+  const {Typography} = Components;
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      <div className={classNames(classes.root, className)}>
-        <div className={classes.givingSeasonOverview}>
-          <Typography variant="display1" className={classes.givingSeasonHeading}>
+      <div className={classes.root}>
+        <div className={classes.overview}>
+          <Typography
+            variant="display1"
+            className={classes.heading}
+          >
             Giving season 2023
           </Typography>
-          <Typography variant="body2" className={classes.givingSeasonDescription} component="div">
-            Donate to the Election Fund and discuss where the donations should go. <Link to="/giving-portal" className={classes.givingSeasonLink}>Learn more in the Giving portal.</Link>
+          <Typography
+            variant="body2"
+            className={classes.description}
+            component="div"
+          >
+            Donate to the Election Fund and discuss where the donations
+            should go.{" "}
+            <Link to="/giving-portal" className={classes.givingSeasonLink}>
+              Learn more in the Giving portal.
+            </Link>
           </Typography>
         </div>
-        <div className={classes.givingSeasonTimeline}>
-          {timelineSpec.spans.map((span) => {
-            // ignore the voting time period
-            if (span.hatched) return null
-            const isActive = moment.utc(span.start).isBefore(now) && moment.utc(span.end).isAfter(now)
-            return <Link
-              key={`${span.description}-label`}
-              to={span.href ?? "#"}
-              className={classNames(classes.gsTimelineLabel, {[classes.gsTimelineLabelActive]: isActive})}
-            >
-              {span.description}
-            </Link>
-          })}
-          {timelineSpec.spans.map(span => {
-            if (span.hatched) return null
-            return <div key={`${span.description}-dates`} className={classes.gsTimelineDates}>
-              {moment.utc(span.start).format("MMM D")}-{moment.utc(span.end).format("D")}
-            </div>
-          })}
+        <div className={classes.timeline}>
+          {spans.map((span, i) =>
+            <BannerSpan span={span} classes={classes} key={i} />
+          )}
+          {spans.map((span, i) =>
+            <BannerDate span={span} classes={classes} key={i} />
+          )}
         </div>
       </div>
     </AnalyticsContext>
@@ -174,7 +198,7 @@ const GivingSeasonBanner = ({className, classes}: {
 const GivingSeasonBannerComponent = registerComponent(
   "GivingSeasonBanner",
   GivingSeasonBanner,
-  {styles, stylePriority: -1},
+  {styles},
 );
 
 declare global {

@@ -277,7 +277,10 @@ const Layout = ({currentUser, children, classes}: {
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
-  
+
+  const isGivingSeason = useIsGivingSeason();
+  const renderGivingSeason = isGivingSeason && pathname === "/";
+
   const render = () => {
     const {
       NavigationStandalone,
@@ -335,9 +338,6 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime 
         && currentTime < afterTime
     }
-
-    const isGivingSeason = useIsGivingSeason();
-    const renderGivingSeason = isGivingSeason && pathname === "/";
 
     return (
       <AnalyticsContext path={pathname}>

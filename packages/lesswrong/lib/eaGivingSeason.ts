@@ -35,7 +35,7 @@ type TimelinePoint = {
   description: string,
 }
 
-type TimelineSpan = {
+export type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
