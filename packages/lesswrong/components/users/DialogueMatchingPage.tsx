@@ -54,7 +54,7 @@ export type TopCommentedTagUser = {
 };
 
 export type UserDialogueUsefulData = {
-  dialogueUsers: DbUser[],
+  dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
 }
 
@@ -965,11 +965,11 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   let rows;
   if (props.isUpvotedUser) {
     const allRowProps = getRowProps<true>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow {...props} />);
+    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
   } else {
     props.showKarma
     const allRowProps = getRowProps<false>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow {...props} />);
+    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
   }
 
   return (
@@ -1003,7 +1003,6 @@ export const DialogueMatchingPage = ({classes}: {
         dialogueUsers {
           _id
           displayName
-          karma
         }
         topUsers {
           _id
@@ -1015,7 +1014,20 @@ export const DialogueMatchingPage = ({classes}: {
     }
   `);
 
-  const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData
+  const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
+
+  const { data: matchedUsersResult } = useQuery(gql`
+    query GetDialogueMatchedUsers {
+      GetDialogueMatchedUsers {
+        _id
+        displayName
+      }
+    }
+  `);
+
+  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+
+  console.log({ matchedUsers });
 
   const {loading: userLoading, results: userDialogueChecks} = useMulti({
     terms: {
@@ -1137,10 +1149,10 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h3>Users you've matched with</h3>
         <UserTable
-          users={[]}
+          users={matchedUsers ?? []}
           isUpvotedUser={false}
           classes={classes}
-          gridClassName={classes.matchContainerGridV1}
+          gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
           loadingNewDialogue={loadingNewDialogue}

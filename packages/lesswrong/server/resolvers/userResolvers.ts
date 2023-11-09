@@ -1,6 +1,6 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
@@ -25,6 +25,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { TagsRepo, UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
+import { createPaginatedResolver } from './paginatedResolver';
 
 
 addGraphQLSchema(`
@@ -516,5 +517,19 @@ defineQuery({
       topUsers: topUsers,
     }
     return results
+  }
+});
+
+defineQuery({
+  name: "GetDialogueMatchedUsers",
+  resultType: "[User!]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get matched users');
+    }
+
+    const matchedUsers = await new UsersRepo().getDialogueMatchedUsers(currentUser._id);
+    return accessFilterMultiple(currentUser, Users, matchedUsers, context);
   }
 });
