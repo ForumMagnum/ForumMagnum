@@ -2,6 +2,7 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 // Should this be its own component?
 // I vote yes
@@ -16,21 +17,31 @@ const MyComponent = ({idk, idk2=false}: {
     const currentUser = useCurrentUser();
     const targerUser = useCurrentUser();
 
-    const { results: votes, loading, loadMoreProps } = useMulti({
-        terms: {
-          view: "userReactions",
-          collectionNames: ["Posts", "Comments"],
-          userId: currentUser?._id,
-        },
-        collectionName: "Votes",
-        fragmentName: 'userReactions',
-        limit: defaultLimit,
-        itemsPerPage: pageSize,
-      })
+    const {loadMoreProps, results} = usePaginatedResolver({
+        // something probably wrong with this fragment, figure it out
+        fragmentName: "Reacts",
+        resolverName: "Reacts",
+        limit: 3,
+        itemsPerPage: 5,
+      });
 
-      console.log(votes)
+    console.log(results)
+
+    // const { results: votes, loading, loadMoreProps } = useMulti({
+    //     terms: {
+    //       view: "userReactions",
+    //       collectionNames: ["Posts", "Comments"],
+    //       userId: currentUser?._id,
+    //     },
+    //     collectionName: "Votes",
+    //     fragmentName: 'userReactions',
+    //     limit: defaultLimit,
+    //     itemsPerPage: pageSize,
+    //   })
+
+    //   console.log(votes)
   
-    if (loading) return <div>Loading...</div>
+    // if (loading) return <div>Loading...</div>
   
     return (<div>Retrieved votes</div>)
   };

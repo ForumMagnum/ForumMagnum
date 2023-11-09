@@ -19,6 +19,7 @@ import { ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+import { React } from '../repos/VotesRepo.ts';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio

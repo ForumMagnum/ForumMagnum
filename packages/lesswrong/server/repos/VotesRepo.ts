@@ -3,7 +3,6 @@ import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
-
 export const RECENT_CONTENT_COUNT = 20
 
 export type KarmaChangesArgs = {
@@ -52,7 +51,7 @@ type PostVoteCounts = {
 }
 
 export type React = {
-  postId: string,
+  documentId: string,
   userId: string,
   createdAt: Date,
   reactionType?: string, // should this be a specific reaction type?

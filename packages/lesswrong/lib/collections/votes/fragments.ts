@@ -65,3 +65,13 @@ registerFragment(`
     collectionName
   }
 `);
+
+registerFragment(`
+  fragment Reacts on Vote {
+    _id
+    documentId
+    userId
+    createdAt
+    reactType
+  }
+`);
