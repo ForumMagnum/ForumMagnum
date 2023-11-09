@@ -1,7 +1,6 @@
-import { getMatchingDialogueCheck } from "../../../server/resolvers/dialogueChecksResolvers";
 import { ensureIndex } from "../../collectionIndexUtils";
 import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils";
-import { MutationOptions } from "../../vulcan-core/default_mutations";
+import { MutationOptions, getDefaultMutations } from "../../vulcan-core/default_mutations";
 import { createCollection } from "../../vulcan-lib";
 import { userIsAdmin, userOwns } from "../../vulcan-users";
 import DialogueChecks from "../dialogueChecks/collection";
@@ -11,10 +10,7 @@ const options: MutationOptions<DbDialogueMatchPreference> = {
   newCheck: async (user: DbUser|null, document: DbDialogueMatchPreference|null) => {
     if (!user || !document) return false;
     const dialogueCheck = await DialogueChecks.findOne(document.dialogueCheckId);
-    if (!dialogueCheck) return false;
-
-    const matchingCheck = await getMatchingDialogueCheck(dialogueCheck);
-    return !!matchingCheck?.checked;
+    return !!dialogueCheck && userOwns(user, dialogueCheck);
   },
 
   editCheck: async (user: DbUser|null, document: DbDialogueMatchPreference|null) => {
@@ -37,6 +33,7 @@ export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = crea
   collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DialogueMatchPreferences'),
+  mutations: getDefaultMutations('DialogueMatchPreferences', options),
   logChanges: true,
 });
 
