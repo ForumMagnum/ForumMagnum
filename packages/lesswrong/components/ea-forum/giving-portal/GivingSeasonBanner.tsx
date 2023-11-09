@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",
-      gap: "8px",
+      gap: "12px",
       marginTop: 0,
       backgroundImage: "none",
     },
@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 8,
     [theme.breakpoints.down("sm")]: {
-      marginTop: 12,
+      marginTop: 4,
       marginBottom: 16,
       fontSize: 30,
       lineHeight: "30px",
