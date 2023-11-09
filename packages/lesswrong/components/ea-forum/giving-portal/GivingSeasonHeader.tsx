@@ -159,21 +159,6 @@ const styles = (theme: ThemeType) => ({
   titleLinkGivingSeason: {
     color: theme.palette.givingPortal.homepageHeader.light4,
   },
-  givingSeasonSubtitle: {
-    display: "none",
-    [theme.breakpoints.down("sm")]: {
-      display: "block",
-      marginLeft: "1em",
-      paddingLeft: "1em",
-      borderLeft: `1px solid ${theme.palette.givingPortal.homepageHeader.light4}`,
-    },
-    "@media (max-width: 640px)": {
-      display: "none",
-    },
-  },
-  givingSeasonMobileLink: {
-    color: theme.palette.givingPortal.homepageHeader.light4,
-  },
   givingSeasonGradient: givingSeasonGradient(theme),
 });
 
@@ -237,11 +222,6 @@ const GivingSeasonHeader = ({
                       </div>}
                       {forumShortTitleSetting.get()}
                     </Link>
-                    <div className={classes.givingSeasonSubtitle}>
-                      <Link to="/giving-portal" className={classes.givingSeasonMobileLink}>
-                        Giving season 2023
-                      </Link>
-                    </div>
                   </div>
                 </div>
               </Typography>
