@@ -6,6 +6,7 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { isLWorAF } from '../../lib/instanceSettings';
+import { userGetDisplayName } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -110,7 +111,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
   highlightedCommentId: string|null,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow } = Components;
+  const { TableOfContentsRow, UsersNameDisplay } = Components;
   const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
@@ -144,7 +145,9 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
     >
       <span className={classes.comment}>
         <span className={classes.commentKarma}>{comment.baseScore}</span>
-        <span className={classes.commentAuthor}>{comment.user?.displayName}</span>
+        <span className={classes.commentAuthor}>
+          {comment.user ? userGetDisplayName(comment.user) : "[anonymous]"}
+        </span>
       </span>
     </TableOfContentsRow>
     
