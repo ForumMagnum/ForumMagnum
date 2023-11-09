@@ -7,7 +7,6 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const curatedUrl = "/recommendations"
@@ -204,7 +203,7 @@ const LWRecommendations = ({
         </div>
 
         {renderContinueReading && (
-          <div className={currentUser ? classes.subsection : null}>
+          <div className={currentUser ? classes.subsection : undefined}>
             <AnalyticsContext pageSubSectionContext="continueReading">
               <LWTooltip placement="top-start" title={continueReadingTooltip}>
                 <Link to={"/library"}>
