@@ -63,6 +63,7 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
+import BinaryQuestion from './ckeditor5-binary-question/src/binaryQuestion';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
@@ -121,6 +122,7 @@ const sharedPlugins = [
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	BinaryQuestion,
 ];
 
 const postEditorPlugins = [

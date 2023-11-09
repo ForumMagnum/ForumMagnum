@@ -28,5 +28,8 @@
   ],
   "ts-node": {
     "files": true
+  },
+  "typeAcquisition": {
+    "enable": true
   }
 }

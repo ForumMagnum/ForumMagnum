@@ -1,3 +1,4 @@
+import { TOOLBAR_COMPONENT_NAME as binaryQuestionComponentName } from "./ckeditor5-binary-question/src/constants";
 
 const headingOptions = {
 	options: [
@@ -108,7 +109,8 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote'
+		'footnote',
+		binaryQuestionComponentName
 	],
 	toolbar: {
 		items: [

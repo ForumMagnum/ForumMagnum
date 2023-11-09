@@ -19,6 +19,7 @@ import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
+import { getPostEditorConfig } from '../../server/ckEditor/postEditorConfig';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -479,6 +480,8 @@ const CKPostEditor = ({
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
       onInit={(editor: Editor) => {
+        console.log(editor.config)
+
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -626,7 +629,7 @@ const CKPostEditor = ({
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration
+        mediaEmbed: {...getPostEditorConfig().mediaEmbed }
       }}
     />}
     {post.collabEditorDialogue ? <DialogueEditorFeedback post={post} /> : null}
