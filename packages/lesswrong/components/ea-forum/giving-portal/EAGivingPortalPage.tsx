@@ -176,14 +176,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.small,
     marginBottom: 16,
+    overflow: "hidden",
   },
   progress: {
     position: "absolute",
     left: 0,
     top: 0,
     backgroundColor: theme.palette.givingPortal[1000],
-    borderBottomLeftRadius: theme.borderRadius.small,
-    borderTopLeftRadius: theme.borderRadius.small,
     height: "100%",
   },
   raisedSoFar: {
