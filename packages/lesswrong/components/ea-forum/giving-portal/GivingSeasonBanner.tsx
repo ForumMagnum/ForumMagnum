@@ -19,9 +19,6 @@ const MAX_SPANS = 3;
 const styles = (theme: ThemeType) => ({
   root: {
     ...givingSeasonImageBackground(theme, "bottom"),
-    "@media (max-width: 1200px)": {
-      backgroundPosition: "bottom right",
-    },
     position: "relative",
     display: "flex",
     alignItems: "center",
@@ -32,9 +29,12 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",
-      gap: "16px",
-      height: "100%",
+      gap: "8px",
       marginTop: 0,
+      backgroundImage: "none",
+    },
+    ["@media (max-width: 300px)"]: {
+      display: "none",
     },
   },
   cover: {
@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
       alignSelf: "flex-start",
       marginBottom: 12,
     },
-    ["@media (max-width: 280px)"]: {
+    ["@media (max-width: 380px)"]: {
       display: "none",
     },
   },

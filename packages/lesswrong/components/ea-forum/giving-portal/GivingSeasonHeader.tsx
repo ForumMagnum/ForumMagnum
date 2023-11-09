@@ -100,12 +100,11 @@ const styles = (theme: ThemeType) => ({
     padding: "1px 20px",
     overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
-      background: theme.palette.givingPortal.homepageHeader.main,
+      background: theme.palette.givingPortal.homepageHeader.dark,
     },
     [theme.breakpoints.down("xs")]: {
       padding: "9px 11px",
     },
-
     "& .HeaderSubtitle-subtitle": {
       color: theme.palette.givingPortal.homepageHeader.light4,
     },
