@@ -383,13 +383,13 @@ const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_st
     case 'done':
       backgroundColor = 'green';
       borderColor = 'green';
-      size = '20px';
+      size = '15px';
       labelColor = 'green';
       break;
     case 'current':
       backgroundColor = 'white';
       borderColor = 'green';
-      size = '20px';
+      size = '15px';
       labelColor = 'black';
       break;
     case 'not_started':
@@ -405,7 +405,7 @@ const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_st
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
         <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-        <div style={{ height: size, width: size, borderRadius: '40%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
+        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
         <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
       </div>
       <div style={{ marginLeft: '10px', color: labelColor }}>{label}</div>
@@ -487,8 +487,11 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
               <h3>Topic</h3>
               <p>Here are some things we auto-generated that you might be interested in chatting about.</p>
               <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
-                <p>Ricki suggestion stuff</p>
+                <p>• Prosaic Alignment is currently more important to work on than Agent Foundations work</p>
+                <p>• EAs and rationalists should strongly consider having lots more children than they currently are</p>
+                <p>• It was a mistake to increase salaries in the broader EA/Rationality/AI-Alignment ecosystem between 2019 and 2022</p>
               </div>
+              <p>What are you interested in chatting about?</p>
               <TextField
                 multiline
                 rows={2}
@@ -498,6 +501,7 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
                 value={topicNotes}
                 onChange={event => setTopicNotes(event.target.value)}
               />
+              <br />
               <br />
               <h3>Format</h3>
               <p>Tick any you'd be open to.</p>
