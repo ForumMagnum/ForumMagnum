@@ -56,20 +56,29 @@ const GetPostsByUserReacts: React.FC<GetPostsByUserReactsProps> = ({ classes, ta
     index: number,
   }
   // want to get the content, not which one it is
-  const GetPostOrComment: React.FC<GetPostOrCommentProps> = (vote: DbVote, index: number) => {
+  const GetPostOrComment: React.FC<GetPostOrCommentProps> = ({vote, index}) => {
 
     const documentId = vote.documentId
     const isPost = vote.collectionName === "Posts"
+    
+    const {document, error, loading} = useSingle({
+      documentId, 
+      collectionName: "Posts",
+      fragmentName: "PostsMinimumInfo",
+      skip: (!isPost),
+    })
+    const {document, error, loading} = useSingle({
+      documentId, 
+      collectionName: "Comments",
+      fragmentName: "CommentsListWithParentMetadata",
+      skip: (isPost),
+    })
 
     if (isPost) {
-      const {document, error, loading} = useSingle({
-        documentId, 
-        collectionName: "Posts",
-        fragmentName: "PostsMinimumInfo",
-      })
+
       if (loading) return <Loading/>
       if (error) return <p>Error: {error.message} </p>;
-      if (!document) return null;
+      if (!document) return <p>Error</p>;
 
       const postMinimumInfo:PostsMinimumInfo = document
 
@@ -81,11 +90,6 @@ const GetPostsByUserReacts: React.FC<GetPostsByUserReactsProps> = ({ classes, ta
       )
     }
     else {
-      const {document, error, loading} = useSingle({
-        documentId, 
-        collectionName: "Comments",
-        fragmentName: "CommentsListWithParentMetadata",
-      })
       if (loading) return <Loading/>
       if (error) return <p>Error: {error.message} </p>;
       if (!document) return <p>Error</p>;
