@@ -52,26 +52,10 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment userReactions on Vote {
+  fragment ReactsAll on Vote {
     _id
     userId
-    voteType
     extendedVoteType
-    power
-    cancelled
     documentId
-    votedAt
-    isUnvote
-    collectionName
-  }
-`);
-
-registerFragment(`
-  fragment Reacts on Vote {
-    _id
-    documentId
-    userId
-    createdAt
-    reactType
   }
 `);

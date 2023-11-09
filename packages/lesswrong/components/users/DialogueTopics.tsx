@@ -18,14 +18,13 @@ const MyComponent = ({idk, idk2=false}: {
     const targerUser = useCurrentUser();
 
     const {loadMoreProps, results} = usePaginatedResolver({
-        // something probably wrong with this fragment, figure it out
-        fragmentName: "Reacts",
+        fragmentName: "ReactsAll",
         resolverName: "Reacts",
         limit: 3,
         itemsPerPage: 5,
       });
 
-    console.log(results)
+    // console.log(results)
 
     // const { results: votes, loading, loadMoreProps } = useMulti({
     //     terms: {

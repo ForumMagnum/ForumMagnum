@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, registerFragment } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
@@ -331,35 +331,6 @@ addGraphQLSchema(`
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
-
-// RICKI TODO: should these be required? !
-addGraphQLSchema(`
-  type React {
-    postId: String
-    userId: String
-    createdAt: Int
-    reactionType: String
-  }
-`)
-
-// addGraphQLSchema(`
-//   type ReactVotes {
-//     reactVotes: [reactVote]
-//   }
-// `)
-
-createPaginatedResolver({
-  name: "Reacts",
-  graphQLType: "React",
-  callback: async (
-    {repos, userId}: ResolverContext,
-    limit: number,
-  ): Promise<React[]> => repos.votes.getAllReactsForUser({
-    userId, 
-    limit,
-  }),
-});
-
 addGraphQLSchema(`
   type DigestPlannerPost {
     post: Post
@@ -425,4 +396,16 @@ createPaginatedResolver({
     },
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
+});
+
+createPaginatedResolver({
+  name: "Reacts",
+  graphQLType: "Vote",
+  callback: async (
+    {repos, userId}: ResolverContext,
+    limit: number,
+  ): Promise<DbVote[]> => repos.votes.getAllReactsForUser({
+    userId, 
+    limit,
+  }),
 });
