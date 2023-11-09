@@ -5,19 +5,23 @@ import { useCurrentUser } from '../common/withUser';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { gql, useQuery } from '@apollo/client';
 import { useNamesAttachedReactionsVoting } from '../votes/lwReactions/NamesAttachedReactionsVoteOnComment';
-import { NamesAttachedReactionType } from '../../lib/voting/reactions';
 import { NamesAttachedReactionsVote } from '../../lib/voting/namesAttachedReactions';
 import { useSingle } from '../../lib/crud/withSingle';
-import { Link } from 'react-router-dom';
+import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl, PostsMinimumForGetPageUrl } from '../../lib/collections/posts/helpers';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 
-// Should this be its own component?
-// I vote yes
 
-const UserReacts = ({ classes, targetUserId, reactType, limit = 20}: { classes: ClassesType, targetUserId: string, reactType?: string, limit?: number }) => {
-  // const currentUser = useCurrentUser();
-  const { Loading, PostsTooltip, LWDialog, PostLinkCommentPreview } = Components;
+type GetPostsByUserReactsProps = {
+  classes: ClassesType,
+  targetUserId: string,
+  reactType?: string,
+  limit?: number,
+}
+
+const GetPostsByUserReacts: React.FC<GetPostsByUserReactsProps> = ({ classes, targetUserId, reactType, limit = 20}: { classes: ClassesType, targetUserId: string, reactType?: string, limit?: number }) => {
+
+  const { Loading, PostsTooltip } = Components;
     
   const { loading, error, data } = useQuery(gql`
     query AllReactsForUser($userId: String!, $reactType: String, $limit: Int) {
@@ -47,8 +51,12 @@ const UserReacts = ({ classes, targetUserId, reactType, limit = 20}: { classes: 
     else return null
   }
 
+  type GetPostOrCommentProps = {
+    vote: DbVote,
+    index: number,
+  }
   // want to get the content, not which one it is
-  const getPostOrComment = (vote: DbVote, index: number) => {
+  const GetPostOrComment: React.FC<GetPostOrCommentProps> = (vote: DbVote, index: number) => {
 
     const documentId = vote.documentId
     const isPost = vote.collectionName === "Posts"
@@ -80,7 +88,7 @@ const UserReacts = ({ classes, targetUserId, reactType, limit = 20}: { classes: 
       })
       if (loading) return <Loading/>
       if (error) return <p>Error: {error.message} </p>;
-      if (!document) return null;
+      if (!document) return <p>Error</p>;
 
       const commentsListWithParentMetadata:CommentsListWithParentMetadata = document
 
@@ -93,25 +101,14 @@ const UserReacts = ({ classes, targetUserId, reactType, limit = 20}: { classes: 
     }
   }
 
-
   return (
-    <div 
-      // className={classNames(classes.gradientBigTextContainer, {
-      //   'scrolled-to-top': isScrolledToTop,
-      //   'scrolled-to-bottom': isScrolledToBottom
-      // })} 
-      // ref={readPostsContainerRef}
-    >
+    <div >
       {allReacts.length > 0 ? (
         allReacts.map((vote, index) => {
-          const post = vote.post;
-          const comment = vote.comment;
-            (
-              // <PostsTooltip key={index} postId={post._id}>
-              //   <Link key={index} to={postGetPageUrl(post)}>• {post.title} </Link>
-              //   <br/>
-              // </PostsTooltip>
-            )
+          <GetPostOrComment 
+            vote={vote}
+            index={index}>
+          </GetPostOrComment>
           }
         )
       ) : (
@@ -121,62 +118,50 @@ const UserReacts = ({ classes, targetUserId, reactType, limit = 20}: { classes: 
   );
 }
 
-const GetPostsByUserReacts = ({userId, reactType = null}: {
-    userId: string,
-    reactType?: string | null
-  }) => {
-    const defaultLimit = 10;
-    const pageSize = 30;
-    
-    const currentUser = useCurrentUser();
-    const targerUser = useCurrentUser();
-
-
-    // // how do I pass in the userId for the other user?
-    // const {loadMoreProps, results} = usePaginatedResolver({
-    //     fragmentName: "ReactsAll",
-    //     resolverName: "Reacts",
-    //     limit: 3,
-    //     itemsPerPage: 5,
-    //   });
-  
-    // if (loading) return <div>Loading...</div>
-  
-    return (<div>Retrieved votes</div>)
-  };
-
-const MyComponentComponent = registerComponent("MyComponent", MyComponent);
-
-declare global {
-  interface ComponentTypes {
-    MyComponent: typeof MyComponentComponent
-  }
+type TopicSuggestionProps = {
+  classes: ClassesType,
+  user1: UsersCurrent,
+  user2: UsersCurrent,
 }
 
-type DialogueTopic = {
-    topic: string;
-    agreeUserIds: string[];
-    disagreeUserIds: string[];
-  };
-
-async function suggestTopic(user1: UsersCurrent, user2: UsersCurrent): Promise<DialogueTopic> {
-    
-    
-    // Logic to generate a topic based on the two users
-    // This could involve analyzing their previous posts, comments, interests, etc.
-
-
-
-
-    // For now, let's return a dummy topic
-    return {
-        topic: "Dummy topic",
-        agreeUserIds: [],
-        disagreeUserIds: []
-    };
+export const TopicSuggestions: React.FC<TopicSuggestionProps> = ({classes, user1, user2}: {
+  classes: ClassesType,
+  user1: UsersCurrent,
+  user2: UsersCurrent,
+}) => {
+   
+  return (
+    <div>
+      <p>Here are some comments and posts that have received recent reactions from {user1.displayName} and {user2.displayName}:</p>
+      <GetPostsByUserReacts 
+        classes={classes}
+        targetUserId={user1._id}
+        reactType={"agree"}
+        limit={20}
+      />
+      <GetPostsByUserReacts
+        classes={classes}
+        targetUserId={user2._id}
+        reactType={"agree"}
+        limit={20}
+      />
+    </div>
+  )
 }
+
+
+// async function suggestTopic(user1: UsersCurrent, user2: UsersCurrent) {
+
 
 // // You can get the count of users who have agreed or disagreed as follows:
 // const topic: DialogueTopic = suggestTopic(user1, user2)/* get a topic */
 // const agreeCount = topic.agreeUserIds.length;
 // const disagreeCount = topic.disagreeUserIds.length;
+
+// const GetPostsByUserReactsComponent = registerComponent("GetPostsByUserReacts", GetPostsByUserReacts);
+
+// declare global {
+//   interface ComponentTypes {
+//     GetPostsByUserReacts: typeof GetPostsByUserReactsComponent
+//   }
+// }
