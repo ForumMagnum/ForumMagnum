@@ -19,6 +19,7 @@ import { timelineSpec } from '../../lib/eaGivingSeason';
 import moment from 'moment';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -573,7 +574,7 @@ const Header = ({
   
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
-  const isGivingSeason = isEAForum && moment.utc(timelineSpec.start).isBefore(now) && moment.utc(timelineSpec.end).isAfter(now)
+  const isGivingSeason = useIsGivingSeason();
   if (isGivingSeason && pathname === '/') {
     return (
       <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -587,7 +588,7 @@ const Header = ({
             })}
             onUnfix={() => setUnFixed(true)}
             onUnpin={() => setUnFixed(false)}
-            disable
+            disable={false}
           >
             <header className={classes.appBarGivingSeason}>
               <div className={classes.givingSeasonGradient}></div>
