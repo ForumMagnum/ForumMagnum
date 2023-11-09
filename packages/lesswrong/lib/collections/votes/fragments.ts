@@ -50,3 +50,18 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment userReactions on Vote {
+    _id
+    userId
+    voteType
+    extendedVoteType
+    power
+    cancelled
+    documentId
+    votedAt
+    isUnvote
+    collectionName
+  }
+`);

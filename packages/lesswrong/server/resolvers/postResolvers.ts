@@ -330,6 +330,35 @@ addGraphQLSchema(`
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
 
+
+// RICKI TODO: should these be required? !
+addGraphQLSchema(`
+  type React {
+    postId: String
+    userId: String
+    createdAt: Int
+    reactionType: String
+  }
+`)
+
+// addGraphQLSchema(`
+//   type ReactVotes {
+//     reactVotes: [reactVote]
+//   }
+// `)
+
+createPaginatedResolver({
+  name: "Reacts",
+  graphQLType: "React",
+  callback: async (
+    {repos, userId}: ResolverContext,
+    limit: number,
+  ): Promise<React[]> => repos.votes.getAllReactsForUser({
+    userId, 
+    limit,
+  }),
+});
+
 addGraphQLSchema(`
   type DigestPlannerPost {
     post: Post

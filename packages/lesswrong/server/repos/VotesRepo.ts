@@ -51,6 +51,13 @@ type PostVoteCounts = {
   bigDownvoteCount: number
 }
 
+export type React = {
+  postId: string,
+  userId: string,
+  createdAt: Date,
+  reactionType?: string, // should this be a specific reaction type?
+}
+
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);
@@ -319,6 +326,28 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
+  }
+
+  async getAllReactsForUser({userId, reactType = null, limit = 10}: {userId?: string | null, reactType?: string | null, limit?: number}): Promise<React[]> {
+    // right now it gets "agree" not "reactType" but this should be fixed by changing to $2 and adding reactType as an argument
+    // also do better typing in terms of what is null etc
+    const reacts = await this.getRawDb().any(`
+    SELECT
+      v."documentId",
+      v."userId",
+      v."createdAt",
+      jsonb_array_elements(v."extendedVoteType"->'reacts')->'react' AS "reactType"
+    FROM public."Votes" AS v
+    WHERE
+      v."userId" = $1
+      AND v."extendedVoteType" -> 'reacts' @> '[{"vote": "created", "react": "agree"}]'::jsonb
+      AND v."cancelled" IS NOT TRUE
+      AND v."isUnvote" IS NOT TRUE
+    ORDER BY 
+      v."createdAt" DESC
+    LIMIT $2;
+    `, [userId, limit]);
+    return reacts;
   }
 
   /**

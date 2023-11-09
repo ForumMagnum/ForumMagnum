@@ -1763,6 +1763,10 @@ interface conversationsListFragment { // fragment on Conversations
   readonly moderator: boolean | null,
 }
 
+interface conversationIdFragment { // fragment on Conversations
+  readonly _id: string,
+}
+
 interface ConversationsMinimumInfo { // fragment on Conversations
   readonly _id: string,
   readonly createdAt: Date,
@@ -3195,6 +3199,19 @@ interface UserVotesWithDocument extends UserVotes { // fragment on Votes
   readonly post: PostsListWithVotes|null,
 }
 
+interface userReactions { // fragment on Votes
+  readonly _id: string,
+  readonly userId: string,
+  readonly voteType: string,
+  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly power: number,
+  readonly cancelled: boolean,
+  readonly documentId: string,
+  readonly votedAt: Date,
+  readonly isUnvote: boolean,
+  readonly collectionName: string,
+}
+
 interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly documentId: string,
   readonly documentType: "Sequence" | "Post",
@@ -3498,6 +3515,7 @@ interface FragmentTypes {
   messageListFragment: messageListFragment
   newConversationFragment: newConversationFragment
   conversationsListFragment: conversationsListFragment
+  conversationIdFragment: conversationIdFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
@@ -3604,6 +3622,7 @@ interface FragmentTypes {
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
   UserVotesWithDocument: UserVotesWithDocument
+  userReactions: userReactions
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
@@ -3716,6 +3735,7 @@ interface CollectionNamesByFragmentName {
   messageListFragment: "Messages"
   newConversationFragment: "Conversations"
   conversationsListFragment: "Conversations"
+  conversationIdFragment: "Conversations"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
@@ -3822,6 +3842,7 @@ interface CollectionNamesByFragmentName {
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
   UserVotesWithDocument: "Votes"
+  userReactions: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"

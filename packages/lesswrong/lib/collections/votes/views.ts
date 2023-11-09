@@ -9,7 +9,8 @@ declare global {
     collectionName?: CollectionNameString,
     collectionNames?: CollectionNameString[],
     after?: string,
-    before?: string
+    before?: string,
+    userId?: string,
   }
 }
 
@@ -65,9 +66,29 @@ Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverCo
       isUnvote: {$ne: true},
       // only include neutral votes that have extended vote data
       $or: {
-        voteType: {$ne: "neutral"},
+        voteType: "neutral",
         extendedVoteType: {$exists: true},
       },
+    },
+    options: {
+      sort: {
+        votedAt: -1
+      }
+    }
+  }
+})
+ensureIndex(Votes, {collectionName: 1, userId: 1, cancelled: 1, isUnvote: 1, voteType: 1, extendedVoteType: 1, votedAt: 1})
+
+Votes.addView("userReactions", function ({collectionNames,}, _, context?: ResolverContext) {
+  return {
+    selector: {
+      collectionName: {$in: collectionNames},
+      userId: context?.currentUser?._id,
+      cancelled: {$ne: true},
+      isUnvote: {$ne: true},
+      voteType: {$ne: "neutral"},
+      // only include neutral votes that have extended vote data
+      'extendedVoteType.reacts.react': 'agree',
     },
     options: {
       sort: {
