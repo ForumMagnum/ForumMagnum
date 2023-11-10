@@ -557,7 +557,6 @@ registerFragment(`
 registerFragment(`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
-    username
     displayName
   }
 `);

@@ -354,4 +354,27 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     LIMIT $4;
       `, [user._id, smallVotePower, bigVotePower, limit])
   }
+
+
+  async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
+    return this.any(`
+      SELECT DISTINCT(u.*)
+      FROM "DialogueChecks" other_users_checks
+      JOIN "DialogueChecks" current_user_checks
+      -- Join such that there must exist reciprocal checks
+      ON (
+        other_users_checks."targetUserId" = current_user_checks."userId"
+        AND current_user_checks."targetUserId" = other_users_checks."userId"
+        AND other_users_checks.checked IS TRUE
+        AND current_user_checks.checked IS TRUE
+      )
+      JOIN "Users" u
+      -- Given those, join for users who've created checks on you
+      ON (
+        other_users_checks."userId" = u._id
+        AND other_users_checks."targetUserId" = $1
+        AND current_user_checks."userId" = $1
+      )
+    `, [userId]);
+  }
 }

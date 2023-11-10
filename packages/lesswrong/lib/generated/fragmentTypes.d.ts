@@ -3133,7 +3133,6 @@ interface UsersCrosspostInfo { // fragment on Users
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
   readonly _id: string,
-  readonly username: string,
   readonly displayName: string,
 }
 
@@ -3197,13 +3196,6 @@ interface UserVotes { // fragment on Votes
 interface UserVotesWithDocument extends UserVotes { // fragment on Votes
   readonly comment: CommentsListWithParentMetadata|null,
   readonly post: PostsListWithVotes|null,
-}
-
-interface ReactsAll { // fragment on Votes
-  readonly _id: string,
-  readonly userId: string,
-  readonly extendedVoteType: any /*{"definitions":[{"type":"JSON"}]}*/,
-  readonly documentId: string,
 }
 
 interface SpotlightsDefaultFragment { // fragment on Spotlights
@@ -3624,7 +3616,6 @@ interface FragmentTypes {
   TagVotingActivity: TagVotingActivity
   UserVotes: UserVotes
   UserVotesWithDocument: UserVotesWithDocument
-  ReactsAll: ReactsAll
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
   SpotlightDisplay: SpotlightDisplay
@@ -3845,7 +3836,6 @@ interface CollectionNamesByFragmentName {
   TagVotingActivity: "Votes"
   UserVotes: "Votes"
   UserVotesWithDocument: "Votes"
-  ReactsAll: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   SpotlightDisplay: "Spotlights"
