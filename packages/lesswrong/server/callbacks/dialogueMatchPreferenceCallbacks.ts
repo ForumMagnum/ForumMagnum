@@ -6,6 +6,11 @@ interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
 }
 
+function getParagraphWithText(text: string) {
+  const $ = cheerioParse('<p></p>');
+  return $('p').text(text);
+}
+
 const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
   let formatMessage
   let topicMessage 
@@ -65,15 +70,19 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     `
   }
 
-  const message = `
-    Helper-bot: Hey ${userName} and ${targetUserName}: you matched on dialogues!`
-    + topicMessage 
-    + formatMessage
-    + nextAction
+  const matchLine = `Helper-bot: Hey ${userName} and ${targetUserName}: you matched on dialogues!`;
 
-  const $ = cheerioParse("<p></p>")
-  $("p").text(message)
-  return $($("p")).html() 
+  const paragraphContents = [matchLine, topicMessage, formatMessage, nextAction];
+
+  // We have a bunch of string concatenation going on
+  // So we set each bit as the text content of its own paragraph
+  const $ = cheerioParse("<div></div>");
+  paragraphContents.forEach(paragraphContent => {
+    const paragraphWithText = getParagraphWithText(paragraphContent);
+    $('div').append(paragraphWithText);
+  });
+
+  return $('div').html();
 }
 
 getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context, currentUser } ) {
