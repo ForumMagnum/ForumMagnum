@@ -131,6 +131,7 @@ type NextStepsDialogProps = {
 
 type MatchDialogueButtonProps = {
   isMatched: boolean;
+  checkId: string,
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: UsersCurrent;
@@ -186,11 +187,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.link.unmarked,
     whiteSpace: 'nowrap'
   },
-  newDialogueButton: {
+  enterTopicsButton: {
     height: 'auto', // ???
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
+    color: 'white',
+    whiteSpace: 'nowrap'
+  },
+  lightgreenButton: {
+    height: 'auto', // ???
+    maxHeight: `17px`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: theme.palette.primary.main ,
+    color: 'white',
+    whiteSpace: 'nowrap'
+  },
+  waitingButton: {
+    height: 'auto', // ???
+    maxHeight: `17px`,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    backgroundColor: 'gray',
     color: 'white',
     whiteSpace: 'nowrap'
   },
@@ -561,7 +578,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       }
     })
 
-    console.log(response)
     const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
     if (redirectId) {
       const path = postGetEditUrl(redirectId)
@@ -778,6 +794,7 @@ const DialogueCheckBox: React.FC<{
 
 const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   isMatched,
+  checkId,
   targetUserId,
   targetUserDisplayName,
   currentUser,
@@ -785,23 +802,62 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   createDialogue,
   classes,
 }) => {
+
+  const { openDialog } = useDialog();
+
+  const {loading: userLoading, results} = useMulti({
+    terms: {
+      view: "dialogueMatchPreferences",
+      dialogueCheckId: checkId,
+      limit: 1000,
+    },
+    fragmentName: "DialogueMatchPreferenceInfo",
+    collectionName: "DialogueMatchPreferences",
+  });
+
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
-  return (
-    <div>
+  const userMatchPreferences = results && results.length > 0 ? results[0] : null;
+  const dialogueAlreadyGenerated = !!userMatchPreferences?.generatedDialogueId;
+
+  const renderButton = () => {
+    if (dialogueAlreadyGenerated) {
+      return (
+        <button className={classes.lightGreenButton}>
+          <a data-cy="message">Go to dialogue</a>
+        </button>
+      );
+    }
+  
+    if (userMatchPreferences) {
+      return (
+        <button className={classes.waitingButton} disabled>
+          <a data-cy="message">Waiting for {targetUserDisplayName}...</a>
+        </button>
+      );
+    }
+  
+    return (
       <button
-        className={classes.newDialogueButton}
+        className={classes.enterTopicsButton}
         onClick={(e) =>
-          createDialogue(
-            `${currentUser?.displayName}/${targetUserDisplayName}`,
-            [targetUserId]
-          )
+          openDialog({
+            componentName: 'NextStepsDialog',
+            componentProps: {
+              userId: currentUser?._id,
+              targetUserId,
+              targetUserDisplayName,
+              dialogueCheckId: checkId!
+            }
+          })
         }
       >
-        {loadingNewDialogue ? <a data-cy="message">Creating New Dialogue...</a> : <a data-cy="message">Start Dialogue</a>}
+        <a data-cy="message">Enter topics</a>
       </button>
-    </div>
-  );
+    );
+  };
+  
+  return <div>{renderButton()}</div>;
 };
 
 const MessageButton: React.FC<{
@@ -843,6 +899,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX
       classes={classes} />
     <MatchDialogueButton
       isMatched={userIsMatched}
+      checkId={checkId}
       targetUserId={targetUser._id}
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
@@ -950,8 +1007,6 @@ export const DialogueMatchingPage = ({classes}: {
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
 
-  console.log({ matchedUsers });
-
   const {loading: userLoading, results: userDialogueChecks} = useMulti({
     terms: {
       view: "userDialogueChecks",
@@ -1042,12 +1097,11 @@ export const DialogueMatchingPage = ({classes}: {
       )}
 
       <h1>Dialogue Matching</h1>
-      <p>
-       • Check a user you'd potentially be interested in having a dialogue with, if they were interested too. 
-       • If you match, you'll 
-        not see whether you have checked them unless they have also checked you. A check is not a commitment, just an indication of interest.
-        You can message people even if you haven't matched. 
-      </p>
+      <ul>
+        <li>Check a user you'd potentially be interested in having a dialogue with, if they were too</li>
+        <li>If you match, you'll both get a tiny form to enter topics of interest and format preferences</li>
+        <li>You can then see each other's answers, and if they align you can choose to start a dialogue</li>
+      </ul>
       
       <div className={classes.optInContainer}>
         <FormControlLabel className={classes.optInLabel}
@@ -1089,26 +1143,6 @@ export const DialogueMatchingPage = ({classes}: {
       </div>
     </div>
     <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Recently active</h3>
-        <UserTable
-          users={matchedUsers ?? []}
-          isUpvotedUser={false}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-        />
-      </div>
-    </div>
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>

@@ -1,5 +1,8 @@
 import React from 'react';
-import { Checkbox, FormControlLabel, Paper, Typography } from '@material-ui/core';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 const ParticipantCheckboxes = ({ conversation, currentUser }:{conversation: ConversationsList, currentUser: UsersCurrent}) => {
     const [checked, setChecked] = React.useState<Record<string, boolean>>({});

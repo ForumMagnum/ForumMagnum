@@ -3407,6 +3407,16 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly generatedDialogueId: string | null,
 }
 
+interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
+  readonly _id: string,
+  readonly dialogueCheckId: string,
+  readonly topicNotes: string,
+  readonly syncPreference: "Yes" | "Meh" | "No",
+  readonly asyncPreference: "Yes" | "Meh" | "No",
+  readonly formatNotes: string,
+  readonly generatedDialogueId: string | null,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3635,6 +3645,7 @@ interface FragmentTypes {
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
+  DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3855,6 +3866,7 @@ interface CollectionNamesByFragmentName {
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
+  DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
   SuggestAlignmentComment: "Comments"
 }
 
