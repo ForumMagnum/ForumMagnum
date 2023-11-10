@@ -14,6 +14,7 @@ import {
   donationElectionFundraiserLink,
   donationElectionLink,
   donationElectionTagId,
+  eaGivingSeason23ElectionName,
   effectiveGivingTagId,
   postsAboutElectionLink,
   setupFundraiserLink,
@@ -153,6 +154,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
@@ -171,17 +173,17 @@ const styles = (theme: ThemeType) => ({
   progressBar: {
     position: "relative",
     width: "100%",
-    height: 28,
+    height: 12,
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.small,
-    marginBottom: 20,
+    marginBottom: 16,
+    overflow: "hidden",
   },
   progress: {
     position: "absolute",
     left: 0,
     top: 0,
     backgroundColor: theme.palette.givingPortal[1000],
-    borderRadius: theme.borderRadius.small,
     height: "100%",
   },
   raisedSoFar: {
@@ -273,7 +275,8 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
   algoDecayFactorFastest: 3.0,
 });
 
-const formatDollars = (amount: number) => "$" + formatStat(amount);
+/** Format as dollars with no cents */
+const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
@@ -292,12 +295,8 @@ const socialImageProps: CloudinaryPropsType = {
 };
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
-  const {
-    showAmountRaised,
-    raisedForElectionFund,
-    donationTarget,
-    totalRaised,
-  } = useAmountRaised();
+  const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
+
   const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
@@ -351,8 +350,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
 
-  const totalAmount = formatDollars(totalRaised);
-  const targetPercent = (raisedForElectionFund / donationTarget) * 100;
+  const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
+  const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
+  const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
 
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
@@ -406,12 +406,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <ElectionFundCTA
                   image={<DonateIcon />}
                   title="Donate"
-                  description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
+                  description="The fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
                   href={donationElectionFundraiserLink}
                   solidButton
                 >
-                  {showAmountRaised &&
+                  {!amountRaisedLoading &&
                     <>
                       <div className={classes.progressBar}>
                         <div
@@ -420,7 +420,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                         />
                       </div>
                       <div className={classes.raisedSoFar}>
-                        {formatDollars(raisedForElectionFund)} raised so far
+                        {raisedForElectionFundFormatted} raised so far
                       </div>
                     </>
                   }
@@ -527,10 +527,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
             <a href={setupFundraiserLink}>run custom fundraisers</a>, or <a href="https://www.givingwhatwecan.org">more</a>.
           </div>
-          {showAmountRaised &&
+          {!amountRaisedLoading &&
             <div className={classes.text}>
               Total donations raised through the Forum:{" "}
-              <span className={classes.totalRaised}>{totalAmount}</span>
+              <span className={classes.totalRaised}>{totalRaisedFormatted}</span>
             </div>
           }
           <div className={classNames(classes.grid, classes.mt10)}>
