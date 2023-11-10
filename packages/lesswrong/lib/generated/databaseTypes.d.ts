@@ -274,6 +274,7 @@ interface DbDialogueMatchPreference extends DbObject {
   syncPreference: "Yes" | "Meh" | "No"
   asyncPreference: "Yes" | "Meh" | "No"
   formatNotes: string
+  generatedDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

@@ -11,6 +11,7 @@ import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPrefere
 
 import { getUser } from '../../lib/vulcan-users/helpers';
 import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
+import {SyncPreference} from "../../lib/collections/dialogueMatchPreferences/schema.ts";
 
 async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, match: DbDialogueCheck, associatedMessage?: DbMessage) {
   await createNotifications({
@@ -35,7 +36,6 @@ async function messageUsersMatchingDialogueChecks (
   topicNotes: string,
   formatSync: boolean,
   formatAsync: boolean,
-  formatOther: boolean,
   formatNotes: string
 ) {
   const lwAccount = await getAdminTeamAccount();
@@ -64,7 +64,6 @@ async function messageUsersMatchingDialogueChecks (
       ${topicNotes ? `<p>On topics: "${topicNotes}"</p>` : ''}
       ${formatSync ? `<p>• Up for sync</p>` : ''}
       ${formatAsync ? `<p>• Up for async</p>` : ''}
-      ${formatOther ? `<p>• Also interested in other format</p>` : ''}
       ${formatNotes ? `<p>Format notes: "${formatNotes}"</p>` : ''}
     </div>`
 
@@ -94,40 +93,40 @@ defineMutation({
   name: "messageUserDialogueMatch",
   resultType: "Message",
   argTypes: "(userId: String!, targetUserId: String!, topicNotes: String!, formatSync: Boolean!, formatAsync: Boolean!, formatOther: Boolean!, formatNotes: String!)",
-  fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatOther, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:boolean, formatAsync:boolean, formatOther:boolean, formatNotes:string}, {currentUser, repos}) => {
+  fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:SyncPreference, formatAsync:SyncPreference, formatNotes:string}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No current user was provided")
 
-    const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatOther, formatNotes)
+    const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes)
 
     return message;    
   } 
 })
 
-defineMutation({
-  name: "createDialogueMatchPreference",
-  resultType: "DialogueMatchPreference",
-  argTypes: '(dialogueCheckId: String!, topicNotes: String!, syncPreference: "Yes" | "Meh" | "No"!, asyncPreference: "Yes" | "Meh" | "No"!, formatNotes: String!)',
-  fn: async (_, {dialogueCheckId, topicNotes, syncPreference, asyncPreference, formatNotes}:{dialogueCheckId:string, topicNotes:string, syncPreference:'Yes' | 'Meh' | 'No', asyncPreference:'Yes' | 'Meh' | 'No', formatNotes:string}, {currentUser, repos}) => {
-    if (!currentUser) throw new Error("No current user was provided")
+// defineMutation({
+//   name: "createDialogueMatchPreference",
+//   resultType: "DialogueMatchPreference",
+//   argTypes: '(dialogueCheckId: String!, topicNotes: String!, syncPreference: "Yes" | "Meh" | "No"!, asyncPreference: "Yes" | "Meh" | "No"!, formatNotes: String!)',
+//   fn: async (_, {dialogueCheckId, topicNotes, syncPreference, asyncPreference, formatNotes}:{dialogueCheckId:string, topicNotes:string, syncPreference:'Yes' | 'Meh' | 'No', asyncPreference:'Yes' | 'Meh' | 'No', formatNotes:string}, {currentUser, repos}) => {
+//     if (!currentUser) throw new Error("No current user was provided")
 
-    const dialogueMatchPreferenceData = {
-      dialogueCheckId,
-      topicNotes,
-      syncPreference,
-      asyncPreference,
-      formatNotes
-    };
+//     const dialogueMatchPreferenceData = {
+//       dialogueCheckId,
+//       topicNotes,
+//       syncPreference,
+//       asyncPreference,
+//       formatNotes
+//     };
 
-    const dialogueMatchPreference = await createMutator({
-      collection: DialogueMatchPreferences,
-      document: dialogueMatchPreferenceData,
-      currentUser,
-      validate: false,
-    });
+//     const dialogueMatchPreference = await createMutator({
+//       collection: DialogueMatchPreferences,
+//       document: dialogueMatchPreferenceData,
+//       currentUser,
+//       validate: false,
+//     });
 
-    return dialogueMatchPreference;
-  } 
-})
+//     return dialogueMatchPreference;
+//   } 
+// })
 
 defineMutation({
   name: "upsertUserDialogueCheck",

@@ -1,7 +1,8 @@
 import {schemaDefaultValue} from "../../collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
 
-const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
+export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
+export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
 
 const schema: SchemaType<DbDialogueMatchPreference> = {
   dialogueCheckId: {
@@ -49,7 +50,15 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canRead: ['members', 'admins'],
     canUpdate: ['members', 'admins'],
     ...schemaDefaultValue('')
-  }
+  },
+  generatedDialogueId: {
+    type: String,
+    nullable: true,
+    hidden: true,
+    canCreate: ['admins'],
+    canRead: ['members', 'admins'],
+    canUpdate: ['admins'],
+  },
 };
 
 export default schema;

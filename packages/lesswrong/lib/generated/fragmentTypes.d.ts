@@ -3404,6 +3404,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
+  readonly generatedDialogueId: string | null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

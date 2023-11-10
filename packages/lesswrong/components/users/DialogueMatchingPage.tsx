@@ -19,12 +19,15 @@ import { isMobile } from '../../lib/utils/isMobile'
 import {postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
 
+import Select from '@material-ui/core/Select';
+
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 
 export type UpvotedUser = {
   _id: string;
@@ -277,92 +280,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const welcomeMessage = () => { // (formDataUser1: DbDialogueMatchPreference, formDataUser2: DbDialogueMatchPreference) => {
-  let formatMessage
-  let topicMessage 
-  let nextAction
-
-  const dummyData1 = {
-    userId: "Jacob",
-    topics: ["AI Alignment", "Rationality", "EA", "inner alignment"],
-    topicNotes: "I'm interested in chatting about AI Alignment, Rationality and EA",
-    formatSync: "Yes",
-    formatAsync: "Meh",
-    formatOther: "",
-    formatNotes: "",
-  }
-  const dummyData2 = {
-    userId: "Wentworth",
-    topics: ["Animals", "EA", "inner alignment"],
-    topicNotes: "I'm interested in these things but open to other things",
-    formatSync: "No",
-    formatAsync: "Yes",
-    formatOther: "",
-    formatNotes: ""
-  }
-
-  const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
-
-  const formatPreferenceMatch = 
-    (isYesOrMeh(dummyData1.formatSync) && isYesOrMeh(dummyData2.formatSync)) ||
-    (isYesOrMeh(dummyData1.formatAsync) && isYesOrMeh(dummyData2.formatAsync));
-
-  const hasFormatNotes = (dummyData1.formatNotes !== "" || dummyData2.formatNotes !== "");
-
-  formatMessage = `Format preferences: 
-    * ${dummyData1.userId} is "${dummyData1.formatSync}" on sync and "${dummyData1.formatAsync}" on async. ${dummyData1.formatNotes}
-    * ${dummyData2.userId} is "${dummyData2.formatSync}" on sync and "${dummyData2.formatAsync}" on async. ${dummyData2.formatNotes}
-  `
-
-  const topicsInCommon = dummyData1.topics.filter(topic => dummyData2.topics.includes(topic));
-  const topicMatch = topicsInCommon.length > 0 || dummyData1.topicNotes !== "" || dummyData2.topicNotes !== "";
-
-  if (!topicMatch) {
-    topicMessage = `It seems you guys didn't have any preferred topics in common.
-      * ${dummyData1.userId} topics: ${dummyData1.topics}
-      * ${dummyData2.userId} topics: ${dummyData2.topics}
-      That's okay! We still created this dialogue for you in case you wanted to come up with some more together. Though if you can't find anything that's alright, feel free to call it a good try and move on :)
-    `
-  } else {
-    topicMessage = `
-      You were both interested in discussing: ${topicsInCommon.join(", ")}.\n
-    `
-  }
-
-  // default
-  nextAction = `Our auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)`
-
-  if (!topicMatch && !formatPreferenceMatch) {
-    nextAction = `
-      It seems you didn't really overlap on topics or format. That's okay! It's fine to call this a "nice try" and just move on :) 
-      (We still create this chat for you in case you wanted to discuss a bit more)
-    `
-  } 
-  if (!topicMatch && formatPreferenceMatch) {
-    nextAction = `
-      It seems you didn't find a topic, but do overlap on format. Feel free to come up with some more topic ideas! If you can't find any, that's okay! It's fine to call this a "nice try" and just move on :) 
-    `
-  } 
-  if (topicsInCommon && formatPreferenceMatch) {
-    nextAction = `
-      It seems you've got overlap on both topic and format! :) 
-    `
-  }
-  if (topicsInCommon && !formatPreferenceMatch) {
-    nextAction = `
-      It seems you've got topics in common, but have different preferences on format. So a dialogue might not be the right solution here. That's okay! We still made this chat if you wanna hash it out more :) 
-    `
-  }
-
-  const message = `
-    Hey ${dummyData1.userId} and ${dummyData2.userId}: you matched on dialogues!`
-    + topicMessage 
-    + formatMessage
-    + nextAction
-  
-  return message
-}
-
 async function pingSlackWebhook(webhookURL: string, data: any) {
   // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
   try {
@@ -614,43 +531,23 @@ const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' 
 
 const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId }) => {
 
-  const { WrappedSmartForm } = Components;
-
-
   const [topicNotes, setTopicNotes] = useState("");
-  const [formatSync, setFormatSync] = useState(false);
-  const [formatAsync, setFormatAsync] = useState(false);
-  const [formatOther, setFormatOther] = useState(false);
+  const [formatSync, setFormatSync] = useState<SyncPreference>("No");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>("No");
   const [formatNotes, setFormatNotes] = useState("");
 
-  // const [sendMatchMessage] = useMutation(gql`
-  //   mutation messageUserDialogueMatch($userId: String!, $targetUserId: String!, $topicNotes: String!, $formatSync: Boolean!, $formatAsync: Boolean!, $formatOther: Boolean!, $formatNotes: String!) {
-  //     messageUserDialogueMatch(userId: $userId, targetUserId: $targetUserId, topicNotes: $topicNotes, formatSync: $formatSync, formatAsync: $formatAsync, formatOther: $formatOther, formatNotes: $formatNotes) {
-  //       conversationId
-  //     }
-  //   }
-  // `)
+  const { MenuItem } = Components;
 
-  const [createDialogueMatchPreference] = useMutation(gql`
-    mutation createDialogueMatchPreference($dialogueCheckId: String!, $topicNotes: String!, $syncPreference: String!, $asyncPreference: String!, $formatNotes: String!) {
-      createDialogueMatchPreference(dialogueCheckId: $dialogueCheckId, topicNotes: $topicNotes, syncPreference: $syncPreference, asyncPreference: $asyncPreference, formatNotes: $formatNotes) {
-        data {
-          _id
-          dialogueCheckId
-          topicNotes
-          syncPreference
-          asyncPreference
-          formatNotes
-        }
-      }
-    }
-  `)
+  const { create } = useCreate({
+    collectionName: "DialogueMatchPreferences",
+    fragmentName: "DialogueMatchPreferencesDefaultFragment",
+  })
 
   const { history } = useNavigation();
 
   const onSubmit = async () => {
-    const response = await createDialogueMatchPreference({
-      variables: {
+    const response = await create({
+      data: {
         dialogueCheckId: dialogueCheckId,
         topicNotes: topicNotes,
         syncPreference: formatSync,
@@ -703,20 +600,20 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
               />
               <br />
               <br />
-              <h3>Format</h3>
-              <p>Tick any you'd be open to.</p>
-              <FormControlLabel
-                control={<Checkbox checked={formatSync} onChange={event => setFormatSync(event.target.checked)} />}
-                label="Find a synchronous 2h block to sit down and dialogue"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={formatAsync} onChange={event => setFormatAsync(event.target.checked)} />}
-                label="Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing)"
-              />
-              <FormControlLabel
-                control={<Checkbox checked={formatOther} onChange={event => setFormatOther(event.target.checked)} />}
-                label="Other"
-              />
+              <h3>Format </h3>
+              <p>Tick any you'd be open to. (((Find a synchronous 2h block to sit down and dialogue))) (((Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing))))</p>
+              <Select
+                value={formatSync} 
+                onChange={event => setFormatSync(event.target.value as SyncPreference)}
+              >
+                  {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
+              </Select>
+              <Select
+                value={formatAsync} 
+                onChange={event => setFormatAsync(event.target.value as SyncPreference)}
+              >
+                  {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
+              </Select>
               <TextField
                 multiline
                 rows={2}
@@ -1002,7 +899,6 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
 export const DialogueMatchingPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  console.log(welcomeMessage())
 
   
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
