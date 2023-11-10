@@ -288,6 +288,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
+    parentTagId
     parentTag {
       ...TagBasicInfo
     }

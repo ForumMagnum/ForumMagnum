@@ -1,5 +1,5 @@
 import { gql, useQuery } from "@apollo/client";
-import { useMulti } from "../../../lib/crud/withMulti";
+import { UseMultiOptions, useMulti } from "../../../lib/crud/withMulti";
 import { eaGivingSeason23ElectionName } from "../../../lib/eaGivingSeason";
 
 export type ElectionAmountRaised = {
@@ -15,6 +15,7 @@ export type ElectionAmountRaisedQueryResult = {
 
 export const useElectionCandidates = (
   sortBy: ElectionCandidatesSort = "mostPreVoted",
+  options?: Partial<UseMultiOptions<"ElectionCandidateBasicInfo", "ElectionCandidates">>,
 ) => {
   return useMulti({
     collectionName: "ElectionCandidates",
@@ -23,7 +24,8 @@ export const useElectionCandidates = (
       electionName: eaGivingSeason23ElectionName,
       sortBy,
     },
-    limit: 30
+    limit: 30,
+    ...options,
   });
 }
 
