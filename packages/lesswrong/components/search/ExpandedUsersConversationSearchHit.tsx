@@ -4,9 +4,9 @@ import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
 import { isEAForum } from '../../lib/instanceSettings';
-import { useNavigation } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -86,15 +86,15 @@ const ExpandedUsersConversationSearchHit = ({
   const { FormatDate, UsersProfileImage, ForumIcon } = Components;
   const user = hit as AlgoliaUser;
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
 
   useEffect(() => {
     if (conversation) {
-      history.push({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
+      navigate({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
       onClose();
     }
-  }, [conversation, history, isModInbox, onClose]);
+  }, [conversation, navigate, isModInbox, onClose]);
 
   return (
     <div className={classNames(className, classes.root)}>

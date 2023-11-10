@@ -2,7 +2,6 @@ import React, { ReactNode, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
-import { useMessages } from '../common/withMessages';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { userCanStartConversations } from '../../lib/collections/conversations/collection';
@@ -25,7 +24,6 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
   const navigate = useNavigate();
-  const { flash } = useMessages()
   const { openDialog } = useDialog()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators })
 
@@ -50,7 +48,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       const templateParams = getTemplateParams()
       navigate({pathname: `/inbox/${conversation._id}`, ...templateParams})
     }
-  }, [conversation, embedConversation, getTemplateParams, history, templateQueries])
+  }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
 
   const handleClick = currentUser
     ? () => initiateConversation(user._id)
