@@ -97,13 +97,13 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       alignSelf: "flex-end",
       marginBottom: 16,
+      marginRight: 0,
     },
     ["@media (max-width: 600px)"]: {
       marginBottom: 12,
     },
-    ["@media (max-width: 500px)"]: {
+    ["@media (max-width: 520px)"]: {
       alignSelf: "flex-start",
-      marginBottom: 12,
     },
     ["@media (max-width: 380px)"]: {
       display: "none",
