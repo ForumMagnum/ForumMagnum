@@ -50,7 +50,7 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     <span
       ref={buttonRef}
     >
-      {!open && <InsertEmoticonOutlined onClick={handleOpen} className={disabled ? classes.disabled : null}/>}
+      {!open && <InsertEmoticonOutlined onClick={handleOpen} className={disabled ? classes.disabled : undefined}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}

@@ -154,6 +154,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
@@ -176,14 +177,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.small,
     marginBottom: 16,
+    overflow: "hidden",
   },
   progress: {
     position: "absolute",
     left: 0,
     top: 0,
     backgroundColor: theme.palette.givingPortal[1000],
-    borderBottomLeftRadius: theme.borderRadius.small,
-    borderTopLeftRadius: theme.borderRadius.small,
     height: "100%",
   },
   raisedSoFar: {

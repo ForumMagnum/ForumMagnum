@@ -55,7 +55,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
-      <div className={boxShadow ? classes.posts : null}>
+      <div className={boxShadow ? classes.posts : undefined}>
         {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
       </div>
       {showLoadMore && <SectionFooter>
