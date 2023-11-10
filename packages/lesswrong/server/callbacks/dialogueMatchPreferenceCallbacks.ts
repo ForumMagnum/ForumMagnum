@@ -111,7 +111,6 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     return userMatchPreferences;
   }
 
-  const participantIds = [userId, targetUserId];
   const targetUser = await context.loaders.Users.load(targetUserId);
   const title = `${currentUser.displayName} and ${targetUser.displayName}`;
  
@@ -122,8 +121,8 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       title,
       draft: true,
       collabEditorDialogue: true,
-      coauthorStatuses: participantIds.map(userId => ({userId, confirmed: true, requested: false})),
-      shareWithUsers: participantIds,
+      coauthorStatuses:[{userId: targetUserId, confirmed: true, requested: false}],
+      shareWithUsers: [targetUserId],
       sharingSettings: {
         anyoneWithLinkCan: "none",
         explicitlySharedUsersCan: "edit",
