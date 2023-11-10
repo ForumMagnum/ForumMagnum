@@ -548,6 +548,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const { history } = useNavigation();
 
   const onSubmit = async () => {
+
+    onClose()
+
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
