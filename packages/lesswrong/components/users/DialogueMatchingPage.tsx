@@ -63,6 +63,76 @@ export type TagWithCommentCount = {
   commentCount: number
 }
 
+interface CommonDialogueUserRowProps {
+  checkId: string | undefined;
+  userIsChecked: boolean;
+  userIsMatched: boolean;
+  classes: ClassesType;
+  currentUser: UsersCurrent;
+  loadingNewDialogue: boolean;
+  createDialogue: ((title: string, participants: string[]) => void);
+  showBio: boolean | undefined;
+  showFrequentCommentedTopics: boolean | undefined;
+  showPostsYouveRead: boolean | undefined;
+}
+
+type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
+  targetUser: UpvotedUser;
+  showKarma: boolean;
+  showAgreement: boolean;
+}) : (CommonDialogueUserRowProps & {
+  targetUser: Omit<UsersOptedInToDialogueFacilitation, 'karma'>;
+  showKarma: false;
+  showAgreement: false;
+});
+
+
+type RowUser = UsersOptedInToDialogueFacilitation & {
+  [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
+};
+
+type CommonUserTableProps = {
+  classes: ClassesType;
+  gridClassName: string,
+  currentUser: UsersCurrent;
+  userDialogueChecks: DialogueCheckInfo[];
+  loadingNewDialogue: boolean;
+  createDialogue: (title: string, participants: string[]) => void;
+  showBio: boolean;
+  showPostsYouveRead: boolean;
+  showFrequentCommentedTopics: boolean;
+}
+
+type UserTableProps<V extends boolean> = V extends false ? (CommonUserTableProps & {
+  users: RowUser[];
+  showKarma: false;
+  showAgreement: false;
+  isUpvotedUser: false;
+}) : (CommonUserTableProps & {
+  users: UpvotedUser[];
+  showKarma: boolean;
+  showAgreement: boolean;
+  isUpvotedUser: true;
+});
+
+type NextStepsDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  userId: string;
+  targetUserId: string;
+  targetUserDisplayName: string;
+};
+
+type MatchDialogueButtonProps = {
+  isMatched: boolean;
+  targetUserId: string;
+  targetUserDisplayName: string;
+  currentUser: UsersCurrent;
+  loadingNewDialogue: boolean;
+  createDialogue: (title: string, participants: string[]) => void;
+  classes: ClassesType;
+};
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 20,
@@ -206,7 +276,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-
 const welcomeMessage = () => { // (formDataUser1: DbDialogueMatchPreference, formDataUser2: DbDialogueMatchPreference) => {
   let formatMessage
   let topicMessage 
@@ -334,6 +403,40 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   return { isScrolledToTop, isScrolledToBottom };
 };
 
+const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
+};
+
+const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked || false;
+};
+
+const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+  const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+  const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
+  const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
+  return {
+    checkId,
+    userIsChecked,
+    userIsMatched
+  };
+}
+
+const getRowProps = <V extends boolean>(tableProps: UserTableProps<V>): DialogueUserRowProps<V>[] => {
+  return tableProps.users.map(targetUser => {
+    const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
+    const { users, userDialogueChecks, gridClassName, ...remainingRowProps } = tableProps;
+  
+    const rowProps = {
+      targetUser,
+      ...checkInfo,
+      ...remainingRowProps,
+    };
+
+    return rowProps;
+  }) as DialogueUserRowProps<V>[];
+};
+
 const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) => {
   const { document: userData, loading } = useSingle({
     documentId: userId,
@@ -356,8 +459,6 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
     </div>
   )
 };
-
-
 
 const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number }) => {
   const currentUser = useCurrentUser();
@@ -507,15 +608,6 @@ const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' 
     ))}
   </div>
 );
-
-
-type NextStepsDialogProps = {
-  open: boolean;
-  onClose: () => void;
-  userId: string;
-  targetUserId: string;
-  targetUserDisplayName: string;
-};
 
 const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName }) => {
 
@@ -757,24 +849,6 @@ const DialogueCheckBox: React.FC<{
   );
 };
 
-const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
-  return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
-};
-
-const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
-  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked || false;
-};
-
-type MatchDialogueButtonProps = {
-  isMatched: boolean;
-  targetUserId: string;
-  targetUserDisplayName: string;
-  currentUser: UsersCurrent;
-  loadingNewDialogue: boolean;
-  createDialogue: (title: string, participants: string[]) => void;
-  classes: ClassesType;
-};
-
 const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   isMatched,
   targetUserId,
@@ -820,29 +894,6 @@ const MessageButton: React.FC<{
 };
 
 
-interface CommonDialogueUserRowProps {
-  checkId: string | undefined;
-  userIsChecked: boolean;
-  userIsMatched: boolean;
-  classes: ClassesType;
-  currentUser: UsersCurrent;
-  loadingNewDialogue: boolean;
-  createDialogue: ((title: string, participants: string[]) => void);
-  showBio: boolean | undefined;
-  showFrequentCommentedTopics: boolean | undefined;
-  showPostsYouveRead: boolean | undefined;
-}
-
-type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
-  targetUser: UpvotedUser;
-  showKarma: boolean;
-  showAgreement: boolean;
-}) : (CommonDialogueUserRowProps & {
-  targetUser: Omit<UsersOptedInToDialogueFacilitation, 'karma'>;
-  showKarma: false;
-  showAgreement: false;
-});
-
 const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX.Element => {
   const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, loadingNewDialogue, createDialogue, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
   const { UsersName } = Components;
@@ -886,60 +937,6 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX
       limit={8} />}
   </React.Fragment>;
 }
-
-type RowUser = UsersOptedInToDialogueFacilitation & {
-  [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
-};
-
-type CommonUserTableProps = {
-  classes: ClassesType;
-  gridClassName: string,
-  currentUser: UsersCurrent;
-  userDialogueChecks: DialogueCheckInfo[];
-  loadingNewDialogue: boolean;
-  createDialogue: (title: string, participants: string[]) => void;
-  showBio: boolean;
-  showPostsYouveRead: boolean;
-  showFrequentCommentedTopics: boolean;
-}
-
-type UserTableProps<V extends boolean> = V extends false ? (CommonUserTableProps & {
-  users: RowUser[];
-  showKarma: false;
-  showAgreement: false;
-  isUpvotedUser: false;
-}) : (CommonUserTableProps & {
-  users: UpvotedUser[];
-  showKarma: boolean;
-  showAgreement: boolean;
-  isUpvotedUser: true;
-});
-
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
-  const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
-  const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
-  const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
-  return {
-    checkId,
-    userIsChecked,
-    userIsMatched
-  };
-}
-
-const getRowProps = <V extends boolean>(tableProps: UserTableProps<V>): DialogueUserRowProps<V>[] => {
-  return tableProps.users.map(targetUser => {
-    const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
-    const { users, userDialogueChecks, gridClassName, ...remainingRowProps } = tableProps;
-  
-    const rowProps = {
-      targetUser,
-      ...checkInfo,
-      ...remainingRowProps,
-    };
-
-    return rowProps;
-  }) as DialogueUserRowProps<V>[];
-};
 
 const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   const {
