@@ -153,6 +153,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canCreate: ["sunshineRegiment", "admins"],
     canUpdate: ["sunshineRegiment", "admins"],
     ...schemaDefaultValue(false),
+    optional: true,
     hidden: true,
   },
   /** The amount of money raised in the fundraiser for this candidate */
