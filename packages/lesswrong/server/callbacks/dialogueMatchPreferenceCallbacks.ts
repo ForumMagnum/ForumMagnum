@@ -87,7 +87,7 @@ const welcomeMessage = (formDataUser1: DbDialogueMatchPreference, formDataUser2:
   return message
 }
 
-getCollectionHooks("DialogueMatchPreferences").createAsync.add(async function GenerateDialogue ({ document: userMatchPreferences, context }) {
+getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context } ) {
   const { dialogueCheckId } = userMatchPreferences;
   const dialogueCheck = await context.loaders.DialogueChecks.load(dialogueCheckId);
   if (!dialogueCheck) return;
@@ -100,7 +100,7 @@ getCollectionHooks("DialogueMatchPreferences").createAsync.add(async function Ge
   const title = `Dialogue between ${userId} and ${targetUserId}`;
   const participants = [userId, targetUserId];
  
-  await createMutator({
+  const result = await createMutator({
     collection: Posts,
     document: {
       title,
@@ -122,6 +122,7 @@ getCollectionHooks("DialogueMatchPreferences").createAsync.add(async function Ge
     validate: false,
   });
 
-  
-  
+
+  userMatchPreferences.generatedDialogueId = result.data._id;
+  return userMatchPreferences;
 });
