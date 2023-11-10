@@ -111,8 +111,9 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     return userMatchPreferences;
   }
 
-  const title = `Dialogue between ${userId} and ${targetUserId}`;
-  const participants = [userId, targetUserId];
+  const participantIds = [userId, targetUserId];
+  const targetUser = await context.loaders.Users.load(targetUserId);
+  const title = `${currentUser.displayName} and ${targetUser.displayName}`;
  
   const result = await createMutator({
     collection: context.Posts,
@@ -121,8 +122,8 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       title,
       draft: true,
       collabEditorDialogue: true,
-      coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
-      shareWithUsers: participants,
+      coauthorStatuses: participantIds.map(userId => ({userId, confirmed: true, requested: false})),
+      shareWithUsers: participantIds,
       sharingSettings: {
         anyoneWithLinkCan: "none",
         explicitlySharedUsersCan: "edit",
