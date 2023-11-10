@@ -1043,10 +1043,10 @@ export const DialogueMatchingPage = ({classes}: {
 
       <h1>Dialogue Matching</h1>
       <p>
-        Check a user you'd be interested in having a dialogue with, if they were interested too. Users will 
+       • Check a user you'd potentially be interested in having a dialogue with, if they were interested too. 
+       • If you match, you'll 
         not see whether you have checked them unless they have also checked you. A check is not a commitment, just an indication of interest.
         You can message people even if you haven't matched. 
-        (Also, there are no notifications on match, as we haven't built that yet. You'll have to keep checking the page :)
       </p>
       
       <div className={classes.optInContainer}>
@@ -1070,7 +1070,7 @@ export const DialogueMatchingPage = ({classes}: {
     </p>
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>Users you've matched with</h3>
+        <h3>Matches</h3>
         <UserTable
           users={matchedUsers ?? []}
           isUpvotedUser={false}
@@ -1088,6 +1088,28 @@ export const DialogueMatchingPage = ({classes}: {
         />
       </div>
     </div>
+    <br />
+    <div className={classes.rootFlex}>
+      <div className={classes.matchContainer}>
+        <h3>Recently active</h3>
+        <UserTable
+          users={matchedUsers ?? []}
+          isUpvotedUser={false}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV2}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          loadingNewDialogue={loadingNewDialogue}
+          createDialogue={createDialogue}
+          showBio={true}
+          showKarma={false}
+          showAgreement={false}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+        />
+      </div>
+    </div>
+    <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Your top upvoted users (last 1.5 years)</h3>
