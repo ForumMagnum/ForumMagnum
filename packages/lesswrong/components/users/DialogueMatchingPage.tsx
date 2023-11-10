@@ -28,6 +28,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
+import { useDialog } from '../common/withDialog';
 
 export type UpvotedUser = {
   _id: string;
@@ -119,12 +120,12 @@ type UserTableProps<V extends boolean> = V extends false ? (CommonUserTableProps
 });
 
 type NextStepsDialogProps = {
-  open: boolean;
   onClose: () => void;
   userId: string;
   targetUserId: string;
   targetUserDisplayName: string;
   dialogueCheckId: string;
+  classes: ClassesType;
 };
 
 type MatchDialogueButtonProps = {
@@ -529,14 +530,14 @@ const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' 
 
 
 
-const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId }) => {
+const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
   const [formatSync, setFormatSync] = useState<SyncPreference>("No");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>("No");
   const [formatNotes, setFormatNotes] = useState("");
 
-  const { MenuItem } = Components;
+  const { LWDialog, MenuItem } = Components;
 
   const { create } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -562,7 +563,7 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <LWDialog open onClose={onClose}>
       <div style={{ display: 'flex' }}>
         <DialogContent>
           <DialogueProgress
@@ -635,9 +636,12 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
           Submit
         </Button>
       </DialogActions>
-    </Dialog>
+    </LWDialog>
   );
 };
+
+const NextStepsDialogComponent = registerComponent("NextStepsDialog", NextStepsDialog, { styles });
+
 
 const DialogueCheckBox: React.FC<{
   targetUserId : string;
@@ -649,6 +653,7 @@ const DialogueCheckBox: React.FC<{
 }> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const { openDialog } = useDialog();
 
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
@@ -663,8 +668,6 @@ const DialogueCheckBox: React.FC<{
         }
       }
     `)
-
-  const [openNextSteps, setOpenNextSteps] = useState(false);
   
   async function handleNewMatchAnonymisedAnalytics() {
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
@@ -730,23 +733,21 @@ const DialogueCheckBox: React.FC<{
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
       setShowConfetti(true);
-      setOpenNextSteps(true);
+      openDialog({
+        componentName: 'NextStepsDialog',
+        componentProps: {
+          userId: currentUser?._id,
+          targetUserId,
+          targetUserDisplayName,
+          dialogueCheckId: checkId!
+        }
+      });
     }
   }
 
   return (
     <>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
-      {openNextSteps && 
-        <NextStepsDialog 
-          open={openNextSteps} 
-          onClose={() => setOpenNextSteps(false)} 
-          userId={currentUser?._id}
-          targetUserId={targetUserId}
-          targetUserDisplayName={targetUserDisplayName} 
-          dialogueCheckId={checkId}
-        />
-      }
       <FormControlLabel
         control={ 
           <Checkbox 
@@ -1151,6 +1152,7 @@ const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', 
 
 declare global {
   interface ComponentTypes {
+    NextStepsDialog: typeof NextStepsDialogComponent
     DialogueMatchingPage: typeof DialogueMatchingPageComponent
   }
 }

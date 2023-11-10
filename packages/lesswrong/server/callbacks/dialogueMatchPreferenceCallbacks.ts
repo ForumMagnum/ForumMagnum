@@ -1,7 +1,5 @@
-import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
-import {Posts} from "../../lib/collections/posts";
 import { getCollectionHooks } from "../mutationCallbacks";
-import { createMutator } from "../vulcan-lib";
+import { createMutator, updateMutator } from "../vulcan-lib";
 
 const welcomeMessage = (formDataUser1: DbDialogueMatchPreference, formDataUser2: DbDialogueMatchPreference) => {
   let formatMessage
@@ -87,22 +85,36 @@ const welcomeMessage = (formDataUser1: DbDialogueMatchPreference, formDataUser2:
   return message
 }
 
-getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context } ) {
+getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context, currentUser } ) {
   const { dialogueCheckId } = userMatchPreferences;
   const dialogueCheck = await context.loaders.DialogueChecks.load(dialogueCheckId);
-  if (!dialogueCheck) return;
+
+  // This shouldn't ever happen
+  if (!dialogueCheck || !currentUser || currentUser._id !== dialogueCheck.userId) {
+    throw new Error(`Can't find check for dialogue match preferences!`);
+  }
   const { userId, targetUserId } = dialogueCheck;
   
-  const reciprocalDialogueCheck =  await context.DialogueChecks.findOne({userdId: targetUserId, targetUserId: userId, checked: true});
-  if (!reciprocalDialogueCheck) return;
+  const reciprocalDialogueCheck =  await context.DialogueChecks.findOne({ userdId: targetUserId, targetUserId: userId });
+  // In theory, this shouldn't happen either
+  if (!reciprocalDialogueCheck) {
+    throw new Error(`Can't find reciprocal check for dialogue match preferences!`);
+  }
+
   const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id});
-  if (!reciprocalMatchPreferences) return;
+  // This can probably cause a race condition if two user submit their match preferences at the same time, where neither of them realize the other is about to exist
+  // Should basically never happen, though
+  if (!reciprocalMatchPreferences) {
+    return userMatchPreferences;
+  }
+
   const title = `Dialogue between ${userId} and ${targetUserId}`;
   const participants = [userId, targetUserId];
  
   const result = await createMutator({
-    collection: Posts,
+    collection: context.Posts,
     document: {
+      userId,
       title,
       draft: true,
       collabEditorDialogue: true,
@@ -120,9 +132,19 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       } as AnyBecauseHard
     },
     validate: false,
+    context
   });
 
+  const generatedDialogueId = result.data._id;
 
-  userMatchPreferences.generatedDialogueId = result.data._id;
+  void updateMutator({
+    collection: context.DialogueMatchPreferences,
+    documentId: reciprocalMatchPreferences._id,
+    data: { generatedDialogueId },
+    context
+  });
+
+  userMatchPreferences.generatedDialogueId = generatedDialogueId;
+
   return userMatchPreferences;
 });
