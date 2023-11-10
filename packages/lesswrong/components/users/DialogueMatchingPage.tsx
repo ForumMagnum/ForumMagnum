@@ -21,7 +21,7 @@ import { isProduction } from '../../lib/executionEnvironment';
 
 import Select from '@material-ui/core/Select';
 
-import Dialog from '@material-ui/core/Dialog';
+//import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -29,7 +29,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
-import {red} from '@material-ui/core/colors';
+//import {red} from '@material-ui/core/colors';
 
 export type UpvotedUser = {
   _id: string;

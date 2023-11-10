@@ -91,13 +91,15 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
 
   // This shouldn't ever happen
   if (!dialogueCheck || !currentUser || currentUser._id !== dialogueCheck.userId) {
+    console.log("exit early dialogueCheck")
     throw new Error(`Can't find check for dialogue match preferences!`);
   }
   const { userId, targetUserId } = dialogueCheck;
   
-  const reciprocalDialogueCheck =  await context.DialogueChecks.findOne({ userdId: targetUserId, targetUserId: userId });
+  const reciprocalDialogueCheck =  await context.DialogueChecks.findOne({ userId: targetUserId, targetUserId: userId });
   // In theory, this shouldn't happen either
   if (!reciprocalDialogueCheck) {
+    console.log("exit early reciprocalDialogueCheck")
     throw new Error(`Can't find reciprocal check for dialogue match preferences!`);
   }
 
@@ -105,6 +107,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   // This can probably cause a race condition if two user submit their match preferences at the same time, where neither of them realize the other is about to exist
   // Should basically never happen, though
   if (!reciprocalMatchPreferences) {
+    console.log("exit early reciprocalMatchPreferences")
     return userMatchPreferences;
   }
 
@@ -132,10 +135,12 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       } as AnyBecauseHard
     },
     validate: false,
-    context
+    context,
+    currentUser
   });
 
   const generatedDialogueId = result.data._id;
+  console.log( "generatedDialogueId", generatedDialogueId)
 
   void updateMutator({
     collection: context.DialogueMatchPreferences,

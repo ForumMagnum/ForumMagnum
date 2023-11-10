@@ -54,6 +54,7 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
   generatedDialogueId: {
     type: String,
     nullable: true,
+    optional: true,
     hidden: true,
     canCreate: ['admins'],
     canRead: ['members', 'admins'],

@@ -89,18 +89,18 @@ async function messageUsersMatchingDialogueChecks (
   return message;
 }
 
-defineMutation({
-  name: "messageUserDialogueMatch",
-  resultType: "Message",
-  argTypes: "(userId: String!, targetUserId: String!, topicNotes: String!, formatSync: Boolean!, formatAsync: Boolean!, formatOther: Boolean!, formatNotes: String!)",
-  fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:SyncPreference, formatAsync:SyncPreference, formatNotes:string}, {currentUser, repos}) => {
-    if (!currentUser) throw new Error("No current user was provided")
+// defineMutation({
+//   name: "messageUserDialogueMatch",
+//   resultType: "Message",
+//   argTypes: "(userId: String!, targetUserId: String!, topicNotes: String!, formatSync: Boolean!, formatAsync: Boolean!, formatOther: Boolean!, formatNotes: String!)",
+//   fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:SyncPreference, formatAsync:SyncPreference, formatNotes:string}, {currentUser, repos}) => {
+//     if (!currentUser) throw new Error("No current user was provided")
 
-    const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes)
+//     const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes)
 
-    return message;    
-  } 
-})
+//     return message;    
+//   } 
+// })
 
 // defineMutation({
 //   name: "createDialogueMatchPreference",
