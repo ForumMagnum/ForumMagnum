@@ -7,6 +7,8 @@ import { defineMutation } from "../utils/serverGraphqlUtil";
 import { createMutator } from '../vulcan-lib';
 import Messages from '../../lib/collections/messages/collection';
 import Conversations from "../../lib/collections/conversations/collection";
+import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection";
+
 import { getUser } from '../../lib/vulcan-users/helpers';
 import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
 
@@ -98,6 +100,32 @@ defineMutation({
     const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatOther, formatNotes)
 
     return message;    
+  } 
+})
+
+defineMutation({
+  name: "createDialogueMatchPreference",
+  resultType: "DialogueMatchPreference",
+  argTypes: '(dialogueCheckId: String!, topicNotes: String!, syncPreference: "Yes" | "Meh" | "No"!, asyncPreference: "Yes" | "Meh" | "No"!, formatNotes: String!)',
+  fn: async (_, {dialogueCheckId, topicNotes, syncPreference, asyncPreference, formatNotes}:{dialogueCheckId:string, topicNotes:string, syncPreference:'Yes' | 'Meh' | 'No', asyncPreference:'Yes' | 'Meh' | 'No', formatNotes:string}, {currentUser, repos}) => {
+    if (!currentUser) throw new Error("No current user was provided")
+
+    const dialogueMatchPreferenceData = {
+      dialogueCheckId,
+      topicNotes,
+      syncPreference,
+      asyncPreference,
+      formatNotes
+    };
+
+    const dialogueMatchPreference = await createMutator({
+      collection: DialogueMatchPreferences,
+      document: dialogueMatchPreferenceData,
+      currentUser,
+      validate: false,
+    });
+
+    return dialogueMatchPreference;
   } 
 })
 

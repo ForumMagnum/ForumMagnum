@@ -515,9 +515,13 @@ type NextStepsDialogProps = {
   userId: string;
   targetUserId: string;
   targetUserDisplayName: string;
+  dialogueCheckId: string;
 };
 
-const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName }) => {
+const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId }) => {
+
+  const { WrappedSmartForm } = Components;
+
 
   const [topicNotes, setTopicNotes] = useState("");
   const [formatSync, setFormatSync] = useState(false);
@@ -525,10 +529,25 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
   const [formatOther, setFormatOther] = useState(false);
   const [formatNotes, setFormatNotes] = useState("");
 
-  const [sendMatchMessage] = useMutation(gql`
-    mutation messageUserDialogueMatch($userId: String!, $targetUserId: String!, $topicNotes: String!, $formatSync: Boolean!, $formatAsync: Boolean!, $formatOther: Boolean!, $formatNotes: String!) {
-      messageUserDialogueMatch(userId: $userId, targetUserId: $targetUserId, topicNotes: $topicNotes, formatSync: $formatSync, formatAsync: $formatAsync, formatOther: $formatOther, formatNotes: $formatNotes) {
-        conversationId
+  // const [sendMatchMessage] = useMutation(gql`
+  //   mutation messageUserDialogueMatch($userId: String!, $targetUserId: String!, $topicNotes: String!, $formatSync: Boolean!, $formatAsync: Boolean!, $formatOther: Boolean!, $formatNotes: String!) {
+  //     messageUserDialogueMatch(userId: $userId, targetUserId: $targetUserId, topicNotes: $topicNotes, formatSync: $formatSync, formatAsync: $formatAsync, formatOther: $formatOther, formatNotes: $formatNotes) {
+  //       conversationId
+  //     }
+  //   }
+  // `)
+
+  const [createDialogueMatchPreference] = useMutation(gql`
+    mutation createDialogueMatchPreference($dialogueCheckId: String!, $topicNotes: String!, $syncPreference: String!, $asyncPreference: String!, $formatNotes: String!) {
+      createDialogueMatchPreference(dialogueCheckId: $dialogueCheckId, topicNotes: $topicNotes, syncPreference: $syncPreference, asyncPreference: $asyncPreference, formatNotes: $formatNotes) {
+        data {
+          _id
+          dialogueCheckId
+          topicNotes
+          syncPreference
+          asyncPreference
+          formatNotes
+        }
       }
     }
   `)
@@ -536,19 +555,19 @@ const NextStepsDialog: React.FC<NextStepsDialogProps> = ({ open, onClose, userId
   const { history } = useNavigation();
 
   const onSubmit = async () => {
-    const response = await sendMatchMessage({
+    const response = await createDialogueMatchPreference({
       variables: {
-        userId: userId,
-        targetUserId: targetUserId,
+        dialogueCheckId: dialogueCheckId,
         topicNotes: topicNotes,
-        formatSync: formatSync,
-        formatAsync: formatAsync,
-        formatOther: formatOther,
+        syncPreference: formatSync,
+        asyncPreference: formatAsync,
         formatNotes: formatNotes,
       }
     })
 
-    history.push(`/inbox/${response.data.messageUserDialogueMatch.conversationId}`);
+    console.log(response)
+
+    // history.push(`/inbox/${response.data.messageUserDialogueMatch.conversationId}`);
   }
 
   return (
@@ -731,9 +750,10 @@ const DialogueCheckBox: React.FC<{
         <NextStepsDialog 
           open={openNextSteps} 
           onClose={() => setOpenNextSteps(false)} 
-          userId={currentUser._id}
+          userId={currentUser?._id}
           targetUserId={targetUserId}
           targetUserDisplayName={targetUserDisplayName} 
+          dialogueCheckId={checkId}
         />
       }
       <FormControlLabel
