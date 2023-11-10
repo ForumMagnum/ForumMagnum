@@ -51,6 +51,10 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
 
 export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
   query: AnyBecauseTodo,
+  /**
+   * Merge determines whether we do a shallow merge with the existing query
+   * parameters, or replace them completely
+   */
   merge?: boolean,
 }> = ({
   query,
@@ -58,8 +62,6 @@ export const QueryLink: FC<Omit<reactRouterDom.LinkProps, "to"> & {
   ...rest
 }) => {
   const location = reactRouter.useLocation();
-  // Merge determines whether we do a shallow merge with the existing query
-  // parameters, or replace them completely
   const newSearchString = merge
     ? qs.stringify({...parseQuery(location), ...query})
     : qs.stringify(query);
