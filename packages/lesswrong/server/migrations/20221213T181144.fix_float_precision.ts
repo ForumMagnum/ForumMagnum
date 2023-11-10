@@ -18,16 +18,18 @@ import { getAllCollections } from "../vulcan-lib";
 import { updateFieldType } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  const collections = getAllCollections();
-  for (const collection of collections) {
-    if (collection.isPostgres()) {
-      const fields = collection.table.getFields();
-      for (const fieldName in fields) {
-        const type = fields[fieldName];
-        if (type.toConcrete() instanceof FloatType) {
-          await updateFieldType(db, collection, fieldName);
-        }
-      }
-    }
-  }
+  // Commented out because it breaks migrations and afaik we don't need it anymore
+
+  // const collections = getAllCollections();
+  // for (const collection of collections) {
+  //   if (collection.isPostgres()) {
+  //     const fields = collection.table.getFields();
+  //     for (const fieldName in fields) {
+  //       const type = fields[fieldName];
+  //       if (type.toConcrete() instanceof FloatType) {
+  //         await updateFieldType(db, collection, fieldName);
+  //       }
+  //     }
+  //   }
+  // }
 }
