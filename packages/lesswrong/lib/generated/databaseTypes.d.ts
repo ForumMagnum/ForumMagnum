@@ -301,12 +301,12 @@ interface DbElectionCandidate extends DbObject {
   href: string
   fundraiserLink: string | null
   gwwcLink: string | null
+  gwwcId: string | null
   description: string
   userId: string
   postCount: number
   tagId: string | null
   isElectionFundraiser: boolean
-  gwwcId: string | null
   amountRaised: number | null
   targetAmount: number | null
   createdAt: Date
