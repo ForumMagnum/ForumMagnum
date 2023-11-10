@@ -155,6 +155,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
@@ -173,17 +174,17 @@ const styles = (theme: ThemeType) => ({
   progressBar: {
     position: "relative",
     width: "100%",
-    height: 28,
+    height: 12,
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.small,
-    marginBottom: 20,
+    marginBottom: 16,
+    overflow: "hidden",
   },
   progress: {
     position: "absolute",
     left: 0,
     top: 0,
     backgroundColor: theme.palette.givingPortal[1000],
-    borderRadius: theme.borderRadius.small,
     height: "100%",
   },
   raisedSoFar: {
