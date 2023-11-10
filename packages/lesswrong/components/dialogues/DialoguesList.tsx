@@ -184,24 +184,44 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
       )}
 
       {renderMyDialogues && (
-          <div className={classes.subsection}>
-            <AnalyticsContext pageSubSectionContext="myDialogues">
-              <LWTooltip placement="top-start" title={myDialoguesTooltip}>
-                <Link to={"/dialogues"}>
-                  <SectionSubtitle className={classes.subheading}>
-                    My Dialogues (only visible to you)
-                  </SectionSubtitle>
-                </Link>
-              </LWTooltip>
-              {myDialogues?.map((post, i: number) =>
-                <PostsItem
-                  key={post._id} post={post}
-                  showBottomBorder={i < myDialogues.length-1}
-                />
-              )}
-            </AnalyticsContext>
-          </div>
-        )}
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="myDialogues">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogues"}>
+                <SectionSubtitle className={classes.subheading}>
+                  My Dialogues (only visible to you)
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            {myDialogues?.map((post, i: number) =>
+              <PostsItem
+                key={post._id} post={post}
+                showBottomBorder={i < myDialogues.length-1}
+              />
+            )}
+          </AnalyticsContext>
+        </div>
+      )}
+
+      {(
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogueMatching"}>
+                <SectionSubtitle className={classes.subheading}>
+                  Users I've Matched With
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            {myDialogues?.map((post, i: number) =>
+              <PostsItem
+                key={post._id} post={post}
+                showBottomBorder={i < myDialogues.length-1}
+              />
+            )}
+          </AnalyticsContext>
+        </div>
+      )}
       
 
    </SingleColumnSection>

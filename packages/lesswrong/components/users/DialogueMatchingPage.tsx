@@ -72,7 +72,7 @@ interface CommonDialogueUserRowProps {
   checkId: string | undefined;
   userIsChecked: boolean;
   userIsMatched: boolean;
-  classes: ClassesType;
+  // classes: ClassesType;
   currentUser: UsersCurrent;
   loadingNewDialogue: boolean;
   createDialogue: ((title: string, participants: string[]) => void);
@@ -345,7 +345,7 @@ const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks:
 const getRowProps = <V extends boolean>(tableProps: UserTableProps<V>): DialogueUserRowProps<V>[] => {
   return tableProps.users.map(targetUser => {
     const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
-    const { users, userDialogueChecks, gridClassName, ...remainingRowProps } = tableProps;
+    const { users, userDialogueChecks, gridClassName, classes, ...remainingRowProps } = tableProps;
   
     const rowProps = {
       targetUser,
@@ -821,7 +821,7 @@ const MessageButton: React.FC<{
 };
 
 
-const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX.Element => {
+const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
   const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, loadingNewDialogue, createDialogue, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
   const { UsersName } = Components;
 
@@ -874,6 +874,8 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     ...rest
   } = props;
 
+  const { DialogueUserRow } = Components;
+
   const headers = [
     "Dialogue",
     "Name",
@@ -889,11 +891,11 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   let rows;
   if (props.isUpvotedUser) {
     const allRowProps = getRowProps<true>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
+    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
   } else {
     props.showKarma
     const allRowProps = getRowProps<false>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
+    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
   }
 
   return (
@@ -1177,11 +1179,13 @@ export const DialogueMatchingPage = ({classes}: {
   </div>)
 }
 
+const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
 const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {
     NextStepsDialog: typeof NextStepsDialogComponent
+    DialogueUserRow: typeof DialogueUserRowComponent
     DialogueMatchingPage: typeof DialogueMatchingPageComponent
   }
 }
