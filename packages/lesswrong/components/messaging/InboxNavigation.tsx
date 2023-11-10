@@ -8,17 +8,14 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import type { InboxComponentProps } from './InboxWrapper';
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({
   terms,
   currentUser,
   title=preferredHeadingCase("Your Conversations"),
-}: {
-  terms: ConversationsViewTerms,
-  currentUser: UsersCurrent,
-  title?: JSX.Element | String
-}) => {
+}: InboxComponentProps) => {
   const location = useLocation();
   const { currentRoute, query } = location;
   const { history } = useNavigation();
@@ -26,14 +23,14 @@ const InboxNavigation = ({
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
     fetchPolicy: 'cache-and-network',
     limit: 50,
   });
   
   const { mutate: updateConversation } = useUpdate({
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
   });
   
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography, LoadMore } = Components
