@@ -16,7 +16,7 @@ import ReactConfetti from 'react-confetti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
-import {postGetPageUrl} from '../../lib/collections/posts/helpers';
+import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
 
 import Select from '@material-ui/core/Select';
@@ -29,6 +29,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
+import {red} from '@material-ui/core/colors';
 
 export type UpvotedUser = {
   _id: string;
@@ -558,8 +559,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     })
 
     console.log(response)
-
-    // history.push(`/inbox/${response.data.messageUserDialogueMatch.conversationId}`);
+    const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
+    if (redirectId) {
+      const path = postGetEditUrl(redirectId)
+      history.push(path)
+    }
   }
 
   return (
