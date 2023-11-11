@@ -11,76 +11,114 @@ function getParagraphWithText(text: string) {
   return $('p').text(text);
 }
 
-const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
-  let formatMessage
-  let topicMessage 
-  let nextAction
+type TopicMatch = "match" | "noMatch" | "uncertain";
 
+const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
   const userName = formDataSourceUser.displayName;
   const targetUserName = formDataTargetUser.displayName;
 
   const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
 
+  let matchLine
+  let formatMessage
+  let topicMessage 
+  let nextAction
+
+  matchLine = `<strong>Dialogue-bot:</strong> Hey ${userName} and ${targetUserName}, you were potentially interested in a dialogue... let's see if there's something here.`;
+
   const formatPreferenceMatch = 
     (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
-
-  formatMessage = `Format preferences: 
-    * ${userName} is "${formDataSourceUser.syncPreference}" on sync and "${formDataSourceUser.asyncPreference}" on async. ${formDataSourceUser.formatNotes}
-    * ${targetUserName} is "${formDataTargetUser.syncPreference}" on sync and "${formDataTargetUser.asyncPreference}" on async. ${formDataTargetUser.formatNotes}
+  formatMessage = `
+    <table>
+      <tr>
+        <th></th>
+        <th>Sync (find a time)</th>
+        <th>Async</th>
+      </tr>
+      <tr>
+        <td style="font-weight: normal;">${userName}</td>
+        <td style="font-weight: normal;">${formDataSourceUser.syncPreference}</td>
+        <td style="font-weight: normal;">${formDataSourceUser.asyncPreference}</td>
+      </tr>
+      <tr>
+        <td style="font-weight: normal;">${targetUserName}</td>
+        <td style="font-weight: normal;">${formDataTargetUser.syncPreference}</td>
+        <td style="font-weight: normal;">${formDataTargetUser.asyncPreference}</td>
+      </tr>
+    </table>
   `
+  const userFormatNotesDangerous = `${userName}: "` + formDataSourceUser.formatNotes + `"`
+  const targetUserFormatNotesDangerous = `${targetUserName}: "` + formDataTargetUser.formatNotes + `"`
 
-  const topicsInCommon:string[] = [] //formDataSourceUser.topics.filter(topic => formDataTargetUser.topics.includes(topic));
-  const topicMatch = topicsInCommon.length > 0 || formDataSourceUser.topicNotes !== "" || formDataTargetUser.topicNotes !== "";
+  let topicMatch: TopicMatch; 
+  topicMatch = "uncertain" // Haven't build the other functionality for now. TODO! 
 
-  if (!topicMatch) {
-    topicMessage = `It seems you guys didn't have any preferred topics in common.`
-    //   * ${userName} topics: ${formDataSourceUser.topics}
-    //   * ${targetUserName} topics: ${formDataTargetUser.topics}
-    // `
-  } else {
-    topicMessage = `
-      You were both interested in discussing: ${topicsInCommon.join(", ")}.
-    `
+  if (topicMatch === "match") {
+    topicMessage = `<p>You had some shared interests!</p><p>Topic notes:</p>`
+  } 
+  if (topicMatch === "noMatch") {
+    topicMessage = `<p>It seems you guys didn't have any preferred topics in common.</p><p>Topic notes:</p>` 
   }
+  if (topicMatch === "uncertain") {
+    topicMessage = `<p><strong>Topic notes</strong></p>` 
+  }
+
+  const userTopicNotesDangerous = `${userName}: "` + formDataSourceUser.topicNotes + `"`
+  const targetUserTopicNotesDangerous = `${targetUserName}: "` + formDataTargetUser.topicNotes + `"`
 
   // default
-  nextAction = `Our auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)`
+  nextAction = `<strong>Suggestions:</strong> Our auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)`
 
-  if (!topicMatch && !formatPreferenceMatch) {
+  if (formatPreferenceMatch && topicMatch === "uncertain") {
     nextAction = `
-      It seems you didn't really overlap on topics or format. That's okay! It's fine to call this a "nice try" and just move on :) 
-      (We still created this chat for you in case you wanted to discuss a bit more)
+      <strong>Suggestions:</strong> Your preferences overlapped on format, but our auto-checker couldn't tell if you had topics in common. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)
     `
   } 
-  if (!topicMatch && formatPreferenceMatch) {
+  if (!formatPreferenceMatch && topicMatch === "uncertain") {
     nextAction = `
-      It seems you didn't find a topic, but do overlap on format. Feel free to come up with some more topic ideas! If you can't find any, that's okay! It's fine to call this a "nice try" and just move on :) 
+      <strong>Suggestions:</strong> It seems you have different format preferences. So a dialogue might not be the right solution here. That's okay! It's fine to call this a "nice try" and just move on :)
+      (We still created this chat for you in case that's not right and you wanted to discuss a bit more)
     `
   } 
-  if (topicsInCommon && formatPreferenceMatch) {
-    nextAction = `
-      It seems you've got overlap on both topic and format! :) 
-    `
-  }
-  if (topicsInCommon && !formatPreferenceMatch) {
-    nextAction = `
-      It seems you've got topics in common, but have different preferences on format. So a dialogue might not be the right solution here. That's okay! We still made this chat if you wanna hash it out more :) 
-    `
-  }
 
-  const matchLine = `Helper-bot: Hey ${userName} and ${targetUserName}: you matched on dialogues!`;
+  // TODO: handle different cases
+  // if (!topicMatch && formatPreferenceMatch) {
+  //   nextAction = `
+  //     It seems you didn't find a topic, but do overlap on format. Feel free to come up with some more topic ideas! If you can't find any, that's okay! It's fine to call this a "nice try" and just move on :) 
+  //   `
+  // } 
+  // if (topicsInCommon && formatPreferenceMatch) {
+  //   nextAction = `
+  //     It seems you've got overlap on both topic and format! :) 
+  //   `
+  // }
+  // if (topicsInCommon && !formatPreferenceMatch) {
+  //   nextAction = `
+  //     It seems you've got topics in common, but have different preferences on format. So a dialogue might not be the right solution here. That's okay! We still made this chat if you wanna hash it out more :) 
+  //   `
+  // }
 
   const paragraphContents = [matchLine, topicMessage, formatMessage, nextAction];
 
   // We have a bunch of string concatenation going on
   // So we set each bit as the text content of its own paragraph
   const $ = cheerioParse("<div></div>");
-  paragraphContents.forEach(paragraphContent => {
-    const paragraphWithText = getParagraphWithText(paragraphContent);
-    $('div').append(paragraphWithText);
-  });
+
+  $('div').append( cheerioParse(matchLine).root() )
+  $('div').append( cheerioParse(formatMessage).root() )
+  $('div').append( getParagraphWithText(userFormatNotesDangerous) )
+  $('div').append( getParagraphWithText(targetUserFormatNotesDangerous) )
+  $('div').append( cheerioParse(topicMessage).root() )
+  $('div').append( getParagraphWithText(userTopicNotesDangerous) )
+  $('div').append( getParagraphWithText(targetUserTopicNotesDangerous) )
+  $('div').append( cheerioParse(nextAction).root() )
+
+  // paragraphContents.forEach(paragraphContent => {
+  //   const paragraphWithText = getParagraphWithText(paragraphContent);
+  //   $('div').append(paragraphWithText);
+  // });
 
   return $('div').html();
 }

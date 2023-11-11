@@ -296,6 +296,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const redirect = (redirectId:string, history) => {
+  if (redirectId) {
+    const path = postGetEditUrl(redirectId)
+    history.push(path)
+  }
+}
+
 async function pingSlackWebhook(webhookURL: string, data: any) {
   // ping the slack webhook to inform team of match. YOLO:ing and putting this on the client. Seems fine: but it's the second time this happens, and if we're doing it a third time, I'll properly move it all to the server 
   try {
@@ -576,10 +583,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     })
 
     const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
-    if (redirectId) {
-      const path = postGetEditUrl(redirectId)
-      history.push(path)
-    }
+    redirect(redirectId, history)
   }
 
   return (
@@ -796,6 +800,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 }) => {
 
   const { openDialog } = useDialog();
+  const { history } = useNavigation();
 
   const {loading: userLoading, results} = useMulti({
     terms: {
@@ -810,12 +815,12 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
   const userMatchPreferences = results && results.length > 0 ? results[0] : null;
-  const dialogueAlreadyGenerated = !!userMatchPreferences?.generatedDialogueId;
+  const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
   const renderButton = () => {
-    if (dialogueAlreadyGenerated) {
+    if (!!generatedDialogueId) {
       return (
-        <button className={classes.lightGreenButton}>
+        <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
           <a data-cy="message">Go to dialogue</a>
         </button>
       );
