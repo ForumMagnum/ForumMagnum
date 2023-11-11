@@ -151,15 +151,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   matchContainerGridV1: {
     display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read
     gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)         100px           100px            200px     425px`,
-    gridRowGap: '5px',
-    columnGap: '10px',
+    gridRowGap: 5,
+    columnGap: 10,
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
     gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     425px `,
-    gridRowGap: '5px',
-    columnGap: '10px',
+    gridRowGap: 5,
+    columnGap: 10,
     alignItems: 'center'
   },
   header: {
@@ -189,9 +189,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-    marginRight: '30px',
-    width: '400px',
-    paddingBottom: '15px',
+    marginRight: 30,
+    width: 400,
+    paddingBottom: 15,
   },
   messageButton: {
     height: 24,
@@ -238,10 +238,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   gradientBigTextContainer: {
     position: 'relative',
-    maxHeight: '70px', 
+    maxHeight: 70, 
     overflow: 'auto',
     color: 'grey', 
-    fontSize: '14px',
+    fontSize: 14,
     lineHeight: '1.15em',
     WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
     '&.scrolled-to-bottom': {
@@ -256,24 +256,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1rem',
   },
   checkbox: {
-    height: '10px', 
+    height: 10, 
     color: 'default',
     '&$checked': {
       color: 'default',
     },
   },
   checked: {
-    height: '10px', 
+    height: 10, 
   },
   checkboxCheckedMatched: {
-    height: '10px', 
+    height: 10, 
     color: theme.palette.lwTertiary.main,
     '&$checked': {
       color: theme.palette.lwTertiary.main,
     },
   },
   checkboxCheckedNotMatched: {
-    height: '10px', 
+    height: 10, 
     color: '#ADD8E6',
     '&$checked': {
       color: '#00000038',
@@ -286,29 +286,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   container: {
-    maxWidth: '1100px',
+    maxWidth: 1100,
   },
 
   // mobile warning stuff
   mobileWarning: {
     backgroundColor: 'yellow',
-    padding: '10px',
-    marginBottom: '20px',
+    padding: 10,
+    marginBottom: 20,
     maxWidth: '40vw',
   },
   
   // opt-in stuff
   optInContainer: {
-    height: '20px',
+    height: 20,
     display: 'flex',
     alignItems: 'top',
   },
   optInLabel: {
-    paddingLeft: '8px',
+    paddingLeft: 8,
   },
   optInCheckbox: {
-    height: '10px',
-    width: '30px',
+    height: 10,
+    width: 30,
     color: "#9a9a9a",
   },
 });
@@ -529,20 +529,20 @@ const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_st
     case 'done':
       backgroundColor = 'green';
       borderColor = 'green';
-      size = '15px';
+      size = 15;
       labelColor = 'green';
       break;
     case 'current':
       backgroundColor = 'white';
       borderColor = 'green';
-      size = '15px';
+      size = 15;
       labelColor = 'black';
       break;
     case 'not_started':
     default:
       backgroundColor = '#d3d3d3'; // Lighter shade of gray
       borderColor = '#d3d3d3'; // Lighter shade of gray
-      size = '10px';
+      size = 10;
       labelColor = 'gray';
       break;
   }
