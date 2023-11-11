@@ -116,6 +116,7 @@ export const usePostsItem = ({
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
   const [readComments, setReadComments] = useState(false);
+  const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
   const {isPostRepeated, addPost} = useHideRepeatedPosts();
 
@@ -128,6 +129,14 @@ export const usePostsItem = ({
       setReadComments(true);
     },
     [post, recordPostView, setShowComments, showComments, setReadComments],
+  );
+
+  const toggleDialogueMessages = useCallback(
+    () => {
+      recordPostView({post, extraEventProperties: {type: "toggleDialogueMessages"}})
+      setShowDialogueMessages(!showDialogueMessages);
+    },
+    [post, recordPostView, setShowDialogueMessages, showDialogueMessages],
   );
 
   const compareVisitedAndCommentedAt = (
@@ -180,8 +189,10 @@ export const usePostsItem = ({
     resumeReading,
     sticky: forceSticky || isSticky(post, terms),
     renderComments: showComments || (defaultToShowUnreadComments && hadUnreadComments),
+    renderDialogueMessages: showDialogueMessages,
     condensedAndHiddenComments: defaultToShowUnreadComments && !showComments,
     toggleComments,
+    toggleDialogueMessages,
     showAuthor: !post.isEvent && !hideAuthor,
     showDate: showPostedAt && !resumeReading,
     showTrailingButtons: !hideTrailingButtons,
