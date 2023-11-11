@@ -1104,7 +1104,7 @@ export const DialogueMatchingPage = ({classes}: {
     </div>
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h4>Not used matchmaking</h4>
+        <h4>Not recently active</h4>
         <UserTable
           users={userDialogueUsefulData.topUsers.filter(user => !user.recently_active_matchmaking)}
           isUpvotedUser={true}
