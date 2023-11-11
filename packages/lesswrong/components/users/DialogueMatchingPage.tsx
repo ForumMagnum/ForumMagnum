@@ -585,61 +585,58 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   return (
     <LWDialog open onClose={onClose}>
       <div style={{ display: 'flex' }}>
-        <DialogContent>
-          <DialogueProgress
-            checkpoints={[
-              { label: 'Find partner', status: 'done' },
-              { label: 'Find topic & format', status: 'current' },
-              { label: 'Write dialogue', status: 'not_started' },
-              { label: 'Edit', status: 'not_started' },
-              { label: 'Publish', status: 'not_started' },
-            ]}
-          />
-        </DialogContent>
         <div>
-          <DialogTitle  style={{ marginLeft: '20px' }}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent >
-          
-            <div style={{ marginLeft: '20px' }}>
-              <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p>
-              <h3>Topic</h3>
-              <p>Here are some things we auto-generated that you might be interested in chatting about.</p>
-              <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
+            <div>
+              {/* <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p> */}
+              {/* <h3>Topic</h3> */}
+              {/* <p>Here are some things we auto-generated that you might be interested in chatting about.</p> */}
+              {/* <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
                 <p>• Prosaic Alignment is currently more important to work on than Agent Foundations work</p>
                 <p>• EAs and rationalists should strongly consider having lots more children than they currently are</p>
                 <p>• It was a mistake to increase salaries in the broader EA/Rationality/AI-Alignment ecosystem between 2019 and 2022</p>
-              </div>
-              <p>What are you interested in chatting about?</p>
+              </div> */}
+              <h3>What are you interested in chatting about?</h3>
               <TextField
                 multiline
-                rows={2}
+                rows={4}
                 variant="outlined"
-                label={`Feel free to leave any notes on topics for ${targetUserDisplayName}`}
+                label={`Leave some suggestions for ${targetUserDisplayName}`}
                 fullWidth
                 value={topicNotes}
                 onChange={event => setTopicNotes(event.target.value)}
               />
               <br />
               <br />
-              <h3>Format </h3>
-              <p>Tick any you'd be open to. (((Find a synchronous 2h block to sit down and dialogue))) (((Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing))))</p>
-              <Select
-                value={formatSync} 
-                onChange={event => setFormatSync(event.target.value as SyncPreference)}
-              >
-                  {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-              </Select>
-              <Select
-                value={formatAsync} 
-                onChange={event => setFormatAsync(event.target.value as SyncPreference)}
-              >
-                  {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-              </Select>
+              <h3>What Format Do You Prefer?</h3>
+              
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ marginRight: '30px', width: '400px', paddingBottom: '15px' }}>Find a synchronous 1h-3h block to sit down and dialogue</div>
+                  <Select
+                  value={formatSync} 
+                  onChange={event => setFormatSync(event.target.value as SyncPreference)}
+                  >
+                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
+                  </Select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ marginRight: '30px', width: '400px', paddingBottom: '15px' }}>Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing</div>
+                  <Select
+                  value={formatAsync} 
+                  onChange={event => setFormatAsync(event.target.value as SyncPreference)}
+                  >
+                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
+                  </Select>
+              </div>
+              
+              
               <TextField
                 multiline
                 rows={2}
                 variant="outlined"
-                label="Notes on your choice..."
+                label="Anything else to add?"
                 fullWidth
                 value={formatNotes}
                 onChange={event => setFormatNotes(event.target.value)}
