@@ -53,9 +53,6 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
 
   return (
     <div>
-      <div style={{ position: "sticky", top: "200px", maxWidth: "350px", left: "1000px" }}>
-        <ParticipantCheckboxes conversation={conversation} currentUser={currentUser} />
-      </div>
       <SingleColumnSection>
         <div className={classes.conversationSection}>
           <div className={classes.row}>
@@ -88,4 +85,3 @@ declare global {
     ConversationPage: typeof ConversationPageComponent
   }
 }
-
