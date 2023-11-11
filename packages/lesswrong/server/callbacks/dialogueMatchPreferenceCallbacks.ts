@@ -19,37 +19,25 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
 
-  let matchLine
+  let matchLineDangerous
   let formatMessage
   let nextAction
 
-  matchLine = `<strong>Dialogue-bot:</strong> Hey ${userName} and ${targetUserName}, you were potentially interested in a dialogue... let's see if there's something here.`;
+  matchLineDangerous = `Hey ${userName} and ${targetUserName}, you were potentially interested in a dialogue... let's see if there's something here.`;
 
   const formatPreferenceMatch = 
     (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
   formatMessage = `
-    <table>
-      <tr>
-        <th></th>
-        <th>Sync (find a time)</th>
-        <th>Async</th>
-      </tr>
-      <tr>
-        <td class="username" style="font-weight: normal;"></td>
-        <td style="font-weight: normal;">${formDataSourceUser.syncPreference}</td>
-        <td style="font-weight: normal;">${formDataSourceUser.asyncPreference}</td>
-      </tr>
-      <tr>
-        <td class="target-username" style="font-weight: normal;"></td>
-        <td style="font-weight: normal;">${formDataTargetUser.syncPreference}</td>
-        <td style="font-weight: normal;">${formDataTargetUser.asyncPreference}</td>
-      </tr>
-    </table>
+    <p><strong>Format</strong></p>
+    <ul>
+      <li>Sync: find a 1-3h time to sit down and dialogue</li>
+      <li>Async: more like a letter exchange over time. Suggested effort: at least 2 longer replies each before publishing</li>
+    </ul>
   `
-  const userFormatNotesDangerous = `${userName}: "` + formDataSourceUser.formatNotes + `"`
-  const targetUserFormatNotesDangerous = `${targetUserName}: "` + formDataTargetUser.formatNotes + `"`
+  const userFormatNotesDangerous = `"${userName}: sync ${formDataSourceUser.syncPreference}, async ${formDataSourceUser.asyncPreference}. ` + formDataSourceUser.formatNotes + `"`
+  const targetUserFormatNotesDangerous = `"${targetUserName}: sync ${formDataSourceUser.syncPreference}, async ${formDataSourceUser.asyncPreference}. ` + formDataTargetUser.formatNotes + `"`
 
   let topicMatch: TopicMatch = "uncertain" as TopicMatch; // Haven't build the other functionality for now. TODO! 
   let topicMessage: string;
@@ -62,7 +50,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
       topicMessage = `<p>It seems you guys didn't have any preferred topics in common.</p><p>Topic notes:</p>`;
       break;
     case 'uncertain':
-      topicMessage = `<p><strong>Topic notes</strong></p>`;
+      topicMessage = `<p><strong>Topic</strong></p>`;
       break;
   }
 
@@ -70,17 +58,17 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const targetUserTopicNotesDangerous = `${targetUserName}: "` + formDataTargetUser.topicNotes + `"`
 
   // default
-  nextAction = `<strong>Suggestions:</strong> Our auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)`
+  nextAction = `<p><strong>Suggestions</strong></p><p>Our auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)</p>`
 
   if (formatPreferenceMatch && topicMatch === "uncertain") {
     nextAction = `
-      <strong>Suggestions:</strong> Your preferences overlapped on format, but our auto-checker couldn't tell if you had topics in common. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)
+      <p><strong>Suggestions</strong></p><p> Your preferences overlapped on format, but our auto-checker couldn't tell if you had topics in common. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)</p>
     `
   } 
   if (!formatPreferenceMatch && topicMatch === "uncertain") {
     nextAction = `
-      <strong>Suggestions:</strong> It seems you have different format preferences. So a dialogue might not be the right solution here. That's okay! It's fine to call this a "nice try" and just move on :)
-      (We still created this chat for you in case that's not right and you wanted to discuss a bit more)
+      <p><strong>Suggestions</strong></p><p> It seems you have different format preferences. So a dialogue might not be the right solution here. That's okay! It's fine to call this a "nice try" and just move on :)
+      (We still created this chat for you in case that's not right and you wanted to discuss a bit more)</p>
     `
   } 
 
@@ -101,30 +89,18 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   //   `
   // }
 
-  const paragraphContents = [matchLine, topicMessage, formatMessage, nextAction];
-
   // We have a bunch of string concatenation going on
   // So we set each bit as the text content of its own paragraph
   const $ = cheerioParse("<div></div>");
 
-  $('div').append( cheerioParse(matchLine).root() )
-
-  $('div').append(formatMessage)
-  $('.username').text(userName)
-  $('.target-username').text(targetUserName)
-
+  $('div').append( getParagraphWithText(matchLineDangerous) )
+  $('div').append( formatMessage )
   $('div').append( getParagraphWithText(userFormatNotesDangerous) )
   $('div').append( getParagraphWithText(targetUserFormatNotesDangerous) )
-  $('div').append(topicMessage)
+  $('div').append( topicMessage )
   $('div').append( getParagraphWithText(userTopicNotesDangerous) )
   $('div').append( getParagraphWithText(targetUserTopicNotesDangerous) )
-  $('div').append(nextAction)
-
-  // paragraphContents.forEach(paragraphContent => {
-  //   const paragraphWithText = getParagraphWithText(paragraphContent);
-  //   $('div').append(paragraphWithText);
-  // });
-
+  $('div').append( nextAction )
   return $('div').html();
 }
 
