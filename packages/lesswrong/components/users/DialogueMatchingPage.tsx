@@ -1010,20 +1010,20 @@ export const DialogueMatchingPage = ({classes}: {
     }
   `);
 
-  const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
-
-  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
-  const topUsers = userDialogueUsefulData?.topUsers;
-  const dialogueUsers = userDialogueUsefulData?.dialogueUsers
-  const optedInUsers = usersOptedInToDialogueFacilitation
-  
-
   if (loading) {
     return <Loading />;
   } else if (!usersOptedInToDialogueFacilitation) {
     return <p>Error...</p>;
   }
 
+  const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
+
+  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const matchedUserIds = matchedUsers?.map(user => user._id) || [];
+  const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
+  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
+  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
+  
   if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
