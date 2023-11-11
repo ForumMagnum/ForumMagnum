@@ -1112,8 +1112,6 @@ export const DialogueMatchingPage = ({classes}: {
           gridClassName={classes.matchContainerGridV1}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
           showBio={false}
           showKarma={true}
           showAgreement={true}
@@ -1139,6 +1137,7 @@ export const DialogueMatchingPage = ({classes}: {
           showAgreement={false}
           showPostsYouveRead={true}
           showFrequentCommentedTopics={true}
+          showHeaders={true}
         />
       </div>
     </div>
@@ -1158,6 +1157,7 @@ export const DialogueMatchingPage = ({classes}: {
           showAgreement={false}
           showPostsYouveRead={true}
           showFrequentCommentedTopics={true}
+          showHeaders={true}
         />
         <LoadMore {...optedInUsersLoadMoreProps} />
       </div>
