@@ -21,7 +21,6 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   let matchLine
   let formatMessage
-  let topicMessage 
   let nextAction
 
   matchLine = `<strong>Dialogue-bot:</strong> Hey ${userName} and ${targetUserName}, you were potentially interested in a dialogue... let's see if there's something here.`;
@@ -38,12 +37,12 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
         <th>Async</th>
       </tr>
       <tr>
-        <td style="font-weight: normal;">${userName}</td>
+        <td class="username" style="font-weight: normal;"></td>
         <td style="font-weight: normal;">${formDataSourceUser.syncPreference}</td>
         <td style="font-weight: normal;">${formDataSourceUser.asyncPreference}</td>
       </tr>
       <tr>
-        <td style="font-weight: normal;">${targetUserName}</td>
+        <td class="target-username" style="font-weight: normal;"></td>
         <td style="font-weight: normal;">${formDataTargetUser.syncPreference}</td>
         <td style="font-weight: normal;">${formDataTargetUser.asyncPreference}</td>
       </tr>
@@ -52,17 +51,19 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const userFormatNotesDangerous = `${userName}: "` + formDataSourceUser.formatNotes + `"`
   const targetUserFormatNotesDangerous = `${targetUserName}: "` + formDataTargetUser.formatNotes + `"`
 
-  let topicMatch: TopicMatch; 
-  topicMatch = "uncertain" // Haven't build the other functionality for now. TODO! 
+  let topicMatch: TopicMatch = "uncertain" as TopicMatch; // Haven't build the other functionality for now. TODO! 
+  let topicMessage: string;
 
-  if (topicMatch === "match") {
-    topicMessage = `<p>You had some shared interests!</p><p>Topic notes:</p>`
-  } 
-  if (topicMatch === "noMatch") {
-    topicMessage = `<p>It seems you guys didn't have any preferred topics in common.</p><p>Topic notes:</p>` 
-  }
-  if (topicMatch === "uncertain") {
-    topicMessage = `<p><strong>Topic notes</strong></p>` 
+  switch (topicMatch) {
+    case 'match':
+      topicMessage = `<p>You had some shared interests!</p><p>Topic notes:</p>`;
+      break;
+    case 'noMatch':
+      topicMessage = `<p>It seems you guys didn't have any preferred topics in common.</p><p>Topic notes:</p>`;
+      break;
+    case 'uncertain':
+      topicMessage = `<p><strong>Topic notes</strong></p>`;
+      break;
   }
 
   const userTopicNotesDangerous = `${userName}: "` + formDataSourceUser.topicNotes + `"`
@@ -107,7 +108,11 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const $ = cheerioParse("<div></div>");
 
   $('div').append( cheerioParse(matchLine).root() )
-  $('div').append( cheerioParse(formatMessage).root() )
+
+  $('div').append(formatMessage)
+  $('.username').text(userName)
+  $('.target-username').text(targetUserName)
+
   $('div').append( getParagraphWithText(userFormatNotesDangerous) )
   $('div').append( getParagraphWithText(targetUserFormatNotesDangerous) )
   $('div').append( cheerioParse(topicMessage).root() )
