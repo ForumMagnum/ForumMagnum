@@ -68,21 +68,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   dialogueUserRow: {
     display: 'flex',
+    alignItems: 'center',
     background: theme.palette.panelBackground.default,
-    padding: 4
+    padding: 8
   },
 
   dialogueMatchCheckbox: {},
   dialogueMatchUsername: {
-    marginTop: 4,
     marginRight: 20
   },
   dialogueMatchMessageButton: {
-    marginTop: 4,
     marginRight: 20
   },
   dialogueMatchPreferencesButton: {
-    marginTop: 4,
     marginRight: 20
   }
 });

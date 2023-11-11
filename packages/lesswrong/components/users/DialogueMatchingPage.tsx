@@ -177,20 +177,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap'
   },
   messageButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+    height: 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    borderRadius: 5
   },
   enterTopicsButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+    height: 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    borderRadius: 5
   },
   lightgreenButton: {
     height: 'auto', // ???
