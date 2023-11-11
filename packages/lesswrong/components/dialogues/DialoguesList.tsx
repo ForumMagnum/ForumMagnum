@@ -11,6 +11,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
+import { gql, useQuery } from '@apollo/client';
+import { useMulti } from '../../lib/crud/withMulti';
+import { getRowProps } from '../users/DialogueMatchingPage';
+import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogueFacilitationItem: {
@@ -60,6 +64,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   subheading: {
     marginTop: '10px',
+  },
+
+  dialogueUserRow: {
+    display: 'flex'
   }
 });
 
@@ -140,7 +148,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 };
 
 const DialoguesList = ({ classes }: { classes: ClassesType }) => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
   const [showOptIn, setShowOptIn] = useState(optInStartState);
@@ -155,7 +163,14 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
     fragmentName: "PostsListWithVotes",
     resolverName: "MyDialogues",
     limit: 3,
-  }); 
+  });
+
+  const {
+    matchedUsersQueryResult: { data: matchedUsersResult },
+    userDialogueChecksResult: { results: userDialogueChecks = [] },
+  } = useDialogueMatchmaking();
+
+  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
 
   const dialoguesTooltip = <div>
     <p>Dialogues between a small group of users. Click to see more.</p>
@@ -166,6 +181,18 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const myDialoguesTooltip = <div>
       <div>These are the dialoges you are involved in (both drafts and published)</div>
     </div>
+
+  const rowPropsList = currentUser && getRowProps<false>({
+    currentUser,
+    isUpvotedUser: false,
+    showAgreement: false,
+    showBio: false,
+    showFrequentCommentedTopics: false,
+    showKarma: false,
+    showPostsYouveRead: false,
+    userDialogueChecks,
+    users: matchedUsers ?? []
+  });
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -184,24 +211,67 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
       )}
 
       {renderMyDialogues && (
-          <div className={classes.subsection}>
-            <AnalyticsContext pageSubSectionContext="myDialogues">
-              <LWTooltip placement="top-start" title={myDialoguesTooltip}>
-                <Link to={"/dialogues"}>
-                  <SectionSubtitle className={classes.subheading}>
-                    My Dialogues (only visible to you)
-                  </SectionSubtitle>
-                </Link>
-              </LWTooltip>
-              {myDialogues?.map((post, i: number) =>
-                <PostsItem
-                  key={post._id} post={post}
-                  showBottomBorder={i < myDialogues.length-1}
-                />
-              )}
-            </AnalyticsContext>
-          </div>
-        )}
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="myDialogues">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogues"}>
+                <SectionSubtitle className={classes.subheading}>
+                  My Dialogues (only visible to you)
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            {myDialogues?.map((post, i: number) =>
+              <PostsItem
+                key={post._id} post={post}
+                showBottomBorder={i < myDialogues.length-1}
+              />
+            )}
+          </AnalyticsContext>
+        </div>
+      )}
+
+      {(
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogueMatching"}>
+                <SectionSubtitle className={classes.subheading}>
+                  Users I've Matched With
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            <div>
+              {currentUser && rowPropsList?.map(rowProps => {
+                const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+                return (<div key={targetUser._id} className={classes.dialogueUserRow}>
+                  <DialogueCheckBox
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    checkId={checkId}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
+                  />
+                  <UsersName
+                    className={classes.displayName}
+                    documentId={targetUser._id}
+                    simple={false} />
+                  <MessageButton
+                    targetUserId={targetUser._id}
+                    currentUser={currentUser}
+                  />
+                  <MatchDialogueButton
+                    isMatched={userIsMatched}
+                    checkId={checkId}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    currentUser={currentUser}
+                  />
+                </div>);
+              })}
+            </div>
+          </AnalyticsContext>
+        </div>
+      )}
       
 
    </SingleColumnSection>

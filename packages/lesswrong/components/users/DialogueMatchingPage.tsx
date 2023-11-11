@@ -29,7 +29,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
-//import {red} from '@material-ui/core/colors';
+import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 
 export type UpvotedUser = {
   _id: string;
@@ -70,13 +70,10 @@ export type TagWithCommentCount = {
 }
 
 interface CommonDialogueUserRowProps {
-  checkId: string | undefined;
+  checkId: string;
   userIsChecked: boolean;
   userIsMatched: boolean;
-  classes: ClassesType;
   currentUser: UsersCurrent;
-  loadingNewDialogue: boolean;
-  createDialogue: ((title: string, participants: string[]) => void);
   showBio: boolean | undefined;
   showFrequentCommentedTopics: boolean | undefined;
   showPostsYouveRead: boolean | undefined;
@@ -102,8 +99,6 @@ type CommonUserTableProps = {
   gridClassName: string,
   currentUser: UsersCurrent;
   userDialogueChecks: DialogueCheckInfo[];
-  loadingNewDialogue: boolean;
-  createDialogue: (title: string, participants: string[]) => void;
   showBio: boolean;
   showPostsYouveRead: boolean;
   showFrequentCommentedTopics: boolean;
@@ -138,8 +133,6 @@ type MatchDialogueButtonProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: UsersCurrent;
-  loadingNewDialogue: boolean;
-  createDialogue: (title: string, participants: string[]) => void;
   classes: ClassesType;
 };
 
@@ -362,10 +355,10 @@ const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks:
   };
 }
 
-const getRowProps = <V extends boolean>(tableProps: UserTableProps<V>): DialogueUserRowProps<V>[] => {
+export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V>, 'classes' | 'gridClassName'>): DialogueUserRowProps<V>[] => {
   return tableProps.users.map(targetUser => {
     const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
-    const { users, userDialogueChecks, gridClassName, ...remainingRowProps } = tableProps;
+    const { users, userDialogueChecks, ...remainingRowProps } = tableProps;
   
     const rowProps = {
       targetUser,
@@ -801,8 +794,6 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   targetUserId,
   targetUserDisplayName,
   currentUser,
-  loadingNewDialogue,
-  createDialogue,
   classes,
 }) => {
 
@@ -880,9 +871,9 @@ const MessageButton: React.FC<{
 };
 
 
-const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX.Element => {
-  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, loadingNewDialogue, createDialogue, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
-  const { UsersName } = Components;
+const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
+  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
+  const { UsersName, DialogueCheckBox, MessageButton, MatchDialogueButton } = Components;
 
   return <React.Fragment key={`${targetUser._id}_other`}>
     <DialogueCheckBox
@@ -891,7 +882,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX
       checkId={checkId}
       isChecked={userIsChecked}
       isMatched={userIsMatched}
-      classes={classes} />
+    />
     <UsersName
       className={classes.displayName}
       documentId={targetUser._id}
@@ -899,16 +890,14 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V>): JSX
     <MessageButton
       targetUserId={targetUser._id}
       currentUser={currentUser}
-      classes={classes} />
+    />
     <MatchDialogueButton
       isMatched={userIsMatched}
       checkId={checkId}
       targetUserId={targetUser._id}
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
-      loadingNewDialogue={loadingNewDialogue}
-      createDialogue={createDialogue}
-      classes={classes} />
+    />
     {showKarma && <div className={classes.centeredText}> {targetUser.total_power} </div>}
     {showAgreement && <div className={classes.centeredText}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
@@ -935,6 +924,8 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     ...rest
   } = props;
 
+  const { DialogueUserRow } = Components;
+
   const headers = [
     "Dialogue",
     "Name",
@@ -950,11 +941,11 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   let rows;
   if (props.isUpvotedUser) {
     const allRowProps = getRowProps<true>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
+    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
   } else {
     props.showKarma
     const allRowProps = getRowProps<false>(props);
-    rows = allRowProps.map((props) => <DialogueUserRow key={props.targetUser._id} {...props} />);
+    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
   }
 
   return (
@@ -978,8 +969,11 @@ export const DialogueMatchingPage = ({classes}: {
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
-  const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
-  const { history } = useNavigation();
+  const {
+    matchedUsersQueryResult: { data: matchedUsersResult },
+    userDialogueChecksResult: { results: userDialogueChecks },
+    usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
+  } = useDialogueMatchmaking();
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -1001,72 +995,12 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
-  const { data: matchedUsersResult } = useQuery(gql`
-    query GetDialogueMatchedUsers {
-      GetDialogueMatchedUsers {
-        _id
-        displayName
-      }
-    }
-  `);
-
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
-
-  const {loading: userLoading, results: userDialogueChecks} = useMulti({
-    terms: {
-      view: "userDialogueChecks",
-      userId: currentUser?._id,
-      limit: 1000,
-    },
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-  });
-
-  const {loading: userOptedInLoading, results: usersOptedInToDialogueFacilitation, loadMoreProps} = useMulti({
-    terms: { 
-      view: 'usersWithOptedInToDialogueFacilitation',
-      limit: 10, 
-        },
-    fragmentName: 'UsersOptedInToDialogueFacilitation',
-    collectionName: 'Users'  
-  });
 
   if (loading) {
     return <Loading />;
   } else if (!usersOptedInToDialogueFacilitation) {
     return <p>Error...</p>;
-  }
-
-  const targetUserIds = userDialogueChecks?.map(check => check.targetUserId) ?? [];
-
-  async function createDialogue(title: string, participants: string[]) {
-    const createResult = await createPost({
-      data: {
-        title,
-        draft: true,
-        collabEditorDialogue: true,
-        coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
-        shareWithUsers: participants,
-        sharingSettings: {
-          anyoneWithLinkCan: "none",
-          explicitlySharedUsersCan: "edit",
-        },
-        contents: {
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: ""
-          }
-        } as AnyBecauseHard
-      },
-    });
-    if (createResult?.data?.createPost?.data) {
-      const post = createResult?.data?.createPost?.data;
-      if (post) {
-        const postId = post._id;
-        const postEditUrl = `/editPost?postId=${postId}`;
-        history.push(postEditUrl);
-      }
-    }
   }
 
   if (!currentUser) return <p>You have to be logged in to view this page</p>
@@ -1137,8 +1071,6 @@ export const DialogueMatchingPage = ({classes}: {
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
           showBio={true}
           showKarma={false}
           showAgreement={false}
@@ -1161,8 +1093,6 @@ export const DialogueMatchingPage = ({classes}: {
           gridClassName={classes.matchContainerGridV1}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
           showBio={false}
           showKarma={true}
           showAgreement={true}
@@ -1204,8 +1134,6 @@ export const DialogueMatchingPage = ({classes}: {
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
           showBio={true}
           showKarma={false}
           showAgreement={false}
@@ -1225,26 +1153,32 @@ export const DialogueMatchingPage = ({classes}: {
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
           userDialogueChecks={userDialogueChecks}
-          loadingNewDialogue={loadingNewDialogue}
-          createDialogue={createDialogue}
           showBio={true}
           showKarma={false}
           showAgreement={false}
           showPostsYouveRead={true}
           showFrequentCommentedTopics={true}
         />
-        <LoadMore {...loadMoreProps} />
+        <LoadMore {...optedInUsersLoadMoreProps} />
       </div>
     </div>
     <IntercomWrapper />
   </div>)
 }
 
+const MatchDialogueButtonComponent = registerComponent('MatchDialogueButton', MatchDialogueButton, {styles});
+const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
+const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
+const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
 const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {
     NextStepsDialog: typeof NextStepsDialogComponent
+    MatchDialogueButton: typeof MatchDialogueButtonComponent
+    MessageButton: typeof MessageButtonComponent
+    DialogueCheckBox: typeof DialogueCheckBoxComponent
+    DialogueUserRow: typeof DialogueUserRowComponent
     DialogueMatchingPage: typeof DialogueMatchingPageComponent
   }
 }
