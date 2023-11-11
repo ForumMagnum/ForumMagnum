@@ -39,6 +39,7 @@ const NotifyMeButton = ({
   hideLabel = false,
   hideLabelOnMobile = false,
   hideIfNotificationsDisabled = false,
+  hideForLoggedOutUsers = false,
   asButton = false,
   componentIfSubscribed,
 }: {
@@ -54,6 +55,8 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  // by default, we show the button to logged out users so that we can prompt them to login/sign up when they click it
+  hideForLoggedOutUsers?: boolean,
   // uses <a> by default, set this to use <button>
   asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
@@ -63,6 +66,7 @@ const NotifyMeButton = ({
     document,
     overrideSubscriptionType,
     hideIfNotificationsDisabled,
+    hideForLoggedOutUsers,
   });
 
   if (disabled) {

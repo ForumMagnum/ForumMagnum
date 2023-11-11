@@ -4,12 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { gql, useQuery } from '@apollo/client';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -85,87 +80,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
-  const { captureEvent } = useTracking();
-
-  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
-  const updateCurrentUser = useUpdateCurrentUser()
-
-  const hideOptInItem = () => {
-    void updateCurrentUser({hideDialogueFacilitation: true})
-    setShowOptIn(false)
-  }
-
-  const handleOptInChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setOptIn(event.target.checked);
-    void updateCurrentUser({
-      hideDialogueFacilitation: event.target.checked, // we hide the item if the user has opted in to it
-      optedInToDialogueFacilitation: event.target.checked
-    }) 
-    captureEvent("optInToDialogueFacilitation", {optIn: event.target.checked})
-    
-    const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
-  
-    // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
-    const data = {
-      user: userDetailString,
-      abTestGroup: "optIn (no more AB test)",
-    };
-  
-    if (event.target.checked) {
-      try {
-        const response = await fetch(webhookURL, {
-          method: 'POST',
-          body: JSON.stringify(data),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        //eslint-disable-next-line no-console
-        console.error('There was a problem with the fetch operation: ', error);
-      }
-    }
-  };
-
-  const prompt = "Opt-in to dialogue invitations" 
- 
-  return (
-      <div className={classes.dialogueFacilitationItem}>
-        <IconButton className={classes.closeIcon} onClick={() => hideOptInItem()}>
-          <CloseIcon />
-        </IconButton>
-        <div className={classes.content} >
-          <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
-            <FormControlLabel  style={{ paddingLeft: '8px' }}
-              control={
-                <Checkbox
-                  checked={optIn}
-                  onChange={event => handleOptInChange(event)}
-                  name="optIn"
-                  color="primary"
-                  style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
-                />
-              }
-              label={<span className={classes.prompt} >{prompt}</span>}
-            />
-          </div>     
-          <p>
-            If you tick the box, we might check in to see if we can facilitate a dialogue you'd find valuable 
-            (by helping with topics, partners, scheduling or editing).  
-          </p>        
-        </div>
-      </div>
-  );
-};
-
 const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
-  const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
-  const [showOptIn, setShowOptIn] = useState(optInStartState);
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -223,7 +140,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
           <Link to="/dialogueMatching">Find Dialogue Partners</Link>
         </SectionButton>
       </SectionTitle>
-      {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
       
       {dialoguePosts?.map((post, i: number) =>
         <PostsItem

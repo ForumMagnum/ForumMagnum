@@ -43,14 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   filtersModal: {
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-  },
-  filtersModalOpen: {
-    display: "flex",
-  },
-  filtersModalClosed: {
-    display: "none",
   },
   filtersModalContent: {
     maxWidth: "max-content",
@@ -379,12 +374,11 @@ const SearchPageTabbed = ({classes}:{
         <div ref={scrollToRef} />
 
         <Modal
-          open={true}
+          open={modalOpen}
           onClose={() => setModalOpen(false)}
           aria-labelledby="search-filters-modal"
           aria-describedby="search-filters-modal"
-          style={{display: modalOpen ? 'flex' : 'none'}}
-          className={classNames(classes.filtersModal, {[classes.filtersModalOpen]: modalOpen}, {[classes.filtersModalClosed]: !modalOpen})}
+          className={classNames(classes.filtersModal)}
         >
           <div className={classes.filtersModalContent}>
             <Components.SearchFilters

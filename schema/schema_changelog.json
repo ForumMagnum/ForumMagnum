@@ -395,7 +395,12 @@
     "timestamp": "2023-11-08T11:00:35.000Z"
   },
   {
-    "acceptsSchemaHash": "9ca594e732abb9886c3f39784104f054",
+    "acceptsSchemaHash": "9993689a4229639120ef85f8531151ad",
+    "acceptedByMigration": "20231108T122236.ElectionCandidates_tagId_not_null.ts",
+    "timestamp": "2023-11-08T12:22:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f3edfafda2c7f4e5b320c267a3d1bf5a",
     "acceptedByMigration": "20231109T212710.add_DialogueMatchPreferences_table.ts",
     "timestamp": "2023-11-09T21:27:10.000Z"
   }

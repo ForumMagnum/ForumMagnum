@@ -525,12 +525,12 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly href: string,
   readonly fundraiserLink: string | null,
   readonly gwwcLink: string | null,
+  readonly gwwcId: string | null,
   readonly description: string,
   readonly userId: string,
   readonly postCount: number,
   readonly tagId: string | null,
   readonly isElectionFundraiser: boolean,
-  readonly gwwcId: string | null,
   readonly amountRaised: number | null,
   readonly targetAmount: number | null,
 }
@@ -2459,6 +2459,7 @@ interface TagFullContributorsList { // fragment on Tags
 
 interface TagEditFragment extends TagDetailsFragment { // fragment on Tags
   readonly isPostType: boolean,
+  readonly parentTagId: string,
   readonly parentTag: TagBasicInfo|null,
   readonly subforumIntroPostId: string,
   readonly tagFlagsIds: Array<string>,
@@ -3333,7 +3334,9 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly href: string,
   readonly fundraiserLink: string | null,
   readonly gwwcLink: string | null,
+  readonly gwwcId: string | null,
   readonly description: string,
+  readonly tagId: string | null,
   readonly tag: TagBasicInfo|null,
   readonly postCount: number,
   readonly baseScore: number,

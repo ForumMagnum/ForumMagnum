@@ -9,7 +9,9 @@ registerFragment(`
     href
     fundraiserLink
     gwwcLink
+    gwwcId
     description
+    tagId
     tag {
       ...TagBasicInfo
     }

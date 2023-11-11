@@ -1,5 +1,6 @@
 import { schemaDefaultValue } from "../../collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
+import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 
 const schema: SchemaType<DbElectionCandidate> = {
   /** The name of the election this is a candidate in */
@@ -10,6 +11,13 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "select",
+    options: () => [
+      {
+        value: eaGivingSeason23ElectionName,
+        label: "EA Giving Season 2023",
+      },
+    ],
   },
   /** The name of this candidate */
   name: {
@@ -19,6 +27,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
+    label: "Candidate name",
   },
   /** URL for this candidates logo */
   logoSrc: {
@@ -28,6 +38,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
+    label: "Logo image URL",
   },
   /** Link for this candidate (i.e. to the org's website) */
   href: {
@@ -37,6 +49,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: false,
     nullable: false,
+    control: "MuiTextField",
+    label: "Candidate website URL",
   },
   /** Link for this candidate's GWWC fundraiser page */
   fundraiserLink: {
@@ -46,6 +60,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    control: "MuiTextField",
+    label: "GWWC fundraiser URL",
   },
   /** Link for this candidate's page on GWWC (ex: https://www.givingwhatwecan.org/en-US/charities/helen-keller-international) */
   gwwcLink: {
@@ -55,60 +71,8 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
-  },
-  /** Short plaintext description */
-  description: {
-    type: String,
-    canRead: ["guests"],
-    canCreate: ["sunshineRegiment", "admins"],
-    canUpdate: ["sunshineRegiment", "admins"],
-    optional: false,
-    nullable: false,
-  },
-  /** The user who created this candidate (this is required by makeVoteable) */
-  userId: {
-    ...foreignKeyField({
-      idFieldName: "userId",
-      resolverName: "user",
-      collectionName: "Users",
-      type: "User",
-      nullable: true,
-    }),
-    optional: false,
-    nullable: false,
-    canRead: ["guests"],
-    canCreate: ["sunshineRegiment", "admins"],
-    canUpdate: ["sunshineRegiment", "admins"],
-  },
-  /** Denormalized count of posts referencing this candidate in this election */
-  postCount: {
-    type: Number,
-    canRead: ["guests"],
-    optional: false,
-    nullable: false,
-    defaultValue: 0,
-  },
-  /** The tag user for marking posts as being relevant to this candidate */
-  tagId: {
-    ...foreignKeyField({
-      idFieldName: "tagId",
-      resolverName: "tag",
-      collectionName: "Tags",
-      type: "Tag",
-      nullable: true,
-    }),
-    optional: true,
-    nullable: true,
-    canRead: ["guests"],
-    canCreate: ["sunshineRegiment", "admins"],
-  },
-  /** Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate */
-  isElectionFundraiser: {
-    type: Boolean,
-    canRead: ["guests"],
-    canCreate: ["sunshineRegiment", "admins"],
-    canUpdate: ["sunshineRegiment", "admins"],
-    ...schemaDefaultValue(false),
+    control: "MuiTextField",
+    label: "GWWC charity link",
   },
   /**
    * The id of the fundraiser ("Parfit slug" in gwwc's CMS). This can be different from the slug in the fundraiser link
@@ -121,6 +85,76 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    control: "MuiTextField",
+    label: "GWWC fundraiser ID (\"Parfit slug\")",
+  },
+  /** Short plaintext description */
+  description: {
+    type: String,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    optional: false,
+    nullable: false,
+    control: "MuiTextField",
+    label: "Candidate description",
+    form: {
+      multiLine: true,
+      rows: 4,
+    },
+  },
+  /** The user who created this candidate (this is required by makeVoteable) */
+  userId: {
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
+    optional: true,
+    nullable: false,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    onCreate: ({currentUser}) => currentUser!._id,
+    hidden: true,
+  },
+  /** Denormalized count of posts referencing this candidate in this election */
+  postCount: {
+    type: Number,
+    canRead: ["guests"],
+    optional: true,
+    nullable: false,
+    hidden: true,
+    ...schemaDefaultValue(0),
+  },
+  /** The tag user for marking posts as being relevant to this candidate */
+  tagId: {
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
+    optional: false,
+    nullable: true,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    control: "TagSelect",
+    label: "Tag (type to search)",
+  },
+  /** Whether this is the main fundraiser (that will be distributed among the winning candidates), as opposed to being a particular candidate */
+  isElectionFundraiser: {
+    type: Boolean,
+    canRead: ["guests"],
+    canCreate: ["sunshineRegiment", "admins"],
+    canUpdate: ["sunshineRegiment", "admins"],
+    ...schemaDefaultValue(false),
+    optional: true,
+    hidden: true,
   },
   /** The amount of money raised in the fundraiser for this candidate */
   amountRaised: {
@@ -130,6 +164,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    hidden: true,
   },
   /** The target amount of money to raise in the fundraiser for this candidate */
   targetAmount: {
@@ -139,6 +174,7 @@ const schema: SchemaType<DbElectionCandidate> = {
     canUpdate: ["sunshineRegiment", "admins"],
     optional: true,
     nullable: true,
+    hidden: true,
   },
 };
 

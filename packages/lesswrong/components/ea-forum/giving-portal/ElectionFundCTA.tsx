@@ -34,7 +34,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal.ctaText,
   },
   image: {
-    width: 100,
     color: theme.palette.givingPortal[1000],
   },
   title: {
@@ -63,7 +62,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     padding: 16,
     outline: "none",
-    whiteSpace: "nowrap",
+    textAlign: "center",
     "&:active": {
       opacity: 0.8,
     },

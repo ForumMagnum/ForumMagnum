@@ -38,7 +38,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "9ca594e732abb9886c3f39784104f054";
+export const acceptsSchemaHash = "f3edfafda2c7f4e5b320c267a3d1bf5a";
 
 import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection"
 import { createTable, dropTable } from "./meta/utils"
