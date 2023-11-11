@@ -8,6 +8,7 @@ import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import MuiPeopleIcon from "@material-ui/icons/People";
 
 const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
@@ -82,13 +83,13 @@ const styles = (theme: ThemeType) => ({
   dialogueMatchUsername: {
     marginRight: 20,
     '&&': {
-      color: theme.palette.text.primary
+      color: theme.palette.text.primary,
+      textAlign: 'left'
     },
     width: 95,
     whiteSpace: 'nowrap',
     textOverflow: 'ellpisis',
     overflow: 'hidden',
-    textAlign: 'left'
   },
   dialogueMatchNote: {
     
@@ -159,10 +160,11 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         </LWTooltip>}
       >
         <SectionButton>
+          <MuiPeopleIcon />
           <Link to="/dialogueMatching">Find Dialogue Partners</Link>
         </SectionButton>
       </SectionTitle>
-      
+
       <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
           {currentUser && rowPropsList?.map(rowProps => {
