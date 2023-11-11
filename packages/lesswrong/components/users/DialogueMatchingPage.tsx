@@ -149,15 +149,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read   
-    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)          45px           80px            200px     550px`,
+    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read
+    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)         100px           100px            200px     425px`,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     550px `,
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     425px `,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
