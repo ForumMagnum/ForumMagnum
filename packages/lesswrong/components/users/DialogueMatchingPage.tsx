@@ -140,11 +140,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 20,
     ...commentBodyStyles(theme),
+    background: theme.palette.background.default,
   },
   matchContainer: {
     maxWidth: 1300,
     padding: 20,
-    backgroundColor: theme.palette.grey[100],
+    background: theme.palette.panelBackground.default,
     borderRadius: 5,
   },
   matchContainerGridV1: {
@@ -179,7 +180,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 'auto', // ???
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
     whiteSpace: 'nowrap'
   },

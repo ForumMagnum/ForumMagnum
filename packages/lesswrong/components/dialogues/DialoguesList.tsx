@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   dialogueUserRow: {
     display: 'flex',
-    background: theme.palette.background.primaryDim,
+    background: theme.palette.panelBackground.default,
     padding: 4
   },
 
