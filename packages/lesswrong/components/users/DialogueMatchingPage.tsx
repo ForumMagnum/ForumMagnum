@@ -176,6 +176,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
+  dialogBox: {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      // flexDirection: 'Column',
+    },
+  },
+  schedulingPreferences: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  schedulingQuestion: {
+    marginRight: '30px',
+    width: '400px',
+    paddingBottom: '15px',
+  },
   messageButton: {
     height: 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -552,7 +569,7 @@ const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' 
 
 
 
-const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId }: NextStepsDialogProps) => {
+const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
   const [formatSync, setFormatSync] = useState<SyncPreference>("No");
@@ -587,20 +604,19 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   }
 
   return (
-    <LWDialog open onClose={onClose}>
-      <div style={{ display: 'flex' }}>
-        <div>
+    <LWDialog 
+      open 
+      onClose={onClose} 
+      // className={classes.dialogBox}
+      // PaperProps={{
+      //   style: {
+      //     padding: '10px', // Change this to your desired padding
+      //   },
+      // }}
+    >
+      <div className={classes.dialogBox}>
           <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent >
-            <div>
-              {/* <p>Fill in this quick form to get started. Once you submit you'll be taken to a chat where you can see {targetUserDisplayName}'s answers.</p> */}
-              {/* <h3>Topic</h3> */}
-              {/* <p>Here are some things we auto-generated that you might be interested in chatting about.</p> */}
-              {/* <div style={{backgroundColor: '#f5f5f5', maxHeight: '200px', overflowY: 'scroll', padding: '10px'}}>
-                <p>• Prosaic Alignment is currently more important to work on than Agent Foundations work</p>
-                <p>• EAs and rationalists should strongly consider having lots more children than they currently are</p>
-                <p>• It was a mistake to increase salaries in the broader EA/Rationality/AI-Alignment ecosystem between 2019 and 2022</p>
-              </div> */}
               <h3>What are you interested in chatting about?</h3>
               <TextField
                 multiline
@@ -615,8 +631,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <br />
               <h3>What Format Do You Prefer?</h3>
               
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginRight: '30px', width: '400px', paddingBottom: '15px' }}>Find a synchronous 1h-3h block to sit down and dialogue</div>
+              <div className={classes.schedulingPreferences}>
+                <div className={classes.schedulingQuestion}>Find a synchronous 1h-3h block to sit down and dialogue</div>
                   <Select
                   value={formatSync} 
                   onChange={event => setFormatSync(event.target.value as SyncPreference)}
@@ -625,8 +641,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   </Select>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginRight: '30px', width: '400px', paddingBottom: '15px' }}>Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing</div>
+              <div className={classes.schedulingPreferences}>
+                <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing</div>
                   <Select
                   value={formatAsync} 
                   onChange={event => setFormatAsync(event.target.value as SyncPreference)}
@@ -645,9 +661,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                 value={formatNotes}
                 onChange={event => setFormatNotes(event.target.value)}
               />
-            </div>
           </DialogContent>
-        </div>
       </div>
       <DialogActions>
         <Button onClick={onClose} color="default">
