@@ -184,19 +184,23 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
   const {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks = [] },
-  } = useDialogueMatchmaking();
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
 
-  const dialoguesTooltip = <div>
+  const dialoguesTooltip = (<div>
     <p>Dialogues between a small group of users. Click to see more.</p>
-  </div>
+  </div>);
 
   const renderMyDialogues = !!currentUser && myDialogues?.length 
 
-  const myDialoguesTooltip = <div>
-      <div>These are the dialoges you are involved in (both drafts and published)</div>
-    </div>
+  const myDialoguesTooltip = (<div>
+    <div>These are the dialogues you are involved in (both drafts and published)</div>
+  </div>);
+
+  const matchmakingTooltip = (<div>
+    <p>Users you've already matched with for dialogues.  Click here to go to the dialogue matchmaking page.</p>
+  </div>);
 
   const rowPropsList = currentUser && getRowProps<false>({
     currentUser,
@@ -249,7 +253,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
       {(
         <div className={classes.subsection}>
           <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
-            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+            <LWTooltip placement="top-start" title={matchmakingTooltip}>
               <Link to={"/dialogueMatching"}>
                 <SectionSubtitle className={classes.subheading}>
                   Users I've Matched With
