@@ -115,10 +115,10 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   $('div').append( getParagraphWithText(userFormatNotesDangerous) )
   $('div').append( getParagraphWithText(targetUserFormatNotesDangerous) )
-  $('div').append( cheerioParse(topicMessage).root() )
+  $('div').append(topicMessage)
   $('div').append( getParagraphWithText(userTopicNotesDangerous) )
   $('div').append( getParagraphWithText(targetUserTopicNotesDangerous) )
-  $('div').append( cheerioParse(nextAction).root() )
+  $('div').append(nextAction)
 
   // paragraphContents.forEach(paragraphContent => {
   //   const paragraphWithText = getParagraphWithText(paragraphContent);
