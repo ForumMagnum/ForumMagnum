@@ -355,7 +355,7 @@ const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks:
   };
 }
 
-export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V>, 'classes' | 'gridClassName'>): DialogueUserRowProps<V>[] => {
+export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V>, 'classes' | 'gridClassName' | 'showHeaders'>): DialogueUserRowProps<V>[] => {
   return tableProps.users.map(targetUser => {
     const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
     const { users, userDialogueChecks, ...remainingRowProps } = tableProps;

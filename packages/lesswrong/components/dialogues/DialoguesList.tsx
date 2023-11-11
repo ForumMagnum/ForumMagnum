@@ -67,7 +67,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 
   dialogueUserRow: {
-    display: 'flex'
+    display: 'flex',
+    background: theme.palette.background.primaryDim,
+    padding: 4
+  },
+
+  dialogueMatchCheckbox: {},
+  dialogueMatchUsername: {
+    marginTop: 4,
+    marginRight: 20
+  },
+  dialogueMatchMessageButton: {
+    marginTop: 4,
+    marginRight: 20
+  },
+  dialogueMatchPreferencesButton: {
+    marginTop: 4,
+    marginRight: 20
   }
 });
 
@@ -244,28 +260,37 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
               {currentUser && rowPropsList?.map(rowProps => {
                 const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
                 return (<div key={targetUser._id} className={classes.dialogueUserRow}>
-                  <DialogueCheckBox
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName}
-                    checkId={checkId}
-                    isChecked={userIsChecked}
-                    isMatched={userIsMatched}
-                  />
-                  <UsersName
-                    className={classes.displayName}
-                    documentId={targetUser._id}
-                    simple={false} />
-                  <MessageButton
-                    targetUserId={targetUser._id}
-                    currentUser={currentUser}
-                  />
-                  <MatchDialogueButton
-                    isMatched={userIsMatched}
-                    checkId={checkId}
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName}
-                    currentUser={currentUser}
-                  />
+                  <div className={classes.dialogueMatchCheckbox}>
+                    <DialogueCheckBox
+                      targetUserId={targetUser._id}
+                      targetUserDisplayName={targetUser.displayName}
+                      checkId={checkId}
+                      isChecked={userIsChecked}
+                      isMatched={userIsMatched}
+                    />
+                  </div>
+                  <div className={classes.dialogueMatchUsername}>
+                    <UsersName
+                      className={classes.displayName}
+                      documentId={targetUser._id}
+                      simple={false}
+                    />
+                  </div>
+                  <div className={classes.dialogueMatchMessageButton}>
+                    <MessageButton
+                      targetUserId={targetUser._id}
+                      currentUser={currentUser}
+                    />
+                  </div>
+                  <div className={classes.dialogueMatchPreferencesButton}>
+                    <MatchDialogueButton
+                      isMatched={userIsMatched}
+                      checkId={checkId}
+                      targetUserId={targetUser._id}
+                      targetUserDisplayName={targetUser.displayName}
+                      currentUser={currentUser}
+                    />
+                  </div>
                 </div>);
               })}
             </div>
