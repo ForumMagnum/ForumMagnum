@@ -162,7 +162,7 @@ const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { class
 };
 
 const DialoguesList = ({ classes }: { classes: ClassesType }) => {
-  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
   const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
   const [showOptIn, setShowOptIn] = useState(optInStartState);
@@ -218,7 +218,11 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
           Dialogues
         </LWTooltip>}
-      />
+      >
+        <SectionButton>
+          <Link to="/dialogueMatching">Find Dialogue Partners</Link>
+        </SectionButton>
+      </SectionTitle>
       {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
       
       {dialoguePosts?.map((post, i: number) =>
