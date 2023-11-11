@@ -147,7 +147,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   }
 
   const targetUser = await context.loaders.Users.load(targetUserId);
-  const title = `${currentUser.displayName} and ${targetUser.displayName}`;
+  const title = `Checking if any topic / format overlap...` // ${currentUser.displayName} and ${targetUser.displayName}`;
 
   const formDataUser1 = {
     ...userMatchPreferences,

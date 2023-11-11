@@ -999,6 +999,10 @@ export const DialogueMatchingPage = ({classes}: {
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const topUsers = userDialogueUsefulData?.topUsers;
+  const dialogueUsers = userDialogueUsefulData.dialogueUsers
+  const optedInUsers = usersOptedInToDialogueFacilitation
+  
 
   if (loading) {
     return <Loading />;
@@ -1090,7 +1094,7 @@ export const DialogueMatchingPage = ({classes}: {
         <h3>Your top upvoted users (last 1.5 years)</h3>
         <h4>Recently active</h4>
         <UserTable
-          users={userDialogueUsefulData.topUsers.filter(user => user.recently_active_matchmaking)}
+          users={topUsers.filter(user => user.recently_active_matchmaking)}
           isUpvotedUser={true}
           classes={classes}
           gridClassName={classes.matchContainerGridV1}
@@ -1109,7 +1113,7 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h4>Not recently active</h4>
         <UserTable
-          users={userDialogueUsefulData.topUsers.filter(user => !user.recently_active_matchmaking)}
+          users={topUsers.filter(user => !user.recently_active_matchmaking)}
           isUpvotedUser={true}
           classes={classes}
           gridClassName={classes.matchContainerGridV1}
@@ -1129,7 +1133,7 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h3>Users who published dialogues</h3>
         <UserTable
-          users={userDialogueUsefulData.dialogueUsers}
+          users={dialogueUsers}
           isUpvotedUser={false}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
@@ -1149,7 +1153,7 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h3>Users who opted in to dialogue matchmaking on frontpage</h3>
         <UserTable
-          users={usersOptedInToDialogueFacilitation}
+          users={optedInUsers}
           isUpvotedUser={false}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
