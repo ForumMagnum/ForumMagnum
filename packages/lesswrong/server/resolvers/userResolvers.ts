@@ -27,7 +27,6 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { createPaginatedResolver } from './paginatedResolver';
 
-
 addGraphQLSchema(`
   type CommentCountTag {
     name: String!
@@ -49,6 +48,7 @@ addGraphQLSchema(`
     vote_counts: Int!
     total_agreement: Float!
     agreement_values: String!
+    recently_active_matchmaking: Boolean!
   }
   type UserDialogueUsefulData {
     dialogueUsers: [User],
@@ -511,6 +511,8 @@ defineQuery({
       new UsersRepo().getUsersWhoHaveMadeDialogues(),
       new UsersRepo().getUsersTopUpvotedUsers(currentUser)
     ]);
+
+    console.log("recently active matchmaking", topUsers[0].recently_active_matchmaking)
 
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,

@@ -278,7 +278,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersTopUpvotedUsers(user:DbUser, limit = 30): Promise<UpvotedUser[]> {
+  async getUsersTopUpvotedUsers(user:DbUser, limit = 30, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
@@ -332,6 +332,22 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             AND u._id != $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
             AND v."cancelled" IS NOT TRUE
+    ),
+
+    "UserChecks" AS (
+      SELECT
+          u._id,
+          COALESCE(
+              EXISTS (
+                  SELECT 1
+                  FROM "DialogueChecks" as dc
+                  WHERE
+                      dc."userId" = u._id
+                      AND "checkedAt" > NOW() - INTERVAL '$5 days'
+              ),
+              FALSE
+          ) AS recently_active_matchmaking
+      FROM "Users" as u
     )
   
     SELECT
@@ -346,13 +362,19 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           SELECT val
           FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
           WHERE val != 0
-      ) AS agreement_values
-    FROM "CombinedVotes"
-    GROUP BY user_id, user_username, user_displayName
+      ) AS agreement_values,
+      uc.recently_active_matchmaking
+    FROM "CombinedVotes" as cv
+    LEFT JOIN "UserChecks" AS uc ON cv.user_id = uc._id
+    GROUP BY 
+      user_id, 
+      user_username, 
+      user_displayName,
+      uc.recently_active_matchmaking
     HAVING SUM(vote_power) > 1
     ORDER BY total_power DESC
     LIMIT $4;
-      `, [user._id, smallVotePower, bigVotePower, limit])
+      `, [user._id, smallVotePower, bigVotePower, limit, recencyLimitDays])
   }
 
 

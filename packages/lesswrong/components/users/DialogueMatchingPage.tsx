@@ -40,6 +40,7 @@ export type UpvotedUser = {
   vote_counts: number;
   total_agreement: number;
   agreement_values: string;
+  recently_active_matchmaking: boolean;
 };
 
 export type CommentCountTag = {
@@ -113,11 +114,13 @@ type UserTableProps<V extends boolean> = V extends false ? (CommonUserTableProps
   showKarma: false;
   showAgreement: false;
   isUpvotedUser: false;
+  showHeaders: boolean;
 }) : (CommonUserTableProps & {
   users: UpvotedUser[];
   showKarma: boolean;
   showAgreement: boolean;
   isUpvotedUser: true;
+  showHeaders: boolean;
 });
 
 type NextStepsDialogProps = {
@@ -152,8 +155,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //        checkbox         name         message                match                           upvotes                  agreement           tags    posts read   
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) minmax(min-content, 45px) minmax(min-content, 80px)  200px     550px`,
+    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read   
+    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)          45px           80px            200px     550px`,
     gridRowGap: '5px',
     columnGap: '10px',
     alignItems: 'center'
@@ -928,6 +931,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     classes,
     gridClassName,
     userDialogueChecks,
+    showHeaders,
     ...rest
   } = props;
 
@@ -955,7 +959,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
 
   return (
     <div className={gridClassName}>
-      <Headers titles={headers} className={classes.header} />
+      {showHeaders && <Headers titles={headers} className={classes.header} />}
       {rows}
     </div>
   );
@@ -989,6 +993,7 @@ export const DialogueMatchingPage = ({classes}: {
           displayName
           total_power
           total_agreement
+          recently_active_matchmaking
         }
        }
     }
@@ -1139,6 +1144,7 @@ export const DialogueMatchingPage = ({classes}: {
           showAgreement={false}
           showPostsYouveRead={true}
           showFrequentCommentedTopics={true}
+          showHeaders={true}
         />
       </div>
     </div>
@@ -1147,8 +1153,9 @@ export const DialogueMatchingPage = ({classes}: {
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Your top upvoted users (last 1.5 years)</h3>
+        <h4>Recently active</h4>
         <UserTable
-          users={userDialogueUsefulData.topUsers}
+          users={userDialogueUsefulData.topUsers.filter(user => user.recently_active_matchmaking)}
           isUpvotedUser={true}
           classes={classes}
           gridClassName={classes.matchContainerGridV1}
@@ -1161,6 +1168,28 @@ export const DialogueMatchingPage = ({classes}: {
           showAgreement={true}
           showPostsYouveRead={true}
           showFrequentCommentedTopics={true}
+          showHeaders={true}
+        />
+      </div>
+    </div>
+    <div className={classes.rootFlex}>
+      <div className={classes.matchContainer}>
+        <h4>Not used matchmaking</h4>
+        <UserTable
+          users={userDialogueUsefulData.topUsers.filter(user => !user.recently_active_matchmaking)}
+          isUpvotedUser={true}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV1}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          loadingNewDialogue={loadingNewDialogue}
+          createDialogue={createDialogue}
+          showBio={false}
+          showKarma={true}
+          showAgreement={true}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+          showHeaders={false}
         />
       </div>
     </div>
