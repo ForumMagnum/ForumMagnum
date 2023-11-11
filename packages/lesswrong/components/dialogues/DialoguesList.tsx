@@ -1,17 +1,15 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { gql, useQuery } from '@apollo/client';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
     paddingTop: 12,
     paddingBottom: 12,
@@ -42,7 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
       marginTop: 5,
     }
-  },  
+  },
+
+  subsection: {
+    marginBottom: theme.spacing.unit,
+  },
 
   closeIcon: { 
     color: "#e0e0e0",
@@ -65,22 +67,42 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
-    padding: 8
-  },
+    padding: 8,
+    marginBottom: 3,
+    borderRadius: 2,
 
-  dialogueMatchCheckbox: {},
+  },
+  dialogueMatchCheckbox: {
+    marginLeft: 6,
+    width: 29,
+    '& label': {
+      marginRight: 0
+    }
+  },
   dialogueMatchUsername: {
-    marginRight: 20
+    marginRight: 20,
+    '&&': {
+      color: theme.palette.text.primary
+    },
+    width: 95,
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellpisis',
+    overflow: 'hidden',
+    textAlign: 'left'
+  },
+  dialogueMatchNote: {
+    
   },
   dialogueMatchMessageButton: {
-    marginRight: 20
+    marginLeft: 'auto',
+    marginRight: 16
   },
   dialogueMatchPreferencesButton: {
-    marginRight: 20
+    marginRight: 3
   }
 });
 
-const DialoguesList = ({ classes }: { classes: ClassesType }) => {
+const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
 
@@ -141,6 +163,49 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
         </SectionButton>
       </SectionTitle>
       
+      <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+        <div>
+          {currentUser && rowPropsList?.map(rowProps => {
+            const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+            return (<div key={targetUser._id} className={classes.dialogueUserRow}>
+              <div className={classes.dialogueMatchCheckbox}>
+                <DialogueCheckBox
+                  targetUserId={targetUser._id}
+                  targetUserDisplayName={targetUser.displayName}
+                  checkId={checkId}
+                  isChecked={userIsChecked}
+                  isMatched={userIsMatched}
+                />
+              </div>
+              <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+                <UsersName
+                  documentId={targetUser._id}
+                  simple={false}
+                />
+              </PostsItem2MetaInfo>
+              <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+                You've matched with this user
+              </PostsItem2MetaInfo>
+              <div className={classes.dialogueMatchMessageButton}>
+                <MessageButton
+                  targetUserId={targetUser._id}
+                  currentUser={currentUser}
+                />
+              </div>
+              <div className={classes.dialogueMatchPreferencesButton}>
+                <MatchDialogueButton
+                  isMatched={userIsMatched}
+                  checkId={checkId}
+                  targetUserId={targetUser._id}
+                  targetUserDisplayName={targetUser.displayName}
+                  currentUser={currentUser}
+                />
+              </div>
+            </div>);
+          })}
+        </div>
+      </AnalyticsContext>
+      
       {dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
@@ -167,61 +232,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
           </AnalyticsContext>
         </div>
       )}
-
-      {(
-        <div className={classes.subsection}>
-          <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
-            <LWTooltip placement="top-start" title={matchmakingTooltip}>
-              <Link to={"/dialogueMatching"}>
-                <SectionSubtitle className={classes.subheading}>
-                  Users I've Matched With
-                </SectionSubtitle>
-              </Link>
-            </LWTooltip>
-            <div>
-              {currentUser && rowPropsList?.map(rowProps => {
-                const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
-                return (<div key={targetUser._id} className={classes.dialogueUserRow}>
-                  <div className={classes.dialogueMatchCheckbox}>
-                    <DialogueCheckBox
-                      targetUserId={targetUser._id}
-                      targetUserDisplayName={targetUser.displayName}
-                      checkId={checkId}
-                      isChecked={userIsChecked}
-                      isMatched={userIsMatched}
-                    />
-                  </div>
-                  <div className={classes.dialogueMatchUsername}>
-                    <PostsItem2MetaInfo>
-                      <UsersName
-                        className={classes.displayName}
-                        documentId={targetUser._id}
-                        simple={false}
-                      />
-                    </PostsItem2MetaInfo>
-                  </div>
-                  <div className={classes.dialogueMatchMessageButton}>
-                    <MessageButton
-                      targetUserId={targetUser._id}
-                      currentUser={currentUser}
-                    />
-                  </div>
-                  <div className={classes.dialogueMatchPreferencesButton}>
-                    <MatchDialogueButton
-                      isMatched={userIsMatched}
-                      checkId={checkId}
-                      targetUserId={targetUser._id}
-                      targetUserDisplayName={targetUser.displayName}
-                      currentUser={currentUser}
-                    />
-                  </div>
-                </div>);
-              })}
-            </div>
-          </AnalyticsContext>
-        </div>
-      )}
-      
 
    </SingleColumnSection>
   </AnalyticsContext>
