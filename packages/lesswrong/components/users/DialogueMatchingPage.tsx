@@ -1000,7 +1000,7 @@ export const DialogueMatchingPage = ({classes}: {
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
   const topUsers = userDialogueUsefulData?.topUsers;
-  const dialogueUsers = userDialogueUsefulData.dialogueUsers
+  const dialogueUsers = userDialogueUsefulData?.dialogueUsers
   const optedInUsers = usersOptedInToDialogueFacilitation
   
 
