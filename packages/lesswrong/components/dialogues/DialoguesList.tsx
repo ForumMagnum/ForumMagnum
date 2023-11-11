@@ -1,17 +1,15 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { gql, useQuery } from '@apollo/client';
-import { useMulti } from '../../lib/crud/withMulti';
 import { getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
     paddingTop: 12,
     paddingBottom: 12,
@@ -42,7 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
       marginTop: 5,
     }
-  },  
+  },
+
+  subsection: {
+    marginBottom: theme.spacing.unit,
+  },
 
   closeIcon: { 
     color: "#e0e0e0",
@@ -80,7 +82,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const DialoguesList = ({ classes }: { classes: ClassesType }) => {
+const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
 
@@ -194,7 +196,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
                   <div className={classes.dialogueMatchUsername}>
                     <PostsItem2MetaInfo>
                       <UsersName
-                        className={classes.displayName}
                         documentId={targetUser._id}
                         simple={false}
                       />
