@@ -250,9 +250,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkboxCheckedMatched: {
     height: '10px', 
-    color: 'green',
+    color: theme.palette.lwTertiary.main,
     '&$checked': {
-      color: 'green',
+      color: theme.palette.lwTertiary.main,
     },
   },
   checkboxCheckedNotMatched: {
