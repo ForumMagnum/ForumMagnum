@@ -18,6 +18,7 @@ import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
 import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
+import type { History } from 'history';
 
 import Select from '@material-ui/core/Select';
 
@@ -95,7 +96,7 @@ type RowUser = UsersOptedInToDialogueFacilitation & {
 };
 
 type CommonUserTableProps = {
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   gridClassName: string,
   currentUser: UsersCurrent;
   userDialogueChecks: DialogueCheckInfo[];
@@ -124,7 +125,7 @@ type NextStepsDialogProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   dialogueCheckId: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 };
 
 type MatchDialogueButtonProps = {
@@ -133,10 +134,10 @@ type MatchDialogueButtonProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: UsersCurrent;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
     ...commentBodyStyles(theme),
@@ -209,7 +210,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: 'nowrap',
     borderRadius: 5
   },
-  lightgreenButton: {
+  lightGreenButton: {
     height: 'auto', // ???
     maxHeight: `17px`,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -313,7 +314,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const redirect = (redirectId:string, history) => {
+const redirect = (redirectId: string | undefined, history: History<unknown>) => {
   if (redirectId) {
     const path = postGetEditUrl(redirectId)
     history.push(path)
@@ -395,7 +396,7 @@ export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V
   }) as DialogueUserRowProps<V>[];
 };
 
-const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) => {
+const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
   const { document: userData, loading } = useSingle({
     documentId: userId,
     collectionName: "Users",
@@ -418,7 +419,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType, userId: string }) 
   )
 };
 
-const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType, targetUserId: string, limit?: number }) => {
+const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, limit?: number }) => {
   const currentUser = useCurrentUser();
   const { Loading, PostsTooltip, LWDialog } = Components;
 
@@ -464,7 +465,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
   );
 };
 
-const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType, targetUserId: string }) => {
+const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof styles>, targetUserId: string }) => {
   const { Loading } = Components;
 
   const { loading, error, data } = useQuery(gql`
@@ -684,7 +685,7 @@ const DialogueCheckBox: React.FC<{
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -874,7 +875,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 const MessageButton: React.FC<{
   targetUserId: string;
   currentUser: UsersCurrent; 
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }> = ({ targetUserId, currentUser, classes }) => {
   const { NewConversationButton } = Components;
   
@@ -974,7 +975,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
 };
 
 export const DialogueMatchingPage = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
 
   
