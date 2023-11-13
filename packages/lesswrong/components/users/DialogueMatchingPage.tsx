@@ -31,6 +31,7 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 export type UpvotedUser = {
   _id: string;
@@ -194,9 +195,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-    marginRight: 30,
-    width: 400,
-    paddingBottom: 15,
+
   },
   messageButton: {
     maxHeight: minRowHeight,
@@ -319,6 +318,48 @@ const styles = (theme: ThemeType) => ({
     width: 30,
     color: "#9a9a9a",
   },
+  dialogueTopicList: {
+    marginTop: 16,
+    marginBottom: 16
+  },
+  dialogueTopicRow: {
+    display: 'flex',
+    alignItems: 'center',
+    alignContent: 'space-between',
+    marginBottom: 8,
+    marginTop: 8
+  },
+  dialogueTopicRowTopicText: {
+    fontSize:'1.1rem',
+    opacity: '0.8',
+    lineHeight: '1.32rem'
+  },
+  dialogueTopicRowTopicCheckbox: {
+    padding: '4px 16px 4px 8px'
+  },
+  dialogueTopicSubmit: {
+    display: 'flex'
+  },
+  dialogueTitle: {
+    paddingBottom: 8
+  },
+  dialogueFormatGrid: {
+    display: 'grid',
+    grid: 'auto-flow / 1fr 40px 40px 40px',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  dialogueFormatHeader: {
+    marginBottom: 8
+  },
+  dialogueFormatLabel: {
+    textAlign: 'center',
+    opacity: 0.5
+  },
+  dialogSchedulingCheckbox: {
+    paddingTop: 4,
+    paddingBottom: 4
+  }
 });
 
 const redirect = (redirectId: string | undefined, history: History<unknown>) => {
@@ -611,6 +652,14 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     redirect(redirectId, history)
   }
 
+  const { results: popularTopics } = usePaginatedResolver({
+    fragmentName: "CommentsList",
+    resolverName: "PollTopicsPopular",
+    limit: 4,
+  });
+
+  const [addedTopics, setAddedTopics] = useState<string[]>([])
+
   return (
     <LWDialog 
       open 
@@ -623,41 +672,51 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       // }}
     >
       <div className={classes.dialogBox}>
-          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent >
-              <h3>What are you interested in chatting about?</h3>
-              <TextField
-                multiline
-                rows={4}
-                variant="outlined"
-                label={`Leave some suggestions for ${targetUserDisplayName}`}
-                fullWidth
-                value={topicNotes}
-                onChange={event => setTopicNotes(event.target.value)}
-              />
+              <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
+              <div className={classes.dialogueTopicList}>
+                {[...(popularTopics || []), ...addedTopics]?.map((commentOrAddedTopic) => <div className={classes.dialogueTopicRow}>
+                <Checkbox 
+                    className={classes.dialogueTopicRowTopicCheckbox}
+                    // onChange={event =>  } 
+                  />
+                  <div className={classes.dialogueTopicRowTopicText}>{typeof commentOrAddedTopic === "string" ? commentOrAddedTopic :  commentOrAddedTopic.contents?.plaintextMainText}</div>
+                </div>)}
+              </div>
+              <div className={classes.dialogueTopicSubmit}>
+                <TextField
+                  variant="outlined"
+                  label={`Any other topics?`}
+                  fullWidth
+                  value={topicNotes}
+                  onChange={event => setTopicNotes(event.target.value)}
+                />
+                <Button color="default" onClick={e => setAddedTopics([...addedTopics, topicNotes])}>
+                  Add Topic
+                </Button>
+              </div>
               <br />
-              <br />
-              <h3>What Format Do You Prefer?</h3>
-              
-              <div className={classes.schedulingPreferences}>
+              <div className={classes.dialogueFormatGrid}>
+                
+                <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+                <label className={classes.dialogueFormatLabel}>Great</label>
+                <label className={classes.dialogueFormatLabel}>Okay</label>
+                <label className={classes.dialogueFormatLabel}>No</label>
                 <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
-                  <Select
-                  value={formatSync} 
-                  onChange={event => setFormatSync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
-              </div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatSync(value as SyncPreference)}
+                />)}
 
-              <div className={classes.schedulingPreferences}>
                 <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
-                  <Select
-                  value={formatAsync} 
-                  onChange={event => setFormatAsync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatAsync(value as SyncPreference)}
+                />)}
+                
               </div>
+              
               
               
               <TextField
