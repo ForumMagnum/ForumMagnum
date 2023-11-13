@@ -6,7 +6,7 @@ import {
   styles as headerStyles,
   forumHeaderTitleSetting,
   forumShortTitleSetting,
-  EA_FORUM_HEADER_HEIGHT,
+  HEADER_HEIGHT,
 } from "../../common/Header";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   rootGivingSeason: {
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
-      height: EA_FORUM_HEADER_HEIGHT,
+      height: HEADER_HEIGHT,
       overflow: "hidden",
     },
   },
@@ -192,7 +192,7 @@ const GivingSeasonHeader = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={EA_FORUM_HEADER_HEIGHT}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
