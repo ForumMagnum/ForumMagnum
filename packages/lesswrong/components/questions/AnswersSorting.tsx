@@ -4,16 +4,24 @@ import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { getCommentViewOptions } from '../../lib/commentViewOptions';
 
-// TODO: use postViewOptions
-export const sortingNames = {
-  'top': 'top scoring',
-  'magic': isFriendlyUI ? 'new & upvoted' : 'magic (new & upvoted)',
-  'newest': 'newest',
-  'oldest': 'oldest',
-  'recentComments': 'latest reply',
-}
+const viewOptions = getCommentViewOptions();
+
+const sortOrder = [
+  'postCommentsTop',
+  'postCommentsMagic',
+  'postCommentsNew',
+  'postCommentsOld',
+  'postCommentsRecentReplies'
+];
+
+viewOptions.sort((a, b) => sortOrder.indexOf(a.value) - sortOrder.indexOf(b.value));
+
+const sortingNames = viewOptions.reduce((sortingName: Record<string, string>, viewOption) => {
+  sortingName[viewOption.value] = viewOption.label;
+  return sortingName;
+}, {});
 
 const AnswersSorting = ({ post, classes }: {
   post?: PostsList,
