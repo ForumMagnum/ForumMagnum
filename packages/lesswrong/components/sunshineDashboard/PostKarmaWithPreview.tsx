@@ -60,7 +60,7 @@ const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
           {displayTitle && <span className={classes.scoreTitleFormat}>
             <FormatDate date={post.postedAt} />
           </span>}
-          <span className={displayTitle ? classes.scoreTitleFormat : null}>
+          <span className={displayTitle ? classes.scoreTitleFormat : undefined}>
             {post.baseScore}
           </span>
           {displayTitle && post.title}

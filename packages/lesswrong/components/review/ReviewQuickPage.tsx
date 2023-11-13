@@ -147,7 +147,7 @@ export const ReviewQuickPage = ({classes}: {
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>
-      <div className={loading ? classes.loading : null}>
+      <div className={loading ? classes.loading : undefined}>
         {truncatedPostsResults.map(post => {
           return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
             <PostsItem 

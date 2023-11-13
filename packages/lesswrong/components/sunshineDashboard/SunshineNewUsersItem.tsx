@@ -37,7 +37,7 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate, FirstContentIcons } = Components
   
   return (
-    <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
+    <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <SunshineNewUsersInfo user={user} refetch={refetch} currentUser={currentUser}/>
