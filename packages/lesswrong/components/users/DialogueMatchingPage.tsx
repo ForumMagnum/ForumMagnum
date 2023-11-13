@@ -1022,6 +1022,8 @@ export const DialogueMatchingPage = ({classes}: {
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
   const matchedUserIds = matchedUsers?.map(user => user._id) || [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
+  const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
+  const inRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
   const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
   
@@ -1075,7 +1077,7 @@ export const DialogueMatchingPage = ({classes}: {
               className={classes.optInCheckbox}
             />
           }
-          label={<span className={classes.prompt}> {prompt} </span>}
+          label={<span> {prompt} </span>}
         />
     </div> 
     </div> 
@@ -1083,67 +1085,72 @@ export const DialogueMatchingPage = ({classes}: {
       to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
       the other part of the match has also opted in.
     </p>
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Matches</h3>
-        <UserTable
-          users={matchedUsers ?? []}
-          isUpvotedUser={false}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
+    { !(matchedUsers?.length) ?  null : <React.Fragment>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Matches</h3>
+          <UserTable
+            users={matchedUsers ?? []}
+            isUpvotedUser={false}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV2}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        </div>
       </div>
-    </div>
-    <br />
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Your top upvoted users (last 1.5 years)</h3>
-        <h4>Recently active</h4>
-        <UserTable
-          users={topUsers.filter(user => user.recently_active_matchmaking)}
-          isUpvotedUser={true}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV1}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={false}
-          showKarma={true}
-          showAgreement={true}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
+      <br />
+      <br />
+    </React.Fragment> }
+    { !topUsers.length ? null : <React.Fragment>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Your top upvoted users (last 1.5 years)</h3>
+          { recentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+          <h4>Recently active</h4>
+          <UserTable
+            users={recentlyActiveTopUsers}
+            isUpvotedUser={true}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV1}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={false}
+            showKarma={true}
+            showAgreement={true}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        <br />
+        </React.Fragment> }
+      { inRecentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+            <h4>Not recently active</h4>
+            <UserTable
+              users={inRecentlyActiveTopUsers}
+              isUpvotedUser={true}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV1}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={false}
+              showKarma={true}
+              showAgreement={true}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={false}
+            />
+          </React.Fragment>}
+          </div>
       </div>
-    </div>
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h4>Not recently active</h4>
-        <UserTable
-          users={topUsers.filter(user => !user.recently_active_matchmaking)}
-          isUpvotedUser={true}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV1}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={false}
-          showKarma={true}
-          showAgreement={true}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={false}
-        />
-      </div>
-    </div>
-    <br />
+      <br />
+    </React.Fragment> }
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Users who published dialogues</h3>
