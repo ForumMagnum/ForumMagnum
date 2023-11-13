@@ -72,9 +72,9 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
       highlighted={highlightedLandmarkName==="above"}
       title
     >
-      <div className={classes.postTitle}>
+      <span className={classes.postTitle}>
         {post.title?.trim()}
-      </div>
+      </span>
     </TableOfContentsRow>
 
     {answersTree && answersTree.map(answer => <>

@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: isEAForum ? "1em" : undefined,
   },
   level0: {
-    display:"inline-block",
+    display:"block",
     maxWidth: '100%',
     marginBottom: theme.spacing.unit,
     marginRight: theme.spacing.unit,
