@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import DebateIcon from '@material-ui/icons/Forum';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
@@ -66,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const CuratedIcon = ({hasColor, classes}:{
   hasColor?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const { LWTooltip, ForumIcon } = Components;
 
@@ -87,9 +86,9 @@ const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styl
 
 const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
-  classes: ClassesType,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
+  classes: ClassesType<typeof styles>,
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
 
@@ -110,7 +109,7 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
       <LWTooltip title="Dialogue" placement="right">
-        <DebateIcon className={classes.icon} />
+        <ForumIcon icon="ChatBubbleLeftRightFilled" className={classes.icon} />
       </LWTooltip>
     </span>}
 
