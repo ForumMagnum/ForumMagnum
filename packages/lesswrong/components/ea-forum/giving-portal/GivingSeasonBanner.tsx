@@ -23,15 +23,20 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     height: BANNER_HEIGHT,
-    padding: 20,
-    paddingTop: 0,
+    padding: "0 20px 20px",
     overflowX: "clip",
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       alignItems: "flex-start",
-      gap: "12px",
+      gap: "16px",
       marginTop: 0,
+      padding: "5px 20px",
       backgroundImage: "none",
+      height: "auto",
+    },
+    ["@media (max-width: 380px)"]: {
+      padding: 10,
+      paddingBottom: 20,
     },
     ["@media (max-width: 300px)"]: {
       display: "none",
