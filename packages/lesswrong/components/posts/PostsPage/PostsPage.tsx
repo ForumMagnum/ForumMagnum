@@ -199,6 +199,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postContent: { //Used by a Cypress test
     marginBottom: isEAForum ? 40 : undefined
   },
+  betweenPostAndComments: {
+    minHeight: 24,
+  },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
@@ -656,7 +659,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     </div>
   const betweenPostAndCommentsSection =
-    <div className={classes.centralColumn}>
+    <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
   
       {showRecommendations && recommendationsPosition === "underPost" &&
