@@ -31,6 +31,7 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 export type UpvotedUser = {
   _id: string;
@@ -137,6 +138,8 @@ type MatchDialogueButtonProps = {
   classes: ClassesType<typeof styles>;
 };
 
+const minRowHeight = 28;
+
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
@@ -150,16 +153,18 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read
-    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)         100px           100px            200px     425px`,
-    gridRowGap: 5,
+    display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
+    gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center'
   },
   matchContainerGridV2: {
-    display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     425px `,
-    gridRowGap: 5,
+    display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center'
   },
@@ -190,12 +195,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-    marginRight: 30,
-    width: 400,
-    paddingBottom: 15,
+
   },
   messageButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
@@ -203,7 +206,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   enterTopicsButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white',
@@ -211,19 +214,21 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   lightGreenButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.main ,
     color: 'white',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    borderRadius: 5
   },
-  waitingButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+  waitingMessage: {
+    maxWidth: 200,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: 'gray',
-    color: 'white',
+    backgroundColor: 'white',
+    color: 'black',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
   link: {
@@ -282,6 +287,7 @@ const styles = (theme: ThemeType) => ({
   },
   centeredText: {
     display: 'flex',
+    maxHeight: minRowHeight, 
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -312,6 +318,48 @@ const styles = (theme: ThemeType) => ({
     width: 30,
     color: "#9a9a9a",
   },
+  dialogueTopicList: {
+    marginTop: 16,
+    marginBottom: 16
+  },
+  dialogueTopicRow: {
+    display: 'flex',
+    alignItems: 'center',
+    alignContent: 'space-between',
+    marginBottom: 8,
+    marginTop: 8
+  },
+  dialogueTopicRowTopicText: {
+    fontSize:'1.1rem',
+    opacity: '0.8',
+    lineHeight: '1.32rem'
+  },
+  dialogueTopicRowTopicCheckbox: {
+    padding: '4px 16px 4px 8px'
+  },
+  dialogueTopicSubmit: {
+    display: 'flex'
+  },
+  dialogueTitle: {
+    paddingBottom: 8
+  },
+  dialogueFormatGrid: {
+    display: 'grid',
+    grid: 'auto-flow / 1fr 40px 40px 40px',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  dialogueFormatHeader: {
+    marginBottom: 8
+  },
+  dialogueFormatLabel: {
+    textAlign: 'center',
+    opacity: 0.5
+  },
+  dialogSchedulingCheckbox: {
+    paddingTop: 4,
+    paddingBottom: 4
+  }
 });
 
 const redirect = (redirectId: string | undefined, history: History<unknown>) => {
@@ -604,6 +652,14 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     redirect(redirectId, history)
   }
 
+  const { results: popularTopics } = usePaginatedResolver({
+    fragmentName: "CommentsList",
+    resolverName: "PollTopicsPopular",
+    limit: 4,
+  });
+
+  const [addedTopics, setAddedTopics] = useState<string[]>([])
+
   return (
     <LWDialog 
       open 
@@ -616,41 +672,51 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       // }}
     >
       <div className={classes.dialogBox}>
-          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+          <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
           <DialogContent >
-              <h3>What are you interested in chatting about?</h3>
-              <TextField
-                multiline
-                rows={4}
-                variant="outlined"
-                label={`Leave some suggestions for ${targetUserDisplayName}`}
-                fullWidth
-                value={topicNotes}
-                onChange={event => setTopicNotes(event.target.value)}
-              />
+              <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
+              <div className={classes.dialogueTopicList}>
+                {[...(popularTopics || []), ...addedTopics]?.map((commentOrAddedTopic) => <div className={classes.dialogueTopicRow}>
+                <Checkbox 
+                    className={classes.dialogueTopicRowTopicCheckbox}
+                    // onChange={event =>  } 
+                  />
+                  <div className={classes.dialogueTopicRowTopicText}>{typeof commentOrAddedTopic === "string" ? commentOrAddedTopic :  commentOrAddedTopic.contents?.plaintextMainText}</div>
+                </div>)}
+              </div>
+              <div className={classes.dialogueTopicSubmit}>
+                <TextField
+                  variant="outlined"
+                  label={`Any other topics?`}
+                  fullWidth
+                  value={topicNotes}
+                  onChange={event => setTopicNotes(event.target.value)}
+                />
+                <Button color="default" onClick={e => setAddedTopics([...addedTopics, topicNotes])}>
+                  Add Topic
+                </Button>
+              </div>
               <br />
-              <br />
-              <h3>What Format Do You Prefer?</h3>
-              
-              <div className={classes.schedulingPreferences}>
+              <div className={classes.dialogueFormatGrid}>
+                
+                <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+                <label className={classes.dialogueFormatLabel}>Great</label>
+                <label className={classes.dialogueFormatLabel}>Okay</label>
+                <label className={classes.dialogueFormatLabel}>No</label>
                 <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
-                  <Select
-                  value={formatSync} 
-                  onChange={event => setFormatSync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
-              </div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatSync(value as SyncPreference)}
+                />)}
 
-              <div className={classes.schedulingPreferences}>
                 <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
-                  <Select
-                  value={formatAsync} 
-                  onChange={event => setFormatAsync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatAsync(value as SyncPreference)}
+                />)}
+                
               </div>
+              
               
               
               <TextField
@@ -829,7 +895,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
-  const userMatchPreferences = results && results.length > 0 ? results[0] : null;
+  const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
   const renderButton = () => {
@@ -843,9 +909,9 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   
     if (userMatchPreferences) {
       return (
-        <button className={classes.waitingButton} disabled>
-          <a data-cy="message">Waiting for {targetUserDisplayName}...</a>
-        </button>
+        <div className={classes.waitingMessage}>
+          Waiting for {targetUserDisplayName}...
+        </div>
       );
     }
   
@@ -984,6 +1050,8 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
+  
+  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
@@ -1022,10 +1090,11 @@ export const DialogueMatchingPage = ({classes}: {
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
   const matchedUserIds = matchedUsers?.map(user => user._id) || [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
+  const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
+  const inRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
   const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
   
-  if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
@@ -1075,7 +1144,7 @@ export const DialogueMatchingPage = ({classes}: {
               className={classes.optInCheckbox}
             />
           }
-          label={<span className={classes.prompt}> {prompt} </span>}
+          label={<span> {prompt} </span>}
         />
     </div> 
     </div> 
@@ -1083,67 +1152,72 @@ export const DialogueMatchingPage = ({classes}: {
       to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
       the other part of the match has also opted in.
     </p>
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Matches</h3>
-        <UserTable
-          users={matchedUsers ?? []}
-          isUpvotedUser={false}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
+    { !(matchedUsers?.length) ?  null : <React.Fragment>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Matches</h3>
+          <UserTable
+            users={matchedUsers ?? []}
+            isUpvotedUser={false}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV2}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        </div>
       </div>
-    </div>
-    <br />
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Your top upvoted users (last 1.5 years)</h3>
-        <h4>Recently active</h4>
-        <UserTable
-          users={topUsers.filter(user => user.recently_active_matchmaking)}
-          isUpvotedUser={true}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV1}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={false}
-          showKarma={true}
-          showAgreement={true}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
+      <br />
+      <br />
+    </React.Fragment> }
+    { !topUsers.length ? null : <React.Fragment>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Your top upvoted users (last 1.5 years)</h3>
+          { recentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+          <h4>Recently active</h4>
+          <UserTable
+            users={recentlyActiveTopUsers}
+            isUpvotedUser={true}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV1}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={false}
+            showKarma={true}
+            showAgreement={true}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        <br />
+        </React.Fragment> }
+      { inRecentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+            <h4>Not recently active</h4>
+            <UserTable
+              users={inRecentlyActiveTopUsers}
+              isUpvotedUser={true}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV1}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={false}
+              showKarma={true}
+              showAgreement={true}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={false}
+            />
+          </React.Fragment>}
+          </div>
       </div>
-    </div>
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h4>Not recently active</h4>
-        <UserTable
-          users={topUsers.filter(user => !user.recently_active_matchmaking)}
-          isUpvotedUser={true}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV1}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={false}
-          showKarma={true}
-          showAgreement={true}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={false}
-        />
-      </div>
-    </div>
-    <br />
+      <br />
+    </React.Fragment> }
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>Users who published dialogues</h3>

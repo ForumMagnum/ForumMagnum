@@ -512,8 +512,6 @@ defineQuery({
       new UsersRepo().getUsersTopUpvotedUsers(currentUser)
     ]);
 
-    console.log("recently active matchmaking", topUsers[0].recently_active_matchmaking)
-
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
@@ -524,7 +522,7 @@ defineQuery({
 
 defineQuery({
   name: "GetDialogueMatchedUsers",
-  resultType: "[User!]!",
+  resultType: "[User]!",
   fn: async (root, _, context) => {
     const { currentUser } = context
     if (!currentUser) {

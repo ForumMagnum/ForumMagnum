@@ -135,7 +135,11 @@ defineMutation({
   fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
-    const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)    
+    const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
+    const match = await getMatchingDialogueCheck(response)
+    if (match) {
+      void notifyUsersMatchingDialogueChecks(response, match)   
+    }
     return response
   } 
 })
