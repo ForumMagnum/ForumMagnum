@@ -1,3 +1,5 @@
+import { isEAForum } from "../../lib/instanceSettings";
+
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
 
@@ -206,7 +208,8 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     top: -14,
     'background-color': 'white',
-    padding: 4
+    padding: isEAForum ? "4px 8px" : 4,
+    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
   },
   
   '.dialogue-message-input button': {
