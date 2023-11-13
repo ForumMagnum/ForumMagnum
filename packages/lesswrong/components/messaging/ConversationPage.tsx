@@ -51,26 +51,24 @@ const ConversationPage = ({ conversationId, currentUser, classes }: {
   const showModInboxLink = userCanDo(currentUser, 'conversations.view.all') && conversation.moderator
 
   return (
-    <div>
-      <SingleColumnSection>
-        <div className={classes.conversationSection}>
-          <div className={classes.row}>
-            <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
-            {showModInboxLink && <Typography variant="body2" className={classes.backButton}>
-              <Link to="/moderatorInbox"> Moderator Inbox </Link>
-            </Typography>}
-          </div>
-          <Typography variant="display2" className={classes.conversationTitle}>
-            {conversationGetTitle(conversation, currentUser)}
-          </Typography>
-          <ConversationDetails conversation={conversation} />
-          <ConversationContents
-            conversation={conversation}
-            currentUser={currentUser}
-          />
+    <SingleColumnSection>
+      <div className={classes.conversationSection}>
+        <div className={classes.row}>
+          <Typography variant="body2" className={classes.backButton}><Link to="/inbox"> Go back to Inbox </Link></Typography>
+          {showModInboxLink && <Typography variant="body2" className={classes.backButton}>
+            <Link to="/moderatorInbox"> Moderator Inbox </Link>
+          </Typography>}
         </div>
-      </SingleColumnSection>
-    </div>
+        <Typography variant="display2" className={classes.conversationTitle}>
+          {conversationGetTitle(conversation, currentUser)}
+        </Typography>
+        <ConversationDetails conversation={conversation} />
+        <ConversationContents
+          conversation={conversation}
+          currentUser={currentUser}
+        />
+      </div>
+    </SingleColumnSection>
   )
 }
 
@@ -84,3 +82,4 @@ declare global {
     ConversationPage: typeof ConversationPageComponent
   }
 }
+
