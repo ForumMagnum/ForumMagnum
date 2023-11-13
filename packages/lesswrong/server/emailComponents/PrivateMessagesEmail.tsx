@@ -70,7 +70,7 @@ const EmailListOfUsers = ({users}: {
 const EmailListOfUsersComponent = registerComponent("EmailListOfUsers", EmailListOfUsers);
 
 const PrivateMessagesEmailConversation = ({conversation, messages, participantsById, classes}: {
-  conversation: conversationsListFragment|DbConversation,
+  conversation: ConversationsList|DbConversation,
   messages: Array<DbMessage>,
   participantsById: Partial<Record<string,DbUser>>,
   classes: ClassesType,

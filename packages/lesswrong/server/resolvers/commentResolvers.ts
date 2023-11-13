@@ -6,6 +6,7 @@ import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
 import { createPaginatedResolver } from './paginatedResolver';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 
 const specificResolvers = {
   Mutation: {
@@ -57,25 +58,15 @@ addGraphQLResolvers(specificResolvers);
 addGraphQLMutation('moderateComment(commentId: String, deleted: Boolean, deletedPublic: Boolean, deletedReason: String): Comment');
 
 
-addGraphQLResolvers({
-  Query: {
-    async CommentsWithReacts(root: void, args: {limit: number|undefined}, context: ResolverContext) {
-      const commentsRepo = new CommentsRepo()
-      const comments = await commentsRepo.getCommentsWithReacts(args.limit??50)
-      return {
-        comments: comments
-      }
-    }
+createPaginatedResolver({
+  name: "CommentsWithReacts",
+  graphQLType: "Comment",
+  callback: async (context: ResolverContext, limit: number): Promise<DbComment[]> => {
+    const commentsRepo = new CommentsRepo()
+    const commentsWithReacts = await commentsRepo.getCommentsWithReacts(limit);
+    return filterNonnull(commentsWithReacts);
   }
 })
-
-addGraphQLSchema(`
-  type CommentsWithReactsResult {
-   comments: [Comment!]
-  }
-`);
-
-addGraphQLQuery('CommentsWithReacts(limit: Int): CommentsWithReactsResult')
 
 createPaginatedResolver({
   name: "PopularComments",

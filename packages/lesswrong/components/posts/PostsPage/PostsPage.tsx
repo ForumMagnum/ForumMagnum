@@ -515,7 +515,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
   // rewrite crossposting.
-  const tableOfContents = sectionData && !isCrosspostedQuestion
+  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const tableOfContents = hasTableOfContents
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
@@ -569,7 +570,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
     : null;
 
-  const rightColumnChildren = <>
+  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
   </>;
@@ -579,6 +580,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
+
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
@@ -612,7 +616,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </AnalyticsContext>
         </ContentStyles>}
 
-        {post.collabEditorDialogue && <Row justifyContent="center">
+        {showSubscribeToDialogueButton && <Row justifyContent="center">
           <div className={classes.subscribeToDialogue}>
             <NotifyMeDropdownItem
               document={post}
@@ -673,7 +677,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </AnalyticsInViewTracker>
     </ToCColumn>
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <PostBottomRecommendations post={post} />
+      <PostBottomRecommendations
+        post={post}
+        hasTableOfContents={hasTableOfContents}
+      />
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>

@@ -165,7 +165,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-flex',
     alignItems: 'center',
     columnGap: 6,
-    color: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
+    color: theme.palette.givingPortal.rhsLink,
     fontWeight: 600,
   },
   resourceIcon: {
@@ -541,6 +542,12 @@ export const EAHomeRightHandSide = ({classes}: {
       <AnalyticsContext pageSubSectionContext="resources">
         <div className={classes.section}>
           <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <div>
+            <Link to="/giving-portal" className={classes.resourceLink}>
+              <ForumIcon icon="Heart" className={classes.resourceIcon} />
+              Giving portal 2023
+            </Link>
+          </div>
           <div>
             <Link to="/handbook" className={classes.resourceLink}>
               <ForumIcon icon="BookOpen" className={classes.resourceIcon} />

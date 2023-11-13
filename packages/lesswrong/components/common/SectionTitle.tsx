@@ -62,6 +62,7 @@ export type SectionTitleProps = {
   title: React.ReactNode,
   noTopMargin?: boolean,
   noBottomPadding?: boolean,
+  centered?: boolean,
   anchor?: string,
   href?: string,
 }
@@ -71,6 +72,7 @@ const SectionTitle = ({
   title,
   noTopMargin,
   noBottomPadding,
+  centered,
   anchor,
   href,
   children,
@@ -89,7 +91,7 @@ const SectionTitle = ({
           : title
         }
       </Components.Typography>
-      <div className={classes.children}>{ children }</div>
+      {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )
 }

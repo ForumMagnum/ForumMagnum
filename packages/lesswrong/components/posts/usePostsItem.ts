@@ -149,7 +149,8 @@ export const usePostsItem = ({
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const showDismissButton = Boolean(currentUser && resumeReading);
-  const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post));
+  const onArchive = toggleDeleteDraft && (() => toggleDeleteDraft(post));
+  const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post) && onArchive);
 
   const commentTerms: CommentsViewTerms = {
     view: "postsItemComments",
@@ -196,7 +197,7 @@ export const usePostsItem = ({
     showDismissButton,
     showArchiveButton,
     onDismiss: dismissRecommendation,
-    onArchive: toggleDeleteDraft?.bind(null, post),
+    onArchive,
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,

@@ -207,9 +207,11 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
     getRecentKarmaInfo(user._id)
   ]);
 
+  const userCommentRateLimitHours = getUserRateLimitIntervalHours(userCommentRateLimit);
+
   // what's the longest rate limit timeframe being evaluated?
   const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits))
-  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours);
+  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours, userCommentRateLimitHours);
 
   // fetch the comments from within the maxTimeframe
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);

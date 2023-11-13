@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
-import { userCanVote } from '../../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
@@ -86,7 +86,7 @@ const PostsVoteDefault = ({
   const {OverallVoteButton, Typography} = Components;
   const currentUser = useCurrentUser();
 
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
   let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right";
@@ -100,7 +100,7 @@ const PostsVoteDefault = ({
       [classes.voteBlockHorizontal]: useHorizontalLayout,
     })}>
       <Tooltip
-        title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
         classes={{tooltip: classes.tooltip}}
       >
@@ -157,7 +157,7 @@ const PostsVoteDefault = ({
         }
       </div>
       <Tooltip
-        title={whyYouCantVote ?? "Click-and-hold for strong vote"}
+        title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
         placement={tooltipPlacement}
         classes={{tooltip: classes.tooltip}}
       >

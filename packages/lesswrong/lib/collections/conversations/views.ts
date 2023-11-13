@@ -9,6 +9,7 @@ declare global {
     userId?: string
     participantIds?: Array<string>
     showArchive?: boolean
+    moderator?: boolean
   }
 }
 
@@ -44,15 +45,30 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 });
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
+Conversations.addView("userConversationsAll", function (terms: ConversationsViewTerms) {
+  const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
+  return {
+    selector: {participantIds: terms.userId, ...showArchivedFilter},
+    options: {sort: {latestActivity: -1}}
+  };
+});
+
 Conversations.addView("userGroupUntitledConversations", function (terms: ConversationsViewTerms) {
+  const moderatorSelector = terms.moderator ? {moderator: true} : {}
+
   // returns a list of conversations where the participant list is exactly terms.participantIds
   return {
     selector: {
-      participantIds: terms.participantIds ? {$size: terms.participantIds.length, $all: terms.participantIds} : terms.userId,
+      participantIds: terms.participantIds
+        ? { $size: terms.participantIds.length, $all: terms.participantIds }
+        : terms.userId,
       title: viewFieldNullOrMissing,
       // pass in a terms.userId to exclude conversations that this user archived
-      archivedByIds: {$ne: terms.userId}
+      archivedByIds: { $ne: terms.userId },
+      ...moderatorSelector,
     },
+    // Prefer non-mod conversations
+    options: { sort: { moderator: 1 } },
   };
 });
 ensureIndex(Conversations, { participantIds: 1, title: 1 })

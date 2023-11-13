@@ -5,6 +5,7 @@ import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
+import { isDialogueParticipant } from '../../posts/PostsPage/PostsPage';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -39,6 +40,9 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   if (!post) return null;
   const postAuthor = post.user;
+
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
@@ -76,14 +80,14 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
         subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
         unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
       />
-      <NotifyMeDropdownItem
+      {showSubscribeToDialogueButton && <NotifyMeDropdownItem
         document={post}
         enabled={!!post.collabEditorDialogue}
         subscribeMessage="Subscribe to dialogue"
         unsubscribeMessage="Unsubscribe from dialogue"
         subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
         tooltip="Notifies you when there is new activity in the dialogue"
-      />
+      />}
       <NotifyMeDropdownItem
         document={post}
         subscribeMessage="Subscribe to comments"

@@ -53,6 +53,7 @@ export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
 export const hasSideComments = isLWorAF;
+export const useElicitApi = !isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

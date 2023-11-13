@@ -10,11 +10,14 @@ import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
+import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
+import HeartIcon from "@heroicons/react/24/solid/HeartIcon";
+import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
@@ -54,6 +57,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -103,6 +107,7 @@ import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
+import { FilterAlt } from "../icons/filteralt";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -123,6 +128,7 @@ export type ForumIconName =
   "Users" |
   "UsersOutline" |
   "Bell" |
+  "BellAlert" |
   "BellBorder" |
   "AddEmoji" |
   "Link" |
@@ -162,6 +168,8 @@ export type ForumIconName =
   "List" |
   "PlusSmall" |
   "MinusSmall" |
+  "Heart" |
+  "HeartOutline" |
   "Settings" |
   "Email" |
   "Puzzle" |
@@ -180,7 +188,8 @@ export type ForumIconName =
   "Menu" |
   "CloseMenu" |
   "Q" |
-  "BarChart";
+  "BarChart" |
+  "Funnel";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -196,6 +205,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
@@ -231,6 +241,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Image: PhotoIcon,
@@ -254,6 +266,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FilterAlt,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -268,6 +281,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
@@ -303,6 +317,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
     Image: PhotoIcon,
@@ -326,6 +342,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FunnelIcon,
   },
 };
 
@@ -388,7 +405,7 @@ const ForumIcon = ({
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(className, {
     [classes.root]: !noDefaultStyles,
-    [customClass]: !noDefaultStyles && customClass,
+    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
   });
 
   return <Icon className={fullClassName} {...props} />;

@@ -19,7 +19,7 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { userCanVote } from '../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
@@ -117,13 +117,18 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<DbVoteableType>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
+  /**
+   * If true, notifies the user of the karma changes from this vote. This will be true
+   * except for votes being nullified by mods.
+   */
+  silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -174,6 +179,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       isUnvote: true,
       power: -vote.power,
       votedAt: new Date(),
+      silenceNotification,
     };
     await createMutator({
       collection: Votes,
@@ -242,7 +248,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
   
   // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = userCanVote(user);
+  const { fail: cannotVote, reason } = voteButtonsDisabledForUser(user);
   if (!selfVote && cannotVote) {
     throw new Error(reason);
   }

@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -29,9 +30,13 @@ const styles = (theme: ThemeType) => ({
     transform: "translateY(-1px)",
     fontSize: 16,
     cursor: "pointer",
+    transition: "transform 0.2s ease-in-out",
     "&:hover": {
       color: theme.palette.grey[800],
     }
+  },
+  chevronExpanded: {
+    transform: "rotate(90deg)",
   },
 });
 
@@ -71,9 +76,11 @@ const ExpandableSection = ({
                 hideOnTouchScreens
               >
                 <ForumIcon
-                  icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+                  icon="ThickChevronRight"
                   onClick={toggleExpanded}
-                  className={classes.expandIcon}
+                  className={classNames(classes.expandIcon, {
+                    [classes.chevronExpanded]: expanded,
+                  })}
                 />
               </LWTooltip>
             </div>

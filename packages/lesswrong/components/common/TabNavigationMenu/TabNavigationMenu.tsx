@@ -17,10 +17,16 @@ const styles = (theme: ThemeType): JssStyles => {
     root: {
       display: "flex",
       flexDirection: "column",
-      justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      paddingLeft: isFriendlyUI ? 6 : undefined,
+      ...(isFriendlyUI
+        ? {
+          paddingLeft: 6,
+          height: "100%",
+        }
+        : {
+          justifyContent: "space-around",
+        }),
     },
     noTopMargin: {
       paddingTop: "0px !important",
@@ -85,6 +91,7 @@ const TabNavigationMenu = ({
               const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
+                tab={tab}
                 onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />

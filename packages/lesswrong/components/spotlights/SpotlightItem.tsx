@@ -15,7 +15,7 @@ import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 
 
-export const descriptionStyles = (theme: JssStyles) => ({
+export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
   ...(isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',

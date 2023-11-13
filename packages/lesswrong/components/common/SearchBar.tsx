@@ -69,12 +69,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
+    "&.open .SearchBar-searchIcon": {
+      position: 'fixed',
+    },
   },
   searchInputAreaSmall: isFriendlyUI ? {
     minWidth: 34,
   } : {},
   searchIcon: {
-    position: 'fixed',
     color: isFriendlyUI ? undefined : theme.palette.header.text,
   },
   searchIconSmall: isFriendlyUI ? {

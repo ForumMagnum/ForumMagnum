@@ -1376,21 +1376,71 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField({ channel: "both"}),
+    hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField()
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
+  },
+  notificationAddedAsCoauthor: {
+    label: "Someone has added me as a coauthor to a post",
+    ...notificationTypeSettingsField({ channel: "both" }),
   },
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    hidden: !dialoguesEnabled,
   },
   notificationDebateReplies: {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
+  },
+  notificationDialogueMatch: {
+    label: "Another user and I have matched for a dialogue",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !dialoguesEnabled,
+  },
+
+  hideDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
+  },
+
+  revealChecksToAdmins: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Allow users to reveal their checks for better facilitation",
+    ...schemaDefaultValue(false)
+  },
+
+  optedInToDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    hidden: !isLW,
+    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+    ...schemaDefaultValue(false)
   },
 
   // Karma-change notifier settings
@@ -1427,6 +1477,17 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
     logChanges: false,
+  },
+
+  // User wants to get notifications when giving season voting begins
+  givingSeasonNotifyForVoting: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
 
   // Email settings

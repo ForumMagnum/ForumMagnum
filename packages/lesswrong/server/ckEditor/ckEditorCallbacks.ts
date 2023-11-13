@@ -11,7 +11,7 @@ import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { updateMutator } from '../vulcan-lib/mutators';
-import { pushRevisionToCkEditor } from './ckEditorWebhook';
+import { ckEditorApiHelpers } from './ckEditorApi';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -158,7 +158,7 @@ defineMutation({
     if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+      await ckEditorApiHelpers.pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");
