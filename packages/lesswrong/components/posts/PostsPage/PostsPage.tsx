@@ -514,7 +514,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
   // rewrite crossposting.
-  const tableOfContents = sectionData && !isCrosspostedQuestion
+  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const tableOfContents = hasTableOfContents
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
@@ -676,7 +677,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </AnalyticsInViewTracker>
     </ToCColumn>
     {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <PostBottomRecommendations post={post} />
+      <PostBottomRecommendations
+        post={post}
+        hasTableOfContents={hasTableOfContents}
+      />
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
