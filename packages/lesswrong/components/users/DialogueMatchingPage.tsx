@@ -829,7 +829,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
-  const userMatchPreferences = results && results.length > 0 ? results[0] : null;
+  const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
   const renderButton = () => {
