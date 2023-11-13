@@ -1,6 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
 import { UseMultiOptions, useMulti } from "../../../lib/crud/withMulti";
-import { eaGivingSeason23ElectionName } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, timelineSpec } from "../../../lib/eaGivingSeason";
+import { isEAForum } from "../../../lib/instanceSettings";
+import { useCurrentTime } from "../../../lib/utils/timeUtil";
+import moment from "moment";
 
 export type ElectionAmountRaised = {
   raisedForElectionFund: number,
@@ -55,4 +58,11 @@ export const useAmountRaised = (electionName: string) => {
     loading,
     error
   };
+}
+
+export const useIsGivingSeason = () => {
+  const now = useCurrentTime();
+  return isEAForum &&
+    moment.utc(timelineSpec.start).isBefore(now) &&
+    moment.utc(timelineSpec.end).isAfter(now);
 }

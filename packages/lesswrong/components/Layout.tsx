@@ -26,6 +26,7 @@ import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
+import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -222,7 +223,7 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const { currentRoute, pathname} = useLocation();
+  const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
@@ -276,11 +277,14 @@ const Layout = ({currentUser, children, classes}: {
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
-  
+
   const noKibitzContext = useMemo(
     () => ({ disableNoKibitz, setDisableNoKibitz }),
     [disableNoKibitz, setDisableNoKibitz]
   );
+
+  const isGivingSeason = useIsGivingSeason();
+  const renderGivingSeason = isGivingSeason && pathname === "/";
 
   const render = () => {
     const {
@@ -302,6 +306,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      GivingSeasonBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -381,7 +386,8 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              
+              {renderGivingSeason && <GivingSeasonBanner />}
+
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
