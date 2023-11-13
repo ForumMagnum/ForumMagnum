@@ -512,8 +512,6 @@ defineQuery({
       new UsersRepo().getUsersTopUpvotedUsers(currentUser)
     ]);
 
-    console.log("recently active matchmaking", topUsers[0].recently_active_matchmaking)
-
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
