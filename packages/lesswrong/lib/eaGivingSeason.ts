@@ -12,7 +12,10 @@ export const votingOpensDate = new Date("2023/12/01");
 export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
+/** Cloudinary ID for the giving portal hero image */
 export const heroImageId = "giving_portal_23_hero";
+
+/** Cloudinary ID for the frontpage header background image */
 export const headerImageId = "giving_portal_23_hero2";
 
 const votingAccountCreationCutoff = new Date("2023/10/23");
