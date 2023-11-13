@@ -137,6 +137,8 @@ type MatchDialogueButtonProps = {
   classes: ClassesType<typeof styles>;
 };
 
+const minRowHeight = 28;
+
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
@@ -150,16 +152,18 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read
-    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)         100px           100px            200px     425px`,
-    gridRowGap: 5,
+    display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
+    gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center'
   },
   matchContainerGridV2: {
-    display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     425px `,
-    gridRowGap: 5,
+    display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center'
   },
@@ -195,7 +199,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 15,
   },
   messageButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
@@ -203,7 +207,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   enterTopicsButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white',
@@ -211,19 +215,21 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   lightGreenButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.main ,
     color: 'white',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    borderRadius: 5
   },
-  waitingButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+  waitingMessage: {
+    maxWidth: 200,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: 'gray',
-    color: 'white',
+    backgroundColor: 'white',
+    color: 'black',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
   link: {
@@ -282,6 +288,7 @@ const styles = (theme: ThemeType) => ({
   },
   centeredText: {
     display: 'flex',
+    maxHeight: minRowHeight, 
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -843,9 +850,9 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   
     if (userMatchPreferences) {
       return (
-        <button className={classes.waitingButton} disabled>
-          <a data-cy="message">Waiting for {targetUserDisplayName}...</a>
-        </button>
+        <div className={classes.waitingMessage}>
+          Waiting for {targetUserDisplayName}...
+        </div>
       );
     }
   
