@@ -75,6 +75,18 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
+  
+
+  async getPopularPollComments (limit: number): Promise<(DbComment)[]> {
+    return await this.manyOrNone(`
+      SELECT *
+      FROM public."Comments" AS c
+      WHERE c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+      ORDER BY c."baseScore" DESC
+      LIMIT $1
+    `, [limit]);
+  }
+
   async getPopularComments({
     minScore = 15,
     offset = 0,
