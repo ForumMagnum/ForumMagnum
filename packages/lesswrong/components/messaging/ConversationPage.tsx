@@ -5,7 +5,6 @@ import { conversationGetTitle } from '../../lib/collections/conversations/helper
 import withErrorBoundary from '../common/withErrorBoundary';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
-import ParticipantCheckboxes from './ParticipantCheckboxes';
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationSection: {
