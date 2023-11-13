@@ -633,7 +633,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <h3>What Format Do You Prefer?</h3>
               
               <div className={classes.schedulingPreferences}>
-                <div className={classes.schedulingQuestion}>Find a synchronous 1h-3h block to sit down and dialogue</div>
+                <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
                   <Select
                   value={formatSync} 
                   onChange={event => setFormatSync(event.target.value as SyncPreference)}
@@ -643,7 +643,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               </div>
 
               <div className={classes.schedulingPreferences}>
-                <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient (suggested amount of effort: send at least two longer replies each before considering publishing</div>
+                <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
                   <Select
                   value={formatAsync} 
                   onChange={event => setFormatAsync(event.target.value as SyncPreference)}
