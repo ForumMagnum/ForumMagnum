@@ -66,12 +66,17 @@ const styles = (theme: ThemeType) => ({
 
   dialogueUserRow: {
     display: 'flex',
+    justifyContent: 'space-between',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
     padding: 8,
     marginBottom: 3,
     borderRadius: 2,
 
+  },
+  dialogueLeftContainer: {
+    display: 'flex',
+    width: '100%'
   },
   dialogueMatchCheckbox: {
     marginLeft: 6,
@@ -94,12 +99,21 @@ const styles = (theme: ThemeType) => ({
   dialogueMatchNote: {
     
   },
+  dialogueRightContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    paddingRight: 10,
+    marginRight: 3
+  },
   dialogueMatchMessageButton: {
     marginLeft: 'auto',
-    marginRight: 16
+    marginRight: 10
   },
   dialogueMatchPreferencesButton: {
-    marginRight: 3
+    marginRight: 0 //3
+  },
+  dialogueNoMatchesButton: {
+    marginLeft: 8
   }
 });
 
@@ -159,49 +173,70 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           Dialogues
         </LWTooltip>}
       >
+        {!(!rowPropsList?.length) &&
         <SectionButton>
           <MuiPeopleIcon />
           <Link to="/dialogueMatching">Find Dialogue Partners</Link>
         </SectionButton>
+        }
       </SectionTitle>
+
+      {!rowPropsList?.length && 
+        (
+          <div className={classes.dialogueUserRow}>
+              <LWTooltip title={matchmakingTooltip} className={classes.dialogueNoMatchesButton}>
+                <Link to={"/dialogueMatching"}>
+                  <SectionButton>
+                    <MuiPeopleIcon />
+                    Find Dialogue Partners
+                  </SectionButton>
+                </Link>
+              </LWTooltip>
+          </div>
+        )
+      }
 
       <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
           {currentUser && rowPropsList?.map(rowProps => {
             const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
             return (<div key={targetUser._id} className={classes.dialogueUserRow}>
-              <div className={classes.dialogueMatchCheckbox}>
-                <DialogueCheckBox
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName}
-                  checkId={checkId}
-                  isChecked={userIsChecked}
-                  isMatched={userIsMatched}
-                />
+              <div className={classes.dialogueLeftContainer}>
+                <div className={classes.dialogueMatchCheckbox}>
+                  <DialogueCheckBox
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    checkId={checkId}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
+                  />
+                </div>
+                <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+                  <UsersName
+                    documentId={targetUser._id}
+                    simple={false}
+                  />
+                </PostsItem2MetaInfo>
+                <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+                  You've matched with this user
+                </PostsItem2MetaInfo>
               </div>
-              <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
-                <UsersName
-                  documentId={targetUser._id}
-                  simple={false}
-                />
-              </PostsItem2MetaInfo>
-              <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-                You've matched with this user
-              </PostsItem2MetaInfo>
-              <div className={classes.dialogueMatchMessageButton}>
-                <MessageButton
-                  targetUserId={targetUser._id}
-                  currentUser={currentUser}
-                />
-              </div>
-              <div className={classes.dialogueMatchPreferencesButton}>
-                <MatchDialogueButton
-                  isMatched={userIsMatched}
-                  checkId={checkId}
-                  targetUserId={targetUser._id}
-                  targetUserDisplayName={targetUser.displayName}
-                  currentUser={currentUser}
-                />
+              <div className={classes.dialogueRightContainer}>
+                <div className={classes.dialogueMatchMessageButton}>
+                  <MessageButton
+                    targetUserId={targetUser._id}
+                    currentUser={currentUser}
+                  />
+                </div>
+                <div className={classes.dialogueMatchPreferencesButton}>
+                  <MatchDialogueButton
+                    isMatched={userIsMatched}
+                    checkId={checkId}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    currentUser={currentUser}
+                  />
+                </div>
               </div>
             </div>);
           })}
