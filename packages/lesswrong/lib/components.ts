@@ -190,6 +190,7 @@ importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/
 importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'));
 //importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
 
+importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
