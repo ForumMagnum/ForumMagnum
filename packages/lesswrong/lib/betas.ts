@@ -49,7 +49,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 // Non-user-specific features
-export const dialoguesEnabled = isLWorAF;
+export const dialoguesEnabled = true;
 export const inlineReactsHoverEnabled = isLWorAF;
 export const useElicitApi = !isLWorAF;
 
