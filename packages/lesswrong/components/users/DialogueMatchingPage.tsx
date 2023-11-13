@@ -984,6 +984,8 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
+  
+  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
@@ -1027,7 +1029,6 @@ export const DialogueMatchingPage = ({classes}: {
   const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
   
-  if (!currentUser) return <p>You have to be logged in to view this page</p>
   if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
