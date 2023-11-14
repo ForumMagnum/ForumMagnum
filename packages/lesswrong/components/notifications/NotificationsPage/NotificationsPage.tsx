@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { useMulti } from "../../../lib/crud/withMulti";
 import { Link } from "../../../lib/reactRouterWrapper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -12,6 +12,7 @@ import type {
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
+import type { NotificationDisplay } from "../../../lib/types/notificationDisplayTypes";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,17 +104,27 @@ const NotificationsPageKarma: FC<{
         <Link to="/account">Change settings</Link>
       </div>
       {posts.map((post: PostKarmaChange) => (
-        <NotificationsPageKarmaChange post={post} />
+        <NotificationsPageKarmaChange post={post} key={post._id} />
       ))}
       {comments.map((comment: CommentKarmaChange) => (
-        <NotificationsPageKarmaChange comment={comment} />
+        <NotificationsPageKarmaChange comment={comment} key={comment._id} />
       ))}
-      {tagRevisions.map((tagRevision: TagRevisionKarmaChange) => (
-        <NotificationsPageKarmaChange tagRevision={tagRevision} />
+      {tagRevisions.map((tag: TagRevisionKarmaChange) => (
+        <NotificationsPageKarmaChange tagRevision={tag} key={tag._id} />
       ))}
     </div>
   );
 }
+
+// We have to do this manually outside of `usePaginatedResolver` because the
+// return type is pure unadulterated JSON, not a registered fragment type
+const query = gql`
+  query getNotificationDisplays($limit: Int) {
+    NotificationDisplays(limit: $limit) {
+      results
+    }
+  }
+`;
 
 export const NotificationsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -131,21 +142,31 @@ export const NotificationsPage = ({classes}: {
   });
 
   const {
-    results: notifications,
+    data,
+    error,
     loading: notificationsLoading,
-    // loadMore: loadMoreNotifications, // TODO: Load more
-  } = useMulti({
-    collectionName: "Notifications",
-    fragmentName: "NotificationsList",
-    limit: 20,
-    enableTotal: false,
+    // refetch,
+    // fetchMore,
+    // networkStatus,
+  } = useQuery(query, {
+    ssr: true,
+    notifyOnNetworkStatusChange: true,
     skip: !currentUser,
-    terms: {
-      view: "userNotifications",
-      type: currentTab.type,
-      userId: currentUser?._id,
+    pollInterval: 0,
+    fetchPolicy: "cache-and-network",
+    nextFetchPolicy: "cache-only",
+    variables: {
+      limit: 20,
     },
   });
+
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Error loading notifications:", error);
+  }
+
+  const notifications: NotificationDisplay[] =
+    data?.NotificationDisplays?.results ?? [];
 
   const onChangeTab = useCallback((_: React.ChangeEvent, tabName: string) => {
     const newTabIndex = tabs.findIndex(({name}) => name === tabName);
@@ -189,8 +210,11 @@ export const NotificationsPage = ({classes}: {
       {currentTab.name !== "karma" && (
         notificationsLoading
           ? <Loading />
-          : notifications?.map((item) => (
-            <NotificationsPageItem item={item} key={item._id} />
+          : notifications?.map((notification) => (
+            <NotificationsPageItem
+              key={notification._id}
+              notification={notification}
+            />
           ))
       )}
     </div>

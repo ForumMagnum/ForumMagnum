@@ -8,6 +8,8 @@ import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
+import { createPaginatedResolver } from './paginatedResolver';
+import type { NotificationDisplay } from '../../lib/types/notificationDisplayTypes';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -90,3 +92,21 @@ defineMutation({
     return true
   }
 })
+
+createPaginatedResolver({
+  name: "NotificationDisplays",
+  graphQLType: "JSON",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<NotificationDisplay[]> => {
+    const {repos, currentUser} = context;
+    if (!currentUser) {
+      return [];
+    }
+    return repos.notificationRepo.getNotificationDisplays({
+      userId: currentUser._id,
+      limit,
+    });
+  },
+});
