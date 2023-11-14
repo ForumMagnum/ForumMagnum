@@ -28,6 +28,36 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 
+// We need enough fields here to render the user tooltip
+type NotificationDisplayUser = Pick<
+  UsersMinimumInfo,
+  "_id" |
+  "slug" |
+  "createdAt" |
+  "displayName" |
+  "profileImageId" |
+  "karma" |
+  "deleted" |
+  "htmlBio" |
+  "postCount" |
+  "commentCount"
+>;
+
+/** Main type for the notifications page */
+export type NotificationDisplay =
+  Pick<DbNotification, "_id" | "type" | "link" | "createdAt"> & {
+    post?: Pick<DbPost, "_id" | "title" | "slug"> & {
+      user?: NotificationDisplayUser,
+    },
+    comment?: Pick<DbComment, "_id"> & {
+      user?: NotificationDisplayUser,
+      post?: Pick<DbPost, "_id" | "title" | "slug">,
+    },
+    tag?: Pick<DbTag, "_id" | "name" | "slug">,
+    user?: NotificationDisplayUser,
+    localgroup?: Pick<DbLocalgroup, "_id" | "name">,
+  };
+
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 

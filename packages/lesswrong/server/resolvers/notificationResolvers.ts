@@ -9,7 +9,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import type { NotificationDisplay } from '../../lib/types/notificationDisplayTypes';
+import type { NotificationDisplay } from '../../lib/notificationTypes';
 
 defineQuery({
   name: "unreadNotificationCounts",

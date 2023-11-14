@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../lib/collections/notifications/collection";
-import type { NotificationDisplay } from "../../lib/types/notificationDisplayTypes";
+import type { NotificationDisplay } from "../../lib/notificationTypes";
 
 // This should return an object of type `NotificationDisplayUser`
 const buildNotificationUser = (prefix: string) => `JSONB_BUILD_OBJECT(

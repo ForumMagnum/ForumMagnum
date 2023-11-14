@@ -12,7 +12,7 @@ import type {
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
-import type { NotificationDisplay } from "../../../lib/types/notificationDisplayTypes";
+import type { NotificationDisplay } from "../../../lib/notificationTypes";
 
 const styles = (theme: ThemeType) => ({
   root: {

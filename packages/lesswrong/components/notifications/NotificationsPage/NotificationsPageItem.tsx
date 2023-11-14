@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import type { ForumIconName } from "../../common/ForumIcon";
-import type { NotificationDisplay } from "../../../lib/types/notificationDisplayTypes";
+import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import classNames from "classnames";
 
 const ICON_WIDTH = 24;
