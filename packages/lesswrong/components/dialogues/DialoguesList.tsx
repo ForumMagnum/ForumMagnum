@@ -98,7 +98,9 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   dialogueMatchNote: {
-    
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   dialogueRightContainer: {
     display: 'flex',
