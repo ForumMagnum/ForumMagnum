@@ -16,4 +16,4 @@ DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMat
   };
 });
 
-ensureIndex(DialogueMatchPreferences, { dialogueCheckId: 1 }, { unique: true });
+ensureIndex(DialogueMatchPreferences, { dialogueCheckId: 1 });

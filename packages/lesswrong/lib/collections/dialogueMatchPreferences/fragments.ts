@@ -5,6 +5,7 @@ registerFragment(`
     _id
     dialogueCheckId
     topicNotes
+    topicPreferences
     syncPreference
     asyncPreference
     formatNotes

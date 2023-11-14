@@ -8,5 +8,11 @@ registerFragment(`
     checked
     checkedAt
     match
+    matchPreference {
+      ...DialogueMatchPreferencesDefaultFragment
+    }
+    matchingMatchPreference {
+      ...DialogueMatchPreferencesDefaultFragment
+    }
   }
 `);

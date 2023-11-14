@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -29,6 +29,8 @@ import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dia
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import mergeWith from 'lodash/mergeWith';
+import { partition, sortBy } from 'lodash';
 
 export type UpvotedUser = {
   _id: string;
@@ -125,6 +127,7 @@ type NextStepsDialogProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   dialogueCheckId: string;
+  dialogueCheck: DialogueCheckInfo;
   classes: ClassesType<typeof styles>;
 };
 
@@ -598,12 +601,12 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
   );
 };
 
-const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
-
-  const [topicNotes, setTopicNotes] = useState("");
-  const [formatSync, setFormatSync] = useState<SyncPreference>("Meh");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>("Meh");
-  const [formatNotes, setFormatNotes] = useState("");
+const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
+  console.log({dialogueCheck})
+  const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes || "");
+  const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference || "Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference || "Meh");
+  const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes || "");
 
   const { LWDialog, MenuItem } = Components;
 
@@ -644,25 +647,32 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       }
     }
   `, {
-    variables: { userId, targetUserId, limit:6 },
+    variables: { userId, targetUserId, limit:4 },
   });
 
 
-  const topicRecommendations: TopicRecommendationData = data?.GetTwoUserTopicRecommendations;
+  const topicRecommendations: CommentsList[] = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  // const { results: popularTopics } = usePaginatedResolver({
-  //   fragmentName: "CommentsList",
-  //   resolverName: "PollTopicsPopular",
-  //   limit: 4,
-  // });
+  type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No"}
+  const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) || [])
+  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.matchingMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) || [])
+  const mergedTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) => ({...matchedPersonTopic, ...ownTopic}))
+  const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(mergedTopicDict))
 
-  const [topicPreferences, setTopicPreferences] = useState<DbDialogueMatchPreference["topicPreferences"]>([])
+  useEffect(() => setTopicPreferences(topicPreferences => {
+    const existingTopicDict = Object.fromEntries(topicPreferences.map(topic => [topic.text, topic]))
+    const newRecommendedTopicDict = Object.fromEntries(topicRecommendations?.map(comment => [comment.contents?.plaintextMainText || '', {
+      text: comment.contents?.plaintextMainText || '',
+      preference: 'No' as const,
+      commentSourceId: comment._id
+    }]) || [])
+    const mergedTopicDict = mergeWith(existingTopicDict, newRecommendedTopicDict, (existingTopic, newRecommendedTopic) => ({...newRecommendedTopic, ...existingTopic}))
+    return Object.values(mergedTopicDict)
+  }), [topicRecommendations])
 
-  useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(topicRecommendations?.map(comment => ({
-    text: comment.contents?.plaintextMainText || '', // TODO figure out the bug preventing returning plaintextMaintext
-    preference: 'No' as const,
-    commentSourceId: comment._id
-  })) || [])]), [topicRecommendations])
+  console.log({ownTopicDict, mergedTopicDict, topicPreferences, topicRecommendations})
+
+  const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.commentSourceId && !(topic.matchedPersonPreference === "Yes"))
 
   if (called) {
     return (
@@ -688,11 +698,35 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
         <DialogContent >
-            <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
+          {userSuggestedTopics.length > 0 && <>
+            <div>Here are some topics your match was interested in:</div>
             <div className={classes.dialogueTopicList}>
-              {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
+              {userSuggestedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
                     className={classes.dialogueTopicRowTopicCheckbox}
+                    color={topic.matchedPersonPreference === "Yes" ? "primary" : "default"}
+                    checked={topic.preference === "Yes"}
+                    // Set the preference of the topic with the matching text to the new preference
+                    onChange={event => setTopicPreferences(
+                      topicPreferences.map(
+                        existingTopic => existingTopic.text === topic.text ? {
+                          ...existingTopic, 
+                          preference: existingTopic.preference === "Yes" ? "No" as const : "Yes" as const,
+                        } : existingTopic
+                      )
+                    )}
+                  />
+                  <div className={classes.dialogueTopicRowTopicText}>
+                    {topic.text}
+                  </div>
+              </div>)}
+          </div></>}
+            <div>Here are some popular topics on LW. Check any you're interested in discussing.</div>
+            <div className={classes.dialogueTopicList}>
+              {recommendedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
+                <Checkbox 
+                    className={classes.dialogueTopicRowTopicCheckbox}
+                    color={topic.matchedPersonPreference === "Yes" ? "primary" : "default"}
                     checked={topic.preference === "Yes"}
                     // Set the preference of the topic with the matching text to the new preference
                     onChange={event => setTopicPreferences(
@@ -705,10 +739,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     )}
                   />
                   <div className={classes.dialogueTopicRowTopicText}>
-                    {topic.text}
+                    {topic.text} {topic.matchedPersonPreference === "Yes" && <b>Your match is interested in this topic</b>}
                   </div>
               </div>)}
             </div>
+            
             <div className={classes.dialogueTopicSubmit}>
               <TextField
                 variant="outlined"
@@ -793,15 +828,11 @@ const DialogueCheckBox: React.FC<{
   const [upsertDialogueCheck] = useMutation(gql`
     mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
       upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
-          _id
-          __typename
-          userId
-          targetUserId
-          checked
-          checkedAt
-          match
+          ...DialogueCheckInfo
         }
       }
+    ${getFragmentText('DialogueCheckInfo')}
+    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
     `)
   
   async function handleNewMatchAnonymisedAnalytics() {
@@ -833,14 +864,8 @@ const DialogueCheckBox: React.FC<{
                 const newCheckRef = cache.writeFragment({
                   data: data.upsertUserDialogueCheck,
                   fragment: gql`
-                    fragment DialogueCheckInfo on DialogueCheck {
-                      _id
-                      userId
-                      targetUserId
-                      checked
-                      checkedAt
-                      match
-                    }
+                    ${getFragmentText('DialogueCheckInfo')}
+                    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
                   `
                 });
                 return {
@@ -860,12 +885,15 @@ const DialogueCheckBox: React.FC<{
           targetUserId: targetUserId,
           checked: event.target.checked,
           checkedAt: new Date(),
-          match: false 
+          match: false,
+          matchPreference: null,
+          matchingMatchPreference: null
         }
       }
     })
     
     if (response.data.upsertUserDialogueCheck.match) {
+      console.log(response.data)
       void handleNewMatchAnonymisedAnalytics()
       setShowConfetti(true);
       openDialog({
@@ -874,7 +902,8 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
-          dialogueCheckId: checkId!
+          dialogueCheckId: checkId!,
+          dialogueCheck: response.data.upsertUserDialogueCheck
         }
       });
     }
@@ -927,6 +956,12 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     collectionName: "DialogueMatchPreferences",
   });
 
+  const { document: dialogueCheck } = useSingle({
+    fragmentName: "DialogueCheckInfo",
+    collectionName: "DialogueChecks",
+    documentId: checkId,
+  });
+
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
   const userMatchPreferences = results?.[0]
@@ -951,17 +986,19 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   return (
     <button
       className={classes.enterTopicsButton}
-      onClick={(e) =>
-        openDialog({
+      onClick={(e) => {
+        console.log({dialogueCheck})
+        dialogueCheck && openDialog({
           componentName: 'NextStepsDialog',
           componentProps: {
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
-            dialogueCheckId: checkId!
+            dialogueCheckId: checkId!,
+            dialogueCheck
           }
         })
-      }
+      }}
     >
       <a data-cy="message">Enter topics</a>
     </button>

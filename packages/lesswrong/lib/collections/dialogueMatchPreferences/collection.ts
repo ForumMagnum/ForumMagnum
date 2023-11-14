@@ -47,7 +47,7 @@ DialogueMatchPreferences.checkAccess = async (user: DbUser|null, document: DbDia
     ? await context.loaders.DialogueChecks.load(document.dialogueCheckId)
     : await DialogueChecks.findOne(document.dialogueCheckId);
   
-  if (dialogueCheck?.userId === user._id) {
+  if (dialogueCheck?.userId === user._id || dialogueCheck?.targetUserId === user._id) {
     return true;
   }
 

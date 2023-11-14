@@ -3396,6 +3396,8 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
+  readonly matchingMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
 }
 
 interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatchPreferences
@@ -3416,6 +3418,7 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly _id: string,
   readonly dialogueCheckId: string,
   readonly topicNotes: string,
+  readonly topicPreferences: any,
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,

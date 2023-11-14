@@ -1,6 +1,7 @@
 import SimpleSchema from "simpl-schema";
 import {schemaDefaultValue} from "../../collectionUtils";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { accessFilterSingle, foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+import DialogueChecks from "../dialogueChecks/collection";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
 export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
@@ -87,7 +88,7 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canCreate: ['admins'],
     canRead: ['members', 'admins'],
     canUpdate: ['admins'],
-  },
+  }
 };
 
 export default schema;
