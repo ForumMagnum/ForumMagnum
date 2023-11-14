@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC, ReactNode } from 'react';
 import { Components } from './vulcan-lib/components';
 import Conversations from './collections/conversations/collection';
 import { Posts } from './collections/posts';
@@ -79,7 +79,12 @@ interface NotificationType {
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
   getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>})=>Promise<string>
-  getIcon: ()=>React.ReactNode
+  getIcon: () => ReactNode,
+  Display?: FC<{
+    notification: NotificationDisplay,
+    User: FC,
+    Post: FC,
+  }>,
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
   causesRedBadge?: boolean
@@ -219,6 +224,7 @@ export const NewPostNotification = registerNotificationType({
   getIcon() {
     return <PostsIcon style={iconStyles}/>
   },
+  Display: ({User, Post}) => <><User /> created a new post <Post /></>,
 });
 
 // Vulcan notification that we don't really use
@@ -301,6 +307,7 @@ export const NewCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
+  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
 });
 
 // New comment on a subforum you're subscribed to.
@@ -311,7 +318,7 @@ export const NewSubforumCommentNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     // e.g. "Forecasting: Will Howard left a new comment"
     let document = await getDocument(documentType, documentId) as DbComment;
-    return await `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
+    return `${startCase(await getCommentParentTitle(document))}: ${await commentGetAuthorName(document)} left a new comment`;
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>

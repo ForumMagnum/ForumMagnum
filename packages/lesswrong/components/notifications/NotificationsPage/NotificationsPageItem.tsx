@@ -1,10 +1,12 @@
-import React from "react";
+import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import type { ForumIconName } from "../../common/ForumIcon";
-import type { NotificationDisplay } from "../../../lib/notificationTypes";
+import {
+  NotificationDisplay,
+  getNotificationTypeByName,
+} from "../../../lib/notificationTypes";
 import classNames from "classnames";
 
 const ICON_WIDTH = 24;
@@ -46,9 +48,6 @@ const styles = (theme: ThemeType) => ({
   iconGrey: {
     backgroundColor: theme.palette.icon.recentDiscussionGrey,
   },
-  iconGreen: {
-    backgroundColor: theme.palette.icon.recentDiscussionGreen,
-  },
   meta: {
     marginBottom: 12,
     lineHeight: "1.5em",
@@ -59,59 +58,50 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type DisplayDetails = {
-  type: string,
-  icon: ForumIconName,
-  iconVariant: "primary" | "grey" | "green",
-  user: UsersMinimumInfo | null,
-  action: string,
-  post: NotificationDisplay["post"],
-  link: string,
-  timestamp: Date,
-}
-
-const getDisplayDetails = ({
-  type,
-  link,
-  createdAt,
-  post,
-  comment,
-  // tag,
-  user,
-  // localgroup,
-}: NotificationDisplay): DisplayDetails | null => {
-  return {
-    type,
-    ...(comment
-      ? {icon: "CommentFilled", iconVariant: "primary"}
-      : {icon: "DocumentFilled", iconVariant: "grey"}
-    ),
-    user: (user ?? post?.user ?? comment?.user ?? null) as UsersMinimumInfo | null,
-    action: "created a new post", // TODO: Fetch correct action string
-    post,
-    link,
-    timestamp: new Date(createdAt),
-  };
-}
-
 export const NotificationsPageItem = ({notification, classes}: {
   notification: NotificationDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const displayDetails = getDisplayDetails(notification);
-  if (!displayDetails) {
+  const {type, createdAt, comment, post, user, link} = notification;
+  const notificationType = getNotificationTypeByName(type);
+  if (!notificationType.Display) {
     return null;
   }
-  const {
-    icon,
-    iconVariant,
-    user,
-    action,
-    post,
-    link,
-    timestamp,
-  } = displayDetails;
+
+  const displayUser = (
+    user ??
+    post?.user ??
+    comment?.user
+  ) as UsersMinimumInfo | undefined;
+  const displayPost = post ?? comment?.post;
+
   const {ForumIcon, UsersNameDisplay, FormatDate} = Components;
+  const User: FC = () => (
+    <UsersNameDisplay user={displayUser} className={classes.primaryText} />
+  );
+  const Post: FC = () => displayPost
+    ? (
+      <Link
+        to={link ?? postGetPageUrl(displayPost)}
+        className={classes.primaryText}
+        eventProps={{intent: "expandPost"}}
+      >
+        {displayPost.title}
+      </Link>
+    )
+    : null;
+  const display = (
+    <notificationType.Display
+      notification={notification}
+      User={User}
+      Post={Post}
+    />
+  );
+
+  const {icon, iconVariant} = comment
+    ? {icon: "CommentFilled", iconVariant: "primary"} as const
+    : {icon: "DocumentFilled", iconVariant: "grey"} as const;
+
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -119,35 +109,11 @@ export const NotificationsPageItem = ({notification, classes}: {
           <div className={classNames(classes.iconContainer, {
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
-            [classes.iconGreen]: iconVariant === "green",
           })}>
             <ForumIcon icon={icon} />
           </div>
           <div className={classes.meta}>
-            <UsersNameDisplay user={user} className={classes.primaryText} />
-            {" "}
-            {action}
-            {" "}
-            {post &&
-              <Link
-                to={link ?? postGetPageUrl(post)}
-                className={classes.primaryText}
-                eventProps={{intent: "expandPost"}}
-              >
-                {post.title}
-              </Link>
-            }
-            {/*
-            {tag &&
-              <TagTooltipWrapper tag={tag} As="span">
-                <Link to={tagGetUrl(tag)} className={classes.primaryText}>
-                  {tag.name}
-                </Link>
-              </TagTooltipWrapper>
-            }
-              */}
-            {" "}
-            <FormatDate date={timestamp} includeAgo />
+            {display} <FormatDate date={new Date(createdAt)} includeAgo />
           </div>
         </div>
         {/*
