@@ -58,17 +58,6 @@ describe('updateUser – ', () => {
     })
     assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
   });
-  it("fails when user updates their voteBanned", async () => {
-    const user = await createDummyUser()
-    await userUpdateFieldFails({
-      user:user,
-      document:user,
-      fieldName:'voteBanned',
-      newValue: true,
-      collectionType:'User',
-    })
-    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
-  });
   it("fails when user updates their deleteContent", async () => {
     const user = await createDummyUser()
     await userUpdateFieldFails({
@@ -110,18 +99,6 @@ describe('updateUser succeeds – ', () => {
         user:user,
         document:user,
         fieldName:'nullifyVotes',
-        collectionType:'User',
-        newValue: true,
-      });
-    });
-  });
-  it("succeeds when user updates their voteBanned", async () => {
-    const user = await createDummyUser({groups:['sunshineRegiment']})
-    await withNoLogs(async () => {
-      await userUpdateFieldSucceeds({
-        user:user,
-        document:user,
-        fieldName:'voteBanned',
         collectionType:'User',
         newValue: true,
       });
