@@ -16,6 +16,7 @@ import {
   donationElectionTagId,
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
+  heroImageId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -282,8 +283,6 @@ const canonicalUrl = getSiteUrl() + "giving-portal";
 
 const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
 
-const heroImage = "giving_portal_23_hero";
-
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
   ar: "16:9",
@@ -366,7 +365,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           canonicalUrl={canonicalUrl}
           ogUrl={canonicalUrl}
           description={pageDescription}
-          image={makeCloudinaryImageUrl(heroImage, socialImageProps)}
+          image={makeCloudinaryImageUrl(heroImageId, socialImageProps)}
         />
         <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
@@ -399,7 +398,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <span className={classes.bold}>
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
@@ -489,7 +488,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId={heroImage} fullWidthHeader imgProps={{ h: "1200" }} />
+        <CloudinaryImage2 publicId={heroImageId} fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(

@@ -2,8 +2,7 @@ import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { Request } from 'express';
-// eslint-disable-next-line no-restricted-imports
-import { StaticRouter } from 'react-router';
+import { StaticRouter } from 'react-router-dom/server';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { ForeignApolloClientProvider } from '../../../../components/hooks/useForeignApolloClient';
 import { CookiesProvider } from 'react-cookie';
@@ -28,7 +27,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
-        <StaticRouter location={req.url} context={{}}>
+        <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>

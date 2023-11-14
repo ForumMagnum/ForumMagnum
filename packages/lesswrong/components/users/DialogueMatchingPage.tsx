@@ -7,17 +7,15 @@ import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useNavigation } from '../../lib/routeUtil';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, NavigateFunction, useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
-import type { History } from 'history';
 
 import Select from '@material-ui/core/Select';
 
@@ -395,10 +393,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const redirect = (redirectId: string | undefined, history: History<unknown>) => {
+const redirect = (redirectId: string | undefined, navigate: NavigateFunction) => {
   if (redirectId) {
-    const path = postGetEditUrl(redirectId)
-    history.push(path)
+    navigate(postGetEditUrl(redirectId))
   }
 }
 
@@ -615,7 +612,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     fragmentName: "DialogueMatchPreferencesDefaultFragment",
   })
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const onSubmit = async () => {
 
@@ -633,7 +630,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     })
 
     const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
-    redirect(redirectId, history)
+    redirect(redirectId, navigate)
   }
 
   const { loading, error, data } = useQuery(gql`
@@ -917,7 +914,8 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 }) => {
 
   const { openDialog } = useDialog();
-  const { history } = useNavigation();
+
+  const navigate = useNavigate();
 
   const {loading: userLoading, results} = useMulti({
     terms: {
@@ -936,7 +934,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
   if (!!generatedDialogueId) {
     return (
-      <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
+      <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, navigate)}>
         <a data-cy="message">Go to dialogue</a>
       </button>
     );
@@ -1078,6 +1076,8 @@ export const DialogueMatchingPage = ({classes}: {
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
+  const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
+  const navigate = useNavigate();
   const {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
