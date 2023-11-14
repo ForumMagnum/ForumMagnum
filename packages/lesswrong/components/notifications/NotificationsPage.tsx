@@ -15,6 +15,7 @@ import type {
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../lib/types/karmaChangesTypes";
+import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -86,22 +87,25 @@ const styles = (theme: ThemeType) => ({
 const tabs = [
   {
     name: "all",
+    type: undefined,
   },
   {
     name: "karma",
+    type: undefined,
   },
   {
     name: "comments",
+    type: "newComment",
   },
   {
     name: "reactions",
+    type: undefined,
   },
   {
     name: "new posts",
+    type: "newPost",
   },
 ] as const;
-
-type TabType = typeof tabs[number]["name"];
 
 const KarmaChange: FC<{
   scoreChange: number,
@@ -110,7 +114,6 @@ const KarmaChange: FC<{
   classes: ClassesType<typeof styles>,
 }> = ({scoreChange, description, href, classes}) => {
   const amountText = scoreChange > 0 ? `+${scoreChange}` : String(scoreChange);
-  console.log("mark", href);
   const {ForumIcon} = Components;
   return (
     <div className={classes.karmaChange}>
@@ -190,12 +193,19 @@ const NotificationsPageKarma: FC<{
   );
 }
 
+const NotificationsPageItem: FC<{item: NotificationsList}> = () => {
+  return (
+    null
+  );
+}
+
 export const NotificationsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
-  const [tab, setTab] = useState<TabType>(tabs[0].name);
+  const [tabIndex, setTabIndex] = useState(0);
+  const currentTab = tabs[tabIndex] ?? tabs[0];
 
   const {document: karmaChanges} = useSingle({
     documentId: currentUser?._id,
@@ -204,16 +214,35 @@ export const NotificationsPage = ({classes}: {
     skip: !currentUser,
   });
 
-  const onChangeTab = useCallback((_: React.ChangeEvent, value: TabType) => {
-    setTab(value);
+  const {
+    results: notifications,
+    loading: notificationsLoading,
+    loadMore: loadMoreNotifications,
+  } = useMulti({
+    collectionName: "Notifications",
+    fragmentName: "NotificationsList",
+    limit: 20,
+    enableTotal: false,
+    skip: !currentUser,
+    terms: {
+      view: "userNotifications",
+      type: currentTab.type,
+      userId: currentUser?._id,
+    },
+  });
+  console.log("notif", notifications);
 
-    if (value === "karma" && karmaChanges?.karmaChanges) {
+  const onChangeTab = useCallback((_: React.ChangeEvent, tabName: string) => {
+    const newTabIndex = tabs.findIndex(({name}) => name === tabName);
+    setTabIndex(newTabIndex >= 0 ? newTabIndex : 0);
+
+    if (tabName === "karma" && karmaChanges?.karmaChanges) {
       void updateCurrentUser({
         karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
         karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
       });
     }
-  }, []);
+  }, [karmaChanges?.karmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
     const {WrappedLoginForm} = Components;
@@ -222,11 +251,12 @@ export const NotificationsPage = ({classes}: {
     );
   }
 
+  const {Loading} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
       <Tabs
-        value={tab}
+        value={currentTab.name}
         onChange={onChangeTab}
         className={classes.tabs}
         textColor="primary"
@@ -238,9 +268,16 @@ export const NotificationsPage = ({classes}: {
           <Tab label={name} value={name} key={name} />
         ))}
       </Tabs>
-      {tab === "karma" && karmaChanges &&
+      {currentTab.name === "karma" && karmaChanges &&
         <NotificationsPageKarma karmaChanges={karmaChanges} classes={classes} />
       }
+      {currentTab.name !== "karma" && (
+        notificationsLoading
+          ? <Loading />
+          : notifications?.map((item) => (
+            <NotificationsPageItem item={item} key={item._id} />
+          ))
+      )}
     </div>
   );
 }
