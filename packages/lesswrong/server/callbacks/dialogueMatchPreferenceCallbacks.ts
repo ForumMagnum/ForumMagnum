@@ -70,7 +70,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   <ul>
     ${sharedTopics.map(topic => `<li>${topic} <strong>(Both!)</strong></li>`).join('')}
     ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
-    ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})<strong></li>`).join('')}
+    ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
   </ul>
   `
 
@@ -110,12 +110,12 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
-  let nextAction = `<p> Feel free to coordinate timing and topic in this chat.</p>`
+  let nextAction = `<p>Feel free to coordinate timing and topic in this chat.</p>`
 
   if (!formatPreferenceMatch) {
     nextAction =
-    `It seems you have different format preferences, so a dialogue might not make sense—
-    but if either of you wants to give it a try anyway, you can always send a message in this chat.`
+    `<p>It seems you have different format preferences, so a dialogue might not make sense—
+    but if either of you wants to give it a try anyway, you can always send a message in this chat.</p> `
   }
 
   // overall messages
@@ -129,8 +129,10 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   // const userMessage = getDialogueMessageHTML(userId, userName, "2", userContent);
   // const targetUserMessage = getDialogueMessageHTML(targetUserId, targetUserName, "3", targetUserContent);
-  
-  const message = `<div>${topicMessage}${formatMessage}${nextActionMessage}</div>`
+
+  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
+
+  const message = `<div>${messagesCombined}</div>`
 
   return message
 }
