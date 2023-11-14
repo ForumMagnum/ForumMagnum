@@ -602,15 +602,17 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
   );
 };
 
+type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No"}
+
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
+  const { LWDialog } = Components;
+
   const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes || "");
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference || "Meh");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference || "Meh");
   const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes || "");
 
-  const { LWDialog, MenuItem } = Components;
-
-  const { create, called } = useCreate({
+  const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
     fragmentName: "DialogueMatchPreferencesDefaultFragment",
   })
@@ -618,13 +620,10 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const navigate = useNavigate();
 
   const onSubmit = async () => {
-
-    // onClose()
-
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: topicPreferences,
+        topicPreferences: topicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference || "No"})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -653,7 +652,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const topicRecommendations: CommentsList[] = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No"}
+  
   const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) || [])
   const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.matchingMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) || [])
   const mergedTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) => ({...matchedPersonTopic, ...ownTopic}))
@@ -672,9 +671,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
 
-  console.log({ownTopicDict, recommendedTopics, topicRecommendations})
-
-  if (called) {
+  if (called && !loadingCreatedMatchPreference && !newMatchPreference?.generatedDialogueId) {
     return (
       <LWDialog open onClose={onClose}>
           <DialogTitle>
@@ -1111,8 +1108,6 @@ export const DialogueMatchingPage = ({classes}: {
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
-  const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
-  const navigate = useNavigate();
   const {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
