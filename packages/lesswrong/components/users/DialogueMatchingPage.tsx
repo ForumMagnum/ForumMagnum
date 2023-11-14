@@ -601,8 +601,8 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
-  const [formatSync, setFormatSync] = useState<SyncPreference>("No");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>("No");
+  const [formatSync, setFormatSync] = useState<SyncPreference>("Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>("Meh");
   const [formatNotes, setFormatNotes] = useState("");
 
   const { LWDialog, MenuItem } = Components;

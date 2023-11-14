@@ -76,7 +76,8 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueLeftContainer: {
     display: 'flex',
-    width: '100%'
+    width: '100%',
+    alignItems: 'center',
   },
   dialogueMatchCheckbox: {
     marginLeft: 6,
@@ -97,7 +98,9 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   dialogueMatchNote: {
-    
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   dialogueRightContainer: {
     display: 'flex',
