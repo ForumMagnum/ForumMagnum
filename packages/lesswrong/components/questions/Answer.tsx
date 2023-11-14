@@ -124,8 +124,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-export const ABRIDGE_COMMENT_COUNT = 500;
-
 const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
