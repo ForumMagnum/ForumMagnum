@@ -568,56 +568,6 @@ const Headers = ({ titles, className }: { titles: string[], className: string })
   );
 };
 
-const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_started' }> = ({ label, status }) => {
-  let backgroundColor;
-  let borderColor;
-  let size;
-  let labelColor;
-
-  switch (status) {
-    case 'done':
-      backgroundColor = 'green';
-      borderColor = 'green';
-      size = 15;
-      labelColor = 'green';
-      break;
-    case 'current':
-      backgroundColor = 'white';
-      borderColor = 'green';
-      size = 15;
-      labelColor = 'black';
-      break;
-    case 'not_started':
-    default:
-      backgroundColor = '#d3d3d3'; // Lighter shade of gray
-      borderColor = '#d3d3d3'; // Lighter shade of gray
-      size = 10;
-      labelColor = 'gray';
-      break;
-  }
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
-        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
-        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-      </div>
-      <div style={{ marginLeft: '10px', color: labelColor }}>{label}</div>
-    </div>
-  );
-};
-
-const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' | 'current' | 'not_started' }[] }> = ({ checkpoints }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-    {checkpoints.map((checkpoint, index) => (
-      <Checkpoint key={index} label={checkpoint.label} status={checkpoint.status} />
-    ))}
-  </div>
-);
-
-
-
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
@@ -715,10 +665,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     onChange={event => setFormatAsync(value as SyncPreference)}
                 />)}
                 
-              </div>
-              
-              
-              
+              </div>      
               <TextField
                 multiline
                 rows={2}
@@ -898,44 +845,40 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
-  const renderButton = () => {
-    if (!!generatedDialogueId) {
-      return (
-        <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
-          <a data-cy="message">Go to dialogue</a>
-        </button>
-      );
-    }
-  
-    if (userMatchPreferences) {
-      return (
-        <div className={classes.waitingMessage}>
-          Waiting for {targetUserDisplayName}...
-        </div>
-      );
-    }
-  
+  if (!!generatedDialogueId) {
     return (
-      <button
-        className={classes.enterTopicsButton}
-        onClick={(e) =>
-          openDialog({
-            componentName: 'NextStepsDialog',
-            componentProps: {
-              userId: currentUser?._id,
-              targetUserId,
-              targetUserDisplayName,
-              dialogueCheckId: checkId!
-            }
-          })
-        }
-      >
-        <a data-cy="message">Enter topics</a>
+      <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
+        <a data-cy="message">Go to dialogue</a>
       </button>
     );
-  };
-  
-  return <div>{renderButton()}</div>;
+  }
+
+  if (userMatchPreferences) {
+    return (
+      <div className={classes.waitingMessage}>
+        Waiting for {targetUserDisplayName}...
+      </div>
+    );
+  }
+
+  return (
+    <button
+      className={classes.enterTopicsButton}
+      onClick={(e) =>
+        openDialog({
+          componentName: 'NextStepsDialog',
+          componentProps: {
+            userId: currentUser?._id,
+            targetUserId,
+            targetUserDisplayName,
+            dialogueCheckId: checkId!
+          }
+        })
+      }
+    >
+      <a data-cy="message">Enter topics</a>
+    </button>
+  );
 };
 
 const MessageButton: React.FC<{
