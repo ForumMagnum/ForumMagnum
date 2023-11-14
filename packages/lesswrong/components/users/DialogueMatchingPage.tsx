@@ -30,7 +30,8 @@ import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import mergeWith from 'lodash/mergeWith';
-import { partition, sortBy } from 'lodash';
+import partition from 'lodash/partition';
+import sortBy from 'lodash/sortBy';
 
 export type UpvotedUser = {
   _id: string;
@@ -602,7 +603,6 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
 };
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
-  console.log({dialogueCheck})
   const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes || "");
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference || "Meh");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference || "Meh");
@@ -669,8 +669,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const mergedTopicDict = mergeWith(existingTopicDict, newRecommendedTopicDict, (existingTopic, newRecommendedTopic) => ({...newRecommendedTopic, ...existingTopic}))
     return Object.values(mergedTopicDict)
   }), [topicRecommendations])
-
-  console.log({ownTopicDict, mergedTopicDict, topicPreferences, topicRecommendations})
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.commentSourceId && !(topic.matchedPersonPreference === "Yes"))
 
@@ -893,7 +891,6 @@ const DialogueCheckBox: React.FC<{
     })
     
     if (response.data.upsertUserDialogueCheck.match) {
-      console.log(response.data)
       void handleNewMatchAnonymisedAnalytics()
       setShowConfetti(true);
       openDialog({
@@ -987,7 +984,6 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     <button
       className={classes.enterTopicsButton}
       onClick={(e) => {
-        console.log({dialogueCheck})
         dialogueCheck && openDialog({
           componentName: 'NextStepsDialog',
           componentProps: {
