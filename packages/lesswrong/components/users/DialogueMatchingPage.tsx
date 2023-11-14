@@ -626,7 +626,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           <DialogContent >
               <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
               <div className={classes.dialogueTopicList}>
-                {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow}>
+                {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                   <Checkbox 
                       className={classes.dialogueTopicRowTopicCheckbox}
                       checked={topic.preference === "Yes"}
@@ -672,12 +672,14 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                 <label className={classes.dialogueFormatLabel}>No</label>
                 <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
                 {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
                     className={classes.dialogSchedulingCheckbox}
                     onChange={event => setFormatSync(value as SyncPreference)}
                 />)}
 
                 <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
                 {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
                     className={classes.dialogSchedulingCheckbox}
                     onChange={event => setFormatAsync(value as SyncPreference)}
                 />)}
@@ -1003,8 +1005,6 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
-  
-  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
@@ -1031,6 +1031,8 @@ export const DialogueMatchingPage = ({classes}: {
        }
     }
   `);
+
+  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   if (loading) {
     return <Loading />;
