@@ -670,7 +670,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     return Object.values(mergedTopicDict)
   }), [topicRecommendations])
 
-  const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.commentSourceId && !(topic.matchedPersonPreference === "Yes"))
+  const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
+
+  console.log({ownTopicDict, recommendedTopics, topicRecommendations})
 
   if (called) {
     return (
