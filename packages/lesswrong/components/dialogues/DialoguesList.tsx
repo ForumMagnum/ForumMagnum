@@ -184,10 +184,12 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         </LWTooltip>}
       >
       {currentUser && (
-        <SectionButton className={classes.findDialoguePartners}>
-          <MuiPeopleIcon />
-          <Link to="/dialogueMatching">Find Dialogue Partners</Link>
-        </SectionButton>
+        <LWTooltip placement="top-start" title={matchmakingTooltip}>
+          <SectionButton className={classes.findDialoguePartners}>
+            <MuiPeopleIcon />
+            <Link to="/dialogueMatching">Find Dialogue Partners</Link>
+          </SectionButton>
+        </LWTooltip>
       )}
       </SectionTitle>
 

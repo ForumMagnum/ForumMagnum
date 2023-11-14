@@ -3418,7 +3418,11 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly _id: string,
   readonly dialogueCheckId: string,
   readonly topicNotes: string,
-  readonly topicPreferences: any,
+  readonly topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>,
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,

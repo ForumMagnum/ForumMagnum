@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragment, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -16,10 +16,6 @@ import { Link, NavigateFunction, useNavigate } from '../../lib/reactRouterWrappe
 import classNames from 'classnames';
 import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
-
-import Select from '@material-ui/core/Select';
-
-//import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -28,10 +24,8 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
-import sortBy from 'lodash/sortBy';
 
 export type UpvotedUser = {
   _id: string;
@@ -1321,7 +1315,7 @@ export const DialogueMatchingPage = ({classes}: {
           showFrequentCommentedTopics={true}
           showHeaders={true}
         />
-        <LoadMore {...optedInUsersLoadMoreProps} />
+        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
       </div>
     </div>
     <IntercomWrapper />

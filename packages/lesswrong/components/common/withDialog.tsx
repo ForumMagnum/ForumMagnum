@@ -24,8 +24,6 @@ export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
   const [componentNameWithProps, setComponentNameWithProps] = useState<{componentName: CloseableComponents, componentProps: any} | null>(null);
-  // const [componentName,setComponentName] = useState<CloseableComponents|null>(null);
-  // const [componentProps,setComponentProps] = useState<any>(null);
   const [noClickawayCancel, setNoClickawayCancel] = useState<any>(false);
   const [closeOnNavigate, setCloseOnNavigate] = useState<boolean>(false);
   const {captureEvent} = useTracking();
