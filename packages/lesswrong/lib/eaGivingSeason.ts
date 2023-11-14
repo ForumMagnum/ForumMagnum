@@ -78,7 +78,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-14"),
       end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
-      href: `${donationElectionLink}#Marginal_Funding_Week`,
+      href: "/s/xourt4HttDM5QcHsk",
       consecutive: true,
     },
     {
