@@ -52,13 +52,31 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const targetUserId = formDataTargetUser.userId;
   
 
-  const introMessageContent = `
-    <p>Hey ${userName} and ${targetUserName}, you were potentially interested in a dialogue!</p>
-    <p>Here are your form replies on format:</p>
-    <ul>
-      <li><i>Sync:</i> find a 1-3h time to sit down and dialogue</li>
-      <li><i>Async: </i>like a letter exchange over time. Suggested effort: at least 2 longer replies each before publishing</li>
-    </ul>
+  function getUserTopics (formData: MatchPreferenceFormData) {
+    return formData.topicPreferences
+      .filter(({ text, preference, commentSourceId }) => preference === "Yes")
+      .map(({ text }) => text);
+  }
+
+  const sourceUserYesTopics = getUserTopics(formDataSourceUser);
+  const targetUserYesTopics = getUserTopics(formDataTargetUser);
+
+  const sharedTopics = sourceUserYesTopics.filter(topic => targetUserYesTopics.includes(topic));
+  const sourceUserTopics = sourceUserYesTopics.filter(topic => !targetUserYesTopics.includes(topic));
+  const targetUserTopics = targetUserYesTopics.filter(topic => !sourceUserYesTopics.includes(topic));
+
+  const topicMessageContent = `
+  <p>You both wanted a dialogue! Some topics you suggested:</p>
+  <ul>
+    ${sharedTopics.map(topic => `<li>${topic}<strong>(Both!)</strong></li>`).join('')}
+    ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
+    ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})<strong></li>`).join('')}
+  </ul>
+  `
+
+  const formatPreferenceContent =
+    `
+    <p>Here is what you said about your format preferences:</p>
     <figure class="table">
       <table>
         <tbody>
@@ -84,7 +102,6 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
         </tbody>
       </table>
     </figure>
-    <p>And here's what you said on topics:</p>
   `;
 
   const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
@@ -93,46 +110,27 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
+  let nextAction = `<p> Feel free to coordinate timing and topic in this chat.</p>`
 
-  let topicMatch: TopicMatch = "uncertain" as TopicMatch; // Haven't build the other functionality for now. TODO! 
-  let topicMessage: string;
-
-  switch (topicMatch) {
-    case 'match':
-      topicMessage = `<p>You had some shared interests!</p><p>Topic notes:</p>`;
-      break;
-    case 'noMatch':
-      topicMessage = `<p>It seems you guys didn't have any preferred topics in common.</p><p>Topic notes:</p>`;
-      break;
-    case 'uncertain':
-      topicMessage = `<p><strong>Topic</strong></p>`;
-      break;
+  if (!formatPreferenceMatch) {
+    nextAction =
+    `It seems you have different format preferences, so a dialogue might not make sense—
+    but if either of you wants to give it a try anyway, you can always send a message in this chat.`
   }
 
-  const userContent = getFormAsHtml(formDataSourceUser)
-  const targetUserContent = getFormAsHtml(formDataTargetUser)
-
-  let nextAction = `<p>My auto-checker couldn't tell if you were compatible or not. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)</p>`
-
-  if (formatPreferenceMatch && topicMatch === "uncertain") {
-    nextAction = `
-      <p>It seems your preferences overlapped on format, but our auto-checker couldn't tell if you had topics in common. Feel free to chat to figure it out. And if it doesn't work it's totally okay to just call this a "good try" and then move on :)</p>
-    `
-  } 
-  if (!formatPreferenceMatch && topicMatch === "uncertain") {
-    nextAction = `
-      <p>It seems you have different format preferences. So a dialogue might not be the right solution here.</p> 
-      <p>That's okay! It's fine to call this a "nice try" and just move on :)
-      (We still created this chat for you in case that's not right and you wanted to discuss a bit more)</p>
-    `
-  } 
-
-  const introMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", introMessageContent);
-  const userMessage = getDialogueMessageHTML(userId, userName, "2", userContent);
-  const targetUserMessage = getDialogueMessageHTML(targetUserId, targetUserName, "3", targetUserContent);
+  // overall messages
+  const topicMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", topicMessageContent);
+  const formatMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", formatPreferenceContent);
   const nextActionMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", nextAction); 
 
-  const message = `<div>${introMessage}${userMessage}${targetUserMessage}${nextActionMessage}</div>`
+  // // user content
+  // const userContent = getFormAsHtml(formDataSourceUser)
+  // const targetUserContent = getFormAsHtml(formDataTargetUser)
+
+  // const userMessage = getDialogueMessageHTML(userId, userName, "2", userContent);
+  // const targetUserMessage = getDialogueMessageHTML(targetUserId, targetUserName, "3", targetUserContent);
+  
+  const message = `<div>${topicMessage}${formatMessage}${nextActionMessage}</div>`
 
   return message
 }
