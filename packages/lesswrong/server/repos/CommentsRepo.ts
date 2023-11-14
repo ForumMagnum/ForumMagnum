@@ -75,8 +75,6 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
-  
-
   async getPopularPollComments (limit: number): Promise<(DbComment)[]> {
     return await this.manyOrNone(`
       SELECT *

@@ -28,7 +28,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
+import {SYNC_PREFERENCE_VALUES, SyncPreference, TopicPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
@@ -590,6 +590,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
+        topicPreferences: topicPreferences,
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -607,7 +608,13 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     limit: 4,
   });
 
-  const [addedTopics, setAddedTopics] = useState<string[]>([])
+  const [topicPreferences, setTopicPreferences] = useState<TopicPreference[]>([])
+
+  useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(popularTopics?.map(comment => ({
+    text: comment.contents?.plaintextMainText || '',
+    preference: 'No' as const,
+    sourceCommentId: comment._id
+  })) || [])]), [popularTopics])
 
   return (
     <LWDialog 
@@ -619,23 +626,40 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           <DialogContent >
               <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
               <div className={classes.dialogueTopicList}>
-                {[...(popularTopics || []), ...addedTopics]?.map((commentOrAddedTopic) => <div className={classes.dialogueTopicRow}>
-                <Checkbox 
-                    className={classes.dialogueTopicRowTopicCheckbox}
-                    // onChange={event =>  } 
-                  />
-                  <div className={classes.dialogueTopicRowTopicText}>{typeof commentOrAddedTopic === "string" ? commentOrAddedTopic :  commentOrAddedTopic.contents?.plaintextMainText}</div>
+                {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow}>
+                  <Checkbox 
+                      className={classes.dialogueTopicRowTopicCheckbox}
+                      checked={topic.preference === "Yes"}
+                      // Set the preference of the topic with the matching text to the new preference
+                      onChange={event => setTopicPreferences(
+                        topicPreferences.map(
+                          existingTopic => existingTopic.text === topic.text ? {
+                            ...existingTopic, 
+                            preference: event.target.checked ? "Yes" : "No"
+                          } : existingTopic
+                        )
+                      )}
+                    />
+                    <div className={classes.dialogueTopicRowTopicText}>
+                      {topic.text}
+                    </div>
                 </div>)}
               </div>
               <div className={classes.dialogueTopicSubmit}>
                 <TextField
                   variant="outlined"
-                  label={`Any other topics?`}
+                  label={`Suggest other topics to ${targetUserDisplayName}?`}
                   fullWidth
                   value={topicNotes}
                   onChange={event => setTopicNotes(event.target.value)}
                 />
-                <Button color="default" onClick={e => setAddedTopics([...addedTopics, topicNotes])}>
+                <Button color="default" onClick={e => {
+                  setTopicPreferences([...topicPreferences, {
+                    text: topicNotes,
+                    preference: 'Yes' as const
+                  }])
+                  setTopicNotes('')
+                } }>
                   Add Topic
                 </Button>
               </div>
