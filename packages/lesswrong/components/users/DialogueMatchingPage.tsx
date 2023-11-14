@@ -428,7 +428,7 @@ const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks:
   };
 }
 
-export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V>, 'classes' | 'gridClassName' | 'showHeaders'>): DialogueUserRowProps<V>[] => {
+export const getRowProps = (tableProps: Omit<UserTableProps<boolean>, 'classes' | 'gridClassName' | 'showHeaders'>): DialogueUserRowProps<boolean>[] => {
   return tableProps.users.map(targetUser => {
     const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
     const { users, userDialogueChecks, ...remainingRowProps } = tableProps;
@@ -440,7 +440,7 @@ export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V
     };
 
     return rowProps;
-  }) as DialogueUserRowProps<V>[];
+  }) as DialogueUserRowProps<boolean>[];
 };
 
 const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
@@ -613,12 +613,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     <LWDialog 
       open 
       onClose={onClose} 
-      // className={classes.dialogBox}
-      // PaperProps={{
-      //   style: {
-      //     padding: '10px', // Change this to your desired padding
-      //   },
-      // }}
     >
       <div className={classes.dialogBox}>
           <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
@@ -964,15 +958,8 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     ...(rest.showPostsYouveRead ? ["Posts you've read"] : []),
   ];
 
-  let rows;
-  if (props.isUpvotedUser) {
-    const allRowProps = getRowProps<true>(props);
-    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
-  } else {
-    props.showKarma
-    const allRowProps = getRowProps<false>(props);
-    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
-  }
+  const allRowProps = getRowProps(props);
+  const rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
 
   return (
     <div className={gridClassName}>
