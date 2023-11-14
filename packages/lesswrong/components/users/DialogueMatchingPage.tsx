@@ -168,8 +168,8 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
       display: 'grid',
-      //                    checkbox    name     message     match
-      gridTemplateColumns: `40px        100px    80px        80px`,
+      //                    checkbox               name                     message          match
+      gridTemplateColumns: `minmax(300px, auto)    minmax(500px, auto)      400px            minmax(500px, auto)`,
       gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
       gridRowGap: 5,
       columnGap: 10,
@@ -185,21 +185,13 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
       display: 'grid',
-      //   ↓↓↓↓↓↓          checkbox    name     message     match
-      gridTemplateColumns: `40px        100px    80px        80px`,
+      //   ↓↓↓↓↓↓          checkbox     name     message     match
+      gridTemplateColumns: `60px        100px    80px        80px`,
       gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
       gridRowGap: 5,
       columnGap: 10,
       alignItems: 'center',
     },
-  },
-  matchContainerGridMobile: {
-    display: 'grid',
-    //                    checkbox    name     message     match
-    gridTemplateColumns: `40px        100px    80px        80px`,
-    gridRowGap: 5,
-    columnGap: 10,
-    alignItems: 'center',
   },
   header: {
     height: 'auto',
