@@ -322,8 +322,6 @@ addGraphQLResolvers({
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
 
-addGraphQLQuery("AllReactsForUser(userId: String!, reactTypes: String, limit: Int): [Vote!]");
-
 addGraphQLSchema(`
   type UserReadHistoryResult {
     posts: [Post!]
