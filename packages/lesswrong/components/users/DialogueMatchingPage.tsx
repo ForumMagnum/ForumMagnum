@@ -665,7 +665,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               </div>
               <br />
               <div className={classes.dialogueFormatGrid}>
-                
                 <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
                 <label className={classes.dialogueFormatLabel}>Great</label>
                 <label className={classes.dialogueFormatLabel}>Okay</label>
@@ -676,14 +675,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     className={classes.dialogSchedulingCheckbox}
                     onChange={event => setFormatSync(value as SyncPreference)}
                 />)}
-
                 <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
                 {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                     key={value}
                     className={classes.dialogSchedulingCheckbox}
                     onChange={event => setFormatAsync(value as SyncPreference)}
                 />)}
-                
               </div>      
               <TextField
                 multiline
@@ -853,7 +850,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   // in order to query by checkId field
   const {loading: userLoading, results} = useMulti({
     terms: {
-      view: "userDialogueMatchPreferences",
+      view: "dialogueMatchPreferences",
       dialogueCheckId: checkId,
       limit: 1,
     },
@@ -861,7 +858,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     collectionName: "DialogueMatchPreferences",
   });
 
-  if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
+  if (!isMatched || !checkId) return <div></div>; // need this instead of null to keep the table columns aligned
 
   const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
@@ -892,7 +889,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
-            dialogueCheckId: checkId!
+            dialogueCheckId: checkId
           }
         })
       }
