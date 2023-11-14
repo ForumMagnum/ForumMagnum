@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TableOfContentsDivider = ({classes}: {
   classes: ClassesType,
 }) => {
-  return <div/>
+  return <div className={classes.divider}/>
 }
 
 const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider, {styles});
