@@ -799,7 +799,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             Close
           </Button>
           <Button onClick={onSubmit} color="primary">
-            Submit
+            {loadingCreatedMatchPreference ? "Submitting..." : "Submit"}
           </Button>
         </DialogActions>
       </div>
