@@ -1233,7 +1233,7 @@ export const DialogueMatchingPage = ({classes}: {
         <div className={classes.matchContainer}>
           <h3>Your Top Voted Users (Last 18 Months)</h3>
           { recentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
-          <h4>Recently active on dialogue matching</h4>
+          <h4>Recently active on dialogue matching (last 10 days)</h4>
           <UserTable
             users={recentlyActiveTopUsers}
             isUpvotedUser={true}
