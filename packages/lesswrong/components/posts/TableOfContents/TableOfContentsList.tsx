@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { useLocation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export interface ToCDisplayOptions {
   /**
@@ -44,7 +45,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
 
@@ -54,7 +55,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
       delete query.commentId;
-      history.push({
+      navigate({
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
@@ -126,7 +127,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
       onClick={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
-            history.push("#");
+            navigate("#");
             jumpToY(0)
           });
         }

@@ -1,8 +1,8 @@
 import React, { ReactNode, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { userCanStartConversations } from '../../lib/collections/conversations/collection';
 
@@ -23,7 +23,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   includeModerators?: boolean,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { openDialog } = useDialog()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators })
 
@@ -46,9 +46,9 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       embedConversation(conversation._id, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      history.push({pathname: `/inbox/${conversation._id}`, ...templateParams})
+      navigate({pathname: `/inbox/${conversation._id}`, ...templateParams})
     }
-  }, [conversation, embedConversation, getTemplateParams, history, templateQueries])
+  }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
 
   const handleClick = currentUser
     ? () => initiateConversation(user._id)

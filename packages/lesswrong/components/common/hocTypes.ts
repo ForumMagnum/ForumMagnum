@@ -42,10 +42,6 @@ interface WithTimezoneProps {
   timezoneIsKnown: boolean,
 }
 
-interface WithNavigationProps {
-  history: any,
-}
-
 interface WithLocationProps {
   location: RouterLocation,
 }

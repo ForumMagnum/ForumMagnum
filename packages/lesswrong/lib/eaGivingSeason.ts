@@ -7,12 +7,16 @@ export const donationElectionFundraiserLink = "https://www.givingwhatwecan.org/f
 export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
 
-export const votingOpensDate = new Date("2023/12/01");
+export const votingOpensDate = new Date("2023-12-01");
 
 export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
+/** Cloudinary ID for the giving portal hero image */
 export const heroImageId = "giving_portal_23_hero";
+
+/** Cloudinary ID for the frontpage header background image */
+export const headerImageId = "giving_portal_23_hero2";
 
 const votingAccountCreationCutoff = new Date("2023/10/23");
 
@@ -74,7 +78,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-14"),
       end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
-      href: `${donationElectionLink}#Marginal_Funding_Week`,
+      href: "/s/xourt4HttDM5QcHsk",
       consecutive: true,
     },
     {

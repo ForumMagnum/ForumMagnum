@@ -2,11 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -112,7 +113,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
   const comment = commentTree.item!;
@@ -135,7 +136,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
         }
 
         delete query.commentId;
-        history.push({
+        navigate({
           search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
           hash: `#${comment._id}`,
         });

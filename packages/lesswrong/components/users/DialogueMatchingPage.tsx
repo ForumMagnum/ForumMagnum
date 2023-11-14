@@ -7,13 +7,12 @@ import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
-import { useNavigation } from '../../lib/routeUtil';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { isMobile } from '../../lib/utils/isMobile'
 import {postGetPageUrl} from '../../lib/collections/posts/helpers';
@@ -654,7 +653,7 @@ export const DialogueMatchingPage = ({classes}: {
   const { UsersName, Loading, LoadMore, IntercomWrapper } = Components;
 
   const {create: createPost, loading: loadingNewDialogue, error: newDialogueError} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -728,7 +727,7 @@ export const DialogueMatchingPage = ({classes}: {
       if (post) {
         const postId = post._id;
         const postEditUrl = `/editPost?postId=${postId}`;
-        history.push(postEditUrl);
+        navigate(postEditUrl);
       }
     }
   }

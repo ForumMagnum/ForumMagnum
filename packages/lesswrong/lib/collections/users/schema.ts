@@ -1186,6 +1186,7 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.deactivate,
   },
 
+  // DEPRECATED
   // voteBanned: All future votes of this user have weight 0
   voteBanned: {
     type: Boolean,
@@ -1195,7 +1196,8 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     control: 'checkbox',
     group: formGroups.banUser,
-    label: 'Set all future votes of this user to have zero weight'
+    label: 'Set all future votes of this user to have zero weight',
+    hidden: true,
   },
 
   // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
