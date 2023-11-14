@@ -1,12 +1,16 @@
-import type { CompleteTestGroupAllocation } from "../../lib/abTestImpl";
+import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from "../../lib/abTestImpl";
 import PageCache from "../../lib/collections/pagecache/collection";
+import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
+import type { RenderResult } from "../vulcan-lib/apollo-ssr/renderPage"
 
 export type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
+
+export const maxCacheAgeMs = 90*1000;
 
 export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
   constructor() {
@@ -34,5 +38,57 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
     await this.getRawDb().none(`
       DELETE FROM "PageCache"
       WHERE "expiresAt" < NOW()`);
+  }
+
+  upsertPageCacheEntry(path: string, abTestGroups: RelevantTestGroupAllocation, renderResult: RenderResult): Promise<null> {
+    const bundleHash = getServerBundleHash();
+    const now = new Date();
+
+    return this.getRawDb().none(`
+      INSERT INTO "PageCache" (
+        "_id",
+        "path", 
+        "abTestGroups",
+        "bundleHash", 
+        "renderedAt",
+        "expiresAt", 
+        "ttlMs",
+        "renderResult", 
+        "schemaVersion",
+        "createdAt"
+      ) VALUES (
+        $(_id),
+        $(path), 
+        $(abTestGroups),
+        $(bundleHash), 
+        $(renderedAt),
+        $(expiresAt), 
+        $(ttlMs),
+        $(renderResult), 
+        $(schemaVersion),
+        $(createdAt)
+      ) ON CONFLICT (
+        COALESCE(path, ''),
+        "abTestGroups",
+        COALESCE("bundleHash", '')
+      )
+      DO UPDATE
+      SET 
+        "ttlMs" = $(ttlMs),
+        "renderedAt" = $(renderedAt),
+        "expiresAt" = $(expiresAt),
+        "renderResult" = $(renderResult)
+      `, {
+      _id: randomId(),
+      path,
+      abTestGroups,
+      bundleHash,
+      renderedAt: now,
+      expiresAt: new Date(now.getTime() + maxCacheAgeMs),
+      ttlMs: maxCacheAgeMs,
+      renderResult,
+      schemaVersion: 1,
+      createdAt: now,
+    });
   }
 }
