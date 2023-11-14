@@ -66,7 +66,6 @@ const styles = (theme: ThemeType) => ({
 
   dialogueUserRow: {
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
     padding: 8,
@@ -89,12 +88,12 @@ const styles = (theme: ThemeType) => ({
     }
   },
   dialogueMatchUsername: {
-    marginRight: 0,
+    marginRight: 10,
     '&&': {
       color: theme.palette.text.primary,
       textAlign: 'left'
     },
-    width: 95,
+    maxWidth: 95,
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
