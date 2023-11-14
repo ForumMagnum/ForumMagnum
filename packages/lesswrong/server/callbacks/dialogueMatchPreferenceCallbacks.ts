@@ -27,7 +27,7 @@ const getDialogueMessageHTML = (userId:string, displayName:string, order:string,
   const html = 
     `<section class="dialogue-message ContentStyles-debateResponseBody" message-id="${message_id}" user-id="${userId}" display-name="${displayName}" submitted-date="${time}" user-order="${order}">
       <section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"></section>
-      <div>
+      <div class="dialogue-message-content">
         ${content}
       </div>
     </section>`
