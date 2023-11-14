@@ -9,7 +9,6 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import classNames from "classnames";
 import type {
   CommentKarmaChange,
   PostKarmaChange,
@@ -63,25 +62,6 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 10,
     },
   },
-  karmaChange: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  },
-  karmaStar: {
-    color: theme.palette.icon.yellow,
-  },
-  karmaChangeAmount: {
-    whiteSpace: "nowrap",
-  },
-  karmaChangeLink: {
-    color: theme.palette.grey[1000],
-    fontSize: 14,
-    fontWeight: 500,
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-  },
 });
 
 const tabs = [
@@ -107,27 +87,6 @@ const tabs = [
   },
 ] as const;
 
-const KarmaChange: FC<{
-  scoreChange: number,
-  description: string,
-  href: string,
-  classes: ClassesType<typeof styles>,
-}> = ({scoreChange, description, href, classes}) => {
-  const amountText = scoreChange > 0 ? `+${scoreChange}` : String(scoreChange);
-  const {ForumIcon} = Components;
-  return (
-    <div className={classes.karmaChange}>
-      <ForumIcon icon="Star" className={classes.karmaStar} />
-      <div className={classNames(classes.secondaryText, classes.karmaChangeAmount)}>
-        {amountText} karma
-      </div>
-      <div className={classes.karmaChangeLink}>
-        <Link to={href}>{description}</Link>
-      </div>
-    </div>
-  );
-}
-
 const NotificationsPageKarma: FC<{
   karmaChanges?: UserKarmaChanges,
   classes: ClassesType<typeof styles>,
@@ -139,55 +98,21 @@ const NotificationsPageKarma: FC<{
   const batchedText = updateFrequency === "realtime"
     ? "in real time"
     : `batched ${updateFrequency}`;
+  const {NotificationsPageKarmaChange} = Components;
   return (
     <div className={classes.content}>
       <div className={classes.secondaryText}>
         Karma notifications are {batchedText}
         <Link to="/account">Change settings</Link>
       </div>
-      {posts.map((postKarmaChange: PostKarmaChange) => (
-        <KarmaChange
-          key={postKarmaChange._id}
-          scoreChange={postKarmaChange.scoreChange}
-          description={postKarmaChange.title}
-          href={postGetPageUrl(postKarmaChange)}
-          classes={classes}
-        />
+      {posts.map((post: PostKarmaChange) => (
+        <NotificationsPageKarmaChange post={post} />
       ))}
-      {comments.map(({
-        _id,
-        scoreChange,
-        description,
-        postId,
-        tagSlug,
-        tagCommentType,
-      }: CommentKarmaChange) => (
-        <KarmaChange
-          key={_id}
-          scoreChange={scoreChange}
-          description={description ?? ""}
-          href={commentGetPageUrlFromIds({
-            commentId: _id,
-            postId,
-            tagSlug,
-            tagCommentType,
-          })}
-          classes={classes}
-        />
+      {comments.map((comment: CommentKarmaChange) => (
+        <NotificationsPageKarmaChange comment={comment} />
       ))}
-      {tagRevisions.map(({
-        _id,
-        tagSlug,
-        tagName,
-        scoreChange,
-      }: TagRevisionKarmaChange) => (
-        <KarmaChange
-          key={_id}
-          scoreChange={scoreChange}
-          description={tagName ?? ""}
-          href={tagGetUrl({slug: tagSlug ?? ""})}
-          classes={classes}
-        />
+      {tagRevisions.map((tagRevision: TagRevisionKarmaChange) => (
+        <NotificationsPageKarmaChange tagRevision={tagRevision} />
       ))}
     </div>
   );
