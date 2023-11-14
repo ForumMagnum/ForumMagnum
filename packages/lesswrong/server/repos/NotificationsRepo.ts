@@ -2,6 +2,20 @@ import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../lib/collections/notifications/collection";
 import type { NotificationDisplay } from "../../lib/types/notificationDisplayTypes";
 
+// This should return an object of type `NotificationDisplayUser`
+const buildNotificationUser = (prefix: string) => `JSONB_BUILD_OBJECT(
+  '_id', ${prefix}."_id",
+  'slug', ${prefix}."slug",
+  'createdAt', ${prefix}."createdAt",
+  'displayName', ${prefix}."displayName",
+  'profileImageId', ${prefix}."profileImageId",
+  'karma', ${prefix}."karma",
+  'deleted', ${prefix}."deleted",
+  'htmlBio', COALESCE(${prefix}."biography"->>'html', ''),
+  'postCount', ${prefix}."postCount",
+  'commentCount', ${prefix}."commentCount"
+)`;
+
 export default class NotificationsRepo extends AbstractRepo<DbNotification> {
   constructor() {
     super(Notifications);
@@ -24,40 +38,29 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         n."type",
         n."link",
         n."createdAt",
-        CASE WHEN p."_id" IS NULL THEN NULL ELSE JSON_BUILD_OBJECT(
+        CASE WHEN p."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', p."_id",
           'title', p."title",
           'slug', p."slug",
-          'user', JSON_BUILD_OBJECT(
-            '_id', pu."_id",
-            'displayName', pu."displayName",
-            'slug', pu."slug"
-          )
+          'user', ${buildNotificationUser("pu")}
         ) END "post",
-        CASE WHEN c."_id" IS NULL THEN NULL ELSE JSON_BUILD_OBJECT(
+        CASE WHEN c."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', c."_id",
-          'user', JSON_BUILD_OBJECT(
-            '_id', cu."_id",
-            'displayName', cu."displayName",
-            'slug', cu."slug"
-          ),
-          'post', JSON_BUILD_OBJECT(
+          'user', ${buildNotificationUser("cu")},
+          'post', JSONB_BUILD_OBJECT(
             '_id', cp."_id",
             'title', cp."title",
             'slug', cp."slug"
           )
         ) END "comment",
-        CASE WHEN t."_id" IS NULL THEN NULL ELSE JSON_BUILD_OBJECT(
+        CASE WHEN t."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', t."_id",
           'name', t."name",
           'slug', t."slug"
         ) END "tag",
-        CASE WHEN u."_id" IS NULL THEN NULL ELSE JSON_BUILD_OBJECT(
-          '_id', u."_id",
-          'displayName', u."displayName",
-          'slug', u."slug"
-        ) END "user",
-        CASE WHEN l."_id" IS NULL THEN NULL ELSE JSON_BUILD_OBJECT(
+        CASE WHEN u."_id" IS NULL THEN NULL ELSE ${buildNotificationUser("u")}
+          END "user",
+        CASE WHEN l."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', l."_id",
           'name', l."name"
         ) END "localgroup"
