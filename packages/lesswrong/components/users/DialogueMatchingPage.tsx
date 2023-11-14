@@ -71,6 +71,8 @@ export type TagWithCommentCount = {
   commentCount: number
 }
 
+export type TopicRecommendationData = DbComment[]
+
 interface CommonDialogueUserRowProps {
   checkId: string;
   userIsChecked: boolean;
@@ -602,19 +604,35 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     redirect(redirectId, history)
   }
 
-  const { results: popularTopics } = usePaginatedResolver({
-    fragmentName: "CommentsList",
-    resolverName: "PollTopicsPopular",
-    limit: 4,
+  const { loading, error, data } = useQuery(gql`
+    query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
+      GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        contents {
+          html
+        }
+      }
+    }
+  `, {
+    variables: { userId, targetUserId, limit:6 },
   });
+
+
+  const topicRecommendations: TopicRecommendationData = data?.GetTwoUserTopicRecommendations;
+
+  // const { results: popularTopics } = usePaginatedResolver({
+  //   fragmentName: "CommentsList",
+  //   resolverName: "PollTopicsPopular",
+  //   limit: 4,
+  // });
 
   const [topicPreferences, setTopicPreferences] = useState<DbDialogueMatchPreference["topicPreferences"]>([])
 
-  useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(popularTopics?.map(comment => ({
-    text: comment.contents?.plaintextMainText || '',
+  useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(topicRecommendations?.map(comment => ({
+    text: comment.contents?.html || '', // TODO figure out the bug preventing returning plaintextMaintext
     preference: 'No' as const,
     commentSourceId: comment._id
-  })) || [])]), [popularTopics])
+  })) || [])]), [topicRecommendations])
 
   return (
     <LWDialog open onClose={onClose}>

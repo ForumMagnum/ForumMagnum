@@ -85,6 +85,44 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(DbComment)[]> {
+    return await this.manyOrNone(`
+    SELECT *
+    FROM public."Comments" AS c
+    INNER JOIN public."Votes" AS v ON c._id = v."documentId"
+    WHERE
+      c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+      AND v."userId" = $1
+      AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v.cancelled IS NOT TRUE
+      AND v."isUnvote" IS NOT TRUE
+    ORDER BY c."baseScore" DESC
+    LIMIT $2
+    `, [userId, limit]);
+  }
+
+  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(DbComment)[]> {
+    return await this.manyOrNone(`
+      SELECT *
+      FROM public."Comments" AS c
+      INNER JOIN public."Votes" AS v1 ON c._id = v1."documentId"
+      INNER JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+      WHERE
+        c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+        AND v1."userId" = $1
+        AND v2."userId" = $2
+        AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+        AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+        AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+        AND v1.cancelled IS NOT TRUE
+        AND v2.cancelled IS NOT TRUE
+        AND v1."isUnvote" IS NOT TRUE
+        AND v2."isUnvote" IS NOT TRUE
+      ORDER BY c."baseScore" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
+
   async getPopularComments({
     minScore = 15,
     offset = 0,

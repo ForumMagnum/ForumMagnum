@@ -7,6 +7,7 @@ import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { defineQuery } from '../utils/serverGraphqlUtil';
 
 const specificResolvers = {
   Mutation: {
@@ -79,12 +80,58 @@ createPaginatedResolver({
 });
 
 
-createPaginatedResolver({
-  name: "PollTopicsPopular",
-  graphQLType: "Comment",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbComment[]> => context.repos.comments.getPopularPollComments(limit),
-  cacheMaxAgeMs: 0, // 5 mins
+// createPaginatedResolver({
+//   name: "PollTopicsPopular",
+//   graphQLType: "Comment",
+//   callback: async (
+//     context: ResolverContext,
+//     limit: number,
+//   ): Promise<DbComment[]> => {
+
+//     // let recommendedComments
+
+//     // const disagreeingComments = context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit)
+//     // const userVotedComments = context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit)
+//     // const targetUserVotedComments = context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit)
+//     // const topVotedComments = context.repos.comments.getPopularPollComments(limit)
+
+    
+//     // return recommendedComments
+//   },
+//   cacheMaxAgeMs: 0, // 5 mins
+// });
+
+defineQuery({
+  name: "GetTwoUserTopicRecommendations",
+  resultType: "[Comment]",
+  argTypes: "(userId: String!, targetUserId: String!, limit: Int!)",
+  schema: `
+    type TopicRecommendationData { 
+      comments: [Comment]
+    }
+  `,
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext) => {
+
+    // run access-filters TODO
+
+    // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
+    async function* commentSources() {
+      yield context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit);
+      yield context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit);
+      yield context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit);
+      yield context.repos.comments.getPopularPollComments(limit);
+    }
+    
+    let recommendedComments: DbComment[] = [];
+    
+    for await (const source of commentSources()) {
+      // TODO: remove duplicates
+      recommendedComments = recommendedComments.concat(source);
+      if (recommendedComments.length >= limit) {
+        return recommendedComments.slice(0, limit);
+      }
+    }
+
+    return recommendedComments
+  },
 });
