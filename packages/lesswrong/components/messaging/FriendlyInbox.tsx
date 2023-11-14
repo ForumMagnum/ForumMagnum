@@ -224,7 +224,7 @@ const FriendlyInbox = ({
           })}
         >
           <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
-            <div className={classes.classes.headerText}>All messages</div>
+            <div className={classes.headerText}>All messages</div>
             <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
           </div>
           <div className={classes.navigation}>
