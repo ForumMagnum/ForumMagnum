@@ -614,12 +614,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     <LWDialog 
       open 
       onClose={onClose} 
-      // className={classes.dialogBox}
-      // PaperProps={{
-      //   style: {
-      //     padding: '10px', // Change this to your desired padding
-      //   },
-      // }}
     >
       <div className={classes.dialogBox}>
           <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
