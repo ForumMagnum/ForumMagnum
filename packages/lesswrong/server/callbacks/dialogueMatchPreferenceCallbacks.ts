@@ -68,7 +68,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const topicMessageContent = `
   <p>You both wanted a dialogue! Some topics you suggested:</p>
   <ul>
-    ${sharedTopics.map(topic => `<li>${topic}<strong>(Both!)</strong></li>`).join('')}
+    ${sharedTopics.map(topic => `<li>${topic} <strong>(Both!)</strong></li>`).join('')}
     ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
     ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})<strong></li>`).join('')}
   </ul>
