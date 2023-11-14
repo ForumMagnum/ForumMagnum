@@ -14,7 +14,7 @@ import type {
   CommentKarmaChange,
   PostKarmaChange,
   TagRevisionKarmaChange,
-} from "../../server/repos/VotesRepo";
+} from "../../lib/types/karmaChangesTypes";
 
 const styles = (theme: ThemeType) => ({
   root: {
