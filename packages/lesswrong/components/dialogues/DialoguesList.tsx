@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   dialogueLeftContainer: {
     display: 'flex',
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'left',
   },
   dialogueMatchCheckbox: {
     marginLeft: 6,
@@ -89,14 +89,14 @@ const styles = (theme: ThemeType) => ({
     }
   },
   dialogueMatchUsername: {
-    marginRight: 20,
+    marginRight: 0,
     '&&': {
       color: theme.palette.text.primary,
       textAlign: 'left'
     },
     width: 95,
     whiteSpace: 'nowrap',
-    textOverflow: 'ellpisis',
+    textOverflow: 'ellipsis',
     overflow: 'hidden',
   },
   dialogueMatchNote: {
@@ -106,7 +106,7 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueRightContainer: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingRight: 10,
     marginRight: 3
   },
@@ -115,6 +115,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 10
   },
   dialogueMatchPreferencesButton: {
+    marginLeft: 8,
     marginRight: 0 //3
   },
   dialogueNoMatchesButton: {
