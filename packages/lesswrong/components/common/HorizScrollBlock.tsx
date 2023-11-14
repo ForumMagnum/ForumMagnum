@@ -90,7 +90,7 @@ const HorizScrollBlock = ({children, classes}: {
   
   useEffect(() => {
     updateScrollBounds();
-  }, []);
+  }, [updateScrollBounds]);
 
   return <div className={classes.scrollIndicatorWrapper}>
     <div
