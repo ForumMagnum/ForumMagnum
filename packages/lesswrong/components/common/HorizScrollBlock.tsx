@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from 'classnames';
 
@@ -78,7 +78,7 @@ const HorizScrollBlock = ({children, classes}: {
   const [isScrolledAllTheWayLeft, setIsScrolledAllTheWayLeft] = useState(true);
   const [isScrolledAllTheWayRight, setIsScrolledAllTheWayRight] = useState(false);
   
-  const onScroll = useCallback(() => {
+  const updateScrollBounds = useCallback(() => {
     if (scrollableContentsRef.current) {
       const scrollLeft = scrollableContentsRef.current.scrollLeft;
       setIsScrolledAllTheWayLeft((scrollLeft===0));
@@ -86,6 +86,10 @@ const HorizScrollBlock = ({children, classes}: {
         scrollLeft === scrollableContentsRef.current.scrollWidth - scrollableContentsRef.current.clientWidth
       ));
     }
+  }, []);
+  
+  useEffect(() => {
+    updateScrollBounds();
   }, []);
 
   return <div className={classes.scrollIndicatorWrapper}>
@@ -100,7 +104,7 @@ const HorizScrollBlock = ({children, classes}: {
       }}
     />
     <div
-      className={classes.scrollableContents} ref={scrollableContentsRef} onScroll={onScroll}>
+      className={classes.scrollableContents} ref={scrollableContentsRef} onScroll={updateScrollBounds}>
       {children}
     </div>
     <div
