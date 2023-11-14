@@ -27,9 +27,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import {SYNC_PREFERENCE_VALUES, SyncPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
+import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 export type UpvotedUser = {
   _id: string;
@@ -136,6 +137,8 @@ type MatchDialogueButtonProps = {
   classes: ClassesType<typeof styles>;
 };
 
+const minRowHeight = 28;
+
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
@@ -149,9 +152,10 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
   },
   matchContainerGridV1: {
-    display: 'grid',    //      checkbox       name         message                match                 upvotes        agreement         tags    posts read
-    gridTemplateColumns: `       60px          100px         80px      minmax(min-content, 300px)         100px           100px            200px     425px`,
-    gridRowGap: 5,
+    display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
+    gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
@@ -164,9 +168,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   matchContainerGridV2: {
-    display: 'grid',    //        checkbox         name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 300px) 200px  200px     425px `,
-    gridRowGap: 5,
+    display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
+    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
@@ -205,7 +210,6 @@ const styles = (theme: ThemeType) => ({
       maxWidth: '100%',
       display: 'flex',
       flexDirection: 'column',
-      // flexDirection: 'Column',
     },
   },
   schedulingPreferences: {
@@ -213,12 +217,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-    marginRight: 30,
-    width: 400,
-    paddingBottom: 15,
+
   },
   messageButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
@@ -226,7 +228,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   enterTopicsButton: {
-    height: 24,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
     color: 'white',
@@ -234,19 +236,21 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5
   },
   lightGreenButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.main ,
     color: 'white',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    borderRadius: 5
   },
-  waitingButton: {
-    height: 'auto', // ???
-    maxHeight: `17px`,
+  waitingMessage: {
+    maxWidth: 200,
+    maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: 'gray',
-    color: 'white',
+    backgroundColor: 'white',
+    color: 'black',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   },
   link: {
@@ -305,6 +309,7 @@ const styles = (theme: ThemeType) => ({
   },
   centeredText: {
     display: 'flex',
+    maxHeight: minRowHeight, 
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -343,6 +348,48 @@ const styles = (theme: ThemeType) => ({
     width: 30,
     color: "#9a9a9a",
   },
+  dialogueTopicList: {
+    marginTop: 16,
+    marginBottom: 16
+  },
+  dialogueTopicRow: {
+    display: 'flex',
+    alignItems: 'center',
+    alignContent: 'space-between',
+    marginBottom: 8,
+    marginTop: 8
+  },
+  dialogueTopicRowTopicText: {
+    fontSize:'1.1rem',
+    opacity: '0.8',
+    lineHeight: '1.32rem'
+  },
+  dialogueTopicRowTopicCheckbox: {
+    padding: '4px 16px 4px 8px'
+  },
+  dialogueTopicSubmit: {
+    display: 'flex'
+  },
+  dialogueTitle: {
+    paddingBottom: 8
+  },
+  dialogueFormatGrid: {
+    display: 'grid',
+    grid: 'auto-flow / 1fr 40px 40px 40px',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  dialogueFormatHeader: {
+    marginBottom: 8
+  },
+  dialogueFormatLabel: {
+    textAlign: 'center',
+    opacity: 0.5
+  },
+  dialogSchedulingCheckbox: {
+    paddingTop: 4,
+    paddingBottom: 4
+  }
 });
 
 const redirect = (redirectId: string | undefined, history: History<unknown>) => {
@@ -412,7 +459,7 @@ const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks:
   };
 }
 
-export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V>, 'classes' | 'gridClassName' | 'showHeaders'>): DialogueUserRowProps<V>[] => {
+export const getRowProps = (tableProps: Omit<UserTableProps<boolean>, 'classes' | 'gridClassName' | 'showHeaders'>): DialogueUserRowProps<boolean>[] => {
   return tableProps.users.map(targetUser => {
     const checkInfo = getUserCheckInfo(targetUser, tableProps.userDialogueChecks);
     const { users, userDialogueChecks, ...remainingRowProps } = tableProps;
@@ -424,7 +471,7 @@ export const getRowProps = <V extends boolean>(tableProps: Omit<UserTableProps<V
     };
 
     return rowProps;
-  }) as DialogueUserRowProps<V>[];
+  }) as DialogueUserRowProps<boolean>[];
 };
 
 const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
@@ -551,56 +598,6 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
   );
 };
 
-const Checkpoint: React.FC<{ label: string; status: 'done' | 'current' | 'not_started' }> = ({ label, status }) => {
-  let backgroundColor;
-  let borderColor;
-  let size;
-  let labelColor;
-
-  switch (status) {
-    case 'done':
-      backgroundColor = 'green';
-      borderColor = 'green';
-      size = 15;
-      labelColor = 'green';
-      break;
-    case 'current':
-      backgroundColor = 'white';
-      borderColor = 'green';
-      size = 15;
-      labelColor = 'black';
-      break;
-    case 'not_started':
-    default:
-      backgroundColor = '#d3d3d3'; // Lighter shade of gray
-      borderColor = '#d3d3d3'; // Lighter shade of gray
-      size = 10;
-      labelColor = 'gray';
-      break;
-  }
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px' }}>
-        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-        <div style={{ height: size, width: size, borderRadius: '50%', backgroundColor: backgroundColor, border: `2px solid ${borderColor}`, margin: 'auto' }}></div>
-        <div style={{ height: '20px', width: '2px', backgroundColor: '#d3d3d3' }}></div> {/* Lighter shade of gray */}
-      </div>
-      <div style={{ marginLeft: '10px', color: labelColor }}>{label}</div>
-    </div>
-  );
-};
-
-const DialogueProgress: React.FC<{ checkpoints: { label: string; status: 'done' | 'current' | 'not_started' }[] }> = ({ checkpoints }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-    {checkpoints.map((checkpoint, index) => (
-      <Checkpoint key={index} label={checkpoint.label} status={checkpoint.status} />
-    ))}
-  </div>
-);
-
-
-
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
@@ -610,7 +607,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const { LWDialog, MenuItem } = Components;
 
-  const { create } = useCreate({
+  const { create, called } = useCreate({
     collectionName: "DialogueMatchPreferences",
     fragmentName: "DialogueMatchPreferencesDefaultFragment",
   })
@@ -619,11 +616,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const onSubmit = async () => {
 
-    onClose()
+    // onClose()
 
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
+        topicPreferences: topicPreferences,
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -635,74 +633,124 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     redirect(redirectId, history)
   }
 
+  const { results: popularTopics } = usePaginatedResolver({
+    fragmentName: "CommentsList",
+    resolverName: "PollTopicsPopular",
+    limit: 4,
+  });
+
+  const [topicPreferences, setTopicPreferences] = useState<DbDialogueMatchPreference["topicPreferences"]>([])
+
+  useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(popularTopics?.map(comment => ({
+    text: comment.contents?.plaintextMainText || '',
+    preference: 'No' as const,
+    commentSourceId: comment._id
+  })) || [])]), [popularTopics])
+
   return (
-    <LWDialog 
-      open 
-      onClose={onClose} 
-      // className={classes.dialogBox}
-      // PaperProps={{
-      //   style: {
-      //     padding: '10px', // Change this to your desired padding
-      //   },
-      // }}
-    >
+    <LWDialog open onClose={onClose}>
+      {called ? (
+        <div>
+          <DialogTitle>
+            <h2>You submitted, nice job.</h2>
+            <p>This info will be sent to your match partner.</p> 
+            <p>Once they fill out the form, you'll get to see each others answers and chat about whether a dialogue makes sense.</p>
+          </DialogTitle>
+          <div style={{textAlign: "center"}}>
+            <img style={{maxHeight: "50px"}} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"></img>
+          </div>
+          <DialogActions>
+            <Button onClick={onClose} color="default">
+              Close
+            </Button>
+          </DialogActions>
+        </div>
+      ) : (
       <div className={classes.dialogBox}>
-          <DialogTitle>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
-          <DialogContent >
-              <h3>What are you interested in chatting about?</h3>
+        <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+        <DialogContent >
+            <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
+            <div className={classes.dialogueTopicList}>
+              {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
+                <Checkbox 
+                    className={classes.dialogueTopicRowTopicCheckbox}
+                    checked={topic.preference === "Yes"}
+                    // Set the preference of the topic with the matching text to the new preference
+                    onChange={event => setTopicPreferences(
+                      topicPreferences.map(
+                        existingTopic => existingTopic.text === topic.text ? {
+                          ...existingTopic, 
+                          preference: event.target.checked ? "Yes" : "No" as const
+                        } : existingTopic
+                      )
+                    )}
+                  />
+                  <div className={classes.dialogueTopicRowTopicText}>
+                    {topic.text}
+                  </div>
+              </div>)}
+            </div>
+            <div className={classes.dialogueTopicSubmit}>
               <TextField
-                multiline
-                rows={4}
                 variant="outlined"
-                label={`Leave some suggestions for ${targetUserDisplayName}`}
+                label={`Suggest other topics to ${targetUserDisplayName}?`}
                 fullWidth
                 value={topicNotes}
                 onChange={event => setTopicNotes(event.target.value)}
               />
-              <br />
-              <br />
-              <h3>What Format Do You Prefer?</h3>
+              <Button color="default" onClick={e => {
+                setTopicPreferences([...topicPreferences, {
+                  text: topicNotes,
+                  preference: 'Yes' as const, 
+                  commentSourceId: null
+                }])
+                setTopicNotes('')
+              } }>
+                Add Topic
+              </Button>
+            </div>
+            <br />
+            <div className={classes.dialogueFormatGrid}>
+              <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+              <label className={classes.dialogueFormatLabel}>Great</label>
+              <label className={classes.dialogueFormatLabel}>Okay</label>
+              <label className={classes.dialogueFormatLabel}>No</label>
               
-              <div className={classes.schedulingPreferences}>
-                <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
-                  <Select
-                  value={formatSync} 
-                  onChange={event => setFormatSync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
-              </div>
+              <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
+              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                  key={value}
+                  className={classes.dialogSchedulingCheckbox}
+                  onChange={event => setFormatSync(value as SyncPreference)}
+              />)}
 
-              <div className={classes.schedulingPreferences}>
-                <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
-                  <Select
-                  value={formatAsync} 
-                  onChange={event => setFormatAsync(event.target.value as SyncPreference)}
-                  >
-                    {SYNC_PREFERENCE_VALUES.map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
-                  </Select>
-              </div>
+              <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
+              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                  key={value}
+                  className={classes.dialogSchedulingCheckbox}
+                  onChange={event => setFormatAsync(value as SyncPreference)}
+              />)}
               
-              
-              <TextField
-                multiline
-                rows={2}
-                variant="outlined"
-                label="Anything else to add?"
-                fullWidth
-                value={formatNotes}
-                onChange={event => setFormatNotes(event.target.value)}
-              />
-          </DialogContent>
+            </div>      
+            <TextField
+              multiline
+              rows={2}
+              variant="outlined"
+              label="Anything else to add?"
+              fullWidth
+              value={formatNotes}
+              onChange={event => setFormatNotes(event.target.value)}
+            />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="default">
+            Close
+          </Button>
+          <Button onClick={onSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
       </div>
-      <DialogActions>
-        <Button onClick={onClose} color="default">
-          Close
-        </Button>
-        <Button onClick={onSubmit} color="primary">
-          Submit
-        </Button>
-      </DialogActions>
+      )}
     </LWDialog>
   );
 };
@@ -860,47 +908,43 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
   if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
-  const userMatchPreferences = results && results.length > 0 ? results[0] : null;
+  const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
-  const renderButton = () => {
-    if (!!generatedDialogueId) {
-      return (
-        <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
-          <a data-cy="message">Go to dialogue</a>
-        </button>
-      );
-    }
-  
-    if (userMatchPreferences) {
-      return (
-        <button className={classes.waitingButton} disabled>
-          <a data-cy="message">Waiting for {targetUserDisplayName}...</a>
-        </button>
-      );
-    }
-  
+  if (!!generatedDialogueId) {
     return (
-      <button
-        className={classes.enterTopicsButton}
-        onClick={(e) =>
-          openDialog({
-            componentName: 'NextStepsDialog',
-            componentProps: {
-              userId: currentUser?._id,
-              targetUserId,
-              targetUserDisplayName,
-              dialogueCheckId: checkId!
-            }
-          })
-        }
-      >
-        <a data-cy="message">Enter topics</a>
+      <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, history)}>
+        <a data-cy="message">Go to dialogue</a>
       </button>
     );
-  };
-  
-  return <div>{renderButton()}</div>;
+  }
+
+  if (userMatchPreferences) {
+    return (
+      <div className={classes.waitingMessage}>
+        Waiting for {targetUserDisplayName}...
+      </div>
+    );
+  }
+
+  return (
+    <button
+      className={classes.enterTopicsButton}
+      onClick={(e) =>
+        openDialog({
+          componentName: 'NextStepsDialog',
+          componentProps: {
+            userId: currentUser?._id,
+            targetUserId,
+            targetUserDisplayName,
+            dialogueCheckId: checkId!
+          }
+        })
+      }
+    >
+      <a data-cy="message">Enter topics</a>
+    </button>
+  );
 };
 
 const MessageButton: React.FC<{
@@ -987,14 +1031,8 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     ...(rest.showPostsYouveRead ? ["Posts you've read"] : []),
   ];
 
-  let rows;
-  if (props.isUpvotedUser) {
-    const allRowProps = getRowProps<true>(props);
-    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
-  } else {
-    const allRowProps = getRowProps<false>(props);
-    rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
-  }
+  const allRowProps = getRowProps(props);
+  const rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
 
   return (
     <div className={gridClassName}>
@@ -1014,8 +1052,6 @@ export const DialogueMatchingPage = ({classes}: {
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
-  
-  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
 
@@ -1042,6 +1078,8 @@ export const DialogueMatchingPage = ({classes}: {
        }
     }
   `);
+
+  if (!currentUser) return <p>You have to be logged in to view this page</p>
 
   if (loading) {
     return <Loading />;

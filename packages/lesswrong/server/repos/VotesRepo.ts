@@ -327,25 +327,6 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [postIds, startDate, endDate]);
   }
 
-  async getAllReactsForUser({userId, reactType = null, limit = 10}: {userId?: string | null, reactType?: string | null, limit?: number}): Promise<DbVote[]> {
-    // right now it gets "agree" not "reactType" but this should be fixed by changing to $2 and adding reactType as an argument
-    // also do better typing in terms of what is null etc
-    const reacts = await this.getRawDb().any(`
-    SELECT
-      *
-    FROM public."Votes" AS v
-    WHERE
-      v."userId" = $1
-      AND v."extendedVoteType" -> 'reacts' @> '[{"vote": "created", "react": "agree"}]'::jsonb
-      AND v."cancelled" IS NOT TRUE
-      AND v."isUnvote" IS NOT TRUE
-    ORDER BY 
-      v."createdAt" DESC
-    LIMIT $2;
-    `, [userId, limit]);
-    return reacts;
-  }
-
   /**
    * Get the ids of all votes where user1 and user2 have voted on the same document. This is mainly
    * for the purpose of nullifying votes where a user has double-voted from an alt.

@@ -270,6 +270,11 @@ interface DialogueMatchPreferencesCollection extends CollectionBase<DbDialogueMa
 interface DbDialogueMatchPreference extends DbObject {
   __collectionName?: "DialogueMatchPreferences"
   dialogueCheckId: string
+  topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>
   topicNotes: string
   syncPreference: "Yes" | "Meh" | "No"
   asyncPreference: "Yes" | "Meh" | "No"
@@ -1747,9 +1752,13 @@ interface ObjectsByTypeName {
   CronHistory: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueCheck: DbDialogueCheck
+  DialogueMatchPreference: DbDialogueMatchPreference
   DigestPost: DbDigestPost
   Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
+  ElicitQuestionPrediction: DbElicitQuestionPrediction
+  ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   GardenCode: DbGardenCode

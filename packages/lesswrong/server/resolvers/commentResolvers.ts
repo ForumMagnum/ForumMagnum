@@ -77,3 +77,14 @@ createPaginatedResolver({
   ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
   cacheMaxAgeMs: 300000, // 5 mins
 });
+
+
+createPaginatedResolver({
+  name: "PollTopicsPopular",
+  graphQLType: "Comment",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbComment[]> => context.repos.comments.getPopularPollComments(limit),
+  cacheMaxAgeMs: 0, // 5 mins
+});
