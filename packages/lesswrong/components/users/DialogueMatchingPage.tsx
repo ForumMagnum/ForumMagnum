@@ -15,7 +15,6 @@ import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { isMobile } from '../../lib/utils/isMobile'
 import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
 import type { History } from 'history';
@@ -158,7 +157,15 @@ const styles = (theme: ThemeType) => ({
     gridAutoRows: `minmax${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down("sm")]: {
+      display: 'grid',
+      //                    checkbox    name     message     match
+      gridTemplateColumns: `60px        100px    80px        80px`,
+      gridRowGap: 5,
+      columnGap: 10,
+      alignItems: 'center',
+    },
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
@@ -166,7 +173,23 @@ const styles = (theme: ThemeType) => ({
     gridAutoRows: `minmax${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down("sm")]: {
+      display: 'grid',
+      //                    checkbox    name     message     match
+      gridTemplateColumns: `60px        100px    80px        80px`,
+      gridRowGap: 5,
+      columnGap: 10,
+      alignItems: 'center',
+    },
+  },
+  matchContainerGridMobile: {
+    display: 'grid',
+    //                    checkbox    name     message     match
+    gridTemplateColumns: `60px        100px    80px        80px`,
+    gridRowGap: 5,
+    columnGap: 10,
+    alignItems: 'center',
   },
   header: {
     height: 'auto',
@@ -301,11 +324,19 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     marginBottom: 20,
     maxWidth: '40vw',
+    [theme.breakpoints.up("sm")]: {
+      display: "none"
+    }
+  },
+
+  details: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none"
+    }
   },
   
   // opt-in stuff
   optInContainer: {
-    height: 20,
     display: 'flex',
     alignItems: 'top',
   },
@@ -458,7 +489,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
       className={classNames(classes.gradientBigTextContainer, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
-      })} 
+      }, classes.details)} 
       ref={bioContainerRef}
     >
       {userData?.biography?.plaintextDescription }
@@ -492,7 +523,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, {
+      className={classNames(classes.gradientBigTextContainer, classes.details, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })} 
@@ -539,7 +570,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, {
+      className={classNames(classes.gradientBigTextContainer, classes.details, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })}> 
@@ -557,11 +588,11 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
   );
 };
 
-const Headers = ({ titles, className }: { titles: string[], className: string }) => {
+const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<typeof styles> }) => {
   return (
     <>
       {titles.map((title, index) => (
-        <h5 key={index} className={className}> {title} </h5>
+        <h5 key={index} className={classNames(classes.header, index > 3 ? classes.details : "")}> {title} </h5>
       ))}
     </>
   );
@@ -963,8 +994,8 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
     />
-    {showKarma && <div className={classes.centeredText}> {targetUser.total_power} </div>}
-    {showAgreement && <div className={classes.centeredText}> {targetUser.total_agreement} </div>}
+    {showKarma && <div className={classNames(classes.centeredText, classes.detail)}> {targetUser.total_power} </div>}
+    {showAgreement && <div className={classNames(classes.centeredText, classes.detail)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
       key={targetUser._id}
       classes={classes}
@@ -1008,7 +1039,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
 
   return (
     <div className={gridClassName}>
-      {showHeaders && <Headers titles={headers} className={classes.header} />}
+      {showHeaders && <Headers titles={headers} classes={classes} />}
       {rows}
     </div>
   );
@@ -1094,11 +1125,9 @@ export const DialogueMatchingPage = ({classes}: {
   return (
   <div className={classes.root}>
     <div className={classes.container}>
-      {isMobile() && (
-        <div className={classes.mobileWarning}>
-          Dialogues matching doesn't render well on mobile right now. <br/> <br /> Please view on laptop or tablet!
-        </div>
-      )}
+      <div className={classes.mobileWarning}>
+        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
+      </div>
 
       <h1>Dialogue Matching</h1>
       <ul>
@@ -1185,7 +1214,7 @@ export const DialogueMatchingPage = ({classes}: {
               showAgreement={true}
               showPostsYouveRead={true}
               showFrequentCommentedTopics={true}
-              showHeaders={false}
+              showHeaders={!recentlyActiveTopUsers.length}
             />
           </React.Fragment>}
           </div>
