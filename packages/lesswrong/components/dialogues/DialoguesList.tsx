@@ -72,7 +72,9 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     marginBottom: 3,
     borderRadius: 2,
-
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important"
+    }
   },
   dialogueLeftContainer: {
     display: 'flex',
@@ -117,6 +119,11 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueNoMatchesButton: {
     marginLeft: 8
+  },
+  findDialoguePartners: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important"
+    }
   }
 });
 
@@ -177,7 +184,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         </LWTooltip>}
       >
         {!(!rowPropsList?.length) &&
-        <SectionButton>
+        <SectionButton className={classes.findDialoguePartners}>
           <MuiPeopleIcon />
           <Link to="/dialogueMatching">Find Dialogue Partners</Link>
         </SectionButton>
@@ -189,7 +196,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           <div className={classes.dialogueUserRow}>
               <LWTooltip title={matchmakingTooltip} className={classes.dialogueNoMatchesButton}>
                 <Link to={"/dialogueMatching"}>
-                  <SectionButton>
+                  <SectionButton className={classes.findDialoguePartners}>
                     <MuiPeopleIcon />
                     Find Dialogue Partners
                   </SectionButton>
