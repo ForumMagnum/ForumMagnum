@@ -1308,7 +1308,7 @@ export const DialogueMatchingPage = ({classes}: {
           showFrequentCommentedTopics={true}
           showHeaders={true}
         />
-        <LoadMore {...optedInUsersLoadMoreProps} />
+        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
       </div>
     </div>
     <IntercomWrapper />
