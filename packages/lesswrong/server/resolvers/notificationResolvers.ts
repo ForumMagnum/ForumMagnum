@@ -1,7 +1,7 @@
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../lib/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
-import { getNotificationTypeByName } from '../../lib/notificationTypes';
+import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
 import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
@@ -9,7 +9,6 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import type { NotificationDisplay } from '../../lib/notificationTypes';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -96,9 +95,13 @@ defineMutation({
 createPaginatedResolver({
   name: "NotificationDisplays",
   graphQLType: "JSON",
+  args: {
+    type: "String",
+  },
   callback: async (
     context: ResolverContext,
     limit: number,
+    args?: {type?: string | null},
   ): Promise<NotificationDisplay[]> => {
     const {repos, currentUser} = context;
     if (!currentUser) {
@@ -106,6 +109,7 @@ createPaginatedResolver({
     }
     return repos.notificationRepo.getNotificationDisplays({
       userId: currentUser._id,
+      type: args?.type ?? undefined,
       limit,
     });
   },

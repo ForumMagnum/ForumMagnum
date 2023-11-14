@@ -119,8 +119,8 @@ const NotificationsPageKarma: FC<{
 // We have to do this manually outside of `usePaginatedResolver` because the
 // return type is pure unadulterated JSON, not a registered fragment type
 const query = gql`
-  query getNotificationDisplays($limit: Int) {
-    NotificationDisplays(limit: $limit) {
+  query getNotificationDisplays($limit: Int, $type: String) {
+    NotificationDisplays(limit: $limit, type: $type) {
       results
     }
   }
@@ -156,6 +156,7 @@ export const NotificationsPage = ({classes}: {
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     variables: {
+      type: currentTab.type,
       limit: 20,
     },
   });

@@ -23,11 +23,13 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
 
   getNotificationDisplays({
     userId,
+    type,
     includeMessages = false,
     limit = 20,
     offset = 0,
   }: {
     userId: string,
+    type?: string,
     includeMessages?: boolean,
     limit?: number,
     offset?: number,
@@ -92,6 +94,7 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         n."userId" = $1 AND
         n."deleted" IS NOT TRUE AND
         n."waitingForBatch" IS NOT TRUE AND
+        ${type ? `n."type" = $4 AND` : ""}
         ${includeMessages ? "": `n."documentType" <> 'message' AND`}
         NOT COALESCE(p."deletedDraft", FALSE) AND
         NOT COALESCE(c."deleted", FALSE) AND
@@ -101,6 +104,6 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
       ORDER BY n."createdAt" DESC
       LIMIT $2
       OFFSET $3
-    `, [userId, limit, offset]);
+    `, [userId, limit, offset, type]);
   }
 }
