@@ -1,4 +1,5 @@
 import { getCollectionHooks } from "../mutationCallbacks";
+import { createNotifications } from "../notificationCallbacksHelpers";
 import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
 
@@ -198,6 +199,14 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   });
 
   const generatedDialogueId = result.data._id;
+
+  await createNotifications({
+    userIds: [userId, targetUserId],
+    notificationType: 'newDialogueMessages',
+    documentType: 'post',
+    documentId: generatedDialogueId,
+    extraData: {newMessageAuthorId: helperBotId}
+  });
 
   void updateMutator({
     collection: context.DialogueMatchPreferences,
