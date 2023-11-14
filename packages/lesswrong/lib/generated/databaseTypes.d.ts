@@ -270,7 +270,11 @@ interface DialogueMatchPreferencesCollection extends CollectionBase<DbDialogueMa
 interface DbDialogueMatchPreference extends DbObject {
   __collectionName?: "DialogueMatchPreferences"
   dialogueCheckId: string
-  topicPreferences: Array<any /*{"definitions":[{}]}*/>
+  topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>
   topicNotes: string
   syncPreference: "Yes" | "Meh" | "No"
   asyncPreference: "Yes" | "Meh" | "No"

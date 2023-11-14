@@ -1,14 +1,24 @@
+import SimpleSchema from "simpl-schema";
 import {schemaDefaultValue} from "../../collectionUtils";
 import { foreignKeyField } from "../../utils/schemaUtils";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
 export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
 
-export type TopicPreference = {
-  text: String,
-  preference: 'Yes' | 'No',
-  commentSourceId?: String
-}
+const topicPreferenceSchema = new SimpleSchema({
+  text: {
+    type: String,
+  },
+  preference: {
+    type: String,
+    allowedValues: ['Yes', 'No']
+  },
+  commentSourceId: {
+    type: String,
+    optional: true,
+    nullable: true,
+  }
+});
 
 const schema: SchemaType<DbDialogueMatchPreference> = {
   dialogueCheckId: {
@@ -33,20 +43,8 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canUpdate: ['members', 'admins'],
   },
   'topicPreferences.$': {
-    type: Object,
+    type: topicPreferenceSchema,
     optional: true,
-  },
-  'topicPreferences.$.text': {
-    type: String,
-  },
-  'topicPreferences.$.preference': {
-    type: String,
-    allowedValues: ['Yes', 'No']
-  },
-  'topicPreferences.$.sourceCommentId': {
-    type: String,
-    foreignKey: "Comments",
-    optional: true
   },
   topicNotes: {
     type: String,

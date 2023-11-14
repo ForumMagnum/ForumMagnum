@@ -28,7 +28,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import {SYNC_PREFERENCE_VALUES, SyncPreference, TopicPreference} from '../../lib/collections/dialogueMatchPreferences/schema';
+import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
@@ -576,7 +576,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const { LWDialog, MenuItem } = Components;
 
-  const { create } = useCreate({
+  const { create, called } = useCreate({
     collectionName: "DialogueMatchPreferences",
     fragmentName: "DialogueMatchPreferencesDefaultFragment",
   })
@@ -585,7 +585,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const onSubmit = async () => {
 
-    onClose()
+    // onClose()
 
     const response = await create({
       data: {
@@ -608,99 +608,118 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     limit: 4,
   });
 
-  const [topicPreferences, setTopicPreferences] = useState<TopicPreference[]>([])
+  const [topicPreferences, setTopicPreferences] = useState<DbDialogueMatchPreference["topicPreferences"]>([])
 
   useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(popularTopics?.map(comment => ({
     text: comment.contents?.plaintextMainText || '',
     preference: 'No' as const,
-    sourceCommentId: comment._id
+    commentSourceId: comment._id
   })) || [])]), [popularTopics])
 
   return (
-    <LWDialog 
-      open 
-      onClose={onClose} 
-    >
+    <LWDialog open onClose={onClose}>
+      {called ? (
+        <div>
+          <DialogTitle>
+            <h2>You submitted, nice job.</h2>
+            <p>This info will be sent to your match partner.</p> 
+            <p>Once they fill out the form, you'll get a notification that the dialogue is ready to start.</p>
+          </DialogTitle>
+          <div style={{textAlign: "center"}}>
+            <img style={{maxHeight: "50px"}} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"></img>
+          </div>
+          <DialogActions>
+            <Button onClick={onClose} color="default">
+              Close
+            </Button>
+          </DialogActions>
+        </div>
+      ) : (
       <div className={classes.dialogBox}>
-          <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
-          <DialogContent >
-              <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
-              <div className={classes.dialogueTopicList}>
-                {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
-                  <Checkbox 
-                      className={classes.dialogueTopicRowTopicCheckbox}
-                      checked={topic.preference === "Yes"}
-                      // Set the preference of the topic with the matching text to the new preference
-                      onChange={event => setTopicPreferences(
-                        topicPreferences.map(
-                          existingTopic => existingTopic.text === topic.text ? {
-                            ...existingTopic, 
-                            preference: event.target.checked ? "Yes" : "No"
-                          } : existingTopic
-                        )
-                      )}
-                    />
-                    <div className={classes.dialogueTopicRowTopicText}>
-                      {topic.text}
-                    </div>
-                </div>)}
-              </div>
-              <div className={classes.dialogueTopicSubmit}>
-                <TextField
-                  variant="outlined"
-                  label={`Suggest other topics to ${targetUserDisplayName}?`}
-                  fullWidth
-                  value={topicNotes}
-                  onChange={event => setTopicNotes(event.target.value)}
-                />
-                <Button color="default" onClick={e => {
-                  setTopicPreferences([...topicPreferences, {
-                    text: topicNotes,
-                    preference: 'Yes' as const
-                  }])
-                  setTopicNotes('')
-                } }>
-                  Add Topic
-                </Button>
-              </div>
-              <br />
-              <div className={classes.dialogueFormatGrid}>
-                <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
-                <label className={classes.dialogueFormatLabel}>Great</label>
-                <label className={classes.dialogueFormatLabel}>Okay</label>
-                <label className={classes.dialogueFormatLabel}>No</label>
-                <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
-                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                    key={value}
-                    className={classes.dialogSchedulingCheckbox}
-                    onChange={event => setFormatSync(value as SyncPreference)}
-                />)}
-                <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
-                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                    key={value}
-                    className={classes.dialogSchedulingCheckbox}
-                    onChange={event => setFormatAsync(value as SyncPreference)}
-                />)}
-              </div>      
+        <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+        <DialogContent >
+            <div>Here are some popular topics on LW. Checkmark any you're interested in discussing.</div>
+            <div className={classes.dialogueTopicList}>
+              {topicPreferences.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
+                <Checkbox 
+                    className={classes.dialogueTopicRowTopicCheckbox}
+                    checked={topic.preference === "Yes"}
+                    // Set the preference of the topic with the matching text to the new preference
+                    onChange={event => setTopicPreferences(
+                      topicPreferences.map(
+                        existingTopic => existingTopic.text === topic.text ? {
+                          ...existingTopic, 
+                          preference: event.target.checked ? "Yes" : "No" as const
+                        } : existingTopic
+                      )
+                    )}
+                  />
+                  <div className={classes.dialogueTopicRowTopicText}>
+                    {topic.text}
+                  </div>
+              </div>)}
+            </div>
+            <div className={classes.dialogueTopicSubmit}>
               <TextField
-                multiline
-                rows={2}
                 variant="outlined"
-                label="Anything else to add?"
+                label={`Suggest other topics to ${targetUserDisplayName}?`}
                 fullWidth
-                value={formatNotes}
-                onChange={event => setFormatNotes(event.target.value)}
+                value={topicNotes}
+                onChange={event => setTopicNotes(event.target.value)}
               />
-          </DialogContent>
+              <Button color="default" onClick={e => {
+                setTopicPreferences([...topicPreferences, {
+                  text: topicNotes,
+                  preference: 'Yes' as const, 
+                  commentSourceId: null
+                }])
+                setTopicNotes('')
+              } }>
+                Add Topic
+              </Button>
+            </div>
+            <br />
+            <div className={classes.dialogueFormatGrid}>
+              <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+              <label className={classes.dialogueFormatLabel}>Great</label>
+              <label className={classes.dialogueFormatLabel}>Okay</label>
+              <label className={classes.dialogueFormatLabel}>No</label>
+              
+              <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
+              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                  key={value}
+                  className={classes.dialogSchedulingCheckbox}
+                  onChange={event => setFormatSync(value as SyncPreference)}
+              />)}
+
+              <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
+              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                  key={value}
+                  className={classes.dialogSchedulingCheckbox}
+                  onChange={event => setFormatAsync(value as SyncPreference)}
+              />)}
+              
+            </div>      
+            <TextField
+              multiline
+              rows={2}
+              variant="outlined"
+              label="Anything else to add?"
+              fullWidth
+              value={formatNotes}
+              onChange={event => setFormatNotes(event.target.value)}
+            />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="default">
+            Close
+          </Button>
+          <Button onClick={onSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
       </div>
-      <DialogActions>
-        <Button onClick={onClose} color="default">
-          Close
-        </Button>
-        <Button onClick={onSubmit} color="primary">
-          Submit
-        </Button>
-      </DialogActions>
+      )}
     </LWDialog>
   );
 };
@@ -804,7 +823,7 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
-          dialogueCheckId: response.data.upsertUserDialogueCheck._id
+          dialogueCheckId: checkId!
         }
       });
     }
@@ -846,19 +865,17 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   const { openDialog } = useDialog();
   const { history } = useNavigation();
 
-  // This always returns 0 or 1 results; we are using useMulti 
-  // in order to query by checkId field
   const {loading: userLoading, results} = useMulti({
     terms: {
       view: "dialogueMatchPreferences",
       dialogueCheckId: checkId,
-      limit: 1,
+      limit: 1000,
     },
     fragmentName: "DialogueMatchPreferenceInfo",
     collectionName: "DialogueMatchPreferences",
   });
 
-  if (!isMatched || !checkId) return <div></div>; // need this instead of null to keep the table columns aligned
+  if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
 
   const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
@@ -889,7 +906,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
-            dialogueCheckId: checkId
+            dialogueCheckId: checkId!
           }
         })
       }
