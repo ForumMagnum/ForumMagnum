@@ -807,7 +807,7 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
-          dialogueCheckId: checkId!
+          dialogueCheckId: response.data.upsertUserDialogueCheck._id
         }
       });
     }
@@ -849,11 +849,13 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
   const { openDialog } = useDialog();
   const { history } = useNavigation();
 
+  // This always returns 0 or 1 results; we are using useMulti 
+  // in order to query by checkId field
   const {loading: userLoading, results} = useMulti({
     terms: {
-      view: "dialogueMatchPreferences",
+      view: "userDialogueMatchPreferences",
       dialogueCheckId: checkId,
-      limit: 1000,
+      limit: 1,
     },
     fragmentName: "DialogueMatchPreferenceInfo",
     collectionName: "DialogueMatchPreferences",
