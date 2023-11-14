@@ -144,6 +144,7 @@ const NotificationsPageKarma: FC<{
       </div>
       {posts.map((postKarmaChange: PostKarmaChange) => (
         <KarmaChange
+          key={postKarmaChange._id}
           scoreChange={postKarmaChange.scoreChange}
           description={postKarmaChange.title}
           href={postGetPageUrl(postKarmaChange)}
@@ -159,6 +160,7 @@ const NotificationsPageKarma: FC<{
         tagCommentType,
       }: CommentKarmaChange) => (
         <KarmaChange
+          key={_id}
           scoreChange={scoreChange}
           description={description ?? ""}
           href={commentGetPageUrlFromIds({
@@ -171,11 +173,13 @@ const NotificationsPageKarma: FC<{
         />
       ))}
       {tagRevisions.map(({
+        _id,
         tagSlug,
         tagName,
         scoreChange,
       }: TagRevisionKarmaChange) => (
         <KarmaChange
+          key={_id}
           scoreChange={scoreChange}
           description={tagName ?? ""}
           href={tagGetUrl({slug: tagSlug ?? ""})}
