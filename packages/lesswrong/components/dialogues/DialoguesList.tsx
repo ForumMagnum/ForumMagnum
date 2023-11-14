@@ -154,7 +154,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     <p>Users you've already matched with for dialogues.  Click here to go to the dialogue matchmaking page.</p>
   </div>);
 
-  const rowPropsList = currentUser && getRowProps<false>({
+  const rowPropsList = currentUser && getRowProps({
     currentUser,
     isUpvotedUser: false,
     showAgreement: false,
