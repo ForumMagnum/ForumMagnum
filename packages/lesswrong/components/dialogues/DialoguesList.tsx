@@ -161,7 +161,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   </div>);
 
   const matchmakingTooltip = (<div>
-    <p>Users you've already matched with for dialogues.  Click here to go to the dialogue matchmaking page.</p>
+    <p> Click here to go to the dialogue matchmaking page.</p>
   </div>);
 
   const rowPropsList = currentUser && getRowProps({

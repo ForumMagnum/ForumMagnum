@@ -656,7 +656,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           <DialogTitle>
             <h2>You submitted, nice job.</h2>
             <p>This info will be sent to your match partner.</p> 
-            <p>Once they fill out the form, you'll get to see each others answers and chat about whether a dialogue makes sense.</p>
+            <p>Once they fill out the form, you'll get to see each other's answers and chat about whether a dialogue makes sense.</p>
           </DialogTitle>
           <div style={{textAlign: "center"}}>
             <img style={{maxHeight: "50px"}} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"></img>
