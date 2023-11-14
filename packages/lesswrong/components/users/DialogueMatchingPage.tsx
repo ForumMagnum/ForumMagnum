@@ -15,7 +15,6 @@ import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import { isMobile } from '../../lib/utils/isMobile'
 import {postGetEditUrl, postGetPageUrl} from '../../lib/collections/posts/helpers';
 import { isProduction } from '../../lib/executionEnvironment';
 import type { History } from 'history';
@@ -141,6 +140,7 @@ type MatchDialogueButtonProps = {
 };
 
 const minRowHeight = 28;
+const minMobileRowHeight = 50;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -157,18 +157,44 @@ const styles = (theme: ThemeType) => ({
   matchContainerGridV1: {
     display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
     gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
-    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down("sm")]: {
+      display: 'grid',
+      //                    checkbox    name     message     match
+      gridTemplateColumns: `40px        100px    80px        80px`,
+      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
+      gridRowGap: 5,
+      columnGap: 10,
+      alignItems: 'center',
+    },
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
     gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
-    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    [theme.breakpoints.down("sm")]: {
+      display: 'grid',
+      //   ↓↓↓↓↓↓          checkbox    name     message     match
+      gridTemplateColumns: `40px        100px    80px        80px`,
+      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
+      gridRowGap: 5,
+      columnGap: 10,
+      alignItems: 'center',
+    },
+  },
+  matchContainerGridMobile: {
+    display: 'grid',
+    //                    checkbox    name     message     match
+    gridTemplateColumns: `40px        100px    80px        80px`,
+    gridRowGap: 5,
+    columnGap: 10,
+    alignItems: 'center',
   },
   header: {
     height: 'auto',
@@ -303,11 +329,19 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     marginBottom: 20,
     maxWidth: '40vw',
+    [theme.breakpoints.up("sm")]: {
+      display: "none"
+    }
+  },
+
+  details: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none"
+    }
   },
   
   // opt-in stuff
   optInContainer: {
-    height: 20,
     display: 'flex',
     alignItems: 'top',
   },
@@ -460,7 +494,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
       className={classNames(classes.gradientBigTextContainer, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
-      })} 
+      }, classes.details)} 
       ref={bioContainerRef}
     >
       {userData?.biography?.plaintextDescription }
@@ -494,7 +528,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, {
+      className={classNames(classes.gradientBigTextContainer, classes.details, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })} 
@@ -541,7 +575,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, {
+      className={classNames(classes.gradientBigTextContainer, classes.details, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })}> 
@@ -559,11 +593,11 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
   );
 };
 
-const Headers = ({ titles, className }: { titles: string[], className: string }) => {
+const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<typeof styles> }) => {
   return (
     <>
       {titles.map((title, index) => (
-        <h5 key={index} className={className}> {title} </h5>
+        <h5 key={index} className={classNames(classes.header, index > 3 ? classes.details : "")}> {title} </h5>
       ))}
     </>
   );
@@ -572,8 +606,8 @@ const Headers = ({ titles, className }: { titles: string[], className: string })
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes }: NextStepsDialogProps) => {
 
   const [topicNotes, setTopicNotes] = useState("");
-  const [formatSync, setFormatSync] = useState<SyncPreference>("No");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>("No");
+  const [formatSync, setFormatSync] = useState<SyncPreference>("Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>("Meh");
   const [formatNotes, setFormatNotes] = useState("");
 
   const { LWDialog, MenuItem } = Components;
@@ -634,10 +668,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     commentSourceId: comment._id
   })) || [])]), [topicRecommendations])
 
-  return (
-    <LWDialog open onClose={onClose}>
-      {called ? (
-        <div>
+  if (called) {
+    return (
+      <LWDialog open onClose={onClose}>
           <DialogTitle>
             <h2>You submitted, nice job.</h2>
             <p>This info will be sent to your match partner.</p> 
@@ -651,8 +684,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               Close
             </Button>
           </DialogActions>
-        </div>
-      ) : (
+      </LWDialog>
+  )}
+
+  return (
+    <LWDialog open onClose={onClose}>
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
         <DialogContent >
@@ -667,7 +703,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                       topicPreferences.map(
                         existingTopic => existingTopic.text === topic.text ? {
                           ...existingTopic, 
-                          preference: event.target.checked ? "Yes" : "No" as const
+                          preference: event.target.checked ? "Yes" as const : "No" as const,
                         } : existingTopic
                       )
                     )}
@@ -706,6 +742,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
+                  checked={formatSync === value}
                   className={classes.dialogSchedulingCheckbox}
                   onChange={event => setFormatSync(value as SyncPreference)}
               />)}
@@ -713,6 +750,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
+                  checked={formatAsync === value}
                   className={classes.dialogSchedulingCheckbox}
                   onChange={event => setFormatAsync(value as SyncPreference)}
               />)}
@@ -737,7 +775,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           </Button>
         </DialogActions>
       </div>
-      )}
     </LWDialog>
   );
 };
@@ -978,8 +1015,8 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
     />
-    {showKarma && <div className={classes.centeredText}> {targetUser.total_power} </div>}
-    {showAgreement && <div className={classes.centeredText}> {targetUser.total_agreement} </div>}
+    {showKarma && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_power} </div>}
+    {showAgreement && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
       key={targetUser._id}
       classes={classes}
@@ -1023,7 +1060,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
 
   return (
     <div className={gridClassName}>
-      {showHeaders && <Headers titles={headers} className={classes.header} />}
+      {showHeaders && <Headers titles={headers} classes={classes} />}
       {rows}
     </div>
   );
@@ -1109,11 +1146,9 @@ export const DialogueMatchingPage = ({classes}: {
   return (
   <div className={classes.root}>
     <div className={classes.container}>
-      {isMobile() && (
-        <div className={classes.mobileWarning}>
-          Dialogues matching doesn't render well on mobile right now. <br/> <br /> Please view on laptop or tablet!
-        </div>
-      )}
+      <div className={classes.mobileWarning}>
+        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
+      </div>
 
       <h1>Dialogue Matching</h1>
       <ul>
@@ -1200,7 +1235,7 @@ export const DialogueMatchingPage = ({classes}: {
               showAgreement={true}
               showPostsYouveRead={true}
               showFrequentCommentedTopics={true}
-              showHeaders={false}
+              showHeaders={!recentlyActiveTopUsers.length}
             />
           </React.Fragment>}
           </div>

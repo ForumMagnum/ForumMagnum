@@ -1,6 +1,6 @@
 import { getCollectionHooks } from "../mutationCallbacks";
 import { cheerioParse } from "../utils/htmlUtil";
-import { createMutator, updateMutator } from "../vulcan-lib";
+import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
@@ -205,7 +205,8 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     collection: context.DialogueMatchPreferences,
     documentId: reciprocalMatchPreferences._id,
     data: { generatedDialogueId },
-    context
+    // Since this is updating a field which only admins are allowed to update, we need to pass in an admin context instead of the actual request's context
+    context: createAdminContext()
   });
 
   userMatchPreferences.generatedDialogueId = generatedDialogueId;
