@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
 import { useServerRequestStatus } from '../../lib/routeUtil'
-import { Redirect } from '../../lib/reactRouterWrapper';
+import { Navigate } from '../../lib/reactRouterWrapper';
 
 /**
  * If this component appears in the DOM, this page is a redirect to the given
@@ -33,12 +33,12 @@ const PermanentRedirect = ({url, status}: {
   
   // Handle redirecting to _relative_ URLs in a client context. This forwards
   // to react-router, which only knows how to handle relative URLs not absolute
-  // ones (if you give <Redirect> an absolute URL you might get something like
+  // ones (if you give <Navigate> an absolute URL you might get something like
   // http://www.lesswrong.com/http://www.lesswrong.com/asdf).
   if(urlIsAbsolute(url)) {
     return <></>;
   } else {
-    return <Redirect to={url}/>;
+    return <Navigate to={url} replace />;
   }
 };
 
