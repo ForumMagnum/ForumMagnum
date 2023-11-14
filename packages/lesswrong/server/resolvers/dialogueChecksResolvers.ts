@@ -1,17 +1,8 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
-import { randomId } from "../../lib/random";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import { defineMutation } from "../utils/serverGraphqlUtil";
-import { createMutator } from '../vulcan-lib';
-import Messages from '../../lib/collections/messages/collection';
-import Conversations from "../../lib/collections/conversations/collection";
-import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection";
-
-import { getUser } from '../../lib/vulcan-users/helpers';
-import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
-import {SyncPreference} from "../../lib/collections/dialogueMatchPreferences/schema.ts";
 
 async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck, associatedMessage?: DbMessage) {
   await Promise.all([ 
@@ -30,65 +21,6 @@ async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck
       extraData: {associatedMessage}
     })
   ])
-}
-
-async function messageUsersMatchingDialogueChecks (
-  userId: string,
-  targetUserId: string,
-  topicNotes: string,
-  formatSync: boolean,
-  formatAsync: boolean,
-  formatNotes: string
-) {
-  const lwAccount = await getAdminTeamAccount();
-  const currentUser = await getUser(userId);
-  const targetUser = await getUser(targetUserId);
-
-  // Create a new conversation with both users
-  const conversationData = {
-    participantIds: [userId, targetUserId, lwAccount._id],
-    title: `Dialogue Match between ${currentUser?.displayName} and ${targetUser?.displayName}!`
-  }
-
-  const conversation = await createMutator({
-    collection: Conversations,
-    document: conversationData,
-    currentUser: lwAccount,
-    validate: false,
-  });
-
-  let messageContents =
-    `<div>
-      <p>You two have matched via Dialogue Matching! You can now message each other to brainstorm potential dialogue topics or set up a time to talk.</p>
-      <p>For some ideas of conversation topics, feel free to look at <a href="https://www.lesswrong.com/posts/hc9nMipTXy2sm3tJb/vote-on-interesting-disagreements">this list of interesting disagreements</a>.</p>
-
-      <p>Notes from ${currentUser?.displayName}:</p>
-      ${topicNotes ? `<p>On topics: "${topicNotes}"</p>` : ''}
-      ${formatSync ? `<p>• Up for sync</p>` : ''}
-      ${formatAsync ? `<p>• Up for async</p>` : ''}
-      ${formatNotes ? `<p>Format notes: "${formatNotes}"</p>` : ''}
-    </div>`
-
-  // Add a message to the conversation
-  const messageData = {
-    userId: lwAccount._id,
-    contents: {
-      originalContents: {
-        type: "html",
-        data: messageContents
-      }
-    },
-    conversationId: conversation.data._id
-  }
-
-  const message = await createMutator({
-    collection: Messages,
-    document: messageData,
-    currentUser: lwAccount,
-    validate: false,
-  });
-
-  return message;
 }
 
 defineMutation({
