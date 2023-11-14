@@ -3,10 +3,8 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useSingle } from "../../../lib/crud/withSingle";
+import { useMulti } from "../../../lib/crud/withMulti";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type {
@@ -14,7 +12,6 @@ import type {
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
-import { useMulti } from "../../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -118,12 +115,6 @@ const NotificationsPageKarma: FC<{
   );
 }
 
-const NotificationsPageItem: FC<{item: NotificationsList}> = () => {
-  return (
-    null
-  );
-}
-
 export const NotificationsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -175,7 +166,7 @@ export const NotificationsPage = ({classes}: {
     );
   }
 
-  const {Loading} = Components;
+  const {Loading, NotificationsPageItem} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
