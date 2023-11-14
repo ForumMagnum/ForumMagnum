@@ -187,7 +187,6 @@ const styles = (theme: ThemeType) => ({
       maxWidth: '100%',
       display: 'flex',
       flexDirection: 'column',
-      // flexDirection: 'Column',
     },
   },
   schedulingPreferences: {
