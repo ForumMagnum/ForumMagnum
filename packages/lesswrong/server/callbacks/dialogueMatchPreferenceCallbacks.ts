@@ -13,8 +13,6 @@ function getParagraphWithText(text: string) {
   return $('p').text(text);
 }
 
-type TopicMatch = "match" | "noMatch" | "uncertain";
-
 function convertTimestamp(timestamp: number) {
   const date = new Date(timestamp);
   return date.toUTCString();
@@ -36,26 +34,17 @@ const getDialogueMessageHTML = (userId:string, displayName:string, order:string,
   return html
 }
 
-const getFormAsHtml = (formData: MatchPreferenceFormData) => {
-  const html = `
-    <p>${formData.topicNotes}</p>
-  `
-  return html
-}
-
 const helperBotDisplayName = "Dialogue Helper Bot"
 const helperBotId = "edmzLyzymdoSuXnym"
 
 const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
   const userName = formDataSourceUser.displayName;
-  const userId = formDataSourceUser.userId;
   const targetUserName = formDataTargetUser.displayName;
-  const targetUserId = formDataTargetUser.userId;
   
 
   function getUserTopics (formData: MatchPreferenceFormData) {
     return formData.topicPreferences
-      .filter(({ text, preference, commentSourceId }) => preference === "Yes")
+      .filter(({ preference }) => preference === "Yes")
       .map(({ text }) => text);
   }
 
@@ -74,7 +63,6 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
   </ul>
   `
-
   const formatPreferenceContent =
     `
     <p>Here is what you said about your format preferences:</p>
@@ -110,30 +98,16 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
-  let nextAction = `<p>Feel free to coordinate timing and topic in this chat.</p>`
+  let nextAction = `<p>The next step is for you to coordinate dialogue topic and timing (in the event of a synchronous dialogue) below. After that, you'll be able to use this post for the dialogue content as well; at any point, you can delete this helper message and any other coordination messages you've sent here as well so that they don't appear in your final published dialogue.</p>`
 
   if (!formatPreferenceMatch) {
     nextAction =
     `<p>It seems you have different format preferences, so a dialogue might not make sense—but if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
   }
 
-  // overall messages
-  const topicMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", topicMessageContent);
-  const formatMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", formatPreferenceContent);
-  const nextActionMessage = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", nextAction); 
-
-  // // user content
-  // const userContent = getFormAsHtml(formDataSourceUser)
-  // const targetUserContent = getFormAsHtml(formDataTargetUser)
-
-  // const userMessage = getDialogueMessageHTML(userId, userName, "2", userContent);
-  // const targetUserMessage = getDialogueMessageHTML(targetUserId, targetUserName, "3", targetUserContent);
-
   const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
 
-  const message = `<div>${messagesCombined}</div>`
-
-  return message
+  return `<div>${messagesCombined}</div>`
 }
 
 getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context, currentUser } ) {
@@ -160,7 +134,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   }
 
   const targetUser = await context.loaders.Users.load(targetUserId);
-  const title = `Checking if any topic / format overlap...` // ${currentUser.displayName} and ${targetUser.displayName}`;
+  const title = `Dialogue match between ${currentUser.displayName} and ${targetUser.displayName}`
 
   const formDataUser1 = {
     ...userMatchPreferences,
@@ -200,6 +174,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
 
   const generatedDialogueId = result.data._id;
 
+  // notify both users that Dialogue Helper Bot has messaged them in the new dialogue
   await createNotifications({
     userIds: [userId, targetUserId],
     notificationType: 'newDialogueMessages',
