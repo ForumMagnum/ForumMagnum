@@ -616,10 +616,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     commentSourceId: comment._id
   })) || [])]), [popularTopics])
 
-  return (
-    <LWDialog open onClose={onClose}>
-      {called ? (
-        <div>
+  if (called) {
+    return (
+      <LWDialog open onClose={onClose}>
           <DialogTitle>
             <h2>You submitted, nice job.</h2>
             <p>This info will be sent to your match partner.</p> 
@@ -633,8 +632,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               Close
             </Button>
           </DialogActions>
-        </div>
-      ) : (
+      </LWDialog>
+  )}
+
+  return (
+    <LWDialog open onClose={onClose}>
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
         <DialogContent >
@@ -649,7 +651,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                       topicPreferences.map(
                         existingTopic => existingTopic.text === topic.text ? {
                           ...existingTopic, 
-                          preference: event.target.checked ? "Yes" : "No" as const
+                          preference: event.target.checked ? "Yes" as const : "No" as const,
                         } : existingTopic
                       )
                     )}
@@ -688,6 +690,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
+                  checked={formatSync === value}
                   className={classes.dialogSchedulingCheckbox}
                   onChange={event => setFormatSync(value as SyncPreference)}
               />)}
@@ -695,6 +698,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
+                  checked={formatAsync === value}
                   className={classes.dialogSchedulingCheckbox}
                   onChange={event => setFormatAsync(value as SyncPreference)}
               />)}
@@ -719,7 +723,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           </Button>
         </DialogActions>
       </div>
-      )}
     </LWDialog>
   );
 };
