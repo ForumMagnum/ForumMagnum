@@ -55,6 +55,5 @@ DialogueMatchPreferences.checkAccess = async (user: DbUser|null, document: DbDia
 };
 
 addUniversalFields({ collection: DialogueMatchPreferences });
-// ensureIndex(DialogueMatchPreferences, { userId: 1, targetUserId: 1 }, { unique: true });
 
 export default DialogueMatchPreferences;
