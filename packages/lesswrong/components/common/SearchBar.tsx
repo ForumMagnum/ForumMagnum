@@ -6,13 +6,13 @@ import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import IconButton from '@material-ui/core/IconButton';
-import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -111,11 +111,11 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const captureSearch = useSearchAnalytics();
 
   const handleSubmit = () => {
-    history.push({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
+    navigate({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
     closeSearch()
   }
   
