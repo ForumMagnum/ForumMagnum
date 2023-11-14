@@ -1,12 +1,12 @@
 import React, { FC, useCallback, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useCurrentUser } from "../common/withUser";
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { useSingle } from "../../lib/crud/withSingle";
-import { Link } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
-import { tagGetUrl } from "../../lib/collections/tags/helpers";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useCurrentUser } from "../../common/withUser";
+import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { useSingle } from "../../../lib/crud/withSingle";
+import { Link } from "../../../lib/reactRouterWrapper";
+import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import classNames from "classnames";
@@ -14,8 +14,8 @@ import type {
   CommentKarmaChange,
   PostKarmaChange,
   TagRevisionKarmaChange,
-} from "../../lib/types/karmaChangesTypes";
-import { useMulti } from "../../lib/crud/withMulti";
+} from "../../../lib/types/karmaChangesTypes";
+import { useMulti } from "../../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -217,7 +217,7 @@ export const NotificationsPage = ({classes}: {
   const {
     results: notifications,
     loading: notificationsLoading,
-    loadMore: loadMoreNotifications,
+    // loadMore: loadMoreNotifications, // TODO: Load more
   } = useMulti({
     collectionName: "Notifications",
     fragmentName: "NotificationsList",
@@ -230,7 +230,6 @@ export const NotificationsPage = ({classes}: {
       userId: currentUser?._id,
     },
   });
-  console.log("notif", notifications);
 
   const onChangeTab = useCallback((_: React.ChangeEvent, tabName: string) => {
     const newTabIndex = tabs.findIndex(({name}) => name === tabName);
