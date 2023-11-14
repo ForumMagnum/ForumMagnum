@@ -650,6 +650,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
         _id
         contents {
           html
+          plaintextMainText
         }
       }
     }
@@ -669,7 +670,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const [topicPreferences, setTopicPreferences] = useState<DbDialogueMatchPreference["topicPreferences"]>([])
 
   useEffect(() => setTopicPreferences(topicPreferences => [...topicPreferences, ...(topicRecommendations?.map(comment => ({
-    text: comment.contents?.html || '', // TODO figure out the bug preventing returning plaintextMaintext
+    text: comment.contents?.plaintextMainText || '', // TODO figure out the bug preventing returning plaintextMaintext
     preference: 'No' as const,
     commentSourceId: comment._id
   })) || [])]), [topicRecommendations])
