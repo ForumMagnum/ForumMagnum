@@ -183,28 +183,13 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           Dialogues
         </LWTooltip>}
       >
-        {!(!rowPropsList?.length) &&
+      {currentUser && (
         <SectionButton className={classes.findDialoguePartners}>
           <MuiPeopleIcon />
           <Link to="/dialogueMatching">Find Dialogue Partners</Link>
         </SectionButton>
-        }
+      )}
       </SectionTitle>
-
-      {!rowPropsList?.length && 
-        (
-          <div className={classes.dialogueUserRow}>
-              <LWTooltip title={matchmakingTooltip} className={classes.dialogueNoMatchesButton}>
-                <Link to={"/dialogueMatching"}>
-                  <SectionButton className={classes.findDialoguePartners}>
-                    <MuiPeopleIcon />
-                    Find Dialogue Partners
-                  </SectionButton>
-                </Link>
-              </LWTooltip>
-          </div>
-        )
-      }
 
       <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
