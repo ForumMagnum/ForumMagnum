@@ -1205,7 +1205,7 @@ export const DialogueMatchingPage = ({classes}: {
       to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
       the other part of the match has also opted in.
     </p>
-    { !(matchedUsers?.length) ?  null : <React.Fragment>
+    { !(matchedUsers?.length) ?  null : <>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Matches</h3>
@@ -1227,12 +1227,12 @@ export const DialogueMatchingPage = ({classes}: {
       </div>
       <br />
       <br />
-    </React.Fragment> }
-    { !topUsers.length ? null : <React.Fragment>
+    </> }
+    { !topUsers.length ? null : <>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
           <h3>Your Top Voted Users (Last 18 Months)</h3>
-          { recentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+          { recentlyActiveTopUsers.length == 0 ? null : <>
           <h4>Recently active on dialogue matching (last 10 days)</h4>
           <UserTable
             users={recentlyActiveTopUsers}
@@ -1249,8 +1249,8 @@ export const DialogueMatchingPage = ({classes}: {
             showHeaders={true}
           />
         <br />
-        </React.Fragment> }
-      { inRecentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
+        </> }
+      { inRecentlyActiveTopUsers.length == 0 ? null : <>
             <h4>Not recently active on dialogue matching</h4>
             <UserTable
               users={inRecentlyActiveTopUsers}
@@ -1266,11 +1266,11 @@ export const DialogueMatchingPage = ({classes}: {
               showFrequentCommentedTopics={true}
               showHeaders={!recentlyActiveTopUsers.length}
             />
-          </React.Fragment>}
+          </>}
           </div>
       </div>
       <br />
-    </React.Fragment> }
+    </> }
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
         <h3>People who published dialogues</h3>
