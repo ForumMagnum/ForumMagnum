@@ -43,7 +43,8 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
               post: comment.post || undefined,
               tag: comment.tag || undefined,
               showPostTitle: true,
-              forceNotSingleLine: true
+              forceNotSingleLine: true,
+              disableVoting: true,
             }}
             comment={comment}
             startThreadTruncated={truncated}

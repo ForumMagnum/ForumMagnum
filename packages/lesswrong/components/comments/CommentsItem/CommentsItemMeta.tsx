@@ -124,7 +124,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
     : {
       opacity: 0.35,
-    }
+    },
+  karma: {
+    width: "32px",
+    display: "flex",
+    justifyContent: "center",
+  }
 });
 
 export const CommentsItemMeta = ({
@@ -163,6 +168,7 @@ export const CommentsItemMeta = ({
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
     hideActionsMenu, hideParentCommentToggle, hideParentCommentToggleForTopLevel,
+    disableVoting
   } = treeOptions;
 
   const authorIsPostAuthor = post &&
@@ -216,7 +222,7 @@ export const CommentsItemMeta = ({
 
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
-    CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
+    CommentsItemDate, SmallSideVote, KarmaDisplay, CommentOutdatedWarning, FooterTag, LoadMore,
     ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
 
@@ -272,11 +278,16 @@ export const CommentsItemMeta = ({
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && !comment.rejected && <SmallSideVote
-        document={comment}
-        collection={Comments}
-        hideKarma={post?.hideCommentKarma}
-      />}
+
+      {!comment.debateResponse && !comment.rejected && 
+        disableVoting ? <span className={classNames(classes.karma)}>
+          <KarmaDisplay document={comment}/>
+        </span> : <SmallSideVote
+          document={comment}
+          collection={Comments}
+          hideKarma={post?.hideCommentKarma}
+        />      
+      }
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 
