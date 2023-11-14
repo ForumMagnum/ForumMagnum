@@ -142,7 +142,26 @@ type MatchDialogueButtonProps = {
 };
 
 const minRowHeight = 28;
-const minMobileRowHeight = 50;
+const minMobileRowHeight = 60;
+
+const mobileGridBaseStyles = (theme: ThemeType) => ({
+  display: 'grid',
+  //                    checkbox                    name                        message                match
+  gridTemplateColumns: `minmax(min-content, auto)   minmax(min-content, 2fr)   minmax(80px, 1fr)     minmax(min-content, 1fr)`,
+  gridAutoRows: `${minMobileRowHeight}px`,
+  gridRowGap: 5,
+  columnGap: 10,
+  alignItems: 'center',
+  "& .MuiFormControlLabel-root": {
+    marginLeft: 0,
+  },
+  "& svg.MuiSvgIcon-root": {
+    width: "100%",
+    height: 30,
+  },
+  background:
+    `repeating-linear-gradient(${theme.palette.background.default } 0 60px,transparent 60px 120px)`
+})
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -168,15 +187,7 @@ const styles = (theme: ThemeType) => ({
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
-    [theme.breakpoints.down("sm")]: {
-      display: 'grid',
-      //                    checkbox               name                     message          match
-      gridTemplateColumns: `minmax(300px, auto)    minmax(500px, auto)      400px            minmax(500px, auto)`,
-      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
-      gridRowGap: 5,
-      columnGap: 10,
-      alignItems: 'center',
-    },
+    [theme.breakpoints.down("xs")]: mobileGridBaseStyles(theme),
   },
   matchContainerGridV2: {
     display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
@@ -185,14 +196,8 @@ const styles = (theme: ThemeType) => ({
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
-    [theme.breakpoints.down("sm")]: {
-      display: 'grid',
-      //   ↓↓↓↓↓↓          checkbox     name     message     match
-      gridTemplateColumns: `60px        100px    80px        80px`,
-      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
-      gridRowGap: 5,
-      columnGap: 10,
-      alignItems: 'center',
+    [theme.breakpoints.down("xs")]: {
+      ...mobileGridBaseStyles(theme)
     },
   },
   header: {
@@ -229,7 +234,11 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.darken15,
     color: theme.palette.link.unmarked,
     whiteSpace: 'nowrap',
-    borderRadius: 5
+    borderRadius: 5,
+    [theme.breakpoints.down("xs")]: {
+      "fontSize": "1.25rem",
+      "padding": "0.2rem",
+    },
   },
   enterTopicsButton: {
     maxHeight: minRowHeight,
@@ -237,7 +246,11 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.primary.light,
     color: 'white',
     whiteSpace: 'nowrap',
-    borderRadius: 5
+    borderRadius: 5,
+    [theme.breakpoints.down("xs")]: {
+      "fontSize": "1.25rem",
+      "padding": "0.2rem",
+    },
   },
   lightGreenButton: {
     maxHeight: minRowHeight,
@@ -329,13 +342,13 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     marginBottom: 20,
     maxWidth: '40vw',
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up("xs")]: {
       display: "none"
     }
   },
 
   details: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("xs")]: {
       display: "none"
     }
   },
