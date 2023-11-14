@@ -147,12 +147,17 @@ const styles = (theme: ThemeType) => ({
     padding: 20,
     ...commentBodyStyles(theme),
     background: theme.palette.background.default,
+    [theme.breakpoints.up('md')]: {
+      marginTop: -50
+    },
   },
+  
   matchContainer: {
     maxWidth: 1300,
     padding: 20,
     background: theme.palette.panelBackground.default,
     borderRadius: 5,
+    width: '100%'
   },
   matchContainerGridV1: {
     display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
@@ -287,6 +292,7 @@ const styles = (theme: ThemeType) => ({
   privacyNote: {
     color: 'grey',
     fontSize: '1rem',
+    maxWidth: 1300
   },
   checkbox: {
     height: 10, 
@@ -1202,7 +1208,7 @@ export const DialogueMatchingPage = ({classes}: {
     { !topUsers.length ? null : <React.Fragment>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Your top upvoted users (last 1.5 years)</h3>
+          <h3>Your Top Voted Users (Last 18 Months)</h3>
           { recentlyActiveTopUsers.length == 0 ? null : <React.Fragment>
           <h4>Recently active</h4>
           <UserTable
@@ -1244,7 +1250,7 @@ export const DialogueMatchingPage = ({classes}: {
     </React.Fragment> }
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>Users who published dialogues</h3>
+        <h3>People who published dialogues</h3>
         <UserTable
           users={dialogueUsers}
           isUpvotedUser={false}
@@ -1264,7 +1270,7 @@ export const DialogueMatchingPage = ({classes}: {
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>Users who opted in to dialogue matchmaking on frontpage</h3>
+        <h3>People who checked a box saying they're interested in having dialogues</h3>
         <UserTable
           users={optedInUsers}
           isUpvotedUser={false}
