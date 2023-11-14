@@ -13,21 +13,23 @@ import { getUser } from '../../lib/vulcan-users/helpers';
 import { getAdminTeamAccount } from '../../server/callbacks/commentCallbacks.ts'
 import {SyncPreference} from "../../lib/collections/dialogueMatchPreferences/schema.ts";
 
-async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, match: DbDialogueCheck, associatedMessage?: DbMessage) {
-  await createNotifications({
-    userIds: [dialogueCheck.userId],
-    notificationType: "newDialogueMatch",
-    documentType: "dialogueCheck",
-    documentId: dialogueCheck._id,
-    extraData: {associatedMessage}
-  });
-  await createNotifications({
-    userIds: [match.userId],
-    notificationType: "newDialogueMatch",
-    documentType: "dialogueCheck",
-    documentId: match._id,
-    extraData: {associatedMessage}
-  });
+async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck, associatedMessage?: DbMessage) {
+  await Promise.all([ 
+    createNotifications({
+      userIds: [dialogueCheck.userId],
+      notificationType: "newDialogueMatch",
+      documentType: "dialogueCheck",
+      documentId: dialogueCheck._id,
+      extraData: {associatedMessage}
+    }),
+    createNotifications({
+      userIds: [matchingDialogueCheck.userId],
+      notificationType: "newDialogueMatch",
+      documentType: "dialogueCheck",
+      documentId: matchingDialogueCheck._id,
+      extraData: {associatedMessage}
+    })
+  ])
 }
 
 async function messageUsersMatchingDialogueChecks (
@@ -89,45 +91,6 @@ async function messageUsersMatchingDialogueChecks (
   return message;
 }
 
-// defineMutation({
-//   name: "messageUserDialogueMatch",
-//   resultType: "Message",
-//   argTypes: "(userId: String!, targetUserId: String!, topicNotes: String!, formatSync: Boolean!, formatAsync: Boolean!, formatOther: Boolean!, formatNotes: String!)",
-//   fn: async (_, {userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes}:{userId:string, targetUserId:string, topicNotes:string, formatSync:SyncPreference, formatAsync:SyncPreference, formatNotes:string}, {currentUser, repos}) => {
-//     if (!currentUser) throw new Error("No current user was provided")
-
-//     const { data: message }  = await messageUsersMatchingDialogueChecks(userId, targetUserId, topicNotes, formatSync, formatAsync, formatNotes)
-
-//     return message;    
-//   } 
-// })
-
-// defineMutation({
-//   name: "createDialogueMatchPreference",
-//   resultType: "DialogueMatchPreference",
-//   argTypes: '(dialogueCheckId: String!, topicNotes: String!, syncPreference: "Yes" | "Meh" | "No"!, asyncPreference: "Yes" | "Meh" | "No"!, formatNotes: String!)',
-//   fn: async (_, {dialogueCheckId, topicNotes, syncPreference, asyncPreference, formatNotes}:{dialogueCheckId:string, topicNotes:string, syncPreference:'Yes' | 'Meh' | 'No', asyncPreference:'Yes' | 'Meh' | 'No', formatNotes:string}, {currentUser, repos}) => {
-//     if (!currentUser) throw new Error("No current user was provided")
-
-//     const dialogueMatchPreferenceData = {
-//       dialogueCheckId,
-//       topicNotes,
-//       syncPreference,
-//       asyncPreference,
-//       formatNotes
-//     };
-
-//     const dialogueMatchPreference = await createMutator({
-//       collection: DialogueMatchPreferences,
-//       document: dialogueMatchPreferenceData,
-//       currentUser,
-//       validate: false,
-//     });
-
-//     return dialogueMatchPreference;
-//   } 
-// })
-
 defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
@@ -135,12 +98,12 @@ defineMutation({
   fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
-    const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
-    const match = await getMatchingDialogueCheck(response)
-    if (match) {
-      void notifyUsersMatchingDialogueChecks(response, match)   
+    const dialogueCheck = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
+    const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+    if (matchingDialogueCheck) {
+      void notifyUsersMatchingDialogueChecks(dialogueCheck, matchingDialogueCheck)   
     }
-    return response
+    return dialogueCheck
   } 
 })
 
@@ -153,11 +116,11 @@ augmentFieldsDict(DialogueChecks, {
     resolveAs: {
       fieldName: 'match',
       type: 'Boolean',
-      resolver: async (check: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
+      resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")
-        const match = await getMatchingDialogueCheck(check)
-        return !!match
+        const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+        return !!matchingDialogueCheck
       },
     }
   }

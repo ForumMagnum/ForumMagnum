@@ -158,7 +158,6 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
     case "tagRel":
       const post = await Posts.findOne({_id: (document as DbTagRel).postId})
       return postGetPageUrl(post as DbPost);
-    // possibly add case here?
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
