@@ -78,14 +78,13 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     `
     <p>Here is what you said about your format preferences:</p>
     <figure class="table">
-      <table>
+      <table> 
         <tbody>
           <tr>
-            <td>&nbsp;
-            </td>
-            <td><strong>Sync</strong></td>
-            <td><strong>Async</strong></td>
-            <td>Notes</td>
+            <td style="width: 100px;">&nbsp;</td>
+            <td style="width: 65px;"><strong>Sync</strong></td>
+            <td style="width: 65px;"><strong>Async</strong></td>
+            <td style="width: auto; max-width: 300px;">Notes</td>
           </tr>
           <tr>
             <td><i>${userName}</i></td>
@@ -114,8 +113,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   if (!formatPreferenceMatch) {
     nextAction =
-    `<p>It seems you have different format preferences, so a dialogue might not make sense—
-    but if either of you wants to give it a try anyway, you can always send a message in this chat.</p> `
+    `<p>It seems you have different format preferences, so a dialogue might not make sense—but if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
   }
 
   // overall messages
