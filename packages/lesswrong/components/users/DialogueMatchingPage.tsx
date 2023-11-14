@@ -138,6 +138,7 @@ type MatchDialogueButtonProps = {
 };
 
 const minRowHeight = 28;
+const minMobileRowHeight = 50;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -154,14 +155,15 @@ const styles = (theme: ThemeType) => ({
   matchContainerGridV1: {
     display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
     gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
-    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
       display: 'grid',
       //                    checkbox    name     message     match
-      gridTemplateColumns: `60px        100px    80px        80px`,
+      gridTemplateColumns: `40px        100px    80px        80px`,
+      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
       gridRowGap: 5,
       columnGap: 10,
       alignItems: 'center',
@@ -170,14 +172,15 @@ const styles = (theme: ThemeType) => ({
   matchContainerGridV2: {
     display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
     gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
-    gridAutoRows: `minmax${minRowHeight}px, auto)`,
+    gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
     [theme.breakpoints.down("sm")]: {
       display: 'grid',
-      //                    checkbox    name     message     match
-      gridTemplateColumns: `60px        100px    80px        80px`,
+      //   ↓↓↓↓↓↓          checkbox    name     message     match
+      gridTemplateColumns: `40px        100px    80px        80px`,
+      gridAutoRows: `minmax(${minMobileRowHeight}px, auto)`,
       gridRowGap: 5,
       columnGap: 10,
       alignItems: 'center',
@@ -186,7 +189,7 @@ const styles = (theme: ThemeType) => ({
   matchContainerGridMobile: {
     display: 'grid',
     //                    checkbox    name     message     match
-    gridTemplateColumns: `60px        100px    80px        80px`,
+    gridTemplateColumns: `40px        100px    80px        80px`,
     gridRowGap: 5,
     columnGap: 10,
     alignItems: 'center',
@@ -994,8 +997,8 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
     />
-    {showKarma && <div className={classNames(classes.centeredText, classes.detail)}> {targetUser.total_power} </div>}
-    {showAgreement && <div className={classNames(classes.centeredText, classes.detail)}> {targetUser.total_agreement} </div>}
+    {showKarma && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_power} </div>}
+    {showAgreement && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
       key={targetUser._id}
       classes={classes}
