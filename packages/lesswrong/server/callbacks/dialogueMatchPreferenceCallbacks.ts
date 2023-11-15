@@ -1,16 +1,10 @@
 import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
-import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
   userId: string
-}
-
-function getParagraphWithText(text: string) {
-  const $ = cheerioParse('<p></p>');
-  return $('p').text(text);
 }
 
 function convertTimestamp(timestamp: number) {
@@ -39,7 +33,6 @@ const helperBotId = "jHkqasDqh8HHLen6z"
 const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
   const userName = formDataSourceUser.displayName;
   const targetUserName = formDataTargetUser.displayName;
-  
 
   function getUserTopics (formData: MatchPreferenceFormData) {
     return formData.topicPreferences
