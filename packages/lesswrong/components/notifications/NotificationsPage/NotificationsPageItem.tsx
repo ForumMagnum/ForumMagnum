@@ -10,6 +10,7 @@ import {
   getNotificationTypeByName,
 } from "../../../lib/notificationTypes";
 import classNames from "classnames";
+import { useSingle } from "../../../lib/crud/withSingle";
 
 const ICON_WIDTH = 24;
 
@@ -58,12 +59,38 @@ const styles = (theme: ThemeType) => ({
   primaryText: {
     color: theme.palette.grey[1000],
   },
+  hideOnMobile: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
+  },
+  preview: {
+    flexGrow: 1,
+    minWidth: 0,
+  },
 });
 
 export const NotificationsPageItem = ({notification, classes}: {
   notification: NotificationDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
+  // The main notifications query that returns `NotificationDisplay`s is a
+  // custom resolver that runs as a single SQL query. We fetch comments to
+  // preview outside of this query in order to avoid nuking the apollo cache
+  // when trying to do things like loading the parent comment, and also
+  // because it'd be tricky to fetch things like the current user vote without
+  // running typescript resolvers.
+  const showPreviewComment = !!notification.comment?._id;
+  const {
+    document: previewComment,
+    loading: previewCommentLoading,
+  } = useSingle({
+    skip: !showPreviewComment,
+    documentId: notification.comment?._id,
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+  });
+
   const notificationType = getNotificationTypeByName(notification.type);
   if (!notificationType.Display) {
     return null;
@@ -77,7 +104,10 @@ export const NotificationsPageItem = ({notification, classes}: {
   ) as UsersMinimumInfo | undefined;
   const displayPost = post ?? comment?.post;
 
-  const {ForumIcon, UsersNameDisplay, PostsTooltip, FormatDate} = Components;
+  const {
+    ForumIcon, UsersNameDisplay, PostsTooltip, FormatDate, Loading,
+    CommentsNode,
+  } = Components;
   const User: FC = () => (
     <UsersNameDisplay user={displayUser} className={classes.primaryText} />
   );
@@ -144,14 +174,31 @@ export const NotificationsPageItem = ({notification, classes}: {
             {display} <FormatDate date={new Date(createdAt)} includeAgo />
           </div>
         </div>
-        {/*
-        <div className={classes.container}>
-          <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
-          <div className={classes.content}>
-            {children}
+        {showPreviewComment &&
+          <div className={classes.container}>
+            <div className={classNames(
+              classes.iconContainer,
+              classes.hideOnMobile,
+            )} />
+            <div className={classes.preview}>
+              {previewCommentLoading && <Loading />}
+              {previewComment &&
+                <CommentsNode
+                  treeOptions={{
+                    scrollOnExpand: true,
+                    condensed: true,
+                    post: post as PostsMinimumInfo | undefined,
+                  }}
+                  startThreadTruncated
+                  expandAllThreads
+                  expandNewComments={false}
+                  nestingLevel={1}
+                  comment={previewComment}
+                />
+              }
+            </div>
           </div>
-        </div>
-          */}
+        }
       </div>
     </AnalyticsContext>
   );
