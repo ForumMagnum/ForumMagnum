@@ -138,7 +138,7 @@ const buildNotificationsQuery = (
 
 const buildReactionsQuery = (userIdIndex: number) =>
   `SELECT
-    q."documentId" "_id",
+    q."_id",
     'reaction' "type",
     NULL "link",
     q."votedAt" "createdAt",
@@ -149,6 +149,7 @@ const buildReactionsQuery = (userIdIndex: number) =>
     NULL "localgroup"
   FROM (
     SELECT
+      "_id",
       "documentId",
       "collectionName",
       "userId",
