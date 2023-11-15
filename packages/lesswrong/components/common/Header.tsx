@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
@@ -179,10 +179,15 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
   const { pathname } = useLocation()
+
+  const hasLogo = isEAForum;
+  const hasNotificationsPage = isEAForum;
+  const hasKarmaChangeNotifier = !isEAForum && currentUser && !currentUser.usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -204,8 +209,19 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    void handleSetNotificationDrawerOpen(!notificationOpen);
+    if (hasNotificationsPage) {
+      captureEvent("notificationsIconToggle", {
+        navigate: true,
+        previousCheck: lastNotificationsCheck,
+      });
+      navigate("/notifications");
+    } else {
+      captureEvent("notificationsIconToggle", {
+        open: !notificationOpen,
+        previousCheck: lastNotificationsCheck,
+      });
+      void handleSetNotificationDrawerOpen(!notificationOpen);
+    }
   }
 
   // We do two things when the search is open:
@@ -279,9 +295,6 @@ const Header = ({
     </React.Fragment>
   }
 
-  const hasLogo = isEAForum;
-  const hasKarmaChangeNotifier = !isEAForum && currentUser && !currentUser.usernameUnset;
-
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
@@ -324,12 +337,16 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
-    unreadPrivateMessages={unreadPrivateMessages}
-    open={notificationOpen}
-    hasOpened={notificationHasOpened}
-    setIsOpen={handleSetNotificationDrawerOpen}
-  />
+  const HeaderNotificationsMenu = () => currentUser && !hasNotificationsPage
+    ? (
+      <NotificationsMenu
+        unreadPrivateMessages={unreadPrivateMessages}
+        open={notificationOpen}
+        hasOpened={notificationHasOpened}
+        setIsOpen={handleSetNotificationDrawerOpen}
+      />
+    )
+    : null;
 
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
