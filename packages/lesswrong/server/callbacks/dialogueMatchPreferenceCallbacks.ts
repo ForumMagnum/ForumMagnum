@@ -47,14 +47,37 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const sourceUserTopics = sourceUserYesTopics.filter(topic => !targetUserYesTopics.includes(topic));
   const targetUserTopics = targetUserYesTopics.filter(topic => !sourceUserYesTopics.includes(topic));
 
-  const topicMessageContent = `
-  <p>You both wanted a dialogue! Some topics you suggested:</p>
+  let topicMessageContent = `
+  <p>You were both interested in a potential dialogue. Some topics you suggested:</p>
   <ul>
     ${sharedTopics.map(topic => `<li>${topic} <strong>(Both!)</strong></li>`).join('')}
     ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
     ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
   </ul>
   `
+
+  if (sharedTopics.length === 0) {
+    topicMessageContent = `
+    <p>You were both interested in a potential dialogue. However, out of the initial suggestions you didn't have any topics in common:
+      <ul>
+        ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
+        ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
+      </ul>
+    </p>
+    `
+  }
+
+  // 
+  function switchMehForOkay(preference: string): string {
+    return preference === "Meh" ? "Okay" : preference;
+  }
+  
+  // Ugly solution for now since we had the database entry read "meh" but the client form entry read "okay"
+  const userSync = switchMehForOkay(formDataSourceUser.syncPreference);
+  const userAsync = switchMehForOkay(formDataSourceUser.asyncPreference);
+  const targetUserSync = switchMehForOkay(formDataTargetUser.syncPreference);
+  const targetUserAsync = switchMehForOkay(formDataTargetUser.asyncPreference);
+
   const formatPreferenceContent =
     `
     <p>Here is what you said about your format preferences:</p>
@@ -69,14 +92,14 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
           </tr>
           <tr>
             <td><i>${userName}</i></td>
-            <td>${formDataSourceUser.syncPreference}</td>
-            <td>${formDataSourceUser.asyncPreference}</td>
+            <td>${userSync}</td>
+            <td>${userAsync}</td>
             <td>${formDataSourceUser.formatNotes}</td>
           </tr>
           <tr>
             <td><i>${targetUserName}</i></td>
-            <td>${formDataTargetUser.syncPreference}</td>
-            <td>${formDataTargetUser.asyncPreference}</td>
+            <td>${targetUserSync}</td>
+            <td>${targetUserAsync}</td>
             <td>${formDataTargetUser.formatNotes}</td>
           </tr>
         </tbody>
@@ -84,17 +107,29 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     </figure>
   `;
 
-  const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
+  const isYesOrOkay = (value: string) => ["Yes", "Okay"].includes(value);
 
-  const formatPreferenceMatch = 
-    (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ??
-    (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
+  const syncMatch = (isYesOrOkay(userSync) && isYesOrOkay(targetUserSync))
+  const asyncMatch = (isYesOrOkay(userAsync) && isYesOrOkay(targetUserAsync))
+  const formatPreferenceMatch = syncMatch ?? asyncMatch
 
-  let nextAction = `<p>The next step is for you to coordinate dialogue topic and timing (in the event of a synchronous dialogue) below. After that, you'll be able to use this post for the dialogue content as well; at any point, you can delete this helper message and any other coordination messages you've sent here as well so that they don't appear in your final published dialogue.</p>`
+  let nextAction = `<p><strong>Next steps:</strong> I'd suggest you go ahead and chat to find a topic. ${(syncMatch ? "You were also both up for scheduling a time to dialogue, so you might want to coordinate that. (If you'd find it helpful, I'd recommend https://www.when2meet.com/ as a great scheduling tool.)" : "")}
+    When you're ready, you can also use this page for the dialogue itself. (And at any point, you can delete this helper message so it doesn't appear in your final published dialogue.)</p>`
 
   if (!formatPreferenceMatch) {
     nextAction =
-    `<p>It seems you have different format preferences, so a dialogue might not make sense—but if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
+    `<p><p><strong>Next steps:</strong> It seems you have different format preferences, so a dialogue might not make sense here. But if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
+  }
+
+  if (sharedTopics.length === 0) {
+    nextAction =
+    `<p><p><strong>Next steps:</strong> It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But if either of you wants to chat more anyway, you can always send a message in this chat.</p>`
+  }
+
+  if (!formatPreferenceMatch && sharedTopics.length === 0) {
+    nextAction =
+    `<p><p><strong>Next steps:</strong> It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
+    and then move on :) (we'll still put this chat here if you guys want to explore further).</p>`
   }
 
   const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
