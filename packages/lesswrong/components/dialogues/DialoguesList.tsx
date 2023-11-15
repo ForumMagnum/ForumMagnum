@@ -166,7 +166,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
   const rowPropsList = currentUser && getRowProps({
     currentUser,
-    isUpvotedUser: false,
+    tableContext: 'match',
     showAgreement: false,
     showBio: false,
     showFrequentCommentedTopics: false,
@@ -223,6 +223,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
                   <MessageButton
                     targetUserId={targetUser._id}
                     currentUser={currentUser}
+                    isMatched={userIsMatched}
                   />
                 </div>
                 <div className={classes.dialogueMatchPreferencesButton}>

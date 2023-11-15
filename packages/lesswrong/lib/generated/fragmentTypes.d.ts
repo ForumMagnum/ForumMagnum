@@ -3397,7 +3397,7 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly checkedAt: Date,
   readonly match: boolean,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
-  readonly matchingMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
+  readonly repicrocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
 }
 
 interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatchPreferences

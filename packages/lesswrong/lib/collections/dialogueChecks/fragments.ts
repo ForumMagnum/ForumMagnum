@@ -11,7 +11,7 @@ registerFragment(`
     matchPreference {
       ...DialogueMatchPreferencesDefaultFragment
     }
-    matchingMatchPreference {
+    reciprocalMatchPreference {
       ...DialogueMatchPreferencesDefaultFragment
     }
   }

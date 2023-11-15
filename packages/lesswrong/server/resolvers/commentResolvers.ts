@@ -88,7 +88,7 @@ defineQuery({
       comments: [Comment]
     }
   `,
-  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext) => {
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext): Promise<DbComment[]> => {
 
     // run access-filters TODO
 
@@ -100,16 +100,16 @@ defineQuery({
       yield context.repos.comments.getPopularPollComments(limit);
     }
     
-    let recommendedComments: DbComment[] = [];
+    let recommendedComments: Set<DbComment> = new Set();
     
     for await (const source of commentSources()) {
       // TODO: remove duplicates
-      recommendedComments = recommendedComments.concat(source);
-      if (recommendedComments.length >= limit) {
-        return recommendedComments.slice(0, limit);
+      recommendedComments = new Set([...recommendedComments, ...source]);
+      if (recommendedComments.size >= limit) {
+        return [...recommendedComments].slice(0, limit);
       }
     }
 
-    return recommendedComments
+    return [...recommendedComments]
   },
 });

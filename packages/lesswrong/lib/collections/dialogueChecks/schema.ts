@@ -47,7 +47,7 @@ const schema: SchemaType<DbDialogueCheck> = {
       return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, matchPreference, context);
     }
   }),
-  matchingMatchPreference: resolverOnlyField({
+  reciprocalMatchPreference: resolverOnlyField({
     type: 'DialogueMatchPreference',
     graphQLtype: 'DialogueMatchPreference',
     canRead: ['members', 'admins'],
@@ -55,8 +55,8 @@ const schema: SchemaType<DbDialogueCheck> = {
       const { DialogueMatchPreferences, DialogueChecks } = context;
       const matchingDialogueCheck = await DialogueChecks.findOne({userId: dialogueCheck.targetUserId, targetUserId: dialogueCheck.userId});
       if (!matchingDialogueCheck) return null;
-      const matchingMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id});
-      return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, matchingMatchPreference, context);
+      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id});
+      return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, reciprocalMatchPreference, context);
     }
   }),
 }

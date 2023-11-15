@@ -696,7 +696,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   
   const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) ?? [])
-  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.matchingMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) ?? [])
+  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.repicrocalMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) ?? [])
   const mergedTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) => ({...matchedPersonTopic, ...ownTopic}))
   const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(mergedTopicDict))
 
@@ -747,14 +747,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     color={topic.matchedPersonPreference === "Yes" ? "primary" : "default"}
                     checked={topic.preference === "Yes"}
                     // Set the preference of the topic with the matching text to the new preference
-                    onChange={event => setTopicPreferences(
-                      topicPreferences.map(
-                        existingTopic => existingTopic.text === topic.text ? {
-                          ...existingTopic, 
-                          preference: existingTopic.preference === "Yes" ? "No" as const : "Yes" as const,
-                        } : existingTopic
-                      )
-                    )}
+                    onChange={event => {
+                      const topicToUpdateIx = topicPreferences.findIndex(({text}) => text === topic.text)
+                      const updatedTopic = {...topicPreferences[topicToUpdateIx], preference: event.target.checked ? "Yes" as const : "No" as const}
+                      setTopicPreferences([...topicPreferences.slice(0, topicToUpdateIx), updatedTopic, ...topicPreferences.slice(topicToUpdateIx + 1)])
+                    }
+                  }
                   />
                   <div className={classes.dialogueTopicRowTopicText}>
                     {topic.text}
@@ -769,14 +767,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     color={topic.matchedPersonPreference === "Yes" ? "primary" : "default"}
                     checked={topic.preference === "Yes"}
                     // Set the preference of the topic with the matching text to the new preference
-                    onChange={event => setTopicPreferences(
-                      topicPreferences.map(
-                        existingTopic => existingTopic.text === topic.text ? {
-                          ...existingTopic, 
-                          preference: event.target.checked ? "Yes" as const : "No" as const,
-                        } : existingTopic
-                      )
-                    )}
+                    onChange={event => {
+                      const topicToUpdateIx = topicPreferences.findIndex(({text}) => text === topic.text)
+                      const updatedTopic = {...topicPreferences[topicToUpdateIx], preference: event.target.checked ? "Yes" as const : "No" as const}
+                      setTopicPreferences([...topicPreferences.slice(0, topicToUpdateIx), updatedTopic, ...topicPreferences.slice(topicToUpdateIx + 1)])
+                    }
+                  }
                   />
                   <div className={classes.dialogueTopicRowTopicText}>
                     {topic.text} {topic.matchedPersonPreference === "Yes" && <b>Your match is interested in this topic</b>}
@@ -928,7 +924,7 @@ const DialogueCheckBox: React.FC<{
           checkedAt: new Date(),
           match: false,
           matchPreference: null,
-          matchingMatchPreference: null
+          reciprocalMatchPreference: null
         }
       }
     })
