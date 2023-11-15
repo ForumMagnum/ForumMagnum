@@ -26,6 +26,7 @@ import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
+import { head } from 'underscore';
 
 export type UpvotedUser = {
   _id: string;
@@ -138,7 +139,7 @@ type MatchDialogueButtonProps = {
 const minRowHeight = 28;
 const minMobileRowHeight = 60;
 
-const mobileGridBaseStyles = (theme: ThemeType) => ({
+const xsGridBaseStyles = (theme: ThemeType) => ({
   display: 'grid',
   //                    checkbox                    name                        message                match
   gridTemplateColumns: `minmax(min-content, auto)   minmax(min-content, 2fr)   minmax(80px, 1fr)     minmax(min-content, 1fr)`,
@@ -175,23 +176,34 @@ const styles = (theme: ThemeType) => ({
     width: '100%'
   },
   matchContainerGridV1: {
-    display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags    posts read
-    gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     425px`,
+    display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags       posts read
+    gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     minmax(100px, 425px)`,
     gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
-    [theme.breakpoints.down("xs")]: mobileGridBaseStyles(theme),
+    [`& $${headerTexts.postsRead.replace(/\W/g, '')}`]: {
+      display: "none"
+    },
+    [theme.breakpoints.down("sm")]: {
+      //                    checkbox       name         message                        match                             upvotes         agreement
+      gridTemplateColumns: `60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px`,
+    },
+    [theme.breakpoints.down("xs")]: xsGridBaseStyles(theme),
   },
   matchContainerGridV2: {
-    display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read  
-    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px     425px `,
+    display: 'grid',    //        checkbox           name         message                match                    bio    tags    posts read
+    gridTemplateColumns: `minmax(min-content, 60px) 100px minmax(min-content, 80px) minmax(min-content, 80px)     200px   200px  minmax(100px,425px) `,
     gridAutoRows: `minmax(${minRowHeight}px, auto)`,
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
+    [theme.breakpoints.down("sm")]: {
+      //                    checkbox       name         message                        match                         posts read
+      gridTemplateColumns: `60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)     minmax(100px,425px) `,
+    },
     [theme.breakpoints.down("xs")]: {
-      ...mobileGridBaseStyles(theme)
+      ...xsGridBaseStyles(theme)
     },
   },
   header: {
@@ -401,7 +413,38 @@ const styles = (theme: ThemeType) => ({
   dialogSchedulingCheckbox: {
     paddingTop: 4,
     paddingBottom: 4
-  }
+  },
+  [headerTexts.bio.replace(/\W/g, '')]: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none"
+    }
+  },
+  [headerTexts.tags.replace(/\W/g, '')]: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none"
+    }
+  },
+  [headerTexts.postsRead.replace(/\W/g, '')]: {
+    textOverflow: 'ellipsis',
+    [theme.breakpoints.down("sm")]: {
+      "$matchContainerGridV1 &": {
+        display: "none"
+      }
+    },
+    [theme.breakpoints.down("xs")]: {
+      display: "none"
+    },
+  },
+  [headerTexts.karma.replace(/\W/g, '')]: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none"
+    },
+  },
+  [headerTexts.agreement.replace(/\W/g, '')]: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none"
+    },
+  },
 });
 
 const redirect = (redirectId: string | undefined, navigate: NavigateFunction) => {
@@ -485,6 +528,17 @@ export const getRowProps = (tableProps: Omit<UserTableProps<boolean>, 'classes' 
   }) as DialogueUserRowProps<boolean>[];
 };
 
+const headerTexts = {
+  name: "Name",
+  message: "Message",
+  match: "Match",
+  karma: "Karma",
+  agreement: "Agreement",
+  bio: "Bio",
+  tags: "Frequent commented topics",
+  postsRead: "Posts you've read"
+}
+
 const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
   const { document: userData, loading } = useSingle({
     documentId: userId,
@@ -500,7 +554,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
       className={classNames(classes.gradientBigTextContainer, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
-      }, classes.details)} 
+      }, classes.details, classes.Bio)} 
       ref={bioContainerRef}
     >
       {userData?.biography?.plaintextDescription }
@@ -534,7 +588,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, classes.details, {
+      className={classNames(classes.gradientBigTextContainer, classes.details, classes[headerTexts.postsRead.replace(/\W/g, '')], {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })} 
@@ -581,10 +635,13 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, classes.details, {
-        'scrolled-to-top': isScrolledToTop,
-        'scrolled-to-bottom': isScrolledToBottom
-      })}> 
+      className={classNames(
+        classes.gradientBigTextContainer,
+        classes.details,
+        classes[headerTexts.tags.replace(/\W/g, '')],
+        { 'scrolled-to-top': isScrolledToTop,
+          'scrolled-to-bottom': isScrolledToBottom
+        })}> 
       {topTags.length > 0 ? (
         topTags.map((tag, index) => (
           <div key={index}>
@@ -603,7 +660,7 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
   return (
     <>
       {titles.map((title, index) => (
-        <h5 key={index} className={classNames(classes.header, index > 3 ? classes.details : "")}> {title} </h5>
+        <h5 key={index} className={classNames(classes.header, classes[title.replace(/\W/g, '')])}> {title} </h5>
       ))}
     </>
   );
@@ -1084,11 +1141,11 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     "Name",
     "Message",
     "Match",
-    ...(rest.showKarma ? ["Karma"] : []),
-    ...(rest.showAgreement ? ["Agreement"] : []),
-    ...(rest.showBio ? ["Bio"] : []),
-    ...(rest.showFrequentCommentedTopics ? ["Frequent commented topics"] : []),
-    ...(rest.showPostsYouveRead ? ["Posts you've read"] : []),
+    ...(rest.showKarma ? [headerTexts.karma] : []),
+    ...(rest.showAgreement ? [headerTexts.agreement] : []),
+    ...(rest.showBio ? [headerTexts.bio] : []),
+    ...(rest.showFrequentCommentedTopics ? [headerTexts.tags] : []),
+    ...(rest.showPostsYouveRead ? [headerTexts.postsRead] : []),
   ];
 
   const allRowProps = getRowProps(props);
