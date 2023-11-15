@@ -366,7 +366,7 @@ const styles = (theme: ThemeType) => ({
   // opt-in stuff
   optInContainer: {
     display: 'flex',
-    alignItems: 'top',
+    alignItems: 'flex-start',
   },
   optInLabel: {
     paddingLeft: 8,
@@ -375,6 +375,7 @@ const styles = (theme: ThemeType) => ({
     height: 10,
     width: 30,
     color: "#9a9a9a",
+    marginRight: '-10px', // to get the prompt to line up closer
   },
   dialogueTopicList: {
     marginTop: 16,
@@ -1255,9 +1256,9 @@ export const DialogueMatchingPage = ({classes}: {
               className={classes.optInCheckbox}
             />
           }
-          label={<span> {prompt} </span>}
-        />
-    </div> 
+          label={null}
+        />{prompt}
+      </div> 
     </div> 
     <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
       to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
