@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { localgroupGetUrl } from "../../../lib/collections/localgroups/helpers";
 import {
   NotificationDisplay,
   getNotificationTypeByName,
@@ -62,12 +64,12 @@ export const NotificationsPageItem = ({notification, classes}: {
   notification: NotificationDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {type, createdAt, comment, post, user, link} = notification;
-  const notificationType = getNotificationTypeByName(type);
+  const notificationType = getNotificationTypeByName(notification.type);
   if (!notificationType.Display) {
     return null;
   }
 
+  const {createdAt, comment, post, user, tag, localgroup, link} = notification;
   const displayUser = (
     user ??
     post?.user ??
@@ -90,11 +92,35 @@ export const NotificationsPageItem = ({notification, classes}: {
       </Link>
     )
     : null;
+  const Tag: FC = () => tag
+    ? (
+      <Link
+        to={link ?? tagGetUrl(tag)}
+        className={classes.primaryText}
+        eventProps={{intent: "expandTag"}}
+      >
+        {tag.name}
+      </Link>
+    )
+    : null;
+  const Localgroup: FC = () => localgroup
+    ? (
+      <Link
+        to={link ?? localgroupGetUrl(localgroup)}
+        className={classes.primaryText}
+        eventProps={{intent: "expandLocalgroup"}}
+      >
+        {localgroup.name}
+      </Link>
+    )
+    : null;
   const display = (
     <notificationType.Display
       notification={notification}
       User={User}
       Post={Post}
+      Tag={Tag}
+      Localgroup={Localgroup}
     />
   );
 

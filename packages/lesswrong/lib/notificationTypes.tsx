@@ -27,6 +27,7 @@ import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
+import { Link } from './reactRouterWrapper';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -84,6 +85,8 @@ interface NotificationType {
     notification: NotificationDisplay,
     User: FC,
     Post: FC,
+    Tag: FC,
+    Localgroup: FC,
   }>,
   onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
   getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
@@ -238,6 +241,7 @@ export const PostApprovedNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
+  Display: ({Post}) => <>Your post <Post /> has been approved</>,
 });
 
 export const PostNominatedNotification = registerNotificationType({
@@ -272,6 +276,8 @@ export const NewEventNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
+  // TODO: Load relevant group here
+  Display: ({User}) => <><User /> has created a new event</>,
 });
 
 export const NewGroupPostNotification = registerNotificationType({
@@ -294,6 +300,8 @@ export const NewGroupPostNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
+  // TODO: Load relevant group here
+  Display: ({User}) => <><User /> has created a new post in the group TODO</>,
 });
 
 // New comment on a post you're subscribed to.
@@ -323,6 +331,8 @@ export const NewSubforumCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
+  // TODO: Load subforum name
+  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
 });
 
 // New message in a dialogue which you are a participant
@@ -347,6 +357,8 @@ export const NewDialogueMessagesNotification = registerNotificationType({
     return `/editPost?postId=${documentId}`;
   },
   causesRedBadge: true,
+  // TODO: newMessageAuthorId?
+  Display: ({User, Post}) => <><User /> left a new reply in your dialogue <Post /></>,
 });
 
 // Used when a user already has unread dialogue message notification. Primitive batching to prevent spamming the user.
@@ -368,6 +380,7 @@ export const NewDialogueMessagesBatchNotification = registerNotificationType({
   }): string => {
     return `/editPost?postId=${documentId}`;
   },
+  Display: ({Post}) => <>Multiple new messages in your dialogue <Post /></>,
 });
 
 // New published dialogue message(s) on a dialogue post you're subscribed to. 
@@ -383,6 +396,7 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
     return <DebateIcon style={iconStyles}/>
   },
   causesRedBadge: false,
+  Display: ({Post}) => <>New content in the dialogue <Post /></>,
 });
 
 // New dialogue match between you and another user
@@ -401,7 +415,10 @@ export const NewDialogueMatchNotification = registerNotificationType({
   },
   getLink() {
     return "/dialogueMatching"
-  }
+  },
+  Display: ({notification: {link}}) => <>
+    You have a <Link to={link}>new dialogue match</Link>
+  </>,
 });
 
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
@@ -447,8 +464,8 @@ export const NewShortformNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
+  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
 });
-
 
 export const taggedPostMessage = async ({documentType, documentId}: GetMessageProps) => {
   const tagRel = await getDocument(documentType, documentId) as DbTagRel;
@@ -466,6 +483,7 @@ export const NewTagPostsNotification = registerNotificationType({
   getIcon() {
     return <PostsIcon style={iconStyles}/>
   },
+  Display: ({Tag, Post}) => <>New post tagged <Tag />: <Post /></>,
 });
 
 export async function getCommentParentTitle(comment: DbComment) {
@@ -485,6 +503,7 @@ export const NewReplyNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
+  Display: ({User, Post}) => <><User /> replied to a comment on <Post /></>,
 });
 
 // Reply to a comment you are the author of.
@@ -498,6 +517,7 @@ export const NewReplyToYouNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
+  Display: ({User, Post}) => <><User /> replied to your comment on <Post /></>,
 });
 
 // Vulcan notification that we don't really use
@@ -511,6 +531,7 @@ export const NewUserNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
+  Display: ({User}) => <><User /> just signed up</>,
 });
 
 export const NewMessageNotification = registerNotificationType({
@@ -540,7 +561,10 @@ export const WrappedNotification = registerNotificationType({
   },
   getLink() {
     return "/wrapped"
-  }
+  },
+  Display: ({notification: {link}}) => <>
+    Check out your 2022 <Link to={link}>EA Forum Wrapped</Link>
+  </>,
 });
 
 // TODO(EA): Fix notificationCallbacks getLink, or the associated component to
@@ -554,6 +578,7 @@ export const EmailVerificationRequiredNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
+  Display: () => <>Verify your email address to activate email subscriptions</>,
 });
 
 export const PostSharedWithUserNotification = registerNotificationType({
@@ -577,7 +602,11 @@ export const PostSharedWithUserNotification = registerNotificationType({
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
     return getPostCollaborateUrl(documentId, false)
-  }
+  },
+  // TODO: Check if post is a draft or not
+  Display: ({User, Post, notification: {post}}) => <>
+    <User /> shared their post <Post /> with you
+  </>,
 });
 
 export const PostAddedAsCoauthorNotification = registerNotificationType({
@@ -602,7 +631,11 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
       throw new Error("PostAddedAsCoauthorNotification documentId is missing")
     }
     return postGetEditUrl(documentId, false)
-  }
+  },
+  // TODO: Check if post is a dialogue or not
+  Display: ({User, Post, notification: {post}}) => <>
+    <User /> added you as a coauthor to the post <Post />
+  </>,
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({
@@ -631,7 +664,8 @@ export const NewEventInNotificationRadiusNotification = registerNotificationType
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
-  }
+  },
+  Display: ({Post}) => <>New event in your area: <Post /></>,
 })
 
 export const EditedEventInNotificationRadiusNotification = registerNotificationType({
@@ -643,7 +677,8 @@ export const EditedEventInNotificationRadiusNotification = registerNotificationT
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
-  }
+  },
+  Display: ({Post}) => <>Event in your area updated: <Post /></>,
 })
 
 
@@ -658,7 +693,9 @@ export const NewRSVPNotification = registerNotificationType({
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
-  }
+  },
+  // TODO: This probably isn't the correct user and we don't know their RSVP value
+  Display: ({User, Post}) => <><User /> responded to your event <Post /></>,
 })
 
 export const CancelledRSVPNotification = registerNotificationType({
@@ -670,7 +707,8 @@ export const CancelledRSVPNotification = registerNotificationType({
   },
   getIcon() {
     return <EventIcon style={iconStyles} />
-  }
+  },
+  Display: ({Post}) => <>Someone cancelled their RSVP to your event <Post /></>,
 })
 
 export const NewGroupOrganizerNotification = registerNotificationType({
@@ -684,7 +722,8 @@ export const NewGroupOrganizerNotification = registerNotificationType({
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />
-  }
+  },
+  Display: ({Localgroup}) => <>You've been added as an organizer of <Localgroup /></>,
 })
 
 export const NewSubforumMemberNotification = registerNotificationType({
@@ -698,7 +737,8 @@ export const NewSubforumMemberNotification = registerNotificationType({
   },
   getIcon() {
     return <SupervisedUserCircleIcon style={iconStyles} />
-  }
+  },
+  Display: ({User, Tag}) => <><User /> has joined <Tag /></>,
 })
 
 export const NewCommentOnDraftNotification = registerNotificationType({
@@ -724,6 +764,7 @@ export const NewCommentOnDraftNotification = registerNotificationType({
   }): string => {
     return `/editPost?postId=${documentId}`;
   },
+  Display: ({Post}) => <>New comments on your draft <Post /></>,
 });
 
 export const CoauthorRequestNotification = registerNotificationType({
@@ -737,6 +778,9 @@ export const CoauthorRequestNotification = registerNotificationType({
   getIcon() {
     return <GroupAddIcon style={iconStyles} />
   },
+  Display: ({User, Post}) => <>
+    <User /> requested that you co-author their post <Post />
+  </>,
 })
 
 export const CoauthorAcceptNotification = registerNotificationType({
@@ -749,6 +793,7 @@ export const CoauthorAcceptNotification = registerNotificationType({
   getIcon() {
     return <DoneIcon style={iconStyles} />
   },
+  Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
 export const NewMentionNotification = registerNotificationType({
@@ -760,5 +805,15 @@ export const NewMentionNotification = registerNotificationType({
   },
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, Post, Tag, notification: {comment, tag}}) => {
+    if (tag) {
+      return (
+        <><User /> mentioned you in <Tag /></>
+      );
+    }
+    return (
+      <><User /> mentioned you in {comment ? "their comment on " : ""}<Post /></>
+    );
   },
 })
