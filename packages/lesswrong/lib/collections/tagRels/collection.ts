@@ -49,7 +49,7 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
-    nullable: false,
+    nullable: true,
     // Hide who applied the tag on the EA Forum
     canRead: isEAForum ? [userOwns, 'sunshineRegiment', 'admins'] : ['guests'],
     canCreate: ['members'],

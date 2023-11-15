@@ -881,7 +881,7 @@ const schema: SchemaType<DbUser> = {
   acceptedTos: {
     type: Boolean,
     optional: true,
-    nullable: true, //TODO not-null, I assume intentional?
+    nullable: false,
     hidden: true,
     defaultValue: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -2677,7 +2677,6 @@ const schema: SchemaType<DbUser> = {
     tooltip: "Allow us to capture a video-like recording of your browser session (using Datadog Session Replay) — this is useful for debugging and improving the site.",
     group: formGroups.privacy,
     ...schemaDefaultValue(false),
-    nullable: true, //TODO not-null: I assume intentional
   },
 
   /* Alignment Forum fields */
