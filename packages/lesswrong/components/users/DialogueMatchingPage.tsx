@@ -502,6 +502,7 @@ export const getRowProps = (tableProps: Omit<UserTableProps<boolean>, 'classes' 
 };
 
 const headerTexts = {
+  dialogue: "Dialogue?",
   name: "Name",
   message: "Message",
   match: "Match",
@@ -1119,10 +1120,10 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   const { DialogueUserRow } = Components;
 
   const headers = [
-    "Dialogue maybe?",
-    " ",
-    " ",
-    " ",
+    headerTexts.dialogue,
+    headerTexts.name,
+    headerTexts.message,
+    headerTexts.match,
     ...(rest.showKarma ? [headerTexts.karma] : []),
     ...(rest.showAgreement ? [headerTexts.agreement] : []),
     ...(rest.showBio ? [headerTexts.bio] : []),
