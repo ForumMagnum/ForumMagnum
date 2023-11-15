@@ -50,6 +50,11 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
    *
    * Then in JS, we take the result set, split it into a separate array for
    * each voteable collection, and move fields around to make it typecheck.
+   *
+   * UPDATE Nov 2023: We've added react notifications to this logic, which
+   * makes it somewhat more complicated. There's now a second query which
+   * gets react vote data, and the net changes to reacts on each document
+   * are calculated in reactionVotesToReactionChanges().
    */
   async getKarmaChanges(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
@@ -104,7 +109,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
             "votedAt" >= $2 AND
             "votedAt" <= $3 AND
-            "userId" <> $1
+            "userId" <> $1 AND
+            "silenceNotification" IS NOT TRUE
           GROUP BY "Votes"."documentId", "Votes"."collectionName"
         ) v
         LEFT JOIN "Comments" comment ON (
