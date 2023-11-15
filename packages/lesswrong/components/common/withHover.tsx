@@ -36,7 +36,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event) => {
+  const handleMouseOver = useCallback((event: React.MouseEvent) => {
     setHover(true)
     setEverHovered(true);
     setAnchorEl(event.currentTarget);

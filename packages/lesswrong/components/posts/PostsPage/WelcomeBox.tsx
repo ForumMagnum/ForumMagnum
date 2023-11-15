@@ -55,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WelcomeBox = ({ title, contents, classes }: {
   title: string,
-  contents: HashLinkProps[],
+  contents: Pick<HashLinkProps, 'to' | 'children'>[],
   classes: ClassesType
 }) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_WELCOME_BOX_COOKIE]);

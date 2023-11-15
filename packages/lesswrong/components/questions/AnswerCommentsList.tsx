@@ -74,7 +74,7 @@ const AnswerCommentsList = ({classes, post, parentAnswer}: {
   );
 
   const loadMoreComments = React.useCallback(
-    (event) => {
+    (event: React.MouseEvent) => {
       event.stopPropagation()
       if (totalCount! > ABRIDGE_COMMENT_COUNT) {
         setLoadedMore(true);

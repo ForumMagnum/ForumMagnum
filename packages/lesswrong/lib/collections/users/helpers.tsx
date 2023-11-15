@@ -368,13 +368,6 @@ export const userCanEditUser = (currentUser: UsersCurrent|DbUser|null, user: Has
   return userOwns(currentUser, user as UsersMinimumInfo|DbUser) || userCanDo(currentUser, 'users.edit.all')
 }
 
-interface UserLocation {
-  lat: number,
-  lng: number,
-  loading: boolean,
-  known: boolean,
-}
-
 // Return the current user's location, as a latitude-longitude pair, plus the boolean field `known`.
 // If `known` is false, the lat/lng are invalid placeholders.
 // If the user is logged in, we try to return the location specified in their account settings.
@@ -395,6 +388,15 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
   return {lat: placeholderLat, lng: placeholderLng, known: false}
 }
 
+export interface UserLocation {
+  lat: number;
+  lng: number;
+  loading: boolean;
+  known: boolean;
+  label: string;
+  setLocationData: Function;
+}
+
 /**
  * Return the current user's location, by checking a few places.
  *
@@ -411,7 +413,7 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
  * @param {UsersCurrent|DbUser|null} currentUser - The user we are checking.
  * @param {boolean} dontAsk - Flag that prevents us from asking the user for their browser's location.
  *
- * @returns {Object} locationData
+ * @returns {UserLocation} locationData
  * @returns {number} locationData.lat - The user's latitude.
  * @returns {number} locationData.lng - The user's longitude.
  * @returns {boolean} locationData.loading - Indicates that we might have a known location later.
@@ -419,14 +421,7 @@ export const userGetLocation = (currentUser: UsersCurrent|DbUser|null): {
  * @returns {string} locationData.label - The string description of the location (ex: Cambridge, MA, USA).
  * @returns {Function} locationData.setLocationData - Function to set the location directly.
  */
-export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?: boolean): {
-  lat: number,
-  lng: number,
-  loading: boolean,
-  known: boolean,
-  label: string,
-  setLocationData: Function
-} => {
+export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?: boolean): UserLocation => {
   // default is Berkeley, CA
   const placeholderLat = 37.871853
   const placeholderLng = -122.258423

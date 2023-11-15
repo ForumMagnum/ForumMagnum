@@ -91,11 +91,11 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
   const handleClose = useCallback(
-    (id) => { setOpenWindows(_.without(openWindows, id))}
+    (id: string) => { setOpenWindows(_.without(openWindows, id))}
     , [openWindows]
   )
 

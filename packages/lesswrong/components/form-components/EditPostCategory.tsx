@@ -40,7 +40,7 @@ const EditPostCategory = ({
   const lastUrlRef = useRef(url);
 
   const handleChangeTab = useCallback(
-    (_, value) => {
+    (_: React.ChangeEvent, value: PostsBase['postCategory']) => {
       if (!isPostCategory(value)) return; // Overkill but just to be safe
 
       const categoryQuestion = value === "question";

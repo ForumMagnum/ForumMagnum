@@ -22,7 +22,7 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
     fragmentName: 'ChaptersFragment',
   });
 
-  const addDraft = useCallback((newPostId) => {
+  const addDraft = useCallback((newPostId: string) => {
     if (dialogPostIds.includes(newPostId)) {
       flash("That draft is already in the sequence")
       return

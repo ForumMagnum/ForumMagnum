@@ -4,24 +4,28 @@ import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc'
 import type {SortableContainerProps, SortEvent, SortEventWithTag} from 'react-sortable-hoc';
 import * as _ from 'underscore';
 
+interface SortableItemProps {
+  contents: string,
+  removeItem: (id:string)=>void,
+  classes: ClassesType
+}
+
+interface SortableListProps {
+  items: string[],
+  removeItem: (id:string)=>void,
+  className?: string,
+  classes: ClassesType
+}
+
 export const makeSortableListComponent = ({renderItem}: {
   renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id:string)=>void, classes: ClassesType }) => React.ReactNode
 }) => {
   // eslint-disable-next-line babel/new-cap
-  const SortableItem = SortableElement(({contents, removeItem, classes}: {
-    contents: string,
-    removeItem: (id:string)=>void,
-    classes: ClassesType
-  }) => <>
+  const SortableItem = SortableElement<SortableItemProps>(({contents, removeItem, classes}: SortableItemProps) => <>
     {renderItem({contents, removeItem, classes})}
   </>);
   // eslint-disable-next-line babel/new-cap
-  const SortableList = SortableContainer(({items, removeItem, className, classes}: {
-    items: string[],
-    removeItem: (id:string)=>void,
-    className?: string,
-    classes: ClassesType
-  }) => {
+  const SortableList = SortableContainer<SortableListProps>(({items, removeItem, className, classes}: SortableListProps) => {
     return <span className={className}>
       {items.map((contents, index) => {
         return <SortableItem key={`item-${index}`} removeItem={removeItem} index={index} contents={contents} classes={classes}/>

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -119,7 +119,7 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const DefaultWrapper: FC = ({children}) => <>{children}</>;
+const DefaultWrapper = ({children}: PropsWithChildren) => <>{children}</>;
 
 const PostsTitle = ({
   post, 
@@ -150,7 +150,7 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
-  Wrapper?: FC,
+  Wrapper?: FC<PropsWithChildren>,
   linkEventProps?: Record<string, string>,
   className?: string
 }) => {

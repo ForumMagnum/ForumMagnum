@@ -46,7 +46,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   }, [openDialog]);
   
   const [mutate] = useMutation(query, {
-    onCompleted: useCallback((mutationResult) => {
+    onCompleted: useCallback((mutationResult: AnyBecauseHard) => {
       if (++mutationCounts.current.completedMutationIndex == mutationCounts.current.optimisticMutationIndex) {
         setOptimisticResponseDocument(null)
       }

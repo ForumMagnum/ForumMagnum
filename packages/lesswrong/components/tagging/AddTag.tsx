@@ -42,7 +42,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
   const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const searchStateChanged = React.useCallback((searchState) => {
+  const searchStateChanged = React.useCallback((searchState: AnyBecauseHard) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
 

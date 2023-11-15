@@ -52,7 +52,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
   const displayPlaceholder = placeholders[effectiveCategory];
 
-  const handleChangeTitle = useCallback((event) => {
+  const handleChangeTitle = useCallback((event: AnyBecauseHard) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
       setLastSavedTitle(event.target.value)
       void updatePost({

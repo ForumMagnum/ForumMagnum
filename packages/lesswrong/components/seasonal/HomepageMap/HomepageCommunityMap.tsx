@@ -103,10 +103,10 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
-  const handleClose = useCallback(id => { 
+  const handleClose = useCallback((id: string) => { 
       setOpenWindows(openWindows.filter(windowId => windowId !== id))
     }, [openWindows]
   )

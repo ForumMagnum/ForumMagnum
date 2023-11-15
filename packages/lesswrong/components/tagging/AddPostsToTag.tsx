@@ -116,7 +116,7 @@ const AddPostsToTag = ({classes, tag}: {
     }
   });
 
-  const onPostSelected = useCallback(async (postId) => {
+  const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
