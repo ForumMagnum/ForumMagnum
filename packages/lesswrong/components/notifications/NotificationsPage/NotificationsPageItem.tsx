@@ -110,7 +110,11 @@ export const NotificationsPageItem = ({notification, classes}: {
     CommentsNode,
   } = Components;
   const User: FC = () => (
-    <UsersNameDisplay user={displayUser} className={classes.primaryText} />
+    <UsersNameDisplay
+      user={displayUser}
+      tooltipPlacement="bottom-start"
+      className={classes.primaryText}
+    />
   );
   const Post: FC = () => displayPost
     ? (
