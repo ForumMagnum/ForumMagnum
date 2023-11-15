@@ -52,8 +52,7 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
                 forceNotSingleLine: true,
               }}
               hoverPreview
-            >
-            </CommentsNode>
+            />
           </div>
         </LWPopper>
       }

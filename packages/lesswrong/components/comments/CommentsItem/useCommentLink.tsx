@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC, MouseEvent, PropsWithChildren } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { useLocation } from "../../../lib/routeUtil";
@@ -62,7 +62,7 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC = scrollOnClick
+  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
     ? ({children}) => (
       <a rel="nofollow" href={url} onClick={handleLinkClick}>
         {children}

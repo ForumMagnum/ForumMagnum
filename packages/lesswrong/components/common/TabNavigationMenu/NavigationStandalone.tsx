@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Slide from '@material-ui/core/Slide'
+import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -8,6 +8,9 @@ import { communityPath } from '../../../lib/routes';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { HOME_RHS_MAX_SCREEN_WIDTH } from '../../ea-forum/EAHomeRightHandSide';
+import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+
+const Slide = componentWithChildren(BadlyTypedSlide);
 
 const styles = (theme: ThemeType): JssStyles => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden

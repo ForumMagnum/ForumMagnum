@@ -7,7 +7,7 @@ import type {
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import NoSSR from "react-no-ssr";
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;

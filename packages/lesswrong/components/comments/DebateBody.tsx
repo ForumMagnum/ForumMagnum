@@ -1,10 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import NoSSR from 'react-no-ssr';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import type { DebateResponseWithReplies } from './DebateResponseBlock';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
