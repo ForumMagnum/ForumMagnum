@@ -673,7 +673,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     })
 
     const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
-    redirect(redirectId, navigate)
+    
+    if (redirectId) {
+      redirect(redirectId, navigate)
+      onClose()
+    }
   }
 
   const { loading, error, data } = useQuery(gql`
@@ -710,8 +714,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     return Object.values(mergedTopicDict)
   }), [topicRecommendations])
 
+  useEffect
+
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
-  console.log({newMatchPreference})
   if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
     return (
       <LWDialog open onClose={onClose}>
