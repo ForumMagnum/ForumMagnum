@@ -4,29 +4,29 @@ import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
-import { useLocation } from 'react-router';
+import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
-import {
-  LocationContext,
-  parseRoute,
-  ServerRequestStatusContext,
-  SubscribeLocationContext,
-  ServerRequestStatusContextType,
-} from '../../lib/vulcan-core/appContext';
+import { LocationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from '../../lib/vulcan-core/appContext';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
+import type { History } from 'history'
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
-const App = ({serverRequestStatus, timeOverride}: {
+interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
   timeOverride: TimeOverride,
+}
+
+const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
+  history: History
 }) => {
   const {currentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
+  const navigationContext = useRef<any>();
 
   const locale = localeSetting.get();
 
@@ -61,6 +61,12 @@ const App = ({serverRequestStatus, timeOverride}: {
   } else {
     Object.assign(locationContext.current, location);
   }
+  
+  if (!navigationContext.current) {
+    navigationContext.current = { history };
+  } else {
+    navigationContext.current.history = history;
+  }
 
   // subscribeLocationContext changes (by shallow comparison) whenever the
   // URL changes.
@@ -87,6 +93,7 @@ const App = ({serverRequestStatus, timeOverride}: {
 
   return (
     <LocationContext.Provider value={locationContext.current}>
+    <NavigationContext.Provider value={navigationContext.current}>
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <TimeContext.Provider value={timeOverride}>
@@ -100,11 +107,14 @@ const App = ({serverRequestStatus, timeOverride}: {
     </TimeContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>
+    </NavigationContext.Provider>
     </LocationContext.Provider>
   );
 }
 
-const AppComponent = registerComponent('App', App);
+const AppComponent = registerComponent<ExternalProps>('App', App, {
+  hocs: [withRouter],
+});
 
 declare global {
   interface ComponentTypes {
