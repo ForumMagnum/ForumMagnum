@@ -128,7 +128,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, MatchDialogueButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
 
   const { results: dialoguePosts } = usePaginatedResolver({
@@ -226,7 +226,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
                   />
                 </div>
                 <div className={classes.dialogueMatchPreferencesButton}>
-                  <MatchDialogueButton
+                  <DialogueNextStepsButton
                     isMatched={userIsMatched}
                     checkId={checkId}
                     targetUserId={targetUser._id}
