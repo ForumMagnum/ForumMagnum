@@ -33,6 +33,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[1000],
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.grey[250],
+      color: theme.palette.grey[1000],
+      opacity: .5,
     }
   }
 })

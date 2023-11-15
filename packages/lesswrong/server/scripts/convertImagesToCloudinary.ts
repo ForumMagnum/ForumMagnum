@@ -17,8 +17,8 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { Posts } from '../../lib/collections/posts';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 
-const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
-const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
+export const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
+export const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If

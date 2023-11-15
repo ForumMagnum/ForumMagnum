@@ -17,6 +17,7 @@ import { randomId } from "../../lib/random";
 import { ckEditorName } from "../editor/Editor";
 import classNames from "classnames";
 import Input from "@material-ui/core/Input";
+import { gql, useLazyQuery } from "@apollo/client";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -99,6 +100,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
+    rowGap: '16px'
+  },
+  generatePreviewImgBtn: {
+    minWidth: 200
   },
   note: {
     color: theme.palette.grey[600],
@@ -267,9 +272,25 @@ const SocialPreviewUpload = ({
   croppingAspectRatio: number;
   classes: ClassesType;
 }) => {
-  const { ImageUpload2 } = Components;
+  const [generatePreviewImgLoading, setGeneratePreviewImgLoading] = useState(false)
+  const [generatePreviewImg] = useLazyQuery(gql`
+    query generatePreviewImg($args: JSON) {
+      GeneratePreviewImg(args: $args)
+    }
+    `, {
+      onCompleted: (data) => {
+        if (!data.GeneratePreviewImg) return
+        console.log('onCompleted', data)
+        updateImageId(data.GeneratePreviewImg)
+        setGeneratePreviewImgLoading(false)
+      }
+    }
+  )
+
+  const { ImageUpload2, EAButton, Loading } = Components;
 
   const docWithValue = { ...document, socialPreviewData: value };
+  console.log('SocialPreviewUpload', value)
 
   const textValue = value?.text ?? undefined;
 
@@ -310,6 +331,19 @@ const SocialPreviewUpload = ({
     },
     [name, updateCurrentValues, value]
   );
+  
+  const generateDallePreviewImg = useCallback(
+    () => {
+      setGeneratePreviewImgLoading(true)
+      generatePreviewImg({variables: { args: {
+        title: document.title ?? '',
+        contentType: document.contents?.originalContents?.type,
+        body: document.contents?.originalContents?.data,
+        _id: document._id
+      }}})
+    },
+    [document, generatePreviewImg, setGeneratePreviewImgLoading]
+  )
 
   const hasTitle = document.title && document.title.length > 0;
 
@@ -346,6 +380,16 @@ const SocialPreviewUpload = ({
             Unsplash
           </a>{" "}
           or an AI image generator.
+        </div>
+        <div>
+          <EAButton
+            style="grey"
+            onClick={generateDallePreviewImg}
+            disabled={generatePreviewImgLoading}
+            className={classes.generatePreviewImgBtn}
+          >
+            {generatePreviewImgLoading ? <Loading /> : "Generate a preview image via DALLE 3"}
+          </EAButton>
         </div>
         <div className={classes.note}>
           <strong>Note:</strong> Text changes here will not affect the post.

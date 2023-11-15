@@ -19,6 +19,7 @@ import { ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+import { generateDallePreviewImg } from '../languageModels/dallePreviewImg';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -253,6 +254,13 @@ export type PostIsCriticismRequest = {
   body: string
 }
 
+export type GeneratePreviewImgRequest = {
+  title: string,
+  contentType: string,
+  body: string,
+  _id?: string
+}
+
 addGraphQLResolvers({
   Query: {
     async UserReadHistory(root: void, args: {limit: number|undefined}, context: ResolverContext) {
@@ -274,6 +282,14 @@ addGraphQLResolvers({
       }
 
       return await postIsCriticism(args)
+    },
+    async GeneratePreviewImg(root: void, { args }: { args: GeneratePreviewImgRequest }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to generate preview image')
+      }
+
+      return await generateDallePreviewImg(args, currentUser._id)
     },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
       const { currentUser, repos } = context
@@ -329,6 +345,7 @@ addGraphQLSchema(`
 `)
 addGraphQLQuery('UserReadHistory(limit: Int): UserReadHistoryResult')
 addGraphQLQuery('PostIsCriticism(args: JSON): Boolean')
+addGraphQLQuery('GeneratePreviewImg(args: JSON): String')
 
 addGraphQLSchema(`
   type DigestPlannerPost {

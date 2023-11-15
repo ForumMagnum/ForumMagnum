@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
@@ -73,6 +73,10 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   }
 
   const [imageId, setImageId] = useState(value)
+  useEffect(() => {
+    console.log('new value', value)
+    setImageId(value)
+  }, [value, setImageId])
 
   const formPreviewSize = formPreviewSizeByImageType[name]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")

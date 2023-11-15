@@ -1763,6 +1763,10 @@ interface conversationsListFragment { // fragment on Conversations
   readonly moderator: boolean | null,
 }
 
+interface conversationIdFragment { // fragment on Conversations
+  readonly _id: string,
+}
+
 interface ConversationsMinimumInfo { // fragment on Conversations
   readonly _id: string,
   readonly createdAt: Date,
@@ -3498,6 +3502,7 @@ interface FragmentTypes {
   messageListFragment: messageListFragment
   newConversationFragment: newConversationFragment
   conversationsListFragment: conversationsListFragment
+  conversationIdFragment: conversationIdFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
@@ -3716,6 +3721,7 @@ interface CollectionNamesByFragmentName {
   messageListFragment: "Messages"
   newConversationFragment: "Conversations"
   conversationsListFragment: "Conversations"
+  conversationIdFragment: "Conversations"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
