@@ -175,6 +175,16 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     width: '100%'
   },
+  hideAtSm: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none"
+    }
+  },
+  hideAtXs: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important"
+    }
+  },
   matchContainerGridV1: {
     display: 'grid',    //      checkbox       name                       message                      match                 upvotes        agreement         tags       posts read
     gridTemplateColumns: `       60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px            200px     minmax(100px, 425px)`,
@@ -349,13 +359,6 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   },
-
-  details: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none"
-    }
-  },
-  
   // opt-in stuff
   optInContainer: {
     display: 'flex',
@@ -410,37 +413,6 @@ const styles = (theme: ThemeType) => ({
   dialogSchedulingCheckbox: {
     paddingTop: 4,
     paddingBottom: 4
-  },
-  [headerTexts.bio.replace(/\W/g, '')]: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none"
-    }
-  },
-  [headerTexts.tags.replace(/\W/g, '')]: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none"
-    }
-  },
-  [headerTexts.postsRead.replace(/\W/g, '')]: {
-    textOverflow: 'ellipsis',
-    [theme.breakpoints.down("sm")]: {
-      "$matchContainerGridV1 &": {
-        display: "none"
-      }
-    },
-    [theme.breakpoints.down("xs")]: {
-      display: "none"
-    },
-  },
-  [headerTexts.karma.replace(/\W/g, '')]: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none"
-    },
-  },
-  [headerTexts.agreement.replace(/\W/g, '')]: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none"
-    },
   },
 });
 
@@ -551,7 +523,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
       className={classNames(classes.gradientBigTextContainer, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
-      }, classes.details, classes.Bio)} 
+      }, classes.hideAtSm)} 
       ref={bioContainerRef}
     >
       {userData?.biography?.plaintextDescription }
@@ -559,7 +531,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
   )
 };
 
-const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, limit?: number }) => {
+const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, hideAtSm: boolean, limit?: number }) => {
   const currentUser = useCurrentUser();
   const { Loading, PostsTooltip, LWDialog } = Components;
 
@@ -585,7 +557,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, limit = 20}: { classes: Cla
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, classes.details, classes[headerTexts.postsRead.replace(/\W/g, '')], {
+      className={classNames(classes.gradientBigTextContainer, hideAtSm ? classes.hideAtSm : classes.hideAtXs, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
       })} 
@@ -634,8 +606,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
     <div 
       className={classNames(
         classes.gradientBigTextContainer,
-        classes.details,
-        classes[headerTexts.tags.replace(/\W/g, '')],
+        classes.hideAtSm,
         { 'scrolled-to-top': isScrolledToTop,
           'scrolled-to-bottom': isScrolledToBottom
         })}> 
@@ -656,9 +627,18 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
 const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<typeof styles> }) => {
   return (
     <>
-      {titles.map((title, index) => (
-        <h5 key={index} className={classNames(classes.header, classes[title.replace(/\W/g, '')])}> {title} </h5>
-      ))}
+      {titles.map((title, index) => {
+        const hideClass = [headerTexts.bio, headerTexts.tags].includes(title)
+          ? classes.hideAtSm
+          : [headerTexts.karma, headerTexts.agreement].includes(title)
+          ? classes.hideAtXs
+          : title === headerTexts.postsRead
+          ? titles.includes(headerTexts.karma)
+            ? classes.hideAtXs
+            : classes.hideAtSm
+          : ''
+        return <h5 key={index} className={classNames(classes.header, hideClass)}> {title} </h5>
+      })}
     </>
   );
 };
@@ -1106,8 +1086,8 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       targetUserDisplayName={targetUser.displayName}
       currentUser={currentUser}
     />
-    {showKarma && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_power} </div>}
-    {showAgreement && <div className={classNames(classes.centeredText, classes.details)}> {targetUser.total_agreement} </div>}
+    {showKarma && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_power} </div>}
+    {showAgreement && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
       key={targetUser._id}
       classes={classes}
@@ -1118,7 +1098,8 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
     {showPostsYouveRead && <UserPostsYouveRead
       classes={classes}
       targetUserId={targetUser._id}
-      limit={8} />}
+      limit={8}
+      hideAtSm={showKarma} />}
   </React.Fragment>;
 }
 
