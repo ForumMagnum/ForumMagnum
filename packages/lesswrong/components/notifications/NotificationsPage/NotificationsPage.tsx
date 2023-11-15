@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
@@ -126,13 +126,17 @@ const query = gql`
   }
 `;
 
+const DEFAULT_LIMIT = 20;
+
 export const NotificationsPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [tabIndex, setTabIndex] = useState(0);
   const currentTab = tabs[tabIndex] ?? tabs[0];
+  const canLoadMore = currentTab.name !== "karma";
 
   const {document: karmaChanges} = useSingle({
     documentId: currentUser?._id,
@@ -144,10 +148,8 @@ export const NotificationsPage = ({classes}: {
   const {
     data,
     error,
-    loading: notificationsLoading,
-    // refetch,
-    // fetchMore,
-    // networkStatus,
+    loading,
+    networkStatus,
   } = useQuery(query, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
@@ -157,7 +159,7 @@ export const NotificationsPage = ({classes}: {
     nextFetchPolicy: "cache-only",
     variables: {
       type: currentTab.type,
-      limit: 20,
+      limit,
     },
   });
 
@@ -166,10 +168,19 @@ export const NotificationsPage = ({classes}: {
     console.error("Error loading notifications:", error);
   }
 
-  const notifications: NotificationDisplay[] =
-    data?.NotificationDisplays?.results ?? [];
+  const loadMore = useCallback(() => {
+    setLimit((currentLimit) => currentLimit + DEFAULT_LIMIT);
+  }, []);
+
+  const notifications = useRef<NotificationDisplay[]>([]);
+  if (data?.NotificationDisplays?.results && !loading) {
+    notifications.current = data.NotificationDisplays.results;
+  }
 
   const onChangeTab = useCallback((_: React.ChangeEvent, tabName: string) => {
+    notifications.current = [];
+    setLimit(DEFAULT_LIMIT);
+
     const newTabIndex = tabs.findIndex(({name}) => name === tabName);
     setTabIndex(newTabIndex >= 0 ? newTabIndex : 0);
 
@@ -188,7 +199,7 @@ export const NotificationsPage = ({classes}: {
     );
   }
 
-  const {Loading, NotificationsPageItem} = Components;
+  const {NotificationsPageItem, LoadMore} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -209,15 +220,20 @@ export const NotificationsPage = ({classes}: {
         <NotificationsPageKarma karmaChanges={karmaChanges} classes={classes} />
       }
       {currentTab.name !== "karma" && (
-        notificationsLoading
-          ? <Loading />
-          : notifications?.map((notification) => (
-            <NotificationsPageItem
-              key={notification._id}
-              notification={notification}
-            />
-          ))
+        notifications.current.map((notification) => (
+          <NotificationsPageItem
+            key={notification._id}
+            notification={notification}
+          />
+        ))
       )}
+      {canLoadMore &&
+        <LoadMore
+          loadMore={loadMore}
+          loading={loading}
+          networkStatus={networkStatus}
+        />
+      }
     </div>
   );
 }
