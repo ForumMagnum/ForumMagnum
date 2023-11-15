@@ -711,8 +711,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   }), [topicRecommendations])
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
-
-  if (called && !loadingCreatedMatchPreference && !newMatchPreference?.generatedDialogueId) {
+  console.log({newMatchPreference})
+  if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
     return (
       <LWDialog open onClose={onClose}>
           <DialogTitle>

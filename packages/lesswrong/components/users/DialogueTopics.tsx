@@ -153,23 +153,6 @@ export const TopicSuggestions: React.FC<TopicSuggestionProps> = ({classes, user1
   )
 }
 
-
-// async function suggestTopic(user1: UsersCurrent, user2: UsersCurrent) {
-
-
-// // You can get the count of users who have agreed or disagreed as follows:
-// const topic: DialogueTopic = suggestTopic(user1, user2)/* get a topic */
-// const agreeCount = topic.agreeUserIds.length;
-// const disagreeCount = topic.disagreeUserIds.length;
-
-// const GetPostsByUserReactsComponent = registerComponent("GetPostsByUserReacts", GetPostsByUserReacts);
-
-// declare global {
-//   interface ComponentTypes {
-//     GetPostsByUserReacts: typeof GetPostsByUserReactsComponent
-//   }
-// }
-
 const TopicSuggestionsComponent = registerComponent("TopicSuggestions", TopicSuggestions);
 
 declare global {
