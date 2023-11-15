@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import moment from 'moment';
 import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';

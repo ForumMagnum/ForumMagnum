@@ -6,13 +6,14 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
-import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
+import { SearchBox, Configure, Hits } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

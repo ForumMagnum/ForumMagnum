@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
+import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';

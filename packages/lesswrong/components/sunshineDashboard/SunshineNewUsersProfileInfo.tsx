@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

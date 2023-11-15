@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation } from '../../lib/routeUtil'
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";

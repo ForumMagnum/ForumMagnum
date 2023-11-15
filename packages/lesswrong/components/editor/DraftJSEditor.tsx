@@ -19,7 +19,7 @@ import createLinkifyPlugin from './draftjs-plugins/linkifyPlugin'
 import ImageButton from './draftjs-plugins/image/ImageButton';
 import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 

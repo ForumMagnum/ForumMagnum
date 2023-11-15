@@ -1,10 +1,10 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,

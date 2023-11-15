@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { Helmet } from 'react-helmet'
 import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
 import { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
-import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);

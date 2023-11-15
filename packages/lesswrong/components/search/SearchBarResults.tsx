@@ -1,11 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index } from 'react-instantsearch-dom';
+import { Hits, Configure } from 'react-instantsearch-dom';
 import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
+import { Index } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

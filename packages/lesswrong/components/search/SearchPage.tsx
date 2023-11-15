@@ -1,10 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index, InstantSearch, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
+import { Hits, Configure, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
 import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { Index, InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

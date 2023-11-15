@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
-import { Helmet } from 'react-helmet';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
@@ -16,6 +15,7 @@ import {
   userCanLaunchPetrovMissile,
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
