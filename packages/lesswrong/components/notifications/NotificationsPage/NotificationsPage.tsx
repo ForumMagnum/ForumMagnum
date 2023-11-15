@@ -1,17 +1,11 @@
-import React, { FC, useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { Link } from "../../../lib/reactRouterWrapper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import type {
-  CommentKarmaChange,
-  PostKarmaChange,
-  TagRevisionKarmaChange,
-} from "../../../lib/types/karmaChangesTypes";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 
 const styles = (theme: ThemeType) => ({
@@ -44,22 +38,6 @@ const styles = (theme: ThemeType) => ({
       textTransform: "uppercase",
     },
   },
-  content: {
-    display: "flex",
-    flexDirection :"column",
-    gap: "24px",
-    marginTop: 24,
-  },
-  secondaryText: {
-    color: theme.palette.grey[600],
-    fontSize: 14,
-    fontWeight: 500,
-    "& a": {
-      color: theme.palette.primary.main,
-      fontWeight: 600,
-      marginLeft: 10,
-    },
-  },
 });
 
 const tabs = [
@@ -84,37 +62,6 @@ const tabs = [
     type: "newPost",
   },
 ] as const;
-
-const NotificationsPageKarma: FC<{
-  karmaChanges?: UserKarmaChanges,
-  classes: ClassesType<typeof styles>,
-}> = ({karmaChanges, classes}) => {
-  if (!karmaChanges?.karmaChanges) {
-    return null;
-  }
-  const {posts, comments, tagRevisions, updateFrequency} = karmaChanges.karmaChanges;
-  const batchedText = updateFrequency === "realtime"
-    ? "in real time"
-    : `batched ${updateFrequency}`;
-  const {NotificationsPageKarmaChange} = Components;
-  return (
-    <div className={classes.content}>
-      <div className={classes.secondaryText}>
-        Karma notifications are {batchedText}
-        <Link to="/account">Change settings</Link>
-      </div>
-      {posts.map((post: PostKarmaChange) => (
-        <NotificationsPageKarmaChange post={post} key={post._id} />
-      ))}
-      {comments.map((comment: CommentKarmaChange) => (
-        <NotificationsPageKarmaChange comment={comment} key={comment._id} />
-      ))}
-      {tagRevisions.map((tag: TagRevisionKarmaChange) => (
-        <NotificationsPageKarmaChange tagRevision={tag} key={tag._id} />
-      ))}
-    </div>
-  );
-}
 
 // We have to do this manually outside of `usePaginatedResolver` because the
 // return type is pure unadulterated JSON, not a registered fragment type
@@ -199,7 +146,7 @@ export const NotificationsPage = ({classes}: {
     );
   }
 
-  const {NotificationsPageItem, LoadMore} = Components;
+  const {NotificationsPageKarma, NotificationsPageItem, LoadMore} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -217,7 +164,7 @@ export const NotificationsPage = ({classes}: {
         ))}
       </Tabs>
       {currentTab.name === "karma" && karmaChanges &&
-        <NotificationsPageKarma karmaChanges={karmaChanges} classes={classes} />
+        <NotificationsPageKarma karmaChanges={karmaChanges} />
       }
       {currentTab.name !== "karma" && (
         notifications.current.map((notification) => (

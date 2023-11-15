@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const NotificationsPageKarmaChange = ({
+export const NotificationsPageKarmaItem = ({
   post,
   comment,
   tagRevision,
@@ -91,14 +91,14 @@ export const NotificationsPageKarmaChange = ({
   );
 }
 
-const NotificationsPageKarmaChangeComponent = registerComponent(
-  "NotificationsPageKarmaChange",
-  NotificationsPageKarmaChange,
+const NotificationsPageKarmaItemComponent = registerComponent(
+  "NotificationsPageKarmaItem",
+  NotificationsPageKarmaItem,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NotificationsPageKarmaChange: typeof NotificationsPageKarmaChangeComponent
+    NotificationsPageKarmaItem: typeof NotificationsPageKarmaItemComponent
   }
 }
