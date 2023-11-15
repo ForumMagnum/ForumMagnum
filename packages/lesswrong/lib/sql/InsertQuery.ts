@@ -140,10 +140,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
         }
         const type = fields[key];
         const value = (item as AnyBecauseTodo)[key];
-        // if ((value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString())) {
-        //   console.log({ key, type: fields[key], arg: this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]), value: (item as any)[key] ?? null })
-        // }
-        this.atoms.push(this.createArg((item as AnyBecauseTodo)[key] ?? null, fields[key]));
+        this.atoms.push(this.createArg(value ?? null, type));
       }
       prefix = ", ";
     }

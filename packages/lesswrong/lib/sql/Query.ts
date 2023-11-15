@@ -20,7 +20,6 @@ class Arg {
         this.typehint = "::JSONB[]";
       }
     } else if (value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
-      // console.log({type})
       if (type.isArray()) {
         this.value = []
       } else {

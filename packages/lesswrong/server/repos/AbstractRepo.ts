@@ -1,7 +1,7 @@
 import { forumTypeSetting } from "../../lib/instanceSettings";
 import { getSqlClient, logIfSlow } from "../../lib/sql/sqlClient";
 import PgCollection from "../../lib/sql/PgCollection";
-import { Json } from "fp-ts/lib/Either";
+import type { Json } from "fp-ts/lib/Either";
 
 /**
  * By default most args are passed in as an array of values,

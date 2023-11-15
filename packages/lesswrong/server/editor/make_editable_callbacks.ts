@@ -23,7 +23,6 @@ import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-noti
 import {isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
 import { cheerioParse } from '../utils/htmlUtil'
-import { or } from 'fp-ts/lib/Predicate'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after

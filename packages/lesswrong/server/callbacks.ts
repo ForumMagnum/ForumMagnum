@@ -66,7 +66,13 @@ getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallba
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.banned && oldUser.banned && new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
+  const currentBanDate = user.banned
+  const previousBanDate = oldUser.banned
+  const now = new Date()
+  const updatedUserIsBanned = !!(currentBanDate && new Date(currentBanDate) > now)
+  const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
+  
+  if (updatedUserIsBanned && !previousUserWasBanned) {
     void userIPBanAndResetLoginTokens(user);
   }
 });

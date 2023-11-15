@@ -5,7 +5,7 @@ import { createMutator } from '../vulcan-lib/mutators';
 getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, context}: {newDocument: DbDigest, oldDocument: DbDigest, context: ResolverContext}) => {
   // if we are not currently publishing this digest, skip
   if (!newDocument.publishedDate || oldDocument.publishedDate) return
-  if (!newDocument.num) return
+  if ((newDocument.num === null) || (newDocument.num === undefined)) return
   // if a newer digest already exists, skip
   const newerDigest = await Digests.findOne({ num: {$gt: newDocument.num} })
   if (newerDigest) return
