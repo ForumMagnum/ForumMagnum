@@ -154,7 +154,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       title,
       draft: true,
       collabEditorDialogue: true,
-      coauthorStatuses:[{userId: targetUserId, confirmed: true, requested: false}, {userId: helperBotId, confirmed: true, requested: false}],
+      coauthorStatuses:[{userId: targetUserId, confirmed: true, requested: false}],
       shareWithUsers: [targetUserId],
       sharingSettings: {
         anyoneWithLinkCan: "none",
