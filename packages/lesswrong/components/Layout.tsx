@@ -27,6 +27,7 @@ import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
+import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -342,6 +343,7 @@ const Layout = ({currentUser, children, classes}: {
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
+      <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
@@ -449,6 +451,7 @@ const Layout = ({currentUser, children, classes}: {
       </SidebarsWrapper>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
+      </UnreadNotificationsContextProvider>
       </UserContext.Provider>
       </AnalyticsContext>
     )

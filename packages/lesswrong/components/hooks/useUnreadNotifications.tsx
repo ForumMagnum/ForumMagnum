@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
@@ -7,7 +7,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
-
 
 /**
  * Provided by the client (if this is running on the client not the server),
@@ -36,6 +35,22 @@ export type ServerSentEventsMessage = TypingIndicatorMessage | NotificationCheck
 
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 
+type UnreadNotificationsContext = {
+  unreadNotifications: number,
+  unreadPrivateMessages: number,
+  checkedAt: Date|null,
+  notificationsOpened: () => Promise<void>,
+  faviconBadgeNumber: number,
+}
+
+const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
+  unreadNotifications: 0,
+  unreadPrivateMessages: 0,
+  checkedAt: null,
+  notificationsOpened: async () => {},
+  faviconBadgeNumber: 0,
+});
+
 /**
  * Get the number of unread notifications (the number displayed on the badge by
  * the bell icon). Refreshes on navigation and on restoring a background tab.
@@ -48,13 +63,9 @@ const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
  * come back to the background tab, using the client-cached value for
  * lastNotificationsCheck would cause a spurious unread-notification count.
  */
-export function useUnreadNotifications(): {
-  unreadNotifications: number
-  unreadPrivateMessages: number
-  checkedAt: Date|null,
-  notificationsOpened: ()=>Promise<void>
-  faviconBadgeNumber: number
-} {
+export const UnreadNotificationsContextProvider: FC<{
+  children: ReactNode,
+}> = ({children}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -158,14 +169,20 @@ export function useUnreadNotifications(): {
     window.localStorage.setItem(notificationsCheckedAtLocalStorageKey, now.toISOString());
   }, [refetchBoth, updateCurrentUser]);
 
-  return {
-    unreadNotifications,
-    unreadPrivateMessages,
-    faviconBadgeNumber,
-    checkedAt,
-    notificationsOpened
-  };
+  return (
+    <unreadNotificationsContext.Provider value={{
+      unreadNotifications,
+      unreadPrivateMessages,
+      faviconBadgeNumber,
+      checkedAt,
+      notificationsOpened
+    }}>
+      {children}
+    </unreadNotificationsContext.Provider>
+  );
 }
+
+export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
 export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (message: ServerSentEventsMessage)=>void) => {
   useEffect(() => {

@@ -1,8 +1,9 @@
-import React, { FC, useCallback, useRef, useState } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { Link } from "../../../lib/reactRouterWrapper";
 import Tabs from "@material-ui/core/Tabs";
@@ -100,10 +101,15 @@ export const NotificationsPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const {notificationsOpened} = useUnreadNotifications();
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [tabIndex, setTabIndex] = useState(0);
   const currentTab = tabs[tabIndex] ?? tabs[0];
   const canLoadMore = currentTab.name !== "karma";
+
+  useEffect(() => {
+    void notificationsOpened();
+  }, [notificationsOpened]);
 
   const {document: karmaChanges} = useSingle({
     documentId: currentUser?._id,
