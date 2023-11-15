@@ -927,7 +927,8 @@ const DialogueCheckBox: React.FC<{
                   fragment: gql`
                     ${getFragmentText('DialogueCheckInfo')}
                     ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-                  `
+                  `,
+                  fragmentName: 'DialogueCheckInfo'
                 });
                 return {
                   ...existingChecksRef,
