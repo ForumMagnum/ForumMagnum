@@ -182,9 +182,6 @@ const styles = (theme: ThemeType) => ({
     gridRowGap: 15,
     columnGap: 10,
     alignItems: 'center',
-    [`& $${headerTexts.postsRead.replace(/\W/g, '')}`]: {
-      display: "none"
-    },
     [theme.breakpoints.down("sm")]: {
       //                    checkbox       name         message                        match                             upvotes         agreement
       gridTemplateColumns: `60px          100px         minmax(min-content, 80px)      minmax(min-content, 80px)         100px           100px`,
