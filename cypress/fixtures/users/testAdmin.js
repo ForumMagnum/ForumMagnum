@@ -113,5 +113,7 @@ module.exports = {
     afCommentCount: 0,
     commentCount: 0,
     lastNotificationsCheck: new Date(),
-    hideDialogueFacilitation: false
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false
 }

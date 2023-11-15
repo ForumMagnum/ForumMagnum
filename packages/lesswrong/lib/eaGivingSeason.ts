@@ -12,7 +12,13 @@ export const votingOpensDate = new Date("2023-12-01");
 export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
-const votingAccountCreationCutoff = new Date("2023-10-23");
+/** Cloudinary ID for the giving portal hero image */
+export const heroImageId = "giving_portal_23_hero";
+
+/** Cloudinary ID for the frontpage header background image */
+export const headerImageId = "giving_portal_23_hero2";
+
+const votingAccountCreationCutoff = new Date("2023/10/23");
 
 const userCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,
@@ -33,7 +39,7 @@ type TimelinePoint = {
   description: string,
 }
 
-type TimelineSpan = {
+export type TimelineSpan = {
   start: Date,
   end: Date,
   description: string,
@@ -53,26 +59,26 @@ export type TimelineSpec = {
 
 export const timelineSpec: TimelineSpec = {
   start: new Date("2023-11-01"),
-  end: new Date("2023-12-31"),
+  end: new Date("2023-12-20"),
   points: [
     {date: new Date("2023-11-01"), description: ""},
     {date: votingOpensDate, description: ""},
     {date: new Date("2023-12-15"), description: ""},
-    {date: new Date("2023-12-31"), description: ""},
+    {date: new Date("2023-12-20"), description: ""},
   ],
   spans: [
     {
       start: new Date("2023-11-07"),
       end: new Date("2023-11-14"),
       description: "Effective Giving Spotlight",
-      href: `${donationElectionLink}#Effective_Giving_Spotlight`,
+      href: `/s/YvGiiYnekY7anj5FB`,
       consecutive: true,
     },
     {
       start: new Date("2023-11-14"),
       end: new Date("2023-11-21"),
       description: "Marginal Funding Week",
-      href: `${donationElectionLink}#Marginal_Funding_Week`,
+      href: "/s/xourt4HttDM5QcHsk",
       consecutive: true,
     },
     {
@@ -91,24 +97,4 @@ export const timelineSpec: TimelineSpec = {
       hatched: true,
     },
   ],
-  // We have a lot of events in November and few in December. This function
-  // allows us to space out Novemeber to use most of the timeline and only give
-  // what's left to December. A point `inputSplit` along the timeline will be
-  // linearly mapped to `outputSplit`, with points after `inputSplit` being
-  // squeezed linearly into the remaining space.
-  // This could almost certainly be simplified, but it's too late in the day
-  // for algebra.
-  divisionToPercent: (division: number, divisions: number) => {
-    const inputSplit = 0.5;
-    const outputSplit = 0.65;
-    const multiplier = (100 / inputSplit) * outputSplit;
-    const halfWay = divisions * inputSplit;
-    if (division < halfWay) {
-      return (division / divisions) * multiplier;
-    } else {
-      const multiplier2 = (100 / inputSplit) * (1 - outputSplit);
-      return ((halfWay / divisions) * multiplier) +
-        (((division - halfWay) / divisions) * multiplier2);
-    }
-  },
 };

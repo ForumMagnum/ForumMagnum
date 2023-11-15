@@ -287,6 +287,7 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
     authorIds: [],
     cancelled: false,
     isUnvote: false,
+    silenceNotification: false,
   };
   return {...defaultData, ...data};
 }

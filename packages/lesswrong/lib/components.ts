@@ -42,6 +42,11 @@ importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EA
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
+importComponent("GivingSeasonHeader", () => require('../components/ea-forum/giving-portal/GivingSeasonHeader'));
+importComponent("GivingSeasonBanner", () => require('../components/ea-forum/giving-portal/GivingSeasonBanner'));
+importComponent("AdminElectionCandidates", () => require('../components/ea-forum/giving-portal/AdminElectionCandidates'));
+importComponent("EditElectionCandidate", () => require('../components/ea-forum/giving-portal/EditElectionCandidate'));
+importComponent("DeleteElectionCandidateDialog", () => require('../components/ea-forum/giving-portal/DeleteElectionCandidateDialog'));
 importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
 importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
 importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
@@ -83,6 +88,7 @@ importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/E
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
 
+// Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
 importComponent("ConversationDetails", () => require('../components/messaging/ConversationDetails'));
 importComponent("ConversationItem", () => require('../components/messaging/ConversationItem'));
@@ -95,6 +101,13 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
+// "Friendly UI" messaging components
+importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
+importComponent("FriendlyInboxNavigation", () => require('../components/messaging/FriendlyInboxNavigation'));
+importComponent("ConversationContents", () => require('../components/messaging/ConversationContents'));
+importComponent("FriendlyConversationItem", () => require('../components/messaging/FriendlyConversationItem'));
+importComponent("NewConversationDialog", () => require('../components/messaging/NewConversationDialog'));
+
 importComponent("NewConversationButton", () => require('../components/messaging/NewConversationButton'));
 importComponent("CKCommentEditor", () => require('../components/editor/CKCommentEditor'));
 importComponent("CKPostEditor", () => require('../components/editor/CKPostEditor'));
@@ -277,6 +290,7 @@ importComponent("NavigationDrawer", () => require('../components/common/TabNavig
 importComponent("NavigationStandalone", () => require('../components/common/TabNavigationMenu/NavigationStandalone'));
 importComponent("EventsList", () => require('../components/common/TabNavigationMenu/EventsList'));
 importComponent("SubforumsList", () => require('../components/common/TabNavigationMenu/SubforumsList'));
+importComponent("GivingPortalMobileMenuItem", () => require('../components/common/TabNavigationMenu/GivingPortalMobileMenuItem'));
 importComponent("FeaturedResourceBanner", () => require('../components/common/TabNavigationMenu/FeaturedResourceBanner'))
 
 importComponent("RecaptchaWarning", () => require('../components/common/RecaptchaWarning'));
@@ -480,7 +494,7 @@ importComponent("InlineReactHoverInfo", () => require('../components/votes/lwRea
 importComponent("ReactionDescription", () => require('../components/votes/lwReactions/ReactionDescription'));
 importComponent("ReactionQuotesHoverInfo", () => require('../components/votes/lwReactions/ReactionQuotesHoverInfo'));
 importComponent("HoveredReactionContextProvider", () => require('../components/votes/lwReactions/HoveredReactionContextProvider'));
-importComponent("HoverBallotReactionRow", () => require('../components/votes/lwReactions/HoverBallotReactionRow'));
+importComponent("ReactionHoverTopRow", () => require('../components/votes/lwReactions/ReactionHoverTopRow'));
 importComponent("ReactOrAntireactVote", () => require('../components/votes/lwReactions/ReactOrAntireactVote'));
 importComponent("UsersWhoReacted", () => require('../components/votes/lwReactions/UsersWhoReacted'));
 
@@ -602,6 +616,8 @@ importComponent("DebateCommentsListSection", () => require('../components/commen
 importComponent("DebateTypingIndicator", () => require('../components/comments/DebateTypingIndicator'));
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
+importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
@@ -625,6 +641,7 @@ importComponent("ExpandedCommentsSearchHit", () => require('../components/search
 importComponent("UsersSearchHit", () => require('../components/search/UsersSearchHit'));
 importComponent("UsersSearchAutocompleteHit", () => require('../components/search/UsersSearchAutocompleteHit'));
 importComponent("ExpandedUsersSearchHit", () => require('../components/search/ExpandedUsersSearchHit'));
+importComponent("ExpandedUsersConversationSearchHit", () => require('../components/search/ExpandedUsersConversationSearchHit'));
 importComponent("TagsSearchHit", () => require('../components/search/TagsSearchHit'));
 importComponent("ExpandedTagsSearchHit", () => require('../components/search/ExpandedTagsSearchHit'));
 importComponent("TagsSearchAutoComplete", () => require('../components/search/TagsSearchAutoComplete'));
@@ -639,6 +656,7 @@ importComponent("SearchBarResults", () => require('../components/search/SearchBa
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
 importComponent("SearchPage", () => require('../components/search/SearchPage'));
 importComponent("SearchPageTabbed", () => require('../components/search/SearchPageTabbed'));
+importComponent("SearchFilters", () => require('../components/search/SearchFilters'));
 
 importComponent("MigrationsDashboard", () => require('../components/admin/migrations/MigrationsDashboard'));
 importComponent("MigrationsDashboardRow", () => require('../components/admin/migrations/MigrationsDashboardRow'));

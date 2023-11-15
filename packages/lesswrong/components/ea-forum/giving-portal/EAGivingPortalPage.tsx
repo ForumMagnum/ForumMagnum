@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
@@ -14,7 +14,9 @@ import {
   donationElectionFundraiserLink,
   donationElectionLink,
   donationElectionTagId,
+  eaGivingSeason23ElectionName,
   effectiveGivingTagId,
+  heroImageId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -29,6 +31,7 @@ import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import moment from "moment";
 import { useTimezone } from "../../common/withTimezone";
 import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
+import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -152,6 +155,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "10px",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
@@ -170,17 +174,17 @@ const styles = (theme: ThemeType) => ({
   progressBar: {
     position: "relative",
     width: "100%",
-    height: 28,
+    height: 12,
     backgroundColor: theme.palette.givingPortal[800],
     borderRadius: theme.borderRadius.small,
-    marginBottom: 20,
+    marginBottom: 16,
+    overflow: "hidden",
   },
   progress: {
     position: "absolute",
     left: 0,
     top: 0,
     backgroundColor: theme.palette.givingPortal[1000],
-    borderRadius: theme.borderRadius.small,
     height: "100%",
   },
   raisedSoFar: {
@@ -211,7 +215,6 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "16px",
     rowGap: "16px",
-    justifyContent: "center",
   },
   totalRaised: {
     fontSize: 24,
@@ -273,15 +276,26 @@ const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sorted
   algoDecayFactorFastest: 3.0,
 });
 
-const formatDollars = (amount: number) => "$" + formatStat(amount);
+/** Format as dollars with no cents */
+const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
+
+const canonicalUrl = getSiteUrl() + "giving-portal";
+
+const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
+
+const socialImageProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
 
 const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
-  const {
-    showAmountRaised,
-    raisedForElectionFund,
-    donationTarget,
-    totalRaised,
-  } = useAmountRaised();
+  const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
+
   const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
@@ -335,8 +349,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
 
-  const totalAmount = formatDollars(totalRaised);
-  const targetPercent = (raisedForElectionFund / donationTarget) * 100;
+  const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
+  const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
+  const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
 
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
@@ -345,13 +360,19 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
-        <HeadTags title="Giving portal" />
+        <HeadTags
+          title="Giving portal"
+          canonicalUrl={canonicalUrl}
+          ogUrl={canonicalUrl}
+          description={pageDescription}
+          image={makeCloudinaryImageUrl(heroImageId, socialImageProps)}
+        />
         <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
           </div>
           <div className={classNames(classes.text, classes.center)}>
-          It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.
+            {pageDescription}
           </div>
           <div className={classNames(
             classes.h2,
@@ -377,19 +398,19 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <span className={classes.bold}>
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
                   image={<DonateIcon />}
                   title="Donate"
-                  description="The Donation Election Fund will be designated for the top 3 candidates, based on Forum users' votes."
+                  description="The fund will be designated for the top 3 candidates, based on Forum users' votes."
                   buttonText="Donate"
                   href={donationElectionFundraiserLink}
                   solidButton
                 >
-                  {showAmountRaised &&
+                  {!amountRaisedLoading &&
                     <>
                       <div className={classes.progressBar}>
                         <div
@@ -398,7 +419,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                         />
                       </div>
                       <div className={classes.raisedSoFar}>
-                        {formatDollars(raisedForElectionFund)} raised so far
+                        {raisedForElectionFundFormatted} raised so far
                       </div>
                     </>
                   }
@@ -467,7 +488,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId="giving_portal_23_hero" fullWidthHeader imgProps={{ h: "1200" }} />
+        <CloudinaryImage2 publicId={heroImageId} fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(
@@ -505,10 +526,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
             <a href={setupFundraiserLink}>run custom fundraisers</a>, or <a href="https://www.givingwhatwecan.org">more</a>.
           </div>
-          {showAmountRaised &&
+          {!amountRaisedLoading &&
             <div className={classes.text}>
               Total donations raised through the Forum:{" "}
-              <span className={classes.totalRaised}>{totalAmount}</span>
+              <span className={classes.totalRaised}>{totalRaisedFormatted}</span>
             </div>
           }
           <div className={classNames(classes.grid, classes.mt10)}>

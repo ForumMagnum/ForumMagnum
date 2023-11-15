@@ -260,7 +260,7 @@ const RecommendationsAndCurated = ({
         </div>
 
         {renderContinueReading && (
-          <div className={currentUser ? classes.subsection : null}>
+          <div className={currentUser ? classes.subsection : undefined}>
             <AnalyticsContext pageSubSectionContext="continueReading">
               <LWTooltip placement="top-start" title={continueReadingTooltip}>
                 <Link to={"/library"}>

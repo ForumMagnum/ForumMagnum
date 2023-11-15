@@ -57,6 +57,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -106,6 +107,7 @@ import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
+import { FilterAlt } from "../icons/filteralt";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -186,7 +188,8 @@ export type ForumIconName =
   "Menu" |
   "CloseMenu" |
   "Q" |
-  "BarChart";
+  "BarChart" |
+  "Funnel";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -263,6 +266,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FilterAlt,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -338,6 +342,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     CloseMenu: CloseMenuIcon,
     Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FunnelIcon,
   },
 };
 
@@ -400,7 +405,7 @@ const ForumIcon = ({
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(className, {
     [classes.root]: !noDefaultStyles,
-    [customClass]: !noDefaultStyles && customClass,
+    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
   });
 
   return <Icon className={fullClassName} {...props} />;

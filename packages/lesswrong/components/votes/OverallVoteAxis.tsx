@@ -5,7 +5,7 @@ import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { Comments } from '../../lib/collections/comments/collection';
-import { userCanVote } from '../../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import type { VotingProps } from './votingProps';
@@ -93,7 +93,7 @@ const OverallVoteAxis = ({
     ? extendedScore.approvalVoteCount
     : (voteProps.voteCount || 0);
   const karma = voteProps.baseScore;
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
   let moveToAlignnmentUserId = ""

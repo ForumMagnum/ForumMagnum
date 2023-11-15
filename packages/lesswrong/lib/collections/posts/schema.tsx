@@ -2719,6 +2719,14 @@ const schema: SchemaType<DbPost> = {
     }
   }),
 
+  dialogueMessageContents: {
+    type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+
   /* subforum-related fields */
 
   // If this post is associated with a subforum, the _id of the tag

@@ -105,7 +105,6 @@ registerFragment(`
     services
     acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
@@ -213,6 +212,8 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 
@@ -332,7 +333,6 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
-    voteBanned
     nullifyVotes
     deleteContent
     
@@ -437,7 +437,6 @@ registerFragment(`
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -563,3 +562,11 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+    karma
+  }
+`);
