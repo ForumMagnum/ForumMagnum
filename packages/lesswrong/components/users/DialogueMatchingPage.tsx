@@ -1229,9 +1229,10 @@ export const DialogueMatchingPage = ({classes}: {
 
       <h1>Dialogue Matching</h1>
       <ul>
-        <li>Check a user you'd potentially be interested in having a dialogue with, if they were too</li>
-        <li>If you match, you'll both get a tiny form to enter topics of interest and format preferences</li>
-        <li>You can then see each other's answers, and if they align you can choose to start a dialogue</li>
+        <li>Check a user you'd maybe be interested in having a dialogue with, if they were too</li>
+        <li>They can't see your checks unless you match</li>
+        <li>If you match, you'll both get a tiny form to enter topic ideas</li>
+        <li>You can then see each other's answers, and choose whether start a dialogue</li>
       </ul>
       
       <div className={classes.optInContainer}>
@@ -1249,7 +1250,7 @@ export const DialogueMatchingPage = ({classes}: {
         />
     </div> 
     </div> 
-    <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks. We do track metadata, like “Two users just matched”, 
+    <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
       to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
       the other part of the match has also opted in.
     </p>
