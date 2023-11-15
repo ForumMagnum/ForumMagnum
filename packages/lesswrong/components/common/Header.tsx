@@ -280,6 +280,7 @@ const Header = ({
   }
 
   const hasLogo = isEAForum;
+  const hasKarmaChangeNotifier = !isEAForum && currentUser && !currentUser.usernameUnset;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -301,7 +302,7 @@ const Header = ({
     </NoSSR>
     {!isEAForum && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
-    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+    {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
     />}
