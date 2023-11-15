@@ -87,17 +87,28 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+const getSocialImagePreviewPrefix = () =>
+  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/`;
+
 // Select the social preview image for the post, using the manually-set
 // cloudinary image if available, or the auto-set from the post contents. If
 // neither of those are available, it will return null.
+// When updating this you must also update `getSocialPreviewSql` below.
 export const getSocialPreviewImage = (post: DbPost): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = post.socialPreview?.imageId
-  if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  if (manualId) return `${getSocialImagePreviewPrefix()}${manualId}`
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
+
+export const getSocialPreviewSql = (tablePrefix: string) => `
+  JSON_BUILD_OBJECT('imageUrl', COALESCE(
+    '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId'),
+    ${tablePrefix}."socialPreviewImageAutoUrl"
+  ))
+`;
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.

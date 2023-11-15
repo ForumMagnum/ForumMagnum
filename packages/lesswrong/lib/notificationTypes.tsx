@@ -44,15 +44,35 @@ type NotificationDisplayUser = Pick<
   "commentCount"
 >;
 
+// We need enough here to render the post tooltip
+type NotificationDisplayPost = Pick<
+  PostsList,
+  "_id" |
+  "slug" |
+  "title" |
+  "draft" |
+  "url" |
+  "isEvent" |
+  "startTime" |
+  "curatedDate" |
+  "postedAt" |
+  "groupId" |
+  "fmCrosspost" |
+  "readTimeMinutes" |
+  "socialPreviewData" |
+  "customHighlight" |
+  "contents"
+> & {
+  user?: NotificationDisplayUser,
+};
+
 /** Main type for the notifications page */
 export type NotificationDisplay =
   Pick<DbNotification, "_id" | "type" | "link" | "createdAt"> & {
-    post?: Pick<DbPost, "_id" | "title" | "slug"> & {
-      user?: NotificationDisplayUser,
-    },
+    post?: NotificationDisplayPost,
     comment?: Pick<DbComment, "_id"> & {
       user?: NotificationDisplayUser,
-      post?: Pick<DbPost, "_id" | "title" | "slug">,
+      post?: NotificationDisplayPost,
     },
     tag?: Pick<DbTag, "_id" | "name" | "slug">,
     user?: NotificationDisplayUser,

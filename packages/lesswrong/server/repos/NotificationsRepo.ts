@@ -1,5 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../lib/collections/notifications/collection";
+import { READ_WORDS_PER_MINUTE } from "../../lib/collections/posts/schema";
+import { getSocialPreviewSql } from "../../lib/collections/posts/helpers";
 import type { NotificationDisplay } from "../../lib/notificationTypes";
 
 // This should return an object of type `NotificationDisplayUser`
@@ -14,6 +16,32 @@ const buildNotificationUser = (prefix: string) => `JSONB_BUILD_OBJECT(
   'htmlBio', COALESCE(${prefix}."biography"->>'html', ''),
   'postCount', ${prefix}."postCount",
   'commentCount', ${prefix}."commentCount"
+)`;
+
+// This should return an object of type `NotificationDisplayPost`
+const buildNotificationPost = (
+  prefix: string,
+  userPrefix: string,
+) => `JSONB_BUILD_OBJECT(
+  '_id', ${prefix}."_id",
+  'slug', ${prefix}."slug",
+  'title', ${prefix}."title",
+  'draft', ${prefix}."draft",
+  'url', ${prefix}."url",
+  'isEvent', ${prefix}."isEvent",
+  'startTime', ${prefix}."startTime",
+  'curatedDate', ${prefix}."curatedDate",
+  'postedAt', ${prefix}."postedAt",
+  'groupId', ${prefix}."groupId",
+  'fmCrosspost', ${prefix}."fmCrosspost",
+  'readTimeMinutes', COALESCE(
+    ${prefix}."readTimeMinutesOverride",
+    (${prefix}."contents"->'wordCount')::INTEGER / ${READ_WORDS_PER_MINUTE}
+  ),
+  'socialPreviewData', ${getSocialPreviewSql(prefix)},
+  'customHighlight', ${prefix}."customHighlight",
+  'contents', ${prefix}."contents",
+  'user', ${buildNotificationUser(userPrefix)}
 )`;
 
 export default class NotificationsRepo extends AbstractRepo<DbNotification> {
@@ -40,28 +68,20 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         n."type",
         n."link",
         n."createdAt",
-        CASE WHEN p."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-          '_id', p."_id",
-          'title', p."title",
-          'slug', p."slug",
-          'user', ${buildNotificationUser("pu")}
-        ) END "post",
+        CASE WHEN p."_id" IS NULL THEN NULL ELSE
+          ${buildNotificationPost("p", "pu")} END "post",
         CASE WHEN c."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', c."_id",
           'user', ${buildNotificationUser("cu")},
-          'post', JSONB_BUILD_OBJECT(
-            '_id', cp."_id",
-            'title', cp."title",
-            'slug', cp."slug"
-          )
+          'post', ${buildNotificationPost("cp", "cpu")}
         ) END "comment",
         CASE WHEN t."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', t."_id",
           'name', t."name",
           'slug', t."slug"
         ) END "tag",
-        CASE WHEN u."_id" IS NULL THEN NULL ELSE ${buildNotificationUser("u")}
-          END "user",
+        CASE WHEN u."_id" IS NULL THEN NULL ELSE
+          ${buildNotificationUser("u")} END "user",
         CASE WHEN l."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
           '_id', l."_id",
           'name', l."name"
@@ -79,6 +99,8 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         c."userId" = cu."_id"
       LEFT JOIN "Posts" cp ON
         c."postId" = cp."_id"
+      LEFT JOIN "Users" cpu ON
+        cp."userId" = cpu."_id"
       LEFT JOIN "TagRels" tr ON
         n."documentType" = 'tagRel' AND
         n."documentId" = tr."_id"

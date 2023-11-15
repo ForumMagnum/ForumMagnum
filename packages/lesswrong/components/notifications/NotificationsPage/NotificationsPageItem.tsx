@@ -77,19 +77,21 @@ export const NotificationsPageItem = ({notification, classes}: {
   ) as UsersMinimumInfo | undefined;
   const displayPost = post ?? comment?.post;
 
-  const {ForumIcon, UsersNameDisplay, FormatDate} = Components;
+  const {ForumIcon, UsersNameDisplay, PostsTooltip, FormatDate} = Components;
   const User: FC = () => (
     <UsersNameDisplay user={displayUser} className={classes.primaryText} />
   );
   const Post: FC = () => displayPost
     ? (
-      <Link
-        to={link ?? postGetPageUrl(displayPost)}
-        className={classes.primaryText}
-        eventProps={{intent: "expandPost"}}
-      >
-        {displayPost.title}
-      </Link>
+      <PostsTooltip post={displayPost as PostsList}>
+        <Link
+          to={link ?? postGetPageUrl(displayPost)}
+          className={classes.primaryText}
+          eventProps={{intent: "expandPost"}}
+        >
+          {displayPost.title}
+        </Link>
+      </PostsTooltip>
     )
     : null;
   const Tag: FC = () => tag

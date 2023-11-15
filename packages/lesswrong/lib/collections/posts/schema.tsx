@@ -30,7 +30,7 @@ import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
 const isEAForum = (forumTypeSetting.get() === 'EAForum')
 
-
+export const READ_WORDS_PER_MINUTE = 250;
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -538,7 +538,7 @@ const schema: SchemaType<DbPost> = {
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
           ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / 250)
+          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
       ),
   }),
 
