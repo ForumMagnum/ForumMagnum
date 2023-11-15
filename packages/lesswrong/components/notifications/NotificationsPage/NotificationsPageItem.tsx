@@ -1,16 +1,18 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { useSingle } from "../../../lib/crud/withSingle";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
+import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { localgroupGetUrl } from "../../../lib/collections/localgroups/helpers";
 import {
   NotificationDisplay,
+  NotificationType,
   getNotificationTypeByName,
 } from "../../../lib/notificationTypes";
 import classNames from "classnames";
-import { useSingle } from "../../../lib/crud/withSingle";
 
 const ICON_WIDTH = 24;
 
@@ -70,17 +72,40 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const getNotificationDisplay = (
+  notificationType: string,
+): NotificationType["Display"] | null => {
+  if (notificationType === "reaction") {
+    return ({User, Post, Comment, notification: {comment}}) =>
+      comment
+        ? <><User /> reacted to your <Comment /> on <Post /></>
+        : <><User /> reacted to <Post /></>
+  }
+
+  try {
+    const {Display} = getNotificationTypeByName(notificationType);
+    return Display;
+  } catch (e) {
+    // esline-disable-next-line no-console
+    console.error("Invalid notification type:", notificationType, e);
+  }
+
+  return null;
+}
+
 export const NotificationsPageItem = ({notification, classes}: {
   notification: NotificationDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
+  const showPreviewComment = !!notification.comment?._id &&
+    notification.type !== "reaction";
+
   // The main notifications query that returns `NotificationDisplay`s is a
   // custom resolver that runs as a single SQL query. We fetch comments to
   // preview outside of this query in order to avoid nuking the apollo cache
   // when trying to do things like loading the parent comment, and also
   // because it'd be tricky to fetch things like the current user vote without
   // running typescript resolvers.
-  const showPreviewComment = !!notification.comment?._id;
   const {
     document: previewComment,
     loading: previewCommentLoading,
@@ -91,8 +116,8 @@ export const NotificationsPageItem = ({notification, classes}: {
     fragmentName: "CommentsList",
   });
 
-  const notificationType = getNotificationTypeByName(notification.type);
-  if (!notificationType.Display) {
+  const Display = getNotificationDisplay(notification.type);
+  if (!Display) {
     return null;
   }
 
@@ -129,6 +154,22 @@ export const NotificationsPageItem = ({notification, classes}: {
       </PostsTooltip>
     )
     : null;
+  const Comment: FC = () => comment
+    ? (
+      <Link
+        to={commentGetPageUrlFromIds({
+          commentId: comment._id,
+          postId: comment.post?._id,
+          postSlug: comment.post?.slug,
+          tagSlug: tag?.slug, // TODO: This probably doesn't work for tags yet?
+        })}
+        className={classes.primaryText}
+        eventProps={{intent: "expandComment"}}
+      >
+        comment
+      </Link>
+    )
+    : null;
   const Tag: FC = () => tag
     ? (
       <Link
@@ -151,15 +192,6 @@ export const NotificationsPageItem = ({notification, classes}: {
       </Link>
     )
     : null;
-  const display = (
-    <notificationType.Display
-      notification={notification}
-      User={User}
-      Post={Post}
-      Tag={Tag}
-      Localgroup={Localgroup}
-    />
-  );
 
   const {icon, iconVariant} = comment
     ? {icon: "CommentFilled", iconVariant: "primary"} as const
@@ -176,7 +208,14 @@ export const NotificationsPageItem = ({notification, classes}: {
             <ForumIcon icon={icon} />
           </div>
           <div className={classes.meta}>
-            {display} <FormatDate date={new Date(createdAt)} includeAgo />
+            <Display
+              notification={notification}
+              User={User}
+              Post={Post}
+              Comment={Comment}
+              Tag={Tag}
+              Localgroup={Localgroup}
+            /> <FormatDate date={new Date(createdAt)} includeAgo />
           </div>
         </div>
         {showPreviewComment &&

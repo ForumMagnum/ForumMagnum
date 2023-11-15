@@ -102,7 +102,7 @@ interface GetDialogueMessageProps {
   newMessageContents: string
 }
 
-interface NotificationType {
+export interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
@@ -112,6 +112,7 @@ interface NotificationType {
     notification: NotificationDisplay,
     User: FC,
     Post: FC,
+    Comment: FC,
     Tag: FC,
     Localgroup: FC,
   }>,
