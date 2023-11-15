@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
@@ -8,7 +8,7 @@ import { getUserFromResults } from "../users/UsersProfile";
 import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import moment from "moment";
-import { Link, useNavigate } from "../../lib/reactRouterWrapper";
+import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
@@ -194,7 +194,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
 
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { params, query, location } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
@@ -239,7 +239,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const {

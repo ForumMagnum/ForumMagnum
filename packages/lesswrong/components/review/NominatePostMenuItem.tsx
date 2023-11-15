@@ -11,9 +11,9 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
 import { canNominate } from '../../lib/reviewUtils';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
@@ -21,7 +21,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const { MenuItem } = Components;
 
   const { results: nominations = [], loading } = useMulti({
@@ -49,7 +49,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
 
   const handleClick = () => {
     if (nominated) {
-      navigate({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
+      history.push({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       closeMenu();

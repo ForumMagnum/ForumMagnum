@@ -4,11 +4,11 @@ import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
 import { userCanDo } from "../../lib/vulcan-users";
-import { Link, useNavigate } from "../../lib/reactRouterWrapper";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const MAX_WIDTH = 1100;
 
@@ -150,15 +150,15 @@ const FriendlyInbox = ({
 }) => {
   const { openDialog } = useDialog();
   const { location } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
 
   const selectedConversationRef = useRef<HTMLDivElement>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      navigate({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
+      history.push({ ...location, pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversationId}` });
     },
-    [navigate, isModInbox, location]
+    [history, isModInbox, location]
   );
 
   const openNewConversationDialog = useCallback(() => {

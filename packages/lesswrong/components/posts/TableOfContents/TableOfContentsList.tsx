@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation } from '../../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export interface ToCDisplayOptions {
   /**
@@ -45,7 +44,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
   displayOptions?: ToCDisplayOptions,
 }) => {
   const [currentSection,setCurrentSection] = useState<string|null>(topSection);
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const location = useLocation();
   const { query } = location;
 
@@ -84,7 +83,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
       delete query.commentId;
-      navigate({
+      history.push({
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
@@ -192,7 +191,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
       onClick={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
-            navigate("#");
+            history.push("#");
             jumpToY(0)
           });
         }

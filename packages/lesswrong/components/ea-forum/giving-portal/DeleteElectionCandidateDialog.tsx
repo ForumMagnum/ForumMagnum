@@ -3,8 +3,8 @@ import { Components, getFragment, registerComponent } from "../../../lib/vulcan-
 import { useCurrentUser } from "../../common/withUser";
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useDelete } from "../../../lib/crud/withDelete";
+import { useNavigation } from "../../../lib/routeUtil";
 import { useMessages } from "../../common/withMessages";
-import { useNavigate } from "../../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,7 +27,7 @@ const DeleteElectionCandidateDialog = ({candidateId, onClose, classes}: {
   classes: ClassesType,
 }) => {
   const {flash} = useMessages();
-  const navigate = useNavigate();
+  const {history} = useNavigation();
   const {deleteDocument} = useDelete({
     collectionName: "ElectionCandidates",
     fragment: getFragment("ElectionCandidateBasicInfo"),
@@ -42,11 +42,11 @@ const DeleteElectionCandidateDialog = ({candidateId, onClose, classes}: {
       });
       onClose?.();
       flash("Candidate deleted");
-      navigate({pathname: "/admin/election-candidates"});
+      history.push({pathname: "/admin/election-candidates"});
     } catch (e) {
       flash(`Error: ${e.message}`);
     }
-  }, [deleteDocument, candidateId, onClose, flash, navigate]);
+  }, [deleteDocument, candidateId, onClose, flash, history]);
 
   const currentUser = useCurrentUser();
   if (!userIsAdmin(currentUser)) {

@@ -5,7 +5,7 @@ import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } f
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
 import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
@@ -15,7 +15,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 
 // Also used by PostsEditForm
@@ -191,10 +191,10 @@ export const getPostEditorGuide = (classes: ClassesType) => {
 }
 
 const PostsNewForm = ({classes}: {
-  classes: ClassesType,
-}) => {
+    classes: ClassesType,
+  }) => {
   const { query } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -312,13 +312,13 @@ const PostsNewForm = ({classes}: {
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
                   if (options?.submitOptions?.redirectToEditor) {
-                    navigate(postGetEditUrl(post._id));
+                    history.push(postGetEditUrl(post._id));
                   } else {
                     // If they are publishing a non-draft post, show the share popup
                     const showSharePopup = isEAForum && !post.draft
                     const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                     const url  = postGetPageUrl(post);
-                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+                    history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
 
                     const postDescription = post.draft ? "Draft" : "Post";
                     if (!showSharePopup) {

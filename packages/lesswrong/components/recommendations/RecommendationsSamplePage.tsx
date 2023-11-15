@@ -2,7 +2,7 @@ import React, { ChangeEvent, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
 import { useTimezone } from "../common/withTimezone";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
@@ -19,7 +19,6 @@ import Select from "@material-ui/core/Select";
 import Input from "@material-ui/core/Input";
 import moment from "moment";
 import qs from "qs";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -82,7 +81,7 @@ const RecommendationsSamplePage = ({classes}: {
   const currentUser = useCurrentUser();
   const {timezone} = useTimezone();
   const {query} = useLocation();
-  const navigate = useNavigate();
+  const {history} = useNavigation();
   const [strategy, setStrategy] = useState<RecommendationStrategyName>(
     parseStrategy(query.strategy),
   );
@@ -123,13 +122,13 @@ const RecommendationsSamplePage = ({classes}: {
     const name = e.target?.value;
     if (isRecommendationStrategyName(name)) {
       setStrategy(name);
-      navigate({
+      history.replace({
         ...location,
         search: qs.stringify({
           ...query,
           strategy: name,
         }),
-      }, {replace: true});
+      });
     }
   }
 
@@ -138,13 +137,13 @@ const RecommendationsSamplePage = ({classes}: {
     checked: boolean,
   ) => {
     setLoggedOutView(checked);
-    navigate({
+    history.replace({
       ...location,
       search: qs.stringify({
         ...query,
         loggedOutView: checked ? "true" : "false",
       }),
-    }, {replace: true});
+    });
   }
 
   const onChangeBias = (e: ChangeEvent<HTMLInputElement>) =>
@@ -153,13 +152,13 @@ const RecommendationsSamplePage = ({classes}: {
   const onBlurBias = () => {
     const value = parseNumber(biasInput);
     setBias(value);
-    navigate({
+    history.replace({
       ...location,
       search: qs.stringify({
         ...query,
         bias: value,
       }),
-    }, {replace: true});
+    });
   }
 
   const onChangeFeature = (feature: RecommendationFeatureName) =>

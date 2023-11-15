@@ -13,10 +13,10 @@ import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReview
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import { randomId } from '../../lib/random';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
@@ -293,7 +293,7 @@ const ReviewVotingPage = ({classes}: {
     }
   }
 
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const location = useLocation();
 
   if (postsError) {
@@ -332,7 +332,7 @@ const ReviewVotingPage = ({classes}: {
   const updatePostSort = (sort: AnyBecauseTodo) => {
     setSortPosts(sort)
     const newQuery = {...location.query, sort}
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
   }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {

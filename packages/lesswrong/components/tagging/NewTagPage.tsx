@@ -1,12 +1,13 @@
 import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
+import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
+import { Tags } from '../../lib/collections/tags/collection';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const NewTagPage = () => {
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
   const { SingleColumnSection, SectionTitle, WrappedSmartForm } = Components;
   
@@ -40,7 +41,7 @@ const NewTagPage = () => {
         collectionName="Tags"
         mutationFragment={getFragment('TagFragment')}
         successCallback={(tag: any) => {
-          navigate({pathname: tagGetUrl(tag)});
+          history.push({pathname: tagGetUrl(tag)});
         }}
       />
     </SingleColumnSection>

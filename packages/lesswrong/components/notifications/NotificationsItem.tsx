@@ -4,11 +4,10 @@ import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
-import { getUrlClass } from '../../lib/routeUtil';
+import { getUrlClass, useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -96,7 +95,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
 }) => {
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const notificationType = getNotificationTypeByName(notification.type);
 
   const notificationLink = (notificationType.getLink
@@ -233,7 +232,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
-          navigate(notificationLink)
+          history.push(notificationLink)
 
           setClicked(true);
           

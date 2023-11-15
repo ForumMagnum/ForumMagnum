@@ -6,10 +6,9 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
-import { useLocation } from '../routeUtil';
+import { useLocation, useNavigation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
 import { isServer } from '../executionEnvironment';
-import { useNavigate } from '../reactRouterWrapper';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -301,7 +300,7 @@ export function useMulti<
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
 
   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
   const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
@@ -379,7 +378,7 @@ export function useMulti<
     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-      navigate({...location, search: `?${qs.stringify(newQuery)}`})
+      history.push({...location, search: `?${qs.stringify(newQuery)}`})
     }
     void fetchMore({
       variables: {

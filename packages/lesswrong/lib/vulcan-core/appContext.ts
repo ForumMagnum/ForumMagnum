@@ -20,6 +20,7 @@ interface SegmentedUrl {
 
 export const LocationContext = React.createContext<RouterLocation|null>(null);
 export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
+export const NavigationContext = React.createContext<any>(null);
 export const ServerRequestStatusContext = React.createContext<ServerRequestStatusContextType|null>(null);
 
 // From react-router-v4
@@ -49,9 +50,10 @@ export const parsePath = function parsePath(path: string): SegmentedUrl {
 };
 
 /**
- * Given a Location, return the parsed query from the URL.
+ * Given the props of a component which has withRouter, return the parsed query
+ * from the URL.
  */
-export function parseQuery(location: SegmentedUrl): Record<string, string> {
+export function parseQuery(location: AnyBecauseTodo): Record<string,string> {
   let query = location?.search;
   if (!query) return {};
 
@@ -77,7 +79,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   let params={};
   for (let routeName of routeNames) {
     const route = Routes[routeName];
-    const match = matchPath({path: route.path}, location.pathname);
+    const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
     if (match) {
       currentRoute = route;
       params = match.params;

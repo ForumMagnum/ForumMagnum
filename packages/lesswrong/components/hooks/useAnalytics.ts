@@ -1,12 +1,11 @@
 import { useQuery, gql, ApolloError } from "@apollo/client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigation } from "../../lib/routeUtil";
 import qs from "qs";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
 import stringify from "json-stringify-deterministic";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -102,7 +101,7 @@ export const useMultiPostAnalytics = ({
   const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
 
   const { query: locationQuery } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
 
   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
   const defaultLimit = useRef(locationQueryLimit ?? initialLimit);
@@ -141,7 +140,7 @@ export const useMultiPostAnalytics = ({
   const loadMore = async (limitOverride?: number) => {
     const newLimit = limitOverride || effectiveLimit + itemsPerPage;
     const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-    navigate({...location, search: `?${qs.stringify(newQuery)}`})
+    history.push({...location, search: `?${qs.stringify(newQuery)}`})
 
     setMoreLoading(true);
     void fetchMore({

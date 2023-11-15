@@ -713,8 +713,6 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // check for route change, prevent form content loss
   checkRouteChange = () => {
-    // TODO FIXME: This was a casualty of upgrading react router v5->v6
-    /*
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
@@ -722,9 +720,16 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
+
+        /*
+            // React-router 3 implementtion
+            const routes = this.props.router.routes;
+            const currentRoute = routes[routes.length - 1];
+            this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
+
+            */
       });
     }
-     */
   }
   // check for browser closing
   checkBrowserClosing = () => {

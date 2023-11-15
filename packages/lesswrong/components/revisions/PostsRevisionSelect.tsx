@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMulti } from '../../lib/crud/withMulti';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   revisionList: {
@@ -16,7 +15,7 @@ const PostsRevisionSelect = ({ classes }: {
 }) => {
   const { SingleColumnSection, RevisionSelect, Loading } = Components;
   const { params } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const postId = params._id;
   
   const { document: post, loading: loadingPost } = useSingle({
@@ -38,8 +37,8 @@ const PostsRevisionSelect = ({ classes }: {
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!post) return;
-    navigate(`/compare/post/${post._id}/${post.slug}?before=${before.version}&after=${after.version}`);
-  }, [navigate, post]);
+    history.push(`/compare/post/${post._id}/${post.slug}?before=${before.version}&after=${after.version}`);
+  }, [post, history]);
 
   if (!post) {return null;}
   

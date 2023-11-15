@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
@@ -29,7 +29,6 @@ import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -294,7 +293,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
@@ -371,8 +370,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [navigate, location.location, openDialog, post, query]);
+    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [history, location.location, openDialog, post, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answers } = useMulti({
@@ -491,7 +490,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${commentId}` }, {replace: true});
+      history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,16 +1,17 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
+import Users from '../../lib/collections/users/collection';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
+import { useNavigation } from '../../lib/routeUtil';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,7 +48,7 @@ const UsersEditForm = ({terms, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const client = useApolloClient();
   const { Typography } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
@@ -120,7 +121,7 @@ const UsersEditForm = ({terms, classes}: {
           try {
             await client.resetStore()
           } finally {
-            navigate(userGetProfileUrl(user))
+            history.push(userGetProfileUrl(user))
           }
         }}
         queryFragment={getFragment('UsersEdit')}

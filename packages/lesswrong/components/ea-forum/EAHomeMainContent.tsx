@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import qs from 'qs';
 
 
@@ -223,7 +223,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
-  const navigate = useNavigate();
+  const { history } = useNavigation()
   const { location, query } = useLocation()
   const { captureEvent } = useTracking()
   const activeCoreTopic = useMemo(
@@ -307,10 +307,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   }
   
   const handleTabClick = (tab: TopicsBarTab) => {
-    navigate({
+    history.replace({
       ...location,
       search: qs.stringify({...query, tab: tab.slug}),
-    }, {replace: true})
+    })
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   

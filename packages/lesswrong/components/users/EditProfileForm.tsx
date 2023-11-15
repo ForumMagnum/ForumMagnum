@@ -2,8 +2,8 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useLocation } from '../../lib/routeUtil';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
@@ -68,7 +68,7 @@ const EditProfileForm = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const navigate = useNavigate();
+  const { history } = useNavigation()
   const { params } = useLocation()
   const [cookies, setCookie] = useCookiesWithConsent([
     HIDE_IMPORT_EAG_PROFILE,
@@ -169,7 +169,7 @@ const EditProfileForm = ({classes}: {
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
         successCallback={async (user: AnyBecauseTodo) => {
-          navigate(userGetProfileUrl(user))
+          history.push(userGetProfileUrl(user))
         }}
       />
     </div>

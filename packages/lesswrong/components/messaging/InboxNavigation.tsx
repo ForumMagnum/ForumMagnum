@@ -1,11 +1,11 @@
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
 import { forumTypeSetting } from '../../lib/instanceSettings';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import type { InboxComponentProps } from './InboxWrapper';
@@ -18,8 +18,8 @@ const InboxNavigation = ({
 }: InboxComponentProps) => {
   const location = useLocation();
   const { currentRoute, query } = location;
-  const navigate = useNavigate();
-
+  const { history } = useNavigation();
+  
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Conversations",
@@ -39,11 +39,11 @@ const InboxNavigation = ({
   const expanded = query?.expanded === "true"
 
   const showArchiveCheckboxClick = () => {
-    navigate({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
+    history.push({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
   }
 
   const expandCheckboxClick = () => {
-    navigate({...location, search: `?${qs.stringify({expanded: !expanded})}`})
+    history.push({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"

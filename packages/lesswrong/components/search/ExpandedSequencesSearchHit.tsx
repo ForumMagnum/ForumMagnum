@@ -1,10 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { useNavigation } from '../../lib/routeUtil';
 import { requireCssVar } from '../../themes/cssVars';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -72,12 +73,13 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const navigate = useNavigate();
+  const { history } = useNavigation()
+
   const { FormatDate, UserNameDeleted } = Components
   const sequence: AlgoliaSequence = hit
   
   const handleClick = () => {
-    navigate(`/sequences/${sequence._id}`)
+    history.push(`/sequences/${sequence._id}`)
   }
   
   const style = sequence.bannerImageId ? {

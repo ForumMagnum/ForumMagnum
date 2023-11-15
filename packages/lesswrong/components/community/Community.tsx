@@ -8,11 +8,11 @@ import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -201,7 +201,7 @@ const Community = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const { location, query } = useLocation();
   const { captureEvent } = useTracking();
   
@@ -348,7 +348,7 @@ const Community = ({classes}: {
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
-    navigate({...location, hash: `#${value}`}, {replace: true})
+    history.replace({...location, hash: `#${value}`})
   }
   
   const handleKeywordSearch = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -364,7 +364,7 @@ const Community = ({classes}: {
   
   const handleToggleIncludeInactive = () => {
     setIncludeInactive(!includeInactive)
-    navigate({...location, search: `?includeInactive=${!includeInactive}`}, {replace: true})
+    history.replace({...location, search: `?includeInactive=${!includeInactive}`})
   }
   
   const canCreateGroups = currentUser && userIsAdmin(currentUser)

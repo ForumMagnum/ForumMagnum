@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { useLocation } from "../../lib/routeUtil";
+import {useLocation, useNavigation} from "../../lib/routeUtil";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
@@ -11,7 +11,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const toggleEventsOffset = "330px"
 
@@ -84,7 +83,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const isOpenToPublic = gardenOpenToPublic.get()
 
   const { query } = useLocation();
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const { code: inviteCodeQuery, entered } = query;
   const enteredQuery = entered === "true"
 
@@ -178,7 +177,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       <div className={classes.enterButton}>
         <a className={classes.buttonStyling} onClick={ async () => {
           setOnboarded(true)
-          navigate({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
           if (currentUser && !currentUser.walledGardenPortalOnboarded) {
             void updateCurrentUser({
               walledGardenPortalOnboarded: true

@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useLocation } from '../../../lib/routeUtil';
+import { useLocation, useNavigation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
@@ -13,7 +13,7 @@ import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { Link } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
 
@@ -205,7 +205,7 @@ const EAGApplicationImportForm = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
-  const navigate = useNavigate();
+  const { history } = useNavigation()
   const { pathname } = useLocation()
   const { flash } = useMessages()
   const { captureEvent } = useTracking()
@@ -455,7 +455,7 @@ const EAGApplicationImportForm = ({classes}: {
           return prev
         }
       }, updatedFormData)
-      navigate(userGetProfileUrl(currentUser))
+      history.push(userGetProfileUrl(currentUser))
     }, (e) => {
       // eslint-disable-next-line no-console
       console.error(e)

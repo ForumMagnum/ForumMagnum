@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { useNavigation } from '../../../lib/routeUtil';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
@@ -29,7 +30,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   classes: ClassesType,
 }) => {
   const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
-  const navigate = useNavigate();
+  const { history } = useNavigation();
   const currentUser = useCurrentUser();
 
   const handleKey = useCallback((ev) => {
@@ -43,14 +44,14 @@ const PostsTopSequencesNav = ({post, classes}: {
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
           if (post.prevPost)
-            navigate(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
+            history.push(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
         } else if (ev.keyCode == 39) { // Right
           if (post.nextPost)
-            navigate(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
+            history.push(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
         }
       }
     }
-  }, [navigate, post]);
+  }, [post, history]);
   useGlobalKeydown(handleKey);
 
   if (!post?.sequence)

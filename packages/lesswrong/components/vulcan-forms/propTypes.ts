@@ -100,6 +100,9 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   extraVariables?: any
   extraVariablesValues?: any
   excludeHiddenFields?: boolean
+
+  // Provided by HoCs in wrappers
+  history?: any
 }
 
 export interface SmartFormProps extends WrappedSmartFormProps {
