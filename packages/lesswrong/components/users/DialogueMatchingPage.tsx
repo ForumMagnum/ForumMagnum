@@ -634,8 +634,8 @@ const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<t
           ? classes.hideAtXs
           : title === headerTexts.postsRead
           ? titles.includes(headerTexts.karma)
-            ? classes.hideAtXs
-            : classes.hideAtSm
+            ? classes.hideAtSm
+            : classes.hideAtXs
           : ''
         return <h5 key={index} className={classNames(classes.header, hideClass)}> {title} </h5>
       })}
