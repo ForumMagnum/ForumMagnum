@@ -460,6 +460,19 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
+Comments.addView('answersAndReplies', ({postId}: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId,
+      $or: [
+        { answer: true },
+        { parentAnswerId: {$exists: true} },
+      ],
+    },
+    options: {sort: {baseScore: -1}}
+  };
+});
+
 // Used in moveToAnswers
 ensureIndex(Comments, {topLevelCommentId:1});
 

@@ -7,6 +7,7 @@ import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
+import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export interface ToCDisplayOptions {
@@ -38,45 +39,15 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
-const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions}: {
-  sectionData: ToCData,
+const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
+  tocSections: ToCSection[],
   title: string|null,
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
 }) => {
-  const [currentSection,setCurrentSection] = useState<string|null>(topSection);
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-
-  useEffect(() => {
-    window.addEventListener('scroll', updateHighlightedSection);
-    updateHighlightedSection();
-    
-    return () => {
-      window.removeEventListener('scroll', updateHighlightedSection);
-    };
-  });
-
-
-  // Return the screen-space current section mark - that is, the spot on the
-  // screen where the current-post will transition when its heading passes.
-  const getCurrentSectionMark = () => {
-    return window.innerHeight/3
-  }
-
-  // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
-  // if you've scrolled, the scroll is subtracted from the effective Y
-  // position.)
-  const getAnchorY = (anchorName: string): number|null => {
-    let anchor = window.document.getElementById(anchorName);
-    if (anchor) {
-      let anchorBounds = anchor.getBoundingClientRect();
-      return anchorBounds.top + (anchorBounds.height/2);
-    } else {
-      return null
-    }
-  }
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
@@ -93,67 +64,31 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     }
   }
 
-  const jumpToY = (y: number) => {
-    if (isServer) return;
-
-    try {
-      window.scrollTo({
-        top: y - getCurrentSectionMark() + 1,
-        behavior: "smooth"
-      });
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.warn("scrollTo not supported, using link fallback", e)
-    }
-  }
-
-  const updateHighlightedSection = () => {
-    let newCurrentSection = getCurrentSection();
-    if(newCurrentSection !== currentSection) {
-      setCurrentSection(newCurrentSection);
-    }
-  }
-
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
-  if (!sectionData)
-    return <div/>
-
-  let filteredSections = (displayOptions?.maxHeadingDepth)
-    ? filter(sectionData.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
-    : sectionData.sections;
+  let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
+    ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : tocSections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
   }
-
-  const getCurrentSection = (): string|null => {
-    if (isServer)
-      return null;
-    if (!filteredSections)
-      return null;
-
-    // The current section is whichever section a spot 1/3 of the way down the
-    // window is inside. So the selected section is the section whose heading's
-    // Y is as close to the 1/3 mark as possible without going over.
-    let currentSectionMark = getCurrentSectionMark();
-
-    let currentSection: string|null = null;
-    for(let i=0; i<filteredSections.length; i++)
+  
+  const { landmarkName: currentSection } = useScrollHighlight([
+    ...filteredSections.map((section): ScrollHighlightLandmark => ({
+      landmarkName: section.anchor,
+      elementId: section.anchor,
+      position: "centerOfElement"
+    })),
     {
-      let sectionY = getAnchorY(filteredSections[i].anchor);
+      landmarkName: "comments",
+      elementId: "postBody",
+      position: "bottomOfElement"
+    },
+  ]);
 
-      if(sectionY && sectionY < currentSectionMark)
-        currentSection = filteredSections[i].anchor;
-    }
-
-    if (currentSection === null) {
-      // Was above all the section headers, so return the special "top" section
-      return topSection;
-    }
-
-    return currentSection;
-  }
+  if (!tocSections)
+    return <div/>
 
   const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
     ev.preventDefault();
@@ -197,7 +132,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
           });
         }
       }}
-      highlighted={currentSection === topSection}
+      highlighted={currentSection === "above"}
       title
     >
       {title?.trim()}
@@ -229,6 +164,37 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     })}
   </div>
 }
+
+
+/**
+ * Return the screen-space Y coordinate of an anchor. (Screen-space meaning
+ * if you've scrolled, the scroll is subtracted from the effective Y
+ * position.)
+ */
+export const getAnchorY = (anchorName: string): number|null => {
+  let anchor = window.document.getElementById(anchorName);
+  if (anchor) {
+    let anchorBounds = anchor.getBoundingClientRect();
+    return anchorBounds.top + (anchorBounds.height/2);
+  } else {
+    return null
+  }
+}
+
+export const jumpToY = (y: number) => {
+  if (isServer) return;
+
+  try {
+    window.scrollTo({
+      top: y - getCurrentSectionMark() + 1,
+      behavior: "smooth"
+    });
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.warn("scrollTo not supported, using link fallback", e)
+  }
+}
+
 
 const TableOfContentsListComponent = registerComponent(
   "TableOfContentsList", TableOfContentsList, {
