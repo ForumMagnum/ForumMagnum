@@ -86,14 +86,11 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
       />
       <Components.TableOfContentsDivider/>
     </>)}
-    {commentTree && commentTree.map(comment => comment.item
-      ? <ToCCommentBlock
-          key={comment.item._id}
-          commentTree={comment} indentLevel={1} classes={classes}
-          highlightedCommentId={highlightedLandmarkName}
-        />
-      : null
-    )}
+    {commentTree && commentTree.map(comment => <ToCCommentBlock
+      key={comment.item._id}
+      commentTree={comment} indentLevel={1} classes={classes}
+      highlightedCommentId={highlightedLandmarkName}
+    />)}
   </div>
 }
 
@@ -116,7 +113,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  const comment = commentTree.item!;
+  const comment = commentTree.item;
   
   return <div>
     <TableOfContentsRow
