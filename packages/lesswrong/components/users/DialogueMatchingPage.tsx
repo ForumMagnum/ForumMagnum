@@ -127,7 +127,7 @@ type NextStepsDialogProps = {
   classes: ClassesType<typeof styles>;
 };
 
-type MatchDialogueButtonProps = {
+type DialogueNextStepsButtonProps = {
   isMatched: boolean;
   checkId: string,
   targetUserId: string;
@@ -473,7 +473,7 @@ const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
 };
 
 const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
-  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked || false;
+  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
 const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
@@ -645,10 +645,10 @@ type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPref
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
   const { LWDialog } = Components;
 
-  const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes || "");
-  const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference || "Meh");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference || "Meh");
-  const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes || "");
+  const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
+  const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
+  const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -661,7 +661,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: topicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference || "No"})),
+        topicPreferences: topicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference ?? "No"})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -695,18 +695,18 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const topicRecommendations: CommentsList[] = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
   
-  const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) || [])
-  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.matchingMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) || [])
+  const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) ?? [])
+  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.matchingMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) ?? [])
   const mergedTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) => ({...matchedPersonTopic, ...ownTopic}))
   const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(mergedTopicDict))
 
   useEffect(() => setTopicPreferences(topicPreferences => {
     const existingTopicDict = Object.fromEntries(topicPreferences.map(topic => [topic.text, topic]))
-    const newRecommendedTopicDict = Object.fromEntries(topicRecommendations?.map(comment => [comment.contents?.plaintextMainText || '', {
-      text: comment.contents?.plaintextMainText || '',
+    const newRecommendedTopicDict = Object.fromEntries(topicRecommendations?.map(comment => [comment.contents?.plaintextMainText ?? '', {
+      text: comment.contents?.plaintextMainText ?? '',
       preference: 'No' as const,
       commentSourceId: comment._id
-    }]) || [])
+    }]) ?? [])
     const mergedTopicDict = mergeWith(existingTopicDict, newRecommendedTopicDict, (existingTopic, newRecommendedTopic) => ({...newRecommendedTopic, ...existingTopic}))
     return Object.values(mergedTopicDict)
   }), [topicRecommendations])
@@ -739,7 +739,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
         <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
         <DialogContent >
           {userSuggestedTopics.length > 0 && <>
-            <div>Here are some topics your match was interested in:</div>
+            <div>Here are some topics {targetUserDisplayName} was interested in:</div>
             <div className={classes.dialogueTopicList}>
               {userSuggestedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
@@ -920,7 +920,7 @@ const DialogueCheckBox: React.FC<{
       },
       optimisticResponse: {
         upsertUserDialogueCheck: {
-          _id: checkId || randomId(),
+          _id: checkId ?? randomId(),
           __typename: 'DialogueCheck',
           userId: currentUser._id,
           targetUserId: targetUserId,
@@ -942,7 +942,7 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
-          dialogueCheckId: checkId!,
+          dialogueCheckId: response.data.upsertUserDialogueCheck._id,
           dialogueCheck: response.data.upsertUserDialogueCheck
         }
       });
@@ -973,7 +973,7 @@ const DialogueCheckBox: React.FC<{
   );
 };
 
-const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
+const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   isMatched,
   checkId,
   targetUserId,
@@ -1033,7 +1033,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
-            dialogueCheckId: checkId!,
+            dialogueCheckId: checkId,
             dialogueCheck
           }
         })
@@ -1064,7 +1064,7 @@ const MessageButton: React.FC<{
 
 const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
   const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
-  const { UsersName, DialogueCheckBox, MessageButton, MatchDialogueButton } = Components;
+  const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton } = Components;
 
   return <React.Fragment key={`${targetUser._id}_other`}>
     <DialogueCheckBox
@@ -1083,7 +1083,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       currentUser={currentUser}
       isMatched={userIsMatched}
     />
-    <MatchDialogueButton
+    <DialogueNextStepsButton
       isMatched={userIsMatched}
       checkId={checkId}
       targetUserId={targetUser._id}
@@ -1201,7 +1201,7 @@ export const DialogueMatchingPage = ({classes}: {
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
-  const matchedUserIds = matchedUsers?.map(user => user._id) || [];
+  const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
   const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
   const inRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
@@ -1209,7 +1209,7 @@ export const DialogueMatchingPage = ({classes}: {
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
   
   if (loading) return <Loading />
-  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }
@@ -1374,7 +1374,7 @@ export const DialogueMatchingPage = ({classes}: {
   </div>)
 }
 
-const MatchDialogueButtonComponent = registerComponent('MatchDialogueButton', MatchDialogueButton, {styles});
+const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
 const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
 const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
@@ -1383,7 +1383,7 @@ const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', 
 declare global {
   interface ComponentTypes {
     NextStepsDialog: typeof NextStepsDialogComponent
-    MatchDialogueButton: typeof MatchDialogueButtonComponent
+    DialogueNextStepsButton: typeof DialogueNextStepsButtonComponent
     MessageButton: typeof MessageButtonComponent
     DialogueCheckBox: typeof DialogueCheckBoxComponent
     DialogueUserRow: typeof DialogueUserRowComponent

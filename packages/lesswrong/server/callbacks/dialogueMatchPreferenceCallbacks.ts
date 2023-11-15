@@ -19,7 +19,6 @@ function convertTimestamp(timestamp: number) {
 }
 
 const getDialogueMessageHTML = (userId:string, displayName:string, order:string, content:string ) => {
-
   const time = convertTimestamp(Date.now())
   const message_id = `${userId}-${time}`
 
@@ -35,7 +34,7 @@ const getDialogueMessageHTML = (userId:string, displayName:string, order:string,
 }
 
 const helperBotDisplayName = "Dialogue Helper Bot"
-const helperBotId = "edmzLyzymdoSuXnym"
+const helperBotId = "jHkqasDqh8HHLen6z"
 
 const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTargetUser: MatchPreferenceFormData) => {
   const userName = formDataSourceUser.displayName;
@@ -95,7 +94,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const isYesOrMeh = (value: string) => ["Yes", "Meh"].includes(value);
 
   const formatPreferenceMatch = 
-    (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ||
+    (isYesOrMeh(formDataSourceUser.syncPreference) && isYesOrMeh(formDataTargetUser.syncPreference)) ??
     (isYesOrMeh(formDataSourceUser.asyncPreference) && isYesOrMeh(formDataTargetUser.asyncPreference));
 
   let nextAction = `<p>The next step is for you to coordinate dialogue topic and timing (in the event of a synchronous dialogue) below. After that, you'll be able to use this post for the dialogue content as well; at any point, you can delete this helper message and any other coordination messages you've sent here as well so that they don't appear in your final published dialogue.</p>`
@@ -115,7 +114,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   const dialogueCheck = await context.loaders.DialogueChecks.load(dialogueCheckId);
 
   // This shouldn't ever happen
-  if (!dialogueCheck || !currentUser || currentUser._id !== dialogueCheck.userId) {
+  if (!dialogueCheck ?? !currentUser ?? currentUser._id !== dialogueCheck.userId) {
     throw new Error(`Can't find check for dialogue match preferences!`);
   }
   const { userId, targetUserId } = dialogueCheck;
@@ -143,8 +142,8 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   }
   const formDataUser2 = {
     ...reciprocalMatchPreferences,
-    displayName: targetUser.displayName,
     userId: targetUserId,
+    displayName: targetUser.displayName,
   }
  
   const result = await createMutator({

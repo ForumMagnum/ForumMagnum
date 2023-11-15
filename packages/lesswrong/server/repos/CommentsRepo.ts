@@ -75,14 +75,16 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
+  readonly bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL';
+
   async getPopularPollComments (limit: number): Promise<(DbComment)[]> {
     return await this.manyOrNone(`
       SELECT *
       FROM public."Comments" AS c
-      WHERE c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+      WHERE c."parentCommentId" = $2
       ORDER BY c."baseScore" DESC
       LIMIT $1
-    `, [limit]);
+    `, [limit, this.bensInterestingDisagreementsCommentId]);
   }
 
   async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(DbComment)[]> {
@@ -91,36 +93,37 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE
-      c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+      c."parentCommentId" = $3
       AND v."userId" = $1
       AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
       AND v.cancelled IS NOT TRUE
       AND v."isUnvote" IS NOT TRUE
     ORDER BY c."baseScore" DESC
     LIMIT $2
-    `, [userId, limit]);
+    `, [userId, limit, this.bensInterestingDisagreementsCommentId]);
   }
 
   async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(DbComment)[]> {
     return await this.manyOrNone(`
+      WITH votes_filtered AS (
+        SELECT *
+        FROM public."Votes"
+        WHERE "extendedVoteType"->'reacts'->0->>'vote' = 'created'
+          AND cancelled IS NOT TRUE
+          AND "isUnvote" IS NOT TRUE
+      )
       SELECT *
       FROM public."Comments" AS c
-      INNER JOIN public."Votes" AS v1 ON c._id = v1."documentId"
-      INNER JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+      INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
+      INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"
       WHERE
-        c."parentCommentId" = 'NtsPs9wcwrpeK6KYL'
+        c."parentCommentId" = $4
         AND v1."userId" = $1
         AND v2."userId" = $2
-        AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
-        AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
         AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
-        AND v1.cancelled IS NOT TRUE
-        AND v2.cancelled IS NOT TRUE
-        AND v1."isUnvote" IS NOT TRUE
-        AND v2."isUnvote" IS NOT TRUE
       ORDER BY c."baseScore" DESC
       LIMIT $3
-    `, [userId, targetUserId, limit]);
+    `, [userId, targetUserId, limit, this.bensInterestingDisagreementsCommentId]);
   }
 
   async getPopularComments({

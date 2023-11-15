@@ -79,28 +79,6 @@ createPaginatedResolver({
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
-
-// createPaginatedResolver({
-//   name: "PollTopicsPopular",
-//   graphQLType: "Comment",
-//   callback: async (
-//     context: ResolverContext,
-//     limit: number,
-//   ): Promise<DbComment[]> => {
-
-//     // let recommendedComments
-
-//     // const disagreeingComments = context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit)
-//     // const userVotedComments = context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit)
-//     // const targetUserVotedComments = context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit)
-//     // const topVotedComments = context.repos.comments.getPopularPollComments(limit)
-
-    
-//     // return recommendedComments
-//   },
-//   cacheMaxAgeMs: 0, // 5 mins
-// });
-
 defineQuery({
   name: "GetTwoUserTopicRecommendations",
   resultType: "[Comment]",
