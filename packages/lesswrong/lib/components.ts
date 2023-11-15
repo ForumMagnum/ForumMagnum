@@ -420,7 +420,6 @@ importComponent("PostsByVote", () => require('../components/posts/PostsByVote'))
 importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
 importComponent("UserSuggestNominations", () => require('../components/posts/UserSuggestNominations'));
 importComponent("PostsTimeBlock", () => require('../components/posts/PostsTimeBlock'));
-importComponent("PostsCommentsThread", () => require('../components/posts/PostsCommentsThread'));
 importComponent("PostsNewForm", () => require('../components/posts/PostsNewForm'));
 importComponent("PostsEditForm", () => require('../components/posts/PostsEditForm'));
 importComponent("PostsAcceptTos", () => require('../components/posts/PostsAcceptTos'));
@@ -581,6 +580,7 @@ importComponent("CommentBottomCaveats", () => require('../components/comments/Co
 importComponent("AllComments", () => require('../components/comments/AllComments'));
 importComponent("ModeratorComments", () => require('../components/comments/ModeratorComments'));
 
+importComponent("CommentsTableOfContents", () => require('../components/comments/CommentsTableOfContents'));
 importComponent("CommentById", () => require('../components/comments/CommentById'));
 importComponent("CommentWithReplies", () => require('../components/comments/CommentWithReplies'));
 importComponent("CommentOnPostWithReplies", () => require('../components/comments/CommentOnPostWithReplies'));

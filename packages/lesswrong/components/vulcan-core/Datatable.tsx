@@ -4,11 +4,11 @@ import withUser from '../common/withUser';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { getSchema } from '../../lib/utils/getSchema';
-import { intlShape } from '../../lib/vulcan-i18n';
 import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import type { ColumnComponents } from './datatableTypes';
+import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 
 export interface Column {
   name: string;
@@ -141,8 +141,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }: {
   column: Column;
   toggleSort: (name: string) => void;
   currentSort: Record<string, number>;
-}, { intl }: any) => {
-
+}) => {
   const columnName = getColumnName(column);
   
   if (collection) {
@@ -157,7 +156,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }: {
     3. the raw column name.
 
     */
-    const formattedLabel = intl.formatLabel({fieldName: columnName, collectionName: collection.collectionName, schema: schema});
+    const formattedLabel = formatLabel({fieldName: columnName, collectionName: collection.collectionName, schema: schema});
 
     // if sortable is a string, use it as the name of the property to sort by. If it's just `true`, use column.name
     const sortPropertyName = typeof column.sortable === 'string' ? column.sortable : column.name;
@@ -167,7 +166,7 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }: {
 
   } else {
 
-    const formattedLabel = intl.formatMessage({ id: columnName, defaultMessage: columnName });
+    const formattedLabel = formatMessage({ id: columnName, defaultMessage: columnName });
     return (
       <Components.DatatableHeaderCellLayout
         className={`datatable-th-${columnName.toLowerCase().replace(/\s/g, '-')}`}
@@ -176,11 +175,6 @@ const DatatableHeader = ({ collection, column, toggleSort, currentSort }: {
       </Components.DatatableHeaderCellLayout>
     );
   }
-};
-DatatableHeader.contextTypes = {
-  intl: intlShape
-};
-DatatableHeader.propTypes = {
 };
 const DatatableHeaderComponent = registerComponent('DatatableHeader', DatatableHeader);
 

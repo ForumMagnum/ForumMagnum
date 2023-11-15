@@ -7,8 +7,8 @@ import { commentGetDefaultView } from '../../../lib/collections/comments/helpers
 import { useCurrentUser } from '../../common/withUser';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { postsCommentsThreadMultiOptions } from '../PostsCommentsThread';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
+import { postsCommentsThreadMultiOptions } from './PostsPage';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
