@@ -107,13 +107,13 @@ type UserTableProps<V extends boolean> = V extends false ? (CommonUserTableProps
   users: RowUser[];
   showKarma: false;
   showAgreement: false;
-  isUpvotedUser: false;
+  tableContext: "match" | "other";
   showHeaders: boolean;
 }) : (CommonUserTableProps & {
   users: UpvotedUser[];
   showKarma: boolean;
   showAgreement: boolean;
-  isUpvotedUser: true;
+  tableContext: "upvoted";
   showHeaders: boolean;
 });
 
@@ -141,17 +141,17 @@ const minMobileRowHeight = 60;
 
 const xsGridBaseStyles = (theme: ThemeType) => ({
   display: 'grid',
-  //                    checkbox                    name                        message                match
-  gridTemplateColumns: `minmax(min-content, auto)   minmax(min-content, 2fr)   minmax(80px, 1fr)     minmax(min-content, 1fr)`,
+  //                    checkbox                    name                        message or match
+  gridTemplateColumns: `minmax(min-content, auto)   minmax(min-content, 2fr)   minmax(90px, 1fr)`,
   gridAutoRows: `${minMobileRowHeight}px`,
   gridRowGap: 5,
-  columnGap: 10,
+  columnGap: 2,
   alignItems: 'center',
   "& .MuiFormControlLabel-root": {
     marginLeft: 0,
   },
   "& svg.MuiSvgIcon-root": {
-    width: "100%",
+    width: 30,
     height: 30,
   },
   background:
@@ -225,7 +225,10 @@ const styles = (theme: ThemeType) => ({
     height: 'auto',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    [theme.breakpoints.down("xs")]: {
+      whiteSpace: 'normal',
+    }
   },
   dialogBox: {
     [theme.breakpoints.down('sm')]: {
@@ -249,8 +252,9 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     borderRadius: 5,
     [theme.breakpoints.down("xs")]: {
-      "fontSize": "1.25rem",
-      "padding": "0.2rem",
+      fontSize: "1.25rem",
+      padding: "0.2rem",
+      width: "75px"
     },
   },
   enterTopicsButton: {
@@ -624,21 +628,12 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
   );
 };
 
-const Headers = ({ titles, classes }: { titles: string[], classes: ClassesType<typeof styles> }) => {
+const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerClasses: {[title: string]: string[]}, classes: ClassesType<typeof styles> }) => {
   return (
     <>
-      {titles.map((title, index) => {
-        const hideClass = [headerTexts.bio, headerTexts.tags].includes(title)
-          ? classes.hideAtSm
-          : [headerTexts.karma, headerTexts.agreement].includes(title)
-          ? classes.hideAtXs
-          : title === headerTexts.postsRead
-          ? titles.includes(headerTexts.karma)
-            ? classes.hideAtSm
-            : classes.hideAtXs
-          : ''
-        return <h5 key={index} className={classNames(classes.header, hideClass)}> {title} </h5>
-      })}
+      {titles.map((title, index) => (
+        <h5 key={index} className={classNames(classes.header, ...(headerClasses[title] ?? []))}> {title} </h5>
+      ))}
     </>
   );
 };
@@ -1000,7 +995,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
     documentId: checkId,
   });
 
-  if (!isMatched) return <div></div>; // need this instead of null to keep the table columns aligned
+  if (!isMatched) return <div className={classes.hideAtXs}></div>; // need this instead of null to keep the table columns aligned
 
   const userMatchPreferences = results?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
@@ -1023,7 +1018,7 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
   return (
     <button
-      className={classes.enterTopicsButton}
+      className={classNames(classes.enterTopicsButton, isMatched ? '' : classes.hideAtXs)}
       onClick={(e) => {
         dialogueCheck && openDialog({
           componentName: 'NextStepsDialog',
@@ -1044,13 +1039,14 @@ const MatchDialogueButton: React.FC<MatchDialogueButtonProps> = ({
 
 const MessageButton: React.FC<{
   targetUserId: string;
-  currentUser: UsersCurrent; 
+  currentUser: UsersCurrent;
+  isMatched: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, currentUser, classes }) => {
+}> = ({ targetUserId, currentUser, isMatched, classes }) => {
   const { NewConversationButton } = Components;
   
   return (
-    <button className={classes.messageButton}>
+    <button className={classNames(classes.messageButton, isMatched ? classes.hideAtXs : '')}>
       <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
         <a data-cy="message">Message</a>
       </NewConversationButton>
@@ -1078,6 +1074,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
     <MessageButton
       targetUserId={targetUser._id}
       currentUser={currentUser}
+      isMatched={userIsMatched}
     />
     <MatchDialogueButton
       isMatched={userIsMatched}
@@ -1110,6 +1107,7 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     gridClassName,
     userDialogueChecks,
     showHeaders,
+    tableContext,
     ...rest
   } = props;
 
@@ -1127,12 +1125,22 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
     ...(rest.showPostsYouveRead ? [headerTexts.postsRead] : []),
   ];
 
+  const headerClasses = {
+    [headerTexts.bio]: [classes.hideAtSm],
+    [headerTexts.tags]: [classes.hideAtSm],
+    [headerTexts.karma]: [classes.hideAtXs],
+    [headerTexts.agreement]: [classes.hideAtXs],
+    [headerTexts.postsRead]: [tableContext === 'upvoted' ? classes.hideAtSm : classes.hideAtXs],
+    [headerTexts.match]: [tableContext === 'match' ? '' : classes.hideAtXs],
+    [headerTexts.message]: [tableContext === 'match' ? classes.hideAtXs : ''],
+  }
+
   const allRowProps = getRowProps(props);
   const rows = allRowProps.map((rowProps) => <DialogueUserRow key={rowProps.targetUser._id} {...rowProps} />);
 
   return (
     <div className={gridClassName}>
-      {showHeaders && <Headers titles={headers} classes={classes} />}
+      {showHeaders && <Headers titles={headers} classes={classes} headerClasses={headerClasses} />}
       {rows}
     </div>
   );
@@ -1254,7 +1262,7 @@ export const DialogueMatchingPage = ({classes}: {
           <h3>Matches</h3>
           <UserTable
             users={matchedUsers ?? []}
-            isUpvotedUser={false}
+            tableContext={'match'}
             classes={classes}
             gridClassName={classes.matchContainerGridV2}
             currentUser={currentUser}
@@ -1279,7 +1287,7 @@ export const DialogueMatchingPage = ({classes}: {
           <h4>Recently active on dialogue matching (last 10 days)</h4>
           <UserTable
             users={recentlyActiveTopUsers}
-            isUpvotedUser={true}
+            tableContext={'upvoted'}
             classes={classes}
             gridClassName={classes.matchContainerGridV1}
             currentUser={currentUser}
@@ -1297,7 +1305,7 @@ export const DialogueMatchingPage = ({classes}: {
             <h4>Not recently active on dialogue matching</h4>
             <UserTable
               users={inRecentlyActiveTopUsers}
-              isUpvotedUser={true}
+              tableContext={'upvoted'}
               classes={classes}
               gridClassName={classes.matchContainerGridV1}
               currentUser={currentUser}
@@ -1319,7 +1327,7 @@ export const DialogueMatchingPage = ({classes}: {
         <h3>People who published dialogues</h3>
         <UserTable
           users={dialogueUsers}
-          isUpvotedUser={false}
+          tableContext={'other'}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
@@ -1339,7 +1347,7 @@ export const DialogueMatchingPage = ({classes}: {
         <h3>People who checked a box saying they're interested in having dialogues</h3>
         <UserTable
           users={optedInUsers}
-          isUpvotedUser={false}
+          tableContext={'other'}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
           currentUser={currentUser}
