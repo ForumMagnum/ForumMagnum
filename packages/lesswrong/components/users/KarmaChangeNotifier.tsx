@@ -18,7 +18,7 @@ import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
-import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
+import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -310,7 +310,15 @@ const NewReactions = ({reactionChanges, classes}: {
   
   return <span>
     {[...distinctReactionTypes.keys()].map(reactionType => {
-      const EAEmojiComponent = eaEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+      let disableTooltip = false
+      let EAEmojiComponent = eaEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+      // On EAF, if the emoji is not in the list of non-anonymous reacts (eaEmojiPalette),
+      // then make sure not to show any usernames of voters. They should not be available here anyway,
+      // but we also don't want to show [anonymous], so we disable the tooltip altogether.
+      if (!EAEmojiComponent && isEAForum) {
+        EAEmojiComponent = eaAnonymousEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+        disableTooltip = true
+      }
     
       return <span
         className={classes.individualAddedReact}
@@ -324,6 +332,7 @@ const NewReactions = ({reactionChanges, classes}: {
                 <Components.UsersName documentId={r.userId}/>
               </>)
           }
+          disabled={disableTooltip}
         >
           {(EAEmojiComponent && isEAForum) ? <EAEmojiComponent /> : <ReactionIcon
             react={reactionType}

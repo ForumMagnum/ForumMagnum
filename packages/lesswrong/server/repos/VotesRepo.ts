@@ -6,7 +6,8 @@ import keyBy from "lodash/keyBy";
 import groupBy from "lodash/groupBy";
 import { EAOrLWReactionsVote, NamesAttachedReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
-import { eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import { eaAnonymousEmojiPalette, eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -180,7 +181,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
     if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
-    const reactionChanges: ReactionChange[] = [];
+    let reactionChanges: ReactionChange[] = [];
     
     type FlattenedReaction = {
         reactionType: string
@@ -270,6 +271,16 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           });
         }
       }
+    }
+    
+    // On EAF, some reacts are anonymous (currently agree and disagree). For those, remove the userId.
+    if (isEAForum) {
+      reactionChanges = reactionChanges.map(change => {
+        if (eaAnonymousEmojiPalette.some(emoji => emoji.name === change.reactionType)) {
+          return {reactionType: change.reactionType}
+        }
+        return change
+      })
     }
     
     return reactionChanges;
