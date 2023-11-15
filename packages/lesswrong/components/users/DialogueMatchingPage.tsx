@@ -1121,10 +1121,10 @@ const UserTable = <V extends boolean>(props: UserTableProps<V>) => {
   const { DialogueUserRow } = Components;
 
   const headers = [
-    "Dialogue",
-    "Name",
-    "Message",
-    "Match",
+    "Dialogue maybe?",
+    " ",
+    " ",
+    " ",
     ...(rest.showKarma ? [headerTexts.karma] : []),
     ...(rest.showAgreement ? [headerTexts.agreement] : []),
     ...(rest.showBio ? [headerTexts.bio] : []),
