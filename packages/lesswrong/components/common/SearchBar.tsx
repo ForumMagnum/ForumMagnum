@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
+import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
@@ -13,6 +13,7 @@ import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
 
