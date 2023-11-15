@@ -77,7 +77,7 @@ const tabs = [
   },
   {
     name: "reactions",
-    type: undefined,
+    type: "reactions",
   },
   {
     name: "new posts",

@@ -207,10 +207,18 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
     limit?: number,
     offset?: number,
   }): Promise<NotificationDisplay[]> {
+    const includeNotifications = type !== "reactions";
+    const includeReactions = !type || type === "reactions";
     return this.getRawDb().any(`
-      ${buildNotificationsQuery(1, 2, type, includeMessages)}
-      UNION
-      ${buildReactionsQuery(1)}
+      ${includeNotifications
+        ? buildNotificationsQuery(1, 2, type, includeMessages)
+        : ""
+      }
+      ${includeNotifications && includeReactions ? "UNION" : ""}
+      ${includeReactions
+        ? buildReactionsQuery(1)
+        : ""
+      }
       ORDER BY "createdAt" DESC
       LIMIT $3
       OFFSET $4

@@ -86,7 +86,7 @@ const getNotificationDisplay = (
     const {Display} = getNotificationTypeByName(notificationType);
     return Display;
   } catch (e) {
-    // esline-disable-next-line no-console
+    // eslint-disable-next-line no-console
     console.error("Invalid notification type:", notificationType, e);
   }
 
