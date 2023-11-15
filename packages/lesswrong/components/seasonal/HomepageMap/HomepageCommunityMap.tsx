@@ -3,7 +3,7 @@ import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { Helmet } from 'react-helmet'
-import ReactMapGL, { Marker } from 'react-map-gl';
+import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
@@ -12,6 +12,10 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
+import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+
+const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = (theme: JssStyles) => ({
   root: {
