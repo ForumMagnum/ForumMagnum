@@ -44,6 +44,31 @@ const buildNotificationPost = (
   'user', ${buildNotificationUser(userPrefix)}
 )`;
 
+// This should return an object of type `NotificationDisplayComment`
+const buildNotificationComment = (
+  prefix: string,
+  userPrefix: string,
+  postPrefix: string,
+  postUserPrefix: string,
+) => `JSONB_BUILD_OBJECT(
+  '_id', ${prefix}."_id",
+  'user', ${buildNotificationUser(userPrefix)},
+  'post', ${buildNotificationPost(postPrefix, postUserPrefix)}
+)`;
+
+// This should return an object of type `NotificationDisplayTag`
+const buildNotificationTag = (prefix: string) => `JSONB_BUILD_OBJECT(
+  '_id', ${prefix}."_id",
+  'name', ${prefix}."name",
+  'slug', ${prefix}."slug"
+)`;
+
+// This should return an object of type `NotificationDisplayLocalgroup`
+const buildNotificationLocalgroup = (prefix: string) => `JSONB_BUILD_OBJECT(
+  '_id', ${prefix}."_id",
+  'name', ${prefix}."name"
+)`;
+
 export default class NotificationsRepo extends AbstractRepo<DbNotification> {
   constructor() {
     super(Notifications);
@@ -70,22 +95,14 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         n."createdAt",
         CASE WHEN p."_id" IS NULL THEN NULL ELSE
           ${buildNotificationPost("p", "pu")} END "post",
-        CASE WHEN c."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-          '_id', c."_id",
-          'user', ${buildNotificationUser("cu")},
-          'post', ${buildNotificationPost("cp", "cpu")}
-        ) END "comment",
-        CASE WHEN t."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-          '_id', t."_id",
-          'name', t."name",
-          'slug', t."slug"
-        ) END "tag",
+        CASE WHEN c."_id" IS NULL THEN NULL ELSE
+          ${buildNotificationComment("c", "cu", "cp", "cpu")} END "comment",
+        CASE WHEN t."_id" IS NULL THEN NULL ELSE
+          ${buildNotificationTag("t")} END "tag",
         CASE WHEN u."_id" IS NULL THEN NULL ELSE
           ${buildNotificationUser("u")} END "user",
-        CASE WHEN l."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-          '_id', l."_id",
-          'name', l."name"
-        ) END "localgroup"
+        CASE WHEN l."_id" IS NULL THEN NULL ELSE
+          ${buildNotificationLocalgroup("l")} END "localgroup"
       FROM "Notifications" n
       LEFT JOIN "Posts" p ON
         n."documentType" = 'post' AND

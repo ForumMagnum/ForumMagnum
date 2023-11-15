@@ -66,17 +66,23 @@ type NotificationDisplayPost = Pick<
   user?: NotificationDisplayUser,
 };
 
+type NotificationDisplayComment = Pick<DbComment, "_id"> & {
+  user?: NotificationDisplayUser,
+  post?: NotificationDisplayPost,
+};
+
+type NotificationDisplayTag = Pick<DbTag, "_id" | "name" | "slug">;
+
+type NotificationDisplayLocalgroup = Pick<DbLocalgroup, "_id" | "name">;
+
 /** Main type for the notifications page */
 export type NotificationDisplay =
   Pick<DbNotification, "_id" | "type" | "link" | "createdAt"> & {
     post?: NotificationDisplayPost,
-    comment?: Pick<DbComment, "_id"> & {
-      user?: NotificationDisplayUser,
-      post?: NotificationDisplayPost,
-    },
-    tag?: Pick<DbTag, "_id" | "name" | "slug">,
+    comment?: NotificationDisplayComment,
+    tag?: NotificationDisplayTag,
     user?: NotificationDisplayUser,
-    localgroup?: Pick<DbLocalgroup, "_id" | "name">,
+    localgroup?: NotificationDisplayLocalgroup,
   };
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
