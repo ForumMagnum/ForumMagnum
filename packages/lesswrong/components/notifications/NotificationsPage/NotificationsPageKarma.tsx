@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
+  KarmaChanges,
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
@@ -27,13 +28,13 @@ const styles = (theme: ThemeType) => ({
 });
 
 const NotificationsPageKarma = ({karmaChanges, classes}: {
-  karmaChanges?: UserKarmaChanges,
+  karmaChanges?: KarmaChanges,
   classes: ClassesType<typeof styles>,
 }) => {
-  if (!karmaChanges?.karmaChanges) {
+  if (!karmaChanges) {
     return null;
   }
-  const {posts, comments, tagRevisions, updateFrequency} = karmaChanges.karmaChanges;
+  const {posts, comments, tagRevisions, updateFrequency} = karmaChanges;
   const batchedText = updateFrequency === "realtime"
     ? "in realtime"
     : `batched ${updateFrequency}`;

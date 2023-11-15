@@ -36,3 +36,14 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagSlug?: string
   tagName?: string
 }
+
+export type KarmaChanges = {
+  totalChange: number,
+  startDate: Date,
+  endDate: Date,
+  nextBatchDate: Date,
+  updateFrequency: string,
+  posts: PostKarmaChange[],
+  comments: CommentKarmaChange[],
+  tagRevisions: TagRevisionKarmaChange[],
+}

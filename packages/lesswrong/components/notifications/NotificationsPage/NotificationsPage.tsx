@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { FC, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
@@ -7,6 +7,14 @@ import { useSingle } from "../../../lib/crud/withSingle";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
+import type { KarmaChanges } from "../../../lib/types/karmaChangesTypes";
+
+type Feed<T = unknown> = {
+  items: T[],
+  getId: (item: T) => string,
+  getDate: (item: T) => Date,
+  Component: FC<{item: T}>,
+}
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -147,6 +155,32 @@ export const NotificationsPage = ({classes}: {
   }
 
   const {NotificationsPageKarma, NotificationsPageItem, LoadMore} = Components;
+
+  const feeds: Feed[] = [];
+  if (
+    karmaChanges?.karmaChanges &&
+    (currentTab.name === "all" || currentTab.name === "karma")
+  ) {
+    feeds.push({
+      items: [karmaChanges.karmaChanges],
+      getId: ({endDate}: KarmaChanges) => `karma-${endDate}`,
+      getDate: ({endDate}: KarmaChanges) => new Date(endDate),
+      Component: ({item}: {item: KarmaChanges}) => (
+        <NotificationsPageKarma karmaChanges={item} />
+      ),
+    });
+  }
+  if (currentTab.name !== "karma") {
+    feeds.push({
+      items: notifications.current,
+      getId: ({_id}: NotificationDisplay) => _id,
+      getDate: ({createdAt}: NotificationDisplay) => new Date(createdAt),
+      Component: ({item}: {item: NotificationDisplay}) => (
+        <NotificationsPageItem notification={item} />
+      ),
+    });
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -163,17 +197,15 @@ export const NotificationsPage = ({classes}: {
           <Tab label={name} value={name} key={name} />
         ))}
       </Tabs>
-      {currentTab.name === "karma" && karmaChanges &&
-        <NotificationsPageKarma karmaChanges={karmaChanges} />
-      }
-      {currentTab.name !== "karma" && (
-        notifications.current.map((notification) => (
-          <NotificationsPageItem
-            key={notification._id}
-            notification={notification}
-          />
+      {feeds
+        .flatMap((feed) => feed.items.map((item) => ({item, feed})))
+        .sort((a, b) =>
+          a.feed.getDate(a.item).getTime() - b.feed.getDate(a.item).getTime()
+        )
+        .map(({item, feed: {Component, getId}}) => (
+          <Component item={item} key={getId(item)} />
         ))
-      )}
+      }
       {canLoadMore &&
         <LoadMore
           loadMore={loadMore}
