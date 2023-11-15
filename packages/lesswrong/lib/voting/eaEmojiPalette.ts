@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { FC } from "react";
 import { TickReactionIcon } from "../../components/icons/reactions/TickReactionIcon";
 import { CrossReactionIcon } from "../../components/icons/reactions/CrossReactionIcon";
 import { HeartReactionIcon } from "../../components/icons/reactions/HeartReactionIcon";
@@ -7,7 +7,7 @@ import { LightbulbReactionIcon } from "../../components/icons/reactions/Lightbul
 import { DeltaReactionIcon } from "../../components/icons/reactions/DeltaReactionIcon";
 
 export type EmojiOption = {
-  Component: ComponentType,
+  Component: FC,
   name: string,
   label: string,
 }
@@ -47,6 +47,15 @@ export const eaEmojiPalette: EmojiOption[] = [
     label: "Changed my mind",
   },
 ];
+
+export const getEAPublicEmojiByName = (name: string): EmojiOption | null => {
+  for (const option of eaEmojiPalette) {
+    if (option.name === name) {
+      return option;
+    }
+  }
+  return null;
+}
 
 export const eaEmojiNames = [
   ...eaAnonymousEmojiPalette,

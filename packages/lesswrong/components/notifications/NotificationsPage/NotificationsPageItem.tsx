@@ -12,7 +12,9 @@ import {
   NotificationType,
   getNotificationTypeByName,
 } from "../../../lib/notificationTypes";
+import type { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
+import { getEAPublicEmojiByName } from "../../../lib/voting/eaEmojiPalette";
 
 const ICON_WIDTH = 24;
 
@@ -53,6 +55,11 @@ const styles = (theme: ThemeType) => ({
   iconGrey: {
     backgroundColor: theme.palette.icon.recentDiscussionGrey,
   },
+  iconClear: {
+    color: theme.palette.primary.main,
+    backgroundColor: "transparent",
+    transform: "scale(1.5)",
+  },
   meta: {
     marginBottom: 12,
     lineHeight: "1.5em",
@@ -72,25 +79,62 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getNotificationDisplay = (
-  notificationType: string,
-): NotificationType["Display"] | null => {
-  if (notificationType === "reaction") {
-    return ({User, Post, Comment, notification: {comment}}) =>
-      comment
-        ? <><User /> reacted to your <Comment /> on <Post /></>
-        : <><User /> reacted to <Post /></>
+const getFirstReaction = (extendedVoteType: unknown) => {
+  if (typeof extendedVoteType !== "object" || !extendedVoteType) {
+    return null;
+  }
+  const voteType = extendedVoteType as Record<string, boolean>;
+  for (const name in extendedVoteType) {
+    if (!voteType[name]) {
+      continue;
+    }
+    const emojiOption = getEAPublicEmojiByName(name);
+    if (emojiOption) {
+      return emojiOption;
+    }
+  }
+  return null;
+}
+
+type DisplayConfig = {
+  Display: NotificationType["Display"] | null,
+  Icon: ForumIconName | FC,
+  iconVariant: "primary" | "grey" | "clear",
+}
+
+const getDisplayConfig = (
+  {type, comment, extendedVoteType}: NotificationDisplay,
+): DisplayConfig => {
+  if (type === "reaction") {
+    const reaction = getFirstReaction(extendedVoteType);
+    if (!reaction) {
+      return {Display: null, Icon: "DocumentFilled", iconVariant: "grey"};
+    }
+    return {
+      Display: ({User, Post, Comment, notification: {comment}}) =>
+        comment
+          ? <><User /> reacted to your <Comment /> on <Post /></>
+          : <><User /> reacted to <Post /></>,
+      Icon: reaction.Component,
+      iconVariant: "clear",
+    };
   }
 
   try {
-    const {Display} = getNotificationTypeByName(notificationType);
-    return Display;
+    const {Display} = getNotificationTypeByName(type);
+    return {
+      Display,
+      ...(comment
+        ? {Icon: "CommentFilled", iconVariant: "primary"}
+        : {Icon: "DocumentFilled", iconVariant: "grey"}
+      ),
+    };
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error("Invalid notification type:", notificationType, e);
+    console.error("Invalid notification type:", type, e);
   }
 
-  return null;
+  return {Display: null, Icon: "DocumentFilled", iconVariant: "grey"};
 }
 
 export const NotificationsPageItem = ({notification, classes}: {
@@ -116,7 +160,7 @@ export const NotificationsPageItem = ({notification, classes}: {
     fragmentName: "CommentsList",
   });
 
-  const Display = getNotificationDisplay(notification.type);
+  const {Display, Icon, iconVariant} = getDisplayConfig(notification);
   if (!Display) {
     return null;
   }
@@ -193,10 +237,6 @@ export const NotificationsPageItem = ({notification, classes}: {
     )
     : null;
 
-  const {icon, iconVariant} = comment
-    ? {icon: "CommentFilled", iconVariant: "primary"} as const
-    : {icon: "DocumentFilled", iconVariant: "grey"} as const;
-
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -204,8 +244,12 @@ export const NotificationsPageItem = ({notification, classes}: {
           <div className={classNames(classes.iconContainer, {
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
+            [classes.iconClear]: iconVariant === "clear",
           })}>
-            <ForumIcon icon={icon} />
+            {typeof Icon === "string"
+              ? <ForumIcon icon={Icon} />
+              : <Icon />
+            }
           </div>
           <div className={classes.meta}>
             <Display

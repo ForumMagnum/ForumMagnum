@@ -84,6 +84,7 @@ export type NotificationDisplay =
     tag?: NotificationDisplayTag,
     user?: NotificationDisplayUser,
     localgroup?: NotificationDisplayLocalgroup,
+    extendedVoteType?: unknown,
   };
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
