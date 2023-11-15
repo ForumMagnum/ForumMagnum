@@ -1,6 +1,5 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
   KarmaChanges,
@@ -8,22 +7,11 @@ import type {
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection :"column",
     gap: "24px",
-    marginTop: 24,
-  },
-  text: {
-    color: theme.palette.grey[600],
-    fontSize: 14,
-    fontWeight: 500,
-    "& a": {
-      color: theme.palette.primary.main,
-      fontWeight: 600,
-      marginLeft: 10,
-    },
   },
 });
 
@@ -34,17 +22,10 @@ const NotificationsPageKarma = ({karmaChanges, classes}: {
   if (!karmaChanges) {
     return null;
   }
-  const {posts, comments, tagRevisions, updateFrequency} = karmaChanges;
-  const batchedText = updateFrequency === "realtime"
-    ? "in realtime"
-    : `batched ${updateFrequency}`;
+  const {posts, comments, tagRevisions} = karmaChanges;
   const {NotificationsPageKarmaItem} = Components;
   return (
     <div className={classes.root}>
-      <div className={classes.text}>
-        Karma notifications are {batchedText}
-        <Link to="/account">Change settings</Link>
-      </div>
       {posts.map((post: PostKarmaChange) => (
         <NotificationsPageKarmaItem post={post} key={post._id} />
       ))}

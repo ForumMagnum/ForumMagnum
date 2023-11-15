@@ -4,6 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useSingle } from "../../../lib/crud/withSingle";
+import { Link } from "../../../lib/reactRouterWrapper";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
@@ -44,6 +45,17 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 700,
       letterSpacing: "0.28px",
       textTransform: "uppercase",
+    },
+  },
+  karmaBatching: {
+    marginTop: 24,
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontWeight: 500,
+    "& a": {
+      color: theme.palette.primary.main,
+      fontWeight: 600,
+      marginLeft: 10,
     },
   },
 });
@@ -181,6 +193,10 @@ export const NotificationsPage = ({classes}: {
     });
   }
 
+  const batchedText = karmaChanges?.karmaChanges?.updateFrequency === "realtime"
+    ? "in realtime"
+    : `batched ${karmaChanges?.karmaChanges?.updateFrequency}`;
+
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
@@ -197,6 +213,12 @@ export const NotificationsPage = ({classes}: {
           <Tab label={name} value={name} key={name} />
         ))}
       </Tabs>
+      {currentTab.name === "karma" &&
+        <div className={classes.karmaBatching}>
+          Karma notifications are {batchedText}
+          <Link to="/account">Change settings</Link>
+        </div>
+      }
       {feeds
         .flatMap((feed) => feed.items.map((item) => ({item, feed})))
         .sort((a, b) =>
