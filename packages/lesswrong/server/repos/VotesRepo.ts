@@ -148,6 +148,11 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         scoreChange: votedContent.scoreChange,
         addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent._id]),
       };
+      // If we have no karma or reacts to display for this document, skip it
+      if (!change.scoreChange && !change.addedReacts.length) {
+        continue
+      }
+
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
           ...change,
@@ -215,10 +220,10 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         if (!vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
             // Skip anti-reacts for now
-            if (react.vote==="disagreed") {
+            if (react.vote === "disagreed") {
               continue;
             }
-            if (react.quotes && react.quotes.length>0) {
+            if (react.quotes && react.quotes.length > 0) {
               for (let quote of react.quotes) {
                 addNormalizedReact(flattenedReactions, react.react, quote);
               }
@@ -243,7 +248,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         
         if (vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
-            if (react.vote==="disagreed") {
+            if (react.vote === "disagreed") {
               continue;
             }
             if (react.quotes && react.quotes.length>0) {

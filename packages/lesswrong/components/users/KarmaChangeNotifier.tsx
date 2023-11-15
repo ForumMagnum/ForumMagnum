@@ -53,7 +53,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
   },
   votedItemReacts: {
-    marginLeft: 6,
+    marginLeft: isEAForum ? 12 : 6,
   },
   individualAddedReact: {
     color: isEAForum ? theme.palette.primary.main : undefined,
@@ -163,9 +163,9 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 {(commentChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
                 </span>}
-                <span className={classes.votedItemReacts}>
+                {!!commentChange.addedReacts.length && <span className={classes.votedItemReacts}>
                   <NewReactions reactionChanges={commentChange.addedReacts} classes={classes}/>
-                </span>
+                </span>}
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
