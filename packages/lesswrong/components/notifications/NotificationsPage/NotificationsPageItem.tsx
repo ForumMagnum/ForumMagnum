@@ -103,6 +103,7 @@ export const NotificationsPageItem = ({notification, classes}: {
     comment?.user
   ) as UsersMinimumInfo | undefined;
   const displayPost = post ?? comment?.post;
+  const displayLocalgroup = localgroup ?? post?.group;
 
   const {
     ForumIcon, UsersNameDisplay, PostsTooltip, FormatDate, Loading,
@@ -135,14 +136,14 @@ export const NotificationsPageItem = ({notification, classes}: {
       </Link>
     )
     : null;
-  const Localgroup: FC = () => localgroup
+  const Localgroup: FC = () => displayLocalgroup
     ? (
       <Link
-        to={link ?? localgroupGetUrl(localgroup)}
+        to={link ?? localgroupGetUrl(displayLocalgroup)}
         className={classes.primaryText}
         eventProps={{intent: "expandLocalgroup"}}
       >
-        {localgroup.name}
+        {displayLocalgroup.name}
       </Link>
     )
     : null;

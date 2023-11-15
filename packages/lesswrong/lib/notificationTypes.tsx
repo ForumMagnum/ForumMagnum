@@ -44,6 +44,8 @@ type NotificationDisplayUser = Pick<
   "commentCount"
 >;
 
+type NotificationDisplayLocalgroup = Pick<DbLocalgroup, "_id" | "name">;
+
 // We need enough here to render the post tooltip
 type NotificationDisplayPost = Pick<
   PostsList,
@@ -64,6 +66,7 @@ type NotificationDisplayPost = Pick<
   "contents"
 > & {
   user?: NotificationDisplayUser,
+  group?: NotificationDisplayLocalgroup,
 };
 
 type NotificationDisplayComment = Pick<DbComment, "_id"> & {
@@ -72,8 +75,6 @@ type NotificationDisplayComment = Pick<DbComment, "_id"> & {
 };
 
 type NotificationDisplayTag = Pick<DbTag, "_id" | "name" | "slug">;
-
-type NotificationDisplayLocalgroup = Pick<DbLocalgroup, "_id" | "name">;
 
 /** Main type for the notifications page */
 export type NotificationDisplay =
@@ -302,8 +303,9 @@ export const NewEventNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
-  // TODO: Load relevant group here
-  Display: ({User}) => <><User /> has created a new event</>,
+  Display: ({User, Localgroup, notification: {post}}) => <>
+    {post?.groupId ? <Localgroup /> : <User />} has created a new event
+  </>,
 });
 
 export const NewGroupPostNotification = registerNotificationType({
@@ -326,8 +328,13 @@ export const NewGroupPostNotification = registerNotificationType({
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
   },
-  // TODO: Load relevant group here
-  Display: ({User}) => <><User /> has created a new post in the group TODO</>,
+  Display: ({User, Localgroup, notification: {post}}) => <>
+    <User /> has created a new post in {
+      post?.group
+        ? <>the group <Localgroup /></>
+        : <>a group</>
+    }
+  </>,
 });
 
 // New comment on a post you're subscribed to.

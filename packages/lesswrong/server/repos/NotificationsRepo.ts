@@ -5,44 +5,55 @@ import { getSocialPreviewSql } from "../../lib/collections/posts/helpers";
 import type { NotificationDisplay } from "../../lib/notificationTypes";
 
 // This should return an object of type `NotificationDisplayUser`
-const buildNotificationUser = (prefix: string) => `JSONB_BUILD_OBJECT(
-  '_id', ${prefix}."_id",
-  'slug', ${prefix}."slug",
-  'createdAt', ${prefix}."createdAt",
-  'displayName', ${prefix}."displayName",
-  'profileImageId', ${prefix}."profileImageId",
-  'karma', ${prefix}."karma",
-  'deleted', ${prefix}."deleted",
-  'htmlBio', COALESCE(${prefix}."biography"->>'html', ''),
-  'postCount', ${prefix}."postCount",
-  'commentCount', ${prefix}."commentCount"
-)`;
+const buildNotificationUser = (prefix: string) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'slug', ${prefix}."slug",
+    'createdAt', ${prefix}."createdAt",
+    'displayName', ${prefix}."displayName",
+    'profileImageId', ${prefix}."profileImageId",
+    'karma', ${prefix}."karma",
+    'deleted', ${prefix}."deleted",
+    'htmlBio', COALESCE(${prefix}."biography"->>'html', ''),
+    'postCount', ${prefix}."postCount",
+    'commentCount', ${prefix}."commentCount"
+  ) END`;
+
+// This should return an object of type `NotificationDisplayLocalgroup`
+const buildNotificationLocalgroup = (prefix: string) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'name', ${prefix}."name"
+  ) END`;
 
 // This should return an object of type `NotificationDisplayPost`
 const buildNotificationPost = (
   prefix: string,
   userPrefix: string,
-) => `JSONB_BUILD_OBJECT(
-  '_id', ${prefix}."_id",
-  'slug', ${prefix}."slug",
-  'title', ${prefix}."title",
-  'draft', ${prefix}."draft",
-  'url', ${prefix}."url",
-  'isEvent', ${prefix}."isEvent",
-  'startTime', ${prefix}."startTime",
-  'curatedDate', ${prefix}."curatedDate",
-  'postedAt', ${prefix}."postedAt",
-  'groupId', ${prefix}."groupId",
-  'fmCrosspost', ${prefix}."fmCrosspost",
-  'readTimeMinutes', COALESCE(
-    ${prefix}."readTimeMinutesOverride",
-    (${prefix}."contents"->'wordCount')::INTEGER / ${READ_WORDS_PER_MINUTE}
-  ),
-  'socialPreviewData', ${getSocialPreviewSql(prefix)},
-  'customHighlight', ${prefix}."customHighlight",
-  'contents', ${prefix}."contents",
-  'user', ${buildNotificationUser(userPrefix)}
-)`;
+  localgroupPrefix: string,
+) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'slug', ${prefix}."slug",
+    'title', ${prefix}."title",
+    'draft', ${prefix}."draft",
+    'url', ${prefix}."url",
+    'isEvent', ${prefix}."isEvent",
+    'startTime', ${prefix}."startTime",
+    'curatedDate', ${prefix}."curatedDate",
+    'postedAt', ${prefix}."postedAt",
+    'groupId', ${prefix}."groupId",
+    'fmCrosspost', ${prefix}."fmCrosspost",
+    'readTimeMinutes', COALESCE(
+      ${prefix}."readTimeMinutesOverride",
+      (${prefix}."contents"->'wordCount')::INTEGER / ${READ_WORDS_PER_MINUTE}
+    ),
+    'socialPreviewData', ${getSocialPreviewSql(prefix)},
+    'customHighlight', ${prefix}."customHighlight",
+    'contents', ${prefix}."contents",
+    'user', ${buildNotificationUser(userPrefix)},
+    'group', ${buildNotificationLocalgroup(localgroupPrefix)}
+  ) END`;
 
 // This should return an object of type `NotificationDisplayComment`
 const buildNotificationComment = (
@@ -50,24 +61,21 @@ const buildNotificationComment = (
   userPrefix: string,
   postPrefix: string,
   postUserPrefix: string,
-) => `JSONB_BUILD_OBJECT(
-  '_id', ${prefix}."_id",
-  'user', ${buildNotificationUser(userPrefix)},
-  'post', ${buildNotificationPost(postPrefix, postUserPrefix)}
-)`;
+  postLocalgroupPrefix: string,
+) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'user', ${buildNotificationUser(userPrefix)},
+    'post', ${buildNotificationPost(postPrefix, postUserPrefix, postLocalgroupPrefix)}
+  ) END`;
 
 // This should return an object of type `NotificationDisplayTag`
-const buildNotificationTag = (prefix: string) => `JSONB_BUILD_OBJECT(
-  '_id', ${prefix}."_id",
-  'name', ${prefix}."name",
-  'slug', ${prefix}."slug"
-)`;
-
-// This should return an object of type `NotificationDisplayLocalgroup`
-const buildNotificationLocalgroup = (prefix: string) => `JSONB_BUILD_OBJECT(
-  '_id', ${prefix}."_id",
-  'name', ${prefix}."name"
-)`;
+const buildNotificationTag = (prefix: string) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'name', ${prefix}."name",
+    'slug', ${prefix}."slug"
+  ) END`;
 
 export default class NotificationsRepo extends AbstractRepo<DbNotification> {
   constructor() {
@@ -93,22 +101,19 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         n."type",
         n."link",
         n."createdAt",
-        CASE WHEN p."_id" IS NULL THEN NULL ELSE
-          ${buildNotificationPost("p", "pu")} END "post",
-        CASE WHEN c."_id" IS NULL THEN NULL ELSE
-          ${buildNotificationComment("c", "cu", "cp", "cpu")} END "comment",
-        CASE WHEN t."_id" IS NULL THEN NULL ELSE
-          ${buildNotificationTag("t")} END "tag",
-        CASE WHEN u."_id" IS NULL THEN NULL ELSE
-          ${buildNotificationUser("u")} END "user",
-        CASE WHEN l."_id" IS NULL THEN NULL ELSE
-          ${buildNotificationLocalgroup("l")} END "localgroup"
+        ${buildNotificationPost("p", "pu", "pl")} "post",
+        ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
+        ${buildNotificationTag("t")} "tag",
+        ${buildNotificationUser("u")} "user",
+        ${buildNotificationLocalgroup("l")} "localgroup"
       FROM "Notifications" n
       LEFT JOIN "Posts" p ON
         n."documentType" = 'post' AND
         n."documentId" = p."_id"
       LEFT JOIN "Users" pu ON
         p."userId" = pu."_id"
+      LEFT JOIN "Localgroups" pl ON
+        p."groupId" = pl."_id"
       LEFT JOIN "Comments" c ON
         n."documentType" = 'comment' AND
         n."documentId" = c."_id"
@@ -118,6 +123,8 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         c."postId" = cp."_id"
       LEFT JOIN "Users" cpu ON
         cp."userId" = cpu."_id"
+      LEFT JOIN "Localgroups" cpl ON
+        cp."groupId" = cpl."_id"
       LEFT JOIN "TagRels" tr ON
         n."documentType" = 'tagRel' AND
         n."documentId" = tr."_id"
