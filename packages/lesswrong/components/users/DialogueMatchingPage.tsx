@@ -1062,7 +1062,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   return (
     <button
       className={classNames(classes.enterTopicsButton, {
-        [classes.hideAtXs]: isMatched,
+        [classes.hideAtXs]: !isMatched,
       })}
       onClick={(e) => {
         dialogueCheck && openDialog({
