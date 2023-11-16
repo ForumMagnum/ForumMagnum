@@ -1,7 +1,7 @@
 import {addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
@@ -90,8 +90,6 @@ defineQuery({
   `,
   fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext): Promise<DbComment[]> => {
 
-    // run access-filters TODO
-
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
       yield context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit);
@@ -100,15 +98,15 @@ defineQuery({
       yield context.repos.comments.getPopularPollComments(limit);
     }
     
-    let recommendedComments: Set<DbComment> = new Set();
+    let recommendedComments : DbComment[] = []
     
     for await (const source of commentSources()) {
-      recommendedComments = new Set([...recommendedComments, ...source]);
-      if (recommendedComments.size >= limit) {
+      recommendedComments = [...recommendedComments, ...source]
+      if (recommendedComments.length >= limit) {
         return [...recommendedComments].slice(0, limit);
       }
     }
 
-    return [...recommendedComments]
+    return accessFilterMultiple(context.currentUser, context.Comments, recommendedComments, context);
   },
 });
