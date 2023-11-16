@@ -76,7 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 34,
   } : {},
   searchIcon: {
-    color: isEAForum ? undefined : theme.palette.header.text,
+    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
   },
   searchIconSmall: isEAForum ? {
     padding: 6,
