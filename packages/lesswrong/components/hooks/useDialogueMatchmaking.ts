@@ -55,10 +55,10 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
 
   const usersOptedInResult = useMulti({
     terms: { 
-      view: 'usersWithOptedInToDialogueFacilitationOrCheckedAnyBoxes',
+      view: 'usersWithOptedInToDialogueFacilitation',
       limit: 10, 
     },
-    fragmentName: 'UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes',
+    fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users',
     skip: !getOptedInUsers || !dialogueMatchmakingEnabled.get()
   });
