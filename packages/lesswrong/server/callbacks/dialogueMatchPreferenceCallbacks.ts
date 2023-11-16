@@ -47,27 +47,38 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const sourceUserTopics = sourceUserYesTopics.filter(topic => !targetUserYesTopics.includes(topic));
   const targetUserTopics = targetUserYesTopics.filter(topic => !sourceUserYesTopics.includes(topic));
 
+  
+
   let topicMessageContent = `
-  <p>You were both interested in a potential dialogue. Some topics you suggested:</p>
-  <ul>
-    ${sharedTopics.map(topic => `<li>${topic} <strong>(Both!)</strong></li>`).join('')}
-    ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
-    ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
-  </ul>
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center;" colspan="2">Possible Topics</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sharedTopics.map(topic => `
+            <tr>
+            <td style="height: 70px; text-align: center; width: 150px;"><strong>Both checked!</strong></td>
+            <td style="height: 70px; text-align: center;">${topic}</td>
+            </tr>
+          `).join('')}
+        ${sourceUserTopics.map(topic => `
+          <tr>
+          <td style="height: 70px; text-align: center; width: 150px;">${userName}</td>
+          <td style="height: 70px; text-align: center;">${topic}</td>
+          </tr>
+        `).join('')}
+        ${targetUserTopics.map(topic => `
+          <tr>
+          <td style="height: 70px; text-align: center; width: 150px;">${targetUserName}/td>
+          <td style="height: 70px; text-align: center;">${topic}</td>
+          </tr>
+        `).join('')}
+    </tbody>
+    </table>
   `
 
-  if (sharedTopics.length === 0) {
-    topicMessageContent = `
-    <p>You were both interested in a potential dialogue. However, out of the initial suggestions you didn't have any topics in common:
-      <ul>
-        ${sourceUserTopics.map(topic => `<li>${topic} <strong>(${userName})</strong></li>`).join('')}
-        ${targetUserTopics.map(topic => `<li>${topic} <strong>(${targetUserName})</strong></li>`).join('')}
-      </ul>
-    </p>
-    `
-  }
-
-  // 
   function switchMehForOkay(preference: string): string {
     return preference === "Meh" ? "Okay" : preference;
   }
@@ -80,32 +91,33 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
 
   const formatPreferenceContent =
     `
-    <p>Here is what you said about your format preferences:</p>
     <figure class="table">
-      <table> 
+      <table style="border-color: hsl(0, 0%, 100%); border-style: solid;">
+        <thead>
+          <tr>
+          <th style="border-color: hsl(0, 0%, 100%); border-style: solid; width: 260px; text-align: left;">Scheduling Preferences</th>
+          <th style="border-color: hsl(0, 0%, 100%); border-style: solid; width: 100px; text-align: left;">Sync</th>
+          <th style="border-color: hsl(0, 0%, 100%); border-style: solid; width: 100px; text-align: left;">Async</th>
+          <th style="border-color: hsl(0, 0%, 100%); border-style: solid; width: 250px; text-align: left;">Notes</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <td style="width: 100px;">&nbsp;</td>
-            <td style="width: 65px;"><strong>Sync</strong></td>
-            <td style="width: 65px;"><strong>Async</strong></td>
-            <td style="width: auto; max-width: 300px;">Notes</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;"><em>${userName}</em></td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${userSync}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${userAsync}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${formDataSourceUser.formatNotes}</td>
           </tr>
           <tr>
-            <td><i>${userName}</i></td>
-            <td>${userSync}</td>
-            <td>${userAsync}</td>
-            <td>${formDataSourceUser.formatNotes}</td>
-          </tr>
-          <tr>
-            <td><i>${targetUserName}</i></td>
-            <td>${targetUserSync}</td>
-            <td>${targetUserAsync}</td>
-            <td>${formDataTargetUser.formatNotes}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;"><em>${targetUserName}</em></td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${targetUserSync}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${targetUserAsync}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid;">${formDataTargetUser.formatNotes}</td>
           </tr>
         </tbody>
       </table>
-    </figure>
-  `;
+      </figure>
+    `
 
   const isYesOrOkay = (value: string) => ["Yes", "Okay"].includes(value);
 
@@ -113,24 +125,37 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const asyncMatch = (isYesOrOkay(userAsync) && isYesOrOkay(targetUserAsync))
   const formatPreferenceMatch = syncMatch ?? asyncMatch
 
-  let nextAction = `<p><strong>Next steps:</strong> I'd suggest you go ahead and chat to find a topic. ${(syncMatch ? "You were also both up for scheduling a time to dialogue, so you might want to coordinate that. (If you'd find it helpful, I'd recommend https://www.when2meet.com/ as a great scheduling tool.)" : "")}
-    When you're ready, you can also use this page for the dialogue itself. (And at any point, you can delete this helper message so it doesn't appear in your final published dialogue.)</p>`
+  // let nextAction = `<p><strong>Next steps:</strong> I'd suggest you go ahead and chat to find a topic. ${(syncMatch ? "You were also both up for scheduling a time to dialogue, so you might want to coordinate that. (If you'd find it helpful, I'd recommend https://www.when2meet.com/ as a great scheduling tool.)" : "")}
+  //   When you're ready, you can also use this page for the dialogue itself. (And at any point, you can delete this helper message so it doesn't appear in your final published dialogue.)</p>`
 
-  if (!formatPreferenceMatch) {
-    nextAction =
-    `<p><p><strong>Next steps:</strong> It seems you have different format preferences, so a dialogue might not make sense here. But if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
-  }
+  // if (!formatPreferenceMatch) {
+  //   nextAction =
+  //   `<p><p><strong>Next steps:</strong> It seems you have different format preferences, so a dialogue might not make sense here. But if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
+  // }
 
-  if (sharedTopics.length === 0) {
-    nextAction =
-    `<p><p><strong>Next steps:</strong> It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But if either of you wants to chat more anyway, you can always send a message in this chat.</p>`
-  }
+  // if (sharedTopics.length === 0) {
+  //   nextAction =
+  //   `<p><p><strong>Next steps:</strong> It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But if either of you wants to chat more anyway, you can always send a message in this chat.</p>`
+  // }
 
-  if (!formatPreferenceMatch && sharedTopics.length === 0) {
-    nextAction =
-    `<p><p><strong>Next steps:</strong> It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
-    and then move on :) (we'll still put this chat here if you guys want to explore further).</p>`
-  }
+  // if (!formatPreferenceMatch && sharedTopics.length === 0) {
+  //   nextAction =
+  //   `<p><p><strong>Next steps:</strong> It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
+  //   and then move on :) (we'll still put this chat here if you guys want to explore further).</p>`
+  // }
+
+  let nextAction =
+  `
+    <p><strong>Next</strong> <strong>steps</strong></p>
+    <ol>
+      <li>Write in the text-boxes below to agree on a topic and scheduling.</li>
+      <li>Have your dialogue!</li>
+      <li>Afterward, edit out any replies about timing/format/etc, then public.</li>
+      <li>Get karma!</li>
+    </ol>
+    <p>Tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool.</p>
+  `
+
 
   const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
 
