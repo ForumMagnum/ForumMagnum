@@ -1431,7 +1431,7 @@ interface DbUser extends DbObject {
   hideDialogueFacilitation: boolean
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
-  optedInToDialogueFacilitationOrCheckedAnyBoxes: boolean
+  UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,

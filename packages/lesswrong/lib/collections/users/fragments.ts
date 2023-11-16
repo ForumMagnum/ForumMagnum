@@ -213,7 +213,7 @@ registerFragment(`
 
     hideDialogueFacilitation
     optedInToDialogueFacilitation
-    optedInToDialogueFacilitationOrCheckedAnyBoxes
+    UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes
     revealChecksToAdmins
   }
 `);
