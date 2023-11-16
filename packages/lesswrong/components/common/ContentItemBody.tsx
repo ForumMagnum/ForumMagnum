@@ -5,7 +5,7 @@ import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { isEAForum } from '../../lib/instanceSettings';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
-import { rawExtractElementChildrenToReactComponent, wrapRangeWithSpan } from '../../lib/utils/rawDom';
+import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 
 interface ExternalProps {
   /**
@@ -292,11 +292,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   markHoverableLinks = (element: HTMLElement) => {
     const linkTags = this.htmlCollectionToArray(element.getElementsByTagName("a"));
     for (let linkTag of linkTags) {
-      const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
-      
       const href = linkTag.getAttribute("href");
       if (!href || linkIsExcludedFromPreview(href))
         continue;
+
+      const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
       const id = linkTag.getAttribute("id") ?? undefined;
       const rel = linkTag.getAttribute("rel") ?? undefined;
       const replacementElement = <Components.HoverPreviewLink
@@ -365,16 +365,21 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
             { exact: str.trim() },
             { hint: 0 }, //TODO: store offsets with text, make use for resolving match ambiguity
           );
-          
           // Do surgery on the DOM
           if (range) {
-            const span = wrapRangeWithSpan(range)
-            if (span) {
-              const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
-              const replacementNode = replacement({
-                children: <InlineReactedSpan/>
-              });
-              this.replaceElement(span, replacementNode);
+            const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            for (let subRange of subRanges) {
+              const reducedRange = reduceRangeToText(subRange);
+              if (reducedRange) {
+                const span = wrapRangeWithSpan(reducedRange)
+                if (span) {
+                  const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
+                  const replacementNode = replacement({
+                    children: <InlineReactedSpan/>
+                  });
+                  this.replaceElement(span, replacementNode);
+                }
+              }
             }
           }
         } catch {

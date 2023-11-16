@@ -51,6 +51,8 @@ export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabl
 // Non-user-specific features
 export const dialoguesEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = isLWorAF;
+export const useElicitApi = !isLWorAF;
+export const commentsTableOfContentsEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

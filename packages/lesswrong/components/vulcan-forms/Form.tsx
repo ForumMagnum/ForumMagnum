@@ -22,10 +22,10 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { intlShape } from '../../lib/vulcan-i18n';
 import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
+import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
@@ -245,7 +245,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // for each group, add relevant fields
     groups = groups.map(group => {
-      group.label = group.label || this.context.intl.formatMessage({ id: group.name });
+      group.label = group.label || formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
       })
@@ -455,13 +455,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
    */
   getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
-    const label = this.context.intl.formatLabel({
+    const label = formatLabel({
       fieldName: fieldName,
       collectionName: collectionName,
       schema: this.state.flatSchema,
     });
     if (fieldLocale) {
-      const intlFieldLocale = this.context.intl.formatMessage({
+      const intlFieldLocale = formatMessage({
         id: `locales.${fieldLocale}`,
         defaultMessage: fieldLocale,
       });
@@ -713,6 +713,8 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // check for route change, prevent form content loss
   checkRouteChange = () => {
+    // TODO FIXME: This was a casualty of upgrading react router v5->v6
+    /*
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
@@ -720,16 +722,9 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
-
-        /*
-            // React-router 3 implementtion
-            const routes = this.props.router.routes;
-            const currentRoute = routes[routes.length - 1];
-            this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
-
-            */
       });
     }
+     */
   }
   // check for browser closing
   checkBrowserClosing = () => {
@@ -1098,10 +1093,6 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).contextTypes = {
-  intl: intlShape
 };
 
 (Form as any).childContextTypes = {

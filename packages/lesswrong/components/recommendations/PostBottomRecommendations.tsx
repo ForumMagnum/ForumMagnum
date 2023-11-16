@@ -37,8 +37,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostBottomRecommendations = ({post, classes}: {
+const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  hasTableOfContents?: boolean,
   classes: ClassesType,
 }) => {
   const {
@@ -81,7 +82,10 @@ const PostBottomRecommendations = ({post, classes}: {
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <ToCColumn tableOfContents={<div />} notHideable>
+        <ToCColumn
+          tableOfContents={hasTableOfContents ? <div /> : null}
+          notHideable
+        >
           <div>
             {hasUserPosts &&
               <div className={classes.section}>

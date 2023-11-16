@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
+export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
 const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
@@ -92,6 +92,12 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
           Editing
           {canEditOnlyBecauseAdmin && " (admin override)"}
         </MenuItem>
+        {post.collabEditorDialogue && <MenuItem value="Editing (override)" key="Editing (override)"
+          disabled={!canEdit}
+        >
+          Editing (override)
+          {canEditOnlyBecauseAdmin && " (admin override)"}
+        </MenuItem>}
       </Select>
       <LWTooltip title="Collaborative docs automatically save all changes">
         <Button className={classes.saveStatus}>

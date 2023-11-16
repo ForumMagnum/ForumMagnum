@@ -138,7 +138,7 @@ type FormField<T extends DbObject> = Pick<
 }
 
 type FormGroupType<T extends DbObject = DbObject> = {
-  name?: string,
+  name: string,
   order: number,
   label?: string,
   paddingStyle?: boolean,

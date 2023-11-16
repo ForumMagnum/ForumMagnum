@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
@@ -8,10 +8,11 @@ import qs from 'qs'
 import { isEmpty } from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const CommentsViews = ({post}: {post?: PostsDetails}) => {
   const currentUser = useCurrentUser();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
 
@@ -22,7 +23,7 @@ const CommentsViews = ({post}: {post?: PostsDetails}) => {
     const { query } = location;
     const currentQuery = isEmpty(query) ? {view: 'postCommentsTop'} : query
     const newQuery = {...currentQuery, view: view, postId: post ? post._id : undefined}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)

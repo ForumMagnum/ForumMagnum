@@ -119,8 +119,8 @@ const EARecentDiscussionThread = ({
   }
 
   const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, PostExcerpt,
-    PostsItemTooltipWrapper, LinkPostMessage, EAKarmaDisplay, PostsTitle,
+    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
+    PostExcerpt, LinkPostMessage, EAKarmaDisplay, PostsTitle,
   } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
@@ -129,14 +129,12 @@ const EARecentDiscussionThread = ({
           <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         }
         <div className={classes.postInfo}>
-          <PostsItemTooltipWrapper post={post} placement="bottom-start">
-            <PostsTitle
-              post={post}
-              read={post.isRead}
-              className={classes.postTitle}
-              linkEventProps={{intent: 'expandPost'}}
-            />
-          </PostsItemTooltipWrapper>
+          <PostsTitle
+            post={post}
+            read={post.isRead}
+            className={classes.postTitle}
+            linkEventProps={{intent: 'expandPost'}}
+          />
           <EAPostMeta post={post} useEventStyles />
         </div>
         {!post.isEvent &&

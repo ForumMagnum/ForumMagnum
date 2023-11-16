@@ -6,8 +6,14 @@ import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
+import { ElectionCandidatesRepo } from '../repos';
+import {
+  donationElectionTagId,
+  eaGivingSeason23ElectionName,
+} from '../../lib/eaGivingSeason';
+import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -23,6 +29,17 @@ function normalizeTagName(name: string) {
     return name;
 }
 
+const updateDonationElectionPostCounts = async (
+  tagRelDict: Record<string, number>,
+) => {
+  if (isEAForum && (tagRelDict[donationElectionTagId] ?? 0) >= 1) {
+    await new ElectionCandidatesRepo().updatePostCounts(
+      eaGivingSeason23ElectionName,
+      donationElectionTagId,
+    );
+  }
+}
+
 export async function updatePostDenormalizedTags(postId: string) {
   if (!postId) {
     // eslint-disable-next-line no-console
@@ -31,14 +48,16 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   const tagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
-  const tagRelDict: Partial<Record<string,number>> = {};
-  
+  const tagRelDict: Record<string, number> = {};
+
   for (let tagRel of tagRels) {
     if (tagRel.baseScore > 0)
       tagRelDict[tagRel.tagId] = tagRel.baseScore;
   }
-  
+
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
+  void elasticSyncDocument("Posts", postId);
+  void updateDonationElectionPostCounts(tagRelDict);
 }
 
 getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {

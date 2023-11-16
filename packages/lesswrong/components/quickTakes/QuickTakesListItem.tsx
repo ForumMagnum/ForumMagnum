@@ -33,6 +33,8 @@ const QuickTakesListItem = ({quickTake, classes}: {
           }}
           comment={quickTake}
           loadChildrenSeparately
+          forceUnTruncated
+          forceUnCollapsed
         />
       </div>
     )

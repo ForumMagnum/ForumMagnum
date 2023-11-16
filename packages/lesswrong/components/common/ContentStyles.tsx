@@ -26,9 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   debateResponseBody: {
     ...commentBodyStyles(theme),
-    fontSize: '1.3rem',
+    fontSize: '1.35rem',
+    '& .dialogue-message-header + p': {
+      marginTop: 0,
+    },
     '& blockquote, & li': {
-      fontSize: '1.3rem'
+      fontSize: '1.35rem'
     }
   },
   answerBody: {

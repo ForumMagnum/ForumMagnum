@@ -1,0 +1,49 @@
+import AbstractRepo from "./AbstractRepo";
+import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
+import { getViewablePostsSelector } from "./helpers";
+import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
+
+export default class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandidate> {
+  constructor() {
+    super(ElectionCandidates);
+  }
+
+  async updatePostCounts(
+    electionName: string,
+    electionTagId: string,
+  ): Promise<void> {
+    await this.none(`
+      UPDATE "ElectionCandidates"
+      SET "postCount" = (
+        SELECT COUNT(*)
+        FROM "Posts"
+        WHERE
+          ("tagRelevance"->$2)::INTEGER >= 1 AND
+          ("tagRelevance"->"tagId")::INTEGER >= 1 AND
+          ${getViewablePostsSelector()}
+      )
+      WHERE
+        "electionName" = $1 AND
+        "tagId" IS NOT NULL
+    `, [electionName, electionTagId]);
+  }
+
+  async getAmountRaised(electionName: string): Promise<ElectionAmountRaised> {
+    const result = await this.getRawDb().oneOrNone<ElectionAmountRaised>(`
+      SELECT
+        SUM(CASE WHEN "isElectionFundraiser" = TRUE THEN "amountRaised" ELSE 0 END) as "raisedForElectionFund",
+        SUM(CASE WHEN "isElectionFundraiser" = TRUE THEN "targetAmount" ELSE 0 END) as "electionFundTarget",
+        SUM("amountRaised") as "totalRaised",
+        SUM("targetAmount") as "totalTarget"
+      FROM "ElectionCandidates"
+      WHERE "electionName" = $1
+    `, [electionName]);
+
+    return result || {
+      raisedForElectionFund: 0,
+      electionFundTarget: 0,
+      totalRaised: 0,
+      totalTarget: 0,
+    };
+  }
+}
