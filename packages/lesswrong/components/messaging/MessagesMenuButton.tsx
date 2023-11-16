@@ -1,14 +1,17 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useNavigate } from "../../lib/reactRouterWrapper";
+import { useLocation } from "../../lib/routeUtil";
 import { styles } from "../notifications/NotificationsMenuButton";
 import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
+import classNames from "classnames";
 
 const MessagesMenuButton = ({unreadPrivateMessages, classes}: {
   unreadPrivateMessages: number,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {pathname} = useLocation();
   const navigate = useNavigate();
   const onClick = useCallback(() => {
     navigate("/inbox");
@@ -30,7 +33,9 @@ const MessagesMenuButton = ({unreadPrivateMessages, classes}: {
         badgeContent={badgeText}
       >
         <IconButton
-          classes={{root: classes.buttonClosed}}
+          classes={{root: classNames(classes.buttonClosed, {
+            [classes.buttonActive]: pathname.indexOf("/inbox") === 0,
+          })}}
           onClick={onClick}
         >
           <ForumIcon icon="Envelope" />

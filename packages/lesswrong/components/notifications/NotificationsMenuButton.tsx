@@ -3,6 +3,7 @@ import Badge from '@material-ui/core/Badge';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
+import { useLocation } from '../../lib/routeUtil';
 import IconButton from '@material-ui/core/IconButton';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
@@ -47,6 +48,9 @@ export const styles = (theme: ThemeType) => ({
     color: isEAForum
       ? theme.palette.grey[600]
       : theme.palette.header.text,
+  },
+  buttonActive: {
+    backgroundColor: theme.palette.greyAlpha(0.1),
   },
   tooltip: {
     background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
@@ -103,6 +107,7 @@ const EANotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
+  const {pathname} = useLocation();
   const {document: karmaChanges, refetch} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -139,7 +144,9 @@ const EANotificationsMenuButton = ({
         }
       >
         <IconButton
-          classes={{root: classes.buttonClosed}}
+          classes={{root: classNames(classes.buttonClosed, {
+            [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
+          })}}
           onClick={toggle}
         >
           <ForumIcon icon="BellBorder" />
