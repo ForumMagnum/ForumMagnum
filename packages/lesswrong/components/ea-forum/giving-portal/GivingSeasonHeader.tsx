@@ -10,7 +10,7 @@ import {
 } from "../../common/Header";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { heroImageId } from "../../../lib/eaGivingSeason";
+import { headerImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
@@ -20,7 +20,7 @@ export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
 const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
-const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(heroImageId, {
+const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(headerImageId, {
   h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
   w: String(BACKGROUND_WIDTH),
   q: "100",

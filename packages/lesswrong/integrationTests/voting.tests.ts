@@ -201,8 +201,8 @@ describe('Voting', function() {
         coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
       });
 
-      expect(author.karma).toBe(null);
-      expect(coauthor.karma).toBe(null);
+      expect(author.karma).toBe(0);
+      expect(coauthor.karma).toBe(0);
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();

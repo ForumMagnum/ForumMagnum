@@ -884,6 +884,57 @@ const EstimakerPreview = ({classes, href, id, children}: {
 const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview, { styles: estimakerStyles })
 
 
+const viewpointsStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 300,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const ViewpointsPreview = ({classes, href, id, children}: {
+  classes: ClassesType,
+  href: string,
+  id?: string,
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://viewpoints.xyz/embed/polls/$slug
+  const isEmbed = /^https?:\/\/viewpoints\.xyz\/embed\/polls\/.+$/.test(href);
+
+  // test if it fits https://viewpoints.xyz/polls/$slug
+  const [, slug] = href.match(/^https?:\/\/viewpoints\.xyz\/polls\/([\w-]+)/) || [];
+
+  if (!isEmbed && !slug) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://viewpoints.xyz/embed/polls/${slug}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: url }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const ViewpointsPreviewComponent = registerComponent('ViewpointsPreview', ViewpointsPreview, { styles: viewpointsStyles })
+
 declare global {
   interface ComponentTypes {
     PostLinkPreview: typeof PostLinkPreviewComponent,
@@ -905,5 +956,6 @@ declare global {
     DefaultPreview: typeof DefaultPreviewComponent,
     SequencePreview: typeof SequencePreviewComponent,
     EstimakerPreview: typeof EstimakerPreviewComponent,
+    ViewpointsPreview: typeof ViewpointsPreviewComponent,
   }
 }

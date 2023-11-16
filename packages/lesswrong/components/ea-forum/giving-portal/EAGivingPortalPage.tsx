@@ -398,7 +398,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <span className={classes.bold}>
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>

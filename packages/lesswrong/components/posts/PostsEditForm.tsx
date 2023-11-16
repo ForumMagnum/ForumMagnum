@@ -3,7 +3,7 @@ import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib
 import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { useLocation, useNavigation } from '../../lib/routeUtil'
+import { useLocation } from '../../lib/routeUtil'
 import NoSSR from 'react-no-ssr';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
@@ -16,6 +16,7 @@ import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const editor : Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -25,7 +26,7 @@ const PostsEditForm = ({ documentId, classes }: {
   classes: ClassesType,
 }) => {
   const { query, params } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { flash } = useMessages();
   const { document, loading } = useSingle({
     documentId,
@@ -136,13 +137,13 @@ const PostsEditForm = ({ documentId, classes }: {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost})
                 if (options?.submitOptions?.redirectToEditor) {
-                  history.push(postGetEditUrl(post._id, false, post.linkSharingKey));
+                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey));
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
                   const showSharePopup = isEAForum && wasEverDraft.current && !post.draft
                   const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
-                  history.push({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
+                  navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 
                   if (!showSharePopup) {
                     flash({ messageString: `Post "${post.title}" edited`, type: 'success'});
@@ -154,7 +155,7 @@ const PostsEditForm = ({ documentId, classes }: {
                 // post edit form is being included from a single post, redirect to index
                 // note: this.props.params is in the worst case an empty obj (from react-router)
                 if (params._id) {
-                  history.push('/');
+                  navigate('/');
                 }
 
                 flash({ messageString: `Post "${documentTitle}" deleted.`, type: 'success'});

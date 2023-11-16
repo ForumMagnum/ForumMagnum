@@ -5,9 +5,9 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-
-import { useLocation, useNavigation } from '../../lib/routeUtil';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { useLocation } from '../../lib/routeUtil';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BookmarksPage = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const { location } = useLocation()
   const [activeTab, setActiveTab] = useState<TabType>('bookmarks')
   
@@ -53,7 +53,7 @@ const BookmarksPage = ({ classes }: {
   
   const handleChangeTab = (e: React.ChangeEvent, value: TabType) => {
     setActiveTab(value)
-    history.replace({...location, hash: `#${value}`})
+    navigate({...location, hash: `#${value}`}, {replace: true})
   }
 
   const currentUser = useCurrentUser()

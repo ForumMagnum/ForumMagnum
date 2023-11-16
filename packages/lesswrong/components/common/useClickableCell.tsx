@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, MouseEvent, useCallback } from "react";
-import { useHistory } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useTracking } from "../../lib/analyticsEvents";
 
 export type ClickableCellProps = {
@@ -11,7 +11,7 @@ export type ClickableCellProps = {
 };
 
 export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   // Note that we only trigger this event if an href is provided
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: href}})
 
@@ -28,9 +28,9 @@ export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
       window.open(href, "_blank");
     } else {
       captureEvent();
-      history.push(href);
+      navigate(href);
     }
-  }, [href, onClick, history, captureEvent]);
+  }, [navigate, href, onClick, captureEvent]);
 
   return {
     onClick: wrappedOnClick,
@@ -47,13 +47,13 @@ export const InteractionWrapper: FC<{
   children: ReactNode,
   className?: string,
 }> = ({href, children, className}) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const onClick = useCallback((e: MouseEvent) => {
     e.stopPropagation();
     if (href) {
-      history.push(href);
+      navigate(href);
     }
-  }, [href, history]);
+  }, [navigate, href]);
   return (
     <div onClick={onClick} className={className}>
       {children}

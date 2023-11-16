@@ -9,6 +9,7 @@ import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -122,9 +123,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Answer = ({ comment, post, classes }: {
+const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
+  childComments: CommentTreeNode<CommentsList>[],
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
@@ -221,6 +223,7 @@ const Answer = ({ comment, post, classes }: {
           </AnalyticsContext>
           <AnswerCommentsList
             post={post}
+            commentTree={childComments}
             parentAnswer={comment}
           />
         </div>
@@ -239,4 +242,3 @@ declare global {
     Answer: typeof AnswerComponent
   }
 }
-

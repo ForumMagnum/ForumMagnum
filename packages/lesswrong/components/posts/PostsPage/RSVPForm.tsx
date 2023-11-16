@@ -6,10 +6,10 @@ import Input from '@material-ui/core/Input';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
-import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -42,7 +42,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
     }
     ${getFragment("PostsDetails")}
   `)
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")
   const [email, setEmail] = useState(currentUser?.email ?? "")
@@ -55,7 +55,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
-        history.push({...location, search: ``})
+        navigate({...location, search: ``})
         if (onClose)
           onClose()
       }}

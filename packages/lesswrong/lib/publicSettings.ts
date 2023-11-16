@@ -127,3 +127,5 @@ export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader |
 export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
 
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
+
+export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)

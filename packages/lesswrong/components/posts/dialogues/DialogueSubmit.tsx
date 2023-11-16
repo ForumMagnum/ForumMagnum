@@ -8,8 +8,8 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
-import { useNavigation } from '../../../lib/routeUtil';
 import { EditorContext } from '../PostsEditForm';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -93,7 +93,7 @@ const DialogueSubmit = ({
 
   const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -140,7 +140,7 @@ const DialogueSubmit = ({
               }
             })
 
-            response.data && history.push(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
+            response.data && navigate(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
           }}
         >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
         }

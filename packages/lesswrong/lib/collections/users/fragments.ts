@@ -105,7 +105,6 @@ registerFragment(`
     services
     acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
@@ -322,7 +321,6 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
-    voteBanned
     nullifyVotes
     deleteContent
     
@@ -427,7 +425,6 @@ registerFragment(`
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -558,6 +555,5 @@ registerFragment(`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
-    karma
   }
 `);

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useNavigation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (_theme: ThemeType) => ({
   content: {
@@ -22,7 +22,7 @@ const NewShortformDialog = ({onClose, classes}: {
   classes: ClassesType,
 }) => {
   const [open, setOpen] = useState(true);
-  const {history} = useNavigation();
+  const navigate = useNavigate();
   const {ShortformSubmitForm, LWDialog} = Components;
   return (
     <LWDialog
@@ -38,7 +38,7 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            history.push(isFriendlyUI ? '/quicktakes' : '/shortform');
+            navigate(isFriendlyUI ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
             setOpen(false);
@@ -61,4 +61,3 @@ declare global {
     NewShortformDialog: typeof NewShortformDialogComponent
   }
 }
-

@@ -119,7 +119,9 @@ const styles = (theme: ThemeType) => ({
     padding: "6px 12px",
     borderLeft: `1px solid ${theme.palette.givingPortal.homepageHeader.main}`,
     "&:first-of-type": {
-      borderLeft: "none"
+      borderLeft: "none",
+      borderTopLeftRadius: theme.borderRadius.small,
+      borderBottomLeftRadius: theme.borderRadius.small,
     },
     "&:hover": {
       backgroundColor: theme.palette.givingPortal.homepageHeader.secondaryOpaqueDark,

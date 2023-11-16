@@ -1,10 +1,10 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -48,7 +48,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   classes: ClassesType
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   if (!tag) return null
   
@@ -78,7 +78,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
           ev.preventDefault();
-          history.push(tagUrl);
+          navigate(tagUrl);
           hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
         }
       }}

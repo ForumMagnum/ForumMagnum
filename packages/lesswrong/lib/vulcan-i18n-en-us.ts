@@ -1,5 +1,5 @@
 import { preferredHeadingCase } from '../themes/forumTheme';
-import { addStrings } from './vulcan-lib';
+import { addStrings } from './vulcan-lib/intl';
 
 addStrings('en', {
   'forms.submit': 'Submit',

@@ -1,6 +1,6 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
@@ -22,10 +22,9 @@ import GraphQLJSON from 'graphql-type-json';
 import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { TagsRepo, UsersRepo } from '../repos';
+import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
-
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -48,10 +47,12 @@ addGraphQLSchema(`
     vote_counts: Int!
     total_agreement: Float!
     agreement_values: String!
+    recently_active_matchmaking: Boolean!
   }
   type UserDialogueUsefulData {
-    dialogueUsers: [User],
+    dialogueUsers: [User]
     topUsers: [UpvotedUser]
+    activeDialogueMatchSeekers: [User]
   }
 `)
 
@@ -506,15 +507,31 @@ defineQuery({
       throw new Error('User must be logged in to get top upvoted users');
     }
 
-    const [dialogueUsers, topUsers] = await Promise.all([
+    const [dialogueUsers, topUsers, activeDialogueMatchSeekers] = await Promise.all([
       new UsersRepo().getUsersWhoHaveMadeDialogues(),
-      new UsersRepo().getUsersTopUpvotedUsers(currentUser)
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser),
+      new UsersRepo().getActiveDialogueMatchSeekers(100),
     ]);
 
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers,
     }
     return results
+  }
+});
+
+defineQuery({
+  name: "GetDialogueMatchedUsers",
+  resultType: "[User]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get matched users');
+    }
+
+    const matchedUsers = await new UsersRepo().getDialogueMatchedUsers(currentUser._id);
+    return accessFilterMultiple(currentUser, Users, matchedUsers, context);
   }
 });

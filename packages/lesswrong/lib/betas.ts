@@ -54,6 +54,7 @@ export const hasPostRecommendations = isEAForum;
 export const hasDigests = isEAForum;
 export const hasSideComments = isLWorAF;
 export const useElicitApi = !isLWorAF;
+export const commentsTableOfContentsEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

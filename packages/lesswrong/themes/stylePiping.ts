@@ -117,6 +117,17 @@ const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.viewpoints-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 300,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -342,6 +353,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...estimakerPreviewStyles(theme),
+    ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes

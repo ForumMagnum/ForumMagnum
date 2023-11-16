@@ -4,8 +4,8 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import { useNavigation } from '../../lib/routeUtil';
 import Input from '@material-ui/core/Input';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
@@ -50,8 +50,8 @@ const NewDialogueDialog = ({onClose, classes}: {
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>([]);
   const {create: createPost, loading, error} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   async function createDialogue() {
     if (loading) return;
     if (!title.length) {
@@ -82,7 +82,7 @@ const NewDialogueDialog = ({onClose, classes}: {
       if (post) {
         const postId = post._id;
         const postEditUrl = `/editPost?postId=${postId}`;
-        history.push(postEditUrl);
+        navigate(postEditUrl);
         onClose();
       }
     }
@@ -135,4 +135,3 @@ declare global {
     NewDialogueDialog: typeof NewDialogueDialogComponent
   }
 }
-
