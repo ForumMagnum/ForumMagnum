@@ -767,7 +767,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   </div>
               </div>)}
           </div></>}
-            <div>Here are some popular topics on LW. Check any you're interested in discussing.</div>
+            <div>Topic suggestions. Check any you're interested in discussing.</div>
             <div className={classes.dialogueTopicList}>
               {recommendedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 

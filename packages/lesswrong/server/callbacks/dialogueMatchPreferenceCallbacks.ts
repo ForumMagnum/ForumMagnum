@@ -47,8 +47,6 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const sourceUserTopics = sourceUserYesTopics.filter(topic => !targetUserYesTopics.includes(topic));
   const targetUserTopics = targetUserYesTopics.filter(topic => !sourceUserYesTopics.includes(topic));
 
-  
-
   let topicMessageContent = `
     <table>
       <thead>
@@ -125,36 +123,34 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const asyncMatch = (isYesOrOkay(userAsync) && isYesOrOkay(targetUserAsync))
   const formatPreferenceMatch = syncMatch ?? asyncMatch
 
-  // let nextAction = `<p><strong>Next steps:</strong> I'd suggest you go ahead and chat to find a topic. ${(syncMatch ? "You were also both up for scheduling a time to dialogue, so you might want to coordinate that. (If you'd find it helpful, I'd recommend https://www.when2meet.com/ as a great scheduling tool.)" : "")}
-  //   When you're ready, you can also use this page for the dialogue itself. (And at any point, you can delete this helper message so it doesn't appear in your final published dialogue.)</p>`
-
-  // if (!formatPreferenceMatch) {
-  //   nextAction =
-  //   `<p><p><strong>Next steps:</strong> It seems you have different format preferences, so a dialogue might not make sense here. But if either of you wants to give it a try anyway, you can always send a message in this chat.</p>`
-  // }
-
-  // if (sharedTopics.length === 0) {
-  //   nextAction =
-  //   `<p><p><strong>Next steps:</strong> It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But if either of you wants to chat more anyway, you can always send a message in this chat.</p>`
-  // }
-
-  // if (!formatPreferenceMatch && sharedTopics.length === 0) {
-  //   nextAction =
-  //   `<p><p><strong>Next steps:</strong> It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
-  //   and then move on :) (we'll still put this chat here if you guys want to explore further).</p>`
-  // }
-
-  let nextAction =
-  `
+  let nextAction = `
     <p><strong>Next</strong> <strong>steps</strong></p>
     <ol>
-      <li>Write in the text-boxes below to agree on a topic and scheduling.</li>
-      <li>Have your dialogue!</li>
-      <li>Afterward, edit out any replies about timing/format/etc, then public.</li>
-      <li>Get karma!</li>
+      <li>Chat to agree on topic ${syncMatch ? `and potential scheduling (tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool)` : ``}</li>
+      <li>If you agree something, have your dialogue</li>
+      <li>Edit (remove any side chats like this message, and feel free to request editing services from the LessWrong team, button below)</li>
+      <li>Publish!</li>
     </ol>
-    <p>Tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool.</p>
   `
+  if (!formatPreferenceMatch) {
+    nextAction =
+    ` <p><strong>Next</strong> <strong>steps</strong></p>
+      <p>It seems you have different format preferences, so a dialogue might not make sense here.</p>
+      <p>That's alright! (We still made this chat if you get excited by the topics and want to give it a try anyway)</p>`
+  }
+
+  if (sharedTopics.length === 0) {
+    nextAction =
+    `<p><strong>Next</strong> <strong>steps</strong></p>
+     <p>It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But our auto-topic-checker is not that precise, so we still made this chat for you to take a look and see whether there's anything here :)</p>`
+  }
+
+  if (!formatPreferenceMatch && sharedTopics.length === 0) {
+    nextAction =
+    `<p><strong>Next</strong> <strong>steps</strong></p> 
+     <p>It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
+     and then move on :) (we'll still put this chat here if you want to explore further)</p>`
+  }
 
 
   const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
