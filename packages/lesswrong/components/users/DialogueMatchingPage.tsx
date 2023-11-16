@@ -24,6 +24,8 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import keyBy from 'lodash/keyBy';
+import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
@@ -692,26 +694,32 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   });
 
 
-  const topicRecommendations: CommentsList[] = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
+  const topicRecommendations: CommentsList[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  
-  const ownTopicDict = Object.fromEntries(dialogueCheck.matchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, topic]) ?? [])
-  const matchedPersonTopicDict = Object.fromEntries(dialogueCheck.repicrocalMatchPreference?.topicPreferences?.filter(topic => topic.preference === "Yes").map(topic => [topic.text, {...topic, preference: undefined, matchedPersonPreference: topic.preference}]) ?? [])
-  const mergedTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) => ({...matchedPersonTopic, ...ownTopic}))
-  const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(mergedTopicDict))
+  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment) : {[topic: string]: {text: string, preference: "Yes" | "No", commentSourceId: string | null}} => {
+    const prefsDictList = prefs.topicPreferences
+      .filter(({preference}) => preference === "Yes")
+      .map(topic => [topic.text, topic])
+    return Object.fromEntries(prefsDictList)  
+  }
+  const ownTopicDict = dialogueCheck.matchPreference ? getTopicDict(dialogueCheck.matchPreference) : {}
+  const matchedPersonTopicDict = dialogueCheck.reciprocalMatchPreference ? getTopicDict(dialogueCheck.reciprocalMatchPreference) : {}
+  const initialTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) =>
+  ({...matchedPersonTopic, preference: undefined, ...ownTopic})
+  )
+  const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(initialTopicDict))
 
+  // Once we get the topic recommendations from the query, merge them into the topic preferences
   useEffect(() => setTopicPreferences(topicPreferences => {
-    const existingTopicDict = Object.fromEntries(topicPreferences.map(topic => [topic.text, topic]))
-    const newRecommendedTopicDict = Object.fromEntries(topicRecommendations?.map(comment => [comment.contents?.plaintextMainText ?? '', {
+    if (topicRecommendations == null) return topicPreferences
+    const existingTopicDict = keyBy(topicPreferences, ({text}) => text)
+    const newRecommendedTopicDict = keyBy(topicRecommendations.map(comment => ({
       text: comment.contents?.plaintextMainText ?? '',
       preference: 'No' as const,
       commentSourceId: comment._id
-    }]) ?? [])
-    const mergedTopicDict = mergeWith(existingTopicDict, newRecommendedTopicDict, (existingTopic, newRecommendedTopic) => ({...newRecommendedTopic, ...existingTopic}))
-    return Object.values(mergedTopicDict)
+    })), ({text}) => text)
+    return Object.values(merge(existingTopicDict, newRecommendedTopicDict))
   }), [topicRecommendations])
-
-  useEffect
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
   if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
