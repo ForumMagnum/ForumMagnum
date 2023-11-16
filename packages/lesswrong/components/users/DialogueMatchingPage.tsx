@@ -675,17 +675,37 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const navigate = useNavigate();
 
+  const onAddTopic = () => {
+    if (topicNotes === '') return
+    setTopicPreferences([...topicPreferences, {
+      text: topicNotes,
+      preference: 'Yes' as const, 
+      commentSourceId: null
+    }])
+    setTopicNotes('')
+  }
+
   const onSubmit = async () => {
+    let updatedTopicPreferences = topicPreferences; // making sure any mistakenly unsubmitted text in the topic notes field actually gets submitted and not lost
+    if (topicNotes !== '') {
+      updatedTopicPreferences = [...topicPreferences, {
+        text: topicNotes,
+        preference: 'Yes' as const, 
+        commentSourceId: null
+      }];
+      setTopicNotes(''); 
+    }
+  
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: topicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference ?? "No"})),
+        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference ?? "No"})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
         formatNotes: formatNotes,
       }
-    })
+    });
 
     const redirectId = response.data?.createDialogueMatchPreference.data.generatedDialogueId
     
@@ -818,14 +838,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                 value={topicNotes}
                 onChange={event => setTopicNotes(event.target.value)}
               />
-              <Button color="default" onClick={e => {
-                setTopicPreferences([...topicPreferences, {
-                  text: topicNotes,
-                  preference: 'Yes' as const, 
-                  commentSourceId: null
-                }])
-                setTopicNotes('')
-              } }>
+              <Button color="default" onClick={e => onAddTopic() }>
                 Add Topic
               </Button>
             </div>
@@ -834,7 +847,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
               <ScheduleLabels extraClass={classes.hideAtXs} />
               
-              <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
+              <div className={classes.schedulingQuestion}><strong>Sync:</strong> Find a synchronous 1-3hr block to sit down and dialogue</div>
               <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
@@ -843,7 +856,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   onChange={event => setFormatSync(value as SyncPreference)}
                   />)}
 
-              <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
+              <div className={classes.schedulingQuestion}><strong>Async:</strong> Have an asynchronous dialogue where you reply where convenient</div>
               <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
