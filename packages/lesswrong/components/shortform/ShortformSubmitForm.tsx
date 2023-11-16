@@ -82,7 +82,7 @@ const ShortformSubmitForm = ({
         <div className={classes.close} onClick={cancelCallback}>
           <ForumIcon icon="Close" />
         </div>
-        <div className={classes.newQuickTake}>New Quick take</div>
+        <div className={classes.newQuickTake}>New quick take</div>
         <QuickTakesEntry
           currentUser={currentUser}
           className={classes.quickTakesRoot}
