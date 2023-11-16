@@ -919,10 +919,10 @@ const DialogueCheckBox: React.FC<{
   async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
     
-    // update the field for if they've ever checked any boxes to true
-    await updateCurrentUser({
-      optInToDialogueFacilitationOrCheckedAnyBoxes: true
-    });
+    // // update the field for if they've ever checked any boxes to true
+    // await updateCurrentUser({
+    //   optInToDialogueFacilitationOrCheckedAnyBoxes: true
+    // });
 
     const response = await upsertDialogueCheck({
       variables: {
