@@ -48,29 +48,29 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   const targetUserTopics = targetUserYesTopics.filter(topic => !sourceUserYesTopics.includes(topic));
 
   let topicMessageContent = `
-    <table>
+    <table style="border-color: hsl(0, 0%, 100%); border-style: solid;">
       <thead>
         <tr>
-          <th style="text-align: center;" colspan="2">Possible Topics</th>
+          <th style="border-color: hsl(0, 0%, 100%); border-style: solid; text-align: center;" colspan="2">Possible Topics</th>
         </tr>
       </thead>
       <tbody>
         ${sharedTopics.map(topic => `
             <tr>
-            <td style="height: 70px; text-align: center; width: 150px;"><strong>Both checked!</strong></td>
-            <td style="height: 70px; text-align: center;">${topic}</td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: center; width: 150px;"><strong>Both checked!</strong></td>
+            <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: left;">${topic}</td>
             </tr>
           `).join('')}
         ${sourceUserTopics.map(topic => `
           <tr>
-          <td style="height: 70px; text-align: center; width: 150px;">${userName} (not yet seen by ${targetUserName})</td>
-          <td style="height: 70px; text-align: center;">${topic}</td>
+          <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: center; width: 150px;">${userName} (not yet seen by ${targetUserName})</td>
+          <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: left;">${topic}</td>
           </tr>
         `).join('')}
         ${targetUserTopics.map(topic => `
           <tr>
-          <td style="height: 70px; text-align: center; width: 150px;">${targetUserName}/td>
-          <td style="height: 70px; text-align: center;">${topic}</td>
+          <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: center; width: 150px;">${targetUserName}</td>
+          <td style="border-color: hsl(0, 0%, 100%); border-style: solid; height: 70px; text-align: left;">${topic}</td>
           </tr>
         `).join('')}
     </tbody>
@@ -127,7 +127,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
     <p><strong>Next</strong> <strong>steps</strong></p>
     <ol>
       <li>Chat to agree on topic ${syncMatch ? `and potential scheduling (tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool)` : ``}</li>
-      <li>If you agree something, have your dialogue</li>
+      <li>If you agree on something, have your dialogue</li>
       <li>Edit (remove any side chats like this message, and feel free to request editing services from the LessWrong team, button below)</li>
       <li>Publish!</li>
     </ol>
