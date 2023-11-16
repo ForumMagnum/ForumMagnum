@@ -182,7 +182,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
-        u."mapLocation"->'geometry'->'location' AS "_geoloc",
+        CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
+          JSONB_BUILD_OBJECT(
+            'type', 'point',
+            'coordinates', JSONB_BUILD_ARRAY(
+              u."mapLocation"->'geometry'->'location'->'lng',
+              u."mapLocation"->'geometry'->'location'->'lat'
+          )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
         NOW() AS "exportedAt"
       FROM "Users" u

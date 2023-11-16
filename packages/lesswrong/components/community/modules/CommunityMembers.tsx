@@ -227,7 +227,11 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
     // the distance from the user's location to the person's location
     let distanceToPerson;
     if (userLocation.known && hit._geoloc) {
-      distanceToPerson = `${distance(userLocation, hit._geoloc, distanceUnit)} ${distanceUnit}`
+      const location = {
+        lng: hit._geoloc.coordinates[0],
+        lat: hit._geoloc.coordinates[1],
+      };
+      distanceToPerson = `${distance(userLocation, location, distanceUnit)} ${distanceUnit}`
     }
     
     return <div className={classes.person}>

@@ -51,6 +51,7 @@ class ElasticService {
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
       filters: this.parseFilters(params.facetFilters, params.numericFilters),
+      coordinates: this.parseLatLng(params.aroundLatLng),
     });
 
     const nbHits = typeof result.hits.total === "number"
@@ -188,6 +189,26 @@ class ElasticService {
       throw new Error("Invalid numeric value: " + value);
     }
     return parsed;
+  }
+
+  /**
+   * We want coordinates in the format [lng, lat], not [lat, lng]
+   * They're passed in as a string like "75, -0.5"
+   */
+  private parseLatLng(value?: string): number[] | undefined {
+    if (!value) {
+      return undefined;
+    }
+    const coordinates = value.split(", ").map((n) => parseFloat(n));
+    if (coordinates.length !== 2) {
+      return undefined;
+    }
+    for (const coordinate of coordinates) {
+      if (typeof coordinate !== "number" || !Number.isFinite(coordinate)) {
+        return undefined;
+      }
+    }
+    return [coordinates[1], coordinates[0]];
   }
 
   private urlEncode(params: Record<string, unknown>): string {

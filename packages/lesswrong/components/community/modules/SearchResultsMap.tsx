@@ -92,8 +92,8 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
       if (!hit._geoloc || locations[hit._id]) return
       
       // within about a quarter mile radius
-      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lat
-      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lng
+      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.coordinates[0];
+      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.coordinates[1];
 
       locations[hit._id] = {lat, lng}
     })

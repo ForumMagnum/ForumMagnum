@@ -41,6 +41,7 @@ export type QueryData = {
   preTag?: string,
   postTag?: string,
   filters: QueryFilter[],
+  coordinates?: number[],
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -305,7 +306,21 @@ class ElasticQuery {
       : this.compileSimpleQuery();
   }
 
-  private compileSort(sorting?: string): Sort {
+  private compileSort(sorting?: string, coordinates?: number[]): Sort {
+    if (coordinates) {
+      if (!this.config.locationField) {
+        throw new Error("Index cannot be sorted by location");
+      }
+      return [
+        {
+          _geo_distance : {
+            [this.config.locationField]: coordinates,
+            order : "asc",
+          },
+        },
+        {[this.config.tiebreaker]: {order: "desc"}},
+      ];
+    }
     const sort: Sort = [
       {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
@@ -339,6 +354,7 @@ class ElasticQuery {
       sorting,
       offset = 0,
       limit = 10,
+      coordinates,
     } = this.queryData;
     const {privateFields} = this.config;
     const {
@@ -398,7 +414,7 @@ class ElasticQuery {
             },
           },
         },
-        sort: this.compileSort(sorting),
+        sort: this.compileSort(sorting, coordinates),
         _source: {
           exclude: ["exportedAt", ...privateFields],
         },
