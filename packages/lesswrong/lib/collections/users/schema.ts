@@ -1008,6 +1008,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     // TODO: add nullable: true
     canRead: ['guests'],
+    ...schemaDefaultValue(0),
   },
 
   goodHeartTokens: {
