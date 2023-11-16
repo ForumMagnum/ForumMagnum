@@ -134,7 +134,7 @@ export const NotificationsPageFeed = ({currentUser, classes}: {
         karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
       });
     }
-  }, [karmaChanges?.karmaChanges, updateCurrentUser]);
+  }, [karmaChanges?.karmaChanges, updateCurrentUser, setTab]);
 
   const {
     NotificationsPageKarma, NotificationsPageItem, LoadMore,
