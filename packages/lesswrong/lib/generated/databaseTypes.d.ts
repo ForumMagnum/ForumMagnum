@@ -1730,9 +1730,12 @@ interface ObjectsByTypeName {
   CronHistory: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueCheck: DbDialogueCheck
   DigestPost: DbDigestPost
   Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
+  ElicitQuestionPrediction: DbElicitQuestionPrediction
+  ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   GardenCode: DbGardenCode
