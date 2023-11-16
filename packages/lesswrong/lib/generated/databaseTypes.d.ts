@@ -24,7 +24,7 @@ interface BansCollection extends CollectionBase<DbBan, "Bans"> {
 
 interface DbBan extends DbObject {
   __collectionName?: "Bans"
-  expirationDate: Date
+  expirationDate: Date | null
   userId: string
   ip: string
   reason: string
@@ -296,7 +296,7 @@ interface FeaturedResourcesCollection extends CollectionBase<DbFeaturedResource,
 interface DbFeaturedResource extends DbObject {
   __collectionName?: "FeaturedResources"
   title: string
-  body: string
+  body: string | null
   ctaText: string
   ctaUrl: string
   expiresAt: Date
@@ -815,7 +815,7 @@ interface DbReport extends DbObject {
   link: string
   claimedUserId: string
   description: string
-  closedAt: Date
+  closedAt: Date | null
   markedAsSpam: boolean
   reportedAsSpam: boolean
   createdAt: Date
@@ -859,7 +859,7 @@ interface DbRevision extends DbObject {
     data: string,
   }
   html: string
-  wordCount: number
+  wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -956,7 +956,7 @@ interface DbTagFlag extends DbObject {
   name: string
   deleted: boolean
   slug: string
-  order: number
+  order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -971,7 +971,7 @@ interface DbTagRel extends DbObject {
   tagId: string
   postId: string
   deleted: boolean
-  userId: string
+  userId: string | null
   backfilled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1157,7 +1157,7 @@ interface DbUser extends DbObject {
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
   petrovOptOut: boolean | null
-  acceptedTos: boolean | null
+  acceptedTos: boolean
   hideNavigationSidebar: boolean
   currentFrontpageFilter: string
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1428,7 +1428,7 @@ interface DbUser extends DbObject {
   subforumPreferredLayout: "card" | "list"
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
-  allowDatadogSessionReplay: boolean | null
+  allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number
   afSequenceCount: number

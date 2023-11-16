@@ -81,7 +81,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean | null,
-  readonly acceptedTos: boolean | null,
+  readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -353,7 +353,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly afPostCount: number,
   readonly afCommentCount: number,
   readonly afSequenceCount: number,
@@ -522,7 +522,7 @@ interface TagRelsDefaultFragment { // fragment on TagRels
   readonly tagId: string,
   readonly postId: string,
   readonly deleted: boolean,
-  readonly userId: string,
+  readonly userId: string | null,
   readonly autoApplied: boolean,
   readonly backfilled: boolean,
 }
@@ -884,7 +884,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly markdown: string,
   readonly draftJS: any,
   readonly ckEditorMarkup: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
@@ -1096,7 +1096,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
 interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly version: string,
 }
 
@@ -1356,7 +1356,7 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly htmlHighlight: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly version: string,
 }
 
@@ -1501,7 +1501,7 @@ interface CommentsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
   readonly plaintextMainText: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
@@ -1596,7 +1596,7 @@ interface RevisionDisplay { // fragment on Revisions
   readonly editedAt: Date,
   readonly userId: string,
   readonly html: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1612,7 +1612,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly markdown: string,
   readonly draftJS: any,
   readonly ckEditorMarkup: string,
-  readonly wordCount: number,
+  readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
 }
@@ -1755,7 +1755,7 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly link: string,
   readonly claimedUserId: string,
   readonly description: string,
-  readonly closedAt: Date,
+  readonly closedAt: Date | null,
   readonly markedAsSpam: boolean,
   readonly reportedAsSpam: boolean,
 }
@@ -1769,7 +1769,7 @@ interface unclaimedReportsList { // fragment on Reports
   readonly postId: string,
   readonly post: unclaimedReportsList_post|null,
   readonly reportedUser: SunshineUsersList|null,
-  readonly closedAt: Date,
+  readonly closedAt: Date | null,
   readonly createdAt: Date,
   readonly claimedUserId: string,
   readonly claimedUser: unclaimedReportsList_claimedUser|null,
@@ -1825,7 +1825,7 @@ interface TagFlagFragment { // fragment on TagFlags
   readonly createdAt: Date,
   readonly name: string,
   readonly slug: string,
-  readonly order: number,
+  readonly order: number | null,
   readonly deleted: boolean,
   readonly contents: TagFlagFragment_contents|null,
 }
@@ -1844,7 +1844,7 @@ interface TagFlagsDefaultFragment { // fragment on TagFlags
   readonly name: string,
   readonly deleted: boolean,
   readonly slug: string,
-  readonly order: number,
+  readonly order: number | null,
 }
 
 interface GardenCodeFragment { // fragment on GardenCodes
@@ -1892,7 +1892,7 @@ interface GardenCodesDefaultFragment { // fragment on GardenCodes
 }
 
 interface BansDefaultFragment { // fragment on Bans
-  readonly expirationDate: Date,
+  readonly expirationDate: Date | null,
   readonly userId: string,
   readonly ip: string,
   readonly reason: string,
@@ -1903,7 +1903,7 @@ interface BansDefaultFragment { // fragment on Bans
 interface BansAdminPageFragment { // fragment on Bans
   readonly _id: string,
   readonly createdAt: Date,
-  readonly expirationDate: Date,
+  readonly expirationDate: Date | null,
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
   readonly reason: string,
@@ -2594,7 +2594,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly beta: boolean,
   readonly email: string,
   readonly services: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly acceptedTos: boolean | null,
+  readonly acceptedTos: boolean,
   readonly pageUrl: string,
   readonly voteBanned: boolean,
   readonly banned: Date,
@@ -2734,7 +2734,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly subforumPreferredLayout: "card" | "list",
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly hideFrontpageBook2020Ad: boolean,
 }
 
@@ -2886,7 +2886,7 @@ interface UsersEdit extends UsersProfile { // fragment on Users
   readonly googleLocation: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly location: string,
   readonly mapLocation: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly allowDatadogSessionReplay: boolean | null,
+  readonly allowDatadogSessionReplay: boolean,
   readonly reviewedByUserId: string,
   readonly reviewForAlignmentForumUserId: string,
   readonly groups: Array<string>,
@@ -3070,7 +3070,7 @@ interface PetrovDayLaunch { // fragment on PetrovDayLaunchs
 
 interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly title: string,
-  readonly body: string,
+  readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
   readonly expiresAt: Date,
@@ -3079,7 +3079,7 @@ interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly _id: string,
   readonly title: string,
-  readonly body: string,
+  readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
   readonly expiresAt: Date,
