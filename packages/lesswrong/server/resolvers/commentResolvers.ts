@@ -8,6 +8,7 @@ import {CommentsRepo} from "../repos";
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
+import uniqBy from 'lodash/uniqBy';
 
 const specificResolvers = {
   Mutation: {
@@ -101,9 +102,9 @@ defineQuery({
     let recommendedComments : DbComment[] = []
     
     for await (const source of commentSources()) {
-      recommendedComments = [...recommendedComments, ...source]
+      recommendedComments = uniqBy([...recommendedComments, ...source], comment => comment._id).slice(0, limit);
       if (recommendedComments.length >= limit) {
-        return [...recommendedComments].slice(0, limit);
+        break;
       }
     }
 
