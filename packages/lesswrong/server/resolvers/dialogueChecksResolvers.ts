@@ -4,21 +4,19 @@ import { createNotifications } from "../notificationCallbacksHelpers";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 
-async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck, associatedMessage?: DbMessage) {
+async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck) {
   await Promise.all([ 
     createNotifications({
       userIds: [dialogueCheck.userId],
       notificationType: "newDialogueMatch",
       documentType: "dialogueCheck",
       documentId: dialogueCheck._id,
-      extraData: {associatedMessage}
     }),
     createNotifications({
       userIds: [matchingDialogueCheck.userId],
       notificationType: "newDialogueMatch",
       documentType: "dialogueCheck",
       documentId: matchingDialogueCheck._id,
-      extraData: {associatedMessage}
     })
   ])
 }
