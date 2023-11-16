@@ -110,3 +110,5 @@ export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>(
 export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tracingSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
+
+export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)

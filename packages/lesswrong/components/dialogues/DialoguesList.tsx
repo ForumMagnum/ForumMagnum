@@ -9,6 +9,8 @@ import { useCurrentUser } from '../common/withUser';
 import { getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
+import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+
 
 const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
@@ -183,7 +185,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           Dialogues
         </LWTooltip>}
       >
-      {currentUser && (
+      {currentUser && dialogueMatchmakingEnabled.get() && (
         <LWTooltip placement="top-start" title={matchmakingTooltip}>
           <SectionButton className={classes.findDialoguePartners}>
             <MuiPeopleIcon />
@@ -193,7 +195,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
       )}
       </SectionTitle>
 
-      <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+      {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
           {currentUser && rowPropsList?.map(rowProps => {
             const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
@@ -239,7 +241,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             </div>);
           })}
         </div>
-      </AnalyticsContext>
+      </AnalyticsContext>}
       
       {dialoguePosts?.map((post, i: number) =>
         <PostsItem

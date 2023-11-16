@@ -26,7 +26,7 @@ import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
-import { head } from 'underscore';
+import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 
 export type UpvotedUser = {
   _id: string;
@@ -1184,7 +1184,9 @@ export const DialogueMatchingPage = ({classes}: {
         }
        }
     }
-  `);
+  `, {skip: !currentUser || !dialogueMatchmakingEnabled.get()});
+
+  if (!dialogueMatchmakingEnabled.get()) return <p>Server overloaded... we're working on getting it back up!!</p>
 
   if (!currentUser) return <p>You have to be logged in to view this page</p>
 
