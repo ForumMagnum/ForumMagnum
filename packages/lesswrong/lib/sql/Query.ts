@@ -20,12 +20,9 @@ class Arg {
         this.typehint = "::JSONB[]";
       }
     } else if (value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
-      if (type.isArray()) {
-        this.value = []
-      } else if (type.getBaseType() instanceof JsonType) {
+      if (type.isArray() || type.toConcrete() instanceof JsonType) {
         this.value = type.getDefaultValue();
-      }
-      else {
+      } else {
         this.value = type.getDefaultValueString();
       }
     }

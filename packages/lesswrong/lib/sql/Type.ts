@@ -271,10 +271,6 @@ export class DefaultValueType extends Type {
     return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
   }
 
-  getBaseType(): Type {
-    return this.type;
-  }
-
   getDefaultValue(): AnyBecauseHard {
     return this.value
   }
