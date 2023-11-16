@@ -177,6 +177,11 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     width: '100%'
   },
+  hideAboveXs: {
+    [theme.breakpoints.up("sm")]: {
+      display: "none"
+    }
+  },
   hideAtSm: {
     [theme.breakpoints.down("sm")]: {
       display: "none"
@@ -244,7 +249,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-
+    [theme.breakpoints.down('sm')]: {
+      gridColumn: '1 / span 3',
+    }
   },
   messageButton: {
     maxHeight: minRowHeight,
@@ -399,7 +406,10 @@ const styles = (theme: ThemeType) => ({
     padding: '4px 16px 4px 8px'
   },
   dialogueTopicSubmit: {
-    display: 'flex'
+    display: 'flex',
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: 'column',
+    }
   },
   dialogueTitle: {
     paddingBottom: 8
@@ -408,10 +418,16 @@ const styles = (theme: ThemeType) => ({
     display: 'grid',
     grid: 'auto-flow / 1fr 40px 40px 40px',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 8,
+    [theme.breakpoints.down("sm")]: {
+      grid: 'auto-flow / 1fr 40px 40px',
+    },
   },
   dialogueFormatHeader: {
-    marginBottom: 8
+    marginBottom: 8,
+    [theme.breakpoints.down("sm")]: {
+      gridColumn: '1 / span 3',
+    }
   },
   dialogueFormatLabel: {
     textAlign: 'center',
@@ -741,6 +757,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       </LWDialog>
   )}
 
+  const ScheduleLabels = ({extraClass}: {extraClass?: string}) => <>
+    <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Great</label>
+    <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Okay</label>
+    <label className={classNames(classes.dialogueFormatLabel, extraClass)}>No</label>
+  </>
+
   return (
     <LWDialog open onClose={onClose}>
       <div className={classes.dialogBox}>
@@ -810,19 +832,19 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             <br />
             <div className={classes.dialogueFormatGrid}>
               <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
-              <label className={classes.dialogueFormatLabel}>Great</label>
-              <label className={classes.dialogueFormatLabel}>Okay</label>
-              <label className={classes.dialogueFormatLabel}>No</label>
+              <ScheduleLabels extraClass={classes.hideAtXs} />
               
               <div className={classes.schedulingQuestion}>Find a synchronous 1-3hr block to sit down and dialogue</div>
+              <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
                   checked={formatSync === value}
                   className={classes.dialogSchedulingCheckbox}
                   onChange={event => setFormatSync(value as SyncPreference)}
-              />)}
+                  />)}
 
               <div className={classes.schedulingQuestion}>Have an asynchronous dialogue where you reply where convenient</div>
+              <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
                   checked={formatAsync === value}
