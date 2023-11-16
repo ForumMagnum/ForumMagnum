@@ -712,16 +712,16 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const topicRecommendations: CommentsList[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment) : {[topic: string]: {text: string, preference: "Yes" | "No", commentSourceId: string | null}} => {
+  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean) : {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
     const prefsDictList = prefs.topicPreferences
       .filter(({preference}) => preference === "Yes")
-      .map(topic => [topic.text, topic])
+      .map(topic => [topic.text, {...topic, preference: own ? "Yes" : undefined, matchedPersonPreference: own ? undefined : "Yes"}])
     return Object.fromEntries(prefsDictList)  
   }
-  const ownTopicDict = dialogueCheck.matchPreference ? getTopicDict(dialogueCheck.matchPreference) : {}
-  const matchedPersonTopicDict = dialogueCheck.reciprocalMatchPreference ? getTopicDict(dialogueCheck.reciprocalMatchPreference) : {}
+  const ownTopicDict = dialogueCheck.matchPreference ? getTopicDict(dialogueCheck.matchPreference, true) : {}
+  const matchedPersonTopicDict = dialogueCheck.reciprocalMatchPreference ? getTopicDict(dialogueCheck.reciprocalMatchPreference, false) : {}
   const initialTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) =>
-  ({...matchedPersonTopic, preference: undefined, ...ownTopic})
+    ({...matchedPersonTopic, preference: undefined, ...ownTopic})
   )
   const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(initialTopicDict))
 
@@ -805,7 +805,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   }
                   />
                   <div className={classes.dialogueTopicRowTopicText}>
-                    {topic.text} {topic.matchedPersonPreference === "Yes" && <b>Your match is interested in this topic</b>}
+                    {topic.text}
                   </div>
               </div>)}
             </div>
