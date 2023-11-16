@@ -52,23 +52,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   const conversation = results?.[0];
 
-  const initiateConversation = useCallback((userId: string) => {
-    console.log("Initiating conversation with", userId);
-    setUserId(userId)
-  }, []);
-
-
-  // log everything
-  console.log("useInitiateConversation", {
-    currentUser,
-    userId,
-    skip,
-    participantIds,
-    alignmentFields,
-    moderatorField,
-    conversation,
-    results,
-  })
+  const initiateConversation = useCallback((userId: string) => setUserId(userId), []);
 
   return {
     conversation,
