@@ -103,7 +103,6 @@ defineQuery({
     let recommendedComments: Set<DbComment> = new Set();
     
     for await (const source of commentSources()) {
-      // TODO: remove duplicates
       recommendedComments = new Set([...recommendedComments, ...source]);
       if (recommendedComments.size >= limit) {
         return [...recommendedComments].slice(0, limit);
