@@ -98,6 +98,17 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Viewpoints',
+			url: /^viewpoints\.xyz\/polls\/([\w-]+)$/,
+			html: ([match, slug]) => {
+				return `
+					<div data-viewpoints-slug="${slug}" class="viewpoints-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://viewpoints.xyz/embed/polls/${slug}"/>
+					</div>
+				`
+			}
+		},
 	]
 }
 

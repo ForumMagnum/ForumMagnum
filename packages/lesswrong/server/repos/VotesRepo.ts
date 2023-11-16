@@ -20,6 +20,13 @@ type PostVoteCounts = {
   bigDownvoteCount: number
 }
 
+export type React = {
+  documentId: string,
+  userId: string,
+  createdAt: Date,
+  reactionType?: string, // should this be a specific reaction type?
+}
+
 export default class VotesRepo extends AbstractRepo<DbVote> {
   constructor() {
     super(Votes);

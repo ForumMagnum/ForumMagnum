@@ -826,7 +826,6 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path:'/dialogueMatching',
       componentName: 'DialogueMatchingPage',
       title: "Dialogue Matching",
-      background: "white"
     },
     {
       name: 'about',

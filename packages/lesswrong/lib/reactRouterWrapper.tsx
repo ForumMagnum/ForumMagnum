@@ -82,4 +82,4 @@ function isOffsiteLink(url: string): boolean {
 }
 
 export const Redirect = reactRouter.Redirect;
-export { useNavigate } from './routeUtil';
+export { useNavigate, NavigateFunction } from './routeUtil';

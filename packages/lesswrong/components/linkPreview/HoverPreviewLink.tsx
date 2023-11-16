@@ -137,6 +137,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.EstimakerPreview>
       }
+      if (linkTargetAbsolute.host === "viewpoints.xyz" || linkTargetAbsolute.host === "www.viewpoints.xyz") {
+        return <Components.ViewpointsPreview href={href} id={id}>
+          {children}
+        </Components.ViewpointsPreview>
+      }
       return <Components.DefaultPreview href={href} id={id} rel={rel}>
         {children}
       </Components.DefaultPreview>

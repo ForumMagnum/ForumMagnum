@@ -146,6 +146,8 @@ import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/advisorRequestsCallbacks';
 import './server/callbacks/digestCallbacks';
+import './server/callbacks/dialogueMatchPreferenceCallbacks';
+
 
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
