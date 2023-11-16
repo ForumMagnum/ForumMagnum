@@ -3,7 +3,7 @@ import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/algoliaUtil';
-import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination, Snippet } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
