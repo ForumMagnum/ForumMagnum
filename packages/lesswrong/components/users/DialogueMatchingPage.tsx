@@ -250,9 +250,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
-    [theme.breakpoints.down('sm')]: {
-      gridColumn: '1 / span 3',
-    }
   },
   messageButton: {
     maxHeight: minRowHeight,
@@ -275,8 +272,8 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     borderRadius: 5,
     [theme.breakpoints.down("xs")]: {
-      "fontSize": "1.25rem",
-      "padding": "0.2rem",
+      "fontSize": "1rem",
+      "padding": "0.3rem",
     },
   },
   lightGreenButton: {
@@ -419,16 +416,10 @@ const styles = (theme: ThemeType) => ({
     display: 'grid',
     grid: 'auto-flow / 1fr 40px 40px 40px',
     alignItems: 'center',
-    marginBottom: 8,
-    [theme.breakpoints.down("sm")]: {
-      grid: 'auto-flow / 1fr 40px 40px',
-    },
+    marginBottom: 8
   },
   dialogueFormatHeader: {
     marginBottom: 8,
-    [theme.breakpoints.down("sm")]: {
-      gridColumn: '1 / span 3',
-    }
   },
   dialogueFormatLabel: {
     textAlign: 'center',
@@ -438,6 +429,11 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 4,
     paddingBottom: 4
   },
+  mobileDialog: {
+    "& .MuiDialog-paper": {
+      margin: 16
+    }
+  }
 });
 
 const redirect = (redirectId: string | undefined, navigate: NavigateFunction) => {
@@ -785,7 +781,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   </>
 
   return (
-    <LWDialog open onClose={onClose}>
+    <LWDialog open onClose={onClose} className={classes.mobileDialog}>
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
         <DialogContent >
@@ -846,10 +842,9 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             <br />
             <div className={classes.dialogueFormatGrid}>
               <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
-              <ScheduleLabels extraClass={classes.hideAtXs} />
+              <ScheduleLabels />
               
               <div className={classes.schedulingQuestion}><strong>Sync:</strong> Find a synchronous 1-3hr block to sit down and dialogue</div>
-              <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
                   checked={formatSync === value}
@@ -858,7 +853,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   />)}
 
               <div className={classes.schedulingQuestion}><strong>Async:</strong> Have an asynchronous dialogue where you reply where convenient</div>
-              <ScheduleLabels extraClass={classes.hideAboveXs} />
               {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
                   key={value}
                   checked={formatAsync === value}
