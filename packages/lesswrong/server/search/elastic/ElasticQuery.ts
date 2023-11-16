@@ -30,6 +30,8 @@ export type QueryFilter = {
   type: "numeric",
   value: number,
   op: QueryFilterOperator,
+} | {
+  type: "exists"
 });
 
 export type QueryData = {
@@ -41,6 +43,7 @@ export type QueryData = {
   preTag?: string,
   postTag?: string,
   filters: QueryFilter[],
+  // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
   coordinates?: number[],
 }
 
@@ -124,6 +127,18 @@ class ElasticQuery {
               [filter.op]: filter.value,
             },
           },
+        });
+        break;
+      case "exists":
+        terms.push({
+          bool: {
+            should: [],
+            must: [{
+              exists: {
+                field: filter.field
+              }
+            }]
+          }
         });
         break;
       }
@@ -307,6 +322,9 @@ class ElasticQuery {
   }
 
   private compileSort(sorting?: string, coordinates?: number[]): Sort {
+    // Special case:
+    // When providing coordinates in the format [lng, lat], we sort by distance
+    // and ignore the relevance score. See also parseLatLng()
     if (coordinates) {
       if (!this.config.locationField) {
         throw new Error("Index cannot be sorted by location");

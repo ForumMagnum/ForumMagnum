@@ -3,7 +3,7 @@ import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/algoliaUtil';
-import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
+import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination, Snippet } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
@@ -23,7 +23,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     '@media (max-width: 1200px)': {
       padding: '0 20px',
     },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       padding: 0
     },
   },
@@ -65,7 +65,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     marginTop: 20,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       gridTemplateColumns: '1fr',
       marginLeft: -8,
       marginRight: -8,
@@ -74,7 +74,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   peopleList: {
     height: 440,
     overflowY: 'scroll',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       height: 'auto',
     },
   },
@@ -92,7 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   photoRow: {
     display: 'flex',
-    columnGap: 10,
+    columnGap: 14,
     alignItems: 'center',
   },
   profileImage: {
@@ -133,7 +133,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   description: {
     color: theme.palette.grey[800],
+    display: '-webkit-box',
+    "-webkit-line-clamp": 2,
+    "-webkit-box-orient": 'vertical',
+    overflow: 'hidden',
     marginTop: 12,
+    [theme.breakpoints.down('xs')]: {
+      "-webkit-line-clamp": 4,
+    }
   },
   buttonRow: {
     display: 'flex',
@@ -144,7 +151,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     boxShadow: 'none'
   },
   mapContainer: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       display: 'none'
     },
   },
@@ -256,8 +263,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
             <div className={classes.location}>{hit.mapLocationAddress}</div>
           </div>
         </div>
-        {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
-          <div dangerouslySetInnerHTML={{__html: truncate(hit.htmlBio, 220)}} />
+        {hit.bio && <ContentStyles contentType="comment" className={classes.description}>
+          {hit.bio}
         </ContentStyles>}
         {/* {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
           <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
@@ -270,8 +277,8 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   
   // if the user hasn't selected a location, we show the whole map
   const mapOptions = userLocation.known ? {center: userLocation, zoom: 9} : {zoom: 1}
-  // if the user hasn't selected a location, we just show all users who have a map location (ordered by karma desc)
-  const searchOptions = userLocation.known ? {aroundLatLng: `${userLocation?.lat}, ${userLocation.lng}`} : {filters: "_geoloc.lat>-100"}
+  // if the user hasn't selected a location, we just show all users who have a map location (ordered by a mix of "relevance" and karma desc)
+  const searchOptions = userLocation.known ? {aroundLatLng: `${userLocation?.lat}, ${userLocation.lng}`} : {}
   
   return <InstantSearch
     indexName={'test_users'}
@@ -293,7 +300,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         <SearchResultsMap {...mapOptions} className={classes.map} />
       </div>
     </div>
-    <Configure hitsPerPage={200} aroundRadius="all" {...searchOptions} />
+    <Configure hitsPerPage={200} aroundRadius="all" existsFilters={['_geoloc']} {...searchOptions} />
   </InstantSearch>
 }
 

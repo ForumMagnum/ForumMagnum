@@ -50,7 +50,7 @@ class ElasticService {
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
-      filters: this.parseFilters(params.facetFilters, params.numericFilters),
+      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
       coordinates: this.parseLatLng(params.aroundLatLng),
     });
 
@@ -114,6 +114,7 @@ class ElasticService {
   parseFilters(
     facetFilters?: string[][],
     numericFilters?: string[],
+    existsFilters?: string[],
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -166,6 +167,13 @@ class ElasticService {
         field,
         value: this.parseNumericValue(value),
         op,
+      });
+    }
+    
+    for (const filter of existsFilters ?? []) {
+      result.push({
+        type: "exists",
+        field: filter,
       });
     }
 

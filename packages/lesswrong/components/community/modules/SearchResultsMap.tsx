@@ -44,7 +44,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
     fontSize: 14,
-    lineHeight: '1.8em',
+    lineHeight: '20px',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
@@ -150,7 +150,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
             onClose={() => setActiveResultId('')}
             hideBottomLinks
           >
-            {hit.htmlBio && <div className={classes.popupBio} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
+            {hit.bio && <div className={classes.popupBio}>{hit.bio}</div>}
           </StyledMapPopup>}
         </React.Fragment>
       })}
