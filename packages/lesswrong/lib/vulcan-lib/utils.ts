@@ -158,7 +158,7 @@ export const slugify = function (s: string): string {
   return slug;
 };
 
-export const getDomain = function(url: string | null ): string|null {
+export const getDomain = function(url: string | null): string|null {
   if (!url) return null;
   try {
     const hostname = urlObject.parse(url).hostname

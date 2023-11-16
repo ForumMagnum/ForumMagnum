@@ -5,12 +5,8 @@ import './vulcan-users/index';
 // schema utils
 import './utils/schemaUtils'
 
-// collection utils
-import './collectionUtils'
-
 // Permissions
 import './permissions';
-
 
 // ## Voting
 import './voting/voteTypes';
