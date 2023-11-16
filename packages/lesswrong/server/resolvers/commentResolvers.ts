@@ -104,13 +104,13 @@ defineQuery({
     let recommendedComments : DbComment[] = []
     
     for await (const source of commentSources()) {
-      recommendedComments = uniqBy([...recommendedComments, ...source], comment => comment._id).slice(0, limit);
-      console.log("New log: ", recommendedComments.length, recommendedComments.map(comment => comment.contents.html))
+      const newComments = await accessFilterMultiple(context.currentUser, context.Comments, source, context);
+      recommendedComments = uniqBy([...recommendedComments, ...newComments], comment => comment._id).slice(0, limit);
       if (recommendedComments.length >= limit) {
         break;
       }
     }
 
-    return accessFilterMultiple(context.currentUser, context.Comments, recommendedComments, context);
+    return recommendedComments
   },
 });

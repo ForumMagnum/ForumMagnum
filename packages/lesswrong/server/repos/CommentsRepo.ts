@@ -79,7 +79,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollComments (limit: number): Promise<(DbComment)[]> {
     return await this.manyOrNone(`
-      SELECT *
+      SELECT c.*
       FROM public."Comments" AS c
       WHERE c."parentCommentId" = $2
       ORDER BY c."baseScore" DESC
@@ -89,7 +89,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(DbComment)[]> {
     return await this.manyOrNone(`
-    SELECT *
+    SELECT c.*
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE
@@ -112,7 +112,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           AND cancelled IS NOT TRUE
           AND "isUnvote" IS NOT TRUE
       )
-      SELECT *
+      SELECT c.*
       FROM public."Comments" AS c
       INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
       INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"

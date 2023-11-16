@@ -213,6 +213,7 @@ registerFragment(`
 
     hideDialogueFacilitation
     optedInToDialogueFacilitation
+    optedInToDialogueFacilitationOrCheckedAnyBoxes
     revealChecksToAdmins
   }
 `);
@@ -557,3 +558,11 @@ registerFragment(`
     displayName
   }
 `);
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes on User {
+    _id
+    displayName
+  }
+`);
+

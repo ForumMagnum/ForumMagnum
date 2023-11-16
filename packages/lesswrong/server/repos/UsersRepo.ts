@@ -278,6 +278,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
+  async getUsersWhoHaveOptedInToDialogueFacilitationOrCheckedAnyBoxes(): Promise<DbUser[]> {
+    return this.getRawDb().any(`
+        SELECT *
+        FROM "Users" u
+        WHERE u."optedInToDialogueFacilitationOrCheckedAnyBoxes" IS TRUE
+    `)
+  }  
+
   async getUsersTopUpvotedUsers(user:DbUser, limit = 30, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");

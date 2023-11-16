@@ -256,6 +256,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hideDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
+  readonly optedInToDialogueFacilitationOrCheckedAnyBoxes: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2810,6 +2811,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideFrontpageBook2020Ad: boolean,
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
+  readonly optedInToDialogueFacilitationOrCheckedAnyBoxes: boolean,
   readonly revealChecksToAdmins: boolean,
 }
 
@@ -3130,6 +3132,11 @@ interface UsersCrosspostInfo { // fragment on Users
 }
 
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
+  readonly _id: string,
+  readonly displayName: string,
+}
+
+interface UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
 }
@@ -3631,6 +3638,7 @@ interface FragmentTypes {
   UsersProfileEdit: UsersProfileEdit
   UsersCrosspostInfo: UsersCrosspostInfo
   UsersOptedInToDialogueFacilitation: UsersOptedInToDialogueFacilitation
+  UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes: UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes
   PetrovDayLaunchsDefaultFragment: PetrovDayLaunchsDefaultFragment
   PetrovDayLaunch: PetrovDayLaunch
   FeaturedResourcesDefaultFragment: FeaturedResourcesDefaultFragment
@@ -3852,6 +3860,7 @@ interface CollectionNamesByFragmentName {
   UsersProfileEdit: "Users"
   UsersCrosspostInfo: "Users"
   UsersOptedInToDialogueFacilitation: "Users"
+  UsersOptedInToDialogueFacilitationOrCheckedAnyBoxes: "Users"
   PetrovDayLaunchsDefaultFragment: "PetrovDayLaunchs"
   PetrovDayLaunch: "PetrovDayLaunchs"
   FeaturedResourcesDefaultFragment: "FeaturedResources"

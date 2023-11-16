@@ -408,5 +408,10 @@
     "acceptsSchemaHash": "9c5c042b46b51d1c32bfe30cad147c81",
     "acceptedByMigration": "20231116T022304.add_DialogueMatchPreferences_table.ts",
     "timestamp": "2023-11-16T02:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "13ea31a8ea022bd548a408cc2d9c13ec",
+    "acceptedByMigration": "20231116T030105.add_optedInToDialogueFacilitationOrCheckedAnyBoxes.ts",
+    "timestamp": "2023-11-16T03:01:05.000Z"
   }
 ]

@@ -285,3 +285,18 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
 })
 
 ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
+
+Users.addView("usersWithOptedInToDialogueFacilitationOrCheckedAnyBoxes", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      optedInToDialogueFacilitationOrCheckedAnyBoxes: true
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+
+ensureIndex(Users, { optedInToDialogueFacilitationOrCheckedAnyBoxes: 1, karma: -1 });

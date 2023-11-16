@@ -1445,6 +1445,18 @@ const schema: SchemaType<DbUser> = {
     ...schemaDefaultValue(false)
   },
 
+  optedInToDialogueFacilitationOrCheckedAnyBoxes: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    hidden: !isLW,
+    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team OR checked any dialogue matching box",
+    ...schemaDefaultValue(false)
+  },
+
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
     group: formGroups.notifications,
