@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
@@ -43,18 +44,14 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
   classes: ClassesType,
 }) => {
   const totalCount = parentAnswer.descendentCount;
+  const now = useCurrentTime();
   
-  const highlightDate =
-    (post?.lastVisitedAt
-      && new Date(post.lastVisitedAt))
-    || new Date();
-
   const { CommentsList, } = Components
   
   const treeOptionsWithHighlight = useMemo(() => ({
     ...treeOptions,
-    highlightDate: highlightDate,
-  }), [treeOptions, highlightDate]);
+    highlightDate: post?.lastVisitedAt ? new Date(post.lastVisitedAt) : now,
+  }), [treeOptions, post?.lastVisitedAt, now]);
   
   return <div className={classes.commentsList}>
     <CommentsList
