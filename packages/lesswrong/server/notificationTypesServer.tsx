@@ -232,10 +232,13 @@ export const NewDialogueMessageNotification = serverRegisterNotificationType({
     return `New reply in your dialogue, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const postId = notifications[0].documentId;
+    const postId = notifications[0].documentId!; // We skip notifications without a documentId in the skip function
     const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
     return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
   },
+  skip: async ({ notifications }: {notifications: DbNotification[]}) => {
+    return !notifications[0].documentId
+  }
 });
 
 function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessageEmailInfo|undefined {
@@ -288,11 +291,14 @@ export const NewDialogueMatchNotification = serverRegisterNotificationType({
     return `You matched with ${userGetDisplayName(targetUser)} for dialogues!`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const documentId = notifications[0].documentId;
+    const documentId = notifications[0].documentId!; // We skip notifications without a documentId in the skip function
     const dialogueCheck = await DialogueChecks.findOne(documentId);
     const targetUser = await Users.findOne(dialogueCheck?.targetUserId);
     return <Components.NewDialogueMatchEmail documentId={documentId} targetUser={targetUser}/>;
   },
+  skip: async ({ notifications }: {notifications: DbNotification[]}) => {
+    return !notifications[0].documentId
+  }
 });
 
 export const NewDebateCommentNotification = serverRegisterNotificationType({

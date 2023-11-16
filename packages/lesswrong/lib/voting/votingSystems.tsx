@@ -147,7 +147,7 @@ export function getVoteAxisStrength(vote: DbVote, usersById: Record<string,DbUse
   const voteType: string | undefined = vote.extendedVoteType?.[axis];
   if (!voteType) return 0;
   const user = usersById[vote.userId];
-  return calculateVotePower(user.karma ?? 0, voteType);
+  return calculateVotePower(user.karma, voteType);
 }
 
 export type ReactBallotAxis = {

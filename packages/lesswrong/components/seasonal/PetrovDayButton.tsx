@@ -221,7 +221,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
             <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
               <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
               <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
-              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
+              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma}`}</div>}
             </Link>
           </Typography>
           {currentUser ? 

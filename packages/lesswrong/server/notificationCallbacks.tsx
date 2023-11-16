@@ -36,6 +36,7 @@ import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils'
 import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -445,7 +446,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
-    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
+    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, filterNonnull([tagRel.userId]))
 
     //eslint-disable-next-line no-console
     console.info("Post tagged, creating notifications");

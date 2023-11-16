@@ -279,7 +279,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }  
 
   async getUsersTopUpvotedUsers(user:DbUser, limit = 30): Promise<UpvotedUser[]> {
-    const karma = user?.karma ?? 0
+    const karma = user?.karma
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
     

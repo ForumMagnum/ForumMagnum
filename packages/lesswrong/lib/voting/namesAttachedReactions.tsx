@@ -71,7 +71,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
       const userInfo = {
         userId: vote.userId,
         displayName: usersById[vote.userId].displayName ?? "",
-        karma: usersById[vote.userId].karma ?? 0,
+        karma: usersById[vote.userId].karma,
       };
       if (extendedVote?.reacts) {
         for (let reaction of extendedVote.reacts) {
@@ -103,7 +103,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
         }
       }
       
-      const userKarma = user.karma ?? 0;
+      const userKarma = user.karma;
 
       // If the user is disagreeing with a react, they need at least
       // downvoteExistingReactKarmaThreshold karma

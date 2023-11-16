@@ -1914,8 +1914,8 @@ const schema: SchemaType<DbUser> = {
 
       if (user.deleteContent && user.banned) return 0.0;
       else if (userIsAdmin(user)) return 1.0;
-      else if (isReviewed && (karma ?? 0) >=20) return 1.0;
-      else if (isReviewed && (karma ?? 0) >=0) return 0.9;
+      else if (isReviewed && (karma) >=20) return 1.0;
+      else if (isReviewed && (karma) >=0) return 0.9;
       else if (isReviewed) return 0.8;
       else if (signUpReCaptchaRating !== null && 
               signUpReCaptchaRating !== undefined && 
@@ -1952,6 +1952,7 @@ const schema: SchemaType<DbUser> = {
   afKarma: {
     type: Number,
     optional: true,
+    nullable: false,
     label: "Alignment Base Score",
     defaultValue: 0,
     canRead: ['guests'],

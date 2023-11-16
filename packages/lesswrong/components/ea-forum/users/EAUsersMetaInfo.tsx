@@ -64,7 +64,7 @@ const EAUsersMetaInfo = ({user, classes}: {
   user: UsersProfile,
   classes: ClassesType,
 }) => {
-  const userKarma = user.karma ?? 0;
+  const userKarma = user.karma;
   const userHasSocialMedia = Object.keys(SOCIAL_MEDIA_PROFILE_FIELDS).some(
     (field: SocialMediaProfileField) => user[field],
   );

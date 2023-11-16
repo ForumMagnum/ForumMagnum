@@ -4,11 +4,8 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
-<<<<<<< HEAD
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
-=======
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
->>>>>>> origin/set-fields-not-nullable
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {

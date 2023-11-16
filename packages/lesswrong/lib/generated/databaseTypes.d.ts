@@ -175,10 +175,11 @@ interface DbComment extends DbObject {
   rejectedByUserId: string | null
   af: boolean
   suggestForAlignmentUserIds: Array<string>
-  reviewForAlignmentUserId: string
-  afDate: Date
-  moveToAlignmentUserId: string
-  agentFoundationsId: string
+  reviewForAlignmentUserId: string | null
+  afDate: Date | null
+  moveToAlignmentUserId: string | null
+  agentFoundationsId: string | null
+  originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -315,9 +316,9 @@ interface DbElectionCandidate extends DbObject {
   extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   score: number
   inactive: boolean
-  afBaseScore: number
+  afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number
+  afVoteCount: number | null
 }
 
 interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
@@ -886,15 +887,15 @@ interface ReportsCollection extends CollectionBase<DbReport, "Reports"> {
 interface DbReport extends DbObject {
   __collectionName?: "Reports"
   userId: string
-  reportedUserId: string
-  commentId: string
-  postId: string
-  link: string
-  claimedUserId: string
-  description: string
-  closedAt: Date
-  markedAsSpam: boolean
-  reportedAsSpam: boolean
+  reportedUserId: string | null
+  commentId: string | null
+  postId: string | null
+  link: string | null
+  claimedUserId: string | null
+  description: string | null
+  closedAt: Date | null
+  markedAsSpam: boolean | null
+  reportedAsSpam: boolean | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -934,9 +935,9 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
-  }
-  html: string
-  wordCount: number
+  } | null
+  html: string | null
+  wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1235,9 +1236,9 @@ interface DbUser extends DbObject {
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
   petrovOptOut: boolean | null
-  acceptedTos: boolean | null
-  hideNavigationSidebar: boolean
-  currentFrontpageFilter: string
+  acceptedTos: boolean
+  hideNavigationSidebar: boolean | null
+  currentFrontpageFilter: string | null
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
   hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string | null
@@ -1251,7 +1252,7 @@ interface DbUser extends DbObject {
   draftsListShowArchived: boolean | null
   draftsListShowShared: boolean | null
   lastNotificationsCheck: Date | null
-  karma: number | null
+  karma: number
   goodHeartTokens: number | null
   moderationStyle: string | null
   moderatorAssistance: boolean | null
@@ -1416,9 +1417,10 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     showNegativeKarma: boolean,
   }
-  karmaChangeLastOpened: Date
-  karmaChangeBatchStart: Date
-  emailSubscribedToCurated: boolean
+  karmaChangeLastOpened: Date | null
+  karmaChangeBatchStart: Date | null
+  givingSeasonNotifyForVoting: boolean
+  emailSubscribedToCurated: boolean | null
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean | null
   hideSubscribePoke: boolean
@@ -1451,7 +1453,7 @@ interface DbUser extends DbObject {
   snoozedUntilContentCount: number | null
   reviewedByUserId: string | null
   reviewedAt: Date | null
-  afKarma: number | null
+  afKarma: number
   voteCount: number | null
   smallUpvoteCount: number | null
   smallDownvoteCount: number | null
