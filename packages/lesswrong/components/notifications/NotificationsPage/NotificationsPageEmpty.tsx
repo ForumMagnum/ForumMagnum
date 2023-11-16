@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import type { NotificationsPageTabName } from "./NotificationsPage";
+import type { NotificationsPageTabName } from "./notificationsPageTabs";
 
 const styles = (theme: ThemeType) => ({
   root: {
