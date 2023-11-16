@@ -73,9 +73,6 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     marginBottom: 3,
     borderRadius: 2,
-    [theme.breakpoints.down("xs")]: {
-      display: "none !important"
-    }
   },
   dialogueLeftContainer: {
     display: 'flex',
@@ -123,9 +120,6 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8
   },
   findDialoguePartners: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none !important"
-    }
   }
 });
 
