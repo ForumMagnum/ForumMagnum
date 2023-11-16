@@ -6,6 +6,7 @@ import type {
   PostKarmaChange,
   TagRevisionKarmaChange,
 } from "../../../lib/types/karmaChangesTypes";
+import { useNotificationsPageTab } from "./notificationsPageTabs";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -19,13 +20,20 @@ const NotificationsPageKarma = ({karmaChanges, classes}: {
   karmaChanges?: KarmaChanges,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {tab} = useNotificationsPageTab();
   if (!karmaChanges) {
     return null;
   }
   const {posts, comments, tagRevisions} = karmaChanges;
-  const {NotificationsPageKarmaItem} = Components;
+  const isEmpty = posts.length === 0 &&
+    comments.length === 0 &&
+    tagRevisions.length === 0;
+  const {NotificationsPageKarmaItem, NotificationsPageEmpty} = Components;
   return (
     <div className={classes.root}>
+      {isEmpty && tab.name === "karma" &&
+        <NotificationsPageEmpty tabName="karma" />
+      }
       {posts.map((post: PostKarmaChange) => (
         <NotificationsPageKarmaItem post={post} key={post._id} />
       ))}
@@ -38,7 +46,6 @@ const NotificationsPageKarma = ({karmaChanges, classes}: {
     </div>
   );
 }
-
 
 const NotificationsPageKarmaComponent = registerComponent(
   "NotificationsPageKarma",

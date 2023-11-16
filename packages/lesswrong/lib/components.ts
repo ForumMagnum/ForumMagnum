@@ -191,6 +191,8 @@ importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'
 //importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
 
 importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage/NotificationsPage'));
+importComponent("NotificationsPageFeed", () => require('../components/notifications/NotificationsPage/NotificationsPageFeed'));
+importComponent("NotificationsPageEmpty", () => require('../components/notifications/NotificationsPage/NotificationsPageEmpty'));
 importComponent("NotificationsPageItem", () => require('../components/notifications/NotificationsPage/NotificationsPageItem'));
 importComponent("NotificationsPageKarma", () => require('../components/notifications/NotificationsPage/NotificationsPageKarma'));
 importComponent("NotificationsPageKarmaItem", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaItem'));
