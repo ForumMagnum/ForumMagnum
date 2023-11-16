@@ -2,7 +2,8 @@ import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { Request } from 'express';
-import { StaticRouter } from 'react-router-dom/server';
+// eslint-disable-next-line no-restricted-imports
+import { StaticRouter } from 'react-router';
 import { Components } from '../../../../lib/vulcan-lib/components';
 import { ForeignApolloClientProvider } from '../../../../components/hooks/useForeignApolloClient';
 import { CookiesProvider } from 'react-cookie';

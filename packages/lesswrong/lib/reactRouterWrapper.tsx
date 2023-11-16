@@ -6,7 +6,7 @@ import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost, getUrlClass } from './routeUtil';
-import { parseQuery } from './vulcan-core/appContext'
+import { NavigationContext, parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
 type LinkProps = {
@@ -81,6 +81,5 @@ function isOffsiteLink(url: string): boolean {
   }
 }
 
-export const Navigate = reactRouter.Navigate;
-
-export const useNavigate = reactRouter.useNavigate;
+export const Redirect = reactRouter.Redirect;
+export { useNavigate } from './routeUtil';

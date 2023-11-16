@@ -1,7 +1,7 @@
 import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { useCommentBox } from '../common/withCommentBox';
+import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 

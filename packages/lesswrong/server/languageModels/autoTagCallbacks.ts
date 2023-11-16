@@ -2,7 +2,7 @@ import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTem
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { truncate } from '../../lib/editor/ellipsize';
 import { dataToMarkdown, htmlToMarkdown } from '../editor/conversionUtils';
-import type { OpenAIApi } from "openai";
+import type OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -167,7 +167,7 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   return result;
 }
 
-export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
+export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
@@ -175,12 +175,12 @@ export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIAp
   for (let tag of tags) {
     if (!tag.autoTagPrompt || !tag.autoTagModel)
       continue;
-    const languageModelResult = await openAIApi.createCompletion({
+    const languageModelResult = await openAIApi.completions.create({
       model: tag.autoTagModel,
       prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
       max_tokens: 1,
     });
-    const completion = languageModelResult.data.choices[0].text!;
+    const completion = languageModelResult.choices[0].text!;
     const hasTag = (completion.trim().toLowerCase() === "yes");
     tagsApplied[tag.slug] = hasTag;
   }
@@ -280,7 +280,7 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
   // This model was trained on ~2400 posts, generated using generateCandidateSetsForTagClassification
   // (posts published from May 1 2022 - May 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
   // Since it's not super accurate, we may want to fine-tune it more in the future.
-  const languageModelResult = await api.createCompletion({
+  const languageModelResult = await api.completions.create({
     model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
     prompt: await postToPrompt({
       template,
@@ -290,7 +290,7 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
     }),
     max_tokens: 1,
   })
-  const completion = languageModelResult.data.choices[0].text!
+  const completion = languageModelResult.choices[0].text!
   return (completion.trim().toLowerCase() === "yes")
 }
 

@@ -1,53 +1,34 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { IntlProvider } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
-import { MessageContext } from '../common/withMessages';
+import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
-import { useLocation } from 'react-router';
+import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
-import {
-  LocationContext,
-  parseRoute,
-  ServerRequestStatusContext,
-  SubscribeLocationContext,
-  ServerRequestStatusContextType,
-} from '../../lib/vulcan-core/appContext';
+import { LocationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from '../../lib/vulcan-core/appContext';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import { MessageContextProvider } from '../common/FlashMessages';
+import type { History } from 'history'
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
-type Message = AnyBecauseTodo;
-
-const App = ({serverRequestStatus, timeOverride}: {
+interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
   timeOverride: TimeOverride,
+}
+
+const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
+  history: History
 }) => {
   const {currentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const navigationContext = useRef<any>();
 
   const locale = localeSetting.get();
-
-  const flash = useCallback((message: Message) => {
-    setMessages((messages) => [...messages, message]);
-  }, []);
-
-  const clear = useCallback(() => {
-    // When clearing messages, we first set all current messages to have a hide
-    // property and only after 500ms set the array to empty, to allow UI
-    // elements to show a fade-out animation
-    setMessages((messages) => messages.map((message) => ({
-      ...message,
-      hide: true,
-    })));
-    setTimeout(() => setMessages([]), 500);
-  }, []);
 
   useEffect(() => {
     void userChangedCallback.runCallbacks({
@@ -80,6 +61,12 @@ const App = ({serverRequestStatus, timeOverride}: {
   } else {
     Object.assign(locationContext.current, location);
   }
+  
+  if (!navigationContext.current) {
+    navigationContext.current = { history };
+  } else {
+    navigationContext.current.history = history;
+  }
 
   // subscribeLocationContext changes (by shallow comparison) whenever the
   // URL changes.
@@ -106,26 +93,28 @@ const App = ({serverRequestStatus, timeOverride}: {
 
   return (
     <LocationContext.Provider value={locationContext.current}>
+    <NavigationContext.Provider value={navigationContext.current}>
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <TimeContext.Provider value={timeOverride}>
-    <IntlProvider locale={locale} key={locale} messages={Strings[locale]}>
-      <MessageContext.Provider value={{messages, flash, clear}}>
+      <MessageContextProvider>
         <Components.HeadTags image={siteImageSetting.get()} />
         <Components.ScrollToTop />
         <Components.Layout currentUser={currentUser}>
           <location.RouteComponent />
         </Components.Layout>
-      </MessageContext.Provider>
-    </IntlProvider>
+      </MessageContextProvider>
     </TimeContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>
+    </NavigationContext.Provider>
     </LocationContext.Provider>
   );
 }
 
-const AppComponent = registerComponent('App', App);
+const AppComponent = registerComponent<ExternalProps>('App', App, {
+  hocs: [withRouter],
+});
 
 declare global {
   interface ComponentTypes {
