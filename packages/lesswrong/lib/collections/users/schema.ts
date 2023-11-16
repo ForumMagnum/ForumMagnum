@@ -1008,6 +1008,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     // TODO: add nullable: true
     canRead: ['guests'],
+    ...schemaDefaultValue(0),
   },
 
   goodHeartTokens: {
@@ -1186,6 +1187,7 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.deactivate,
   },
 
+  // DEPRECATED
   // voteBanned: All future votes of this user have weight 0
   voteBanned: {
     type: Boolean,
@@ -1195,7 +1197,8 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     control: 'checkbox',
     group: formGroups.banUser,
-    label: 'Set all future votes of this user to have zero weight'
+    label: 'Set all future votes of this user to have zero weight',
+    hidden: true,
   },
 
   // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
@@ -1375,11 +1378,13 @@ const schema: SchemaType<DbUser> = {
   },
   notificationDialogueMessages: {
     label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField({ channel: "both"})
+    ...notificationTypeSettingsField({ channel: "both"}),
+    hidden: !dialoguesEnabled,
   },
   notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField()
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
   },
   notificationAddedAsCoauthor: {
     label: "Someone has added me as a coauthor to a post",
@@ -1388,14 +1393,19 @@ const schema: SchemaType<DbUser> = {
   //TODO: clean up old dialogue implementation notifications
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    hidden: !dialoguesEnabled,
   },
   notificationDebateReplies: {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
-  
+  notificationDialogueMatch: {
+    label: "Another user and I have matched for a dialogue",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !dialoguesEnabled,
+  },
 
   hideDialogueFacilitation: {
     type: Boolean,

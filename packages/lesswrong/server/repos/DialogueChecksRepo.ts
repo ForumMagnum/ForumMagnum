@@ -26,8 +26,8 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     `, [randomId(), userId, targetUserId, checked, checkedAt])
   }
 
-  async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck[]> {
-    return this.any(`
+  async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck | null> {
+    return this.oneOrNone(`
       SELECT 
         * 
       FROM "DialogueChecks" 

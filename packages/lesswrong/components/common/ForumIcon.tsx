@@ -405,7 +405,7 @@ const ForumIcon = ({
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(className, {
     [classes.root]: !noDefaultStyles,
-    [customClass]: !noDefaultStyles && customClass,
+    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
   });
 
   return <Icon className={fullClassName} {...props} />;

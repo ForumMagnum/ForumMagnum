@@ -25,6 +25,7 @@ const getAllRepos = () => ({
   conversations: new ConversationsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
+  dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   localgroups: new LocalgroupsRepo(),
   PostEmbeddingsRepo: new PostEmbeddingsRepo(),
@@ -35,7 +36,6 @@ const getAllRepos = () => ({
   tags: new TagsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
-  dialogueChecks: new DialogueChecksRepo(),
 } as const);
 
 export {
@@ -43,6 +43,7 @@ export {
   ConversationsRepo,
   DatabaseMetadataRepo,
   DebouncerEventsRepo,
+  DialogueChecksRepo,
   ElectionCandidatesRepo,
   LocalgroupsRepo,
   PostEmbeddingsRepo,
@@ -53,6 +54,5 @@ export {
   TagsRepo,
   UsersRepo,
   VotesRepo,
-  DialogueChecksRepo,
   getAllRepos,
 };

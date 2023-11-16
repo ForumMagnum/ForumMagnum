@@ -31,7 +31,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
       console.log('============ check comment', comment._id)
       console.log(text)
       
-      const response = await api.createChatCompletion({
+      const response = await api.chat.completions.create({
         model: 'gpt-4',
         messages: [
           {role: 'system', content: modGPTPrompt},
@@ -39,7 +39,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
         ],
       })
       
-      const topResult = response.data.choices[0].message?.content
+      const topResult = response.choices[0].message?.content
       if (topResult) {
         console.log('----- ModGPT response:')
         console.log(topResult)

@@ -17,6 +17,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
+import './emailComponents/NewDialogueMatchEmail';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -27,6 +28,7 @@ import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
+import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 
 interface ServerNotificationType {
   name: string,
@@ -266,6 +268,24 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+  },
+});
+
+export const NewDialogueMatchNotification = serverRegisterNotificationType({
+  name: "newDialogueMatch",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const dialogueCheck = await DialogueChecks.findOne(notifications[0].documentId);
+    if (!dialogueCheck) throw Error(`Can't find dialogue check for notification: ${notifications[0]}`)
+    const targetUser = await Users.findOne(dialogueCheck.targetUserId);
+    if (!targetUser) throw Error(`Can't find dialogue match user for notification: ${notifications[0]}`)
+    return `You matched with ${userGetDisplayName(targetUser)} for dialogues!`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const documentId = notifications[0].documentId;
+    const dialogueCheck = await DialogueChecks.findOne(documentId);
+    const targetUser = await Users.findOne(dialogueCheck?.targetUserId);
+    return <Components.NewDialogueMatchEmail documentId={documentId} targetUser={targetUser}/>;
   },
 });
 

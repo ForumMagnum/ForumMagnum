@@ -4,7 +4,7 @@ import qs from 'qs';
 import { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
@@ -21,6 +21,7 @@ import {
 } from '../../lib/search/elasticUtil';
 import Modal from '@material-ui/core/Modal';
 import classNames from 'classnames';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const hitsPerPage = 10
 
@@ -43,14 +44,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   filtersModal: {
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-  },
-  filtersModalOpen: {
-    display: "flex",
-  },
-  filtersModalClosed: {
-    display: "none",
   },
   filtersModalContent: {
     maxWidth: "max-content",
@@ -177,7 +173,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type ExpandedSearchState = SearchState & {
+export type ExpandedSearchState = SearchState & {
   contentType?: AlgoliaIndexCollectionName,
   refinementList?: {
     tags: Array<string>|''
@@ -218,7 +214,7 @@ const SearchPageTabbed = ({classes}:{
   classes: ClassesType
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const { location, query } = useLocation()
   const captureSearch = useSearchAnalytics();
 
@@ -251,13 +247,13 @@ const SearchPageTabbed = ({classes}:{
       throw new Error("Invalid algolia sorting: " + newSorting);
     }
     setSorting(newSorting);
-    history.replace({
+    navigate({
       ...location,
       search: qs.stringify({
         ...searchState,
         sort: elasticSortingToUrlParam(newSorting),
       }),
-    });
+    }, {replace: true});
   }
 
   const {
@@ -267,7 +263,7 @@ const SearchPageTabbed = ({classes}:{
 
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
-    history.replace({
+    navigate({
       ...location,
       search: qs.stringify({
         contentType: search.contentType,
@@ -277,7 +273,7 @@ const SearchPageTabbed = ({classes}:{
         page: search.page,
         sort: elasticSortingToUrlParam(sorting),
       })
-    })
+    }, {replace: true})
   }
 
   const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
@@ -379,12 +375,11 @@ const SearchPageTabbed = ({classes}:{
         <div ref={scrollToRef} />
 
         <Modal
-          open={true}
+          open={modalOpen}
           onClose={() => setModalOpen(false)}
           aria-labelledby="search-filters-modal"
           aria-describedby="search-filters-modal"
-          style={{display: modalOpen ? 'flex' : 'none'}}
-          className={classNames(classes.filtersModal, {[classes.filtersModalOpen]: modalOpen}, {[classes.filtersModalClosed]: !modalOpen})}
+          className={classNames(classes.filtersModal)}
         >
           <div className={classes.filtersModalContent}>
             <Components.SearchFilters

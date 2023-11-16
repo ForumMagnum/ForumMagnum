@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const ConversationItem = ({conversation, updateConversation, currentUser, classes, expanded}: {
-  conversation: conversationsListFragment,
+  conversation: ConversationsList,
   updateConversation: any,
   currentUser: UsersCurrent,
   classes: ClassesType,
@@ -59,7 +59,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
   }
 
   return (
-    <div className={expanded ? classes.boxShadow : null}>
+    <div className={expanded ? classes.boxShadow : undefined}>
       <div className={classNames(classes.root, classes.wrap, {[classes.archivedItem]: isArchived})}>
         <Link to={`/inbox/${conversation._id}`} className={classNames(classes.title, classes.titleLineHeight, classes.commentFont)}>{conversationGetTitle(conversation, currentUser)}</Link>
         { conversation.participants

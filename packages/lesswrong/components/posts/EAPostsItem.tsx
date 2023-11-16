@@ -8,7 +8,7 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -166,10 +166,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-
 export type EAPostsItemProps = PostsItemConfig & {
   hideSecondaryInfo?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({

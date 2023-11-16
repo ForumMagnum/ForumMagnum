@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -9,7 +9,7 @@ import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './common/withCommentBox';
+import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
@@ -26,6 +26,7 @@ import { useCookiePreferences } from './hooks/useCookiesWithConsent';
 import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
+import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -96,6 +97,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexBasis: 0,
     flexGrow: 1,
     overflow: "auto",
+    [theme.breakpoints.down('xs')]: {
+      overflow: "visible",
+    },
   },
   spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -219,7 +223,7 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const { currentRoute, pathname} = useLocation();
+  const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
@@ -273,7 +277,15 @@ const Layout = ({currentUser, children, classes}: {
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
-  
+
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
+  const isGivingSeason = useIsGivingSeason();
+  const renderGivingSeason = isGivingSeason && pathname === "/";
+
   const render = () => {
     const {
       NavigationStandalone,
@@ -294,6 +306,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      GivingSeasonBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -337,7 +350,7 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
-      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
+      <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
           <DialogManager>
@@ -368,17 +381,19 @@ const Layout = ({currentUser, children, classes}: {
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
+                stayAtTop={!!currentRoute?.staticHeader}
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              
+              {renderGivingSeason && <GivingSeasonBanner />}
+
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
                 [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen
+              }
               )}>
                 {isEAForum && <AdminToggle />}
                 {standaloneNavigation &&
