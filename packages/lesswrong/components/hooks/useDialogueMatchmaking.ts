@@ -1,6 +1,7 @@
 import { OperationVariables, QueryResult, gql, useQuery } from "@apollo/client";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
+import {dialogueMatchmakingEnabled} from "../../lib/publicSettings";
 
 interface MatchmakingProps {
   getMatchedUsers: boolean;
@@ -39,7 +40,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
         displayName
       }
     }
-  `, { skip: !getMatchedUsers });
+  `, { skip: !getMatchedUsers || !dialogueMatchmakingEnabled.get() });
 
   const userDialogueChecksResult = useMulti({
     terms: {
@@ -49,7 +50,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
     },
     fragmentName: "DialogueCheckInfo",
     collectionName: "DialogueChecks",
-    skip: !getUserDialogueChecks
+    skip: !getUserDialogueChecks || !dialogueMatchmakingEnabled.get()
   });
 
   const usersOptedInResult = useMulti({
@@ -59,7 +60,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
     },
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users',
-    skip: !getOptedInUsers 
+    skip: !getOptedInUsers || !dialogueMatchmakingEnabled.get()
   });
 
   return {
