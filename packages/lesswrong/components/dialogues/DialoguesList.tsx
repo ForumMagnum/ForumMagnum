@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
   dialogueLeftContainer: {
     display: 'flex',
     width: '100%',
-    alignItems: 'left',
+    alignItems: 'center',
   },
   dialogueMatchCheckbox: {
     marginLeft: 6,
