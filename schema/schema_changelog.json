@@ -405,8 +405,8 @@
     "timestamp": "2023-11-16T01:09:48.000Z"
   },
   {
-    "acceptsSchemaHash": "9c5c042b46b51d1c32bfe30cad147c81",
-    "acceptedByMigration": "20231116T022304.add_DialogueMatchPreferences_table.ts",
-    "timestamp": "2023-11-16T02:23:04.000Z"
+    "acceptsSchemaHash": "4a83029d46e8b6afd17ced17bfeb6cf7",
+    "acceptedByMigration": "20231116T195724.addDialogueMatchTable.ts",
+    "timestamp": "2023-11-16T19:57:24.000Z"
   }
 ]
