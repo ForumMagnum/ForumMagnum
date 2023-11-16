@@ -129,6 +129,12 @@ const styles = (theme: ThemeType) => ({
     "& .NotificationsMenuButton-buttonClosed": {
       color: theme.palette.givingPortal.homepageHeader.light4,
     },
+    "& .MessagesMenuButton-badge": {
+      color: theme.palette.givingPortal.homepageHeader.light4,
+    },
+    "& .MessagesMenuButton-buttonClosed": {
+      color: theme.palette.givingPortal.homepageHeader.light4,
+    },
     "& .UsersMenu-arrowIcon": {
       color: theme.palette.givingPortal.homepageHeader.light4,
     },

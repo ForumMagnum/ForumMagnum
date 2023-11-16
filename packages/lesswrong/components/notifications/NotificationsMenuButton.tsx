@@ -7,7 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType) => ({
+export const styles = (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
@@ -110,9 +110,8 @@ const EANotificationsMenuButton = ({
     skip: !currentUser,
   });
   const hasKarmaChange = !!karmaChanges?.karmaChanges?.totalChange;
-  const notificationText = unreadNotifications > 0
-    ? `${unreadNotifications}`
-    : "";
+  const hasBadge = unreadNotifications > 0 || hasKarmaChange;
+  const badgeText = hasBadge ? `${unreadNotifications}` : "";
 
   useEffect(() => {
     void refetch();
@@ -128,11 +127,11 @@ const EANotificationsMenuButton = ({
       <Badge
         classes={{
           root: classNames(classes.badgeContainer, className),
-          badge: classes.badge,
+          badge: hasBadge ? classes.badge : undefined,
         }}
         badgeContent={
           <>
-            {notificationText}
+            {badgeText}
             {hasKarmaChange &&
               <ForumIcon icon="Star" className={classes.karmaStar} />
             }

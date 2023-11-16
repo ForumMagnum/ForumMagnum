@@ -188,6 +188,7 @@ const Header = ({
   const hasLogo = isEAForum;
   const hasNotificationsPage = isEAForum;
   const hasKarmaChangeNotifier = !isEAForum && currentUser && !currentUser.usernameUnset;
+  const hasMessagesButton = isEAForum && currentUser && !currentUser.usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -298,7 +299,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader,
+    MessagesMenuButton, GivingSeasonHeader,
   } = Components;
 
   const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
@@ -325,6 +326,9 @@ const Header = ({
       open={notificationOpen}
       className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
     />}
+    {hasMessagesButton &&
+      <MessagesMenuButton unreadPrivateMessages={unreadPrivateMessages} />
+    }
     {isEAForum && usersMenuNode}
   </div>
 

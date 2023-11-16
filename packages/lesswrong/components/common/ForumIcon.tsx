@@ -41,6 +41,7 @@ import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import EnvelopeIcon from "@heroicons/react/24/outline/EnvelopeIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
 import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
@@ -172,6 +173,7 @@ export type ForumIconName =
   "HeartOutline" |
   "Settings" |
   "Email" |
+  "Envelope" |
   "Puzzle" |
   "Image" |
   "Document" |
@@ -245,6 +247,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
+    Envelope: EnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,
@@ -321,6 +324,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
+    Envelope: EnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,

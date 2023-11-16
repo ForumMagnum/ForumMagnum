@@ -101,6 +101,7 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
+importComponent("MessagesMenuButton", () => require('../components/messaging/MessagesMenuButton'));
 // "Friendly UI" messaging components
 importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
 importComponent("FriendlyInboxNavigation", () => require('../components/messaging/FriendlyInboxNavigation'));
