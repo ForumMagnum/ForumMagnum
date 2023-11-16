@@ -1,10 +1,11 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { isEAForum } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 export const sortingNames = {
   'top': 'top scoring',
@@ -18,7 +19,7 @@ const AnswersSorting = ({ post, classes }: {
   post?: PostsList,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
   
@@ -29,7 +30,7 @@ const AnswersSorting = ({ post, classes }: {
     const { query } = location;
     const currentQuery = _.isEmpty(query) ? { answersSorting: "top" } : query;
     const newQuery = { ...currentQuery, answersSorting: sorting, postId: post ? post._id : undefined };
-    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const sortings = [...Object.keys(sortingNames)] as (keyof typeof sortingNames)[];

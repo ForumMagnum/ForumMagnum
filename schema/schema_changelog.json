@@ -398,5 +398,15 @@
     "acceptsSchemaHash": "9993689a4229639120ef85f8531151ad",
     "acceptedByMigration": "20231108T122236.ElectionCandidates_tagId_not_null.ts",
     "timestamp": "2023-11-08T12:22:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "559874dae2627ec571ac2748d5cf6bc2",
+    "acceptedByMigration": "20231116T010948.update_karma_default_value.ts",
+    "timestamp": "2023-11-16T01:09:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a83029d46e8b6afd17ced17bfeb6cf7",
+    "acceptedByMigration": "20231116T195724.addDialogueMatchTable.ts",
+    "timestamp": "2023-11-16T19:57:24.000Z"
   }
 ]

@@ -259,12 +259,12 @@ Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, out
   for (let post of shuffle(posts)) {
     humanFrontpagedIt[post._id] = !!post.frontpageDate;
     try {
-      const languageModelResult = await openAIApi.createCompletion({
+      const languageModelResult = await openAIApi.completions.create({
         model: frontpageModel,
         prompt: await postToPrompt({template, post, promptSuffix: frontpagePrompt}),
         max_tokens: 1,
       });
-      const completion = languageModelResult.data.choices[0].text!;
+      const completion = languageModelResult.choices[0].text!;
       const isFrontpage = (completion.trim().toLowerCase() === "yes");
       languageModelFrontpagedIt[post._id] = isFrontpage;
     } catch(e) {

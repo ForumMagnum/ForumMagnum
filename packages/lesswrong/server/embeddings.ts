@@ -67,11 +67,11 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   const model = DEFAULT_EMBEDDINGS_MODEL;
   const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
   const trimmedText = trimText(text, model, maxTokens);
-  const result = await api.createEmbedding({
+  const result = await api.embeddings.create({
     input: trimmedText,
     model,
   });
-  const embeddings = result?.data?.data?.[0].embedding;
+  const embeddings = result?.data?.[0].embedding;
   if (
     !embeddings ||
     !Array.isArray(embeddings) ||
