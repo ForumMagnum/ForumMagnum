@@ -5,48 +5,71 @@ import IconButton from '@material-ui/core/IconButton';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",
-    fontFamily: 'freight-sans-pro, sans-serif',
     verticalAlign: "inherit",
+    fontFamily: isEAForum
+      ? theme.palette.fonts.sansSerifStack
+      : 'freight-sans-pro, sans-serif',
   },
   badge: {
-    backgroundColor: 'inherit',
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
-    fontWeight: 500,
     right: "1px",
     top: "1px",
     pointerEvents: "none",
     ...(isEAForum
       ? {
-        fontSize: 10,
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: "0.22px",
+        color: `${theme.palette.text.alwaysWhite} !important`,
+        backgroundColor: theme.palette.primary.main,
+        borderRadius: "50%",
       }
       : {
+        backgroundColor: "inherit",
+        fontWeight: 500,
         fontFamily: "freight-sans-pro, sans-serif",
         fontSize: 12,
+        color: theme.palette.header.text,
       }),
   },
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.buttons.notificationsBellOpen.icon,
+    color: isEAForum
+      ? theme.palette.grey[600]
+      : theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
     backgroundColor: "transparent",
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
+    color: isEAForum
+      ? theme.palette.grey[600]
+      : theme.palette.header.text,
+  },
+  tooltip: {
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
+    padding: "5px 13px",
+    transform: "translateY(5px)",
   },
 });
 
-const NotificationsMenuButton = ({ unreadNotifications, open, toggle, className, classes }: {
+type NotificationsMenuButtonProps = {
   unreadNotifications: number,
   open: boolean,
   toggle: ()=>void,
   className?: string,
-  classes: ClassesType,
-}) => {
-  const { ForumIcon } = Components
-  const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
+  classes: ClassesType<typeof styles>,
+}
 
+const LWNotificationsMenuButton = ({
+  unreadNotifications,
+  open,
+  toggle,
+  className,
+  classes,
+}: NotificationsMenuButtonProps) => {
+  const {ForumIcon} = Components;
+  const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
       classes={{ root: classNames(classes.badgeContainer, className), badge: classes.badge }}
@@ -59,13 +82,49 @@ const NotificationsMenuButton = ({ unreadNotifications, open, toggle, className,
         {(unreadNotifications>0) ? <ForumIcon icon="Bell" /> : <ForumIcon icon="BellBorder" />}
       </IconButton>
     </Badge>
-  )
+  );
 }
 
-const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {
-  styles,
-  areEqual: "auto",
-});
+const EANotificationsMenuButton = ({
+  unreadNotifications,
+  toggle,
+  className,
+  classes,
+}: NotificationsMenuButtonProps) => {
+  const {LWTooltip, ForumIcon} = Components;
+  return (
+    <LWTooltip
+      title="Notifications"
+      placement="bottom"
+      popperClassName={classes.tooltip}
+    >
+      <Badge
+        classes={{
+          root: classNames(classes.badgeContainer, className),
+          badge: classes.badge,
+        }}
+        badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
+      >
+        <IconButton
+          classes={{root: classes.buttonClosed}}
+          onClick={toggle}
+        >
+          <ForumIcon icon="BellBorder" />
+        </IconButton>
+      </Badge>
+    </LWTooltip>
+  );
+}
+
+const NotificationsMenuButtonComponent = registerComponent(
+  'NotificationsMenuButton',
+  isEAForum ? EANotificationsMenuButton : LWNotificationsMenuButton,
+  {
+    styles,
+    stylePriority: -1,
+    areEqual: "auto",
+  },
+);
 
 declare global {
   interface ComponentTypes {
