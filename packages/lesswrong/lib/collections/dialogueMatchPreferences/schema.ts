@@ -42,6 +42,7 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canCreate: ['members', 'admins'],
     canRead: ['members', 'admins'],
     canUpdate: ['members', 'admins'],
+    ...schemaDefaultValue([])
   },
   'topicPreferences.$': {
     type: topicPreferenceSchema,
