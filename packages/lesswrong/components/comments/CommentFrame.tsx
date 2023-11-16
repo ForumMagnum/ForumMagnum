@@ -171,7 +171,8 @@ const CommentFrame = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { condensed, postPage } = treeOptions;
+  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
+  const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
     "comments-node",

@@ -1,16 +1,18 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import { isEAForum } from '../../lib/instanceSettings';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
-import { useMulti } from '../../lib/crud/withMulti';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
+import type { ContentItemBody } from '../common/ContentItemBody';
+import { useVote } from '../votes/withVote';
+import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -131,6 +133,11 @@ const Answer = ({ comment, post, childComments, classes }: {
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
+  const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
+  const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const voteProps = useVote(comment, "Comments", votingSystem);
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -138,18 +145,32 @@ const Answer = ({ comment, post, childComments, classes }: {
   const hideEdit = useCallback(() => {
     setShowEdit(false)
   }, [setShowEdit]);
+  
+  const openReplyForm = useCallback(() => {
+    setReplyFormIsOpen(true);
+  }, []);
+  const closeReplyForm = useCallback(() => {
+    setReplyFormIsOpen(false);
+  }, []);
 
   const CommentLinkWrapper = useCommentLink({comment, post});
 
   const {
-    ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
-    CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles,
+    SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
+    CommentsItemDate, UsersName, CommentBottomCaveats, Typography,
+    HoveredReactionContextProvider, CommentBody, CommentBottom, CommentsNewForm
   } = Components;
-  const { html = "" } = comment.contents || {}
 
   const menuIcon = isEAForum
     ? undefined
     : <MoreHorizIcon className={classes.menuIcon} />;
+
+  const treeOptions: CommentTreeOptions = useMemo(() => ({
+    postPage: true,
+    showCollapseButtons: true,
+    post: post,
+    switchAlternatingHighlights: true,
+  }), [post]);
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
@@ -174,6 +195,7 @@ const Answer = ({ comment, post, childComments, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
+          <HoveredReactionContextProvider>
             <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
                 {comment.user && <Typography variant="body1" className={classes.author}>
@@ -201,30 +223,54 @@ const Answer = ({ comment, post, childComments, classes }: {
               { comment.promotedByUser && <div className={classes.metaNotice}>
                 Pinned by {comment.promotedByUser.displayName}
               </div>}
-              { showEdit ?
-                <Components.CommentsEditForm
-                  comment={comment}
-                  successCallback={hideEdit}
-                  cancelCallback={hideEdit}
-                />
-                :
-                <>
-                  <ContentStyles contentType="answer">
-                    <ContentItemBody
-                      className={classNames({[classes.retracted]: comment.retracted})}
-                      dangerouslySetInnerHTML={{__html:html}}
-                      description={`comment ${comment._id} on post ${post._id}`}
-                      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-                    />
-                  </ContentStyles>
-                  <CommentBottomCaveats comment={comment}/>
-                </>
+              { showEdit
+                ? <Components.CommentsEditForm
+                    comment={comment}
+                    successCallback={hideEdit}
+                    cancelCallback={hideEdit}
+                  />
+                : <CommentBody
+                    commentBodyRef={commentBodyRef}
+                    comment={comment}
+                    voteProps={voteProps}
+                  />
               }
+              <CommentBottom
+                comment={comment}
+                post={post}
+                treeOptions={treeOptions}
+                votingSystem={votingSystem}
+                voteProps={voteProps}
+                commentBodyRef={commentBodyRef}
+                replyButton={
+                  !replyFormIsOpen && <Typography variant="body2" onClick={()=>setReplyFormIsOpen(true)} className={classNames(classes.newComment)}>
+                    <a>Add Comment</a>
+                  </Typography>
+                }
+              />
             </div>
+          </HoveredReactionContextProvider>
           </AnalyticsContext>
+          <div>
+            {replyFormIsOpen &&
+              <div className={classes.editor}>
+                <CommentsNewForm
+                  post={post}
+                  parentComment={comment._id}
+                  prefilledProps={{
+                    parentAnswerId: comment._id,
+                  }}
+                  successCallback={closeReplyForm}
+                  cancelCallback={closeReplyForm}
+                  type="reply"
+                />
+              </div>
+            }
+          </div>
           <AnswerCommentsList
             post={post}
             commentTree={childComments}
+            treeOptions={treeOptions}
             parentAnswer={comment}
           />
         </div>
