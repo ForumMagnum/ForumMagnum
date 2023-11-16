@@ -9,6 +9,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
+import { isEAForum } from '../../lib/instanceSettings';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -41,8 +42,14 @@ defineQuery({
         createdAt: {$gt: lastNotificationsCheck},
       }),
     }).fetch();
-    const unreadNotifications = newNotifications.length;
-    const unreadPrivateMessages = newNotifications.filter(notif => notif.type === "newMessage").length;
+    const unreadNotifications = isEAForum
+      ? newNotifications.filter(
+        ({type, viewed}) => type !== "newMessage" && !viewed,
+      ).length
+      : newNotifications.length;
+    const unreadPrivateMessages = newNotifications.filter(
+      ({type, viewed}) => type === "newMessage" && !viewed,
+    ).length;
     const badgeNotifications = newNotifications.filter(notif =>
       !!getNotificationTypeByName(notif.type).causesRedBadge
     );
@@ -107,7 +114,7 @@ createPaginatedResolver({
     if (!currentUser) {
       return [];
     }
-    return repos.notificationRepo.getNotificationDisplays({
+    return repos.notifications.getNotificationDisplays({
       userId: currentUser._id,
       type: args?.type ?? undefined,
       limit,

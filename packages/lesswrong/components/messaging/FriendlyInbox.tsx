@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
@@ -9,6 +9,7 @@ import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
 import { userCanDo } from "../../lib/vulcan-users";
 import { Link, useNavigate } from "../../lib/reactRouterWrapper";
+import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 
 const MAX_WIDTH = 1100;
 
@@ -151,6 +152,7 @@ const FriendlyInbox = ({
   const { openDialog } = useDialog();
   const { location } = useLocation();
   const navigate = useNavigate();
+  const markConversationRead = useMarkConversationRead();
 
   const selectedConversationRef = useRef<HTMLDivElement>(null);
 
@@ -192,6 +194,12 @@ const FriendlyInbox = ({
     skip: !conversationId,
   });
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
+
+  useEffect(() => {
+    if (fetchedSelectedConversation?._id) {
+      void markConversationRead(fetchedSelectedConversation._id);
+    }
+  }, [fetchedSelectedConversation, markConversationRead]);
 
   const openConversationOptions = () => {
     if (!conversationId) return;

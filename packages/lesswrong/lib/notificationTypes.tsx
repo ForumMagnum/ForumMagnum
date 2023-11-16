@@ -28,6 +28,7 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 import { Link } from './reactRouterWrapper';
+import { isEAForum } from './instanceSettings';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -581,7 +582,7 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MailIcon style={iconStyles}/>
   },
-  causesRedBadge: true,
+  causesRedBadge: !isEAForum,
 });
 
 export const WrappedNotification = registerNotificationType({

@@ -41,6 +41,7 @@ type UnreadNotificationsContext = {
   checkedAt: Date|null,
   notificationsOpened: () => Promise<void>,
   faviconBadgeNumber: number,
+  refetchUnreadNotifications: () => Promise<void>,
 }
 
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
@@ -49,6 +50,7 @@ const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
   checkedAt: null,
   notificationsOpened: async () => {},
   faviconBadgeNumber: 0,
+  refetchUnreadNotifications: async () => {},
 });
 
 /**
@@ -175,7 +177,8 @@ export const UnreadNotificationsContextProvider: FC<{
       unreadPrivateMessages,
       faviconBadgeNumber,
       checkedAt,
-      notificationsOpened
+      notificationsOpened,
+      refetchUnreadNotifications: refetchBoth,
     }}>
       {children}
     </unreadNotificationsContext.Provider>
