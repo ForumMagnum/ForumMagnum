@@ -51,7 +51,10 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
 
   const handleClick = currentUser
-    ? () => initiateConversation(user._id)
+    ? (e) => {
+      initiateConversation(user._id)
+      e.stopPropagation()
+    }
     : () => openDialog({componentName: "LoginPopup"})
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
