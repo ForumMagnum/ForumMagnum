@@ -61,6 +61,7 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
+  activeDialogueMatchSeekers: DbUser[]
 }
 
 export type TagWithCommentCount = {
@@ -1225,6 +1226,10 @@ export const DialogueMatchingPage = ({classes}: {
           total_agreement
           recently_active_matchmaking
         }
+        activeDialogueMatchSeekers {
+          _id
+          displayName
+        }
        }
     }
   `, {skip: !currentUser || !dialogueMatchmakingEnabled.get()});
@@ -1241,6 +1246,7 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
+
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
   const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
@@ -1248,6 +1254,7 @@ export const DialogueMatchingPage = ({classes}: {
   const inRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
   const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
+  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
   
   if (loading) return <Loading />
   if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
@@ -1395,7 +1402,7 @@ export const DialogueMatchingPage = ({classes}: {
       <div className={classes.matchContainer}>
         <h3>People who checked a box saying they're interested in having dialogues</h3>
         <UserTable
-          users={optedInUsers}
+          users={activeDialogueMatchSeekers}
           tableContext={'other'}
           classes={classes}
           gridClassName={classes.matchContainerGridV2}
@@ -1408,7 +1415,7 @@ export const DialogueMatchingPage = ({classes}: {
           showFrequentCommentedTopics={true}
           showHeaders={true}
         />
-        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
+        {/* <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} /> */}
       </div>
     </div>
     <IntercomWrapper />

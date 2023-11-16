@@ -50,8 +50,9 @@ addGraphQLSchema(`
     recently_active_matchmaking: Boolean!
   }
   type UserDialogueUsefulData {
-    dialogueUsers: [User],
+    dialogueUsers: [User]
     topUsers: [UpvotedUser]
+    activeDialogueMatchSeekers: [User]
   }
 `)
 
@@ -506,14 +507,16 @@ defineQuery({
       throw new Error('User must be logged in to get top upvoted users');
     }
 
-    const [dialogueUsers, topUsers] = await Promise.all([
+    const [dialogueUsers, topUsers, activeDialogueMatchSeekers] = await Promise.all([
       new UsersRepo().getUsersWhoHaveMadeDialogues(),
-      new UsersRepo().getUsersTopUpvotedUsers(currentUser)
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser),
+      new UsersRepo().getActiveDialogueMatchSeekers(500),
     ]);
 
     const results: UserDialogueUsefulData = {
       dialogueUsers: dialogueUsers,
       topUsers: topUsers,
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers,
     }
     return results
   }
