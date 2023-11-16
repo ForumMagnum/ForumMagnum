@@ -541,10 +541,10 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, {
+      className={classNames(classes.gradientBigTextContainer, classes.hideAtSm, {
         'scrolled-to-top': isScrolledToTop,
         'scrolled-to-bottom': isScrolledToBottom
-      }, classes.hideAtSm)} 
+      })} 
       ref={bioContainerRef}
     >
       {userData?.biography?.plaintextDescription }
@@ -578,9 +578,11 @@ const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { cl
 
   return (
     <div 
-      className={classNames(classes.gradientBigTextContainer, hideAtSm ? classes.hideAtSm : classes.hideAtXs, {
+      className={classNames(classes.gradientBigTextContainer, {
         'scrolled-to-top': isScrolledToTop,
-        'scrolled-to-bottom': isScrolledToBottom
+        'scrolled-to-bottom': isScrolledToBottom,
+        [classes.hideAtSm]: hideAtSm,
+        [classes.hideAtXs]: !hideAtSm,
       })} 
       ref={readPostsContainerRef}
     >
@@ -1059,7 +1061,9 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   return (
     <button
-      className={classNames(classes.enterTopicsButton, isMatched ? '' : classes.hideAtXs)}
+      className={classNames(classes.enterTopicsButton, {
+        [classes.hideAtXs]: isMatched,
+      })}
       onClick={(e) => {
         dialogueCheck && openDialog({
           componentName: 'NextStepsDialog',
@@ -1087,7 +1091,9 @@ const MessageButton: React.FC<{
   const { NewConversationButton } = Components;
   
   return (
-    <button className={classNames(classes.messageButton, isMatched ? classes.hideAtXs : '')}>
+    <button className={classNames(classes.messageButton, {
+      [classes.hideAtXs]: isMatched,
+    })}>
       <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
         <a data-cy="message">Message</a>
       </NewConversationButton>
