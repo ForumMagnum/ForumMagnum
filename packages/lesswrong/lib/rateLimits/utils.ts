@@ -143,10 +143,10 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const lastMonthDownvoterCount = getDownvoterCount(lastMonthVotes)
   
   return { 
-    last20Karma: last20Karma, 
-    lastMonthKarma: lastMonthKarma,
-    last20PostKarma: last20PostKarma,
-    last20CommentKarma: last20CommentKarma,
+    last20Karma, 
+    lastMonthKarma,
+    last20PostKarma,
+    last20CommentKarma,
     downvoterCount: downvoterCount ?? 0, 
     postDownvoterCount: postDownvoterCount ?? 0,
     commentDownvoterCount: commentDownvoterCount ?? 0,
