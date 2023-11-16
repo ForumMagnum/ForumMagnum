@@ -1953,6 +1953,7 @@ const schema: SchemaType<DbUser> = {
   afKarma: {
     type: Number,
     optional: true,
+    nullable: false,
     label: "Alignment Base Score",
     defaultValue: 0,
     canRead: ['guests'],
