@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Badge from '@material-ui/core/Badge';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useSingle } from '../../lib/crud/withSingle';
+import { useCurrentUser } from '../common/withUser';
 import IconButton from '@material-ui/core/IconButton';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
@@ -51,6 +53,15 @@ const styles = (theme: ThemeType) => ({
     padding: "5px 13px",
     transform: "translateY(5px)",
   },
+  karmaStar: {
+    color: theme.palette.icon.headerKarma,
+    transform: "rotate(-15deg)",
+    position: "absolute",
+    left: -6,
+    top: -6,
+    width: 16,
+    height: 16,
+  },
 });
 
 type NotificationsMenuButtonProps = {
@@ -91,6 +102,22 @@ const EANotificationsMenuButton = ({
   className,
   classes,
 }: NotificationsMenuButtonProps) => {
+  const currentUser = useCurrentUser();
+  const {document: karmaChanges, refetch} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UserKarmaChanges",
+    skip: !currentUser,
+  });
+  const hasKarmaChange = !!karmaChanges?.karmaChanges?.totalChange;
+  const notificationText = unreadNotifications > 0
+    ? `${unreadNotifications}`
+    : "";
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch, currentUser?.karmaChangeLastOpened]);
+
   const {LWTooltip, ForumIcon} = Components;
   return (
     <LWTooltip
@@ -103,7 +130,14 @@ const EANotificationsMenuButton = ({
           root: classNames(classes.badgeContainer, className),
           badge: classes.badge,
         }}
-        badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
+        badgeContent={
+          <>
+            {notificationText}
+            {hasKarmaChange &&
+              <ForumIcon icon="Star" className={classes.karmaStar} />
+            }
+          </>
+        }
       >
         <IconButton
           classes={{root: classes.buttonClosed}}
@@ -117,7 +151,7 @@ const EANotificationsMenuButton = ({
 }
 
 const NotificationsMenuButtonComponent = registerComponent(
-  'NotificationsMenuButton',
+  "NotificationsMenuButton",
   isEAForum ? EANotificationsMenuButton : LWNotificationsMenuButton,
   {
     styles,
