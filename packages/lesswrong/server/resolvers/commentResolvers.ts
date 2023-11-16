@@ -9,6 +9,8 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import uniqBy from 'lodash/uniqBy';
+import sampleSize from 'lodash/sampleSize';
+
 
 const specificResolvers = {
   Mutation: {
@@ -94,15 +96,16 @@ defineQuery({
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
       yield context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit);
-      yield context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit);
-      yield context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit);
-      yield context.repos.comments.getPopularPollComments(limit);
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2));
+      yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3), limit);
     }
     
     let recommendedComments : DbComment[] = []
     
     for await (const source of commentSources()) {
       recommendedComments = uniqBy([...recommendedComments, ...source], comment => comment._id).slice(0, limit);
+      console.log("New log: ", recommendedComments.length, recommendedComments.map(comment => comment.contents.html))
       if (recommendedComments.length >= limit) {
         break;
       }
