@@ -63,7 +63,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
           `).join('')}
         ${sourceUserTopics.map(topic => `
           <tr>
-          <td style="height: 70px; text-align: center; width: 150px;">${userName}</td>
+          <td style="height: 70px; text-align: center; width: 150px;">${userName} (not yet seen by ${targetUserName})</td>
           <td style="height: 70px; text-align: center;">${topic}</td>
           </tr>
         `).join('')}
@@ -132,25 +132,34 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
       <li>Publish!</li>
     </ol>
   `
-  if (!formatPreferenceMatch) {
-    nextAction =
-    ` <p><strong>Next</strong> <strong>steps</strong></p>
-      <p>It seems you have different format preferences, so a dialogue might not make sense here.</p>
-      <p>That's alright! (We still made this chat if you get excited by the topics and want to give it a try anyway)</p>`
-  }
-
-  if (sharedTopics.length === 0) {
-    nextAction =
-    `<p><strong>Next</strong> <strong>steps</strong></p>
-     <p>It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. But our auto-topic-checker is not that precise, so we still made this chat for you to take a look and see whether there's anything here :)</p>`
-  }
 
   if (!formatPreferenceMatch && sharedTopics.length === 0) {
     nextAction =
     `<p><strong>Next</strong> <strong>steps</strong></p> 
      <p>It seems you have different format preferences, and also didn't have any topics in common yet. So a dialogue might not make sense here. That's alright, feel free to call it a "good try" 
-     and then move on :) (we'll still put this chat here if you want to explore further)</p>`
+     and then move on :)</p>`
   }
+
+  if (!formatPreferenceMatch && sharedTopics.length > 0) {
+    nextAction =
+    ` <p><strong>Next</strong> <strong>steps</strong></p>
+      <p>It seems you have different format preferences, so a dialogue might not make sense here.</p>
+      <p>You did still had some common topics of interest though, so we made this chat to let you know</p>`
+  }
+
+  if (sharedTopics.length === 0 && sourceUserTopics.length === 0) {
+    nextAction =
+    `<p><strong>Next</strong> <strong>steps</strong></p>
+     <p>It seems you have didn't have any topics in common (yet!), so a dialogue might not make sense here. That's alright, we still made this chat for you to take a look and see whether there's anything here :)</p>`
+  }
+
+  if (sharedTopics.length === 0 && sourceUserTopics.length > 0) {
+    nextAction =
+    `<p><strong>Next</strong> <strong>steps</strong></p>
+     <p>You have didn't have any topics in common yet, so a dialogue might not make sense here. But ${targetUserName} has not yet seen the ${sourceUserTopics.length} topic suggestions ${userName} added, so we still made this so you could see whether there's anything here :)</p>`
+  }
+
+  
 
 
   const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
@@ -184,12 +193,12 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   const targetUser = await context.loaders.Users.load(targetUserId);
   const title = `Dialogue match between ${currentUser.displayName} and ${targetUser.displayName}`
 
-  const formDataUser1 = {
+  const formDataSourceUser = {
     ...userMatchPreferences,
     userId: userId, 
     displayName: currentUser.displayName,
   }
-  const formDataUser2 = {
+  const formDataTargetUser = {
     ...reciprocalMatchPreferences,
     userId: targetUserId,
     displayName: targetUser.displayName,
@@ -211,7 +220,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
       contents: {
         originalContents: {
           type: "ckEditorMarkup",
-          data: welcomeMessage(formDataUser1, formDataUser2)
+          data: welcomeMessage(formDataSourceUser, formDataTargetUser)
         }
       } as AnyBecauseHard
     },
