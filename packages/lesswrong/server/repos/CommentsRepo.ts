@@ -75,6 +75,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
+  // LW only! This is site specific to get the popular comments on the Bens Interesting Disagreements post
   readonly bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL';
 
   async getPopularPollComments (limit: number): Promise<(DbComment)[]> {

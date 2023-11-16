@@ -1256,7 +1256,7 @@ export const DialogueMatchingPage = ({classes}: {
   const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
   
   if (loading) return <Loading />
-  if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }
