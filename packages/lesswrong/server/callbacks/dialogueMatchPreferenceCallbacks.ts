@@ -126,7 +126,7 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   let nextAction = `
     <p><strong>Next</strong> <strong>steps</strong></p>
     <ol>
-      <li>Chat to agree on topic ${syncMatch ? `and potential scheduling (tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool)` : ``}</li>
+      <li>Chat about topic ${syncMatch ? `and potential scheduling (tip: <a href="https://www.when2meet.com/">when2meet.com</a> is a great scheduling tool)` : ``}</li>
       <li>If you agree on something, have your dialogue</li>
       <li>Edit (remove any side chats like this message, and feel free to request editing services from the LessWrong team, button below)</li>
       <li>Publish!</li>

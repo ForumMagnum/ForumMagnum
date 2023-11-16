@@ -1246,12 +1246,11 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
-
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
   const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
   const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
-  const inRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
+  const nonRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
   const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
   const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
   const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
@@ -1357,10 +1356,10 @@ export const DialogueMatchingPage = ({classes}: {
           />
         <br />
         </> }
-      { inRecentlyActiveTopUsers.length == 0 ? null : <>
+      { nonRecentlyActiveTopUsers.length == 0 ? null : <>
             <h4>Not recently active on dialogue matching</h4>
             <UserTable
-              users={inRecentlyActiveTopUsers}
+              users={nonRecentlyActiveTopUsers}
               tableContext={'upvoted'}
               classes={classes}
               gridClassName={classes.matchContainerGridV1}
@@ -1380,7 +1379,7 @@ export const DialogueMatchingPage = ({classes}: {
     </> }
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>People who published dialogues</h3>
+        <h3>Published dialogues</h3>
         <UserTable
           users={dialogueUsers}
           tableContext={'other'}
@@ -1400,7 +1399,28 @@ export const DialogueMatchingPage = ({classes}: {
     <br />
     <div className={classes.rootFlex}>
       <div className={classes.matchContainer}>
-        <h3>People who checked a box saying they're interested in having dialogues</h3>
+        <h3>Opted in to matchmaking</h3>
+        <UserTable
+          users={optedInUsers}
+          tableContext={'other'}
+          classes={classes}
+          gridClassName={classes.matchContainerGridV2}
+          currentUser={currentUser}
+          userDialogueChecks={userDialogueChecks}
+          showBio={true}
+          showKarma={false}
+          showAgreement={false}
+          showPostsYouveRead={true}
+          showFrequentCommentedTopics={true}
+          showHeaders={true}
+        />
+        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
+      </div>
+    </div>
+    <br />
+    <div className={classes.rootFlex}>
+      <div className={classes.matchContainer}>
+        <h3>Recently active on dialogue matching</h3>
         <UserTable
           users={activeDialogueMatchSeekers}
           tableContext={'other'}
@@ -1415,7 +1435,6 @@ export const DialogueMatchingPage = ({classes}: {
           showFrequentCommentedTopics={true}
           showHeaders={true}
         />
-        {/* <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} /> */}
       </div>
     </div>
     <IntercomWrapper />
