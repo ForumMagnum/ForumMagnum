@@ -3,6 +3,10 @@ import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotli
 import { registerComponent } from "../../lib/vulcan-lib";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
+import { timelineSpec } from "../../lib/eaGivingSeason";
+import moment from "moment";
+import { isEAForum } from "../../lib/instanceSettings";
+import { useLocation } from "../../lib/routeUtil";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -31,6 +35,20 @@ type CurrentEvent = {
 
 const useCurrentEvent = (): CurrentEvent | null => {
   const spotlight = useCurrentFrontpageSpotlight();
+  const { pathname } = useLocation()
+  
+  // special case for EA Forum Giving Season 2023
+  const now = moment()
+  const isGivingSeason = isEAForum && moment(timelineSpec.start).isBefore(now) && moment(timelineSpec.end).isAfter(now)
+  // home page has its own unique header for giving season
+  if (!spotlight && isGivingSeason && pathname !== '/') {
+    return {
+      title: 'Giving season 2023',
+      link: '/giving-portal',
+      background: makeBackground('#862115', '#E7714E')
+    }
+  }
+  
   if (!spotlight?.headerTitle) {
     return null;
   }

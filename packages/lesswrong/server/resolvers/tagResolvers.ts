@@ -7,7 +7,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { loadByIds } from '../../lib/loaders';
@@ -27,11 +27,13 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { VotesRepo } from '../repos';
+import { VotesRepo, TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+
 
 // DEPRECATED: here for backwards compatibility
 export async function recordSubforumView(userId: string, tagId: string) {
@@ -450,3 +452,30 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
+
+defineQuery({
+  name: "UserTopTags",
+  resultType: "[TagWithCommentCount!]",
+  argTypes: "(userId: String!)",
+  schema: `
+    type TagWithCommentCount {
+      tag: Tag
+      commentCount: Int!
+    }`,
+  fn: async (root: void, {userId}: {userId: string}, context: ResolverContext) => {
+    const tagsRepo = new TagsRepo();
+    const topTags = await tagsRepo.getUserTopTags(userId);
+
+    const topTagsFiltered = []
+    for (const tagWithCommentCount of topTags) {
+      const filteredTag = await accessFilterSingle(context.currentUser, context.Tags, tagWithCommentCount.tag, context)
+      if (filteredTag) {
+        topTagsFiltered.push({
+          tag: filteredTag,
+          commentCount: tagWithCommentCount.commentCount
+        })
+      }
+    }
+    return topTagsFiltered
+  },
+});

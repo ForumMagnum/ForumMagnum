@@ -6,10 +6,6 @@ import type { PostsPreviewTooltipProps } from "./PostsPreviewTooltip";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: theme.palette.grey[0],
-    borderRadius: theme.borderRadius.default,
-    border: `1px solid ${theme.palette.grey[120]}`,
-    boxShadow: theme.palette.boxShadow.eaCard,
     width: POST_PREVIEW_WIDTH,
     fontFamily: theme.palette.fonts.sansSerifStack,
     overflow: "hidden",
@@ -50,6 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: 130,
     objectFit: "cover",
     marginBottom: -4,
+    borderRadius: `0 0 ${theme.borderRadius.default}px ${theme.borderRadius.default}px`,
   },
 });
 

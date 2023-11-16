@@ -1476,7 +1476,6 @@ const schema: SchemaType<DbPost> = {
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
     optional: true,
-    nullable: true, //TODO not-null, why explicitly set?
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
@@ -2626,6 +2625,14 @@ const schema: SchemaType<DbPost> = {
     // Implementation in postResolvers.ts
   },
 
+  mostRecentPublishedDialogueResponseDate: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+
   unreadDebateResponseCount: {
     type: Number,
     optional: true,
@@ -2734,6 +2741,14 @@ const schema: SchemaType<DbPost> = {
       return firstComment.contents.html;
     }
   }),
+
+  dialogueMessageContents: {
+    type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
 
   /* subforum-related fields */
 

@@ -9,6 +9,7 @@ registerFragment(`
     }
     contents {
       html
+      plaintextMainText
     }
     createdAt
     conversationId

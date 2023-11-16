@@ -1,12 +1,14 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
-import { PostsPreviewTooltip } from "./PostsPreviewTooltip";
+import { DialogueMessageInfo, PostsPreviewTooltip } from "./PostsPreviewTooltip";
 import {
+  DialogueMessagePreviewTooltip,
   PostsPreviewTooltipSingle,
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 const PostsTooltip = ({
   post,
@@ -14,9 +16,10 @@ const PostsTooltip = ({
   comment,
   commentId,
   tagRelId,
+  dialogueMessageInfo,
   hash,
   postsList,
-  inlineBlock,
+  inlineBlock=false,
   As,
   clickable,
   flip,
@@ -31,6 +34,7 @@ const PostsTooltip = ({
   comment?: CommentsList,
   commentId?: string,
   tagRelId?: string,
+  dialogueMessageInfo?: DialogueMessageInfo,
   hash?: string | null,
   postsList?: boolean,
   inlineBlock?: boolean,
@@ -59,7 +63,12 @@ const PostsTooltip = ({
         />
       );
     }
+
     if (postId) {
+      if (dialogueMessageInfo) {
+        return <DialogueMessagePreviewTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo}/>
+      }
+
       const actualCommentId = commentId ?? comment?._id;
       return actualCommentId
         ? (
@@ -76,11 +85,12 @@ const PostsTooltip = ({
         );
     }
     return null;
-  }, [tagRelId, post, postId, postsList, comment, commentId, hash]);
+  }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
 
-  const {LWTooltip} = Components;
+  const {EAHoverOver, LWTooltip} = Components;
+  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
   return (
-    <LWTooltip
+    <Tooltip
       title={renderTitle()}
       placement={placement}
       tooltip={false}
@@ -97,7 +107,7 @@ const PostsTooltip = ({
       className={className}
     >
       {children}
-    </LWTooltip>
+    </Tooltip>
   );
 }
 

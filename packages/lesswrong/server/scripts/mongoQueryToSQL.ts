@@ -1,6 +1,7 @@
 import InsertQuery from "../../lib/sql/InsertQuery";
 import SelectQuery from "../../lib/sql/SelectQuery";
 import Table from "../../lib/sql/Table";
+import UpdateQuery from "../../lib/sql/UpdateQuery";
 import { getCollection, Globals } from "../vulcan-lib";
 
 /**
@@ -21,6 +22,14 @@ Globals.insertToSQL = ({ tableName, data, options }: { tableName: CollectionName
   const table = Table.fromCollection(getCollection(tableName));
   const insert = new InsertQuery<DbObject>(table, data, options);
   const { sql, args } = insert.compile();
+  // eslint-disable-next-line no-console
+  console.log({ sql, args });
+};
+
+Globals.rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName: CollectionNameString, selector: AnyBecauseTodo, modifier: MongoModifier<DbObject> }) => {
+  const table = Table.fromCollection(getCollection(tableName));
+  const select = new UpdateQuery<DbObject>(table, selector, modifier);
+  const { sql, args } = select.compile();
   // eslint-disable-next-line no-console
   console.log({ sql, args });
 };

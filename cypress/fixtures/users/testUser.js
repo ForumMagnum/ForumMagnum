@@ -113,18 +113,7 @@ module.exports = {
     afCommentCount: 0,
     commentCount: 0,
     lastNotificationsCheck: new Date(),
-    // noindex: false,
-    // hideIntercom: false,
-    // markDownPostEditor: false,
-    // hideElicitPredictions: false,
-    // hideAFNonMemberInitialWarning: false,
-    // noSingleLineComments: false,
-    // noCollapseCommentsPosts: false,
-    // hideCommunitySection: false,
-    // showCommunityInRecentDiscussion: false,
-    // hidePostRecommendations: false,
-    // noExpandUnreadCommentsReview: false
-
-
-    
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false,
 }

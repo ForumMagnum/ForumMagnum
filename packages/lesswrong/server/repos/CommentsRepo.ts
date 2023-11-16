@@ -4,7 +4,11 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
+<<<<<<< HEAD
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
+=======
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+>>>>>>> origin/set-fields-not-nullable
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
@@ -109,11 +113,20 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
-      WHERE p."hideFromPopularComments" IS NOT TRUE
+      WHERE
+        p."hideFromPopularComments" IS NOT TRUE AND
+        COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
       OFFSET $2
       LIMIT $3
-    `, [minScore, offset, limit, recencyFactor, recencyBias]);
+    `, [
+      minScore,
+      offset,
+      limit,
+      recencyFactor,
+      recencyBias,
+      EA_FORUM_COMMUNITY_TOPIC_ID,
+    ]);
   }
 
   private getSearchDocumentQuery(): string {
@@ -197,5 +210,13 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
+  }
+
+  async getCommentsWithElicitData(): Promise<DbComment[]> {
+    return await this.any(`
+      SELECT *
+      FROM "Comments"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+    `);
   }
 }

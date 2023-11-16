@@ -105,7 +105,6 @@ registerFragment(`
     services
     acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
@@ -188,6 +187,8 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
+    givingSeasonNotifyForVoting
+
     abTestKey
     abTestOverrides
 
@@ -209,6 +210,10 @@ registerFragment(`
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
   }
 `);
 
@@ -316,7 +321,6 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
-    voteBanned
     nullifyVotes
     deleteContent
     
@@ -421,7 +425,6 @@ registerFragment(`
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -472,6 +475,8 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+
+    givingSeasonNotifyForVoting
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -545,3 +550,11 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+    karma
+  }
+`);

@@ -16,11 +16,11 @@ const schema: SchemaType<DbSession> = {
   session: {
     type: Object,
     blackbox: true,
-    ...commonFields(true), //TODO not-null: confirm this should be nullable?
+    ...commonFields(true),
   },
   expires: {
     type: Date,
-    ...commonFields(true), //TODO not-null: confirm this should be nullable?
+    ...commonFields(true),
   },
   lastModified: {
     type: Date,

@@ -1,11 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { intlShape } from '../../lib/vulcan-i18n';
-// HACK: withRouter should be removed or turned into withLocation, but
-// FormWrapper passes props around in bulk, and Form has a bunch of prop-name
-// handling by string gluing, so it's hard to be sure this is safe.
-// eslint-disable-next-line no-restricted-imports
-import { withRouter } from 'react-router';
+import { useLocation } from '../../lib/routeUtil';
 import { gql } from '@apollo/client';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { capitalize } from '../../lib/vulcan-lib/utils';
@@ -17,7 +11,7 @@ import { getSchema } from '../../lib/utils/getSchema';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
-import { callbackProps, WrappedSmartFormProps } from './propTypes';
+import { WrappedSmartFormProps } from './propTypes';
 import { Form } from './Form';
 import * as _ from 'underscore';
 
@@ -127,9 +121,11 @@ const FormWrapper = ({showRemove=true, ...props}: WrappedSmartFormProps) => {
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
 
+  (props as AnyBecauseTodo).location = useLocation();
+
   // if a document is being passed, this is an edit form
   const formType = (props.documentId || props.slug) ? 'edit' : 'new';
-  
+
   if (formType === "edit") {
     return <FormWrapperEdit {...props} showRemove={showRemove} schema={schema}/>
   } else {
@@ -168,7 +164,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
-  const { extraVariables = {}, extraVariablesValues } = props
+  const { extraVariables = {}, extraVariablesValues = {} } = props
   
   const selector: DocumentIdOrSlug = props.documentId
     ? {documentId: props.documentId}
@@ -178,6 +174,7 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
     collectionName: props.collectionName,
     fragment: queryFragment,
     extraVariables,
+    extraVariablesValues,
     fetchPolicy: 'network-only', // we always want to load a fresh copy of the document
   });
   const {mutate: updateMutation} = useUpdate({
@@ -205,7 +202,6 @@ const FormWrapperEdit = (props: WrappedSmartFormProps&{schema: any}) => {
 }
 
 const FormWrapperComponent = registerComponent('FormWrapper', FormWrapper, {
-  hocs: [withRouter],
   areEqual: "auto"
 });
 

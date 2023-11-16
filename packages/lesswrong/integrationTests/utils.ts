@@ -12,6 +12,7 @@ import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
+import { UserRateLimits } from '../lib/collections/userRateLimits';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -290,7 +291,8 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
     power: 1,
     cancelled: false,
     isUnvote: false,
-    votedAt: new Date()
+    votedAt: new Date(),
+    silenceNotification: false,
   };
   return {...defaultData, ...data};
 }
@@ -355,6 +357,16 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     validate: false,
   });
   return newRevisionResponse.data;
+}
+
+export const createDummyUserRateLimit = async (user: DbUser, data: Partial<DbUserRateLimit>) => {
+  const userRateLimit = await createMutator({
+    collection: UserRateLimits,
+    document: data,
+    currentUser: user,
+    validate: false,
+  });
+  return {...userRateLimit};
 }
 
 export const clearDatabase = async () => {

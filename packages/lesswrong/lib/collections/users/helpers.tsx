@@ -570,6 +570,7 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
+<<<<<<< HEAD
 export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   // If the user is null, then returning true from this function is still valid;
   // it just means that the vote buttons are enabled (but their behavior is that
@@ -598,4 +599,12 @@ export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResul
     fail: true,
     reason: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
   }
+=======
+/**
+ * At one point, we disabled voting for users with less than 1 karma
+ * Keeping this function and its uses around will make it easier to do that kind of thing in the future
+ */
+export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
+  return { fail: false };
+>>>>>>> origin/set-fields-not-nullable
 };

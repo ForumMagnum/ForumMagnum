@@ -11,7 +11,7 @@ const schema: SchemaType<DbDigestPost> = {
       resolverName: "digest",
       collectionName: "Digests",
       type: "Digest",
-      nullable: false, //TODO not-null – EA Forum check that this makes sense for your collection
+      nullable: false,
     }),
     canRead: ['guests'],
     canCreate: ['admins'],
@@ -37,7 +37,7 @@ const schema: SchemaType<DbDigestPost> = {
   emailDigestStatus: {
     type: String,
     optional: true,
-    nullable: true, //TODO not-null – intentionally nullable?
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -46,7 +46,7 @@ const schema: SchemaType<DbDigestPost> = {
   onsiteDigestStatus: {
     type: String,
     optional: true,
-    nullable: true, //TODO not-null – intentionally nullable?
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],

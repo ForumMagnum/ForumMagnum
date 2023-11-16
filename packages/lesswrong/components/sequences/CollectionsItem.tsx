@@ -139,7 +139,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           </div> : description}
         </ContentStyles>
         {firstPost && <div className={classes.firstPost}>
-          First Post: <PostsTooltip postId={firstPost.postId}>
+          First Post: <PostsTooltip inlineBlock postId={firstPost.postId}>
             <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
           </PostsTooltip>
         </div>}
