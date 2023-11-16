@@ -10,22 +10,24 @@ class Arg {
   public typehint = "";
 
   constructor(public value: any, type?: Type) {
-    // JSON arrays make node-postgres fall over, but we can work around it
-    // with a special-case typehint
-    if (Array.isArray(value) && value[0] && typeof value[0] === "object") {
-      if (type instanceof JsonType) {
-        this.value = JSON.stringify(this.value);
-        this.typehint = "::JSONB";
-      } else {
-        this.typehint = "::JSONB[]";
-      }
-    } else if (value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
+    if (this.value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
       if (type.isArray() || type.toConcrete() instanceof JsonType) {
         this.value = type.getDefaultValue();
       } else {
         this.value = type.getDefaultValueString();
       }
     }
+
+    // JSON arrays make node-postgres fall over, but we can work around it
+    // with a special-case typehint
+    if (Array.isArray(this.value) && this.value[0] && typeof this.value[0] === "object") {
+      if (type?.toConcrete() instanceof JsonType) {
+        this.value = JSON.stringify(this.value);
+        this.typehint = "::JSONB";
+      } else {
+        this.typehint = "::JSONB[]";
+      }
+    }   
   }
 }
 

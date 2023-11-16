@@ -48,15 +48,6 @@ const schema: SchemaType<DbTagFlag> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'], 
   },
-  testArrayField: {
-    type: Array,
-    optional: true,
-    ...schemaDefaultValue(['test']),
-  },
-  "testArrayField.$": {
-    type: String,
-    optional: true,
-  },
 };
 
 
