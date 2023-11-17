@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   donationIcon: {
     position: "relative",
-    bottom: -2,
+    bottom: -1,
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
   },
