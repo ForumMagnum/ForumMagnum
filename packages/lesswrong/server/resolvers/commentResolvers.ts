@@ -82,30 +82,44 @@ createPaginatedResolver({
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
+type TopicRecommendation = {
+  comment: DbComment,
+  yourVote?: string,
+  theirVote?: string,
+  recommendationReason: string
+}
+
 defineQuery({
   name: "GetTwoUserTopicRecommendations",
-  resultType: "[Comment]",
+  resultType: "[TopicRecommendation]",
   argTypes: "(userId: String!, targetUserId: String!, limit: Int!)",
   schema: `
-    type TopicRecommendationData { 
-      comments: [Comment]
+    type TopicRecommendation {
+      comment: Comment,
+      yourVote: String,
+      theirVote: String,
+      recommendationReason: String
     }
   `,
-  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext): Promise<DbComment[]> => {
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext): Promise<TopicRecommendation[]> => {
 
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
-      yield context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit);
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2));
-      yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3), limit);
+      yield (await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit)).map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "You reacted on this comment", yourVote: comment.yourVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", theirVote: comment.theirVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3), limit).map(comment => ({comment, recommendationReason: "This comment is popular"}));
     }
     
-    let recommendedComments : DbComment[] = []
+    let recommendedComments : TopicRecommendation[] = []
     
     for await (const source of commentSources()) {
-      const newComments = await accessFilterMultiple(context.currentUser, context.Comments, source, context);
-      recommendedComments = uniqBy([...recommendedComments, ...newComments], comment => comment._id).slice(0, limit);
+      const rawComments = source.map(({comment}) => comment);
+
+      const newAnnotatedComments = (await accessFilterMultiple(context.currentUser, context.Comments, rawComments, context))
+        .flatMap(comment => source.find(({comment: rawComment}) => rawComment._id === comment._id) || []);
+
+      recommendedComments = uniqBy([...recommendedComments, ...newAnnotatedComments], ({comment}) => comment._id).slice(0, limit);
       if (recommendedComments.length >= limit) {
         break;
       }

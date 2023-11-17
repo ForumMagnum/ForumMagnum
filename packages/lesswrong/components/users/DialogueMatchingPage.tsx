@@ -398,7 +398,8 @@ const styles = (theme: ThemeType) => ({
   dialogueTopicRowTopicText: {
     fontSize:'1.1rem',
     opacity: '0.8',
-    lineHeight: '1.32rem'
+    lineHeight: '1.32rem',
+    marginRight: 8
   },
   dialogueTopicRowTopicCheckbox: {
     padding: '4px 16px 4px 8px'
@@ -433,6 +434,15 @@ const styles = (theme: ThemeType) => ({
     "& .MuiDialog-paper": {
       margin: 16
     }
+  },
+  recommendationReasons: {
+    paddingLeft: 4,
+    paddingRight: 4,
+    paddingBottom: 4,
+    marginLeft: 'auto',
+    borderRadius: 5,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    whiteSpace: 'nowrap'
   }
 });
 
@@ -657,10 +667,10 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
   );
 };
 
-type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No"}
+type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
-  const { LWDialog } = Components;
+  const { LWDialog, ReactionIcon, LWTooltip } = Components;
 
   const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
@@ -679,7 +689,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     setTopicPreferences([...topicPreferences, {
       text: topicNotes,
       preference: 'Yes' as const, 
-      commentSourceId: null
+      commentSourceId: null,
+      recommendationReason: "You suggested this topic"
     }])
     setTopicNotes('')
   }
@@ -690,7 +701,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       updatedTopicPreferences = [...topicPreferences, {
         text: topicNotes,
         preference: 'Yes' as const, 
-        commentSourceId: null
+        commentSourceId: null,
+        recommendationReason: "You suggested this topic"
       }];
       setTopicNotes(''); 
     }
@@ -698,7 +710,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, matchedPersonPreference: undefined, preference: topic.preference ?? "No"})),
+        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, preference: topic.preference ?? "No", matchedPersonPreference: undefined, recommendationReason: undefined})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -717,11 +729,16 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const { loading, error, data } = useQuery(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
       GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
-        _id
-        contents {
-          html
-          plaintextMainText
+        comment {
+          _id
+          contents {
+            html
+            plaintextMainText
+          }
         }
+        recommendationReason
+        yourVote
+        theirVote
       }
     }
   `, {
@@ -729,7 +746,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   });
 
 
-  const topicRecommendations: CommentsList[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
+  const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
   const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean) : {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
     const prefsDictList = prefs.topicPreferences
@@ -748,10 +765,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   useEffect(() => setTopicPreferences(topicPreferences => {
     if (topicRecommendations == null) return topicPreferences
     const existingTopicDict = keyBy(topicPreferences, ({text}) => text)
-    const newRecommendedTopicDict = keyBy(topicRecommendations.map(comment => ({
+    const newRecommendedTopicDict = keyBy(topicRecommendations.map(({comment, recommendationReason, yourVote, theirVote}) => ({
       text: comment.contents?.plaintextMainText ?? '',
       preference: 'No' as const,
-      commentSourceId: comment._id
+      commentSourceId: comment._id,
+      recommendationReason,
+      yourVote, theirVote
     })), ({text}) => text)
     return Object.values(merge(existingTopicDict, newRecommendedTopicDict))
   }), [topicRecommendations])
@@ -826,6 +845,11 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                   <div className={classes.dialogueTopicRowTopicText}>
                     {topic.text}
                   </div>
+                  <span className={classes.recommendationReasons}>
+                    {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>}
+                    {topic.theirVote && <LWTooltip title={`${targetUserDisplayName} reacted with ${topic.theirVote} to this`}><ReactionIcon size={13} react={topic.theirVote} /></LWTooltip>}
+                    {topic.recommendationReason === "This comment is popular" && <LWTooltip title="This comment is popular"><ReactionIcon size={13} react={"excitement"} /></LWTooltip>}
+                  </span>
               </div>)}
             </div>
             
