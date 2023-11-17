@@ -11,8 +11,9 @@ import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUt
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { formatFacetFilters } from '../search/SearchAutoComplete';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -178,4 +179,3 @@ declare global {
     AddPostsToTag: typeof AddPostsToTagComponent
   }
 }
-

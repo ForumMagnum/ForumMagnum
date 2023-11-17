@@ -2,13 +2,13 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: isEAForum ? undefined : 'uppercase',
+    textTransform: isFriendlyUI ? undefined : 'uppercase',
     color: theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },

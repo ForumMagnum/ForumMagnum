@@ -3,7 +3,8 @@ import { Components, registerComponent, getFragment } from "../../lib/vulcan-lib
 import Conversations from '../../lib/collections/conversations/collection';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 /**
  * Form for editing the title of a private messages conversation and also for
@@ -38,4 +39,3 @@ declare global {
     ConversationTitleEditForm: typeof ConversationTitleEditFormComponent
   }
 }
-

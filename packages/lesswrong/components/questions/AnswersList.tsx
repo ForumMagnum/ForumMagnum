@@ -1,8 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
-import { CommentTreeNode, unflattenComments } from '../../lib/utils/unflatten';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -70,4 +70,3 @@ declare global {
     AnswersList: typeof AnswersListComponent
   }
 }
-

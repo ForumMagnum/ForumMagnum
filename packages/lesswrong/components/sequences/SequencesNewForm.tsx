@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
 // Also used by SequencesEditForm
@@ -102,7 +102,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: forumTypeSetting.get() === 'EAForum' ? 84 : 45,
+          top: isFriendlyUI ? 84 : 45,
           left: 7,
           textAlign: "left",
         }

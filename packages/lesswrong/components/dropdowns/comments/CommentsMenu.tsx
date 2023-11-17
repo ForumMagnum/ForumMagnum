@@ -4,11 +4,11 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       "& .MuiList-padding": {
         padding: 0,
       },

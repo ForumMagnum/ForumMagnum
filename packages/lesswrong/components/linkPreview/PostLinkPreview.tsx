@@ -11,6 +11,7 @@ import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -275,7 +276,7 @@ const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
       post={post}
       hash={hash}
       placement="bottom-start"
-      clickable={!isEAForum}
+      clickable={!isFriendlyUI}
       As="span"
     >
       <Link className={classes.link} to={href} id={id} smooth>

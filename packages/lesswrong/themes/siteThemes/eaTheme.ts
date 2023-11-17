@@ -1,5 +1,3 @@
-import { createMuiTheme } from '@material-ui/core/styles';
-
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Inter',
@@ -26,9 +24,6 @@ const sansSerifStack = [
   'Arial',
   'sans-serif'
 ].join(',')
-
-
-const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {

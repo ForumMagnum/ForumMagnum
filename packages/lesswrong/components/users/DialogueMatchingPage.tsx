@@ -710,7 +710,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, preference: topic.preference ?? "No", matchedPersonPreference: undefined, recommendationReason: undefined})),
+        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, preference: topic.preference ?? "No", matchedPersonPreference: undefined, recommendationReason: undefined, theirVote: undefined, yourVote: undefined})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
