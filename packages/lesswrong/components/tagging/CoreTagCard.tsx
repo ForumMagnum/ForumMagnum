@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '../vulcan-core/App';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,10 +36,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography[isEAForum ? "headerStyle" : "headline"],
+    ...theme.typography[isFriendlyUI ? "headerStyle" : "headline"],
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: isEAForum ? 600 : 700,
+    fontWeight: isFriendlyUI ? 600 : 700,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },

@@ -1,11 +1,11 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       padding: 6,
       borderRadius: theme.borderRadius.default,
       backgroundColor: theme.palette.dropdown.background,

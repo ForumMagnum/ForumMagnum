@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
@@ -35,8 +35,7 @@ const InboxWrapper = () => {
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
-  // TODO change to isFriendlyUI when https://github.com/ForumMagnum/ForumMagnum/pull/7908 is merged
-  const InboxComponent = isEAForum ? FriendlyInbox : InboxNavigation;
+  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 

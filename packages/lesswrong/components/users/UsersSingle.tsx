@@ -3,7 +3,7 @@ import { slugify } from '../../lib/vulcan-lib/utils';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 /**
  * Build structured data for a user to help with SEO.
@@ -56,7 +56,7 @@ const UsersSingle = () => {
     // pageload.
     return <Components.PermanentRedirect url={canonicalUrl} />;
   } else {
-    return forumTypeSetting.get() === 'EAForum' ?
+    return isFriendlyUI ?
       <Components.EAUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
       <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }

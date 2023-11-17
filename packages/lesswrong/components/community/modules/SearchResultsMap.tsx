@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
 import { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -104,8 +104,6 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   
   const { StyledMapPopup } = Components
   
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
   return <div className={classNames(classes.root, className)}>
     <Helmet>
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -114,7 +112,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >

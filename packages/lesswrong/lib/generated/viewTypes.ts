@@ -11,6 +11,7 @@ type CronHistoriesViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type DialogueChecksViewName = "userDialogueChecks";
+type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
 type ElectionCandidatesViewName = never
@@ -70,6 +71,7 @@ interface ViewTermsByCollectionName {
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   DialogueChecks: DialogueChecksViewTerms
+  DialogueMatchPreferences: DialogueMatchPreferencesViewTerms
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
@@ -117,4 +119,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

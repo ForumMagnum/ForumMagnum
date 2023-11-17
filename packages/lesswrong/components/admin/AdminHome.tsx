@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
+import { hasDigests } from '../../lib/betas';
 import { isEAForum } from '../../lib/instanceSettings';
 
 // Also used in ModerationLog
@@ -59,7 +60,7 @@ const AdminHome = ({ classes }: {
 
       <h3>Site Admin</h3>
       <ul>
-        {isEAForum && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
+        {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Election Candidates</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>

@@ -181,6 +181,12 @@ export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<str
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
 
+/** Whether to include a Share button. (Forums with no public access, or a more conservative style wouldn't want one.) */
+export const hasShareButtonsSetting = new PublicInstanceSetting<boolean>("hasShareButtons", true, "optional");
+
+/** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
+export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
+
 /** Header-related settings */
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
@@ -189,3 +195,8 @@ export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+/** Whether this forum verifies user emails */
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+
+export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");

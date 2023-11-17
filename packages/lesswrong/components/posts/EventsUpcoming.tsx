@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const EventsUpcoming = () => {
   const { SingleColumnSection, SectionTitle, PostsList2 } = Components
@@ -21,4 +21,3 @@ declare global {
     EventsUpcoming: typeof EventsUpcomingComponent
   }
 }
-
