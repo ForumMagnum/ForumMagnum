@@ -1763,6 +1763,10 @@ interface conversationsListFragment { // fragment on Conversations
   readonly moderator: boolean | null,
 }
 
+interface conversationIdFragment { // fragment on Conversations
+  readonly _id: string,
+}
+
 interface ConversationsMinimumInfo { // fragment on Conversations
   readonly _id: string,
   readonly createdAt: Date,
@@ -3128,7 +3132,6 @@ interface UsersCrosspostInfo { // fragment on Users
 interface UsersOptedInToDialogueFacilitation { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
-  readonly karma: number,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
@@ -3393,6 +3396,37 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
+  readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
+}
+
+interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatchPreferences
+  readonly dialogueCheckId: string,
+  readonly topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>,
+  readonly topicNotes: string,
+  readonly syncPreference: "Yes" | "Meh" | "No",
+  readonly asyncPreference: "Yes" | "Meh" | "No",
+  readonly formatNotes: string,
+  readonly generatedDialogueId: string | null,
+}
+
+interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
+  readonly _id: string,
+  readonly dialogueCheckId: string,
+  readonly topicNotes: string,
+  readonly topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>,
+  readonly syncPreference: "Yes" | "Meh" | "No",
+  readonly asyncPreference: "Yes" | "Meh" | "No",
+  readonly formatNotes: string,
+  readonly generatedDialogueId: string | null,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -3498,6 +3532,7 @@ interface FragmentTypes {
   messageListFragment: messageListFragment
   newConversationFragment: newConversationFragment
   conversationsListFragment: conversationsListFragment
+  conversationIdFragment: conversationIdFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
@@ -3621,6 +3656,8 @@ interface FragmentTypes {
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
+  DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
+  DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3716,6 +3753,7 @@ interface CollectionNamesByFragmentName {
   messageListFragment: "Messages"
   newConversationFragment: "Conversations"
   conversationsListFragment: "Conversations"
+  conversationIdFragment: "Conversations"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
   RSSFeedMinimumInfo: "RSSFeeds"
@@ -3839,8 +3877,10 @@ interface CollectionNamesByFragmentName {
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueCheckInfo: "DialogueChecks"
+  DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
+  DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

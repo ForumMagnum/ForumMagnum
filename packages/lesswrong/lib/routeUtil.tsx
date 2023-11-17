@@ -1,7 +1,7 @@
 import { isServer, getServerPort } from './executionEnvironment';
 import qs from 'qs';
-import React, { useContext } from 'react';
-import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
+import React, { useCallback, useContext } from 'react';
+import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
@@ -46,6 +46,24 @@ export const useServerRequestStatus = (): ServerRequestStatusContextType|null =>
 // triggers a rerender whenever navigation occurs.
 export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
+}
+
+export type NavigateFunction = AnyBecauseTodo
+/**
+ * React Hook which returns an acessor-object for page navigation. Contains one
+ * field, `history`. See https://github.com/ReactTraining/history for
+ * documentation on it.
+ * Use of this hook will never trigger rerenders.
+ */
+export const useNavigate = (): NavigateFunction => {
+  const { history } = useContext(NavigationContext);
+  return useCallback((url: string, options?: {replace?: boolean}) => {
+    if (options?.replace) {
+      history.replace(url);
+    } else {
+      history.push(url);
+    }
+  }, [history]);
 }
 
 // HoC which adds a `location` property to an object, which contains the page
