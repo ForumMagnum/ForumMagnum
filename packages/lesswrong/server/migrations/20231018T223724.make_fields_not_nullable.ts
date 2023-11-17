@@ -20,6 +20,7 @@ const fillInNullWithDefaultCommands = `
   WHERE
     "interestedInMetaculus" IS NULL;
 
+  #No columns with defaults to coalesce to for table "Bans"
 
   UPDATE "Books"
   SET
@@ -29,13 +30,13 @@ const fillInNullWithDefaultCommands = `
     "postIds" IS NULL OR
     "sequenceIds" IS NULL;
 
-
   UPDATE "Collections"
   SET
     "noindex" = COALESCE("noindex", false)
   WHERE
     "noindex" IS NULL;
 
+  #No columns with defaults to coalesce to for table "CommentModeratorActions"
 
   UPDATE "Comments"
   SET
@@ -85,7 +86,6 @@ const fillInNullWithDefaultCommands = `
     "tagCommentType" IS NULL OR
     "voteCount" IS NULL;
 
-
   UPDATE "Conversations"
   SET
     "archivedByIds" = COALESCE("archivedByIds", '{}'::character varying(27)[]),
@@ -96,6 +96,27 @@ const fillInNullWithDefaultCommands = `
     "messageCount" IS NULL OR
     "participantIds" IS NULL;
 
+  #No columns with defaults to coalesce to for table "DatabaseMetadata"
+
+  #No columns with defaults to coalesce to for table "DebouncerEvents"
+
+  #No columns with defaults to coalesce to for table "DigestPosts"
+
+  UPDATE "ElectionCandidates"
+  SET
+    "baseScore" = COALESCE("baseScore", 0),
+    "isElectionFundraiser" = COALESCE("isElectionFundraiser", false),
+    "score" = COALESCE("score", 0),
+    "voteCount" = COALESCE("voteCount", 0)
+  WHERE
+    "baseScore" IS NULL OR
+    "isElectionFundraiser" IS NULL OR
+    "score" IS NULL OR
+    "voteCount" IS NULL;
+
+  #No columns with defaults to coalesce to for table "EmailTokens"
+
+  #No columns with defaults to coalesce to for table "FeaturedResources"
 
   UPDATE "GardenCodes"
   SET
@@ -111,6 +132,9 @@ const fillInNullWithDefaultCommands = `
     "title" IS NULL OR
     "type" IS NULL;
 
+  #No columns with defaults to coalesce to for table "Images"
+
+  #No columns with defaults to coalesce to for table "LegacyData"
 
   UPDATE "Localgroups"
   SET
@@ -126,13 +150,11 @@ const fillInNullWithDefaultCommands = `
     "organizerIds" IS NULL OR
     "types" IS NULL;
 
-
   UPDATE "Messages"
   SET
     "noEmail" = COALESCE("noEmail", false)
   WHERE
     "noEmail" IS NULL;
-
 
   UPDATE "Migrations"
   SET
@@ -142,7 +164,6 @@ const fillInNullWithDefaultCommands = `
     "finished" IS NULL OR
     "succeeded" IS NULL;
 
-
   UPDATE "ModerationTemplates"
   SET
     "deleted" = COALESCE("deleted", false),
@@ -151,6 +172,7 @@ const fillInNullWithDefaultCommands = `
     "deleted" IS NULL OR
     "order" IS NULL;
 
+  #No columns with defaults to coalesce to for table "ModeratorActions"
 
   UPDATE "Notifications"
   SET
@@ -164,6 +186,13 @@ const fillInNullWithDefaultCommands = `
     "viewed" IS NULL OR
     "waitingForBatch" IS NULL;
 
+  #No columns with defaults to coalesce to for table "PageCache"
+
+  #No columns with defaults to coalesce to for table "PetrovDayLaunchs"
+
+  #No columns with defaults to coalesce to for table "PodcastEpisodes"
+
+  #No columns with defaults to coalesce to for table "PostRelations"
 
   UPDATE "Posts"
   SET
@@ -303,7 +332,6 @@ const fillInNullWithDefaultCommands = `
     "viewCount" IS NULL OR
     "voteCount" IS NULL;
 
-
   UPDATE "RSSFeeds"
   SET
     "displayFullContent" = COALESCE("displayFullContent", false),
@@ -316,6 +344,9 @@ const fillInNullWithDefaultCommands = `
     "ownedByUser" IS NULL OR
     "setCanonicalUrl" IS NULL;
 
+  #No columns with defaults to coalesce to for table "ReadStatuses"
+
+  #No columns with defaults to coalesce to for table "Reports"
 
   UPDATE "ReviewVotes"
   SET
@@ -329,7 +360,6 @@ const fillInNullWithDefaultCommands = `
     "qualitativeScore" IS NULL OR
     "year" IS NULL;
 
-
   UPDATE "Revisions"
   SET
     "baseScore" = COALESCE("baseScore", 0),
@@ -339,7 +369,6 @@ const fillInNullWithDefaultCommands = `
     "baseScore" IS NULL OR
     "score" IS NULL OR
     "voteCount" IS NULL;
-
 
   UPDATE "Sequences"
   SET
@@ -357,7 +386,6 @@ const fillInNullWithDefaultCommands = `
     "isDeleted" IS NULL OR
     "noindex" IS NULL;
 
-
   UPDATE "Spotlights"
   SET
     "documentType" = COALESCE("documentType", 'Sequence'::text),
@@ -370,20 +398,17 @@ const fillInNullWithDefaultCommands = `
     "duration" IS NULL OR
     "lastPromotedAt" IS NULL;
 
-
   UPDATE "Subscriptions"
   SET
     "deleted" = COALESCE("deleted", false)
   WHERE
     "deleted" IS NULL;
 
-
   UPDATE "TagFlags"
   SET
     "deleted" = COALESCE("deleted", false)
   WHERE
     "deleted" IS NULL;
-
 
   UPDATE "TagRels"
   SET
@@ -398,7 +423,6 @@ const fillInNullWithDefaultCommands = `
     "deleted" IS NULL OR
     "score" IS NULL OR
     "voteCount" IS NULL;
-
 
   UPDATE "Tags"
   SET
@@ -432,6 +456,7 @@ const fillInNullWithDefaultCommands = `
     "wikiGrade" IS NULL OR
     "wikiOnly" IS NULL;
 
+  #No columns with defaults to coalesce to for table "UserActivities"
 
   UPDATE "UserMostValuablePosts"
   SET
@@ -439,13 +464,13 @@ const fillInNullWithDefaultCommands = `
   WHERE
     "deleted" IS NULL;
 
+  #No columns with defaults to coalesce to for table "UserRateLimits"
 
   UPDATE "UserTagRels"
   SET
     "subforumHideIntroPost" = COALESCE("subforumHideIntroPost", false)
   WHERE
     "subforumHideIntroPost" IS NULL;
-
 
   UPDATE "Users"
   SET
@@ -463,6 +488,7 @@ const fillInNullWithDefaultCommands = `
     "commentCount" = COALESCE("commentCount", 0),
     "deleted" = COALESCE("deleted", false),
     "frontpagePostCount" = COALESCE("frontpagePostCount", 0),
+    "givingSeasonNotifyForVoting" = COALESCE("givingSeasonNotifyForVoting", false),
     "hiddenPostsMetadata" = COALESCE("hiddenPostsMetadata", '{}'::jsonb[]),
     "hideAFNonMemberInitialWarning" = COALESCE("hideAFNonMemberInitialWarning", false),
     "hideCommunitySection" = COALESCE("hideCommunitySection", false),
@@ -472,6 +498,7 @@ const fillInNullWithDefaultCommands = `
     "hideMeetupsPoke" = COALESCE("hideMeetupsPoke", false),
     "hidePostsRecommendations" = COALESCE("hidePostsRecommendations", false),
     "hideSubscribePoke" = COALESCE("hideSubscribePoke", false),
+    "karma" = COALESCE("karma", 0),
     "karmaChangeNotifierSettings" = COALESCE("karmaChangeNotifierSettings", '{"dayOfWeekGMT": "Saturday", "timeOfDayGMT": 11, "updateFrequency": "daily", "showNegativeKarma": false}'::jsonb),
     "legacy" = COALESCE("legacy", false),
     "markDownPostEditor" = COALESCE("markDownPostEditor", false),
@@ -484,11 +511,13 @@ const fillInNullWithDefaultCommands = `
     "noExpandUnreadCommentsReview" = COALESCE("noExpandUnreadCommentsReview", false),
     "noSingleLineComments" = COALESCE("noSingleLineComments", false),
     "noindex" = COALESCE("noindex", false),
+    "notificationAddedAsCoauthor" = COALESCE("notificationAddedAsCoauthor", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationAlignmentSubmissionApproved" = COALESCE("notificationAlignmentSubmissionApproved", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationCommentsOnDraft" = COALESCE("notificationCommentsOnDraft", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationCommentsOnSubscribedPost" = COALESCE("notificationCommentsOnSubscribedPost", '{"channel": "onsite", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationDebateCommentsOnSubscribedPost" = COALESCE("notificationDebateCommentsOnSubscribedPost", '{"channel": "onsite", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "daily"}'::jsonb),
     "notificationDebateReplies" = COALESCE("notificationDebateReplies", '{"channel": "onsite", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
+    "notificationDialogueMatch" = COALESCE("notificationDialogueMatch", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationDialogueMessages" = COALESCE("notificationDialogueMessages", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationEventInRadius" = COALESCE("notificationEventInRadius", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
     "notificationGroupAdministration" = COALESCE("notificationGroupAdministration", '{"channel": "both", "dayOfWeekGMT": "Monday", "timeOfDayGMT": 12, "batchingFrequency": "realtime"}'::jsonb),
@@ -535,6 +564,7 @@ const fillInNullWithDefaultCommands = `
     "commentCount" IS NULL OR
     "deleted" IS NULL OR
     "frontpagePostCount" IS NULL OR
+    "givingSeasonNotifyForVoting" IS NULL OR
     "hiddenPostsMetadata" IS NULL OR
     "hideAFNonMemberInitialWarning" IS NULL OR
     "hideCommunitySection" IS NULL OR
@@ -544,6 +574,7 @@ const fillInNullWithDefaultCommands = `
     "hideMeetupsPoke" IS NULL OR
     "hidePostsRecommendations" IS NULL OR
     "hideSubscribePoke" IS NULL OR
+    "karma" IS NULL OR
     "karmaChangeNotifierSettings" IS NULL OR
     "legacy" IS NULL OR
     "markDownPostEditor" IS NULL OR
@@ -556,11 +587,13 @@ const fillInNullWithDefaultCommands = `
     "noExpandUnreadCommentsReview" IS NULL OR
     "noSingleLineComments" IS NULL OR
     "noindex" IS NULL OR
+    "notificationAddedAsCoauthor" IS NULL OR
     "notificationAlignmentSubmissionApproved" IS NULL OR
     "notificationCommentsOnDraft" IS NULL OR
     "notificationCommentsOnSubscribedPost" IS NULL OR
     "notificationDebateCommentsOnSubscribedPost" IS NULL OR
     "notificationDebateReplies" IS NULL OR
+    "notificationDialogueMatch" IS NULL OR
     "notificationDialogueMessages" IS NULL OR
     "notificationEventInRadius" IS NULL OR
     "notificationGroupAdministration" IS NULL OR
@@ -593,7 +626,6 @@ const fillInNullWithDefaultCommands = `
     "theme" IS NULL OR
     "usernameUnset" IS NULL;
 
-
   UPDATE "Votes"
   SET
     "cancelled" = COALESCE("cancelled", false),
@@ -608,20 +640,24 @@ const fillInNullWithDefaultCommands = `
 const setNotnullCommands = `
   ALTER TABLE "AdvisorRequests"
     ALTER COLUMN "interestedInMetaculus" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "jobAds" SET NOT NULL;
+    ALTER COLUMN "userId" SET NOT NULL;
 
+  ALTER TABLE "Bans"
+    ALTER COLUMN "comment" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "Books"
     ALTER COLUMN "postIds" SET NOT NULL,
     ALTER COLUMN "sequenceIds" SET NOT NULL;
 
-
   ALTER TABLE "Collections"
-    ALTER COLUMN "noindex" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "firstPageLink" SET NOT NULL,
+    ALTER COLUMN "noindex" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
+  ALTER TABLE "CommentModeratorActions"
+    ALTER COLUMN "commentId" SET NOT NULL,
+    ALTER COLUMN "type" SET NOT NULL;
 
   ALTER TABLE "Comments"
     ALTER COLUMN "af" SET NOT NULL,
@@ -633,10 +669,12 @@ const setNotnullCommands = `
     ALTER COLUMN "descendentCount" SET NOT NULL,
     ALTER COLUMN "directChildrenCount" SET NOT NULL,
     ALTER COLUMN "hideAuthor" SET NOT NULL,
+    ALTER COLUMN "inactive" SET NOT NULL,
     ALTER COLUMN "isPinnedOnProfile" SET NOT NULL,
     ALTER COLUMN "legacy" SET NOT NULL,
     ALTER COLUMN "legacyPoll" SET NOT NULL,
     ALTER COLUMN "moderatorHat" SET NOT NULL,
+    ALTER COLUMN "postedAt" SET NOT NULL,
     ALTER COLUMN "rejected" SET NOT NULL,
     ALTER COLUMN "relevantTagIds" SET NOT NULL,
     ALTER COLUMN "retracted" SET NOT NULL,
@@ -645,69 +683,135 @@ const setNotnullCommands = `
     ALTER COLUMN "spam" SET NOT NULL,
     ALTER COLUMN "suggestForAlignmentUserIds" SET NOT NULL,
     ALTER COLUMN "tagCommentType" SET NOT NULL,
-    ALTER COLUMN "voteCount" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "postedAt" SET NOT NULL,
-    ALTER COLUMN "inactive" SET NOT NULL;
-
+    ALTER COLUMN "voteCount" SET NOT NULL;
 
   ALTER TABLE "Conversations"
     ALTER COLUMN "archivedByIds" SET NOT NULL,
     ALTER COLUMN "messageCount" SET NOT NULL,
     ALTER COLUMN "participantIds" SET NOT NULL;
 
+  ALTER TABLE "DatabaseMetadata"
+    ALTER COLUMN "name" SET NOT NULL,
+    ALTER COLUMN "value" SET NOT NULL;
+
+  ALTER TABLE "DebouncerEvents"
+    ALTER COLUMN "delayTime" SET NOT NULL,
+    ALTER COLUMN "dispatched" SET NOT NULL,
+    ALTER COLUMN "key" SET NOT NULL,
+    ALTER COLUMN "name" SET NOT NULL,
+    ALTER COLUMN "upperBoundTime" SET NOT NULL;
+
+  ALTER TABLE "DigestPosts"
+    ALTER COLUMN "digestId" SET NOT NULL,
+    ALTER COLUMN "emailDigestStatus" SET NOT NULL,
+    ALTER COLUMN "onsiteDigestStatus" SET NOT NULL,
+    ALTER COLUMN "postId" SET NOT NULL;
+
+  ALTER TABLE "ElectionCandidates"
+    ALTER COLUMN "afBaseScore" SET NOT NULL,
+    ALTER COLUMN "afExtendedScore" SET NOT NULL,
+    ALTER COLUMN "afVoteCount" SET NOT NULL,
+    ALTER COLUMN "amountRaised" SET NOT NULL,
+    ALTER COLUMN "baseScore" SET NOT NULL,
+    ALTER COLUMN "extendedScore" SET NOT NULL,
+    ALTER COLUMN "fundraiserLink" SET NOT NULL,
+    ALTER COLUMN "gwwcId" SET NOT NULL,
+    ALTER COLUMN "gwwcLink" SET NOT NULL,
+    ALTER COLUMN "inactive" SET NOT NULL,
+    ALTER COLUMN "isElectionFundraiser" SET NOT NULL,
+    ALTER COLUMN "score" SET NOT NULL,
+    ALTER COLUMN "targetAmount" SET NOT NULL,
+    ALTER COLUMN "voteCount" SET NOT NULL;
+
+  ALTER TABLE "EmailTokens"
+    ALTER COLUMN "token" SET NOT NULL,
+    ALTER COLUMN "tokenType" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
+
+  ALTER TABLE "FeaturedResources"
+    ALTER COLUMN "ctaText" SET NOT NULL,
+    ALTER COLUMN "ctaUrl" SET NOT NULL,
+    ALTER COLUMN "expiresAt" SET NOT NULL,
+    ALTER COLUMN "title" SET NOT NULL;
 
   ALTER TABLE "GardenCodes"
     ALTER COLUMN "afOnly" SET NOT NULL,
+    ALTER COLUMN "code" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
+    ALTER COLUMN "endTime" SET NOT NULL,
     ALTER COLUMN "hidden" SET NOT NULL,
+    ALTER COLUMN "slug" SET NOT NULL,
     ALTER COLUMN "title" SET NOT NULL,
     ALTER COLUMN "type" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "slug" SET NOT NULL,
-    ALTER COLUMN "endTime" SET NOT NULL,
-    ALTER COLUMN "code" SET NOT NULL;
+    ALTER COLUMN "userId" SET NOT NULL;
 
+  ALTER TABLE "Images"
+    ALTER COLUMN "cdnHostedUrl" SET NOT NULL,
+    ALTER COLUMN "originalUrl" SET NOT NULL;
+
+  ALTER TABLE "LegacyData"
+    ALTER COLUMN "collectionName" SET NOT NULL,
+    ALTER COLUMN "objectId" SET NOT NULL;
 
   ALTER TABLE "Localgroups"
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "inactive" SET NOT NULL,
     ALTER COLUMN "isOnline" SET NOT NULL,
-    ALTER COLUMN "organizerIds" SET NOT NULL,
-    ALTER COLUMN "types" SET NOT NULL,
+    ALTER COLUMN "lastActivity" SET NOT NULL,
     ALTER COLUMN "name" SET NOT NULL,
-    ALTER COLUMN "lastActivity" SET NOT NULL;
-
+    ALTER COLUMN "organizerIds" SET NOT NULL,
+    ALTER COLUMN "types" SET NOT NULL;
 
   ALTER TABLE "Messages"
-    ALTER COLUMN "noEmail" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "conversationId" SET NOT NULL,
-
+    ALTER COLUMN "noEmail" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "Migrations"
     ALTER COLUMN "finished" SET NOT NULL,
-    ALTER COLUMN "succeeded" SET NOT NULL,
+    ALTER COLUMN "name" SET NOT NULL,
     ALTER COLUMN "started" SET NOT NULL,
-    ALTER COLUMN "name" SET NOT NULL;
-
+    ALTER COLUMN "succeeded" SET NOT NULL;
 
   ALTER TABLE "ModerationTemplates"
+    ALTER COLUMN "collectionName" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
-    ALTER COLUMN "order" SET NOT NULL,
     ALTER COLUMN "name" SET NOT NULL,
-    ALTER COLUMN "collectionName" SET NOT NULL;
+    ALTER COLUMN "order" SET NOT NULL;
 
+  ALTER TABLE "ModeratorActions"
+    ALTER COLUMN "type" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "Notifications"
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "emailed" SET NOT NULL,
-    ALTER COLUMN "viewed" SET NOT NULL,
-    ALTER COLUMN "waitingForBatch" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
+    ALTER COLUMN "message" SET NOT NULL,
     ALTER COLUMN "type" SET NOT NULL,
-    ALTER COLUMN "message" SET NOT NULL;
+    ALTER COLUMN "userId" SET NOT NULL,
+    ALTER COLUMN "viewed" SET NOT NULL,
+    ALTER COLUMN "waitingForBatch" SET NOT NULL;
 
+  ALTER TABLE "PageCache"
+    ALTER COLUMN "abTestGroups" SET NOT NULL,
+    ALTER COLUMN "bundleHash" SET NOT NULL,
+    ALTER COLUMN "expiresAt" SET NOT NULL,
+    ALTER COLUMN "path" SET NOT NULL,
+    ALTER COLUMN "renderResult" SET NOT NULL,
+    ALTER COLUMN "renderedAt" SET NOT NULL,
+    ALTER COLUMN "ttlMs" SET NOT NULL;
+
+  ALTER TABLE "PetrovDayLaunchs"
+    ALTER COLUMN "launchCode" SET NOT NULL;
+
+  ALTER TABLE "PodcastEpisodes"
+    ALTER COLUMN "podcastId" SET NOT NULL;
+
+  ALTER TABLE "PostRelations"
+    ALTER COLUMN "sourcePostId" SET NOT NULL,
+    ALTER COLUMN "targetPostId" SET NOT NULL,
+    ALTER COLUMN "type" SET NOT NULL;
 
   ALTER TABLE "Posts"
     ALTER COLUMN "af" SET NOT NULL,
@@ -739,9 +843,12 @@ const setNotnullCommands = `
     ALTER COLUMN "hideFromPopularComments" SET NOT NULL,
     ALTER COLUMN "hideFromRecentDiscussions" SET NOT NULL,
     ALTER COLUMN "hideFrontpageComments" SET NOT NULL,
+    ALTER COLUMN "inactive" SET NOT NULL,
     ALTER COLUMN "isEvent" SET NOT NULL,
+    ALTER COLUMN "isFuture" SET NOT NULL,
     ALTER COLUMN "legacy" SET NOT NULL,
     ALTER COLUMN "legacySpam" SET NOT NULL,
+    ALTER COLUMN "maxBaseScore" SET NOT NULL,
     ALTER COLUMN "meta" SET NOT NULL,
     ALTER COLUMN "metaSticky" SET NOT NULL,
     ALTER COLUMN "nextDayReminderSent" SET NOT NULL,
@@ -754,6 +861,7 @@ const setNotnullCommands = `
     ALTER COLUMN "organizerIds" SET NOT NULL,
     ALTER COLUMN "positiveReviewVoteCount" SET NOT NULL,
     ALTER COLUMN "postCategory" SET NOT NULL,
+    ALTER COLUMN "postedAt" SET NOT NULL,
     ALTER COLUMN "question" SET NOT NULL,
     ALTER COLUMN "rejected" SET NOT NULL,
     ALTER COLUMN "reviewCount" SET NOT NULL,
@@ -769,52 +877,50 @@ const setNotnullCommands = `
     ALTER COLUMN "score" SET NOT NULL,
     ALTER COLUMN "shareWithUsers" SET NOT NULL,
     ALTER COLUMN "shortform" SET NOT NULL,
+    ALTER COLUMN "slug" SET NOT NULL,
+    ALTER COLUMN "status" SET NOT NULL,
     ALTER COLUMN "sticky" SET NOT NULL,
     ALTER COLUMN "stickyPriority" SET NOT NULL,
     ALTER COLUMN "submitToFrontpage" SET NOT NULL,
     ALTER COLUMN "suggestForAlignmentUserIds" SET NOT NULL,
     ALTER COLUMN "topLevelCommentCount" SET NOT NULL,
     ALTER COLUMN "unlisted" SET NOT NULL,
-    ALTER COLUMN "viewCount" SET NOT NULL,
-    ALTER COLUMN "voteCount" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "status" SET NOT NULL,
-    ALTER COLUMN "slug" SET NOT NULL,
-    ALTER COLUMN "postedAt" SET NOT NULL,
-    ALTER COLUMN "maxBaseScore" SET NOT NULL,
-    ALTER COLUMN "isFuture" SET NOT NULL,
-    ALTER COLUMN "inactive" SET NOT NULL;
-
+    ALTER COLUMN "viewCount" SET NOT NULL,
+    ALTER COLUMN "voteCount" SET NOT NULL;
 
   ALTER TABLE "RSSFeeds"
     ALTER COLUMN "displayFullContent" SET NOT NULL,
     ALTER COLUMN "importAsDraft" SET NOT NULL,
+    ALTER COLUMN "nickname" SET NOT NULL,
     ALTER COLUMN "ownedByUser" SET NOT NULL,
-    ALTER COLUMN "setCanonicalUrl" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "url" SET NOT NULL,
     ALTER COLUMN "rawFeed" SET NOT NULL,
-    ALTER COLUMN "nickname" SET NOT NULL;
+    ALTER COLUMN "setCanonicalUrl" SET NOT NULL,
+    ALTER COLUMN "url" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
+  ALTER TABLE "ReadStatuses"
+    ALTER COLUMN "isRead" SET NOT NULL,
+    ALTER COLUMN "lastUpdated" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
+
+  ALTER TABLE "Reports"
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "ReviewVotes"
     ALTER COLUMN "dummy" SET NOT NULL,
+    ALTER COLUMN "postId" SET NOT NULL,
     ALTER COLUMN "quadraticScore" SET NOT NULL,
     ALTER COLUMN "qualitativeScore" SET NOT NULL,
-    ALTER COLUMN "year" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "postId" SET NOT NULL;
-
+    ALTER COLUMN "year" SET NOT NULL;
 
   ALTER TABLE "Revisions"
     ALTER COLUMN "baseScore" SET NOT NULL,
+    ALTER COLUMN "changeMetrics" SET NOT NULL,
     ALTER COLUMN "score" SET NOT NULL,
-    ALTER COLUMN "voteCount" SET NOT NULL,
-    ALTER COLUMN "wordCount" SET NOT NULL,
     ALTER COLUMN "version" SET NOT NULL,
-    ALTER COLUMN "originalContents" SET NOT NULL,
-    ALTER COLUMN "changeMetrics" SET NOT NULL;
-
+    ALTER COLUMN "voteCount" SET NOT NULL;
 
   ALTER TABLE "Sequences"
     ALTER COLUMN "af" SET NOT NULL,
@@ -825,44 +931,35 @@ const setNotnullCommands = `
     ALTER COLUMN "noindex" SET NOT NULL,
     ALTER COLUMN "userId" SET NOT NULL;
 
-
   ALTER TABLE "Spotlights"
+    ALTER COLUMN "documentId" SET NOT NULL,
     ALTER COLUMN "documentType" SET NOT NULL,
     ALTER COLUMN "draft" SET NOT NULL,
     ALTER COLUMN "duration" SET NOT NULL,
     ALTER COLUMN "lastPromotedAt" SET NOT NULL,
-    ALTER COLUMN "position" SET NOT NULL,
-    ALTER COLUMN "documentId" SET NOT NULL,
-    ALTER COLUMN "description_latest" SET NOT NULL,
-    ALTER COLUMN "description" SET NOT NULL;
-
+    ALTER COLUMN "position" SET NOT NULL;
 
   ALTER TABLE "Subscriptions"
+    ALTER COLUMN "collectionName" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "type" SET NOT NULL,
     ALTER COLUMN "state" SET NOT NULL,
-    ALTER COLUMN "collectionName" SET NOT NULL;
-
+    ALTER COLUMN "type" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "TagFlags"
     ALTER COLUMN "deleted" SET NOT NULL,
-    ALTER COLUMN "slug" SET NOT NULL,
-    ALTER COLUMN "order" SET NOT NULL,
     ALTER COLUMN "name" SET NOT NULL,
-
+    ALTER COLUMN "slug" SET NOT NULL;
 
   ALTER TABLE "TagRels"
     ALTER COLUMN "backfilled" SET NOT NULL,
     ALTER COLUMN "baseScore" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
-    ALTER COLUMN "score" SET NOT NULL,
-    ALTER COLUMN "voteCount" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "tagId" SET NOT NULL,
+    ALTER COLUMN "inactive" SET NOT NULL,
     ALTER COLUMN "postId" SET NOT NULL,
-    ALTER COLUMN "inactive" SET NOT NULL;
-
+    ALTER COLUMN "score" SET NOT NULL,
+    ALTER COLUMN "tagId" SET NOT NULL,
+    ALTER COLUMN "voteCount" SET NOT NULL;
 
   ALTER TABLE "Tags"
     ALTER COLUMN "adminOnly" SET NOT NULL,
@@ -871,30 +968,36 @@ const setNotnullCommands = `
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "isPostType" SET NOT NULL,
     ALTER COLUMN "isSubforum" SET NOT NULL,
+    ALTER COLUMN "name" SET NOT NULL,
     ALTER COLUMN "noindex" SET NOT NULL,
     ALTER COLUMN "postCount" SET NOT NULL,
+    ALTER COLUMN "slug" SET NOT NULL,
     ALTER COLUMN "subTagIds" SET NOT NULL,
     ALTER COLUMN "subforumModeratorIds" SET NOT NULL,
     ALTER COLUMN "suggestedAsFilter" SET NOT NULL,
     ALTER COLUMN "tagFlagsIds" SET NOT NULL,
     ALTER COLUMN "wikiGrade" SET NOT NULL,
-    ALTER COLUMN "wikiOnly" SET NOT NULL,
-    ALTER COLUMN "slug" SET NOT NULL,
-    ALTER COLUMN "name" SET NOT NULL;
+    ALTER COLUMN "wikiOnly" SET NOT NULL;
 
+  ALTER TABLE "UserActivities"
+    ALTER COLUMN "activityArray" SET NOT NULL,
+    ALTER COLUMN "endDate" SET NOT NULL,
+    ALTER COLUMN "startDate" SET NOT NULL,
+    ALTER COLUMN "type" SET NOT NULL,
+    ALTER COLUMN "visitorId" SET NOT NULL;
 
   ALTER TABLE "UserMostValuablePosts"
     ALTER COLUMN "deleted" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "postId" SET NOT NULL;
+    ALTER COLUMN "postId" SET NOT NULL,
+    ALTER COLUMN "userId" SET NOT NULL;
 
+  ALTER TABLE "UserRateLimits"
+    ALTER COLUMN "endedAt" SET NOT NULL;
 
   ALTER TABLE "UserTagRels"
     ALTER COLUMN "subforumHideIntroPost" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "tagId" SET NOT NULL,
-    ALTER COLUMN "subforumLastVisitedAt" SET NOT NULL;
-
+    ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "Users"
     ALTER COLUMN "acceptedTos" SET NOT NULL,
@@ -911,6 +1014,7 @@ const setNotnullCommands = `
     ALTER COLUMN "commentCount" SET NOT NULL,
     ALTER COLUMN "deleted" SET NOT NULL,
     ALTER COLUMN "frontpagePostCount" SET NOT NULL,
+    ALTER COLUMN "givingSeasonNotifyForVoting" SET NOT NULL,
     ALTER COLUMN "hiddenPostsMetadata" SET NOT NULL,
     ALTER COLUMN "hideAFNonMemberInitialWarning" SET NOT NULL,
     ALTER COLUMN "hideCommunitySection" SET NOT NULL,
@@ -920,6 +1024,8 @@ const setNotnullCommands = `
     ALTER COLUMN "hideMeetupsPoke" SET NOT NULL,
     ALTER COLUMN "hidePostsRecommendations" SET NOT NULL,
     ALTER COLUMN "hideSubscribePoke" SET NOT NULL,
+    ALTER COLUMN "isAdmin" SET NOT NULL,
+    ALTER COLUMN "karma" SET NOT NULL,
     ALTER COLUMN "karmaChangeNotifierSettings" SET NOT NULL,
     ALTER COLUMN "legacy" SET NOT NULL,
     ALTER COLUMN "markDownPostEditor" SET NOT NULL,
@@ -932,11 +1038,13 @@ const setNotnullCommands = `
     ALTER COLUMN "noExpandUnreadCommentsReview" SET NOT NULL,
     ALTER COLUMN "noSingleLineComments" SET NOT NULL,
     ALTER COLUMN "noindex" SET NOT NULL,
+    ALTER COLUMN "notificationAddedAsCoauthor" SET NOT NULL,
     ALTER COLUMN "notificationAlignmentSubmissionApproved" SET NOT NULL,
     ALTER COLUMN "notificationCommentsOnDraft" SET NOT NULL,
     ALTER COLUMN "notificationCommentsOnSubscribedPost" SET NOT NULL,
     ALTER COLUMN "notificationDebateCommentsOnSubscribedPost" SET NOT NULL,
     ALTER COLUMN "notificationDebateReplies" SET NOT NULL,
+    ALTER COLUMN "notificationDialogueMatch" SET NOT NULL,
     ALTER COLUMN "notificationDialogueMessages" SET NOT NULL,
     ALTER COLUMN "notificationEventInRadius" SET NOT NULL,
     ALTER COLUMN "notificationGroupAdministration" SET NOT NULL,
@@ -967,144 +1075,55 @@ const setNotnullCommands = `
     ALTER COLUMN "sunshineSnoozed" SET NOT NULL,
     ALTER COLUMN "tagRevisionCount" SET NOT NULL,
     ALTER COLUMN "theme" SET NOT NULL,
-    ALTER COLUMN "usernameUnset" SET NOT NULL,
-    ALTER COLUMN "isAdmin" SET NOT NULL;
-
+    ALTER COLUMN "usernameUnset" SET NOT NULL;
 
   ALTER TABLE "Votes"
     ALTER COLUMN "cancelled" SET NOT NULL,
+    ALTER COLUMN "collectionName" SET NOT NULL,
+    ALTER COLUMN "documentId" SET NOT NULL,
     ALTER COLUMN "documentIsAf" SET NOT NULL,
     ALTER COLUMN "isUnvote" SET NOT NULL,
-    ALTER COLUMN "voteType" SET NOT NULL,
-    ALTER COLUMN "votedAt" SET NOT NULL,
-    ALTER COLUMN "userId" SET NOT NULL,
     ALTER COLUMN "power" SET NOT NULL,
-    ALTER COLUMN "documentId" SET NOT NULL,
-    ALTER COLUMN "collectionName" SET NOT NULL;
-
-
-  ALTER TABLE "Bans"
     ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "expirationDate" SET NOT NULL,
-    ALTER COLUMN "comment" SET NOT NULL;
+    ALTER COLUMN "voteType" SET NOT NULL,
+    ALTER COLUMN "votedAt" SET NOT NULL;
+`
 
+const createNewIndexesForOnConflictConstraints = `
+  ALTER INDEX "idx_DatabaseMetadata_name"
+    RENAME TO "idx_DatabaseMetadata_name_old"
 
-  ALTER TABLE "CommentModeratorActions"
-    ALTER COLUMN "type" SET NOT NULL,
-    ALTER COLUMN "commentId" SET NOT NULL;
+  CREATE UNIQUE INDEX "idx_DatabaseMetadata_name"
+    ON public."DatabaseMetadata" USING btree
+    (name);
 
+  ALTER INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
+    RENAME TO "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
 
-  ALTER TABLE "DatabaseMetadata"
-    ALTER COLUMN "value" SET NOT NULL,
-    ALTER COLUMN "name" SET NOT NULL;
+  CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
+    ON public."DebouncerEvents" USING btree
+    (dispatched, af, key, name)
+    WHERE (dispatched IS FALSE);
 
+  ALTER INDEX "idx_PageCache_path_abTestGroups_bundleHash"
+    RENAME TO "idx_PageCache_path_abTestGroups_bundleHash_old"
 
-  ALTER TABLE "DebouncerEvents"
-    ALTER COLUMN "upperBoundTime" SET NOT NULL,
-    ALTER COLUMN "name" SET NOT NULL,
-    ALTER COLUMN "key" SET NOT NULL,
-    ALTER COLUMN "dispatched" SET NOT NULL,
-    ALTER COLUMN "delayTime" SET NOT NULL;
+  CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash"
+    ON public."PageCache" USING btree
+    (path, "abTestGroups", "bundleHash");
 
+  ALTER INDEX "idx_ReadStatuses_userId_postId_tagId"
+    RENAME TO "idx_ReadStatuses_userId_postId_tagId_old"
 
-  ALTER TABLE "DigestPosts"
-    ALTER COLUMN "postId" SET NOT NULL,
-    ALTER COLUMN "onsiteDigestStatus" SET NOT NULL,
-    ALTER COLUMN "emailDigestStatus" SET NOT NULL,
-    ALTER COLUMN "digestId" SET NOT NULL;
-
-
-  ALTER TABLE "EmailTokens"
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "tokenType" SET NOT NULL,
-    ALTER COLUMN "token" SET NOT NULL;
-
-
-  ALTER TABLE "FeaturedResources"
-    ALTER COLUMN "title" SET NOT NULL,
-    ALTER COLUMN "expiresAt" SET NOT NULL,
-    ALTER COLUMN "ctaUrl" SET NOT NULL,
-    ALTER COLUMN "ctaText" SET NOT NULL,
-    ALTER COLUMN "body" SET NOT NULL;
-
-
-  ALTER TABLE "Images"
-    ALTER COLUMN "originalUrl" SET NOT NULL,
-    ALTER COLUMN "cdnHostedUrl" SET NOT NULL;
-
-
-  ALTER TABLE "LegacyData"
-    ALTER COLUMN "objectId" SET NOT NULL,
-    ALTER COLUMN "collectionName" SET NOT NULL;
-
-
-  ALTER TABLE "ModeratorActions"
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "type" SET NOT NULL;
-
-
-  ALTER TABLE "PageCache"
-    ALTER COLUMN "ttlMs" SET NOT NULL,
-    ALTER COLUMN "renderResult" SET NOT NULL,
-    ALTER COLUMN "renderedAt" SET NOT NULL,
-    ALTER COLUMN "path" SET NOT NULL,
-    ALTER COLUMN "expiresAt" SET NOT NULL,
-    ALTER COLUMN "bundleHash" SET NOT NULL,
-    ALTER COLUMN "abTestGroups" SET NOT NULL;
-
-
-  ALTER TABLE "PetrovDayLaunchs"
-    ALTER COLUMN "launchCode" SET NOT NULL;
-
-
-  ALTER TABLE "PodcastEpisodes"
-    ALTER COLUMN "podcastId" SET NOT NULL;
-
-
-  ALTER TABLE "PostRecommendations"
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "strategySettings" SET NOT NULL,
-    ALTER COLUMN "clientId" SET NOT NULL,
-    ALTER COLUMN "clickedAt" SET NOT NULL;
-
-
-  ALTER TABLE "PostRelations"
-    ALTER COLUMN "type" SET NOT NULL,
-    ALTER COLUMN "targetPostId" SET NOT NULL,
-    ALTER COLUMN "sourcePostId" SET NOT NULL;
-
-
-  ALTER TABLE "ReadStatuses"
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "lastUpdated" SET NOT NULL,
-    ALTER COLUMN "isRead" SET NOT NULL;
-
-
-  ALTER TABLE "Reports"
-    ALTER COLUMN "userId" SET NOT NULL,
-    ALTER COLUMN "closedAt" SET NOT NULL;
-
-
-  ALTER TABLE "Sessions"
-    ALTER COLUMN "session" SET NOT NULL,
-    ALTER COLUMN "expires" SET NOT NULL;
-
-
-  ALTER TABLE "UserActivities"
-    ALTER COLUMN "visitorId" SET NOT NULL,
-    ALTER COLUMN "type" SET NOT NULL,
-    ALTER COLUMN "startDate" SET NOT NULL,
-    ALTER COLUMN "endDate" SET NOT NULL,
-    ALTER COLUMN "activityArray" SET NOT NULL;
-
-
-  ALTER TABLE "UserRateLimits"
-    ALTER COLUMN "endedAt" SET NOT NULL;
+  CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId"
+    ON public."ReadStatuses" USING btree
+    ("userId", COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
 `
 
 export const up = async ({db}: MigrationContext) => {
   await db.none(fillInNullWithDefaultCommands);
   await db.none(setNotnullCommands);
+  await db.none(createNewIndexesForOnConflictConstraints);
 }
 
 export const down = async ({db}: MigrationContext) => {
