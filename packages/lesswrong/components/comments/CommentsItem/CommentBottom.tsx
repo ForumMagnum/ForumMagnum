@@ -25,6 +25,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "space-between"
   },
+  answer: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "flex-end",
+  },
 })
 
 const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
@@ -62,11 +67,14 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   )
 
   return (
-    <div className={classNames(classes.bottom,{[classes.bottomWithReacts]: !!VoteBottomComponent})}>
-      <div>
-        <CommentBottomCaveats comment={comment} />
-        {showReplyButton && replyButton}
-      </div>
+    <div className={classNames(
+      classes.bottom, {
+        [classes.answer]: comment.answer,
+        [classes.bottomWithReacts]: !!VoteBottomComponent
+      }
+    )}>
+      <CommentBottomCaveats comment={comment} />
+      {showReplyButton && replyButton}
       {VoteBottomComponent && <VoteBottomComponent
         document={comment}
         hideKarma={treeOptions.post?.hideCommentKarma}

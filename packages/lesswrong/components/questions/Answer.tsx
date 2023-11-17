@@ -106,7 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*2
   },
   newComment: {
-    marginTop: theme.spacing.unit*2,
+    marginTop: 16,
     color: theme.palette.grey[500]
   },
   metaData: {

@@ -42,6 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   footerReactionsRow: {
     display: "flex",
     alignItems: "center",
+    marginLeft: 8,
   },
   footerReaction: {
     height: 26,

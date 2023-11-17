@@ -176,7 +176,7 @@ const CommentFrame = ({
   
   const nodeClass = classNames(
     "comments-node",
-    nestingLevelToClass(nestingLevel, classes),
+    nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
     className,
     {
@@ -189,11 +189,11 @@ const CommentFrame = ({
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
-      [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && isReplyToAnswer,
+      [classes.oddAnswerComment]: (effectiveNestingLevel % 2 !== 0) && isReplyToAnswer,
       [classes.answerLeafComment]: !hasChildren,
       [classes.isSingleLine]: isSingleLine,
       [classes.condensed]: condensed,
-      [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
+      [classes.shortformTop]: postPage && shortform && (effectiveNestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
       [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
       [classes.promoted]: comment.promoted

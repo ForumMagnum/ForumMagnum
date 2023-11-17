@@ -9,6 +9,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
     marginLeft: -4,
     marginRight: -12,
+    marginBottom: 16,
+    marginTop: 8,
   },
   noComments: {
     position: "relative",
