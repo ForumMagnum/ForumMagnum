@@ -129,6 +129,7 @@ const buildNotificationsQuery = (
   WHERE
     n."userId" = $${userIdIndex} AND
     n."deleted" IS NOT TRUE AND
+    n."emailed" IS NOT TRUE AND
     n."waitingForBatch" IS NOT TRUE AND
     ${type ? `n."type" = $${typeIndex} AND` : ""}
     ${includeMessages ? "": `n."documentType" <> 'message' AND`}
