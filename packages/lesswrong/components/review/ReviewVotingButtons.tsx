@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DEFAULT_QUALITATIVE_VOTE } from '../../lib/collections/reviewVotes/schema';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
-  const upvoteColor = forumTypeSetting.get() === "EAForum" ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
+  const upvoteColor = isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
   
   return {
     root: { 

@@ -2,10 +2,10 @@ import React, { useCallback } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useCurrentUser } from '../../common/withUser';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (_: ThemeType) => ({
-  icon: isEAForum
+  icon: isFriendlyUI
     ? {fontSize: "18px"}
     : {},
 });
@@ -36,7 +36,7 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   }
 
   const username = isCommentAuthor
-    ? isEAForum ? "your" : "my"
+    ? isFriendlyUI ? "your" : "my"
     : `${comment.user?.displayName}'s`;
 
   const title = comment.isPinnedOnProfile

@@ -5,7 +5,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { useSingle } from '../../../lib/crud/withSingle';
 import makeUrls from './makeUrls';
 import classNames from 'classnames';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,18 +17,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: isEAForum ? undefined : 14,
+    fontSize: isFriendlyUI ? undefined : 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: isEAForum ? 18 : 16,
+    height: isFriendlyUI ? 18 : 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: isEAForum ? 7 : 8,
+    marginLeft: isFriendlyUI ? 7 : 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,

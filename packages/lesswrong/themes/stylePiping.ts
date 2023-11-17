@@ -1,4 +1,4 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -294,10 +294,10 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited': isEAForum ? {
+  '& a:visited': isFriendlyUI ? {
     color: theme.palette.link.visited,
   } : {},
-  '& a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -361,7 +361,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -451,7 +451,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isEAForum ? "1.1rem" : "1.28rem",
+    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
     lineHeight: "1.75rem",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -464,7 +464,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isEAForum ? "1.1rem" : "1.28rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
     }
   };

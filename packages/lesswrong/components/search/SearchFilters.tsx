@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { AlgoliaIndexCollectionName } from '../../lib/search/algoliaUtil';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
-import { forumTypeSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Select from '@material-ui/core/Select';
 import {
@@ -165,7 +165,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
     />}
     <ClearRefinements />
 
-    {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
+    {tab === 'Users' && isEAForum && <div className={classes.mapLink}>
       <Link to={`${communityPath}#individuals`}>View community map</Link>
     </div>}
 

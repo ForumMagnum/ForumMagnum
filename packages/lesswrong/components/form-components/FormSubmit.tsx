@@ -5,14 +5,14 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
 
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontSize: 14,
         fontWeight: 500,
@@ -32,7 +32,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim40,
   },
 
-  submitButton: isEAForum
+  submitButton: isFriendlyUI
     ? {
       background: theme.palette.primary.main,
       color: "#fff", // Dark mode independent
@@ -66,7 +66,7 @@ const FormSubmit = ({
   // suspect that the cases that were being handled by these were actually transferred to
   // other components like PostSubmit at some point, and this is legacy.
 
-  const outlined = !isEAForum && collectionName.toLowerCase() === "users";
+  const outlined = isBookUI && collectionName.toLowerCase() === "users";
 
   return <div className="form-submit">
     {collectionName.toLowerCase() === "posts" && <span className="post-submit-buttons">
