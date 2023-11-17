@@ -15,7 +15,7 @@ export const notificationPageTabs = [
   },
   {
     name: "reactions",
-    type: "reactions",
+    type: "reaction",
   },
   {
     name: "new posts",

@@ -86,6 +86,7 @@ export type NotificationDisplay =
     tag?: NotificationDisplayTag,
     user?: NotificationDisplayUser,
     localgroup?: NotificationDisplayLocalgroup,
+    karmaChange?: number,
     extendedVoteType?: unknown,
   };
 

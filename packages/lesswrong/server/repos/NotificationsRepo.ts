@@ -91,7 +91,8 @@ const buildNotificationsQuery = (
     n."type",
     n."link",
     n."createdAt",
-    NULL "extendedVoteType",
+    NULL "karmaChange",
+    NULL::JSONB "extendedVoteType",
     ${buildNotificationPost("p", "pu", "pl")} "post",
     ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
     ${buildNotificationTag("t")} "tag",
@@ -145,12 +146,81 @@ const buildNotificationsQuery = (
     NOT COALESCE(u."deleted", FALSE) AND
     NOT COALESCE(l."deleted", FALSE)`;
 
+const buildKarmaChangeQuery = (userIdIndex: number) => `
+  SELECT
+    'karma-' || v."documentId" "_id",
+    'karmaChange' "type",
+    NULL "link",
+    v."createdAt",
+    v."karmaChange",
+    NULL::JSONB "extendedVoteType",
+    ${buildNotificationPost("p", "pu", "pl")} "post",
+    ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
+    ${buildNotificationTag("t")} "tag",
+    NULL "user",
+    NULL "localgroup"
+  FROM (
+    SELECT
+      v."documentId",
+      v."collectionName",
+      MAX(v."votedAt") "createdAt",
+      SUM(v."power") "karmaChange"
+    FROM "Votes" v
+    JOIN "Users" u ON u."_id" = $${userIdIndex}
+    WHERE
+      v."cancelled" IS NOT TRUE AND
+      v."isUnvote" IS NOT TRUE AND
+      v."silenceNotification" IS NOT TRUE AND
+      v."authorIds" @> ARRAY[$${userIdIndex}]::VARCHAR[] AND
+      NOT v."authorIds" @> ARRAY[v."userId"] AND
+      v."collectionName" IN ('Posts', 'Comments', 'Revisions') AND
+      v."votedAt" >= NOW() - (
+        CASE u."karmaChangeNotifierSettings"->>'updateFrequency'
+          WHEN 'disabled' THEN '0 seconds'::INTERVAL
+          WHEN 'daily' THEN '1 day'::INTERVAL
+          WHEN 'weekly' THEN '1 week'::INTERVAL
+          ELSE LEAST(NOW() - u."karmaChangeBatchStart", '1 month'::INTERVAL)
+        END
+      )
+    GROUP BY v."documentId", v."collectionName", u."_id"
+    HAVING CASE
+      WHEN u."karmaChangeNotifierSettings"->'showNegativeKarma'= TO_JSONB(TRUE)
+      THEN SUM(v."power") <> 0
+      ELSE SUM(v."power") > 0
+    END
+  ) v
+  LEFT JOIN "Posts" p ON
+    v."collectionName" = 'Posts' AND
+    p."_id" = v."documentId"
+  LEFT JOIN "Users" pu ON
+    p."userId" = pu."_id"
+  LEFT JOIN "Localgroups" pl ON
+    p."groupId" = pl."_id"
+  LEFT JOIN "Comments" c ON
+    v."collectionName" = 'Comments' AND
+    c."_id" = v."documentId"
+  LEFT JOIN "Users" cu ON
+    c."userId" = cu."_id"
+  LEFT JOIN "Posts" cp ON
+    c."postId" = cp."_id"
+  LEFT JOIN "Users" cpu ON
+    cp."userId" = cpu."_id"
+  LEFT JOIN "Localgroups" cpl ON
+    cp."groupId" = cpl."_id"
+  LEFT JOIN "Revisions" r ON
+    v."collectionName" = 'Revisions' AND
+    r."_id" = v."documentId"
+  LEFT JOIN "Tags" t ON
+    r."collectionName" = 'Tags' AND
+    t."_id" = r."documentId"`;
+
 const buildReactionsQuery = (userIdIndex: number) =>
   `SELECT
     q."_id",
     'reaction' "type",
     NULL "link",
     q."votedAt" "createdAt",
+    NULL "karmaChange",
     q."extendedVoteType",
     ${buildNotificationPost("p", "pu", "pl")} "post",
     ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
@@ -218,18 +288,23 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
     limit?: number,
     offset?: number,
   }): Promise<NotificationDisplay[]> {
-    const includeNotifications = type !== "reactions";
-    const includeReactions = !type || type === "reactions";
+    const includeNotifications = type !== "reaction";
+    const includeKarma = !type || type === "karmaChange";
+    const includeReactions = !type || type === "reaction";
+
+    const queries: string[] = [];
+    if (includeNotifications) {
+      queries.push(buildNotificationsQuery(1, 2, type, includeMessages));
+    }
+    if (includeKarma) {
+      queries.push(buildKarmaChangeQuery(1));
+    }
+    if (includeReactions) {
+      queries.push(buildReactionsQuery(1));
+    }
+
     return this.getRawDb().any(`
-      ${includeNotifications
-        ? buildNotificationsQuery(1, 2, type, includeMessages)
-        : ""
-      }
-      ${includeNotifications && includeReactions ? "UNION" : ""}
-      ${includeReactions
-        ? buildReactionsQuery(1)
-        : ""
-      }
+      ${queries.join("\nUNION\n")}
       ORDER BY "createdAt" DESC
       LIMIT $3
       OFFSET $4
