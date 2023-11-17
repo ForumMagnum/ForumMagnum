@@ -710,7 +710,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     const response = await create({
       data: {
         dialogueCheckId: dialogueCheckId,
-        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, preference: topic.preference ?? "No", matchedPersonPreference: undefined, recommendationReason: undefined})),
+        topicPreferences: updatedTopicPreferences.map(topic => ({...topic, preference: topic.preference ?? "No", matchedPersonPreference: undefined, recommendationReason: undefined, theirVote: undefined, yourVote: undefined})),
         topicNotes: topicNotes,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
@@ -760,6 +760,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     ({...matchedPersonTopic, preference: undefined, ...ownTopic})
   )
   const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(initialTopicDict))
+  console.log({initialTopicDict, topicPreferences, ownTopicDict, matchedPersonTopicDict})
 
   // Once we get the topic recommendations from the query, merge them into the topic preferences
   useEffect(() => setTopicPreferences(topicPreferences => {
