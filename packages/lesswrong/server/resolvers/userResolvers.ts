@@ -514,9 +514,9 @@ defineQuery({
     ]);
 
     const results: UserDialogueUsefulData = {
-      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: user.displayName ?? userGetDisplayName(user) })),
+      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
       topUsers: topUsers,
-      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: user.displayName ?? userGetDisplayName(user) })),
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
     }
     return results
   }
