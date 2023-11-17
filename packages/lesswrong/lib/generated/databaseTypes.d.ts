@@ -1551,6 +1551,7 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string
   afApplicationText: string
   afSubmittedApplication: boolean
+  givingSeason2023DonatedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents

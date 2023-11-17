@@ -2829,7 +2829,19 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     hidden: true,
     optional: true
-  }
+  },
+
+  // Giving season fields
+  givingSeason2023DonatedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: '"I Donated" flair for 2023 giving season',
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;
