@@ -4,7 +4,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
@@ -25,8 +25,7 @@ const ModeratorInboxWrapper = () => {
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
   }
 
-  // TODO change to isFriendlyUI when https://github.com/ForumMagnum/ForumMagnum/pull/7908 is merged
-  const InboxComponent = isEAForum ? FriendlyInbox : InboxNavigation;
+  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
   return (
     <InboxComponent
       terms={terms}

@@ -12,7 +12,7 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
+import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
@@ -30,6 +30,7 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
+import { hasDigests } from '../../lib/betas';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -59,7 +60,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
 getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
   const newEmail = modifier.$set?.email;
   const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
+  if (newEmail && newEmail !== oldEmail && isEAForum) {
     await updateAuth0Email(user, newEmail);
     /*
      * Be careful here: DbUser does NOT includes services, so overwriting
@@ -196,7 +197,7 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
@@ -258,7 +259,7 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
 });
 
 const sendVerificationEmailConditional = async  (user: DbUser) => {
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
@@ -295,7 +296,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
 getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
   if (
     isAnyTest ||
-    forumTypeSetting.get() !== 'EAForum' ||
+    !hasDigests ||
     newUser.subscribedToDigest === oldUser.subscribedToDigest
   ) {
     return;
@@ -346,7 +347,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
  * (as of 2021-08-11) drip campaign.
  */
 getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+  if (isAnyTest || !isEAForum) {
     return;
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
@@ -429,6 +430,9 @@ async function sendWelcomeMessageTo(userId: string) {
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
     adminsAccount = await getAdminTeamAccount()
+    if (!adminsAccount) {
+      throw new Error("Could not find admin account")
+    }
   }
   
   const subjectLine = welcomePost.title;
@@ -465,7 +469,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
-  if (forumTypeSetting.get() !== 'EAForum') {
+  if (!isEAForum) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,

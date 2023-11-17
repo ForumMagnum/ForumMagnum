@@ -10,11 +10,12 @@ import { isLW, isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const curatedUrl = "/recommendations"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  section: isEAForum ? {} : {
+  section: isFriendlyUI ? {} : {
     marginTop: -12,
   },
   continueReadingList: {
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@media (max-width: 350px)': {
       display: 'none'
     },
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       "&:hover": {
         color: theme.palette.grey[1000],
         opacity: 1,
@@ -92,7 +93,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return {
       method: haveCurrentUser ? 'sample' : 'top',
       count: haveCurrentUser ? 3 : 5
@@ -156,7 +157,7 @@ const RecommendationsAndCurated = ({
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've {isEAForum ? 'saved' : 'bookmarked'}</div>
+      <div>Individual posts that you've {isFriendlyUI ? 'saved' : 'bookmarked'}</div>
       <div><em>(Click to see all)</em></div>
     </div>
 
@@ -282,8 +283,8 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={isEAForum ? "/saved" : "/bookmarks"}>
-                  <SectionSubtitle>{isEAForum ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
+                <Link to={isFriendlyUI ? "/saved" : "/bookmarks"}>
+                  <SectionSubtitle>{isFriendlyUI ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />

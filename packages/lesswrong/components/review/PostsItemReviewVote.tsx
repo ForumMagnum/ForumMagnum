@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Card from '@material-ui/core/Card';
 import { useCurrentUser } from '../common/withUser';
-import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import classNames from 'classnames';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const voteTextStyling = (theme: ThemeType): JssStyles => ({
   ...theme.typography.smallText,
@@ -62,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block"
   },
   card: {
-    padding: isEAForum ? "8px 24px" : 8,
+    padding: isFriendlyUI ? "8px 24px" : 8,
     textAlign: "center",
   },
   reviewButton: {

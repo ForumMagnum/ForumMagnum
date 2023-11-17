@@ -14,6 +14,7 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -64,7 +65,7 @@ const PostSharingIcon: FC<{
   onClick?: () => void,
 }> = (props) => {
   const {ForumIcon} = Components;
-  return isEAForum
+  return isFriendlyUI
     ? (
       <ForumIcon icon="Share" {...props} />
     )
@@ -73,11 +74,11 @@ const PostSharingIcon: FC<{
     );
 }
 
-const shareTooltip = isEAForum
+const shareTooltip = isFriendlyUI
   ? "Share this post"
   : "Share this document";
 
-const noSharePermissionTooltip = isEAForum
+const noSharePermissionTooltip = isFriendlyUI
   ? "You need at least 1 karma or to be approved by a moderator to share this post"
   : "You need at least 1 karma or to be approved by a mod to share";
 

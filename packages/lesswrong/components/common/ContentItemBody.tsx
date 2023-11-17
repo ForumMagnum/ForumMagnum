@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
-import { isEAForum } from '../../lib/instanceSettings';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 
 interface ExternalProps {
@@ -269,7 +269,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
 
   collapseFootnotes = (body: HTMLElement) => {
-    if (!isEAForum || !body) {
+    if (isLWorAF || !body) {
       return;
     }
 

@@ -99,3 +99,19 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
+
+export const overrideRoute = (...routes: Route[]): void => {
+  // remove the old route if it exists, then call addRoute
+  for (let route of routes) {
+    const {name, path} = route;
+    delete Routes[name];
+
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
+    const routeWithSamePath = _.findWhere(Routes, { path });
+
+    if (routeWithSamePath) {
+      delete Routes[routeWithSamePath.name];
+    }
+  }
+  addRoute(...routes);
+}
