@@ -377,7 +377,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       `, [user._id, smallVotePower, bigVotePower, limit, recencyLimitDays])
   }
 
-
   async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
     return this.any(`
       SELECT DISTINCT(u.*)
@@ -398,6 +397,36 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         AND current_user_checks."userId" = $1
       )
     `, [userId]);
+  }
+
+  async getDialogueRecommendedUsers(userId: string, upvotedUsers:UpvotedUser[], limit = 100): Promise<DbUser[]> {
+  const upvotedUserIds = upvotedUsers.map(user => user._id);
+
+  return this.any(`
+    SELECT u.*
+    FROM unnest($2::text[]) AS uv(_id)
+    INNER JOIN "Users" AS u ON uv._id = u._id
+    WHERE
+      -- Don't recommend you users who've never commented twice your posts OR replied 3 times to your comments 
+      EXISTS (
+        SELECT 2
+        FROM public."Comments" AS c
+        INNER JOIN "Posts" AS p ON c."postId" = p._id
+        WHERE c."userId" = uv._id AND p."userId" = $1
+      )
+      OR (
+        SELECT COUNT(*) >= 3
+        FROM public."Comments"
+        WHERE
+          "userId" = uv._id
+          AND "parentCommentId" IN (
+            SELECT _id
+            FROM "Comments"
+            WHERE "userId" = $1
+          )
+      )
+    LIMIT $3 
+  `, [userId, upvotedUserIds, limit]);
   }
 
   async getActiveDialogueMatchSeekers(limit: number): Promise<DbUser[]> {

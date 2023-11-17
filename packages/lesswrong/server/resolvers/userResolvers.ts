@@ -535,3 +535,18 @@ defineQuery({
     return accessFilterMultiple(currentUser, Users, matchedUsers, context);
   }
 });
+
+defineQuery({
+  name: "GetDialogueRecommendedUsers",
+  resultType: "[User]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get recommended users');
+    }
+
+    const upvotedUsers = await new UsersRepo().getUsersTopUpvotedUsers(currentUser, 30, 720)
+    const recommendedUsers = await new UsersRepo().getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
+    return accessFilterMultiple(currentUser, Users, recommendedUsers, context);
+  }
+});

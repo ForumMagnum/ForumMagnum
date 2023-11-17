@@ -6,7 +6,7 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { getRowProps } from '../users/DialogueMatchingPage';
+import { DialogueUserRowProps, getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
@@ -123,8 +123,65 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+interface DialogueRowProps {
+  rowProps: DialogueUserRowProps<boolean>; 
+  classes: ClassesType<typeof styles>; 
+  showMatchNote: boolean;
+}
+
+const DialogueRow = ({ rowProps, classes, showMatchNote }: DialogueRowProps) => {
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+
+  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+  const currentUser = useCurrentUser();
+  if (!currentUser) return <></>;
+
+  return (
+    <div key={targetUser._id} className={classes.dialogueUserRow}>
+      <div className={classes.dialogueLeftContainer}>
+        <div className={classes.dialogueMatchCheckbox}>
+          <DialogueCheckBox
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            checkId={checkId}
+            isChecked={userIsChecked}
+            isMatched={userIsMatched}
+          />
+        </div>
+        <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+          <UsersName
+            documentId={targetUser._id}
+            simple={false}
+          />
+        </PostsItem2MetaInfo>
+        <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+          {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+        </PostsItem2MetaInfo>
+      </div>
+      <div className={classes.dialogueRightContainer}>
+        <div className={classes.dialogueMatchMessageButton}>
+          <MessageButton
+            targetUserId={targetUser._id}
+            currentUser={currentUser}
+            isMatched={userIsMatched}
+          />
+        </div>
+        <div className={classes.dialogueMatchPreferencesButton}>
+          <DialogueNextStepsButton
+            isMatched={userIsMatched}
+            checkId={checkId}
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            currentUser={currentUser}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+  const { PostsItem, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
 
   const { results: dialoguePosts } = usePaginatedResolver({
@@ -141,10 +198,51 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
   const {
     matchedUsersQueryResult: { data: matchedUsersResult },
+    recommendedUsersQueryResult: { data: recommendedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks = [] },
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
 
   const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+
+  const matchRowPropsList = currentUser && getRowProps({
+    currentUser,
+    tableContext: 'match',
+    showAgreement: false,
+    showBio: false,
+    showFrequentCommentedTopics: false,
+    showKarma: false,
+    showPostsYouveRead: false,
+    userDialogueChecks,
+    users: matchedUsers ?? []
+  });
+
+  const manyRecommendedUsers: DbUser[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
+
+  const matchedUserIds = matchedUsers?.map(user => user._id) || [];
+  const checkedUserIds = userDialogueChecks.map(check => check._id);
+
+  const filteredRecommendedUsers = manyRecommendedUsers?.filter(targetUser => 
+    !matchedUserIds.includes(targetUser._id) && !checkedUserIds.includes(targetUser._id)
+  );
+
+  let recommendedUsers:DbUser[] = []
+  if (filteredRecommendedUsers) {
+    const sampleSize = 3;
+    const shuffled = filteredRecommendedUsers.sort(() => 0.5 - Math.random());
+    recommendedUsers = shuffled.slice(0, sampleSize);
+  }
+
+  const recommendedDialoguePartnersRowPropsList = currentUser && getRowProps({
+    currentUser,
+    tableContext: 'match', // TODO: change
+    showAgreement: false,
+    showBio: false,
+    showFrequentCommentedTopics: false,
+    showKarma: false,
+    showPostsYouveRead: false,
+    userDialogueChecks,
+    users: recommendedUsers ?? []
+  });
 
   const dialoguesTooltip = (<div>
     <p>Dialogues between a small group of users. Click to see more.</p>
@@ -159,18 +257,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const matchmakingTooltip = (<div>
     <p> Click here to go to the dialogue matchmaking page.</p>
   </div>);
-
-  const rowPropsList = currentUser && getRowProps({
-    currentUser,
-    tableContext: 'match',
-    showAgreement: false,
-    showBio: false,
-    showFrequentCommentedTopics: false,
-    showKarma: false,
-    showPostsYouveRead: false,
-    userDialogueChecks,
-    users: matchedUsers ?? []
-  });
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -191,49 +277,12 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
-          {currentUser && rowPropsList?.map(rowProps => {
-            const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
-            return (<div key={targetUser._id} className={classes.dialogueUserRow}>
-              <div className={classes.dialogueLeftContainer}>
-                <div className={classes.dialogueMatchCheckbox}>
-                  <DialogueCheckBox
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName}
-                    checkId={checkId}
-                    isChecked={userIsChecked}
-                    isMatched={userIsMatched}
-                  />
-                </div>
-                <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
-                  <UsersName
-                    documentId={targetUser._id}
-                    simple={false}
-                  />
-                </PostsItem2MetaInfo>
-                <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-                  You've matched with this user
-                </PostsItem2MetaInfo>
-              </div>
-              <div className={classes.dialogueRightContainer}>
-                <div className={classes.dialogueMatchMessageButton}>
-                  <MessageButton
-                    targetUserId={targetUser._id}
-                    currentUser={currentUser}
-                    isMatched={userIsMatched}
-                  />
-                </div>
-                <div className={classes.dialogueMatchPreferencesButton}>
-                  <DialogueNextStepsButton
-                    isMatched={userIsMatched}
-                    checkId={checkId}
-                    targetUserId={targetUser._id}
-                    targetUserDisplayName={targetUser.displayName}
-                    currentUser={currentUser}
-                  />
-                </div>
-              </div>
-            </div>);
-          })}
+        {currentUser && matchRowPropsList?.map((rowProps, index) => (
+          <DialogueRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
+        ))}
+        {currentUser && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+          <DialogueRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
+        ))}
         </div>
       </AnalyticsContext>}
       

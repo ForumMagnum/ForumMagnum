@@ -81,7 +81,7 @@ interface CommonDialogueUserRowProps {
   showPostsYouveRead: boolean | undefined;
 }
 
-type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
+export type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
   targetUser: UpvotedUser;
   showKarma: boolean;
   showAgreement: boolean;
@@ -1204,7 +1204,7 @@ export const DialogueMatchingPage = ({classes}: {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: false, getOptedInUsers: true, getUserDialogueChecks: true });
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
