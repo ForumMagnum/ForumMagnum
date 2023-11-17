@@ -27,6 +27,7 @@ import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
+import { taggingNamePluralSetting } from './instanceSettings';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
@@ -629,6 +630,9 @@ export const KarmaPowersGainedNotification = registerNotificationType({
   userSettingField: "notificationKarmaPowersGained",
   async getMessage() {
     return "Your votes are stronger because your karma went up!"
+  },
+  getLink() {
+    return `/tag/vote-strength`;
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />
